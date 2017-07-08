@@ -19,3 +19,19 @@ class File(h5py.File):
             someList.append(class_type.__name__)
 
         return someList
+
+    @property
+    def tupHDF_fileSys(self):
+        return zip(self.listHDF_files, self.listHDF_file_types)
+
+    @property
+    def getAttrItems(self):
+        return dict(self.attrs.items())
+
+    @property
+    def getAttrKeys(self):
+        return list(self.attrs.keys())
+
+    @property
+    def getAttrValues(self):
+        return list(self.attrs.values())

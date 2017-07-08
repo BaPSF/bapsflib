@@ -35,3 +35,9 @@ class File(h5py.File):
     @property
     def getAttrValues(self):
         return list(self.attrs.values())
+
+    def getItemType(self, name):
+        return self.get(name, getclass=True).__name__
+    
+    def getItem(self, name):
+        return self.get(name)

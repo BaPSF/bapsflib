@@ -1,4 +1,5 @@
-# This file is part of the bapsflib package, a Python toolkit for the BaPSF group at UCLA.
+# This file is part of the bapsflib package, a Python toolkit for the
+# BaPSF group at UCLA.
 #
 # http://plasma.physics.ucla.edu/
 #
@@ -8,9 +9,14 @@
 #
 
 '''
-    This is the bapsflib package, a Python toolkit for the BaPSF group at UCLA.
+    This is the bapsflib package, a Python toolkit for the BaPSF group
+    at UCLA.
 
     http://plasma.physics.ucla.edu/
 '''
 
+# --- Public API -------------------------------------------------------
+
 from . import lapdhdf
+
+from .viewers import HDFViewer

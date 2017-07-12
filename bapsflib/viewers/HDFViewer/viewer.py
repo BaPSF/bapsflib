@@ -56,6 +56,8 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
     _hdfFilename = ''
     _strDefaultRootParentLabel = 'Root Parent'
     _strDefaultSelectedItemLabel = 'Item Selected'
+    _selected_hdf_item_path = ''
+    _selected_hdf_item = None
 
     def __init__(self):
         super(self.__class__, self).__init__()
@@ -93,10 +95,11 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             self.treeContextMenu)
 
         # Condition Splitter Widgets
-        #  In order for these to be well-behaved the sum needs to be greater
-        #   than 100. Also, set the QPolicySize stretch options to zero and,
-        #   I found, to prevent awkward snapping of the splitter handle then
-        #   one should set the appropriate minimumWidth/minimumHeight to 1.
+        #  In order for these to be well-behaved the sum needs to be
+        #  greater than 100. Also, set the QPolicySize stretch options
+        #  to zero and, I found, to prevent awkward snapping of the
+        #  splitter handle then one should set the appropriate
+        #  minimumWidth/minimumHeight to 1.
         #
         #        self.splitterLV.setSizes([150, 50])
         self.splitterRV.setSizes([50, 150])
@@ -105,11 +108,11 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         #        self.splitter.setSizes([60, 140])
 
         # Condition Data Display Area (Data Tables and Plots)
-        #        print(self.scrollAreaDataDisplay.layout())
+        #print(self.scrollAreaDataDisplay.layout())
         _translate = QtCore.QCoreApplication.translate
         self.stackedlayoutDataDisplay = QtWidgets.QStackedLayout(
             self.scrollAreaDataDisplay)
-        #        self.stackedlayoutDataDisplay.setContentsMargins(0,0,0,0)
+        #self.stackedlayoutDataDisplay.setContentsMargins(0,0,0,0)
 
         self.wdgEmptyDataDisplay = QtWidgets.QWidget()
         sizePolicy = QtWidgets.QSizePolicy(
@@ -157,7 +160,6 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             Adds a single HDF5 item to the QTreeView.
         """
         # Define QIcon's for the HDF Tree
-        global childObj, childObj
         iconFolder = QtWidgets.QApplication.style().standardIcon(
             QtWidgets.QStyle.SP_DirIcon)
         iconSDataset = QtGui.QIcon("icons/SidebarGenericFile.png")
@@ -201,9 +203,11 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
                     # Place Tree Dataset Icons
                     if isinstance(childHDFItem, h5py.Dataset):
-                        if childHDFItem.dtype.isbuiltin == 0:  # compound dataset
+                        if childHDFItem.dtype.isbuiltin == 0:
+                            # compound dataset
                             childObj.setIcon(iconCDataset)
-                        else:  # scalar dataset
+                        else:
+                            # scalar dataset
                             childObj.setIcon(iconSDataset)
             else:
                 # Add child instance to parent
@@ -218,9 +222,11 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
                 # Place Tree Dataset Icons
                 if isinstance(childHDFItem, h5py.Dataset):
-                    if childHDFItem.dtype.isbuiltin == 0:  # compound dataset
+                    if childHDFItem.dtype.isbuiltin == 0:
+                        # compound dataset
                         childObj.setIcon(iconCDataset)
-                    else:  # scalar dataset
+                    else:
+                        # scalar dataset
                         childObj.setIcon(iconSDataset)
 
     def buildAttrTable(self):
@@ -230,7 +236,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         """
         # Determine Table Dimensions
         noRows = 2
-        noCols = self.hdfItem.attrs.values().__len__()
+        noCols = self._selected_hdf_item.attrs.values().__len__()
 
         # Initialize Table Model and Asign
         modelAttrTable = QtGui.QStandardItemModel()
@@ -239,7 +245,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         modelAttrTable.setColumnCount(noCols)
 
         # Populate Table
-        dictAttrs = dict(self.hdfItem.attrs.items())
+        dictAttrs = dict(self._selected_hdf_item.attrs.items())
         for ii, key in enumerate(dictAttrs):
             index = modelAttrTable.index(0, ii)
             modelAttrTable.setData(index, key)
@@ -260,7 +266,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
     def buildSimplePlotConfig(self):
         # Pass Dataset to formSimpleDataPlot()
-        self.simpleDataPlot.setDataset(self.hdfItem)
+        self.simpleDataPlot.setDataset(self._selected_hdf_item)
 
         # Disconnect Signals While Initializing
         self.wdgSimplePlotConfig.cboxXAxes.currentTextChanged.disconnect()
@@ -272,10 +278,12 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         self.wdgSimplePlotConfig.cboxXAxes.clear()
         self.wdgSimplePlotConfig.cboxYAxes.clear()
 
-        if self.hdfItem.dtype.isbuiltin == 0:  # Compound Dataset
+        if self._selected_hdf_item.dtype.isbuiltin == 0:
+            # Compound Dataset
             self.wdgSimplePlotConfig.cboxPlotRow.setCurrentText('n/a')
             self.wdgSimplePlotConfig.cboxPlotRow.setDisabled(True)
-        else:  # Scalar Dataset
+        else:
+            # Scalar Dataset
             self.wdgSimplePlotConfig.cboxPlotRow.setCurrentText('')
             self.wdgSimplePlotConfig.cboxPlotRow.setEnabled(True)
 
@@ -356,7 +364,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             filter='HDF5 Files (*.hdf5)')
         if fname[0] != self._hdfFilename and fname[0] != '':
             if self._hdfFilename != '':
-                self.cleanup
+                self.cleanup()
 
             self._hdfFilename = fname[0]
             self.textFilenameContainer.setPlainText(self._hdfFilename)
@@ -376,7 +384,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             parentIndex = parentIndex.model().parent(parentIndex)
 
         treeList.reverse()
-        self.selectedItemPath = '/'.join(treeList)
+        self._selected_hdf_item_path = '/'.join(treeList)
         self.openHDFItem()
 
     def openHDF(self):
@@ -403,7 +411,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             Toggle the controls for selecting and displaying rows of a
             dataset.
         """
-        if (isinstance(self.hdfItem, h5py.Group) and
+        if (isinstance(self._selected_hdf_item, h5py.Group) and
                 self.btnDisplayDataTable.isVisible()):
             self.labelShowRows.setVisible(False)
             self.cboxStartRow.setVisible(False)
@@ -411,7 +419,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             self.cboxStopRow.setVisible(False)
             self.btnDisplayDataTable.setVisible(False)
 
-        if (isinstance(self.hdfItem, h5py.Dataset) and
+        if (isinstance(self._selected_hdf_item, h5py.Dataset) and
                 self.btnDisplayDataTable.isHidden()):
             self.labelShowRows.setVisible(True)
             self.cboxStartRow.setVisible(True)
@@ -421,10 +429,10 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
 
     def toggleSimplePlotConfig(self):
         """
-            Toggle the Simple Plot Configuration panel such that controls
-            are only visible when a dataset is selected.
+            Toggle the Simple Plot Configuration panel such that
+            controls are only visible when a dataset is selected.
         """
-        if isinstance(self.hdfItem, h5py.Group):
+        if isinstance(self._selected_hdf_item, h5py.Group):
             self.wdgSimplePlotConfig.setVisible(False)
         else:
             self.buildSimplePlotConfig()
@@ -438,7 +446,7 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
                               + self._hdfFilename.split('/')[-1]
                               + '  --  ' + self.f.getAttrKeys[0] + ' '
                               + self.f.getAttrValues[0].decode('UTF-8'
-                                                                 ))
+                                                               ))
         self.labelRootParent.setText(strRootParentLabel)
 
     def updateTree(self):
@@ -461,35 +469,37 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
             Dataset object.
         """
         try:
-            self.hdfItem.name
+            self._selected_hdf_item.name
         except AttributeError:
             newSelection = True
         else:
-            newSelection = self.hdfItem.name != '/' + self.selectedItemPath
+            newSelection = (self._selected_hdf_item.name
+                            != '/' + self._selected_hdf_item_path)
 
         # Only open Group/Dataset if new selection is made
         if newSelection:
-            self.hdfItem = self.f.getItem(self.selectedItemPath)
+            self._selected_hdf_item = self.f.getItem(
+                self._selected_hdf_item_path)
             self.updateItemAttrDisplay()
             self.toggleSimplePlotConfig()
 
     def updateItemAttrDisplay(self):
         """
-            Updates the GUI text display for the selected HDF5 item in the
-            file tree.
+            Updates the GUI text display for the selected HDF5 item in
+            the file tree.
         """
         # Display Selected Item
         strSelectedItemLabel = (
             self._strDefaultSelectedItemLabel + '  --  '
-            + self.selectedItemPath.split('/')[-1])
+            + self._selected_hdf_item_path.split('/')[-1])
         self.labelSelectedItem.setText(strSelectedItemLabel)
 
         # Toggle Data Row Selection for Dataset vs Group
         self.toggleDataRowSelection()
 
         # Initialize Data Row Start and Stop Combo Boxes
-        if isinstance(self.hdfItem, h5py.Dataset):
-            noOfRows = self.hdfItem.shape[0]
+        if isinstance(self._selected_hdf_item, h5py.Dataset):
+            noOfRows = self._selected_hdf_item.shape[0]
             cboxRowList = []
             for ii in range(noOfRows):
                 cboxRowList.append(ii.__str__())
@@ -506,13 +516,13 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
                 cboxRowList.index(cboxRowList[-1]))
 
         # Display General Attributes
-        itemType = self.f.getItemType(self.selectedItemPath)
+        itemType = self.f.getItemType(self._selected_hdf_item_path)
         strAttrDisplay = (
             'Type:  {}\n'.format(itemType)
-            + 'Path:  {}\n'.format(self.hdfItem.parent.name))
+            + 'Path:  {}\n'.format(self._selected_hdf_item.parent.name))
 
-        if isinstance(self.hdfItem, h5py.Group):
-            memItems = list(self.hdfItem.values())
+        if isinstance(self._selected_hdf_item, h5py.Group):
+            memItems = list(self._selected_hdf_item.values())
             noGroups = 0
             noDatasets = 0
             for name in memItems:
@@ -522,27 +532,30 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
                     noDatasets += 1
 
             strAttrDisplay += (
-                'Members: {} total\n'.format(self.hdfItem.__len__())
-                + '    {0:3} Groups\n'.format(noGroups)
-                + '    {0:3} Datasets'.format(noDatasets))
+                "{0}{1}{2}".format('Members: {} total\n'.format(
+                    self._selected_hdf_item.__len__()),
+                    '    {0:3} Groups\n'.format(noGroups),
+                    '    {0:3} Datasets'.format(noDatasets)))
 
-        if isinstance(self.hdfItem, h5py.Dataset):
+        if isinstance(self._selected_hdf_item, h5py.Dataset):
             strAttrDisplay += '\nDataspace:\n'
             strRecLength = '    '
-            if self.hdfItem.dtype.isbuiltin == 0:
+            if self._selected_hdf_item.dtype.isbuiltin == 0:
                 strAttrDisplay += '  Data Type:  Compound Dataset\n'
                 strRecLength += 'No. of Fields:  {}'.format(
-                    self.hdfItem.value[0].__len__())
-            if self.hdfItem.dtype.isbuiltin == 1:
+                    self._selected_hdf_item.value[0].__len__())
+            if self._selected_hdf_item.dtype.isbuiltin == 1:
                 strAttrDisplay += '  Data Type:  Scalar Dataset\n'
                 strRecLength += 'Length of Recordings: {}'.format(
-                    self.hdfItem.shape[1])
+                    self._selected_hdf_item.shape[1])
 
             strAttrDisplay += (
-                '  No. of Dims:  {}\n'.format(self.hdfItem.ndim)
-                + '    No. of Recordings:  {}\n'.format(
-                    self.hdfItem.shape[0])
-                + strRecLength)
+                "{0}{1}{2}".format(
+                    '  No. of Dims:  {}\n'.format(
+                        self._selected_hdf_item.ndim),
+                    '    No. of Recordings:  {}\n'.format(
+                        self._selected_hdf_item.shape[0]),
+                    strRecLength))
 
         # Adjust Size of General Attribute Display
         font = self.textItemGeneral.document().defaultFont()

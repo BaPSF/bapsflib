@@ -348,7 +348,8 @@ class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
         # Connect Signals
         self.actionCollapseAll.triggered.connect(
             self.treeView.collapseAll)
-        #        self.actionCollapseAll.triggered.connect(self.treeView.clearSelection)
+        #self.actionCollapseAll.triggered.connect(
+        #   self.treeView.clearSelection)
         self.actionExpandAll.triggered.connect(self.treeView.expandAll)
 
         # Add Actions to Context Menu

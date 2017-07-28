@@ -19,4 +19,4 @@
 
 from . import lapdhdf
 
-from .viewers import HDFViewer
+#from .viewers import HDFViewer

@@ -1,9 +1,26 @@
+# This file is part of the bapsflib package, a Python toolkit for the
+# BaPSF group at UCLA.
+#
+# http://plasma.physics.ucla.edu/
+#
+# Copyright 2017 Erik T. Everson and contributors
+#
+# License:
+#
+
 import h5py
+
+from .hdfcheck import hdfCheck
 
 
 class File(h5py.File):
-    def __init__(self, name, mode='r', driver=None, libver=None, userblock_size=None, swmr=False, **kwds):
-        h5py.File.__init__(self, name, mode, driver, libver, userblock_size, swmr)
+    def __init__(self, name, mode='r', driver=None, libver=None,
+                 userblock_size=None, swmr=False, **kwds):
+        h5py.File.__init__(self, name, mode, driver, libver,
+                           userblock_size, swmr)
+
+        print('Begin HDF5 Quick Report:')
+        hdfCheck(self)
 
     @property
     def listHDF_files(self):

@@ -10,7 +10,7 @@
 
 import h5py
 
-from .hdfcheck import hdfCheck
+from .hdfchecks import hdfCheck
 
 
 class File(h5py.File):
@@ -20,22 +20,22 @@ class File(h5py.File):
                            userblock_size, swmr)
 
         print('Begin HDF5 Quick Report:')
-        hdfCheck(self)
+        self.file_checks = hdfCheck(self)
 
     @property
     def listHDF_files(self):
-        someList = []
-        self.visit(someList.append)
-        return someList
+        some_list = []
+        self.visit(some_list.append)
+        return some_list
 
     @property
     def listHDF_file_types(self):
-        someList = []
+        some_list = []
         for name in self.listHDF_files:
             class_type = self.get(name, getclass=True)
-            someList.append(class_type.__name__)
+            some_list.append(class_type.__name__)
 
-        return someList
+        return some_list
 
     @property
     def tupHDF_fileSys(self):

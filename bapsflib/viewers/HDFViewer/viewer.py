@@ -36,21 +36,20 @@ except (ModuleNotFoundError, ImportError):
     from UIs import mainwindow, wdgSimplePlotConfig
 
 
-def rebuildUiFiles():
-    """
-        This is for use during development process so that the .ui files
-        don't have to be recompiled separately before running main.py
-    """
-    pyuic.compileUiDir('UIs/', execute=True)
-    uiModules = ['mainwindow', 'wdgSimplePlotConfig']
-    for modName in sys.modules.keys():
-        for uiName in uiModules:
-            if modName.__contains__(uiName):
-                importlib.reload(sys.modules[modName])
-
-
-rebuildUiFiles()
-
+#def rebuildUiFiles():
+#    """
+#        This is for use during development process so that the .ui files
+#        don't have to be recompiled separately before running main.py
+#    """
+#    pyuic.compileUiDir('UIs/', execute=True)
+#    uiModules = ['mainwindow', 'wdgSimplePlotConfig']
+#    for modName in sys.modules.keys():
+#        for uiName in uiModules:
+#            if modName.__contains__(uiName):
+#                importlib.reload(sys.modules[modName])
+#
+#
+#rebuildUiFiles()
 
 class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
     _hdfFilename = ''

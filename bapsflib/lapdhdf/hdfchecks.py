@@ -13,6 +13,7 @@ import os
 import sys
 
 from .hdferrors import *
+from .hdfmappers import get_hdfMap
 
 
 class hdfCheck(object):

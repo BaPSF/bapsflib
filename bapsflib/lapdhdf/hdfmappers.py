@@ -57,10 +57,10 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
 
         self.hdf_version = '1.1'
         self.msi_diagnostic_groups.extend(['Discharge',
-                                            'Gas pressure',
-                                            'Heater',
-                                            'Interferometer array',
-                                            'Magnetic field'])
+                                           'Gas pressure',
+                                           'Heater',
+                                           'Interferometer array',
+                                           'Magnetic field'])
         self.sis_group = 'SIS 3301'
         self.sis_crates.append('SIS 3301')
 
@@ -71,9 +71,9 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
         self.hdf_version = '1.2'
         self.msi_diagnostic_groups.extend(['Discharge',
-                                            'Gas pressure',
-                                            'Heater',
-                                            'Interferometer array',
-                                            'Magnetic field'])
+                                           'Gas pressure',
+                                           'Heater',
+                                           'Interferometer array',
+                                           'Magnetic field'])
         self.sis_group = 'SIS crate'
         self.sis_crates.extend(['SIS 3302', 'SIS 3305'])

@@ -18,10 +18,6 @@ from .hdfmappers import get_hdfMap
 
 class hdfCheck(object):
     _hdf_lapd_version = ''
-    _msi_group = 'MSI'
-    _msi_diagnostic_groups = ['Discharge', 'Gas pressure', 'Heater',
-                              'Interferometer array', 'Magnetic field']
-    _data_group = 'Raw data + config'
     _print_tab_len = 35
 
     def __init__(self, hdf_obj):
@@ -30,7 +26,10 @@ class hdfCheck(object):
         else:
             raise NotHDFFileError
 
-        self.full_check()
+        status = self.is_lapd_generated(silent=False)[0]
+        if status:
+            self._hdf_map = get_hdfMap(self._hdf_lapd_version)
+            self.full_check()
 
     def full_check(self):
         """
@@ -38,7 +37,6 @@ class hdfCheck(object):
 
             :return:
         """
-        self.is_lapd_generated(silent=False)
         status = self.exist_msi(silent=False)
         if status:
             self.exist_msi_diagnostics_all(silent=False)
@@ -62,7 +60,6 @@ class hdfCheck(object):
             if 'lapd' in key.casefold() and 'version' in key.casefold():
                 self._hdf_lapd_version = \
                     self._hdf_obj.attrs[key].decode('utf-8')
-                self._hdf_map = get_hdfMap(self._hdf_lapd_version)
                 is_lapd = True
                 break
 
@@ -94,10 +91,10 @@ class hdfCheck(object):
 
         msi_detected = False
         for key in self._hdf_obj.keys():
-            if key.casefold() == self._msi_group.casefold():
+            if key.casefold() == self._hdf_map.msi_group.casefold():
                 msi_detected = True
 
-        str_msi = self._msi_group + '/ '
+        str_msi = self._hdf_map.msi_group + '/ '
         if msi_detected:
             str_msi += ' yes'.rjust(self._print_tab_len - 1
                                     - str_msi.__len__(), '~')
@@ -128,7 +125,7 @@ class hdfCheck(object):
 
         diag_detected = False
 
-        for key in self._hdf_obj[self._msi_group].keys():
+        for key in self._hdf_obj[self._hdf_map.msi_group].keys():
             if key.casefold() == diag_group_name.casefold():
                 diag_detected = True
                 break
@@ -160,7 +157,7 @@ class hdfCheck(object):
         """
         all_diags_exist = False
 
-        for ii, diag in enumerate(self._msi_diagnostic_groups):
+        for ii, diag in enumerate(self._hdf_map.msi_diagnostic_groups):
             status = self.exist_msi_diagnostic(diag, silent=silent)
 
             if ii == 0:
@@ -168,7 +165,7 @@ class hdfCheck(object):
             else:
                 all_diags_exist = (all_diags_exist and status)
 
-        return all_diags_exist, self._msi_diagnostic_groups
+        return all_diags_exist, self._hdf_map.msi_diagnostic_groups
 
     def exist_data_group(self, silent=True):
         """
@@ -182,10 +179,10 @@ class hdfCheck(object):
 
         data_detected = False
         for key in self._hdf_obj.keys():
-            if key.casefold() == self._data_group.casefold():
+            if key.casefold() == self._hdf_map.data_group.casefold():
                 data_detected = True
 
-        str_print = self._data_group + '/ '
+        str_print = self._hdf_map.data_group + '/ '
         if data_detected:
             str_print += ' yes'.rjust(self._print_tab_len - 1
                                       - str_print.__len__(), '~')

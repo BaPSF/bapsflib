@@ -62,6 +62,7 @@ class hdfCheck(object):
             if 'lapd' in key.casefold() and 'version' in key.casefold():
                 self._hdf_lapd_version = \
                     self._hdf_obj.attrs[key].decode('utf-8')
+                self._hdf_map = get_hdfMap(self._hdf_lapd_version)
                 is_lapd = True
                 break
 

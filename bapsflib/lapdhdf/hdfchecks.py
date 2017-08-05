@@ -45,6 +45,7 @@ class hdfCheck(object):
         if status:
             self.exist_msi_diagnostics_all(silent=False)
         self.exist_data_group(silent=False)
+        self.exist_sis_group(silent=False)
 
     def is_lapd_generated(self, silent=True):
         """
@@ -220,3 +221,31 @@ class hdfCheck(object):
             sys.stdout = sys.__stdout__
 
         return data_detected
+
+    def exist_sis_group(self, silent=True):
+        """
+            Check for existence of SIS group.
+
+            :param silent:
+            :return:
+        """
+        if silent:
+            sys.stdout = open(os.devnull, 'w')
+
+        detected = (self._hdf_map.sis_path()
+                    in self._hdf_obj.listHDF_files)
+
+        str_print = '|-- ' + self._hdf_map.sis_group + ' '
+        str_print = (str_print.ljust(self._print_found_tab - 1, '~')
+                     + ' ')
+        if detected:
+            str_print += 'yes'.ljust(self._print_note_tab)
+        else:
+            str_print += 'no'.ljust(self._print_note_tab)
+
+        print(str_print)
+
+        if silent:
+            sys.stdout = sys.__stdout__
+
+        return detected

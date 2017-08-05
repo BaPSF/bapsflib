@@ -18,5 +18,6 @@
 # --- Public API -------------------------------------------------------
 
 from . import lapdhdf
+from . import lapdtoolbox
 
 from .viewers import HDFViewer

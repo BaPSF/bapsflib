@@ -43,6 +43,9 @@ class hdfMapTemplate(object):
     data_group = 'Raw data + config'
     sis_group = ''
     sis_crates = []
+    data_configs = {}
+    data_config_template = {'active': False,
+                            'crates': []}
 
     def __init__(self):
         pass

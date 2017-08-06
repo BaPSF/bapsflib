@@ -21,7 +21,7 @@ MSI/ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ yes
 Raw data + config/ ~~~~~~~~~~~~~~~ yes
 |-- SIS 3301 ~~~~~~~~~~~~~~~~~~~~~ yes
 |-- |-- Configurations Detected
-|-- |-- |-- 'config name'
+|-- |-- |-- 'config name'                 used/ not used
 |-- |-- |-- |-- 'crate' ~~~~~~~~~~ yes    14-bit, 100 MHz
 |-- |-- |-- |-- |-- Connections (br, [ch,])
 |-- |-- |-- |-- |-- |-- (0, [1,2,5])
@@ -43,13 +43,14 @@ class hdfCheck(object):
 
     def __init__(self, hdf_obj):
         if isinstance(hdf_obj, h5py.File):
-            self._hdf_obj = hdf_obj
+            self.__hdf_obj = hdf_obj
         else:
             raise NotHDFFileError
 
         status = self.is_lapd_generated(silent=False)[0]
         if status:
-            self._hdf_map = get_hdfMap(self._hdf_lapd_version)
+            self.__hdf_map = get_hdfMap(self._hdf_lapd_version,
+                                        self.__hdf_obj)
             self.full_check()
 
     def full_check(self):
@@ -62,7 +63,9 @@ class hdfCheck(object):
         if status:
             self.exist_msi_diagnostics_all(silent=False)
         self.exist_data_group(silent=False)
-        self.exist_sis_group(silent=False)
+        status = self.exist_sis_group(silent=False)
+        if status:
+            self.identify_data_configs()
 
     def is_lapd_generated(self, silent=True):
         """
@@ -76,10 +79,10 @@ class hdfCheck(object):
             sys.stdout = open(os.devnull, 'w')
 
         is_lapd = False
-        for key in self._hdf_obj.attrs.keys():
+        for key in self.__hdf_obj.attrs.keys():
             if 'lapd' in key.casefold() and 'version' in key.casefold():
                 self._hdf_lapd_version = \
-                    self._hdf_obj.attrs[key].decode('utf-8')
+                    self.__hdf_obj.attrs[key].decode('utf-8')
                 is_lapd = True
                 break
 
@@ -108,11 +111,11 @@ class hdfCheck(object):
             sys.stdout = open(os.devnull, 'w')
 
         msi_detected = False
-        for key in self._hdf_obj.keys():
-            if key.casefold() == self._hdf_map.msi_group.casefold():
+        for key in self.__hdf_obj.keys():
+            if key.casefold() == self.__hdf_map.msi_group.casefold():
                 msi_detected = True
 
-        item = self._hdf_map.msi_group + '/ '
+        item = self.__hdf_map.msi_group + '/ '
         found = 'yes' if msi_detected else 'no'
         status_print(item, found, '')
         if not msi_detected:
@@ -139,7 +142,7 @@ class hdfCheck(object):
 
         # scan if diag_group_name is among the sub-groups in the MSI
         # group
-        for key in self._hdf_obj[self._hdf_map.msi_group].keys():
+        for key in self.__hdf_obj[self.__hdf_map.msi_group].keys():
             if key.casefold() == diag_group_name.casefold():
                 diag_detected = True
                 break
@@ -147,7 +150,7 @@ class hdfCheck(object):
         # check if the diag_group_name is known in the pre-defined
         # mapping context
         diag_in_context = False
-        for name in self._hdf_map.msi_diagnostic_groups:
+        for name in self.__hdf_map.msi_diagnostic_groups:
             if name.casefold() == diag_group_name.casefold():
                 diag_in_context = True
                 break
@@ -175,8 +178,8 @@ class hdfCheck(object):
         all_diags_exist = False
 
         all_possible_groups = \
-            list(self._hdf_obj[self._hdf_map.msi_group])
-        all_possible_groups.extend(self._hdf_map.msi_diagnostic_groups)
+            list(self.__hdf_obj[self.__hdf_map.msi_group])
+        all_possible_groups.extend(self.__hdf_map.msi_diagnostic_groups)
         all_possible_groups.sort()
         all_possible_groups = list(set(all_possible_groups))
         all_possible_groups.sort()
@@ -189,7 +192,7 @@ class hdfCheck(object):
             else:
                 all_diags_exist = (all_diags_exist and status)
 
-        return all_diags_exist, self._hdf_map.msi_diagnostic_groups
+        return all_diags_exist, self.__hdf_map.msi_diagnostic_groups
 
     def exist_data_group(self, silent=True):
         """
@@ -202,11 +205,11 @@ class hdfCheck(object):
             sys.stdout = open(os.devnull, 'w')
 
         data_detected = False
-        for key in self._hdf_obj.keys():
-            if key.casefold() == self._hdf_map.data_group.casefold():
+        for key in self.__hdf_obj.keys():
+            if key.casefold() == self.__hdf_map.data_group.casefold():
                 data_detected = True
 
-        item = self._hdf_map.data_group + '/ '
+        item = self.__hdf_map.data_group + '/ '
         found = 'yes' if data_detected else 'no'
         status_print(item, found, '')
 
@@ -225,10 +228,10 @@ class hdfCheck(object):
         if silent:
             sys.stdout = open(os.devnull, 'w')
 
-        detected = (self._hdf_map.sis_path()
-                    in self._hdf_obj.listHDF_files)
+        detected = (self.__hdf_map.sis_path()
+                    in self.__hdf_obj.listHDF_files)
 
-        item = self._hdf_map.sis_group + ' '
+        item = self.__hdf_map.sis_group + ' '
         found = 'yes' if detected else 'no'
         status_print(item, found, '', indent=1)
 
@@ -236,6 +239,27 @@ class hdfCheck(object):
             sys.stdout = sys.__stdout__
 
         return detected
+
+    def identify_data_configs(self):
+        if self.__hdf_map.data_configs.keys().__len__() != 0:
+            status_print('Configurations Detected', '', '', indent=2,
+                         item_found_pad=' ')
+
+            for key in self.__hdf_map.data_configs.keys():
+                item  = key
+                found = ''
+                note = 'used' \
+                    if self.__hdf_map.data_configs[key]['active'] \
+                    else 'not used'
+                status_print(item, found, note, indent=3,
+                             item_found_pad= ' ')
+        else:
+            status_print('Configurations Detected', '', 'None',
+                         indent=2,
+                         item_found_pad=' ')
+
+    def get_hdf_mapping(self):
+        return self.__hdf_map
 
 
 def status_print(item, found, note, indent=0, item_found_pad='~'):

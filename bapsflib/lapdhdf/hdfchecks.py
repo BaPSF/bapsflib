@@ -286,7 +286,7 @@ class hdfCheck(object):
 
 
 def status_print(item, found, note, indent=0, item_found_pad='~'):
-    _found_tab = 40
+    _found_tab = 60
     _note_tab = 7
 
     str_print = ('|-- ' * indent) + str(item) + ' '

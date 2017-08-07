@@ -22,11 +22,11 @@ Raw data + config/ ~~~~~~~~~~~~~~~ yes
 |-- SIS 3301 ~~~~~~~~~~~~~~~~~~~~~ yes
 |-- |-- Configurations Detected
 |-- |-- |-- 'config name'                 used/ not used
-|-- |-- |-- |-- 'crate' ~~~~~~~~~~ yes    14-bit, 100 MHz
+|-- |-- |-- |-- 'crate'
+|-- |-- |-- |-- |-- 14-bit, 100 MHz
 |-- |-- |-- |-- |-- Connections (br, [ch,])
 |-- |-- |-- |-- |-- |-- (0, [1,2,5])
 |-- |-- |-- |-- |-- |-- (1, [3,4,5])
-
 '''
 import h5py
 import os
@@ -270,12 +270,22 @@ class hdfCheck(object):
                     status_print(item, '', '', indent=5,
                                  item_found_pad=' ')
 
-                    # crate connections
+                    # crate connections title
                     item = 'Connections'
                     found = ''
                     note = '(brd, [ch, ...])'
-                    status_print(item, found, note, indent=4,
+                    status_print(item, found, note, indent=5,
                                  item_found_pad=' ')
+
+                    # crate connections
+                    nconns = len(self.__hdf_map.data_configs[key][
+                                     crate]['connections'])
+                    for iconn  in range(nconns):
+                        d_to_print = self.__hdf_map.data_configs[key][
+                            crate]['connections'][iconn]
+                        item = ('({}, '.format(d_to_print[0])
+                                + d_to_print[1].__str__() + ')')
+                        status_print(item, '', '', indent=6, item_found_pad=' ')
         else:
             status_print('Configurations Detected', '', 'None',
                          indent=2,
@@ -286,7 +296,7 @@ class hdfCheck(object):
 
 
 def status_print(item, found, note, indent=0, item_found_pad='~'):
-    _found_tab = 60
+    _found_tab = 55
     _note_tab = 7
 
     str_print = ('|-- ' * indent) + str(item) + ' '

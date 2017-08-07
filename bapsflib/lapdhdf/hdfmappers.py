@@ -16,6 +16,7 @@ def get_hdfMap(hdf_version, hdf_file):
         instance of the hdfMap class is returned.  The superclass
         inheritance of hdfMap is determined by the param hdf_version.
 
+        :param hdf_file:
         :param hdf_version:
         :return:
     """
@@ -82,11 +83,11 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         """
             Builds self.data_configs dictionary. A dict. entry follows:
 
-            data_configs[key] = {
+            data_configs[config_name] = {
                 'active': True/False,
                 'crates: [list of active SIS crates],
                 'group name': 'name of config group',
-                'group path': 'path to config group,
+                'group path': 'absolute path to config group',
                 'SIS 3301': {'bit': 14,
                              'sample rate': (100.0, 'MHz'),
                              'connections': [(br, [ch,]), ]}}
@@ -129,6 +130,12 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                 self.data_configs[config_name]['SIS 3301'] = {
                     'bit': 14, 'sample rate': (100.0, 'MHz')}
 
+                # add SIS connections
+                self.data_configs[config_name]['SIS 3301'][
+                    'connections'] =\
+                    self.__find_crate_connections('SIS 3301',
+                                                  group[name])
+
     @staticmethod
     def parse_config_name(name):
         """
@@ -166,6 +173,30 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
 
         return active
 
+    @staticmethod
+    def __find_crate_connections(crate_name, config_group):
+        conn = []
+        brd = None
+        chs = []
+        for ibrd, board in enumerate(config_group.keys()):
+            brd_group = config_group[board]
+            for ich, ch_key in enumerate(brd_group.keys()):
+                ch_group = brd_group[ch_key]
+
+                if ich == 0:
+                    brd = ch_group.attrs['Board']
+                    chs = [ch_group.attrs['Channel']]
+                else:
+                    chs.append(ch_group.attrs['Channel'])
+
+            subconn = (brd, chs)
+            if ibrd == 0:
+                conn = [subconn]
+            else:
+                conn.append(subconn)
+
+        return conn
+
     def parse_dataset_name(self, name):
         pass
 
@@ -191,11 +222,11 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         """
             Builds self.data_configs dictionary. A dict. entry follows:
 
-            data_configs[key] = {
+            data_configs[config_name] = {
                 'active': True/False,
                 'crates: [list of active SIS crates],
                 'group name': 'name of config group',
-                'group path': 'path to config group,
+                'group path': 'absolute path to config group',
                 'SIS 3301': {'bit': 14,
                              'sample rate': (100.0, 'MHz'),
                              'connections': [(br, [ch,]), ]}}

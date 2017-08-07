@@ -255,10 +255,12 @@ class hdfCheck(object):
 
                 # print crate details for configuration
                 for crate in self.__hdf_map.data_configs[key]['crates']:
+                    # crate name
                     item = crate + ' crate'
                     status_print(item, '', '', indent=4,
                                  item_found_pad=' ')
 
+                    # crate bit resolution and sample rate
                     item = '{0}-bit, {1} {2}'.format(
                         self.__hdf_map.data_configs[key][crate]['bit'],
                         self.__hdf_map.data_configs[key][crate][
@@ -266,6 +268,13 @@ class hdfCheck(object):
                         self.__hdf_map.data_configs[key][crate][
                             'sample rate'][1])
                     status_print(item, '', '', indent=5,
+                                 item_found_pad=' ')
+
+                    # crate connections
+                    item = 'Connections'
+                    found = ''
+                    note = '(brd, [ch, ...])'
+                    status_print(item, found, note, indent=4,
                                  item_found_pad=' ')
         else:
             status_print('Configurations Detected', '', 'None',

@@ -142,7 +142,7 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
     def is_config_active(config_name, dataset_names):
         """
             The naming of a dataset starts with the name of its
-            correspoinding configuration.  This scans 'dataset_names'
+            corresponding configuration.  This scans 'dataset_names'
             fo see if 'config_name' is used in the list of datasets.
 
             :param config_name:
@@ -174,3 +174,118 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                                            'Magnetic field'])
         self.sis_group = 'SIS crate'
         self.sis_crates.extend(['SIS 3302', 'SIS 3305'])
+
+        # Gather and build data configurations if sis_group exists
+        dgroup = hdf_obj.get(self.sis_path())
+        if dgroup is not None:
+            self.build_data_configs(dgroup)
+
+    def build_data_configs(self, group):
+        """
+            Builds self.data_configs dictionary. A dict. entry follows:
+
+            data_configs[key] = {
+                'active': True/False,
+                'crates: [list of active SIS crates],
+                'group name': 'name of config group',
+                'group path': 'path to config group,
+                'SIS 3301': {'bit': 14,
+                             'sample rate': (100.0, 'MHz'),
+                             'connections': [(br, [ch,]), ]}}
+
+            :param group:
+            :return:
+        """
+        # collect sis_group's dataset names and sub-group names
+        subgroup_names = []
+        dataset_names = []
+        for key in group.keys():
+            if isinstance(group[key], h5py.Dataset):
+                dataset_names.append(key)
+            if isinstance(group[key], h5py.Group):
+                subgroup_names.append(key)
+
+        # populate self.data_configs
+        for name in subgroup_names:
+            is_config, config_name = self.parse_config_name(name)
+            if is_config:
+                # initialize configuration name in the config dict
+                self.data_configs[config_name] = {}
+
+                # determine if config is active
+                self.data_configs[config_name]['active'] = \
+                    self.is_config_active(config_name, dataset_names)
+
+                # assign active crates to the configuration
+                self.data_configs[config_name]['crates'] = \
+                    self.__config_crates(group[name])
+
+                # add 'group name'
+                self.data_configs[config_name]['group name'] = name
+
+                # add 'group path'
+                self.data_configs[config_name]['group path'] = \
+                    group.name
+
+                # add SIS info
+                for crate in self.data_configs[config_name]['crates']:
+                    self.data_configs[config_name][crate] = \
+                        self.__crate_info(crate)
+
+    @staticmethod
+    def parse_config_name(name):
+        """
+            Parses 'name' to see if it matches the naming scheme for a
+            data configuration group.  A group representing a data
+            configuration has the scheme:
+
+                config_name
+
+            :param name:
+            :return:
+        """
+        return True, name
+
+    @staticmethod
+    def is_config_active(config_name, dataset_names):
+        """
+            The naming of a dataset starts with the name of its
+            corresponding configuration.  This scans 'dataset_names'
+            fo see if 'config_name' is used in the list of datasets.
+
+            :param config_name:
+            :param dataset_names:
+            :return:
+        """
+        active = False
+
+        for name in dataset_names:
+            if config_name in name:
+                active = True
+            break
+
+        return active
+
+    @staticmethod
+    def __config_crates(group):
+        active_crates = []
+        crate_types = list(group.attrs['SIS crate board types'])
+        if 2 in crate_types:
+            active_crates.append('SIS 3302')
+        if 3 in crate_types:
+            active_crates.append('SIS 3305')
+
+        return active_crates
+
+    @staticmethod
+    def __crate_info(crate):
+        crate_info = {'bit': None, 'sample rate': (None, 'MHz')}
+
+        # info for SIS 3302
+        if crate == 'SIS 3302':
+            crate_info['bit'] = 16
+            crate_info['sample rate'] = (100.0, 'MHz')
+        elif crate == 'SIS 3305':
+            crate_info['bit'] = 10
+
+        return crate_info

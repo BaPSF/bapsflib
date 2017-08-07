@@ -9,6 +9,7 @@
 #
 import h5py
 
+
 def get_hdfMap(hdf_version, hdf_file):
     """
         Function to simulate a Class with dynamic inheritance.  An
@@ -27,6 +28,7 @@ def get_hdfMap(hdf_version, hdf_file):
                 Contains the mapping relations for a given LaPD
                 generated HDF5 file.
             """
+
             def __init__(self, hdf_obj):
                 super(hdfMap, self).__init__(hdf_obj)
 
@@ -37,16 +39,23 @@ def get_hdfMap(hdf_version, hdf_file):
 
 
 class hdfMapTemplate(object):
-    hdf_version = ''
+    """
+        Required constants
+            hdf_version = ''
+            msi_diagnostic_goups = []
+            sis_group = ''
+            sis_crates = []
+            data_configs = {}
+    """
     msi_group = 'MSI'
-    msi_diagnostic_groups = []
     data_group = 'Raw data + config'
-    sis_group = ''
-    sis_crates = []
-    data_configs = {}
 
     def __init__(self):
-        pass
+        self.hdf_version = ''
+        self.msi_diagnostic_groups = []
+        self.sis_group = ''
+        self.sis_crates = []
+        self.data_configs = {}
 
     def sis_path(self):
         return self.data_group + '/' + self.sis_group
@@ -57,13 +66,12 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         hdfMapTemplate.__init__(self)
 
         self.hdf_version = '1.1'
-        self.msi_diagnostic_groups.extend(['Discharge',
-                                           'Gas pressure',
+        self.msi_diagnostic_groups.extend(['Discharge', 'Gas pressure',
                                            'Heater',
                                            'Interferometer array',
                                            'Magnetic field'])
         self.sis_group = 'SIS 3301'
-        self.sis_crates.append('SIS 3301')
+        self.sis_crates.extend(['SIS 3301'])
 
         # Gather and build data configurations if sis_group exists
         dgroup = hdf_obj.get(self.sis_path())
@@ -167,8 +175,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         hdfMapTemplate.__init__(self)
 
         self.hdf_version = '1.2'
-        self.msi_diagnostic_groups.extend(['Discharge',
-                                           'Gas pressure',
+        self.msi_diagnostic_groups.extend(['Discharge', 'Gas pressure',
                                            'Heater',
                                            'Interferometer array',
                                            'Magnetic field'])

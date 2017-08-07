@@ -38,8 +38,6 @@ from .hdfmappers import get_hdfMap
 
 class hdfCheck(object):
     _hdf_lapd_version = ''
-    _print_found_tab = 35
-    _print_note_tab = 7
 
     def __init__(self, hdf_obj):
         if isinstance(hdf_obj, h5py.File):
@@ -246,13 +244,29 @@ class hdfCheck(object):
                          item_found_pad=' ')
 
             for key in self.__hdf_map.data_configs.keys():
-                item  = key
+                # print configuration name
+                item = key
                 found = ''
                 note = 'used' \
                     if self.__hdf_map.data_configs[key]['active'] \
                     else 'not used'
                 status_print(item, found, note, indent=3,
-                             item_found_pad= ' ')
+                             item_found_pad=' ')
+
+                # print crate details for configuration
+                for crate in self.__hdf_map.data_configs[key]['crates']:
+                    item = crate + ' crate'
+                    status_print(item, '', '', indent=4,
+                                 item_found_pad=' ')
+
+                    item = '{0}-bit, {1} {2}'.format(
+                        self.__hdf_map.data_configs[key][crate]['bit'],
+                        self.__hdf_map.data_configs[key][crate][
+                            'sample rate'][0],
+                        self.__hdf_map.data_configs[key][crate][
+                            'sample rate'][1])
+                    status_print(item, '', '', indent=5,
+                                 item_found_pad=' ')
         else:
             status_print('Configurations Detected', '', 'None',
                          indent=2,
@@ -263,7 +277,7 @@ class hdfCheck(object):
 
 
 def status_print(item, found, note, indent=0, item_found_pad='~'):
-    _found_tab = 35
+    _found_tab = 40
     _note_tab = 7
 
     str_print = ('|-- ' * indent) + str(item) + ' '

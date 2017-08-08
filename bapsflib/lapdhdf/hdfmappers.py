@@ -127,14 +127,8 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                     group.name
 
                 # add SIS info
-                self.data_configs[config_name]['SIS 3301'] = {
-                    'bit': 14, 'sample rate': (100.0, 'MHz')}
-
-                # add SIS connections
-                self.data_configs[config_name]['SIS 3301'][
-                    'connections'] =\
-                    self.__find_crate_connections('SIS 3301',
-                                                  group[name])
+                self.data_configs[config_name]['SIS 3301'] = \
+                    self.__crate_info('SIS 3301', group[name])
 
     @staticmethod
     def parse_config_name(name):
@@ -172,6 +166,14 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                 break
 
         return active
+
+    def __crate_info(self, crate_name, config_group):
+        # LaPD v1.1 only has crate 'SIS 3301'
+        crate_info = {'bit': 14,
+                      'sample rate': (100, 'MHz'),
+                      'connections': self.__find_crate_connections(
+                          crate_name, config_group)}
+        return crate_info
 
     @staticmethod
     def __find_crate_connections(crate_name, config_group):
@@ -268,7 +270,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                 # add SIS info
                 for crate in self.data_configs[config_name]['crates']:
                     self.data_configs[config_name][crate] = \
-                        self.__crate_info(crate)
+                        self.__crate_info(crate, group[name])
 
     @staticmethod
     def parse_config_name(name):
@@ -315,15 +317,29 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
         return active_crates
 
-    @staticmethod
-    def __crate_info(crate):
-        crate_info = {'bit': None, 'sample rate': (None, 'MHz')}
+    def __crate_info(self, crate_name, config_group):
+        # LaPD v1.2 has two DAQ crates, SIS 3302 and SIS 3305
+        crate_info = {'bit': None,
+                      'sample rate': (None, 'MHz'),
+                      'connections': None}
 
         # info for SIS 3302
-        if crate == 'SIS 3302':
+        if crate_name == 'SIS 3302':
             crate_info['bit'] = 16
             crate_info['sample rate'] = (100.0, 'MHz')
-        elif crate == 'SIS 3305':
+            crate_info['connections'] = \
+                self.__find_crate_connections('SIS 3302', config_group)
+        elif crate_name == 'SIS 3305':
             crate_info['bit'] = 10
+            crate_info['connections'] = \
+                self.__find_crate_connections('SIS 3305', config_group)
 
         return crate_info
+
+    @staticmethod
+    def __find_crate_connections(crate_name, config_group):
+        conn = []
+        brd = None
+        chs = []
+
+        return conn

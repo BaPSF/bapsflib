@@ -188,7 +188,7 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
             :return:
         """
         # LaPD v1.1 only has crate 'SIS 3301'
-        #crate_info = {'bit': 14,
+        # crate_info = {'bit': 14,
         #              'sample rate': (100, 'MHz'),
         #              'connections': self.__find_crate_connections(
         #                  crate_name, config_group)}
@@ -220,10 +220,7 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
 
             subconn = (brd, chs,
                        {'bit': None, 'sample rate': (None, 'MHz')})
-            if ibrd == 0:
-                conn = [subconn]
-            else:
-                conn.append(subconn)
+            conn.append(subconn)
 
         return conn
 
@@ -374,10 +371,77 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
         return crate_info
 
-    @staticmethod
-    def __find_crate_connections(crate_name, config_group):
+    def __find_crate_connections(self, crate_name, config_group):
         conn = []
         brd = None
         chs = []
 
+        active_slots = config_group.attrs['SIS crate slot numbers']
+        config_indices = config_group.attrs['SIS crate config indices']
+        info_list = []
+        for slot, index in zip(active_slots, config_indices):
+            if slot != 3:
+                brd, sis = self.slot_to_brd(slot)
+                info_list.append((slot, index, brd, sis))
+
+        # filter out calibration groups and only gather configuration
+        # groups
+        sis3302_gnames = []
+        sis3305_gnames = []
+        for key in config_group.keys():
+            if 'configurations' in key:
+                if '3302' in key:
+                    sis3302_gnames.append(key)
+                elif '3305' in key:
+                    sis3305_gnames.append(key)
+
+        if crate_name == 'SIS 3302':
+            for name in sis3302_gnames:
+
+                # Find board number
+                config_index = int(name[-2])
+                for slot, index, board, sis in info_list:
+                    if '3302' in sis and config_index == index:
+                        brd = board
+                        break
+
+                subconn = (brd, chs,
+                           {'bit': None, 'sample rate': (None, 'MHZ')})
+                conn.append(subconn)
+
+        elif crate_name == 'SIS 3305':
+            for name in sis3305_gnames:
+
+                # Find board number
+                config_index = int(name[-2])
+                for slot, index, board, sis in info_list:
+                    if '3305' in sis and config_index == index:
+                        brd = board
+                        break
+
+                subconn = (brd, chs,
+                           {'bit': None, 'sample rate': (None, 'MHZ')})
+                conn.append(subconn)
+
         return conn
+
+    @staticmethod
+    def slot_to_brd(slot):
+        """
+            Mapping between the SIS crate slot number to the DAQ
+            displayed board number.
+
+            :param slot:
+            :return:
+        """
+        sb_map = {'5': (1, 'SIS 3302'),
+                  '7': (2, 'SIS 3302'),
+                  '9': (3, 'SIS 3302'),
+                  '11': (4, 'SIS 3302'),
+                  '13': (1, 'SIS 3305'),
+                  '15': (2, 'SIS 3305')}
+        return sb_map['{}'.format(slot)]
+
+    @staticmethod
+    def brd_to_slot(brd, sis):
+        pass

@@ -405,9 +405,18 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                         brd = board
                         break
 
+                # Find active channels
+                for key in config_group[name].attrs.keys():
+                    if 'Enable' in key:
+                        tf_str = config_group[name].attrs[key]
+                        if 'TRUE' in tf_str.decode('utf-8'):
+                            chs.append(int(key[-1]))
+
                 subconn = (brd, chs,
                            {'bit': None, 'sample rate': (None, 'MHZ')})
                 conn.append(subconn)
+                brd = None
+                chs = []
 
         elif crate_name == 'SIS 3305':
             for name in sis3305_gnames:
@@ -419,9 +428,36 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                         brd = board
                         break
 
+                # Find active channels and clock mode
+                for key in config_group[name].attrs.keys():
+                    # channels
+                    if 'Enable' in key:
+                        if 'FPGA 1' in key:
+                            tf_str = config_group[name].attrs[key]
+                            if 'TRUE' in tf_str.decode('utf-8'):
+                                chs.append(int(key[-1]))
+                        elif 'FPGA 2' in key:
+                            tf_str = config_group[name].attrs[key]
+                            if 'TRUE' in tf_str.decode('utf-8'):
+                                chs.append(int(key[-1]) + 4)
+
+                    # clock mode
+                    # the clock state of 3305 is stored in the 'channel
+                    # mode' attribute.  The values follow
+                    #   0 = 1.25 GHz
+                    #   1 = 2.5  GHz
+                    #   2 = 5.0  GHz
+                    cmodes = [(1.25, 'GHz'),
+                              (2.5, 'GHz'),
+                              (5.0, 'GHz')]
+                    if 'Channel mode' in key:
+                        cmode = cmodes[config_group[name].attrs[key]]
+
                 subconn = (brd, chs,
-                           {'bit': None, 'sample rate': (None, 'MHZ')})
+                           {'bit': None, 'sample rate': cmode})
                 conn.append(subconn)
+                brd = None
+                chs = []
 
         return conn
 

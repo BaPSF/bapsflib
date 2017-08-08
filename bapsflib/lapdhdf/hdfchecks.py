@@ -281,7 +281,7 @@ class hdfCheck(object):
                     # crate connections
                     nconns = len(
                         self.__hdf_map.data_configs[key][crate])
-                    for iconn  in range(nconns):
+                    for iconn in range(nconns):
                         conns = self.__hdf_map.data_configs[key][
                             crate][iconn][0:2]
                         daq_stats = self.__hdf_map.data_configs[key][

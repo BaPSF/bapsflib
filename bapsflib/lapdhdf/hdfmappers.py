@@ -347,20 +347,30 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
     def __crate_info(self, crate_name, config_group):
         # LaPD v1.2 has two DAQ crates, SIS 3302 and SIS 3305
-        crate_info = {'bit': None,
-                      'sample rate': (None, 'MHz'),
-                      'connections': None}
+        crate_info = []
 
-        # info for SIS 3302
+        # build crate_info
         if crate_name == 'SIS 3302':
-            crate_info['bit'] = 16
-            crate_info['sample rate'] = (100.0, 'MHz')
-            crate_info['connections'] = \
-                self.__find_crate_connections('SIS 3302', config_group)
+            # for SIS 3302
+            conns = self.__find_crate_connections('SIS 3302',
+                                                  config_group)
+            for conn in conns:
+                conn[2]['bit'] = 16
+                conn[2]['sample rate'] = (100.0, 'MHz')
+                crate_info.append(conn)
         elif crate_name == 'SIS 3305':
-            crate_info['bit'] = 10
-            crate_info['connections'] = \
-                self.__find_crate_connections('SIS 3305', config_group)
+            # note: sample rate for 'SIS 3305' depends on how
+            # diagnostics are connected to the DAQ. Thus, assignment is
+            # left to method self.__find_crate_connections.
+            conns = self.__find_crate_connections('SIS 3305',
+                                                  config_group)
+            for conn in conns:
+                conn[2]['bit'] = 10
+                crate_info.append(conn)
+        else:
+            crate_info.append((None, [None],
+                               {'bit': None,
+                                'sample rate': (None, 'MHz')}))
 
         return crate_info
 

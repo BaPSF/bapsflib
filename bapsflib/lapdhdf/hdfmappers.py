@@ -168,11 +168,38 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         return active
 
     def __crate_info(self, crate_name, config_group):
+        """
+            Builds a list of tuples that contains info for each
+            connected board of the SIS crate.  The format looks like:
+
+            crate_info = [(brd, [ch,..],
+                          {'bit': 14, 'sample rate': (100.0, 'MHz')}),]
+
+            Calling crate_info looks like:
+            crate_info[0] = (brd, [ch,..],
+                             {'bit': 14, 'sample rate': (100.0, 'MHz'})
+            crate_info[0][0] = brd
+            crate_info[0][1] = [ch, ...] -> list of connected channels
+            crate_info[0][2]['bit'] = 14
+            crate_info[0][2]['sample rate'] = (100.0, 'MHz')
+
+            :param crate_name:
+            :param config_group:
+            :return:
+        """
         # LaPD v1.1 only has crate 'SIS 3301'
-        crate_info = {'bit': 14,
-                      'sample rate': (100, 'MHz'),
-                      'connections': self.__find_crate_connections(
-                          crate_name, config_group)}
+        #crate_info = {'bit': 14,
+        #              'sample rate': (100, 'MHz'),
+        #              'connections': self.__find_crate_connections(
+        #                  crate_name, config_group)}
+        crate_info = []
+        conns = self.__find_crate_connections(crate_name, config_group)
+
+        for conn in conns:
+            conn[2]['bit'] = 14
+            conn[2]['sample rate'] = (100.0, 'MHZ')
+            crate_info.append(conn)
+
         return crate_info
 
     @staticmethod
@@ -191,7 +218,8 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                 else:
                     chs.append(ch_group.attrs['Channel'])
 
-            subconn = (brd, chs)
+            subconn = (brd, chs,
+                       {'bit': None, 'sample rate': (None, 'MHz')})
             if ibrd == 0:
                 conn = [subconn]
             else:

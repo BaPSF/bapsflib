@@ -256,36 +256,43 @@ class hdfCheck(object):
                 # print crate details for configuration
                 for crate in self.__hdf_map.data_configs[key]['crates']:
                     # crate name
-                    item = crate + ' crate'
-                    status_print(item, '', '', indent=4,
+                    item = crate + ' crate connections'
+                    note = '(brd, [ch, ...])'
+                    status_print(item, '', note, indent=4,
                                  item_found_pad=' ')
 
                     # crate bit resolution and sample rate
-                    item = '{0}-bit, {1} {2}'.format(
-                        self.__hdf_map.data_configs[key][crate]['bit'],
-                        self.__hdf_map.data_configs[key][crate][
-                            'sample rate'][0],
-                        self.__hdf_map.data_configs[key][crate][
-                            'sample rate'][1])
-                    status_print(item, '', '', indent=5,
-                                 item_found_pad=' ')
+                    #item = '{0}-bit, {1} {2}'.format(
+                    #    self.__hdf_map.data_configs[key][crate]['bit'],
+                    #    self.__hdf_map.data_configs[key][crate][
+                    #        'sample rate'][0],
+                    #    self.__hdf_map.data_configs[key][crate][
+                    #        'sample rate'][1])
+                    #status_print(item, '', '', indent=5,
+                    #             item_found_pad=' ')
 
                     # crate connections title
-                    item = 'Connections'
-                    found = ''
-                    note = '(brd, [ch, ...])'
-                    status_print(item, found, note, indent=5,
-                                 item_found_pad=' ')
+                    #item = 'Connections'
+                    #found = ''
+                    #note = '(brd, [ch, ...])'
+                    #status_print(item, found, note, indent=5,
+                    #             item_found_pad=' ')
 
                     # crate connections
-                    nconns = len(self.__hdf_map.data_configs[key][
-                                     crate]['connections'])
+                    nconns = len(
+                        self.__hdf_map.data_configs[key][crate])
                     for iconn  in range(nconns):
-                        d_to_print = self.__hdf_map.data_configs[key][
-                            crate]['connections'][iconn]
-                        item = ('({}, '.format(d_to_print[0])
-                                + d_to_print[1].__str__() + ')')
-                        status_print(item, '', '', indent=6, item_found_pad=' ')
+                        conns = self.__hdf_map.data_configs[key][
+                            crate][iconn][0:2]
+                        daq_stats = self.__hdf_map.data_configs[key][
+                            crate][iconn][2]
+                        item = '{}'.format(conns)
+                        note = '{0}-bit, {1} {2}'.format(
+                            daq_stats['bit'],
+                            daq_stats['sample rate'][0],
+                            daq_stats['sample rate'][1])
+                        status_print(item, '', note, indent=5,
+                                     item_found_pad=' ')
         else:
             status_print('Configurations Detected', '', 'None',
                          indent=2,

@@ -24,12 +24,22 @@ class File(h5py.File):
 
     @property
     def listHDF_files(self):
+        """
+        Returns a list of strings representing the absolute paths
+        (including Group/Dataset name) for each Group and Dataset in
+        the HDF5 file.
+        """
         some_list = []
         self.visit(some_list.append)
         return some_list
 
     @property
     def listHDF_file_types(self):
+        """
+        Returns a list of strings indicating if an HDF5 item is a Group
+        or Dataset. This has a one-to-one correspondence to
+        listHDF_files.
+        """
         some_list = []
         for name in self.listHDF_files:
             class_type = self.get(name, getclass=True)
@@ -39,6 +49,9 @@ class File(h5py.File):
 
     @property
     def tupHDF_fileSys(self):
+        """
+        zip(listHDF_files, listHDF_file_types)
+        """
         return zip(self.listHDF_files, self.listHDF_file_types)
 
     @property

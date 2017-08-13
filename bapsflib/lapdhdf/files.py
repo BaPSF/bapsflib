@@ -71,3 +71,7 @@ class File(h5py.File):
     
     def getItem(self, name):
         return self.get(name)
+
+    def read_data(self, board, channel, shots=None, daq=None,
+                  output_voltage=True):
+        pass

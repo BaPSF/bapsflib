@@ -7,6 +7,10 @@
 #
 # License:
 #
+# TODO: make a pickle save for the hdfMap...
+#       Then, if a user adds additional mappings for a specific HDF5
+#       file, those can be maintained
+#
 import h5py
 
 

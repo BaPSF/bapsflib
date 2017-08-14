@@ -474,6 +474,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
             :param slot:
             :return:
         """
+        # TODO: add arg conditioning
         sb_map = {'5': (1, 'SIS 3302'),
                   '7': (2, 'SIS 3302'),
                   '9': (3, 'SIS 3302'),
@@ -484,4 +485,11 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
     @staticmethod
     def brd_to_slot(brd, sis):
-        pass
+        # TODO: add arg conditioning
+        bs_map = {(1, 'SIS 3302'): 5,
+                  (2, 'SIS 3302'): 7,
+                  (3, 'SIS 3302'): 9,
+                  (4, 'SIS 3302'): 11,
+                  (1, 'SIS 3305'): 13,
+                  (2, 'SIS 3305'): 15}
+        return bs_map[(brd, sis)]

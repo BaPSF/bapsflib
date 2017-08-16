@@ -11,6 +11,7 @@
 #
 
 import h5py
+import numpy as np
 
 
 class ReadData(object):
@@ -49,7 +50,11 @@ class ReadData(object):
                             'E'  = east
                             'TE' = top-east
     """
-    def __init__(self, hdf_file, *args):
+    def __init__(self, hdf_file, *args, return_view=False):
+        # return_view=False -- return a ndarray.view() to save on memory
+        #                      when working with multiple datasets...
+        #                      this needs to be thought out in more
+        #                      detail
 
         # Define meta attribute
         self.meta = {'hdf file': None,

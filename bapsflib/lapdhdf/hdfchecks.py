@@ -37,7 +37,6 @@ from .hdfmappers import get_hdfMap
 
 
 class hdfCheck(object):
-    _hdf_lapd_version = ''
 
     def __init__(self, hdf_obj):
         if isinstance(hdf_obj, h5py.File):
@@ -45,6 +44,7 @@ class hdfCheck(object):
         else:
             raise NotHDFFileError
 
+        self._hdf_lapd_version = ''
         status = self.is_lapd_generated(silent=False)[0]
         if status:
             self.__hdf_map = get_hdfMap(self._hdf_lapd_version,

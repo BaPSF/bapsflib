@@ -265,8 +265,42 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
 
         return conn
 
-    def parse_dataset_name(self, name):
-        pass
+
+    def construct_dataset_name(self, config_name, board, channel, *args):
+        """
+        Returns the of a HDF5 dataset based on its configuration name,
+        board, and channel. Format follows:
+
+            'config_name [brd:ch]'
+
+        :param config_name:
+        :param board:
+        :param channel:
+        :param args:
+        :return:
+        """
+
+        if config_name not in self.data_configs.keys():
+            print('** Warning: Invalid configuration name.')
+            return None
+        elif self.data_configs[config_name]['active'] is False:
+            print('** Warning: Configuration is not active.')
+            return None
+        else:
+            bc_valid = False
+            for brd, chs, dict in\
+                    self.data_configs[config_name]['SIS 3301']:
+                if board == brd:
+                    if channel in chs:
+                        bc_valid = True
+
+            if bc_valid is False:
+                print('** Warning: (Board, channel) not valid.')
+                return None
+
+        dataset_name = '{0} [{1}:{2}]'.format(config_name, board,
+                                              channel)
+        return dataset_name
 
 
 class hdfMap_LaPD_1dot2(hdfMapTemplate):

@@ -265,11 +265,11 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
 
         return conn
 
-
-    def construct_dataset_name(self, config_name, board, channel, *args):
+    def construct_dataset_name(self, config_name, board, channel,
+                               *args):
         """
-        Returns the of a HDF5 dataset based on its configuration name,
-        board, and channel. Format follows:
+        Returns the name of a HDF5 dataset based on its configuration
+        name, board, and channel. Format follows:
 
             'config_name [brd:ch]'
 
@@ -280,24 +280,30 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         :return:
         """
 
+        # ensure all args are valid
         if config_name not in self.data_configs.keys():
+            # config_name must be a known configuration
             print('** Warning: Invalid configuration name.')
             return None
         elif self.data_configs[config_name]['active'] is False:
+            # if known, config_name must be actively used in the HDF5
             print('** Warning: Configuration is not active.')
             return None
         else:
+            # search if (board, channel) combo is connected
             bc_valid = False
-            for brd, chs, dict in\
+            for brd, chs, extras in \
                     self.data_configs[config_name]['SIS 3301']:
                 if board == brd:
                     if channel in chs:
                         bc_valid = True
 
+            # (board, channel) combo must be active
             if bc_valid is False:
                 print('** Warning: (Board, channel) not valid.')
                 return None
 
+        # checks passed, build dataset_name
         dataset_name = '{0} [{1}:{2}]'.format(config_name, board,
                                               channel)
         return dataset_name
@@ -535,6 +541,67 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                 chs = []
 
         return conn
+
+    def construct_dataset_name(self, config_name, board, channel, daq):
+        """
+        Returns the name of a HDF5 dataset based on its configuration
+        name, board, channel, and daq. Format follows:
+
+            'config_name [Slot #: SIS #### FPGA # ch #]'
+
+        :param config_name:
+        :param board:
+        :param channel:
+        :param daq:
+        :return:
+        """
+
+        # ensure all args are valid
+        if config_name not in self.data_configs.keys():
+            # config_name must be a known configuration
+            print('** Warning: Invalid configuration name.')
+            return None
+        elif self.data_configs[config_name]['active'] is False:
+            # if known, config_name must be actively used in the HDF5
+            print('** Warning: Configuration is not active.')
+            return None
+        elif daq not in self.data_configs[config_name]['crates']:
+            # if config_name known and active, daq must be an active
+            # crate
+            print('** Warning: DAQ ({}) not active'.format(daq))
+            return None
+        else:
+            # search if (board, channel) combo is connected
+            bc_valid = False
+            for brd, chs, extrs in  self.data_configs[config_name][daq]:
+                if board == brd:
+                    if channel in chs:
+                        bc_valid = True
+
+            # (board, channel) combo must be active
+            if bc_valid is False:
+                print('** Warning: (Board, channel) not valid.')
+                return None
+
+        # checks passed, build dataset_name
+        if '3302' in daq:
+            slot = self.brd_to_slot(board, 'SIS 3302')
+            dataset_name = '{0} [Slot {1}: SIS 3302 ch {2}]'.format(
+                config_name, slot, channel)
+        elif '3305' in daq:
+            slot = self.brd_to_slot(board, 'SIS 3305')
+            if channel in range(1, 5):
+                fpga = 1
+                ch = channel
+            else:
+                fpga = 2
+                ch = channel - 4
+
+            dataset_name = '{0} [Slot {1}: '.format(config_name, slot)\
+                           + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga,
+                                                                ch)
+
+        return dataset_name
 
     @staticmethod
     def slot_to_brd(slot):

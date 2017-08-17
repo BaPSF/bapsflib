@@ -45,12 +45,46 @@ def get_hdfMap(hdf_version, hdf_file):
 
 class hdfMapTemplate(object):
     """
-        Required constants
-            hdf_version = ''
-            msi_diagnostic_goups = []
-            sis_group = ''
-            sis_crates = []
-            data_configs = {}
+        Template for all HDF Mapping Classes
+
+        Class Attributes
+        ----------------
+            msi_group  -- str -- name of MSI group
+            data_group -- str -- name of data group
+
+        Object Attributes
+        -----------------
+            hdf_version  -- str
+                - string representation of the version number
+                  corresponding the the LaPD HDF Software version used
+                  to generate the HDF5 file
+            msi_diagnostic_groups -- [str]
+                - list of the group names for each diagnostic recorded
+                  in the MSI group
+            sis_group -- str
+                - SIS group name which contains all the DAQ recorded
+                  data and associated DAQ configuration
+            sis_crates -- [str]
+                - list of SIS crates (digitizers) available to record
+                  data
+            data_configs -- {}
+                - dict containing key parameters associated with the
+                  crate configurations
+                - dict is constructed using method build_data_configs
+
+        Methods
+        -------
+            sis_path
+                - returns the HDF internal absolution path to the
+                  sis_group
+            build_data_configs
+                - used to construct the data_configs attribute
+            parse_config_name
+            is_config_active
+            __config_crates
+            __crate_info
+            __find_crate_connections
+
     """
     msi_group = 'MSI'
     data_group = 'Raw data + config'
@@ -64,6 +98,9 @@ class hdfMapTemplate(object):
 
     def sis_path(self):
         return self.data_group + '/' + self.sis_group
+
+    def build_data_configs(self):
+        pass
 
 
 class hdfMap_LaPD_1dot1(hdfMapTemplate):

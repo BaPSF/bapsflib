@@ -14,7 +14,7 @@ import h5py
 import numpy as np
 
 
-class ReadData(object):
+class ReadData(np.ndarray):
     """
     I wand self to be the nparray data.
     self should have a meta attribute that contains a dict() of
@@ -49,7 +49,17 @@ class ReadData(object):
                             'BE' = bottome-east
                             'E'  = east
                             'TE' = top-east
+
+        Extracting Data
+            dset = h5py.get() returns a view of the dataset (dset)
+            From there, instantiating from dset will create a copy of
+             the data. If you want to keep views then one could use
+             dset.values.view().  The dset.vlaues is np.ndarray.
+            To extract data, fancy indexing [::] can be used directly on
+             dset or dset.values.
+
     """
+
     def __init__(self, hdf_file, *args, return_view=False):
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
@@ -57,17 +67,17 @@ class ReadData(object):
         #                      detail
 
         # Define meta attribute
-        self.meta = {'hdf file': None,
-                     'dataset name': None,
-                     'dataset path': None,
-                     'crate': None,
-                     'bit': None,
-                     'sample rate': None,
-                     'board': None,
-                     'channel': None,
-                     'voltage offset': None,
-                     'probe name': None,
-                     'port': (None, None)}
+        self.metainfo = {'hdf file': None,
+                         'dataset name': None,
+                         'dataset path': None,
+                         'crate': None,
+                         'bit': None,
+                         'sample rate': None,
+                         'board': None,
+                         'channel': None,
+                         'voltage offset': None,
+                         'probe name': None,
+                         'port': (None, None)}
 
     def convert_to_v(self):
         """

@@ -265,8 +265,8 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
 
         return conn
 
-    def construct_dataset_name(self, config_name, board, channel,
-                               *args):
+    def construct_dataset_name(self, board, channel, *args,
+                               config_name=None, **kwargs):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, and channel. Format follows:
@@ -279,6 +279,27 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         :param args:
         :return:
         """
+        # TODO: Replace Warnings with proper error handling
+        # TODO: Add a Silent kwd
+
+        # assign config_name
+        # - if config_name is not specified then the 'active' config
+        #   is sought out
+        if config_name is None:
+            found = 0
+            for name in self.data_configs.keys():
+                if self.data_configs[name]['active'] is True:
+                    config_name = name
+                    found += 1
+
+            if found != 1:
+                print('** Warning: List of configurations does not have'
+                      ' just one active configuration.')
+                return None
+            else:
+                print('** Warning: config_name not specified, assuming '
+                      + config_name + '.')
+
 
         # ensure all args are valid
         if config_name not in self.data_configs.keys():
@@ -542,7 +563,8 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
         return conn
 
-    def construct_dataset_name(self, board, channel, daq, config_name):
+    def construct_dataset_name(self, board, channel,
+                               config_name=None, daq=None):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, channel, and daq. Format follows:
@@ -555,6 +577,36 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         :param daq:
         :return:
         """
+        # TODO: Replace Warnings with proper error handling
+        # TODO: Add a Silent kwd
+
+        # assign config_name
+        # - if config_name is not specified then the 'active' config
+        #   is sought out
+        if config_name is None:
+            found = 0
+            for name in self.data_configs.keys():
+                if self.data_configs[name]['active'] is True:
+                    config_name = name
+                    found += 1
+
+            if found != 1:
+                print('** Warning: List of configurations does not have'
+                      ' just one active configuration.')
+                return None
+            else:
+                print('** Warning: config_name not specified, assuming '
+                      + config_name + '.')
+
+        # assign daq
+        # - if daq is not specified then the slow daq '3302' is assumed
+        #   or, if 3305 is the only active daq, then it is assumed
+        # - self.__config_crates() always adds 'SIS 3302' first. If
+        #   '3302' is not active then the list will only contain '3305'.
+        if daq is None:
+            daq = self.data_configs[config_name]['crates'][0]
+            print('** Warning: No daq specified, so assuming '
+                  + daq + '.')
 
         # ensure all args are valid
         if config_name not in self.data_configs.keys():
@@ -573,7 +625,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         else:
             # search if (board, channel) combo is connected
             bc_valid = False
-            for brd, chs, extrs in  self.data_configs[config_name][daq]:
+            for brd, chs, extrs in self.data_configs[config_name][daq]:
                 if board == brd:
                     if channel in chs:
                         bc_valid = True
@@ -597,7 +649,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                 fpga = 2
                 ch = channel - 4
 
-            dataset_name = '{0} [Slot {1}: '.format(config_name, slot)\
+            dataset_name = '{0} [Slot {1}: '.format(config_name, slot) \
                            + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga,
                                                                 ch)
 

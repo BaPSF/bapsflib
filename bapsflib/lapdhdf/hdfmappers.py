@@ -542,7 +542,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
 
         return conn
 
-    def construct_dataset_name(self, config_name, board, channel, daq):
+    def construct_dataset_name(self, board, channel, daq, config_name):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, channel, and daq. Format follows:

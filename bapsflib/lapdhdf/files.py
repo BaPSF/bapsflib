@@ -11,6 +11,7 @@
 import h5py
 
 from .hdfchecks import hdfCheck
+from .hdfreaddata import hdfReadData
 
 
 class File(h5py.File):
@@ -21,6 +22,7 @@ class File(h5py.File):
 
         print('Begin HDF5 Quick Report:')
         self.file_checks = hdfCheck(self)
+        self.file_map = self.file_checks.get_hdf_mapping()
 
     @property
     def listHDF_files(self):

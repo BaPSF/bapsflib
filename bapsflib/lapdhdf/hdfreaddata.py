@@ -14,7 +14,7 @@ import h5py
 import numpy as np
 
 
-class ReadData(np.ndarray):
+class hdfReadData(np.ndarray):
     """
     I wand self to be the nparray data.
     self should have a meta attribute that contains a dict() of
@@ -60,24 +60,46 @@ class ReadData(np.ndarray):
 
     """
 
-    def __init__(self, hdf_file, *args, return_view=False):
+    def __new__(cls, hdf_file, board, channel, *args,
+                return_view=False):
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
         #                      this needs to be thought out in more
         #                      detail
+        #
+        # numpy uses __new__ to initialize objects, so an __init__ is
+        # not necessary
+        #
+        # What I need to do:
+        #  1. construct the dataset name
+        #     - Required args: board, channel
+        #     - Optional kwds: daq, config_name, shots
+        #  2. extract view from dataset
+        #  3. slice view and assign to obj
+        pass
+
+    def __array_finalize__(self, obj):
+        # according to numpy documentation:
+        #  __array__finalize__(self, obj) is called whenever the system
+        #  internally allocates a new array from obj, where obj is a
+        #  subclass (subtype) of the (big)ndarray. It can be used to
+        #  change attributes of self after construction (so as to ensure
+        #  a 2-d matrix for example), or to update meta-information from
+        #  the “parent.” Subclasses inherit a default implementation of
+        #  this method that does nothing.
 
         # Define meta attribute
-        self.metainfo = {'hdf file': None,
-                         'dataset name': None,
-                         'dataset path': None,
-                         'crate': None,
-                         'bit': None,
-                         'sample rate': None,
-                         'board': None,
-                         'channel': None,
-                         'voltage offset': None,
-                         'probe name': None,
-                         'port': (None, None)}
+        self.info = {'hdf file': None,
+                     'dataset name': None,
+                     'dataset path': None,
+                     'crate': None,
+                     'bit': None,
+                     'sample rate': None,
+                     'board': None,
+                     'channel': None,
+                     'voltage offset': None,
+                     'probe name': None,
+                     'port': (None, None)}
 
     def convert_to_v(self):
         """

@@ -61,7 +61,7 @@ class hdfReadData(np.ndarray):
     """
 
     def __new__(cls, hdf_file, board, channel, *args,
-                return_view=False):
+                return_view=False, **kwargs):
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
         #                      this needs to be thought out in more
@@ -76,7 +76,29 @@ class hdfReadData(np.ndarray):
         #     - Optional kwds: daq, config_name, shots
         #  2. extract view from dataset
         #  3. slice view and assign to obj
-        pass
+
+        if 'shots' in kwargs.keys():
+            shots = kwargs['shots']
+        else:
+            shots = None
+
+        if 'daq' in kwargs.keys():
+            daq = kwargs['daq']
+        else:
+            daq = None
+
+        if 'config_name' in kwargs.keys():
+            config_name = kwargs['config_name']
+        else:
+            config_name = None
+
+        dname = hdf_file.file_map.construct_dataset_name(
+            board, channel, config_name=config_name, daq=daq)
+        dpath = hdf_file.file_map.sis_path() + '/' + dname
+        dset = hdf_file.get(dpath)
+
+        obj = dset.value.view(cls)
+        return obj
 
     def __array_finalize__(self, obj):
         # according to numpy documentation:

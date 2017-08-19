@@ -16,6 +16,7 @@ import numpy as np
 from .. import lapdhdf
 from .hdferrors import *
 
+
 class hdfReadData(np.ndarray):
     """
     I wand self to be the nparray data.
@@ -109,6 +110,19 @@ class hdfReadData(np.ndarray):
         dset = hdf_file.get(dpath)
 
         obj = dset.value.view(cls)
+
+        obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
+                    'dataset name': dname,
+                    'dataset path': hdf_file.file_map.sis_path() + '/',
+                    'crate': None,
+                    'bit': None,
+                    'sample rate': (None, 'MHz'),
+                    'board': board,
+                    'channel': channel,
+                    'voltage offset': None,
+                    'probe name': None,
+                    'port': (None, None)}
+
         return obj
 
     def __array_finalize__(self, obj):
@@ -121,18 +135,22 @@ class hdfReadData(np.ndarray):
         #  the “parent.” Subclasses inherit a default implementation of
         #  this method that does nothing.
 
-        # Define meta attribute
-        self.info = {'hdf file': None,
-                     'dataset name': None,
-                     'dataset path': None,
-                     'crate': None,
-                     'bit': None,
-                     'sample rate': None,
-                     'board': None,
-                     'channel': None,
-                     'voltage offset': None,
-                     'probe name': None,
-                     'port': (None, None)}
+        # Define info attribute
+        # - getattr() searches obj for the 'info' attribute. If the
+        #   attribute exists, then it's returned. If the attribute does
+        #   NOT exist, then the 3rd arg is returned as a default value.
+        self.info = getattr(obj, 'info',
+                            {'hdf file': None,
+                             'dataset name': None,
+                             'dataset path': None,
+                             'crate': None,
+                             'bit': None,
+                             'sample rate': (None, 'MHz'),
+                             'board': None,
+                             'channel': None,
+                             'voltage offset': None,
+                             'probe name': None,
+                             'port': (None, None)})
 
     def convert_to_v(self):
         """

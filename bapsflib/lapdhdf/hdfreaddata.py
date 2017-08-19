@@ -19,9 +19,9 @@ from .hdferrors import *
 
 class hdfReadData(np.ndarray):
     """
-    I wand self to be the nparray data.
+    I want self to be the nparray data.
     self should have a meta attribute that contains a dict() of
-     metadata for the dataset.
+    metadata for the dataset.
     Metadata that should have:
         'hdf file'       -- HDF5 file name the data was retrieved from
         'dataset name'   -- name of the dataset

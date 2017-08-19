@@ -104,13 +104,15 @@ class hdfReadData(np.ndarray):
 
         # Note: file_map.construct_dataset_name has conditioning for
         #       board, channel, daq, and config_name
-        dname = hdf_file.file_map.construct_dataset_name(
-            board, channel, config_name=config_name, daq=daq)
+        dname, d_info = hdf_file.file_map.construct_dataset_name(
+            board, channel, config_name=config_name, daq=daq,
+            return_info=True)
         dpath = hdf_file.file_map.sis_path() + '/' + dname
         dset = hdf_file.get(dpath)
 
         obj = dset.value.view(cls)
 
+        print(d_info)
         obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
                     'dataset name': dname,
                     'dataset path': hdf_file.file_map.sis_path() + '/',

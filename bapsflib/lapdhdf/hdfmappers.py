@@ -129,9 +129,12 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                 'crates: [list of active SIS crates],
                 'group name': 'name of config group',
                 'group path': 'absolute path to config group',
-                'SIS 3301': {'bit': 14,
-                             'sample rate': (100.0, 'MHz'),
-                             'connections': [(br, [ch,]), ]}}
+                'SIS 3301': [(brd,
+                              [ch,],
+                              {'bit': 14,
+                               'sample rate': (100.0, 'MHz')}
+                              ), ]
+                }
 
             :param group:
             :return:
@@ -266,7 +269,8 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         return conn
 
     def construct_dataset_name(self, board, channel, *args,
-                               config_name=None, **kwargs):
+                               config_name=None, return_info=False,
+                               **kwargs):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, and channel. Format follows:
@@ -319,6 +323,10 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                     if channel in chs:
                         bc_valid = True
 
+                        # save daq settings for return if requested
+                        d_info = extras
+                        d_info['crate'] = 'SIS 3301'
+
             # (board, channel) combo must be active
             if bc_valid is False:
                 print('** Warning: (Board, channel) not valid.')
@@ -327,7 +335,10 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         # checks passed, build dataset_name
         dataset_name = '{0} [{1}:{2}]'.format(config_name, board,
                                               channel)
-        return dataset_name
+        if return_info is True:
+            return dataset_name, d_info
+        else:
+            return dataset_name
 
 
 class hdfMap_LaPD_1dot2(hdfMapTemplate):
@@ -356,9 +367,12 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                 'crates: [list of active SIS crates],
                 'group name': 'name of config group',
                 'group path': 'absolute path to config group',
-                'SIS 3301': {'bit': 14,
-                             'sample rate': (100.0, 'MHz'),
-                             'connections': [(br, [ch,]), ]}}
+                'SIS 3301': [(brd,
+                              [ch,],
+                              {'bit': 14,
+                               'sample rate': (100.0, 'MHz')}
+                              ), ]
+                }
 
             :param group:
             :return:
@@ -564,7 +578,8 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         return conn
 
     def construct_dataset_name(self, board, channel,
-                               config_name=None, daq=None):
+                               config_name=None, daq=None,
+                               return_info=False):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, channel, and daq. Format follows:
@@ -625,10 +640,12 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         else:
             # search if (board, channel) combo is connected
             bc_valid = False
-            for brd, chs, extrs in self.data_configs[config_name][daq]:
+            for brd, chs, extras in self.data_configs[config_name][daq]:
                 if board == brd:
                     if channel in chs:
                         bc_valid = True
+                        d_info = extras
+                        d_info['crate'] = daq
 
             # (board, channel) combo must be active
             if bc_valid is False:
@@ -653,7 +670,10 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                            + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga,
                                                                 ch)
 
-        return dataset_name
+        if return_info is True:
+            return dataset_name, d_info
+        else:
+            return dataset_name
 
     @staticmethod
     def slot_to_brd(slot):

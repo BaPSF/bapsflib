@@ -79,6 +79,9 @@ class hdfReadData(np.ndarray):
         #     - Optional kwds: daq, config_name, shots
         #  2. extract view from dataset
         #  3. slice view and assign to obj
+        #
+        # TODO: add error handling for .get() of dheader
+        # TODO: add error handling for 'Offset' field in dheader
 
         # Make sure hdf_file is an instance of lapdhdf.File
         if not isinstance(hdf_file, lapdhdf.File):
@@ -109,19 +112,21 @@ class hdfReadData(np.ndarray):
             return_info=True)
         dpath = hdf_file.file_map.sis_path() + '/' + dname
         dset = hdf_file.get(dpath)
+        dheader = hdf_file.get(dpath + ' headers')
 
         obj = dset.value.view(cls)
+        obj.header = dheader
 
-        print(d_info)
+        # assign dataset info
         obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
                     'dataset name': dname,
                     'dataset path': hdf_file.file_map.sis_path() + '/',
-                    'crate': None,
-                    'bit': None,
-                    'sample rate': (None, 'MHz'),
+                    'crate': d_info['crate'],
+                    'bit': d_info['bit'],
+                    'sample rate': d_info['sample rate'],
                     'board': board,
                     'channel': channel,
-                    'voltage offset': None,
+                    'voltage offset': dheader['Offset'][0],
                     'probe name': None,
                     'port': (None, None)}
 

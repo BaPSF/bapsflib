@@ -13,6 +13,8 @@
 import h5py
 import numpy as np
 
+from .. import lapdhdf
+from .hdferrors import *
 
 class hdfReadData(np.ndarray):
     """
@@ -77,21 +79,30 @@ class hdfReadData(np.ndarray):
         #  2. extract view from dataset
         #  3. slice view and assign to obj
 
+        # Make sure hdf_file is an instance of lapdhdf.File
+        if not isinstance(hdf_file, lapdhdf.File):
+            raise NotLaPDHDFError
+
+        # check for 'shots' keyword
         if 'shots' in kwargs.keys():
             shots = kwargs['shots']
         else:
             shots = None
 
+        # check for 'daq' keyword
         if 'daq' in kwargs.keys():
             daq = kwargs['daq']
         else:
             daq = None
 
+        # check for 'config_name' keyword
         if 'config_name' in kwargs.keys():
             config_name = kwargs['config_name']
         else:
             config_name = None
 
+        # Note: file_map.construct_dataset_name has conditioning for
+        #       board, channel, daq, and config_name
         dname = hdf_file.file_map.construct_dataset_name(
             board, channel, config_name=config_name, daq=daq)
         dpath = hdf_file.file_map.sis_path() + '/' + dname

@@ -105,12 +105,12 @@ class hdfReadData(np.ndarray):
         else:
             config_name = None
 
-        # Note: file_map.construct_dataset_name has conditioning for
+        # Note: file_map().construct_dataset_name has conditioning for
         #       board, channel, daq, and config_name
-        dname, d_info = hdf_file.file_map.construct_dataset_name(
+        dname, d_info = hdf_file.file_map().construct_dataset_name(
             board, channel, config_name=config_name, daq=daq,
             return_info=True)
-        dpath = hdf_file.file_map.sis_path() + '/' + dname
+        dpath = hdf_file.file_map().sis_path() + '/' + dname
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
 
@@ -120,7 +120,7 @@ class hdfReadData(np.ndarray):
         # assign dataset info
         obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
                     'dataset name': dname,
-                    'dataset path': hdf_file.file_map.sis_path() + '/',
+                    'dataset path': hdf_file.file_map().sis_path() + '/',
                     'crate': d_info['crate'],
                     'bit': d_info['bit'],
                     'sample rate': d_info['sample rate'],

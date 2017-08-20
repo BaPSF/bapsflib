@@ -22,7 +22,10 @@ class File(h5py.File):
 
         print('Begin HDF5 Quick Report:')
         self.file_checks = hdfCheck(self)
-        self.file_map = self.file_checks.get_hdf_mapping()
+        #self.file_map = self.file_checks.get_hdf_mapping()
+
+    def file_map(self):
+        return self.file_checks.get_hdf_mapping()
 
     @property
     def listHDF_files(self):

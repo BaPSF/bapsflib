@@ -173,19 +173,26 @@ class hdfReadData(np.ndarray):
         """
         pass
 
+    @property
     def dt(self):
         """
         Return timestep dt from the 'sample rate' dict() item.
         :return:
         """
-        pass
+        units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
+        dt = 1.0 / (self.info['sample rate'][0] *
+                    units[self.info['sample rate'][1]])
+        return dt
 
+    @property
     def dv(self):
         """
         Return voltage-step from the 'bit' dict() item.
         :return:
         """
-        pass
+        dv = (2.0 * abs(self.info['voltage offset']) /
+              (2.**self.info['bit'] - 1.))
+        return dv
 
     def full_path(self):
         """

@@ -96,6 +96,7 @@ class hdfMapTemplate(object):
         self.sis_crates = []
         self.data_configs = {}
 
+    @property
     def sis_path(self):
         return self.data_group + '/' + self.sis_group
 
@@ -116,7 +117,7 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
         self.sis_crates.extend(['SIS 3301'])
 
         # Gather and build data configurations if sis_group exists
-        dgroup = hdf_obj.get(self.sis_path())
+        dgroup = hdf_obj.get(self.sis_path)
         if dgroup is not None:
             self.build_data_configs(dgroup)
 
@@ -354,7 +355,7 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         self.sis_crates.extend(['SIS 3302', 'SIS 3305'])
 
         # Gather and build data configurations if sis_group exists
-        dgroup = hdf_obj.get(self.sis_path())
+        dgroup = hdf_obj.get(self.sis_path)
         if dgroup is not None:
             self.build_data_configs(dgroup)
 

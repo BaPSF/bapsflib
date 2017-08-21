@@ -226,7 +226,7 @@ class hdfCheck(object):
         if silent:
             sys.stdout = open(os.devnull, 'w')
 
-        detected = (self.__hdf_map.sis_path()
+        detected = (self.__hdf_map.sis_path
                     in self.__hdf_obj.listHDF_files)
 
         item = self.__hdf_map.sis_group + ' '

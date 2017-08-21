@@ -23,6 +23,7 @@ class File(h5py.File):
         print('Begin HDF5 Quick Report:')
         self.file_checks = hdfCheck(self)
 
+    @property
     def file_map(self):
         return self.file_checks.get_hdf_mapping()
 

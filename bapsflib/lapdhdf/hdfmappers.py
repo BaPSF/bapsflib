@@ -100,7 +100,7 @@ class hdfMapTemplate(object):
     def sis_path(self):
         return self.data_group + '/' + self.sis_group
 
-    def build_data_configs(self):
+    def build_data_configs(self, group):
         pass
 
 

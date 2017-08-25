@@ -11,6 +11,18 @@
 #       Then, if a user adds additional mappings for a specific HDF5
 #       file, those can be maintained
 #
+"""
+Some hierarchical nomenclature for the digital acquisition system
+    DAQ       -- refers to the whole system, all digitizers, the
+                 computer system, etc.
+    digitizer -- a device that collects data, e.g. the main digitizer
+                 in the LaPD room, an oscilloscope, etc.
+    adc       -- analog-digital converter, the element of a digitizer
+                 that does the analog-to-digital conversion, e.g.
+                 the SIS 3302, SIS 3305, etc.
+    board     -- refers to a cluster of channels on an adc
+    channel   -- the actual hook-up location on the adc
+"""
 import h5py
 
 
@@ -324,7 +336,7 @@ class hdfMap_LaPD_1dot1(hdfMapTemplate):
                     if channel in chs:
                         bc_valid = True
 
-                        # save daq settings for return if requested
+                        # save adc settings for return if requested
                         d_info = extras
                         d_info['crate'] = 'SIS 3301'
 
@@ -579,18 +591,18 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
         return conn
 
     def construct_dataset_name(self, board, channel,
-                               config_name=None, daq=None,
+                               config_name=None, adc=None,
                                return_info=False):
         """
         Returns the name of a HDF5 dataset based on its configuration
-        name, board, channel, and daq. Format follows:
+        name, board, channel, and adc. Format follows:
 
             'config_name [Slot #: SIS #### FPGA # ch #]'
 
         :param config_name:
         :param board:
         :param channel:
-        :param daq:
+        :param adc:
         :return:
         """
         # TODO: Replace Warnings with proper error handling
@@ -614,15 +626,15 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                 print('** Warning: config_name not specified, assuming '
                       + config_name + '.')
 
-        # assign daq
-        # - if daq is not specified then the slow daq '3302' is assumed
-        #   or, if 3305 is the only active daq, then it is assumed
+        # assign adc
+        # - if adc is not specified then the slow adc '3302' is assumed
+        #   or, if 3305 is the only active adc, then it is assumed
         # - self.__config_crates() always adds 'SIS 3302' first. If
         #   '3302' is not active then the list will only contain '3305'.
-        if daq is None:
-            daq = self.data_configs[config_name]['crates'][0]
-            print('** Warning: No daq specified, so assuming '
-                  + daq + '.')
+        if adc is None:
+            adc = self.data_configs[config_name]['crates'][0]
+            print('** Warning: No adc specified, so assuming '
+                  + adc + '.')
 
         # ensure all args are valid
         if config_name not in self.data_configs.keys():
@@ -633,20 +645,20 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
             # if known, config_name must be actively used in the HDF5
             print('** Warning: Configuration is not active.')
             return None
-        elif daq not in self.data_configs[config_name]['crates']:
-            # if config_name known and active, daq must be an active
+        elif adc not in self.data_configs[config_name]['crates']:
+            # if config_name known and active, adc must be an active
             # crate
-            print('** Warning: DAQ ({}) not active'.format(daq))
+            print('** Warning: DAQ ({}) not active'.format(adc))
             return None
         else:
             # search if (board, channel) combo is connected
             bc_valid = False
-            for brd, chs, extras in self.data_configs[config_name][daq]:
+            for brd, chs, extras in self.data_configs[config_name][adc]:
                 if board == brd:
                     if channel in chs:
                         bc_valid = True
                         d_info = extras
-                        d_info['crate'] = daq
+                        d_info['crate'] = adc
 
             # (board, channel) combo must be active
             if bc_valid is False:
@@ -654,11 +666,11 @@ class hdfMap_LaPD_1dot2(hdfMapTemplate):
                 return None
 
         # checks passed, build dataset_name
-        if '3302' in daq:
+        if '3302' in adc:
             slot = self.brd_to_slot(board, 'SIS 3302')
             dataset_name = '{0} [Slot {1}: SIS 3302 ch {2}]'.format(
                 config_name, slot, channel)
-        elif '3305' in daq:
+        elif '3305' in adc:
             slot = self.brd_to_slot(board, 'SIS 3305')
             if channel in range(1, 5):
                 fpga = 1

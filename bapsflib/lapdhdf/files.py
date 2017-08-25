@@ -77,7 +77,7 @@ class File(h5py.File):
     def getItem(self, name):
         return self.get(name)
 
-    def read_data(self, board, channel, shots=None, daq=None,
+    def read_data(self, board, channel, shots=None, adc=None,
                   config_name=None, output_voltage=True):
-        return hdfReadData(self, board, channel, shots=shots, daq=daq,
+        return hdfReadData(self, board, channel, shots=shots, adc=adc,
                            config_name=config_name)

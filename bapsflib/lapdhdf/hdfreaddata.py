@@ -63,7 +63,7 @@ class hdfReadData(np.ndarray):
 
     """
 
-    def __new__(cls, hdf_file, board, channel, shots=None, daq=None,
+    def __new__(cls, hdf_file, board, channel, shots=None, adc=None,
                 config_name=None):
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
@@ -108,7 +108,7 @@ class hdfReadData(np.ndarray):
         # Note: file_map.construct_dataset_name has conditioning for
         #       board, channel, daq, and config_name
         dname, d_info = hdf_file.file_map.construct_dataset_name(
-            board, channel, config_name=config_name, daq=daq,
+            board, channel, config_name=config_name, daq=adc,
             return_info=True)
         dpath = hdf_file.file_map.sis_path + '/' + dname
         dset = hdf_file.get(dpath)
@@ -121,7 +121,7 @@ class hdfReadData(np.ndarray):
         obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
                     'dataset name': dname,
                     'dataset path': hdf_file.file_map.sis_path + '/',
-                    'crate': d_info['crate'],
+                    'adc': d_info['crate'],
                     'bit': d_info['bit'],
                     'sample rate': d_info['sample rate'],
                     'board': board,
@@ -150,7 +150,7 @@ class hdfReadData(np.ndarray):
                             {'hdf file': None,
                              'dataset name': None,
                              'dataset path': None,
-                             'crate': None,
+                             'adc': None,
                              'bit': None,
                              'sample rate': (None, 'MHz'),
                              'board': None,

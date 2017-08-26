@@ -33,7 +33,8 @@ import os
 import sys
 
 from .hdferrors import *
-from .hdfmappers import get_hdfMap
+from .hdfmappers import hdfMap
+#from .hdfmappers import get_hdfMap
 
 
 class hdfCheck(object):
@@ -47,9 +48,10 @@ class hdfCheck(object):
         self._hdf_lapd_version = ''
         status = self.is_lapd_generated(silent=False)[0]
         if status:
-            self.__hdf_map = get_hdfMap(self._hdf_lapd_version,
-                                        self.__hdf_obj)
-            self.full_check()
+            self.__hdf_map = hdfMap(hdf_obj)
+        #    self.__hdf_map = get_hdfMap(self._hdf_lapd_version,
+        #                                self.__hdf_obj)
+        #    self.full_check()
 
     def full_check(self):
         """

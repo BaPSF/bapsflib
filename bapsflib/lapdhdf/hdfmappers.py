@@ -76,21 +76,16 @@ class hdfMap(object):
 
     # Data and Config stuff
     data_group = 'Raw data + config'
-    possible_digitizer_groups = {'main': ['SIS 3301', 'SIS crates'],
-                                 'aux': ['LeCroy', 'Waveform']}
-    possible_motion_groups = ['6K Compumotor', 'NI_XZ']
-    possible_dsequence_groups = ['Data run sequence']
+
+    # possible_digitizer_groups = {'main': ['SIS 3301', 'SIS crates'],
+    #                             'aux': ['LeCroy', 'Waveform']}
+    # possible_motion_groups = ['6K Compumotor', 'NI_XZ']
+    # possible_dsequence_groups = ['Data run sequence']
 
     def __init__(self, hdf_obj):
         self.__hdf_obj = hdf_obj
         self.__attach_msi()
         self.__attach_digitizers()
-
-        # old stuff...to be re-written
-        self.msi_diagnostic_groups = []
-        self.sis_group = ''
-        self.sis_crates = []
-        self.data_configs = {}
 
     def __attach_msi(self):
         """
@@ -138,10 +133,6 @@ class hdfMap(object):
         return vers
 
     @property
-    def sis_path(self):
-        return self.data_group + '/' + self.sis_group
-
-    @property
     def main_data(self):
         """
         Return instance of info for the main data group. e.g.
@@ -152,6 +143,3 @@ class hdfMap(object):
         :return:
         """
         return None
-
-    def build_data_configs(self, group):
-        pass

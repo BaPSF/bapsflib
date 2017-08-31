@@ -12,12 +12,13 @@
 import h5py
 
 from .sis3301 import hdfMap_digi_sis3301
+from .siscrate import hdfMap_digi_siscrate
 
 
 class hdfMap_digitizers(dict):
     __defined_digitizer_mappings = {
         'SIS 3301': hdfMap_digi_sis3301,
-        'SIS crate': 'SIS crate mapping'}
+        'SIS crate': hdfMap_digi_siscrate}
 
     def __init__(self, data_group):
 

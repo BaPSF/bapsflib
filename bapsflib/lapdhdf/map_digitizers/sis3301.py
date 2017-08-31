@@ -13,26 +13,17 @@
 #
 import h5py
 
+from .digi_template import hdfMap_digi_template
 
-class hdfMap_digi_sis3301(object):
+
+class hdfMap_digi_sis3301(hdfMap_digi_template):
     __predefined_adc = ['SIS 3301']
 
     def __init__(self, digi_group):
-        # condition digi_group arg
-        if isinstance(digi_group, h5py.Group):
-            self.__digi_group = digi_group
-        else:
-            raise TypeError('digi_group is not of type h5py.Group')
-
-        self.info = {'group name': digi_group.name.split('/')[-1],
-                     'group path': digi_group.name}
+        hdfMap_digi_template.__init__(self, digi_group)
 
         self.data_configs = {}
         self.__build_data_configs()
-
-    @property
-    def digi_group(self):
-        return self.__digi_group
 
     def __build_data_configs(self):
         """

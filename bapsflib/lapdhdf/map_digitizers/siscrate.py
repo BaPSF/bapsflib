@@ -27,7 +27,7 @@ class hdfMap_digi_siscrate(object):
                      'group path': digi_group.name}
 
         self.data_configs = {}
-        #self.__build_data_configs()
+        self.__build_data_configs()
 
     @property
     def digi_group(self):

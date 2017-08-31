@@ -11,6 +11,8 @@
 #
 import h5py
 
+from abc import abstractmethod, abstractstaticmethod, abstractproperty
+
 
 class hdfMap_digi_template(object):
     """
@@ -29,3 +31,35 @@ class hdfMap_digi_template(object):
     @property
     def digi_group(self):
         return self.__digi_group
+
+    @abstractmethod
+    def __build_data_configs(self):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def parse_config_name(name):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def is_config_active(config_name, dataset_names):
+        raise NotImplementedError
+
+    @abstractmethod
+    def __adc_info(self, adc_name, config_group):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def __find_config_adc(config_group):
+        raise NotImplementedError
+
+    @staticmethod
+    @abstractmethod
+    def __find_adc_connections(adc_name, config_group):
+        raise NotImplementedError
+
+    @abstractmethod
+    def construct_dataset_name(self, board, channel):
+        raise NotImplementedError

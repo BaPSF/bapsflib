@@ -24,6 +24,8 @@ Some hierarchical nomenclature for the digital acquisition system
     channel   -- the actual hook-up location on the adc
 """
 import h5py
+from .hdfmappers_msi import hdfMap_msi
+from .map_digitizers import hdfMap_digitizers
 
 
 class hdfMap(object):
@@ -82,17 +84,38 @@ class hdfMap(object):
     def __init__(self, hdf_obj):
         self.__hdf_obj = hdf_obj
         self.__attach_msi()
+        self.__attach_digitizers()
 
+        # old stuff...to be re-written
         self.msi_diagnostic_groups = []
         self.sis_group = ''
         self.sis_crates = []
         self.data_configs = {}
 
     def __attach_msi(self):
+        """
+        Will attach a dictionary style mapper (self.msi) that contains
+        all msi diagnostic mappings.
+
+        :return:
+        """
         if self.msi_group in self.__hdf_obj.keys():
             self.msi = hdfMap_msi(self.__hdf_obj[self.msi_group])
         else:
             self.msi = None
+
+    def __attach_digitizers(self):
+        """
+        Will attach a dictionary style mapper (self.digitizers) that
+        contains all digitizer mappings.
+
+        :return:
+        """
+        if self.data_group in self.__hdf_obj.keys():
+            self.digitizers = hdfMap_digitizers(
+                self.__hdf_obj[self.data_group])
+        else:
+            self.digitizers = None
 
     @property
     def is_lapd_hdf(self):
@@ -131,21 +154,4 @@ class hdfMap(object):
         return None
 
     def build_data_configs(self, group):
-        pass
-
-
-class hdfMap_msi(object):
-    def __new__(cls, msi_group):
-        obj = object.__new__(cls)
-        obj.__possible_diagnostic_groups = ['Discharge', 'Gas pressure',
-                                            'Heater',
-                                            'Interferometer array',
-                                            'Magnetic field']
-        obj.found_diagnostics = []
-        for key in msi_group.keys():
-            obj.found_diagnostics.append(key)
-
-        return obj
-
-    def __init__(self, msi_group):
         pass

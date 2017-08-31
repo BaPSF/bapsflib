@@ -40,14 +40,14 @@ class hdfMap_digi_sis3301(object):
 
         data_configs[config_name] = {
             'active': True/False,
-            'crates: [list of active SIS crates],
+            'adc': [list of active analog-digital converters],
             'group name': 'name of config group',
             'group path': 'absolute path to config group',
             'SIS 3301': [(brd,
-                [ch,],
-                {'bit': 14,
-                'sample rate': (100.0, 'MHz')}
-                ), ]
+                         [ch,],
+                         {'bit': 14,
+                          'sample rate': (100.0, 'MHz')}
+                         ), ]
             }
 
         :return:
@@ -73,7 +73,8 @@ class hdfMap_digi_sis3301(object):
                     self.is_config_active(config_name, dataset_names)
 
                 # assign active adc's to the configuration
-                self.data_configs[config_name]['adc'] = ['SIS 3301']
+                self.data_configs[config_name]['adc'] = \
+                    self.__find_config_adc(self.digi_group[name])
 
                 # add 'group name'
                 self.data_configs[config_name]['group name'] = name
@@ -144,6 +145,10 @@ class hdfMap_digi_sis3301(object):
             adc_info.append(conn)
 
         return adc_info
+
+    @staticmethod
+    def __find_config_adc(config_group):
+        return ['SIS 3301']
 
     @staticmethod
     def __find_adc_connections(adc_name, config_group):

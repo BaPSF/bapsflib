@@ -34,7 +34,57 @@ class hdfMap_digi_siscrate(object):
         return self.__digi_group
 
     def __build_data_configs(self):
-        pass
+        """
+            Builds self.data_configs dictionary. A dict. entry follows:
+
+            data_configs[config_name] = {
+                'active': True/False,
+                'adc': [list of active analog-digital converters],
+                'group name': 'name of config group',
+                'group path': 'absolute path to config group',
+                'SIS 3301': [(brd,
+                              [ch,],
+                              {'bit': 14,
+                               'sample rate': (100.0, 'MHz')}
+                              ), ]
+                }
+
+            :return:
+        """
+        # collect digi_group's dataset names and sub-group names
+        subgroup_names = []
+        dataset_names = []
+        for key in self.digi_group.keys():
+            if isinstance(self.digi_group[key], h5py.Dataset):
+                dataset_names.append(key)
+            if isinstance(self.digi_group[key], h5py.Group):
+                subgroup_names.append(key)
+
+        # populate self.data_configs
+        for name in subgroup_names:
+            is_config, config_name = self.parse_config_name(name)
+            if is_config:
+                # initialize configuration name in the config dict
+                self.data_configs[config_name] = {}
+
+                # determine if config is active
+                self.data_configs[config_name]['active'] = \
+                    self.is_config_active(config_name, dataset_names)
+
+        #        # assign active adc's to the configuration
+        #        self.data_configs[config_name]['adc'] = \
+        #            self.__config_adc(self.digi_group[name])
+        #
+        #        # add 'group name'
+        #        self.data_configs[config_name]['group name'] = name
+        #
+        #        # add 'group path'
+        #        self.data_configs[config_name]['group path'] = \
+        #            self.digi_group[name].name
+        #
+        #        # add adc info
+        #        self.data_configs[config_name]['SIS 3301'] = \
+        #            self.__adc_info('SIS 3301', self.digi_group[name])
 
     @staticmethod
     def parse_config_name(name):
@@ -74,6 +124,17 @@ class hdfMap_digi_siscrate(object):
 
     def __adc_info(self, adc_name, config_group):
         pass
+
+    @staticmethod
+    def __find_config_adc(config_group):
+        active_adc = []
+        adc_types = list(config_group.attrs['SIS crate board types'])
+        if 2 in adc_types:
+            active_adc.append('SIS 3302')
+        if 3 in adc_types:
+            active_adc.append('SIS 3305')
+
+        return active_adc
 
     @staticmethod
     def ___find_adc_connections(adc_name, config_group):

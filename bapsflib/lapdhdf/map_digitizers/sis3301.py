@@ -22,7 +22,7 @@ class hdfMap_digi_sis3301(object):
         if isinstance(digi_group, h5py.Group):
             self.__digi_group = digi_group
         else:
-            raise TypeError('data_group is not of type h5py.Group')
+            raise TypeError('digi_group is not of type h5py.Group')
 
         self.info = {'group name': digi_group.name.split('/')[-1],
                      'group path': digi_group.name}

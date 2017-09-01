@@ -32,9 +32,8 @@ import h5py
 import os
 import sys
 
-from .hdferrors import *
+from .hdferrors import NotHDFFileError, NotLaPDHDFError, NoMSIError
 from .hdfmappers import hdfMap
-#from .hdfmappers import get_hdfMap
 
 
 class hdfCheck(object):
@@ -49,9 +48,7 @@ class hdfCheck(object):
         status = self.is_lapd_generated(silent=False)[0]
         if status:
             self.__hdf_map = hdfMap(hdf_obj)
-        #    self.__hdf_map = get_hdfMap(self._hdf_lapd_version,
-        #                                self.__hdf_obj)
-        #    self.full_check()
+            self.full_check()
 
     def full_check(self):
         """
@@ -61,11 +58,11 @@ class hdfCheck(object):
 
         status = self.exist_msi(silent=False)
         if status:
-            self.exist_msi_diagnostics_all(silent=False)
+            self.check_all_msi_diagnostics(silent=False)
         self.exist_data_group(silent=False)
-        status = self.exist_sis_group(silent=False)
-        if status:
-            self.identify_data_configs()
+        #status = self.exist_sis_group(silent=False)
+        #if status:
+        #    self.identify_data_configs()
 
     def is_lapd_generated(self, silent=True):
         """
@@ -102,25 +99,32 @@ class hdfCheck(object):
 
     def exist_msi(self, silent=True):
         """
-            Check for the existence of the MSI Group.
+        Check for the existence of the MSI Group.
 
-            :param silent:
-            :return:
+        :param silent:
+        :return:
         """
+        # go to a Null print if silent=True
         if silent:
             sys.stdout = open(os.devnull, 'w')
 
-        msi_detected = False
-        for key in self.__hdf_obj.keys():
-            if key.casefold() == self.__hdf_map.msi_group.casefold():
-                msi_detected = True
+        # the __hdf_map.msi attribute is None if hdfMap() can not find
+        # the msi groupd defined by __hdf_map.msi_group
+        if self.__hdf_map.msi is None:
+            msi_detected = False
+        else:
+            msi_detected = True
 
-        item = self.__hdf_map.msi_group + '/ '
+        # print status to screen
+        item = self.__hdf_map.msi_group +'/'
         found = 'yes' if msi_detected else 'no'
         status_print(item, found, '')
+
+        # raise Error if MSI is not detected
         if not msi_detected:
             raise NoMSIError
 
+        # return to normal print
         if silent:
             sys.stdout = sys.__stdout__
 
@@ -128,12 +132,12 @@ class hdfCheck(object):
 
     def exist_msi_diagnostic(self, diag_group_name, silent=True):
         """
-            Check for an MSI diagnostc group by the name of
-            diag_group_name.
+        Check for an MSI diagnostic group by the name of
+        diag_group_name.
 
-            :param diag_group_name
-            :param silent:
-            :return:
+        :param diag_group_name
+        :param silent:
+        :return:
         """
         if silent:
             sys.stdout = open(os.devnull, 'w')
@@ -142,18 +146,13 @@ class hdfCheck(object):
 
         # scan if diag_group_name is among the sub-groups in the MSI
         # group
-        for key in self.__hdf_obj[self.__hdf_map.msi_group].keys():
-            if key.casefold() == diag_group_name.casefold():
-                diag_detected = True
-                break
+        if diag_group_name in self.__hdf_map.msi.found_diagnostics:
+            diag_detected = True
 
         # check if the diag_group_name is known in the pre-defined
         # mapping context
-        diag_in_context = False
-        for name in self.__hdf_map.msi_diagnostic_groups:
-            if name.casefold() == diag_group_name.casefold():
-                diag_in_context = True
-                break
+        diag_in_context = \
+            self.__hdf_map.msi.is_diagnostic_in_context(diag_group_name)
 
         item = diag_group_name + ' '
         found = 'yes' if diag_detected else 'no'
@@ -165,54 +164,43 @@ class hdfCheck(object):
 
         return diag_detected
 
-    def exist_msi_diagnostics_all(self, silent=True):
+    def check_all_msi_diagnostics(self, silent=True):
         """
-            Check for all pre-defined MSI Diagnostic groups.
+        Check for all pre-defined MSI Diagnostic groups.
 
-            Pre-defined diagnostic group are set in
-            self._msi_diagnostic_groups,
+        Pre-defined diagnostic group are set in
+        self._msi_diagnostic_groups,
 
-            :param silent:
-            :return:
+        :param silent:
+        :return:
         """
-        all_diags_exist = False
-
-        all_possible_groups = \
-            list(self.__hdf_obj[self.__hdf_map.msi_group])
-        all_possible_groups.extend(self.__hdf_map.msi_diagnostic_groups)
-        all_possible_groups.sort()
-        all_possible_groups = list(set(all_possible_groups))
-        all_possible_groups.sort()
-
-        for ii, diag in enumerate(all_possible_groups):
-            status = self.exist_msi_diagnostic(diag, silent=silent)
-
-            if ii == 0:
-                all_diags_exist = status
-            else:
-                all_diags_exist = (all_diags_exist and status)
-
-        return all_diags_exist, self.__hdf_map.msi_diagnostic_groups
+        for ii, diag in enumerate(self.__hdf_map.msi.found_diagnostics):
+            self.exist_msi_diagnostic(diag, silent=silent)
 
     def exist_data_group(self, silent=True):
         """
-            Check for the existence of the 'Raw data + config' Group.
+        Check for the existence of the 'Raw data + config' Group.
 
-            :param silent:
-            :return:
+        :param silent:
+        :return:
         """
+        # go to a Null print if silent=True
         if silent:
             sys.stdout = open(os.devnull, 'w')
 
-        data_detected = False
-        for key in self.__hdf_obj.keys():
-            if key.casefold() == self.__hdf_map.data_group.casefold():
-                data_detected = True
+        # the __hdf_map.digitizer attribute is None if hdfMap() can not
+        # find the data groupd defined by __hdf_map.data_group
+        if self.__hdf_map.digitizers is None:
+            data_detected = False
+        else:
+            data_detected = True
 
+        # print status to screen
         item = self.__hdf_map.data_group + '/ '
         found = 'yes' if data_detected else 'no'
         status_print(item, found, '')
 
+        # return to normal print
         if silent:
             sys.stdout = sys.__stdout__
 
@@ -220,10 +208,10 @@ class hdfCheck(object):
 
     def exist_sis_group(self, silent=True):
         """
-            Check for existence of SIS group.
+        Check for existence of SIS group.
 
-            :param silent:
-            :return:
+        :param silent:
+        :return:
         """
         if silent:
             sys.stdout = open(os.devnull, 'w')
@@ -262,23 +250,6 @@ class hdfCheck(object):
                     note = '(brd, [ch, ...])'
                     status_print(item, '', note, indent=4,
                                  item_found_pad=' ')
-
-                    # crate bit resolution and sample rate
-                    #item = '{0}-bit, {1} {2}'.format(
-                    #    self.__hdf_map.data_configs[key][crate]['bit'],
-                    #    self.__hdf_map.data_configs[key][crate][
-                    #        'sample rate'][0],
-                    #    self.__hdf_map.data_configs[key][crate][
-                    #        'sample rate'][1])
-                    #status_print(item, '', '', indent=5,
-                    #             item_found_pad=' ')
-
-                    # crate connections title
-                    #item = 'Connections'
-                    #found = ''
-                    #note = '(brd, [ch, ...])'
-                    #status_print(item, found, note, indent=5,
-                    #             item_found_pad=' ')
 
                     # crate connections
                     nconns = len(

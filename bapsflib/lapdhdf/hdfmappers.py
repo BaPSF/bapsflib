@@ -24,7 +24,7 @@ Some hierarchical nomenclature for the digital acquisition system
     channel   -- the actual hook-up location on the adc
 """
 import h5py
-from .hdfmappers_msi import hdfMap_msi
+from .map_msi import hdfMap_msi
 from .map_digitizers import hdfMap_digitizers
 
 
@@ -133,7 +133,7 @@ class hdfMap(object):
         return vers
 
     @property
-    def main_data(self):
+    def main_digitizer(self):
         """
         Return instance of info for the main data group. e.g.
             self.data['SIS 3301']
@@ -142,4 +142,11 @@ class hdfMap(object):
 
         :return:
         """
-        return None
+        possible_candidates = ['SIS 3301', 'SIS crate']
+        digi = None
+        for key in self.digitizers.keys():
+            if key in possible_candidates:
+                digi = self.digitizers[key]
+                break
+
+        return digi

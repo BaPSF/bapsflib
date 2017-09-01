@@ -26,6 +26,8 @@ class hdfMap_msi(dict):
         if not isinstance(msi_group, h5py.Group):
             raise TypeError('msi_group is not of type h5py.Group')
 
+        self.__msi_group = msi_group
+
         # Determine Diagnostics in msi
         # - it is assumed that any subgroup of 'MSI/' is a diagnostic
         # - any dataset directly under 'MSI/' is ignored
@@ -41,8 +43,15 @@ class hdfMap_msi(dict):
         dict.__init__(self, self.__build_dict)
 
     @property
+    def group(self):
+        return self.__msi_group
+
+    @property
     def predefined_diagnostic_groups(self):
         return list(self.__defined_diagnostic_mappings.keys())
+
+    def is_diagnostic_in_context(self, diag_name):
+        return diag_name in self.predefined_diagnostic_groups
 
     @property
     def __build_dict(self):

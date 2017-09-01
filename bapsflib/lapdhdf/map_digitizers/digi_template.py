@@ -55,9 +55,8 @@ class hdfMap_digi_template(object):
     def __find_config_adc(config_group):
         raise NotImplementedError
 
-    @staticmethod
     @abstractmethod
-    def __find_adc_connections(adc_name, config_group):
+    def __find_adc_connections(self, adc_name, config_group):
         raise NotImplementedError
 
     @abstractmethod

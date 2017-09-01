@@ -22,7 +22,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
     def __init__(self, digi_group):
         hdfMap_digi_template.__init__(self, digi_group)
 
-        self.data_configs = {}
+        # build self.data_configs
         self.__build_data_configs()
 
     def __build_data_configs(self):
@@ -43,6 +43,9 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         :return:
         """
+        # initialize data_configs
+        self.data_configs = {}
+
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []
         dataset_names = []
@@ -141,11 +144,17 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
     def __find_config_adc(config_group):
         return ['SIS 3301']
 
-    @staticmethod
-    def __find_adc_connections(adc_name, config_group):
+    def __find_adc_connections(self, adc_name, config_group):
+        # initialize conn, brd, and chs
+        # conn = list of connections
+        # brd  = board number
+        # chs  = list of connect channels of board brd
+        #
         conn = []
         brd = None
         chs = []
+
+        # Determine connected (brd, ch) combinations
         for ibrd, board in enumerate(config_group.keys()):
             brd_group = config_group[board]
             for ich, ch_key in enumerate(brd_group.keys()):
@@ -157,6 +166,8 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                 else:
                     chs.append(ch_group.attrs['Channel'])
 
+            # build subconn tuple with connected board, channels, and
+            # acquisition parameters
             subconn = (brd, chs,
                        {'bit': None, 'sample rate': (None, 'MHz')})
             conn.append(subconn)

@@ -59,7 +59,7 @@ class hdfCheck(object):
         status = self.exist_msi(silent=False)
         if status:
             self.check_all_msi_diagnostics(silent=False)
-        self.exist_data_group(silent=False)
+        #self.exist_data_group(silent=False)
         #status = self.exist_sis_group(silent=False)
         #if status:
         #    self.identify_data_configs()

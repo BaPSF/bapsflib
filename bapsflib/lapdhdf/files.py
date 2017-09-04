@@ -7,7 +7,6 @@
 #
 # License:
 #
-
 import h5py
 
 from .hdfchecks import hdfCheck
@@ -15,8 +14,22 @@ from .hdfreaddata import hdfReadData
 
 
 class File(h5py.File):
+    """
+    Open a HDF5 File. (see :py:mod:`h5py` documentation for
+    :py:class:`h5py.File` details)
+
+    :param name: Name of file (`str` or `unicode`)
+    :param mode: Mode in which to open the file. (default 'r' read-only)
+    :param driver: File driver to use
+    :param libver: Compatibility bounds
+    :param userblock_size: Size (in bytes) of the user block. If
+        nonzero, must be a power of 2 and at least 512.
+    :param swmr: Single Write, Multiple Read
+    :param kwds: Driver specific keywords
+    """
     def __init__(self, name, mode='r', driver=None, libver=None,
                  userblock_size=None, swmr=False, **kwds):
+        """what should i put here"""
         h5py.File.__init__(self, name, mode, driver, libver,
                            userblock_size, swmr)
 
@@ -25,6 +38,10 @@ class File(h5py.File):
 
     @property
     def file_map(self):
+        """
+        Returns an instance of the :py:class:`lapdhdf.hdfmappers.hdfMap`
+        file mappings.
+        """
         return self.file_checks.get_hdf_mapping()
 
     @property
@@ -55,26 +72,53 @@ class File(h5py.File):
     @property
     def tupHDF_fileSys(self):
         """
-        zip(listHDF_files, listHDF_file_types)
+        `zip(listHDF_files, listHDF_file_types)`
         """
         return zip(self.listHDF_files, self.listHDF_file_types)
 
     @property
     def getAttrItems(self):
+        """
+        .. Warning:: Do not use. Will be deprecated.
+
+        :return: dict of `File.attrs.items()`
+        """
         return dict(self.attrs.items())
 
     @property
     def getAttrKeys(self):
+        """
+        .. Warning:: Do not use. Will be deprecated.
+
+        :return: list of `File.attrs.keys()`
+        """
         return list(self.attrs.keys())
 
     @property
     def getAttrValues(self):
+        """
+        .. Warning:: Do not use. Will be deprecated.
+
+        :return: list of `File.attrs.values()`
+        """
         return list(self.attrs.values())
 
     def getItemType(self, name):
+        """
+        .. Warning:: Do not use. Will be deprecated.
+
+        :param name: name of Group/Dataset
+        :return: `str` indicating if `name` is a 'Group' of 'Dataset'
+        """
         return self.get(name, getclass=True).__name__
     
     def getItem(self, name):
+        """
+        .. Warning:: Do not use. Will be deprecated.
+
+        :param name: name of Group/Dataset
+        :return: `File.get(name)`
+        """
         return self.get(name)
 
     def read_data(self, board, channel, shots=None, adc=None,

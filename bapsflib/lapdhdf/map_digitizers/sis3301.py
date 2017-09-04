@@ -174,20 +174,22 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         return conn
 
-    def construct_dataset_name(self, board, channel, *args,
-                               config_name=None, return_info=False,
-                               **kwargs):
+    def construct_dataset_name(self, board, channel,
+                               config_name=None, adc='SIS 3301',
+                               return_info=False ):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, and channel. Format follows:
 
             'config_name [brd:ch]'
 
-        :param config_name:
         :param board:
         :param channel:
-        :param args:
+        :param config_name:
+        :param adc:
+        :param return_info:
         :return:
+
         """
         # TODO: Replace Warnings with proper error handling
         # TODO: Add a Silent kwd

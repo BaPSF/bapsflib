@@ -11,18 +11,18 @@
 #       Then, if a user adds additional mappings for a specific HDF5
 #       file, those can be maintained
 #
-"""
-Some hierarchical nomenclature for the digital acquisition system
-    DAQ       -- refers to the whole system, all digitizers, the
-                 computer system, etc.
-    digitizer -- a device that collects data, e.g. the main digitizer
-                 in the LaPD room, an oscilloscope, etc.
-    adc       -- analog-digital converter, the element of a digitizer
-                 that does the analog-to-digital conversion, e.g.
-                 the SIS 3302, SIS 3305, etc.
-    board     -- refers to a cluster of channels on an adc
-    channel   -- the actual hook-up location on the adc
-"""
+#
+# Some hierarchical nomenclature for the digital acquisition system
+#     DAQ       -- refers to the whole system, all digitizers, the
+#                  computer system, etc.
+#     digitizer -- a device that collects data, e.g. the main digitizer
+#                  in the LaPD room, an oscilloscope, etc.
+#     adc       -- analog-digital converter, the element of a digitizer
+#                  that does the analog-to-digital conversion, e.g.
+#                  the SIS 3302, SIS 3305, etc.
+#     board     -- refers to a cluster of channels on an adc
+#     channel   -- the actual hook-up location on the adc
+#
 import h5py
 from .map_msi import hdfMap_msi
 from .map_digitizers import hdfMap_digitizers
@@ -30,45 +30,42 @@ from .map_digitizers import hdfMap_digitizers
 
 class hdfMap(object):
     """
-        Template for all HDF Mapping Classes
+    Template for all HDF Mapping Classes
 
-        Class Attributes
-        ----------------
-            msi_group  -- str -- name of MSI group
-            data_group -- str -- name of data group
+    Class Attributes:
+        msi_group  -- str -- name of MSI group
+        data_group -- str -- name of data group
 
-        Object Attributes
-        -----------------
-            hdf_version  -- str
-                - string representation of the version number
-                  corresponding the the LaPD HDF Software version used
-                  to generate the HDF5 file
-            msi_diagnostic_groups -- [str]
-                - list of the group names for each diagnostic recorded
-                  in the MSI group
-            sis_group -- str
-                - SIS group name which contains all the DAQ recorded
-                  data and associated DAQ configuration
-            sis_crates -- [str]
-                - list of SIS crates (digitizers) available to record
-                  data
-            data_configs -- {}
-                - dict containing key parameters associated with the
-                  crate configurations
-                - dict is constructed using method build_data_configs
+    Object Attributes:
+        hdf_version  -- str
+            - string representation of the version number
+              corresponding the the LaPD HDF Software version used
+              to generate the HDF5 file
+        msi_diagnostic_groups -- [str]
+            - list of the group names for each diagnostic recorded
+              in the MSI group
+        sis_group -- str
+            - SIS group name which contains all the DAQ recorded
+              data and associated DAQ configuration
+        sis_crates -- [str]
+            - list of SIS crates (digitizers) available to record
+              data
+        data_configs -- {}
+            - dict containing key parameters associated with the
+              crate configurations
+            - dict is constructed using method build_data_configs
 
-        Methods
-        -------
-            sis_path
-                - returns the HDF internal absolution path to the
-                  sis_group
-            build_data_configs
-                - used to construct the data_configs attribute
-            parse_config_name
-            is_config_active
-            __config_crates
-            __crate_info
-            __find_crate_connections
+    Methods:
+        sis_path
+            - returns the HDF internal absolution path to the
+              sis_group
+        build_data_configs
+            - used to construct the data_configs attribute
+        parse_config_name
+        is_config_active
+        __config_crates
+        __crate_info
+        __find_crate_connections
 
     """
     # MSI stuff

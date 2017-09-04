@@ -273,10 +273,11 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
             'config_name [Slot #: SIS #### FPGA # ch #]'
 
-        :param config_name:
         :param board:
         :param channel:
+        :param config_name:
         :param adc:
+        :param return_info:
         :return:
         """
         # TODO: Replace Warnings with proper error handling

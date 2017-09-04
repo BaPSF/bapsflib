@@ -20,7 +20,9 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('.'))
+sys.path.insert(0, os.path.abspath('..'))
+
+autodoc_mock_imports = ['PyQt5']
 
 
 # -- General configuration ---------------------------------------------
@@ -170,3 +172,25 @@ texinfo_documents = [
     (master_doc, 'bapsflib', 'bapsflib Documentation',
      author, 'bapsflib', 'One line description of project.',
      'Miscellaneous'), ]
+
+# -- My Added Extras ---------------------------------------------------
+from sphinx.ext.autodoc import between
+
+# A list of prefixes that are ignored for sorting the Python module
+# index (e.g., if this is set to ['foo.'], then foo.bar is shown under
+# B, not F).
+modindex_common_prefix = ['bapsflib.']
+
+
+def setup(app):
+    # Register a sphinx.ext.autodoc.between listener to ignore
+    # everything between lines that contain the word IGNORE
+    #
+    # Usage:
+    #    """
+    #    IGNORE:
+    #        everything here is ignored
+    #    IGNORE
+    #    """
+    app.connect('autodoc-process-docstring', between('^.*IGNORE.*$', exclude=True))
+    return app

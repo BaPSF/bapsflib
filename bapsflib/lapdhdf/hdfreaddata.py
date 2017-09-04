@@ -13,8 +13,8 @@
 import h5py
 import numpy as np
 
-from .. import lapdhdf
-from .hdferrors import *
+#from .. import lapdhdf
+#from .hdferrors import *
 
 
 class hdfReadData(np.ndarray):
@@ -139,7 +139,7 @@ class hdfReadData(np.ndarray):
         #  subclass (subtype) of the (big)ndarray. It can be used to
         #  change attributes of self after construction (so as to ensure
         #  a 2-d matrix for example), or to update meta-information from
-        #  the “parent.” Subclasses inherit a default implementation of
+        #  the parent. Subclasses inherit a default implementation of
         #  this method that does nothing.
 
         # Define info attribute

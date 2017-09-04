@@ -7,12 +7,16 @@
 #
 # License:
 #
-
 """
-    This is the bapsflib package, a Python toolkit for the BaPSF group
-    at UCLA.
+This is the bapsflib package, a Python toolkit designed for the Basic
+Plasma Science Facility (BaPSF) group at the University of California,
+Los Angeles (UCLA).
 
-    http://plasma.physics.ucla.edu/
+BaPSF Home:
+http://plasma.physics.ucla.edu/
+
+bapsflib Repository:
+https://github.com/rocco8773/bapsflib
 """
 
 # --- Public API -------------------------------------------------------

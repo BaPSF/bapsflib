@@ -11,7 +11,7 @@
 #
 import h5py
 
-from abc import abstractmethod, abstractstaticmethod, abstractproperty
+from abc import abstractmethod
 
 
 class hdfMap_digi_template(object):

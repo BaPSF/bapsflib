@@ -1,0 +1,868 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>bapsflib.lapdhdf &#8212; bapsflib  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bapsflib.lapdhdf.map_digitizers" href="bapsflib.lapdhdf.map_digitizers.html" />
+    <link rel="prev" title="The bapsflib Package" href="../packageindex.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-bapsflib.lapdhdf">
+<span id="bapsflib-lapdhdf"></span><h1>bapsflib.lapdhdf<a class="headerlink" href="#module-bapsflib.lapdhdf" title="Permalink to this headline">¶</a></h1>
+<p>The lapdhdf module contains the necessary tools to open, identify,
+check, map out, and read out data written into HDF5 files by the LaPD
+DAQ system.</p>
+<div class="section" id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="bapsflib.lapdhdf.map_digitizers.html">bapsflib.lapdhdf.map_digitizers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="bapsflib.lapdhdf.map_msi.html">bapsflib.lapdhdf.map_msi</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="modules">
+<h2>Modules<a class="headerlink" href="#modules" title="Permalink to this headline">¶</a></h2>
+<div class="contents local topic" id="contents">
+<ul class="simple">
+<li><a class="reference internal" href="#module-bapsflib.lapdhdf.files" id="id1">bapsflib.lapdhdf.files</a></li>
+<li><a class="reference internal" href="#module-bapsflib.lapdhdf.hdfchecks" id="id2">bapsflib.lapdhdf.hdfchecks</a></li>
+<li><a class="reference internal" href="#module-bapsflib.lapdhdf.hdferrors" id="id3">bapsflib.lapdhdf.hdferrors</a></li>
+<li><a class="reference internal" href="#module-bapsflib.lapdhdf.hdfmappers" id="id4">bapsflib.lapdhdf.hdfmappers</a></li>
+<li><a class="reference internal" href="#module-bapsflib.lapdhdf.hdfreaddata" id="id5">bapsflib.lapdhdf.hdfreaddata</a></li>
+</ul>
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.files">
+<span id="bapsflib-lapdhdf-files"></span><h3><a class="toc-backref" href="#id1">bapsflib.lapdhdf.files</a><a class="headerlink" href="#module-bapsflib.lapdhdf.files" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.files.File">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.files.</code><code class="descname">File</code><span class="sig-paren">(</span><em>name</em>, <em>mode='r'</em>, <em>driver=None</em>, <em>libver=None</em>, <em>userblock_size=None</em>, <em>swmr=False</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">h5py._hl.files.File</span></code></p>
+<p>Open a HDF5 File.</p>
+<p>see <code class="xref py py-mod docutils literal"><span class="pre">h5py</span></code> documentation for <code class="xref py py-class docutils literal"><span class="pre">h5py.File</span></code> details:
+<a class="reference external" href="http://docs.h5py.org/en/latest/">http://docs.h5py.org/en/latest/</a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>name</strong> – Name of file (<cite>str</cite> or <cite>unicode</cite>)</li>
+<li><strong>mode</strong> – Mode in which to open the file. (default ‘r’ read-only)</li>
+<li><strong>driver</strong> – File driver to use</li>
+<li><strong>libver</strong> – Compatibility bounds</li>
+<li><strong>userblock_size</strong> – Size (in bytes) of the user block. If
+nonzero, must be a power of 2 and at least 512.</li>
+<li><strong>swmr</strong> – Single Write, Multiple Read</li>
+<li><strong>kwds</strong> – Driver specific keywords</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.file_map">
+<code class="descname">file_map</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.file_map" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an instance of the
+<code class="xref py py-class docutils literal"><span class="pre">lapdhdf.hdfmappers.hdfMap</span></code> file mappings.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.getAttrItems">
+<code class="descname">getAttrItems</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.getAttrItems" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use. Will be deprecated.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">dict of <cite>File.attrs.items()</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.getAttrKeys">
+<code class="descname">getAttrKeys</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.getAttrKeys" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use. Will be deprecated.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of <cite>File.attrs.keys()</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.getAttrValues">
+<code class="descname">getAttrValues</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.getAttrValues" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use. Will be deprecated.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of <cite>File.attrs.values()</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.files.File.getItem">
+<code class="descname">getItem</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.getItem" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use. Will be deprecated.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – name of Group/Dataset</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>File.get(name)</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.files.File.getItemType">
+<code class="descname">getItemType</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.getItemType" title="Permalink to this definition">¶</a></dt>
+<dd><div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Do not use. Will be deprecated.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – name of Group/Dataset</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><cite>str</cite> indicating if <cite>name</cite> is a ‘Group’ of ‘Dataset’</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.listHDF_file_types">
+<code class="descname">listHDF_file_types</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.listHDF_file_types" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings indicating if an HDF5 item is a Group
+or Dataset. This has a one-to-one correspondence to
+listHDF_files.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.listHDF_files">
+<code class="descname">listHDF_files</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.listHDF_files" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings representing the absolute paths
+(including Group/Dataset name) for each Group and Dataset in
+the HDF5 file.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.files.File.read_data">
+<code class="descname">read_data</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>shots=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.read_data" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.tupHDF_fileSys">
+<code class="descname">tupHDF_fileSys</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.tupHDF_fileSys" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>zip(listHDF_files, listHDF_file_types)</cite></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.hdfchecks">
+<span id="bapsflib-lapdhdf-hdfchecks"></span><h3><a class="toc-backref" href="#id2">bapsflib.lapdhdf.hdfchecks</a><a class="headerlink" href="#module-bapsflib.lapdhdf.hdfchecks" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfchecks.</code><code class="descname">hdfCheck</code><span class="sig-paren">(</span><em>hdf_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.check_all_msi_diagnostics">
+<code class="descname">check_all_msi_diagnostics</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.check_all_msi_diagnostics" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for all pre-defined MSI Diagnostic groups.</p>
+<p>Pre-defined diagnostic group are set in
+self._msi_diagnostic_groups,</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_data_group">
+<code class="descname">exist_data_group</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_data_group" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for the existence of the ‘Raw data + config’ Group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_data_run_sequence">
+<code class="descname">exist_data_run_sequence</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_data_run_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the ‘Data run sequence’ check results from the generated
+HDF5 mapping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_digitizers">
+<code class="descname">exist_digitizers</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_digitizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the digitizer check results from the generated HDF5
+mapping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_motion_lists">
+<code class="descname">exist_motion_lists</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_motion_lists" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the motion list check results from the generated HDF5
+mapping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_msi">
+<code class="descname">exist_msi</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_msi" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for the existence of the MSI Group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_msi_diagnostic">
+<code class="descname">exist_msi_diagnostic</code><span class="sig-paren">(</span><em>diag_group_name</em>, <em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_msi_diagnostic" title="Permalink to this definition">¶</a></dt>
+<dd><p>Check for an MSI diagnostic group by the name of
+diag_group_name.</p>
+<p>:param diag_group_name
+:param silent:
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.full_check">
+<code class="descname">full_check</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.full_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run all pre-defined file checks.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.get_hdf_mapping">
+<code class="descname">get_hdf_mapping</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.get_hdf_mapping" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an instance of the file mapping
+<code class="xref py py-class docutils literal"><span class="pre">lapdhdf.hdfmappers.hdfMap</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.is_lapd_generated">
+<code class="descname">is_lapd_generated</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.is_lapd_generated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the loaded HDF5 file to see if it was generated by
+the LaPD Control System.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.report_digitizer_configs">
+<em class="property">static </em><code class="descname">report_digitizer_configs</code><span class="sig-paren">(</span><em>digi</em>, <em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.report_digitizer_configs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints to screen information about the passed digitizer
+configurations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>digi</strong> – an instance of a single member of
+<cite>hdfMap.digitizers</cite></li>
+<li><strong>silent</strong> – True will null print report, False will be
+standard print output</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.report_digitizers">
+<code class="descname">report_digitizers</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.report_digitizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints to screen a report of all detected digitizers and their
+configurations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – True will null print report, False will be
+standard print output</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="bapsflib.lapdhdf.hdfchecks.status_print">
+<code class="descclassname">bapsflib.lapdhdf.hdfchecks.</code><code class="descname">status_print</code><span class="sig-paren">(</span><em>item</em>, <em>found</em>, <em>note</em>, <em>indent=0</em>, <em>item_found_pad='~'</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.status_print" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stylistic status printing for <a class="reference internal" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck" title="bapsflib.lapdhdf.hdfchecks.hdfCheck"><code class="xref py py-class docutils literal"><span class="pre">hdfCheck</span></code></a></p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>item</strong> – <cite>str</cite> for item (1st) column</li>
+<li><strong>found</strong> – <cite>str</cite> for found (2nd) column</li>
+<li><strong>note</strong> – <cite>str</cite> for note (3rd) column</li>
+<li><strong>indent</strong> – <cite>int</cite> num. of indentations for <cite>item</cite> display</li>
+<li><strong>item_found_pad</strong> – <cite>str</cite> pad style between <cite>item</cite> and <cite>found</cite></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.hdferrors">
+<span id="bapsflib-lapdhdf-hdferrors"></span><h3><a class="toc-backref" href="#id3">bapsflib.lapdhdf.hdferrors</a><a class="headerlink" href="#module-bapsflib.lapdhdf.hdferrors" title="Permalink to this headline">¶</a></h3>
+<dl class="exception">
+<dt id="bapsflib.lapdhdf.hdferrors.Error">
+<em class="property">exception </em><code class="descclassname">bapsflib.lapdhdf.hdferrors.</code><code class="descname">Error</code><a class="headerlink" href="#bapsflib.lapdhdf.hdferrors.Error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<p>Base class for exceptions in the lapdhdf module.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bapsflib.lapdhdf.hdferrors.NoMSIError">
+<em class="property">exception </em><code class="descclassname">bapsflib.lapdhdf.hdferrors.</code><code class="descname">NoMSIError</code><a class="headerlink" href="#bapsflib.lapdhdf.hdferrors.NoMSIError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.hdferrors.Error" title="bapsflib.lapdhdf.hdferrors.Error"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.hdferrors.Error</span></code></a></p>
+<p>Exception raised if no MSI group is detected in the opened HDF5
+file.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bapsflib.lapdhdf.hdferrors.NotHDFFileError">
+<em class="property">exception </em><code class="descclassname">bapsflib.lapdhdf.hdferrors.</code><code class="descname">NotHDFFileError</code><a class="headerlink" href="#bapsflib.lapdhdf.hdferrors.NotHDFFileError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.hdferrors.Error" title="bapsflib.lapdhdf.hdferrors.Error"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.hdferrors.Error</span></code></a></p>
+<p>Exception raised if desired object is not an instance of h5py.File.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bapsflib.lapdhdf.hdferrors.NotKnownLaPDHDFError">
+<em class="property">exception </em><code class="descclassname">bapsflib.lapdhdf.hdferrors.</code><code class="descname">NotKnownLaPDHDFError</code><a class="headerlink" href="#bapsflib.lapdhdf.hdferrors.NotKnownLaPDHDFError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.hdferrors.Error" title="bapsflib.lapdhdf.hdferrors.Error"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.hdferrors.Error</span></code></a></p>
+<p>Exception raised if the HDF5 file was generated by the DAQ system
+but is not a known software version.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="bapsflib.lapdhdf.hdferrors.NotLaPDHDFError">
+<em class="property">exception </em><code class="descclassname">bapsflib.lapdhdf.hdferrors.</code><code class="descname">NotLaPDHDFError</code><a class="headerlink" href="#bapsflib.lapdhdf.hdferrors.NotLaPDHDFError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.hdferrors.Error" title="bapsflib.lapdhdf.hdferrors.Error"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.hdferrors.Error</span></code></a></p>
+<p>Exception raised if HDF5 file was not generated by the LaPD DAQ
+system.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.hdfmappers">
+<span id="bapsflib-lapdhdf-hdfmappers"></span><h3><a class="toc-backref" href="#id4">bapsflib.lapdhdf.hdfmappers</a><a class="headerlink" href="#module-bapsflib.lapdhdf.hdfmappers" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfmappers.</code><code class="descname">hdfMap</code><span class="sig-paren">(</span><em>hdf_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Template for all HDF Mapping Classes</p>
+<dl class="docutils">
+<dt>Class Attributes:</dt>
+<dd>msi_group  – str – name of MSI group
+data_group – str – name of data group</dd>
+<dt>Object Attributes:</dt>
+<dd><dl class="first last docutils">
+<dt>hdf_version  – str</dt>
+<dd><ul class="first last simple">
+<li>string representation of the version number
+corresponding the the LaPD HDF Software version used
+to generate the HDF5 file</li>
+</ul>
+</dd>
+<dt>msi_diagnostic_groups – [str]</dt>
+<dd><ul class="first last simple">
+<li>list of the group names for each diagnostic recorded
+in the MSI group</li>
+</ul>
+</dd>
+<dt>sis_group – str</dt>
+<dd><ul class="first last simple">
+<li>SIS group name which contains all the DAQ recorded
+data and associated DAQ configuration</li>
+</ul>
+</dd>
+<dt>sis_crates – [str]</dt>
+<dd><ul class="first last simple">
+<li>list of SIS crates (digitizers) available to record
+data</li>
+</ul>
+</dd>
+<dt>data_configs – {}</dt>
+<dd><ul class="first last simple">
+<li>dict containing key parameters associated with the
+crate configurations</li>
+<li>dict is constructed using method build_data_configs</li>
+</ul>
+</dd>
+</dl>
+</dd>
+<dt>Methods:</dt>
+<dd><dl class="first docutils">
+<dt>sis_path</dt>
+<dd><ul class="first last simple">
+<li>returns the HDF internal absolution path to the
+sis_group</li>
+</ul>
+</dd>
+<dt>build_data_configs</dt>
+<dd><ul class="first last simple">
+<li>used to construct the data_configs attribute</li>
+</ul>
+</dd>
+</dl>
+<p class="last">parse_config_name
+is_config_active
+__config_crates
+__crate_info
+__find_crate_connections</p>
+</dd>
+</dl>
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.data_group">
+<code class="descname">data_group</code><em class="property"> = 'Raw data + config'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_data_group">
+<code class="descname">has_data_group</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.has_data_group" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if ‘Raw data + config/’ group is detected</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_data_run_sequence">
+<code class="descname">has_data_run_sequence</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.has_data_run_sequence" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if the ‘Data run sequence/’ group is found
+in the data group</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_digitizers">
+<code class="descname">has_digitizers</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.has_digitizers" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if any known digitizers are discovered in
+the data group</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_motion_lists">
+<code class="descname">has_motion_lists</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.has_motion_lists" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if any known motion groups are discovered in
+the data group</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_msi_group">
+<code class="descname">has_msi_group</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.has_msi_group" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if ‘MSI/’ group is detected</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_unknown_data_subgoups">
+<code class="descname">has_unknown_data_subgoups</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.has_unknown_data_subgoups" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if any unknown groups are discovered in the
+data groups. These groups could end up being digitizer
+groups and/or motion groups.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.hdf_version">
+<code class="descname">hdf_version</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.hdf_version" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>str</cite> identifying the LaPD DAQ Software version number
+used to generated the HDF5 file (‘’ if NOT LaPD generated)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.is_lapd_hdf">
+<code class="descname">is_lapd_hdf</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.is_lapd_hdf" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if HDF5 file was generated by the LaPD</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer">
+<code class="descname">main_digitizer</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an instance of the main digitizer in self.digitizers</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.msi_group">
+<code class="descname">msi_group</code><em class="property"> = 'MSI'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.msi_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.hdfreaddata">
+<span id="bapsflib-lapdhdf-hdfreaddata"></span><h3><a class="toc-backref" href="#id5">bapsflib.lapdhdf.hdfreaddata</a><a class="headerlink" href="#module-bapsflib.lapdhdf.hdfreaddata" title="Permalink to this headline">¶</a></h3>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfreaddata.</code><code class="descname">hdfReadData</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></p>
+<p>I want self to be the nparray data.
+self should have a meta attribute that contains a dict() of
+metadata for the dataset.
+Metadata that should have:</p>
+<blockquote>
+<div><p>‘hdf file’       – HDF5 file name the data was retrieved from
+‘dataset name’   – name of the dataset
+‘dataset path’   – path to said dataset in the HDF5 file
+‘crate’          – crate in which the data was recorded on
+‘bit’            – bit resolution for the crate
+‘sample rate’    – tuple containing the sample rate</p>
+<blockquote>
+<div>e.g. (100.0, ‘MHz’)</div></blockquote>
+<dl class="docutils">
+<dt>‘board’          – board that the corresponding probe was</dt>
+<dd>attached to
+~ can I make a ‘brd’ alias for ‘board’</dd>
+<dt>‘channel’        – channel that the corresponding probe was</dt>
+<dd>attached to
+~ can I make a ‘ch’ alias for ‘channel’</dd>
+</dl>
+<p>‘voltage offset’ – voltage offset for the DAQ signal
+‘probe name’     – name of deployed probe…empty dict() item</p>
+<blockquote>
+<div>for user to fill out for his/her needs</div></blockquote>
+<dl class="docutils">
+<dt>‘port’           – 2-element tuple indicating which port the</dt>
+<dd>probe was deployed on.
+e.g. (19, ‘W’) =&gt; deployed on port 19 on the
+west side of the machine.
+Second elements descriptors should follow:
+‘T’  = top
+‘TW’ = top-west
+‘W’  = west
+‘BW’ = bottom-west
+‘B’  = bottom
+‘BE’ = bottome-east
+‘E’  = east
+‘TE’ = top-east</dd>
+<dt>Extracting Data</dt>
+<dd><p class="first">dset = h5py.get() returns a view of the dataset (dset)
+From there, instantiating from dset will create a copy of</p>
+<blockquote>
+<div>the data. If you want to keep views then one could use
+dset.values.view().  The dset.vlaues is np.ndarray.</div></blockquote>
+<dl class="last docutils">
+<dt>To extract data, fancy indexing [::] can be used directly on</dt>
+<dd>dset or dset.values.</dd>
+</dl>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_t">
+<code class="descname">convert_to_t</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_t" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert DAQ signal dependent axis from index to time.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_v">
+<code class="descname">convert_to_v</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_v" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert DAQ signal from bits to voltage.
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.dt">
+<code class="descname">dt</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return timestep dt from the ‘sample rate’ dict() item.
+:return:</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv">
+<code class="descname">dv</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return voltage-step from the ‘bit’ dict() item.
+:return:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.full_path">
+<code class="descname">full_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.full_path" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return full path of the dataset in the HDF5 file.
+:return:</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">bapsflib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About bapsflib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../howtos.html">HOWTOs and Explainers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../packageindex.html">The bapsflib Package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../packageindex.html">The bapsflib Package</a><ul>
+      <li>Previous: <a href="../packageindex.html" title="previous chapter">The bapsflib Package</a></li>
+      <li>Next: <a href="bapsflib.lapdhdf.map_digitizers.html" title="next chapter">bapsflib.lapdhdf.map_digitizers</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Erik T. Everson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/src/bapsflib.lapdhdf.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

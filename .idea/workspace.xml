@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list id="0a1baf8a-dd60-46ce-874d-45575f0ca5b5" name="Default" comment="adjusted screen prent of hdfCheck&#10;hdfCheck.exist_msi_diagnostic checks for the group's existence and if&#10;it's in the _hdf_map context&#10;hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups&#10;in the 'MSI' group, i.e. those found in File['MSI'] and those&#10;pre-defined in _hdf_map" />
     <list default="true" id="9d0d616c-5fc4-4d2f-a21f-1d95c0efbe26" name="Revert &quot;adjusted screen prent of hdfCheck hdfCheck.exist_msi_diagnostic checks for the group's existence and if it's in the _hdf_map context hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups in the 'MSI' group, i.e. those found in File['MSI'] and those pre-defined in _hdf_map&quot; This reverts commit 3f23e47" comment="added .gitignore">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="docs/_build/" />
@@ -125,8 +126,8 @@
           <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/.gitignore">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="655">
-                  <caret line="91" column="11" lean-forward="true" selection-start-line="91" selection-start-column="11" selection-end-line="91" selection-end-column="11" />
+                <state relative-caret-position="563">
+                  <caret line="108" column="0" lean-forward="true" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -599,13 +600,6 @@
       <option name="presentableId" value="Default" />
       <updated>1499021017685</updated>
     </task>
-    <task id="LOCAL-00046" summary="hdfchecks.py add status printing for DAQ connections">
-      <created>1502145174400</created>
-      <option name="number" value="00046" />
-      <option name="presentableId" value="LOCAL-00046" />
-      <option name="project" value="LOCAL" />
-      <updated>1502145174400</updated>
-    </task>
     <task id="LOCAL-00047" summary="hdfmappers.py created method __crate_info for LaPD v1.1">
       <created>1502150409734</created>
       <option name="number" value="00047" />
@@ -942,7 +936,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504653633679</updated>
     </task>
-    <option name="localTasksCounter" value="95" />
+    <task id="LOCAL-00095" summary="added .gitignore">
+      <created>1504653746625</created>
+      <option name="number" value="00095" />
+      <option name="presentableId" value="LOCAL-00095" />
+      <option name="project" value="LOCAL" />
+      <updated>1504653746625</updated>
+    </task>
+    <option name="localTasksCounter" value="96" />
     <servers>
       <GitHub shared="true" url="https://github.com">
         <option name="assignedIssuesOnly" value="false" />
@@ -1387,8 +1388,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="655">
-          <caret line="91" column="11" lean-forward="true" selection-start-line="91" selection-start-column="11" selection-end-line="91" selection-end-column="11" />
+        <state relative-caret-position="563">
+          <caret line="108" column="0" lean-forward="true" selection-start-line="108" selection-start-column="0" selection-end-line="108" selection-end-column="0" />
           <folding />
         </state>
       </provider>

@@ -59,8 +59,12 @@ class hdfCheck(object):
 
     def full_check(self):
         """
-            Run all pre-defined file checks.
+        Run all pre-defined file checks.
         """
+        # TODO: add a self.report_msi
+        # TODO: add a self.report_data_run_sequence
+        # TODO: add a self.report_motion_lists
+        #
         status_print('Item', 'Found', 'Note', item_found_pad=' ')
 
         status = self.exist_msi(silent=False)
@@ -74,9 +78,6 @@ class hdfCheck(object):
 
             if self.__hdf_map.has_digitizers:
                 self.report_digitizers(silent=False)
-            # status = self.exist_sis_group(silent=False)
-            # if status:
-            #    self.identify_data_configs()
 
     def is_lapd_generated(self, silent=True):
         """
@@ -299,6 +300,13 @@ class hdfCheck(object):
             sys.stdout = sys.__stdout__
 
     def report_digitizers(self, silent=True):
+        """
+        Prints to screen a report of all detected digitizers and their
+        configurations.
+
+        :param silent: True will null print report, False will be
+            standard print output
+        """
         # go to a Null print if silent=True
         if silent:
             sys.stdout = open(os.devnull, 'w')
@@ -316,14 +324,27 @@ class hdfCheck(object):
 
             # print digitizer configs
             self.report_digitizer_configs(
-                self.__hdf_map.digitizers[key])
+                self.__hdf_map.digitizers[key], silent=silent)
 
         # return to normal print
         if silent:
             sys.stdout = sys.__stdout__
 
     @staticmethod
-    def report_digitizer_configs(digi):
+    def report_digitizer_configs(digi, silent=True):
+        """
+        Prints to screen information about the passed digitizer
+        configurations.
+
+        :param digi: an instance of a single member of
+            `hdfMap.digitizers`
+        :param silent: True will null print report, False will be
+            standard print output
+        """
+        # go to a Null print if silent=True
+        if silent:
+            sys.stdout = open(os.devnull, 'w')
+
         if len(digi.data_configs) != 0:
             nconfigs = len(digi.data_configs)
             nconf_active = 0
@@ -374,6 +395,10 @@ class hdfCheck(object):
         else:
             status_print('Configurations Detected', '', 'None',
                          indent=2, item_found_pad=' ')
+
+        # return to normal print
+        if silent:
+            sys.stdout = sys.__stdout__
 
     def get_hdf_mapping(self):
         return self.__hdf_map

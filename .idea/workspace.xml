@@ -5,8 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list id="0a1baf8a-dd60-46ce-874d-45575f0ca5b5" name="Default" comment="adjusted screen prent of hdfCheck&#10;hdfCheck.exist_msi_diagnostic checks for the group's existence and if&#10;it's in the _hdf_map context&#10;hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups&#10;in the 'MSI' group, i.e. those found in File['MSI'] and those&#10;pre-defined in _hdf_map" />
-    <list default="true" id="9d0d616c-5fc4-4d2f-a21f-1d95c0efbe26" name="Revert &quot;adjusted screen prent of hdfCheck hdfCheck.exist_msi_diagnostic checks for the group's existence and if it's in the _hdf_map context hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups in the 'MSI' group, i.e. those found in File['MSI'] and those pre-defined in _hdf_map&quot; This reverts commit 3f23e47" comment="added .gitignore">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
+    <list default="true" id="9d0d616c-5fc4-4d2f-a21f-1d95c0efbe26" name="Revert &quot;adjusted screen prent of hdfCheck hdfCheck.exist_msi_diagnostic checks for the group's existence and if it's in the _hdf_map context hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups in the 'MSI' group, i.e. those found in File['MSI'] and those pre-defined in _hdf_map&quot; This reverts commit 3f23e47" comment="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="docs/_build/" />
@@ -600,13 +599,6 @@
       <option name="presentableId" value="Default" />
       <updated>1499021017685</updated>
     </task>
-    <task id="LOCAL-00047" summary="hdfmappers.py created method __crate_info for LaPD v1.1">
-      <created>1502150409734</created>
-      <option name="number" value="00047" />
-      <option name="presentableId" value="LOCAL-00047" />
-      <option name="project" value="LOCAL" />
-      <updated>1502150409734</updated>
-    </task>
     <task id="LOCAL-00048" summary="hdfmappers.py restructured data_configs[*]['SIS *'] list for LaPD v1.1">
       <created>1502153077826</created>
       <option name="number" value="00048" />
@@ -943,7 +935,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504653746625</updated>
     </task>
-    <option name="localTasksCounter" value="96" />
+    <task id="LOCAL-00096" summary="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore">
+      <created>1504653957668</created>
+      <option name="number" value="00096" />
+      <option name="presentableId" value="LOCAL-00096" />
+      <option name="project" value="LOCAL" />
+      <updated>1504653957669</updated>
+    </task>
+    <option name="localTasksCounter" value="97" />
     <servers>
       <GitHub shared="true" url="https://github.com">
         <option name="assignedIssuesOnly" value="false" />
@@ -1065,7 +1064,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="converted hdfMapTemplate.sis_path() to a @property" />
     <MESSAGE value="add shots, daq, and config_data to hdfReadData as keywords" />
     <MESSAGE value="changed from usage of daq to adc (analog-digital converter) when&#10;referencing an adc in a digitizer" />
     <MESSAGE value="initial rework of hdfmappers.py to make hdfMap class more universal" />
@@ -1090,7 +1088,8 @@
     <MESSAGE value="add excluded folders" />
     <MESSAGE value="added ./docs/_build and ./bapsflib/test_hdfFiles to .gitignore" />
     <MESSAGE value="added .gitignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="added .gitignore" />
+    <MESSAGE value="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore" />
+    <option name="LAST_COMMIT_MESSAGE" value="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore" />
     <option name="UPDATE_GROUP_BY_PACKAGES" value="true" />
   </component>
   <component name="XDebuggerManager">

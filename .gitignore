@@ -103,6 +103,5 @@ ENV/
 # my ignores
 .gitignore
 .idea
-docs/_build
 bapsflib/test_hdfFiles
 

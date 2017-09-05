@@ -5,14 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list id="0a1baf8a-dd60-46ce-874d-45575f0ca5b5" name="Default" comment="adjusted screen prent of hdfCheck&#10;hdfCheck.exist_msi_diagnostic checks for the group's existence and if&#10;it's in the _hdf_map context&#10;hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups&#10;in the 'MSI' group, i.e. those found in File['MSI'] and those&#10;pre-defined in _hdf_map" />
-    <list default="true" id="9d0d616c-5fc4-4d2f-a21f-1d95c0efbe26" name="Revert &quot;adjusted screen prent of hdfCheck hdfCheck.exist_msi_diagnostic checks for the group's existence and if it's in the _hdf_map context hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups in the 'MSI' group, i.e. those found in File['MSI'] and those pre-defined in _hdf_map&quot; This reverts commit 3f23e47" comment="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/bapsflib.iml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/dictionaries/erik.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
+    <list default="true" id="9d0d616c-5fc4-4d2f-a21f-1d95c0efbe26" name="Revert &quot;adjusted screen prent of hdfCheck hdfCheck.exist_msi_diagnostic checks for the group's existence and if it's in the _hdf_map context hdfCheck.exist_msi_diagnostics_all scans all possible diagnostic groups in the 'MSI' group, i.e. those found in File['MSI'] and those pre-defined in _hdf_map&quot; This reverts commit 3f23e47" comment="still trying to remove .idea from VCS">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/.gitignore" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="docs/_build/" />
     <ignored path="bapsflib/test_hdfFiles/" />
@@ -131,8 +126,8 @@
           <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/.gitignore">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="73">
-                  <caret line="85" column="4" lean-forward="true" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
+                <state relative-caret-position="1515">
+                  <caret line="101" column="0" lean-forward="true" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
                   <folding />
                 </state>
               </provider>
@@ -370,7 +365,7 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Ignored.Files" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PythonContentEntriesConfigurable" />
     <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
     <property name="SearchEverywhereHistoryKey" value=":&#9;null&#9;null" />
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
@@ -604,13 +599,6 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1499021017685</updated>
-    </task>
-    <task id="LOCAL-00049" summary="hdfmappers.py for LaPD v1.2 update structure of data_configs[*]['SIS *']&#10;to match the new layout">
-      <created>1502156684443</created>
-      <option name="number" value="00049" />
-      <option name="presentableId" value="LOCAL-00049" />
-      <option name="project" value="LOCAL" />
-      <updated>1502156684443</updated>
     </task>
     <task id="LOCAL-00050" summary="hdfmappers.py for LaPD v1.2 determine slot-to-board mapping, as well as,&#10;slot to sub-configuration group mapping">
       <created>1502166770087</created>
@@ -948,7 +936,14 @@
       <option name="project" value="LOCAL" />
       <updated>1504653982518</updated>
     </task>
-    <option name="localTasksCounter" value="98" />
+    <task id="LOCAL-00098" summary="removed .idea and .gitignore from git cache">
+      <created>1504654277790</created>
+      <option name="number" value="00098" />
+      <option name="presentableId" value="LOCAL-00098" />
+      <option name="project" value="LOCAL" />
+      <updated>1504654277791</updated>
+    </task>
+    <option name="localTasksCounter" value="99" />
     <servers>
       <GitHub shared="true" url="https://github.com">
         <option name="assignedIssuesOnly" value="false" />
@@ -1069,7 +1064,6 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="add shots, daq, and config_data to hdfReadData as keywords" />
     <MESSAGE value="changed from usage of daq to adc (analog-digital converter) when&#10;referencing an adc in a digitizer" />
     <MESSAGE value="initial rework of hdfmappers.py to make hdfMap class more universal" />
     <MESSAGE value="moving the hdf mapping to be more modular...instead of queuing on the&#10;LaPD version number, the hdfMap class adds mapping info based on found&#10;msi, digitizer, motionlist, etc. groups" />
@@ -1094,7 +1088,8 @@
     <MESSAGE value="added ./docs/_build and ./bapsflib/test_hdfFiles to .gitignore" />
     <MESSAGE value="added .gitignore" />
     <MESSAGE value="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="added .idea, .gitignore, docs/_build, and bapsflib/test_hdfFiels to&#10;.gitignore" />
+    <MESSAGE value="removed .idea and .gitignore from git cache" />
+    <option name="LAST_COMMIT_MESSAGE" value="removed .idea and .gitignore from git cache" />
     <option name="UPDATE_GROUP_BY_PACKAGES" value="true" />
   </component>
   <component name="XDebuggerManager">
@@ -1392,8 +1387,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/.gitignore">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="73">
-          <caret line="85" column="4" lean-forward="true" selection-start-line="85" selection-start-column="4" selection-end-line="85" selection-end-column="4" />
+        <state relative-caret-position="1515">
+          <caret line="101" column="0" lean-forward="true" selection-start-line="101" selection-start-column="0" selection-end-line="101" selection-end-column="0" />
           <folding />
         </state>
       </provider>

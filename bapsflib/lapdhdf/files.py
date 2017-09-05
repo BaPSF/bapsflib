@@ -15,8 +15,10 @@ from .hdfreaddata import hdfReadData
 
 class File(h5py.File):
     """
-    Open a HDF5 File. (see :py:mod:`h5py` documentation for
-    :py:class:`h5py.File` details)
+    Open a HDF5 File.
+
+    see :py:mod:`h5py` documentation for :py:class:`h5py.File` details:
+    http://docs.h5py.org/en/latest/
 
     :param name: Name of file (`str` or `unicode`)
     :param mode: Mode in which to open the file. (default 'r' read-only)
@@ -34,22 +36,29 @@ class File(h5py.File):
                            userblock_size, swmr)
 
         print('Begin HDF5 Quick Report:')
-        self.file_checks = hdfCheck(self)
+        self.__file_checks = hdfCheck(self)
+
+    # @property
+    # def file_checks(self):
+    #    """
+    #    :return: an instance of :py:class:`lapdhdf.hdfchecks.hdfCheck`
+    #    """
+    #    return self.__file_checks
 
     @property
     def file_map(self):
         """
-        Returns an instance of the :py:class:`lapdhdf.hdfmappers.hdfMap`
-        file mappings.
+        :return: an instance of the
+            :py:class:`lapdhdf.hdfmappers.hdfMap` file mappings.
         """
-        return self.file_checks.get_hdf_mapping()
+        return self.__file_checks.get_hdf_mapping()
 
     @property
     def listHDF_files(self):
         """
-        Returns a list of strings representing the absolute paths
-        (including Group/Dataset name) for each Group and Dataset in
-        the HDF5 file.
+        :return: a list of strings representing the absolute paths
+            (including Group/Dataset name) for each Group and Dataset in
+            the HDF5 file.
         """
         some_list = []
         self.visit(some_list.append)
@@ -58,9 +67,9 @@ class File(h5py.File):
     @property
     def listHDF_file_types(self):
         """
-        Returns a list of strings indicating if an HDF5 item is a Group
-        or Dataset. This has a one-to-one correspondence to
-        listHDF_files.
+        :return: a list of strings indicating if an HDF5 item is a Group
+            or Dataset. This has a one-to-one correspondence to
+            listHDF_files.
         """
         some_list = []
         for name in self.listHDF_files:
@@ -72,7 +81,7 @@ class File(h5py.File):
     @property
     def tupHDF_fileSys(self):
         """
-        `zip(listHDF_files, listHDF_file_types)`
+        :return: `zip(listHDF_files, listHDF_file_types)`
         """
         return zip(self.listHDF_files, self.listHDF_file_types)
 

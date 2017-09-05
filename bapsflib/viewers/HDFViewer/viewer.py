@@ -36,21 +36,20 @@ except (ModuleNotFoundError, ImportError):
     from UIs import mainwindow, wdgSimplePlotConfig
 
 
-def rebuildUiFiles():
-    """
-        This is for use during development process so that the .ui files
-        don't have to be recompiled separately before running main.py
-    """
-    pyuic.compileUiDir('UIs/', execute=True)
-    uiModules = ['mainwindow', 'wdgSimplePlotConfig']
-    for modName in sys.modules.keys():
-        for uiName in uiModules:
-            if modName.__contains__(uiName):
-                importlib.reload(sys.modules[modName])
-
-
-rebuildUiFiles()
-
+#def rebuildUiFiles():
+#    """
+#        This is for use during development process so that the .ui files
+#        don't have to be recompiled separately before running main.py
+#    """
+#    pyuic.compileUiDir('UIs/', execute=True)
+#    uiModules = ['mainwindow', 'wdgSimplePlotConfig']
+#    for modName in sys.modules.keys():
+#        for uiName in uiModules:
+#            if modName.__contains__(uiName):
+#                importlib.reload(sys.modules[modName])
+#
+#
+#rebuildUiFiles()
 
 class Viewer(QtWidgets.QMainWindow, mainwindow.Ui_MainWindow):
     _hdfFilename = ''
@@ -620,10 +619,10 @@ class formSimpleDataPlot(QtCore.QObject):
     def __init__(self, parent=None):
         super(formSimpleDataPlot, self).__init__(parent)
         #        formSimplePlot.__init__(self)
-        self.plot = QtChart.QChart()
+        self.plot = QChart()
         self.plot.legend().hide()
 
-        self.view = QtChart.QChartView(self.plot)
+        self.view = QChartView(self.plot)
 
         #        self.tooltipDataPoint = QtWidgets.QToolTip
 
@@ -745,7 +744,7 @@ class formSimpleDataPlot(QtCore.QObject):
             pdata.append(QtCore.QPointF(xdata[ii], ydata[ii]))
 
         # Build and Apply Data Series to Chart
-        curve = QtChart.QScatterSeries()
+        curve = QScatterSeries()
         curve.append(pdata)
         self.plot.addSeries(curve)
         self.plot.createDefaultAxes()
@@ -841,7 +840,7 @@ class formSimpleDataPlot(QtCore.QObject):
             pdata.append(QtCore.QPointF(xdata[ii], ydata[ii]))
 
         # Build and Apply Data Series to Chart
-        curve = QtChart.QLineSeries()
+        curve = QLineSeries()
         curve.append(pdata)
         self.plot.addSeries(curve)
         self.plot.createDefaultAxes()

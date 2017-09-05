@@ -283,25 +283,34 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         # TODO: Replace Warnings with proper error handling
         # TODO: Add a Silent kwd
 
-        # assign config_name
+        # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
         if config_name is None:
             found = 0
-            for name in self.data_configs.keys():
+            for name in self.data_configs:
                 if self.data_configs[name]['active'] is True:
                     config_name = name
                     found += 1
 
-            if found != 1:
-                print('** Warning: List of configurations does not have'
-                      ' just one active configuration.')
-                return None
-            else:
+            if found == 1:
                 print('** Warning: config_name not specified, assuming '
                       + config_name + '.')
+            elif found >= 1:
+                raise Exception("Too many active digitizer "
+                                "configurations detected. Currently do "
+                                "not know how to handle.")
+            else:
+                raise Exception("No active digitizer configuration "
+                                "detected.")
+        elif config_name not in self.data_configs:
+            # config_name must be a known configuration
+            raise Exception('Invalid configuration name given.')
+        elif self.data_configs[config_name]['active'] is False:
+            raise Exception('Specified configuration name is not '
+                            'active.')
 
-        # assign adc
+        # Condition adc
         # - if adc is not specified then the slow adc '3302' is assumed
         #   or, if 3305 is the only active adc, then it is assumed
         # - self.__config_crates() always adds 'SIS 3302' first. If
@@ -310,35 +319,26 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             adc = self.data_configs[config_name]['adc'][0]
             print('** Warning: No adc specified, so assuming '
                   + adc + '.')
-
-        # ensure all args are valid
-        if config_name not in self.data_configs.keys():
-            # config_name must be a known configuration
-            print('** Warning: Invalid configuration name.')
-            return None
-        elif self.data_configs[config_name]['active'] is False:
-            # if known, config_name must be actively used in the HDF5
-            print('** Warning: Configuration is not active.')
-            return None
         elif adc not in self.data_configs[config_name]['adc']:
-            # if config_name known and active, adc must be an active
-            # crate
-            print('** Warning: DAQ ({}) not active'.format(adc))
-            return None
-        else:
-            # search if (board, channel) combo is connected
-            bc_valid = False
-            for brd, chs, extras in self.data_configs[config_name][adc]:
-                if board == brd:
-                    if channel in chs:
-                        bc_valid = True
-                        d_info = extras
-                        d_info['adc'] = adc
+            raise Exception(
+                'Specified adc ({}) is not in specified '.format(adc)
+                + 'configuration ({}).'.format(config_name))
 
-            # (board, channel) combo must be active
-            if bc_valid is False:
-                print('** Warning: (Board, channel) not valid.')
-                return None
+        # search if (board, channel) combo is connected
+        bc_valid = False
+        d_info = None
+        for brd, chs, extras in self.data_configs[config_name][adc]:
+            if board == brd:
+                if channel in chs:
+                    bc_valid = True
+
+                    # save adc settings for return if requested
+                    d_info = extras
+                    d_info['adc'] = adc
+
+        # (board, channel) combo must be active
+        if bc_valid is False:
+            raise Exception('Specified (board, channel) is not valid')
 
         # checks passed, build dataset_name
         if '3302' in adc:
@@ -357,6 +357,9 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             dataset_name = '{0} [Slot {1}: '.format(config_name, slot) \
                            + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga,
                                                                 ch)
+        else:
+            raise Exception('We have a problem! Somehow adc '
+                            + '({}) is not known.'.format(adc))
 
         if return_info is True:
             return dataset_name, d_info

@@ -198,6 +198,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             print('** Warning: passed adc ({}) is not '.format(adc)
                   + "valid for this digitizer. Forcing "
                     "adc = 'SIS 3301'")
+            adc = 'SIS 3301'
 
         # Condition config_name
         # - if config_name is not specified then the 'active' config
@@ -215,7 +216,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             elif found >= 1:
                 raise Exception("Too many active digitizer "
                                 "configurations detected. Currently do "
-                                "not know how to handle")
+                                "not know how to handle,")
             else:
                 raise Exception("No active digitizer configuration "
                                 "detected.")

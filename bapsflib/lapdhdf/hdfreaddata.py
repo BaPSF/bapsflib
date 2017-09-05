@@ -87,7 +87,9 @@ class hdfReadData(np.ndarray):
         # Condition digitizer keyword
         if digitizer is None:
             print("** Warning: Digitizer not specified so assuming the"
-                  " 'main_digitizer' defined in the mappings.")
+                  + " 'main_digitizer' ({})".format(
+                    hdf_file.file_map.main_digitizer.info['group name'])
+                  + " defined in the mappings.")
             digi_map = hdf_file.file_map.main_digitizer
         else:
             if digitizer not in hdf_file.file_map.digitizers:

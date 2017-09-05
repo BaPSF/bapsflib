@@ -16,7 +16,9 @@ from abc import abstractmethod
 
 class hdfMap_digi_template(object):
     """
-    Need to define class attribute __predefined_adc
+
+    When inheriting from template, the new class must define the class
+    attribute `__predefined_adc` that is specific to that digitizer.
     """
     def __init__(self, digi_group):
         # condition digi_group arg

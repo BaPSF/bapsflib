@@ -13,8 +13,9 @@
 import h5py
 import numpy as np
 
-#from .. import lapdhdf
-#from .hdferrors import *
+
+# from .. import lapdhdf
+# from .hdferrors import *
 
 
 class hdfReadData(np.ndarray):
@@ -63,8 +64,8 @@ class hdfReadData(np.ndarray):
 
     """
 
-    def __new__(cls, hdf_file, board, channel, shots=None, adc=None,
-                config_name=None):
+    def __new__(cls, hdf_file, board, channel, shots=None,
+                digitizer=None, adc=None, config_name=None):
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
         #                      this needs to be thought out in more
@@ -83,45 +84,35 @@ class hdfReadData(np.ndarray):
         # TODO: add error handling for .get() of dheader
         # TODO: add error handling for 'Offset' field in dheader
 
-        # Make sure hdf_file is an instance of lapdhdf.File
-        #if not isinstance(hdf_file, lapdhdf.File):
-        #    raise NotLaPDHDFError
+        # Condition digitizer keyword
+        if digitizer is None:
+            print("** Warning: Digitizer not specified so assuming the"
+                  " 'main_digitizer' defined in the mappings.")
+            digi_map = hdf_file.file_map.main_digitizer
+        else:
+            if digitizer not in hdf_file.file_map.digitizers:
+                raise KeyError(
+                    'Specified Digitizer is not among known digitizers')
+            else:
+                digi_map = hdf_file.file_map.digitizers[digitizer]
 
-        # check for 'shots' keyword
-        #if 'shots' in kwargs.keys():
-        #    shots = kwargs['shots']
-        #else:
-        #    shots = None
-
-        # check for 'daq' keyword
-        #if 'daq' in kwargs.keys():
-        #    daq = kwargs['daq']
-        #else:
-        #    daq = None
-
-        # check for 'config_name' keyword
-        #if 'config_name' in kwargs.keys():
-        #    config_name = kwargs['config_name']
-        #else:
-        #    config_name = None
-
-        # Note: file_map.construct_dataset_name has conditioning for
-        #       board, channel, daq, and config_name
-        dname, d_info = hdf_file.file_map.construct_dataset_name(
-            board, channel, config_name=config_name, daq=adc,
+        # Note: digi_map.construct_dataset_name has conditioning for
+        #       board, channel, adc, and config_name
+        dname, d_info = digi_map.construct_dataset_name(
+            board, channel, config_name=config_name, adc=adc,
             return_info=True)
-        dpath = hdf_file.file_map.sis_path + '/' + dname
+        dpath = digi_map.info['group path'] + '/' + dname
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
 
         obj = dset.value.view(cls)
-        #obj.header = dheader
+        # obj.header = dheader
 
         # assign dataset info
         obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
                     'dataset name': dname,
-                    'dataset path': hdf_file.file_map.sis_path + '/',
-                    'adc': d_info['crate'],
+                    'dataset path': dpath,
+                    'adc': d_info['adc'],
                     'bit': d_info['bit'],
                     'sample rate': d_info['sample rate'],
                     'board': board,
@@ -191,7 +182,7 @@ class hdfReadData(np.ndarray):
         :return:
         """
         dv = (2.0 * abs(self.info['voltage offset']) /
-              (2.**self.info['bit'] - 1.))
+              (2. ** self.info['bit'] - 1.))
         return dv
 
     def full_path(self):

@@ -29,19 +29,18 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         """
         Builds self.data_configs dictionary. A dict. entry follows:
 
-        data_configs[config_name] = {
-            'active': True/False,
-            'adc': [list of active analog-digital converters],
-            'group name': 'name of config group',
-            'group path': 'absolute path to config group',
-            'SIS 3301': [(brd,
+        .. code-block:: python
+            data_configs[config_name] = {
+                'active': True/False,
+                'adc': [list of active analog-digital converters],
+                'group name': 'name of config group',
+                'group path': 'absolute path to config group',
+                'SIS 3301': [(brd,
                          [ch,],
                          {'bit': 14,
                           'sample rate': (100.0, 'MHz')}
                          ), ]
-            }
-
-        :return:
+                }
         """
         # initialize data_configs
         self.data_configs = {}
@@ -176,7 +175,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
     def construct_dataset_name(self, board, channel,
                                config_name=None, adc='SIS 3301',
-                               return_info=False ):
+                               return_info=False):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, and channel. Format follows:
@@ -194,50 +193,55 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # TODO: Replace Warnings with proper error handling
         # TODO: Add a Silent kwd
 
-        # assign config_name
+        # Condition adc keyword
+        if adc != 'SIS 3301':
+            print('** Warning: passed adc ({}) is not '.format(adc)
+                  + "valid for this digitizer. Forcing "
+                    "adc = 'SIS 3301'")
+
+        # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
         if config_name is None:
             found = 0
-            for name in self.data_configs.keys():
+            for name in self.data_configs:
                 if self.data_configs[name]['active'] is True:
                     config_name = name
                     found += 1
 
-            if found != 1:
-                print('** Warning: List of configurations does not have'
-                      ' just one active configuration.')
-                return None
-            else:
+            if found == 1:
                 print('** Warning: config_name not specified, assuming '
                       + config_name + '.')
-
-        # ensure all args are valid
-        if config_name not in self.data_configs.keys():
+            elif found >= 1:
+                raise Exception("Too many active digitizer "
+                                "configurations detected. Currently do "
+                                "not know how to handle")
+            else:
+                raise Exception("No active digitizer configuration "
+                                "detected.")
+        elif config_name not in self.data_configs:
             # config_name must be a known configuration
-            print('** Warning: Invalid configuration name.')
-            return None
+            raise Exception('Invalid configuration name given.')
         elif self.data_configs[config_name]['active'] is False:
-            # if known, config_name must be actively used in the HDF5
-            print('** Warning: Configuration is not active.')
-            return None
-        else:
-            # search if (board, channel) combo is connected
-            bc_valid = False
-            for brd, chs, extras in \
-                    self.data_configs[config_name]['SIS 3301']:
-                if board == brd:
-                    if channel in chs:
-                        bc_valid = True
+            raise Exception('Specified configuration name is not '
+                            'active.')
 
-                        # save adc settings for return if requested
-                        d_info = extras
-                        d_info['adc'] = 'SIS 3301'
+        # search if (board, channel) combo is connected
+        bc_valid = False
+        d_info = None
+        for brd, chs, extras in \
+                self.data_configs[config_name]['SIS 3301']:
+            if board == brd:
+                if channel in chs:
+                    bc_valid = True
 
-            # (board, channel) combo must be active
-            if bc_valid is False:
-                print('** Warning: (Board, channel) not valid.')
-                return None
+                    # save adc settings for return if requested
+                    d_info = extras
+                    d_info['adc'] = 'SIS 3301'
+
+        # (board, channel) combo must be active
+        if bc_valid is False:
+            raise Exception('Specified (board, channel) is not valid')
 
         # checks passed, build dataset_name
         dataset_name = '{0} [{1}:{2}]'.format(config_name, board,

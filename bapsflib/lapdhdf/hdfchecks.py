@@ -401,6 +401,10 @@ class hdfCheck(object):
             sys.stdout = sys.__stdout__
 
     def get_hdf_mapping(self):
+        """
+        :return: an instance of the file mapping
+            :py:class:`lapdhdf.hdfmappers.hdfMap`
+        """
         return self.__hdf_map
 
 

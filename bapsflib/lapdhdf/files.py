@@ -130,7 +130,9 @@ class File(h5py.File):
         """
         return self.get(name)
 
-    def read_data(self, board, channel, shots=None, adc=None,
-                  config_name=None, output_voltage=True):
-        return hdfReadData(self, board, channel, shots=shots, adc=adc,
+    def read_data(self, board, channel, shots=None, digitizer=None,
+                  adc=None, config_name=None):
+        # consider adding keyword output_voltage
+        return hdfReadData(self, board, channel, shots=shots,
+                           digitizer=digitizer, adc=adc,
                            config_name=config_name)

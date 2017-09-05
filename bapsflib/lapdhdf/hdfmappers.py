@@ -200,11 +200,15 @@ class hdfMap(object):
         """
         :return: an instance of the main digitizer in self.digitizers
         """
-        possible_candidates = ['SIS 3301', 'SIS crate']
+        # possible_candidates is a hierarchical tuple of all digitizers
+        # such that the first found digitizer is assumed to be the main
+        # digitizer
+        possible_candidates = ('SIS 3301', 'SIS crate')
         digi = None
-        for key in self.digitizers.keys():
-            if key in possible_candidates:
-                digi = self.digitizers[key]
-                break
+        if self.digitizers is not None:
+            for key in possible_candidates:
+                if key in self.digitizers:
+                    digi = self.digitizers[key]
+                    break
 
         return digi

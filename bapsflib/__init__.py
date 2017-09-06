@@ -24,4 +24,4 @@ https://github.com/rocco8773/bapsflib
 from . import lapdhdf
 from . import lapdtoolbox
 
-from .viewers import HDFViewer
+#from .viewers import HDFViewer

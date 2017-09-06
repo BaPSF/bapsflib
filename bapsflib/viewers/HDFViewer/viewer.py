@@ -619,10 +619,10 @@ class formSimpleDataPlot(QtCore.QObject):
     def __init__(self, parent=None):
         super(formSimpleDataPlot, self).__init__(parent)
         #        formSimplePlot.__init__(self)
-        self.plot = QChart()
+        self.plot = QtChart.QChart()
         self.plot.legend().hide()
 
-        self.view = QChartView(self.plot)
+        self.view = QtChart.QChartView(self.plot)
 
         #        self.tooltipDataPoint = QtWidgets.QToolTip
 
@@ -744,7 +744,7 @@ class formSimpleDataPlot(QtCore.QObject):
             pdata.append(QtCore.QPointF(xdata[ii], ydata[ii]))
 
         # Build and Apply Data Series to Chart
-        curve = QScatterSeries()
+        curve = QtChart.QScatterSeries()
         curve.append(pdata)
         self.plot.addSeries(curve)
         self.plot.createDefaultAxes()
@@ -840,7 +840,7 @@ class formSimpleDataPlot(QtCore.QObject):
             pdata.append(QtCore.QPointF(xdata[ii], ydata[ii]))
 
         # Build and Apply Data Series to Chart
-        curve = QLineSeries()
+        curve = QtChart.QLineSeries()
         curve.append(pdata)
         self.plot.addSeries(curve)
         self.plot.createDefaultAxes()

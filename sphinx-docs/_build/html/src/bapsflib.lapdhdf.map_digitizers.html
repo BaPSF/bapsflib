@@ -1,0 +1,458 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>bapsflib.lapdhdf.map_digitizers &#8212; bapsflib  documentation</title>
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true,
+        SOURCELINK_SUFFIX: '.txt'
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="author" title="About these documents" href="../about.html" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="bapsflib.lapdhdf.map_msi" href="bapsflib.lapdhdf.map_msi.html" />
+    <link rel="prev" title="bapsflib.lapdhdf" href="bapsflib.lapdhdf.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="bapsflib-lapdhdf-map-digitizers">
+<h1>bapsflib.lapdhdf.map_digitizers<a class="headerlink" href="#bapsflib-lapdhdf-map-digitizers" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.map_digitizers.digi_template">
+<span id="bapsflib-lapdhdf-map-digitizers-digi-template-module"></span><h2>bapsflib.lapdhdf.map_digitizers.digi_template module<a class="headerlink" href="#module-bapsflib.lapdhdf.map_digitizers.digi_template" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.digi_template.</code><code class="descname">hdfMap_digi_template</code><span class="sig-paren">(</span><em>digi_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>When inheriting from template, the new class must define the class
+attribute <cite>__predefined_adc</cite> that is specific to that digitizer.</p>
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__adc_info">
+<code class="descname">_hdfMap_digi_template__adc_info</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__adc_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__build_data_configs">
+<code class="descname">_hdfMap_digi_template__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__build_data_configs" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_adc_connections">
+<code class="descname">_hdfMap_digi_template__find_adc_connections</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_adc_connections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_config_adc">
+<em class="property">static </em><code class="descname">_hdfMap_digi_template__find_config_adc</code><span class="sig-paren">(</span><em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_config_adc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name">
+<code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.digi_group">
+<code class="descname">digi_group</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.digi_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.is_config_active">
+<em class="property">static </em><code class="descname">is_config_active</code><span class="sig-paren">(</span><em>config_name</em>, <em>dataset_names</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.is_config_active" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name">
+<em class="property">static </em><code class="descname">parse_config_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.map_digitizers.map_digis">
+<span id="bapsflib-lapdhdf-map-digitizers-map-digis-module"></span><h2>bapsflib.lapdhdf.map_digitizers.map_digis module<a class="headerlink" href="#module-bapsflib.lapdhdf.map_digitizers.map_digis" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.map_digis.</code><code class="descname">hdfMap_digitizers</code><span class="sig-paren">(</span><em>data_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__build_dict">
+<code class="descname">_hdfMap_digitizers__build_dict</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__build_dict" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__defined_digitizer_mappings">
+<code class="descname">_hdfMap_digitizers__defined_digitizer_mappings</code><em class="property"> = {'SIS 3301': &lt;class 'bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301'&gt;, 'SIS crate': &lt;class 'bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate'&gt;}</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__defined_digitizer_mappings" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.data_group">
+<code class="descname">data_group</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.data_group" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.predefined_digitizer_groups">
+<code class="descname">predefined_digitizer_groups</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.predefined_digitizer_groups" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.map_digitizers.sis3301">
+<span id="bapsflib-lapdhdf-map-digitizers-sis3301-module"></span><h2>bapsflib.lapdhdf.map_digitizers.sis3301 module<a class="headerlink" href="#module-bapsflib.lapdhdf.map_digitizers.sis3301" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.sis3301.</code><code class="descname">hdfMap_digi_sis3301</code><span class="sig-paren">(</span><em>digi_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template</span></code></a></p>
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__adc_info">
+<code class="descname">_hdfMap_digi_sis3301__adc_info</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__adc_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__build_data_configs">
+<code class="descname">_hdfMap_digi_sis3301__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__build_data_configs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds self.data_configs dictionary. A dict. entry follows:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_adc_connections">
+<code class="descname">_hdfMap_digi_sis3301__find_adc_connections</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_adc_connections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_config_adc">
+<em class="property">static </em><code class="descname">_hdfMap_digi_sis3301__find_config_adc</code><span class="sig-paren">(</span><em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_config_adc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__predefined_adc">
+<code class="descname">_hdfMap_digi_sis3301__predefined_adc</code><em class="property"> = ['SIS 3301']</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__predefined_adc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.construct_dataset_name">
+<code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>config_name=None</em>, <em>adc='SIS 3301'</em>, <em>return_info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of a HDF5 dataset based on its configuration
+name, board, and channel. Format follows:</p>
+<blockquote>
+<div>‘config_name [brd:ch]’</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board</strong> – </li>
+<li><strong>channel</strong> – </li>
+<li><strong>config_name</strong> – </li>
+<li><strong>adc</strong> – </li>
+<li><strong>return_info</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.is_config_active">
+<em class="property">static </em><code class="descname">is_config_active</code><span class="sig-paren">(</span><em>config_name</em>, <em>dataset_names</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.is_config_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>The naming of a dataset starts with the name of its
+corresponding configuration.  This scans ‘dataset_names’
+fo see if ‘config_name’ is used in the list of datasets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config_name</strong> – </li>
+<li><strong>dataset_names</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.parse_config_name">
+<em class="property">static </em><code class="descname">parse_config_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.parse_config_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses ‘name’ to see if it matches the naming scheme for a
+data configuration group.  A group representing a data
+configuration has the scheme:</p>
+<blockquote>
+<div>Configuration: config_name</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.map_digitizers.siscrate">
+<span id="bapsflib-lapdhdf-map-digitizers-siscrate-module"></span><h2>bapsflib.lapdhdf.map_digitizers.siscrate module<a class="headerlink" href="#module-bapsflib.lapdhdf.map_digitizers.siscrate" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate">
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.siscrate.</code><code class="descname">hdfMap_digi_siscrate</code><span class="sig-paren">(</span><em>digi_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template</span></code></a></p>
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__adc_info">
+<code class="descname">_hdfMap_digi_siscrate__adc_info</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__adc_info" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__build_data_configs">
+<code class="descname">_hdfMap_digi_siscrate__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__build_data_configs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds self.data_configs dictionary. A dict. entry follows:</p>
+<dl class="docutils">
+<dt>data_configs[config_name] = {</dt>
+<dd><p class="first">‘active’: True/False,
+‘adc’: [list of active analog-digital converters],
+‘group name’: ‘name of config group’,
+‘group path’: ‘absolute path to config group’,
+‘SIS 3301’: [(brd,</p>
+<blockquote>
+<div><p>[ch,],
+{‘bit’: 14,</p>
+<blockquote>
+<div>‘sample rate’: (100.0, ‘MHz’)}</div></blockquote>
+<p>), ]</p>
+</div></blockquote>
+<p class="last">}</p>
+</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_adc_connections">
+<code class="descname">_hdfMap_digi_siscrate__find_adc_connections</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_adc_connections" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_config_adc">
+<em class="property">static </em><code class="descname">_hdfMap_digi_siscrate__find_config_adc</code><span class="sig-paren">(</span><em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_config_adc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__predefined_adc">
+<code class="descname">_hdfMap_digi_siscrate__predefined_adc</code><em class="property"> = ['SIS 3302', 'SIS 3305']</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__predefined_adc" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.brd_to_slot">
+<em class="property">static </em><code class="descname">brd_to_slot</code><span class="sig-paren">(</span><em>brd</em>, <em>adc</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.brd_to_slot" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.construct_dataset_name">
+<code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>config_name=None</em>, <em>adc=None</em>, <em>return_info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the name of a HDF5 dataset based on its configuration
+name, board, channel, and adc. Format follows:</p>
+<blockquote>
+<div>‘config_name [Slot #: SIS #### FPGA # ch #]’</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board</strong> – </li>
+<li><strong>channel</strong> – </li>
+<li><strong>config_name</strong> – </li>
+<li><strong>adc</strong> – </li>
+<li><strong>return_info</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.is_config_active">
+<em class="property">static </em><code class="descname">is_config_active</code><span class="sig-paren">(</span><em>config_name</em>, <em>dataset_names</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.is_config_active" title="Permalink to this definition">¶</a></dt>
+<dd><p>The naming of a dataset starts with the name of its
+corresponding configuration.  This scans ‘dataset_names’
+fo see if ‘config_name’ is used in the list of datasets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config_name</strong> – </li>
+<li><strong>dataset_names</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.parse_config_name">
+<em class="property">static </em><code class="descname">parse_config_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.parse_config_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Parses ‘name’ to see if it matches the naming scheme for a
+data configuration group.  A group representing a data
+configuration has the scheme:</p>
+<blockquote>
+<div>config_name</div></blockquote>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.slot_to_brd">
+<em class="property">static </em><code class="descname">slot_to_brd</code><span class="sig-paren">(</span><em>slot</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.slot_to_brd" title="Permalink to this definition">¶</a></dt>
+<dd><p>Mapping between the SIS crate slot number to the DAQ
+displayed board number.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>slot</strong> – </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-bapsflib.lapdhdf.map_digitizers">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-bapsflib.lapdhdf.map_digitizers" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../index.html">bapsflib</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../about.html">About bapsflib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../howtos.html">HOWTOs and Explainers</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../packageindex.html">The bapsflib Package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../packageindex.html">The bapsflib Package</a><ul>
+  <li><a href="bapsflib.lapdhdf.html">bapsflib.lapdhdf</a><ul>
+      <li>Previous: <a href="bapsflib.lapdhdf.html" title="previous chapter">bapsflib.lapdhdf</a></li>
+      <li>Next: <a href="bapsflib.lapdhdf.map_msi.html" title="next chapter">bapsflib.lapdhdf.map_msi</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2017, Erik T. Everson.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.6.3</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+      |
+      <a href="../_sources/src/bapsflib.lapdhdf.map_digitizers.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

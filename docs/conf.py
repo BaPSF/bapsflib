@@ -20,6 +20,9 @@
 #
 import os
 import sys
+from sphinx.ext.autodoc import between
+from unittest.mock import MagicMock
+
 sys.path.insert(0, os.path.abspath('..'))
 
 autodoc_mock_imports = ['PyQt5']
@@ -175,7 +178,6 @@ texinfo_documents = [
      'Miscellaneous'), ]
 
 # -- My Added Extras ---------------------------------------------------
-from sphinx.ext.autodoc import between
 
 # A list of prefixes that are ignored for sorting the Python module
 # index (e.g., if this is set to ['foo.'], then foo.bar is shown under
@@ -193,5 +195,15 @@ def setup(app):
     #        everything here is ignored
     #    IGNORE
     #    """
-    app.connect('autodoc-process-docstring', between('^.*IGNORE.*$', exclude=True))
+    app.connect('autodoc-process-docstring', between('^.*IGNORE.*$',
+                                                     exclude=True))
     return app
+
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return MagicMock()
+
+MOCK_MODULES = ['PyQt', 'numpy', 'pandas']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)

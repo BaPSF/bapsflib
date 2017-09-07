@@ -60,5 +60,7 @@ bapsflib\.lapdhdf\.hdfreaddata
 .. automodule:: bapsflib.lapdhdf.hdfreaddata
     :members:
     :undoc-members:
+    :special-members:
+    :exclude-members: __array_finalize__, __dict__, __module__
     :show-inheritance:
 

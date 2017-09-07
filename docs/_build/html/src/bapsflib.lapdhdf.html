@@ -503,72 +503,41 @@ system.</p>
 <dt id="bapsflib.lapdhdf.hdfmappers.hdfMap">
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfmappers.</code><code class="descname">hdfMap</code><span class="sig-paren">(</span><em>hdf_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
-<p>Template for all HDF Mapping Classes</p>
-<dl class="docutils">
-<dt>Class Attributes:</dt>
-<dd>msi_group  – str – name of MSI group
-data_group – str – name of data group</dd>
-<dt>Object Attributes:</dt>
-<dd><dl class="first last docutils">
-<dt>hdf_version  – str</dt>
-<dd><ul class="first last simple">
-<li>string representation of the version number
-corresponding the the LaPD HDF Software version used
-to generate the HDF5 file</li>
-</ul>
-</dd>
-<dt>msi_diagnostic_groups – [str]</dt>
-<dd><ul class="first last simple">
-<li>list of the group names for each diagnostic recorded
-in the MSI group</li>
-</ul>
-</dd>
-<dt>sis_group – str</dt>
-<dd><ul class="first last simple">
-<li>SIS group name which contains all the DAQ recorded
-data and associated DAQ configuration</li>
-</ul>
-</dd>
-<dt>sis_crates – [str]</dt>
-<dd><ul class="first last simple">
-<li>list of SIS crates (digitizers) available to record
-data</li>
-</ul>
-</dd>
-<dt>data_configs – {}</dt>
-<dd><ul class="first last simple">
-<li>dict containing key parameters associated with the
-crate configurations</li>
-<li>dict is constructed using method build_data_configs</li>
-</ul>
-</dd>
-</dl>
-</dd>
-<dt>Methods:</dt>
-<dd><dl class="first docutils">
-<dt>sis_path</dt>
-<dd><ul class="first last simple">
-<li>returns the HDF internal absolution path to the
-sis_group</li>
-</ul>
-</dd>
-<dt>build_data_configs</dt>
-<dd><ul class="first last simple">
-<li>used to construct the data_configs attribute</li>
-</ul>
-</dd>
-</dl>
-<p class="last">parse_config_name
-is_config_active
-__config_crates
-__crate_info
-__find_crate_connections</p>
-</dd>
-</dl>
+<p>Constructs a complete file mapping of <code class="xref py py-obj docutils literal"><span class="pre">hdf_obj</span></code> that is
+utilized by <code class="xref py py-class docutils literal"><span class="pre">lapdhdf.File</span></code> to manipulate and read data out
+of the HDF5 file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hdf_obj</strong> – an object instance of <code class="xref py py-class docutils literal"><span class="pre">lapdhdf.File</span></code></td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.data_group">
 <code class="descname">data_group</code><em class="property"> = 'Raw data + config'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_group" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers">
+<code class="descname">digitizers</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary style container for all digitizer
+mappings.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, to retrieve mappings of digitizer group ‘SIS 3301’
+one would call</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+<span class="n">dmap</span> <span class="o">=</span> <span class="n">fmap</span><span class="o">.</span><span class="n">digitizers</span><span class="p">[</span><span class="s1">&#39;SIS 3301&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.has_data_group">
@@ -691,12 +660,74 @@ used to generated the HDF5 file (‘’ if NOT LaPD generated)</td>
 </tr>
 </tbody>
 </table>
+<p>The main digitizer is determine by scanning through the local
+tuple <code class="xref py py-const docutils literal"><span class="pre">possible_candidates</span></code> that contains a
+hierarchical list of digitizers. The first digitizer found is
+considered the main digitizer.</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">possible_candidates</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;SIS 3301&#39;</span><span class="p">,</span> <span class="s1">&#39;SIS crate&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.motionlists">
+<code class="descname">motionlists</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.motionlists" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary style container for all motionlist
+mappings.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, to retrieve mappings of the motionlist group
+‘6k Compumotor’ one would call</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+<span class="n">mmap</span> <span class="o">=</span> <span class="n">fmap</span><span class="o">.</span><span class="n">motionlists</span><span class="p">[</span><span class="s1">&#39;6k Compumotor&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.msi">
+<code class="descname">msi</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.msi" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary style container for all MSI diagnostic
+mappings.</td>
+</tr>
+</tbody>
+</table>
+<p>For example, to retrieve mappings of LaPD’s Magnetic field one
+would call</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+<span class="n">bmap</span> <span class="o">=</span> <span class="n">fmap</span><span class="o">.</span><span class="n">msi</span><span class="p">[</span><span class="s1">&#39;Magnetic field&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.msi_group">
 <code class="descname">msi_group</code><em class="property"> = 'MSI'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.msi_group" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.unknowns">
+<code class="descname">unknowns</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.unknowns" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary container for all subgroups in
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_group" title="bapsflib.lapdhdf.hdfmappers.hdfMap.data_group"><code class="xref py py-const docutils literal"><span class="pre">data_group</span></code></a> that are unknown to the mapping
+constructor.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -707,91 +738,175 @@ used to generated the HDF5 file (‘’ if NOT LaPD generated)</td>
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData">
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfreaddata.</code><code class="descname">hdfReadData</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">numpy.ndarray</span></code></p>
-<p>I want self to be the nparray data.
-self should have a meta attribute that contains a dict() of
-metadata for the dataset.
-Metadata that should have:</p>
-<blockquote>
-<div><p>‘hdf file’       – HDF5 file name the data was retrieved from
-‘dataset name’   – name of the dataset
-‘dataset path’   – path to said dataset in the HDF5 file
-‘crate’          – crate in which the data was recorded on
-‘bit’            – bit resolution for the crate
-‘sample rate’    – tuple containing the sample rate</p>
-<blockquote>
-<div>e.g. (100.0, ‘MHz’)</div></blockquote>
-<dl class="docutils">
-<dt>‘board’          – board that the corresponding probe was</dt>
-<dd>attached to
-~ can I make a ‘brd’ alias for ‘board’</dd>
-<dt>‘channel’        – channel that the corresponding probe was</dt>
-<dd>attached to
-~ can I make a ‘ch’ alias for ‘channel’</dd>
-</dl>
-<p>‘voltage offset’ – voltage offset for the DAQ signal
-‘probe name’     – name of deployed probe…empty dict() item</p>
-<blockquote>
-<div>for user to fill out for his/her needs</div></blockquote>
-<dl class="docutils">
-<dt>‘port’           – 2-element tuple indicating which port the</dt>
-<dd>probe was deployed on.
-e.g. (19, ‘W’) =&gt; deployed on port 19 on the
-west side of the machine.
-Second elements descriptors should follow:
-‘T’  = top
-‘TW’ = top-west
-‘W’  = west
-‘BW’ = bottom-west
-‘B’  = bottom
-‘BE’ = bottome-east
-‘E’  = east
-‘TE’ = top-east</dd>
-<dt>Extracting Data</dt>
-<dd><p class="first">dset = h5py.get() returns a view of the dataset (dset)
-From there, instantiating from dset will create a copy of</p>
-<blockquote>
-<div>the data. If you want to keep views then one could use
-dset.values.view().  The dset.vlaues is np.ndarray.</div></blockquote>
-<dl class="last docutils">
-<dt>To extract data, fancy indexing [::] can be used directly on</dt>
-<dd>dset or dset.values.</dd>
-</dl>
-</dd>
-</dl>
-</div></blockquote>
+<p>Reads the data out of the HDF5 file:</p>
+<dl class="data">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.info">
+<code class="descname">info</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.info" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary container of metadata for the extracted data. The
+dict() keys are:</p>
+<table border="1" class="colwidths-given docutils">
+<colgroup>
+<col width="26%" />
+<col width="16%" />
+<col width="58%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><code class="xref py py-const docutils literal"><span class="pre">hdf</span> <span class="pre">file</span></code></td>
+<td><cite>str</cite></td>
+<td>HDF5 file name the data was retrieved from</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal"><span class="pre">dataset</span> <span class="pre">name</span></code></td>
+<td><cite>str</cite></td>
+<td>name of the dataset</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal"><span class="pre">dataset</span> <span class="pre">path</span></code></td>
+<td><cite>str</cite></td>
+<td>path to said dataset in the HDF5 file</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal"><span class="pre">digitizer</span></code></td>
+<td><cite>str</cite></td>
+<td>digitizer group name</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal"><span class="pre">adc</span></code></td>
+<td><cite>str</cite></td>
+<td>analog-digital converter in which the data was recorded
+on</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal"><span class="pre">bit</span></code></td>
+<td><cite>int</cite></td>
+<td>bit resolution for the adc</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal"><span class="pre">sample</span> <span class="pre">rate</span></code></td>
+<td>(<cite>int</cite>, <cite>float</cite>)</td>
+<td>tuple containing sample rate, e.g. (100.0, ‘MHz’)</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal"><span class="pre">board</span></code></td>
+<td><cite>int</cite></td>
+<td>board that the probe was connected to</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal"><span class="pre">channel</span></code></td>
+<td><cite>int</cite></td>
+<td>channel of the board that the probe was connected to</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal"><span class="pre">voltage</span> <span class="pre">offset</span></code></td>
+<td><cite>float</cite></td>
+<td>voltage offset of the digitized signal</td>
+</tr>
+<tr class="row-odd"><td><code class="xref py py-const docutils literal"><span class="pre">probe</span> <span class="pre">name</span></code></td>
+<td><cite>str</cite></td>
+<td>name of deployed probe…empty for user to use at
+his/her discretion</td>
+</tr>
+<tr class="row-even"><td><code class="xref py py-const docutils literal"><span class="pre">port</span></code></td>
+<td>(<cite>int</cite>, <cite>str</cite>)</td>
+<td>2-element tuple indicating which port the probe was
+deployed on, eg. (19, ‘W’)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__">
+<em class="property">static </em><code class="descname">__new__</code><span class="sig-paren">(</span><em>hdf_file</em>, <em>board</em>, <em>channel</em>, <em>shots=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__" title="Permalink to this definition">¶</a></dt>
+<dd><p>When inheriting from numpy, the object creation and
+initialization is handled by __new__ instead of __init__.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hdf_file</strong> – </li>
+<li><strong>board</strong> – </li>
+<li><strong>channel</strong> – </li>
+<li><strong>shots</strong> – </li>
+<li><strong>digitizer</strong> – </li>
+<li><strong>adc</strong> – </li>
+<li><strong>config_name</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_t">
 <code class="descname">convert_to_t</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_t" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert DAQ signal dependent axis from index to time.
-:return:</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Convert DAQ signal dependent axis from index to time.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
 </dd></dl>
 
 <dl class="method">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_v">
 <code class="descname">convert_to_v</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.convert_to_v" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert DAQ signal from bits to voltage.
-:return:</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Convert DAQ signal from bits to voltage.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.dt">
 <code class="descname">dt</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.dt" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return timestep dt from the ‘sample rate’ dict() item.
-:return:</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">time-step dt (in sec) from the ‘sample rate’ dict()
+item of <code class="xref py py-data docutils literal"><span class="pre">self.info</span></code>.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv">
 <code class="descname">dv</code><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return voltage-step from the ‘bit’ dict() item.
-:return:</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">voltage-step dv (in Volts) from the ‘bit’ and ‘voltage
+offset’ dict() items of <code class="xref py py-data docutils literal"><span class="pre">self.info</span></code>.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.full_path">
 <code class="descname">full_path</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.full_path" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return full path of the dataset in the HDF5 file.
-:return:</p>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">full path of the dataset in the HDF5 file.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
 </dd></dl>
 
 </dd></dl>

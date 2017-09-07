@@ -13,4 +13,4 @@ Modules
    :maxdepth: 1
 
    src/bapsflib.lapdhdf
-..   src/bapsflib.lapdtoolbox
+   src/bapsflib.lapdtoolbox

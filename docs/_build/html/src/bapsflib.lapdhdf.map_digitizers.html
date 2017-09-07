@@ -141,6 +141,19 @@ attribute <cite>__predefined_adc</cite> that is specific to that digitizer.</p>
 <dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__build_data_configs">
 <code class="descname">_hdfMap_digi_sis3301__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__build_data_configs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds self.data_configs dictionary. A dict. entry follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">data_configs</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="o">/</span><span class="bp">False</span><span class="p">,</span>
+    <span class="s1">&#39;adc&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span> <span class="n">of</span> <span class="n">active</span> <span class="n">analog</span><span class="o">-</span><span class="n">digital</span> <span class="n">converters</span><span class="p">],</span>
+    <span class="s1">&#39;group name&#39;</span><span class="p">:</span> <span class="s1">&#39;name of config group&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;group path&#39;</span><span class="p">:</span> <span class="s1">&#39;absolute path to config group&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;SIS 3301&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="n">brd</span><span class="p">,</span>
+             <span class="p">[</span><span class="n">ch</span><span class="p">,],</span>
+             <span class="p">{</span><span class="s1">&#39;bit&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
+              <span class="s1">&#39;sample rate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;MHz&#39;</span><span class="p">)}</span>
+             <span class="p">),</span> <span class="p">]</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="method">

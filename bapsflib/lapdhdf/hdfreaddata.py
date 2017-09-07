@@ -20,52 +20,91 @@ import numpy as np
 
 class hdfReadData(np.ndarray):
     """
-    I want self to be the nparray data.
-    self should have a meta attribute that contains a dict() of
-    metadata for the dataset.
-    Metadata that should have:
-        'hdf file'       -- HDF5 file name the data was retrieved from
-        'dataset name'   -- name of the dataset
-        'dataset path'   -- path to said dataset in the HDF5 file
-        'crate'          -- crate in which the data was recorded on
-        'bit'            -- bit resolution for the crate
-        'sample rate'    -- tuple containing the sample rate
-                            e.g. (100.0, 'MHz')
-        'board'          -- board that the corresponding probe was
-                            attached to
-                            ~ can I make a 'brd' alias for 'board'
-        'channel'        -- channel that the corresponding probe was
-                            attached to
-                            ~ can I make a 'ch' alias for 'channel'
-        'voltage offset' -- voltage offset for the DAQ signal
-        'probe name'     -- name of deployed probe...empty dict() item
-                            for user to fill out for his/her needs
-        'port'           -- 2-element tuple indicating which port the
-                            probe was deployed on.
-                            e.g. (19, 'W') => deployed on port 19 on the
-                            west side of the machine.
-                            Second elements descriptors should follow:
-                            'T'  = top
-                            'TW' = top-west
-                            'W'  = west
-                            'BW' = bottom-west
-                            'B'  = bottom
-                            'BE' = bottome-east
-                            'E'  = east
-                            'TE' = top-east
+    Reads the data out of the HDF5 file:
 
-        Extracting Data
-            dset = h5py.get() returns a view of the dataset (dset)
-            From there, instantiating from dset will create a copy of
-             the data. If you want to keep views then one could use
-             dset.values.view().  The dset.vlaues is np.ndarray.
-            To extract data, fancy indexing [::] can be used directly on
-             dset or dset.values.
+    .. py:data:: info
 
+        A dictionary container of metadata for the extracted data. The
+        dict() keys are:
+
+        .. list-table::
+            :widths: 5 3 11
+
+            * - :py:const:`hdf file`
+              - `str`
+              - HDF5 file name the data was retrieved from
+            * - :py:const:`dataset name`
+              - `str`
+              - name of the dataset
+            * - :py:const:`dataset path`
+              - `str`
+              - path to said dataset in the HDF5 file
+            * - :py:const:`digitizer`
+              - `str`
+              - digitizer group name
+            * - :py:const:`adc`
+              - `str`
+              - analog-digital converter in which the data was recorded
+                on
+            * - :py:const:`bit`
+              - `int`
+              - bit resolution for the adc
+            * - :py:const:`sample rate`
+              - (`int`, `float`)
+              - tuple containing sample rate, e.g. (100.0, 'MHz')
+            * - :py:const:`board`
+              - `int`
+              - board that the probe was connected to
+            * - :py:const:`channel`
+              - `int`
+              - channel of the board that the probe was connected to
+            * - :py:const:`voltage offset`
+              - `float`
+              - voltage offset of the digitized signal
+            * - :py:const:`probe name`
+              - `str`
+              - name of deployed probe...empty for user to use at
+                his/her discretion
+            * - :py:const:`port`
+              - (`int`, `str`)
+              - 2-element tuple indicating which port the probe was
+                deployed on, eg. (19, 'W')
+
+    .. 'port' -- 2-element tuple indicating which port the probe was
+                deployed on. e.g. (19, 'W') => deployed on port 19 on
+                the west side of the machine. Second elements
+                descriptors should follow:
+                  'T'  = top
+                  'TW' = top-west
+                  'W'  = west
+                  'BW' = bottom-west
+                  'B'  = bottom
+                  'BE' = bottome-east
+                  'E'  = east
+                  'TE' = top-east
     """
+    # Extracting Data:
+    #  dset = h5py.get() returns a view of the dataset (dset)
+    #  From here, instantiating from dset will create a copy of the
+    #    data. If you want to keep views then one could use
+    #    dset.values.view().  The dset.vlaues is the np.ndarray.
+    #  To extract data, fancy indexing [::] can be used directly on
+    #    dset or dset.values.
 
     def __new__(cls, hdf_file, board, channel, shots=None,
                 digitizer=None, adc=None, config_name=None):
+        """
+        When inheriting from numpy, the object creation and
+        initialization is handled by __new__ instead of __init__.
+
+        :param hdf_file:
+        :param board:
+        :param channel:
+        :param shots:
+        :param digitizer:
+        :param adc:
+        :param config_name:
+        """
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
         #                      this needs to be thought out in more
@@ -83,6 +122,7 @@ class hdfReadData(np.ndarray):
         #
         # TODO: add error handling for .get() of dheader
         # TODO: add error handling for 'Offset' field in dheader
+        # TODO: add digitizer key to self.info
 
         # Condition digitizer keyword
         if digitizer is None:
@@ -154,23 +194,25 @@ class hdfReadData(np.ndarray):
 
     def convert_to_v(self):
         """
-        Convert DAQ signal from bits to voltage.
-        :return:
+        :return: Convert DAQ signal from bits to voltage.
+
+        .. Warning:: Not implemented yet
         """
-        pass
+        raise NotImplementedError
 
     def convert_to_t(self):
         """
-        Convert DAQ signal dependent axis from index to time.
-        :return:
+        :return: Convert DAQ signal dependent axis from index to time.
+
+        .. Warning:: Not implemented yet
         """
-        pass
+        raise NotImplementedError
 
     @property
     def dt(self):
         """
-        Return timestep dt from the 'sample rate' dict() item.
-        :return:
+        :return: time-step dt (in sec) from the 'sample rate' dict()
+            item of :py:data:`self.info`.
         """
         units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
         dt = 1.0 / (self.info['sample rate'][0] *
@@ -180,8 +222,8 @@ class hdfReadData(np.ndarray):
     @property
     def dv(self):
         """
-        Return voltage-step from the 'bit' dict() item.
-        :return:
+        :return: voltage-step dv (in Volts) from the 'bit' and 'voltage
+            offset' dict() items of :py:data:`self.info`.
         """
         dv = (2.0 * abs(self.info['voltage offset']) /
               (2. ** self.info['bit'] - 1.))
@@ -189,7 +231,8 @@ class hdfReadData(np.ndarray):
 
     def full_path(self):
         """
-        Return full path of the dataset in the HDF5 file.
-        :return:
+        :return: full path of the dataset in the HDF5 file.
+
+        .. Warning:: Not implemented yet
         """
-        pass
+        raise NotImplementedError

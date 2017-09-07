@@ -30,6 +30,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         Builds self.data_configs dictionary. A dict. entry follows:
 
         .. code-block:: python
+
             data_configs[config_name] = {
                 'active': True/False,
                 'adc': [list of active analog-digital converters],

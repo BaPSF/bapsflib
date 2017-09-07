@@ -30,43 +30,11 @@ from .map_digitizers import hdfMap_digitizers
 
 class hdfMap(object):
     """
-    Template for all HDF Mapping Classes
+    Constructs a complete file mapping of :py:obj:`hdf_obj` that is
+    utilized by :py:class:`lapdhdf.File` to manipulate and read data out
+    of the HDF5 file.
 
-    Class Attributes:
-        msi_group  -- str -- name of MSI group
-        data_group -- str -- name of data group
-
-    Object Attributes:
-        hdf_version  -- str
-            - string representation of the version number
-              corresponding the the LaPD HDF Software version used
-              to generate the HDF5 file
-        msi_diagnostic_groups -- [str]
-            - list of the group names for each diagnostic recorded
-              in the MSI group
-        sis_group -- str
-            - SIS group name which contains all the DAQ recorded
-              data and associated DAQ configuration
-        sis_crates -- [str]
-            - list of SIS crates (digitizers) available to record
-              data
-        data_configs -- {}
-            - dict containing key parameters associated with the
-              crate configurations
-            - dict is constructed using method build_data_configs
-
-    Methods:
-        sis_path
-            - returns the HDF internal absolution path to the
-              sis_group
-        build_data_configs
-            - used to construct the data_configs attribute
-        parse_config_name
-        is_config_active
-        __config_crates
-        __crate_info
-        __find_crate_connections
-
+    :param hdf_obj: an object instance of :py:class:`lapdhdf.File`
     """
     # MSI stuff
     msi_group = 'MSI'
@@ -118,9 +86,9 @@ class hdfMap(object):
         """
         if not hasattr(self, 'digitizers'):
             has_digis = False
-        elif self.digitizers is None:
+        elif self.__digitizers is None:
             has_digis = False
-        elif len(self.digitizers) == 0:
+        elif len(self.__digitizers) == 0:
             has_digis = False
         else:
             has_digis = True
@@ -132,7 +100,15 @@ class hdfMap(object):
         :return: True/False if any known motion groups are discovered in
             the data group
         """
-        return False
+        if not hasattr(self, 'motionlists'):
+            has_motion = False
+        elif self.motionlists is None:
+            has_motion = False
+        elif len(self.motionlists) == 0:
+            has_motion = False
+        else:
+            has_motion = True
+        return has_motion
 
     @property
     def has_unknown_data_subgoups(self):
@@ -145,29 +121,96 @@ class hdfMap(object):
 
     def __attach_msi(self):
         """
-        Will attach a dictionary style mapper (self.msi) that contains
+        Will attach a dictionary style mapper (self.__msi) that contains
         all msi diagnostic mappings.
-
-        :return:
         """
         if self.has_msi_group:
-            self.msi = hdfMap_msi(self.__hdf_obj[self.msi_group])
+            self.__msi = hdfMap_msi(self.__hdf_obj[self.msi_group])
         else:
-            self.msi = None
+            self.__msi = None
+
+    @property
+    def msi(self):
+        """
+        :return: A dictionary style container for all MSI diagnostic
+            mappings.
+
+        For example, to retrieve mappings of LaPD's Magnetic field one
+        would call
+
+        .. code-block:: python
+
+            fmap = hdfMap(file_obj)
+            bmap = fmap.msi['Magnetic field']
+        """
+        return self.__msi
 
     def __attach_digitizers(self):
         """
-        Will attach a dictionary style mapper (self.digitizers) that
+        Will attach a dictionary style mapper (self.__digitizers) that
         contains all digitizer mappings.
-
-        :return:
         """
         if self.has_data_group:
-            self.digitizers = hdfMap_digitizers(
+            self.__digitizers = hdfMap_digitizers(
                 self.__hdf_obj[self.data_group])
         else:
-            self.digitizers = None
+            self.__digitizers = None
 
+    @property
+    def digitizers(self):
+        """
+        :return: A dictionary style container for all digitizer
+            mappings.
+
+        For example, to retrieve mappings of digitizer group 'SIS 3301'
+        one would call
+
+        .. code-block:: python
+
+            fmap = hdfMap(file_obj)
+            dmap = fmap.digitizers['SIS 3301']
+        """
+        return self.__digitizers
+
+    def __attach_motionlists(self):
+        """
+        Will attach a dictionary style mapper (self.__motionlists) that
+        contains all motionlist mappings.
+        """
+        self.__motionlists = None
+
+    @property
+    def motionlists(self):
+        """
+        :return: A dictionary style container for all motionlist
+            mappings.
+
+        For example, to retrieve mappings of the motionlist group
+        '6k Compumotor' one would call
+
+        .. code-block:: python
+
+            fmap = hdfMap(file_obj)
+            mmap = fmap.motionlists['6k Compumotor']
+        """
+        return self.__motionlists
+
+    def __attach_unknowns(self):
+        """
+        Will attach a dictionary style mapper (self.__unknowns) that
+        contains all additional subgroups in :py:const:`data_group` that
+        are unknown to the mapping constructor.
+        """
+        self.__unknowns = None
+
+    @property
+    def unknowns(self):
+        """
+        :return: A dictionary container for all subgroups in
+            :py:const:`data_group` that are unknown to the mapping
+            constructor.
+        """
+        return self.__unknowns
     @property
     def is_lapd_hdf(self):
         """
@@ -199,16 +242,25 @@ class hdfMap(object):
     def main_digitizer(self):
         """
         :return: an instance of the main digitizer in self.digitizers
+
+        The main digitizer is determine by scanning through the local
+        tuple :py:const:`possible_candidates` that contains a
+        hierarchical list of digitizers. The first digitizer found is
+        considered the main digitizer.
+
+        .. code-block:: python
+
+            possible_candidates = ('SIS 3301', 'SIS crate')
         """
         # possible_candidates is a hierarchical tuple of all digitizers
         # such that the first found digitizer is assumed to be the main
         # digitizer
         possible_candidates = ('SIS 3301', 'SIS crate')
         digi = None
-        if self.digitizers is not None:
+        if self.__digitizers is not None:
             for key in possible_candidates:
-                if key in self.digitizers:
-                    digi = self.digitizers[key]
+                if key in self.__digitizers:
+                    digi = self.__digitizers[key]
                     break
 
         return digi

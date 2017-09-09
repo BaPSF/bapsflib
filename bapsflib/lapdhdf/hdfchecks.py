@@ -43,6 +43,8 @@ import sys
 from .hdferrors import NotHDFFileError, NotLaPDHDFError, NoMSIError
 from .hdfmappers import hdfMap
 
+from contextlib import contextmanager
+
 
 class hdfCheck(object):
     def __init__(self, hdf_obj):
@@ -87,9 +89,6 @@ class hdfCheck(object):
             :param silent:
             :return:
         """
-        if silent:
-            sys.stdout = open(os.devnull, 'w')
-
         is_lapd = False
         for key in self.__hdf_obj.attrs.keys():
             if 'lapd' in key.casefold() and 'version' in key.casefold():
@@ -102,13 +101,11 @@ class hdfCheck(object):
         found = 'yes' if is_lapd else 'no'
         note = '(v{})\n'.format(self._hdf_lapd_version) if is_lapd \
             else '\n'
-        status_print(item, found, note)
+        with control_print_out(silent):
+            status_print(item, found, note)
 
         if not is_lapd:
             raise NotLaPDHDFError
-
-        if silent:
-            sys.stdout = sys.__stdout__
 
         return is_lapd, self._hdf_lapd_version
 
@@ -406,6 +403,19 @@ class hdfCheck(object):
             :py:class:`lapdhdf.hdfmappers.hdfMap`
         """
         return self.__hdf_map
+
+
+@contextmanager
+def control_print_out(silent):
+    # go to a Null print if silent=True
+    if silent:
+        sys.stdout = open(os.devnull, 'w')
+
+    yield sys.stdout
+
+    # return to normal print
+    if silent:
+        sys.stdout = sys.__stdout__
 
 
 def status_print(item, found, note, indent=0, item_found_pad='~'):

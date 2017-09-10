@@ -32,6 +32,13 @@ class File(h5py.File):
     def __init__(self, name, mode='r', driver=None, libver=None,
                  userblock_size=None, swmr=False, **kwds):
         """what should i put here"""
+        # TODO: add keyword save_report
+        # - this will save the hdfChecks report to a text file alongside
+        #   the HDF5 file
+        # TODO: add keyword silent_report
+        # - this will prevent the report from printing to screen, but
+        #   does not affect save_report
+        #
         h5py.File.__init__(self, name, mode, driver, libver,
                            userblock_size, swmr)
 

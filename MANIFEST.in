@@ -1,0 +1,8 @@
+include README.md
+include MANIFEST.in
+include *.txt
+
+recursive-include docs *
+prune docs/_build
+
+recursive-include licenses *

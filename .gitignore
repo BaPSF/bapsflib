@@ -9,3 +9,6 @@
 
 # Sphinx build directory
 docs/_build/
+
+# PyCharm specifics
+.idea

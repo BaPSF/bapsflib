@@ -8,6 +8,7 @@ Development Status :: 2 - Pre-Alpha
 Intended Audience :: Developers
 Intended Audience :: Education
 Intended Audience :: Science/Research
+License :: OSI Approved :: BSD License
 Natural Language :: English
 Operating System :: MacOS
 Operating System :: Microsoft :: Windows
@@ -27,6 +28,7 @@ setup(
     name='bapsflib',
     version='0.1.2.dev',
     description='A toolkit for handling data collected at BaPSF.',
+    license='BSD',
     classifiers=CLASSIFIERS,
     url='https://github.com/rocco8773/bapsflib',
     author='Erik T. Everson',

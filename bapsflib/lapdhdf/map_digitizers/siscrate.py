@@ -27,7 +27,9 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
     def __build_data_configs(self):
         """
-            Builds self.data_configs dictionary. A dict. entry follows:
+        Builds self.data_configs dictionary. A dict. entry follows:
+
+        .. code-block:: python
 
             data_configs[config_name] = {
                 'active': True/False,
@@ -37,11 +39,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 'SIS 3301': [(brd,
                               [ch,],
                               {'bit': 14,
-                               'sample rate': (100.0, 'MHz')}
-                              ), ]
-                }
-
-            :return:
+                               'sample rate': (100.0, 'MHz')}), ]}
         """
         # initialize data_configs
         self.data_configs = {}

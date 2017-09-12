@@ -33,6 +33,9 @@ setup(
     url='https://github.com/rocco8773/bapsflib',
     author='Erik T. Everson',
     author_email='eteveson@gmail.com',
+    packages=['bapsflib'],
+    install_requires=['h5py>=2.6', 'numpy>=1.7'],
+    python_requires='>=3.5',
     zip_safe=False,
     include_package_data=True
 )

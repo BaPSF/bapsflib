@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 CLASSIFIERS = """
 Development Status :: 2 - Pre-Alpha
@@ -32,7 +32,7 @@ setup(
     url='https://github.com/rocco8773/bapsflib',
     author='Erik T. Everson',
     author_email='eteveson@gmail.com',
-    packages=['bapsflib'],
+    packages=find_packages(),
     install_requires=['h5py>=2.6', 'numpy>=1.7'],
     python_requires='>=3.5',
     zip_safe=False,

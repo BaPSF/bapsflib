@@ -1,9 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 from setuptools import setup
 
-CLASSIFIERS = \
-"""
+CLASSIFIERS = """
 Development Status :: 2 - Pre-Alpha
 Intended Audience :: Developers
 Intended Audience :: Education

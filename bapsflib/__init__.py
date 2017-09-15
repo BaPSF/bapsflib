@@ -7,6 +7,7 @@
 #
 # License:
 #
+# just a test for pip3 install --upgrade bapsflib
 """
 This is the bapsflib package, a Python toolkit designed for the Basic
 Plasma Science Facility (BaPSF) group at the University of California,

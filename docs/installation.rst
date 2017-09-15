@@ -21,7 +21,8 @@ Directly from GitHub
 
 .. Note::
 
-    Will need a version of `git` installed locally, see installation
+    Will need a version of :command:`git` installed locally, see
+    installation
     `here <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_.
 
 A copy of :py:mod:`bapsflib` can be installed into Python's

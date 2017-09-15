@@ -25,7 +25,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 
 setup(
     name='bapsflib',
-    version='0.1.2.dev2',
+    version='0.1.2.dev0',
     description='A toolkit for handling data collected at BaPSF.',
     license='BSD',
     classifiers=CLASSIFIERS,

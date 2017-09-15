@@ -7,7 +7,6 @@
 #
 # License:
 #
-# just a test for pip3 install --upgrade bapsflib
 """
 This is the bapsflib package, a Python toolkit designed for the Basic
 Plasma Science Facility (BaPSF) group at the University of California,
@@ -25,4 +24,4 @@ https://github.com/rocco8773/bapsflib
 from . import lapdhdf
 from . import lapdtoolbox
 
-#from .viewers import HDFViewer
+# from .viewers import HDFViewer

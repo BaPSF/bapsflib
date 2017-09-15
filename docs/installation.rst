@@ -5,8 +5,16 @@ Package Requirements
 --------------------
 
 
-Installing
-----------
+Installing...
+-------------
+
+The :py:mod:`bapsflib` package is still in active development so it has
+not been registered with PyPI.  Once a stable release is achieve, the
+package will be registered and, then, can be directly installed with:
+
+::
+
+    pip3 install bapsflib
 
 Directly from GitHub
 ^^^^^^^^^^^^^^^^^^^^

@@ -47,7 +47,13 @@
 <h2>Package Requirements<a class="headerlink" href="#package-requirements" title="Permalink to this headline">¶</a></h2>
 </div>
 <div class="section" id="installing">
-<h2>Installing<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<h2>Installing…<a class="headerlink" href="#installing" title="Permalink to this headline">¶</a></h2>
+<p>The <a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> package is still in active development so it has
+not been registered with PyPI.  Once a stable release is achieve, the
+package will be registered and, then, can be directly installed with:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">pip3</span> <span class="n">install</span> <span class="n">bapsflib</span>
+</pre></div>
+</div>
 <div class="section" id="directly-from-github">
 <h3>Directly from GitHub<a class="headerlink" href="#directly-from-github" title="Permalink to this headline">¶</a></h3>
 <div class="admonition note">
@@ -57,22 +63,42 @@
 </div>
 <p>A copy of <a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> can be installed into Python’s
 <code class="file docutils literal"><span class="pre">site-packages</span></code> directory using the <strong class="command">pip3</strong> installer.  To
-install invoke the following command:</p>
+install, invoke the following command:</p>
 <div class="highlight-bash"><div class="highlight"><pre><span></span>pip3 install git+https://https://github.com/rocco8773/bapsflib.git#egg<span class="o">=</span>bapsflib
 </pre></div>
 </div>
-<p>One can either install directly from GitHub or download a copy of
-<a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> locally and install.  Both of these methods will
-required installation of <cite>git</cite>, which can be seen
-<a class="reference external" href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">here</a>.</p>
+<p>Now, the <a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> package can be imported like any other
+Python package.</p>
+<p>Since <a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> is not currently registered on PyPI, to upgrade
+the package the following command has to be used:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip3 install --upgrade git+https://https://github.com/rocco8773/bapsflib.git#egg<span class="o">=</span>bapsflib
+</pre></div>
 </div>
-<div class="section" id="from-a-github-clone">
-<h3>From a GitHub Clone<a class="headerlink" href="#from-a-github-clone" title="Permalink to this headline">¶</a></h3>
+</div>
+<div class="section" id="from-a-local-github-clone">
+<h3>From a Local GitHub Clone<a class="headerlink" href="#from-a-local-github-clone" title="Permalink to this headline">¶</a></h3>
+<p>The second option is to install from a local copy of the GitHub
+repository.  A copy can be made one of two ways, (1) download a copy
+directly from the
+<a class="reference external" href="https://github.com/rocco8773/bapsflib">GitHub repository</a> or (2)
+make a <strong class="command">git</strong> clone of the repository.  To download a copy go to
+the <a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a>
+<a class="reference external" href="https://github.com/rocco8773/bapsflib">repository</a>, find the
+<strong>clone or download</strong> button, choose <strong>Download ZIP</strong>, save to location
+of choice, and unpack.  To install the package, navigate to the
+<a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> package main directory when the <code class="file docutils literal"><span class="pre">setup.py</span></code> file
+is located.  In the terminal excuate the following command:</p>
+<div class="highlight-bash"><div class="highlight"><pre><span></span>pip3 install .
+</pre></div>
+</div>
+<p>and this will install the <a class="reference internal" href="packageindex.html#module-bapsflib" title="bapsflib"><code class="xref py py-mod docutils literal"><span class="pre">bapsflib</span></code></a> package in Python’s
+<code class="file docutils literal"><span class="pre">site-packages</span></code> directory.</p>
 </div>
 </div>
 <div class="section" id="useful-links">
 <h2>Useful Links<a class="headerlink" href="#useful-links" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
+<li>bapsflib repository: <a class="reference external" href="https://https://github.com/rocco8773/bapsflib">https://https://github.com/rocco8773/bapsflib</a></li>
 <li>setuptools documentation: <a class="reference external" href="https://setuptools.readthedocs.io/en/latest/index.html">https://setuptools.readthedocs.io/en/latest/index.html</a></li>
 <li>pip documentation: <a class="reference external" href="https://pip.pypa.io/en/stable/">https://pip.pypa.io/en/stable/</a></li>
 <li>git installation: <a class="reference external" href="https://git-scm.com/book/en/v2/Getting-Started-Installing-Git">https://git-scm.com/book/en/v2/Getting-Started-Installing-Git</a></li>

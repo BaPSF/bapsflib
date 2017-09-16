@@ -16,7 +16,6 @@ from abc import abstractmethod
 
 class hdfMap_digi_template(object):
     """
-
     When inheriting from template, the new class must define the class
     attribute `__predefined_adc` that is specific to that digitizer.
     """
@@ -29,9 +28,13 @@ class hdfMap_digi_template(object):
 
         self.info = {'group name': digi_group.name.split('/')[-1],
                      'group path': digi_group.name}
+        """what does this do"""
 
     @property
     def digi_group(self):
+        """
+        :return: instance of :py:mod:`h5py.Group` of the digitizer
+        """
         return self.__digi_group
 
     @abstractmethod

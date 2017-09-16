@@ -1,5 +1,5 @@
-bapsflib\.lapdtoolbox package
-=============================
+bapsflib\.lapdtoolbox
+=====================
 
 Module contents
 ---------------

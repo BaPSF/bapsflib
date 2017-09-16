@@ -229,7 +229,26 @@ the HDF5 file.</td>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.files.File.read_data">
 <code class="descname">read_data</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>shots=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.read_data" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board</strong> (<em>int</em>) – desired board number</li>
+<li><strong>channel</strong> (<em>int</em>) – desired channel number</li>
+<li><strong>shots</strong> (<em>list</em><em>(</em><em>int</em><em>)</em>) – </li>
+<li><strong>digitizer</strong> (<em>str</em>) – name of desired digitizer</li>
+<li><strong>adc</strong> (<em>str</em>) – name of desired analog-digital converter</li>
+<li><strong>config_name</strong> (<em>str</em>) – name of data configurations</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">instance of <code class="xref py py-mod docutils literal"><span class="pre">lapdhdf.hdfReadData</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.files.File.tupHDF_fileSys">
@@ -251,7 +270,7 @@ the HDF5 file.</td>
 <span id="bapsflib-lapdhdf-hdfchecks"></span><h3><a class="toc-backref" href="#id2">bapsflib.lapdhdf.hdfchecks</a><a class="headerlink" href="#module-bapsflib.lapdhdf.hdfchecks" title="Permalink to this headline">¶</a></h3>
 <dl class="function">
 <dt id="bapsflib.lapdhdf.hdfchecks.control_print_out">
-<code class="descclassname">bapsflib.lapdhdf.hdfchecks.</code><code class="descname">control_print_out</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.control_print_out" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">bapsflib.lapdhdf.hdfchecks.</code><code class="descname">control_print_out</code><span class="sig-paren">(</span><em>silent</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.control_print_out" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="class">
@@ -466,7 +485,7 @@ standard print output</td>
 <dl class="exception">
 <dt id="bapsflib.lapdhdf.hdferrors.Error">
 <em class="property">exception </em><code class="descclassname">bapsflib.lapdhdf.hdferrors.</code><code class="descname">Error</code><a class="headerlink" href="#bapsflib.lapdhdf.hdferrors.Error" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">exceptions.Exception</span></code></p>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
 <p>Base class for exceptions in the lapdhdf module.</p>
 </dd></dl>
 

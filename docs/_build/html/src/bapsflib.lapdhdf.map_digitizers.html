@@ -62,8 +62,8 @@
 <p>A template class for all digitizer mapping classes to inherit from.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">Any method that raises a NotImplementedError is intended to be
-overwritten by the inheriting class.</p>
+<p class="last">Any method that raises a <code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code> is intended
+to be overwritten by the inheriting class.</p>
 </div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -81,13 +81,13 @@ overwritten by the inheriting class.</p>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__build_data_configs">
 <code class="descname">_hdfMap_digi_template__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__build_data_configs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds and binds the dictionary <code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code> that
-holds information about how the digitizer was configured.</p>
+<dd><p>Builds and binds the dictionary <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs"><code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code></a> that
+contains information about how the digitizer was configured.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">NotImplementedError</td>
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -115,7 +115,7 @@ holds information about how the digitizer was configured.</p>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
 </tr>
-<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body">NotImplementedError</td>
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code></td>
 </tr>
 </tbody>
 </table>
@@ -125,6 +125,12 @@ holds information about how the digitizer was configured.</p>
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name">
 <code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs">
+<code class="descname">data_configs</code><em class="property"> = None</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="Permalink to this definition">¶</a></dt>
+<dd><p>i’m here</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.digi_group">
@@ -159,7 +165,23 @@ holds information about how the digitizer was configured.</p>
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name">
 <em class="property">static </em><code class="descname">parse_config_name</code><span class="sig-paren">(</span><em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Will parse the passed group name and determine if the group is
+a digitizer configuration group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>name</strong> (<em>str</em>) – name of proposed HDF5 digitizer configuration
+group</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">True/False if <cite>name</cite> is a configuration group,
+name of configuration</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">tuple(bool, str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 
@@ -199,53 +221,6 @@ holds information about how the digitizer was configured.</p>
 <dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301">
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.sis3301.</code><code class="descname">hdfMap_digi_sis3301</code><span class="sig-paren">(</span><em>digi_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template</span></code></a></p>
-<dl class="method">
-<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__adc_info">
-<code class="descname">_hdfMap_digi_sis3301__adc_info</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__adc_info" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__build_data_configs">
-<code class="descname">_hdfMap_digi_sis3301__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__build_data_configs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds self.data_configs dictionary. A dict. entry follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">data_configs</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="o">/</span><span class="bp">False</span><span class="p">,</span>
-    <span class="s1">&#39;adc&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span> <span class="n">of</span> <span class="n">active</span> <span class="n">analog</span><span class="o">-</span><span class="n">digital</span> <span class="n">converters</span><span class="p">],</span>
-    <span class="s1">&#39;group name&#39;</span><span class="p">:</span> <span class="s1">&#39;name of config group&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;group path&#39;</span><span class="p">:</span> <span class="s1">&#39;absolute path to config group&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;SIS 3301&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="n">brd</span><span class="p">,</span>
-             <span class="p">[</span><span class="n">ch</span><span class="p">,],</span>
-             <span class="p">{</span><span class="s1">&#39;bit&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
-              <span class="s1">&#39;sample rate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;MHz&#39;</span><span class="p">)}</span>
-             <span class="p">),</span> <span class="p">]</span>
-    <span class="p">}</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_adc_connections">
-<code class="descname">_hdfMap_digi_sis3301__find_adc_connections</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_adc_connections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_config_adc">
-<em class="property">static </em><code class="descname">_hdfMap_digi_sis3301__find_config_adc</code><span class="sig-paren">(</span><em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._hdfMap_digi_sis3301__find_config_adc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._predefined_adc">
-<code class="descname">_predefined_adc</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301._predefined_adc" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">[‘SIS 3301’]</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 <dl class="method">
 <dt id="bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.construct_dataset_name">
 <code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>config_name=None</em>, <em>adc='SIS 3301'</em>, <em>return_info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
@@ -325,43 +300,6 @@ configuration has the scheme:</p>
 <dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate">
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.siscrate.</code><code class="descname">hdfMap_digi_siscrate</code><span class="sig-paren">(</span><em>digi_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template</span></code></a></p>
-<dl class="method">
-<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__adc_info">
-<code class="descname">_hdfMap_digi_siscrate__adc_info</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__adc_info" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__build_data_configs">
-<code class="descname">_hdfMap_digi_siscrate__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__build_data_configs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds self.data_configs dictionary. A dict. entry follows:</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">data_configs</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="o">/</span><span class="bp">False</span><span class="p">,</span>
-    <span class="s1">&#39;adc&#39;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span> <span class="n">of</span> <span class="n">active</span> <span class="n">analog</span><span class="o">-</span><span class="n">digital</span> <span class="n">converters</span><span class="p">],</span>
-    <span class="s1">&#39;group name&#39;</span><span class="p">:</span> <span class="s1">&#39;name of config group&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;group path&#39;</span><span class="p">:</span> <span class="s1">&#39;absolute path to config group&#39;</span><span class="p">,</span>
-    <span class="s1">&#39;SIS 3301&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="n">brd</span><span class="p">,</span>
-                  <span class="p">[</span><span class="n">ch</span><span class="p">,],</span>
-                  <span class="p">{</span><span class="s1">&#39;bit&#39;</span><span class="p">:</span> <span class="mi">14</span><span class="p">,</span>
-                   <span class="s1">&#39;sample rate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mf">100.0</span><span class="p">,</span> <span class="s1">&#39;MHz&#39;</span><span class="p">)}),</span> <span class="p">]}</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="method">
-<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_adc_connections">
-<code class="descname">_hdfMap_digi_siscrate__find_adc_connections</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_adc_connections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="staticmethod">
-<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_config_adc">
-<em class="property">static </em><code class="descname">_hdfMap_digi_siscrate__find_config_adc</code><span class="sig-paren">(</span><em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__find_config_adc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__predefined_adc">
-<code class="descname">_hdfMap_digi_siscrate__predefined_adc</code><em class="property"> = ['SIS 3302', 'SIS 3305']</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate._hdfMap_digi_siscrate__predefined_adc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.brd_to_slot">
 <em class="property">static </em><code class="descname">brd_to_slot</code><span class="sig-paren">(</span><em>brd</em>, <em>adc</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate.brd_to_slot" title="Permalink to this definition">¶</a></dt>

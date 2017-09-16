@@ -47,7 +47,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                                'sample rate': (100.0, 'MHz')}), ]}
         """
         # initialize data_configs
-        self.data_configs = {}
+        # self.data_configs = {}
 
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []

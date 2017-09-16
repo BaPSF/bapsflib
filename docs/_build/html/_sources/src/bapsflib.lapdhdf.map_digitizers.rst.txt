@@ -32,7 +32,6 @@ bapsflib\.lapdhdf\.map\_digitizers\.sis3301
 .. automodule:: bapsflib.lapdhdf.map_digitizers.sis3301
     :members:
     :undoc-members:
-    :private-members:
     :show-inheritance:
 
 bapsflib\.lapdhdf\.map\_digitizers\.siscrate
@@ -41,6 +40,5 @@ bapsflib\.lapdhdf\.map\_digitizers\.siscrate
 .. automodule:: bapsflib.lapdhdf.map_digitizers.siscrate
     :members:
     :undoc-members:
-    :private-members:
     :show-inheritance:
 

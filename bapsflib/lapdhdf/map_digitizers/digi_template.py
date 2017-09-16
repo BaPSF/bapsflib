@@ -20,8 +20,8 @@ class hdfMap_digi_template(object):
 
     .. note::
 
-        Any method that raises a NotImplementedError is intended to be
-        overwritten by the inheriting class.
+        Any method that raises a :exc:`NotImplementedError` is intended
+        to be overwritten by the inheriting class.
     """
     # When inheriting from template, the new class must define the class
     # attribute `__predefined_adc` that is specific to that digitizer.
@@ -45,7 +45,7 @@ class hdfMap_digi_template(object):
         ['group name', 'group path']
         """
 
-        # self.data_configs = self.__build_data_configs()
+        self.data_configs = {}
         """i'm here"""
 
     @property
@@ -55,7 +55,7 @@ class hdfMap_digi_template(object):
         :return: a list of all known/defined analog-digital converters
             (adc)
         :rtype: list(str)
-        :raise: NotImplementedError
+        :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
 
@@ -71,15 +71,25 @@ class hdfMap_digi_template(object):
     def __build_data_configs(self):
         """
         Builds and binds the dictionary :py:data:`data_configs` that
-        holds information about how the digitizer was configured.
+        contains information about how the digitizer was configured.
 
-        :raise: NotImplementedError
+        :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
 
     @staticmethod
     @abstractmethod
     def parse_config_name(name):
+        """
+        Will parse the passed group name and determine if the group is
+        a digitizer configuration group.
+
+        :param str name: name of proposed HDF5 digitizer configuration
+            group
+        :return: True/False if `name` is a configuration group,
+            name of configuration
+        :rtype: tuple(bool, str)
+        """
         raise NotImplementedError
 
     @staticmethod

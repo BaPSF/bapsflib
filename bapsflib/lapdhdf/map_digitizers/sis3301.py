@@ -17,13 +17,18 @@ from .digi_template import hdfMap_digi_template
 
 
 class hdfMap_digi_sis3301(hdfMap_digi_template):
-    __predefined_adc = ['SIS 3301']
-
     def __init__(self, digi_group):
         hdfMap_digi_template.__init__(self, digi_group)
 
         # build self.data_configs
         self.__build_data_configs()
+
+    @property
+    def _predefined_adc(self):
+        """
+        :return: ['SIS 3301']
+        """
+        return ['SIS 3301']
 
     def __build_data_configs(self):
         """

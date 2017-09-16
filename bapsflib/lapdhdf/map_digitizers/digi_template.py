@@ -16,10 +16,20 @@ from abc import abstractmethod
 
 class hdfMap_digi_template(object):
     """
-    When inheriting from template, the new class must define the class
-    attribute `__predefined_adc` that is specific to that digitizer.
+    A template class for all digitizer mapping classes to inherit from.
+
+    .. note::
+
+        Any method that raises a NotImplementedError is intended to be
+        overwritten by the inheriting class.
     """
+    # When inheriting from template, the new class must define the class
+    # attribute `__predefined_adc` that is specific to that digitizer.
     def __init__(self, digi_group):
+        """
+        :param digi_group: the digitizer HDF5 group
+        :type digi_group: :py:mod:`h5py.Group`
+        """
         # condition digi_group arg
         if isinstance(digi_group, h5py.Group):
             self.__digi_group = digi_group
@@ -28,17 +38,43 @@ class hdfMap_digi_template(object):
 
         self.info = {'group name': digi_group.name.split('/')[-1],
                      'group path': digi_group.name}
-        """what does this do"""
+        """
+        Information dict of digitizer HDF5 Group
+        
+        >>> list(info.keys())
+        ['group name', 'group path']
+        """
+
+        # self.data_configs = self.__build_data_configs()
+        """i'm here"""
+
+    @property
+    @abstractmethod
+    def _predefined_adc(self):
+        """
+        :return: a list of all known/defined analog-digital converters
+            (adc)
+        :rtype: list(str)
+        :raise: NotImplementedError
+        """
+        raise NotImplementedError
 
     @property
     def digi_group(self):
         """
-        :return: instance of :py:mod:`h5py.Group` of the digitizer
+        :return: HDF5 digitizer group
+        :rtype: :py:mod:`h5py.Group`
         """
         return self.__digi_group
 
     @abstractmethod
     def __build_data_configs(self):
+        """
+        Builds and binds the dictionary :py:data:`data_configs` that
+        holds information about how the digitizer was configured.
+
+        :raise: NotImplementedError
+        """
         raise NotImplementedError
 
     @staticmethod

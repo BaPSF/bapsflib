@@ -25,7 +25,8 @@ from sphinx.ext.autodoc import between
 
 sys.path.insert(0, os.path.abspath('..'))
 
-autodoc_mock_imports = ['PyQt5']
+# autodoc_mock_imports = ['PyQt5']
+autoclass_content = "both"
 
 # -- General configuration ---------------------------------------------
 

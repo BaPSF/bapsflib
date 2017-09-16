@@ -93,6 +93,7 @@ nonzero, must be a power of 2 and at least 512.</li>
 </tr>
 </tbody>
 </table>
+<p>what should i put here</p>
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.files.File.file_map">
 <code class="descname">file_map</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.file_map" title="Permalink to this definition">¶</a></dt>
@@ -830,6 +831,25 @@ deployed on, eg. (19, ‘W’)</td>
 </table>
 </dd></dl>
 
+<p>When inheriting from numpy, the object creation and
+initialization is handled by __new__ instead of __init__.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hdf_file</strong> – </li>
+<li><strong>board</strong> – </li>
+<li><strong>channel</strong> – </li>
+<li><strong>shots</strong> – </li>
+<li><strong>digitizer</strong> – </li>
+<li><strong>adc</strong> – </li>
+<li><strong>config_name</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__">
 <em class="property">static </em><code class="descname">__new__</code><span class="sig-paren">(</span><em>hdf_file</em>, <em>board</em>, <em>channel</em>, <em>shots=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__" title="Permalink to this definition">¶</a></dt>

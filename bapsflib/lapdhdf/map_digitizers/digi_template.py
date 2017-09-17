@@ -55,7 +55,7 @@ class hdfMap_digi_template(object):
         
             data_configs[config_name] = {
                 'active': True/False, # config is active or not
-                'adc': ['', ], # list of active adc's
+                'adc': ['adc_name', ], # list of active adc's
                 'group name': '', # name of configuration group
                 'group path': '', # absolute path to configuration group
                 'adc_name': [(int, # board number

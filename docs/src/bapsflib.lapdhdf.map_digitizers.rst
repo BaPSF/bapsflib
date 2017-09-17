@@ -23,7 +23,6 @@ bapsflib\.lapdhdf\.map\_digitizers\.map\_digis
 .. automodule:: bapsflib.lapdhdf.map_digitizers.map_digis
     :members:
     :undoc-members:
-    :private-members:
     :show-inheritance:
 
 bapsflib\.lapdhdf\.map\_digitizers\.sis3301

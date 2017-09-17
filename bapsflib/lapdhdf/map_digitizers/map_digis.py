@@ -16,11 +16,24 @@ from .siscrate import hdfMap_digi_siscrate
 
 
 class hdfMap_digitizers(dict):
-    __defined_digitizer_mappings = {
+    """
+    Creates a dictionary that contains mapping instances for all the
+    discovered digitizers in the HDF5 data group.
+    """
+    _defined_digitizer_mappings = {
         'SIS 3301': hdfMap_digi_sis3301,
         'SIS crate': hdfMap_digi_siscrate}
+    """
+    A dictionary containing references to the defined digitizer mapping
+    classes.
+    """
 
     def __init__(self, data_group):
+        """
+        :param data_group: the HDF5 group that contains the digitizer
+            groups
+        :type data_group: :mod:`h5py.Group`
+        """
 
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
@@ -34,6 +47,7 @@ class hdfMap_digitizers(dict):
         #   2. digitizer groups (known)
         #   3. motion lists
         #   4. unknown
+        #: list of all group names in the HDF5 data group
         self.data_group_subgroups = []
         for key in data_group.keys():
             if isinstance(data_group[key], h5py.Group):
@@ -44,20 +58,35 @@ class hdfMap_digitizers(dict):
 
     @property
     def data_group(self):
+        """
+        :return: instance of the HDF5 data group containing the
+            digitizers
+        :rtype: :mod:`h5py.Group`
+        """
         return self.__data_group
 
     @property
     def predefined_digitizer_groups(self):
-        return list(self.__defined_digitizer_mappings.keys())
+        """
+        :return: list of the predefined digitizer group names
+        :rtype: list(str)
+        """
+        return list(self._defined_digitizer_mappings.keys())
 
     @property
     def __build_dict(self):
+        """
+        Builds a dictionary containing mapping instances of all the
+        discovered digitizers in the data group.
+
+        :return: digitizer mapping dictionary
+        """
         digi_dict = {}
         try:
             for item in self.data_group_subgroups:
-                if item in self.__defined_digitizer_mappings.keys():
+                if item in self._defined_digitizer_mappings.keys():
                     digi_dict[item] = \
-                        self.__defined_digitizer_mappings[item](
+                        self._defined_digitizer_mappings[item](
                             self.data_group[item])
         except TypeError:
             pass

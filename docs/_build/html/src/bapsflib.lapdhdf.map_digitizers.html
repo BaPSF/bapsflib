@@ -76,13 +76,63 @@ to be overwritten by the inheriting class.</p>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__adc_info">
 <code class="descname">_hdfMap_digi_template__adc_info</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__adc_info" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Builds information on how the adc was configured.</p>
+<p>Should call on <code class="xref py py-meth docutils literal"><span class="pre">__find_adc_connections()</span></code> to determine
+active connections to the adc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>adc_name</strong> (<em>str</em>) – name of analog-digital converter</li>
+<li><strong>config_group</strong> (<code class="xref py py-mod docutils literal"><span class="pre">h5py.Group</span></code>) – instance of the digitizers configuration
+group</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of of tuples containing configuration
+information of the adc that looks like</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">adc_info</span> <span class="o">=</span> <span class="p">[(</span><span class="n">board</span><span class="p">,</span> <span class="p">[</span><span class="n">channel</span><span class="p">,</span> <span class="p">],</span>
+             <span class="p">{</span><span class="s1">&#39;bit&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+             <span class="s1">&#39;sample rate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;MHz&#39;</span><span class="p">)}),</span> <span class="p">]</span>
+</pre></div>
+</div>
+<p>where</p>
+<ul class="simple">
+<li><strong>board</strong> (<cite>int</cite>) = active board number</li>
+<li><strong>channel</strong> (<cite>list(int)</cite>) = list of active channels on
+<strong>baord</strong></li>
+<li><code class="code docutils literal"><span class="pre">'bit'</span></code> = bit resolution of adc</li>
+<li><code class="code docutils literal"><span class="pre">'sample</span> <span class="pre">rate'</span></code> = 2-element tuple defining sample rate
+of the adc. First element is value and second is its units.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__build_data_configs">
 <code class="descname">_hdfMap_digi_template__build_data_configs</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__build_data_configs" title="Permalink to this definition">¶</a></dt>
 <dd><p>Builds and binds the dictionary <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs"><code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code></a> that
 contains information about how the digitizer was configured.</p>
+<p>Should call on the following methods to build
+<a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs"><code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code></a>:</p>
+<ul class="simple">
+<li><a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name"><code class="xref py py-meth docutils literal"><span class="pre">parse_config_name()</span></code></a></li>
+<li><a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.is_config_active" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.is_config_active"><code class="xref py py-meth docutils literal"><span class="pre">is_config_active()</span></code></a></li>
+<li><code class="xref py py-meth docutils literal"><span class="pre">__find_config_adc()</span></code></li>
+<li><code class="xref py py-meth docutils literal"><span class="pre">__adc_info()</span></code></li>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -96,12 +146,47 @@ contains information about how the digitizer was configured.</p>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_adc_connections">
 <code class="descname">_hdfMap_digi_template__find_adc_connections</code><span class="sig-paren">(</span><em>adc_name</em>, <em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_adc_connections" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Finds the active connections on the adc.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>adc_name</strong> (<em>str</em>) – name of adc</li>
+<li><strong>config_group</strong> (<code class="xref py py-mod docutils literal"><span class="pre">h5py.Group</span></code>) – digitizer configuration group</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">list of active adc connections formatted in the same
+manner as the <strong>return</strong> of <code class="xref py py-meth docutils literal"><span class="pre">__adc_info()</span></code></p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Raise:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_config_adc">
 <em class="property">static </em><code class="descname">_hdfMap_digi_template__find_config_adc</code><span class="sig-paren">(</span><em>config_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._hdfMap_digi_template__find_config_adc" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines the adc’s used in the digitizer configuration.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config_group</strong> (<code class="xref py py-mod docutils literal"><span class="pre">h5py.Group</span></code>) – the digitizer configuration group</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of used adc’s</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template._predefined_adc">
@@ -123,13 +208,58 @@ contains information about how the digitizer was configured.</p>
 
 <dl class="method">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name">
-<code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="descname">construct_dataset_name</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>config_name=None</em>, <em>adc=None</em>, <em>return_info=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.construct_dataset_name" title="Permalink to this definition">¶</a></dt>
+<dd><p>Constructs the name of the dataset corresponding to the input
+arguments.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board</strong> (<em>int</em>) – board number</li>
+<li><strong>channel</strong> (<em>int</em>) – channel number</li>
+<li><strong>config_name</strong> (<em>str</em>) – name of configuration</li>
+<li><strong>adc</strong> (<em>str</em>) – name of adc</li>
+<li><strong>return_info</strong> (<em>bool</em>) – True/False to indicate if adc
+information should be returned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">(dataset name, adc information)…adc info will
+contain adc bit resoltions, sample rate, and adc name</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first">str, dict</p>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Raise:</th><td class="field-body"><p class="first last"><code class="xref py py-exc docutils literal"><span class="pre">NotImplementedError</span></code></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs">
 <code class="descname">data_configs</code><em class="property"> = None</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="Permalink to this definition">¶</a></dt>
-<dd><p>i’m here</p>
+<dd><p><a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs"><code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code></a> will contain all the mapping information
+for each configuration of the digitizer.  If no configurations
+are found the <a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs"><code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code></a> will be an empty <cite>dict</cite>.
+Otherwise, the dict keys will be the configuration names and
+<a class="reference internal" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs" title="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.data_configs"><code class="xref py py-data docutils literal"><span class="pre">data_configs</span></code></a> will be structured as:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">data_configs</span><span class="p">[</span><span class="n">config_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;active&#39;</span><span class="p">:</span> <span class="bp">True</span><span class="o">/</span><span class="bp">False</span><span class="p">,</span> <span class="c1"># config is active or not</span>
+    <span class="s1">&#39;adc&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;adc_name&#39;</span><span class="p">,</span> <span class="p">],</span> <span class="c1"># list of active adc&#39;s</span>
+    <span class="s1">&#39;group name&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="c1"># name of configuration group</span>
+    <span class="s1">&#39;group path&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="c1"># absolute path to configuration group</span>
+    <span class="s1">&#39;adc_name&#39;</span><span class="p">:</span> <span class="p">[(</span><span class="nb">int</span><span class="p">,</span> <span class="c1"># board number</span>
+                  <span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="p">],</span> <span class="c1"># list of active channels</span>
+                  <span class="p">{</span><span class="s1">&#39;bit&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="c1"># bit resolution</span>
+                   <span class="s1">&#39;sample rate&#39;</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="s1">&#39;unit&#39;</span><span class="p">)}),</span> <span class="p">]}</span>
+</pre></div>
+</div>
+<p>where there will be a corresponding <code class="code docutils literal"><span class="pre">adc_name</span></code> key for each
+adc in <code class="code docutils literal"><span class="pre">data_configs[config_name]['adc']</span></code>.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -160,7 +290,29 @@ contains information about how the digitizer was configured.</p>
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.is_config_active">
 <em class="property">static </em><code class="descname">is_config_active</code><span class="sig-paren">(</span><em>config_name</em>, <em>dataset_names</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.is_config_active" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Determines if <cite>config_name</cite> was used in collecting the digitizer
+data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>config_name</strong> (<em>str</em>) – the digitizer configuration name</li>
+<li><strong>dataset_names</strong> (<em>list</em><em>(</em><em>str</em><em>)</em>) – list of HDF5 dataset names in the
+digitizer group</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">True/False if the digitizer configuration
+<cite>config_name</cite> was used for collecting the digitizer data</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.map_digitizers.digi_template.hdfMap_digi_template.parse_config_name">
@@ -192,25 +344,53 @@ name of configuration</td>
 <dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers">
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.map_digitizers.map_digis.</code><code class="descname">hdfMap_digitizers</code><span class="sig-paren">(</span><em>data_group</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">dict</span></code></p>
-<dl class="attribute">
-<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__build_dict">
-<code class="descname">_hdfMap_digitizers__build_dict</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__build_dict" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="attribute">
-<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__defined_digitizer_mappings">
-<code class="descname">_hdfMap_digitizers__defined_digitizer_mappings</code><em class="property"> = {'SIS 3301': &lt;class 'bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301'&gt;, 'SIS crate': &lt;class 'bapsflib.lapdhdf.map_digitizers.siscrate.hdfMap_digi_siscrate'&gt;}</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers._hdfMap_digitizers__defined_digitizer_mappings" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+<p>Creates a dictionary that contains mapping instances for all the
+discovered digitizers in the HDF5 data group.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>data_group</strong> (<code class="xref py py-mod docutils literal"><span class="pre">h5py.Group</span></code>) – the HDF5 group that contains the digitizer
+groups</td>
+</tr>
+</tbody>
+</table>
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.data_group">
 <code class="descname">data_group</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.data_group" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">instance of the HDF5 data group containing the
+digitizers</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><code class="xref py py-mod docutils literal"><span class="pre">h5py.Group</span></code></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.data_group_subgroups">
+<code class="descname">data_group_subgroups</code><em class="property"> = None</em><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.data_group_subgroups" title="Permalink to this definition">¶</a></dt>
+<dd><p>list of all group names in the HDF5 data group</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.predefined_digitizer_groups">
 <code class="descname">predefined_digitizer_groups</code><a class="headerlink" href="#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers.predefined_digitizer_groups" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of the predefined digitizer group names</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </dd></dl>
 

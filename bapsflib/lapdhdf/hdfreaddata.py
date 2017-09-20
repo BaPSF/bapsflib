@@ -92,18 +92,21 @@ class hdfReadData(np.ndarray):
     #    dset or dset.values.
 
     def __new__(cls, hdf_file, board, channel, shots=None,
-                digitizer=None, adc=None, config_name=None):
+                digitizer=None, adc=None, config_name=None,
+                keep_bits=False):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
 
         :param hdf_file:
-        :param board:
-        :param channel:
-        :param shots:
-        :param digitizer:
-        :param adc:
-        :param config_name:
+        :param int board:
+        :param int channel:
+        :param shots: should be an int, list(int), or slice obj
+        :param str digitizer:
+        :param str adc:
+        :param str config_name:
+        :param bool keep_bits: set :cod:`True` keep data in bits opposed
+            to converting to voltage
         """
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
@@ -191,6 +194,10 @@ class hdfReadData(np.ndarray):
                              'voltage offset': None,
                              'probe name': None,
                              'port': (None, None)})
+
+    def __init__(self, *args, **kwargs):
+        super().__init__()
+        pass
 
     def convert_to_v(self):
         """

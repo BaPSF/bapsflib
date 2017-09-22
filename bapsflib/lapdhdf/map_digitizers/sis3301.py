@@ -139,8 +139,35 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         conns = self.__find_adc_connections(adc_name, config_group)
 
         for conn in conns:
+            # define 'bit' and 'sample rate'
             conn[2]['bit'] = 14
             conn[2]['sample rate'] = (100.0, 'MHZ')
+
+            # add shot average to dict
+            if 'Shots to average' in config_group.attrs:
+                shtave = config_group.attrs['Shots to average']
+                if shtave == 0 or shtave == 1:
+                    shtave = None
+            else:
+                shtave = None
+            conn[2]['shot average (software)'] = shtave
+
+            # add sample average to dict
+            if 'Samples to average' in config_group.attrs:
+                avestr = config_group.attrs['Samples to average']
+                if isinstance(avestr, bytes):
+                    avestr = avestr.decode('utf-8')
+                if avestr == 'No averaging':
+                    splave = None
+                else:
+                    splave = int(avestr.split()[1])
+                    if splave == 0 or splave == 1:
+                        splave = None
+            else:
+                splave = None
+            conn[2]['sample average (hardware)'] = splave
+
+            # append info
             adc_info.append(conn)
 
         return adc_info

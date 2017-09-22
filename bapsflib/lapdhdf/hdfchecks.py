@@ -387,6 +387,10 @@ class hdfCheck(object):
                             adc_stats['bit'],
                             adc_stats['sample rate'][0],
                             adc_stats['sample rate'][1])
+                        note += ', shot ave. {0}'.format(
+                            adc_stats['shot average (software)'])
+                        note += ', sample ave. {0}'.format(
+                            adc_stats['sample average (hardware)'])
                         status_print(item, '', note, indent=5,
                                      item_found_pad=' ')
         else:

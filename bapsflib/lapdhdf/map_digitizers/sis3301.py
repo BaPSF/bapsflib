@@ -128,10 +128,12 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
     def __adc_info(self, adc_name, config_group):
         # 'Raw data + config/SIS 3301' group has only one possible
         # adc ('SIS 3301')
-        # adc_info = ( brd,
-        #              [chs, ],
-        #              {'bit': 14,
-        #               'sample rate': (100, 'MHz')})
+        # adc_info = ( int, # board
+        #              [int, ], # channels
+        #              {'bit': 14, # bit resolution
+        #               'sample rate': (100.0, 'MHz'),
+        #               'shot average (software)': int,
+        #               'sample average (hardware)': int})
         adc_info = []
 
         # conns is a list of tuples where each tuple has the same

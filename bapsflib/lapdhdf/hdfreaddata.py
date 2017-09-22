@@ -107,7 +107,7 @@ class hdfReadData(np.ndarray):
         :param str digitizer:
         :param str adc:
         :param str config_name:
-        :param bool keep_bits: set :cod:`True` keep data in bits opposed
+        :param bool keep_bits: set :code:`True` keep data in bits opposed
             to converting to voltage
         """
         # return_view=False -- return a ndarray.view() to save on memory

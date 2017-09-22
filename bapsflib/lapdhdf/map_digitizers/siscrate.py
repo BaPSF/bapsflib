@@ -44,7 +44,9 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 'SIS 3301': [(brd,
                               [ch,],
                               {'bit': 14,
-                               'sample rate': (100.0, 'MHz')}), ]}
+                               'sample rate': (100.0, 'MHz'),
+                               'shot average (software)': int,
+                               'sample average (hardware)': int}), ]}
         """
         # initialize data_configs
         # self.data_configs = {}
@@ -124,6 +126,12 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
     def __adc_info(self, adc_name, config_group):
         # digitizer 'Raw data + config/SIS crate' two adc's, SIS 3302
         # and SIS 3305
+        # adc_info = ( int, # board
+        #              [int, ], # channels
+        #              {'bit': int, # bit resolution
+        #               'sample rate': (float, 'unit'),
+        #               'shot average (software)': int,
+        #               'sample average (hardware)': int})
         adc_info = []
 
         # build adc_info
@@ -132,8 +140,15 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             conns = self.__find_adc_connections('SIS 3302',
                                                 config_group)
             for conn in conns:
+                # define 'bit' and 'sample rate'
                 conn[2]['bit'] = 16
                 conn[2]['sample rate'] = (100.0, 'MHz')
+
+                # keys 'shot average (software)' and
+                # 'sample average (hardware)' are added in
+                # self.__find_crate_connections
+
+                # append info
                 adc_info.append(conn)
         elif adc_name == 'SIS 3305':
             # note: sample rate for 'SIS 3305' depends on how
@@ -142,12 +157,22 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             conns = self.__find_adc_connections('SIS 3305',
                                                 config_group)
             for conn in conns:
+                # define 'bit' and 'sample rate'
+                # - sample rate is defined in __find_adc_connections
                 conn[2]['bit'] = 10
+
+                # keys 'shot average (software)' and
+                # 'sample average (hardware)' are added in
+                # self.__find_crate_connections
+
+                # append info
                 adc_info.append(conn)
         else:
             adc_info.append((None, [None],
                              {'bit': None,
-                              'sample rate': (None, 'MHz')}))
+                              'sample rate': (None, 'MHz'),
+                              'shot average (software)': None,
+                              'sample average (hardware)': None}))
 
         return adc_info
 
@@ -213,10 +238,33 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                         if 'TRUE' in tf_str.decode('utf-8'):
                             chs.append(int(key[-1]))
 
+                # determine 'shot average (software)'
+                if 'Shot averaging (software)' \
+                        in config_group[name].attrs:
+                    shtave = config_group[name].attrs[
+                        'Shot averaging (software)']
+                    if shtave == 0 or shtave == 1:
+                        shtave = None
+                else:
+                    shtave = None
+
+                # determine 'sample average (hardware)'
+                if 'Sample averaging (hardware)'\
+                        in config_group[name].attrs:
+                    splave = config_group[name].attrs[
+                        'Sample averaging (hardware)']
+                    if splave == 0 or splave == 1:
+                        splave = None
+                else:
+                    splave = None
+
                 # build subconn tuple with connected board, channels
                 # and acquisition parameters
                 subconn = (brd, chs,
-                           {'bit': None, 'sample rate': (None, 'MHZ')})
+                           {'bit': None,
+                            'sample rate': (None, 'MHZ'),
+                            'shot average (software)': shtave,
+                            'sample average (hardware)': splave})
                 conn.append(subconn)
                 brd = None
                 chs = []
@@ -256,10 +304,27 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     if 'Channel mode' in key:
                         cmode = cmodes[config_group[name].attrs[key]]
 
+                # determine 'shot average (software)'
+                if 'Shot averaging (software)' \
+                        in config_group[name].attrs:
+                    shtave = config_group[name].attrs[
+                        'Shot averaging (software)']
+                    if shtave == 0 or shtave == 1:
+                        shtave = None
+                else:
+                    shtave = None
+
+                # determine 'sample average (hardware)'
+                # - SIS 3305 has no hardware sampling feature
+                splave = None
+
                 # build subconn tuple with connected board, channels
                 # and acquisition parameters
                 subconn = (brd, chs,
-                           {'bit': None, 'sample rate': cmode})
+                           {'bit': None,
+                            'sample rate': cmode,
+                            'shot average (software)': shtave,
+                            'sample average (hardware)': splave})
                 conn.append(subconn)
                 brd = None
                 chs = []

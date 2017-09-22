@@ -61,7 +61,9 @@ class hdfMap_digi_template(object):
                 'adc_name': [(int, # board number
                               [int, ], # list of active channels
                               {'bit': int, # bit resolution
-                               'sample rate': (float, 'unit')}), ]}
+                               'sample rate': (float, 'unit'),
+                               'shot average (software)': int,
+                               'sample average (hardware)': int}), ]}
         
         where there will be a corresponding :code:`adc_name` key for each
         adc in :code:`data_configs[config_name]['adc']`.

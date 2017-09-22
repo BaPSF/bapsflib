@@ -210,17 +210,20 @@ class hdfReadData(np.ndarray):
         # obj.header = dheader
 
         # assign dataset info
-        obj.info = {'hdf file': hdf_file.filename.split('/')[-1],
-                    'dataset name': dname,
-                    'dataset path': dpath,
-                    'adc': d_info['adc'],
-                    'bit': d_info['bit'],
-                    'sample rate': d_info['sample rate'],
-                    'board': board,
-                    'channel': channel,
-                    'voltage offset': dheader['Offset'][0],
-                    'probe name': None,
-                    'port': (None, None)}
+        obj.info = {
+            'hdf file': hdf_file.filename.split('/')[-1],
+            'dataset name': dname,
+            'dataset path': dpath,
+            'adc': d_info['adc'],
+            'bit': d_info['bit'],
+            'sample rate': d_info['sample rate'],
+            'sample average': d_info['sample average (hardware)'],
+            'shot average': d_info['shot average (software)'],
+            'board': board,
+            'channel': channel,
+            'voltage offset': dheader['Offset'][0],
+            'probe name': None,
+            'port': (None, None)}
 
         # convert to voltage
         if not keep_bits:
@@ -251,6 +254,8 @@ class hdfReadData(np.ndarray):
                              'adc': None,
                              'bit': None,
                              'sample rate': (None, 'MHz'),
+                             'sample average': None,
+                             'shot average': None,
                              'board': None,
                              'channel': None,
                              'voltage offset': None,
@@ -258,7 +263,7 @@ class hdfReadData(np.ndarray):
                              'port': (None, None)})
 
     def __init__(self, *args, **kwargs):
-        super().__init__(self)
+        super().__init__()
 
         # convert to voltage
         # if not keep_bits:
@@ -288,9 +293,20 @@ class hdfReadData(np.ndarray):
         :return: time-step dt (in sec) from the 'sample rate' dict()
             item of :py:data:`self.info`.
         """
+        # define unit conversions
         units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
+
+        # calc base dt
         dt = 1.0 / (self.info['sample rate'][0] *
                     units[self.info['sample rate'][1]])
+
+        # adjust for hardware averaging
+        if self.info['sample average'] is not None:
+            print('sample ave')
+            dt = dt * float(self.info['sample average'])
+        else:
+            print('no sample average')
+
         return dt
 
     @property

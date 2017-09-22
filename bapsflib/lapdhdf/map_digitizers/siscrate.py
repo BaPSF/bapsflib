@@ -262,7 +262,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 # and acquisition parameters
                 subconn = (brd, chs,
                            {'bit': None,
-                            'sample rate': (None, 'MHZ'),
+                            'sample rate': (None, 'MHz'),
                             'shot average (software)': shtave,
                             'sample average (hardware)': splave})
                 conn.append(subconn)

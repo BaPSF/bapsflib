@@ -143,7 +143,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         for conn in conns:
             # define 'bit' and 'sample rate'
             conn[2]['bit'] = 14
-            conn[2]['sample rate'] = (100.0, 'MHZ')
+            conn[2]['sample rate'] = (100.0, 'MHz')
 
             # add shot average to dict
             if 'Shots to average' in config_group.attrs:

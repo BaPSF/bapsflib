@@ -153,4 +153,4 @@ class File(h5py.File):
         # consider adding keyword output_voltage
         return hdfReadData(self, board, channel, shots=shots,
                            digitizer=digitizer, adc=adc,
-                           config_name=config_name)
+                           config_name=config_name, keep_bits=False)

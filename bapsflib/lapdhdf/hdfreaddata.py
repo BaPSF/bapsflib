@@ -91,9 +91,9 @@ class hdfReadData(np.ndarray):
     #  To extract data, fancy indexing [::] can be used directly on
     #    dset or dset.values.
 
-    def __new__(cls, hdf_file, board, channel, shots=None,
-                digitizer=None, adc=None, config_name=None,
-                keep_bits=False):
+    def __new__(cls, hdf_file, board, channel,
+                shots=None, digitizer=None, adc=None,
+                config_name=None, keep_bits=False):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
@@ -101,7 +101,9 @@ class hdfReadData(np.ndarray):
         :param hdf_file:
         :param int board:
         :param int channel:
-        :param shots: should be an int, list(int), or slice obj
+        :param shots: index/indices of shots to be extracted
+        :type shots: :code:`None`, int, list(int), or
+            slice(start, stop, skip)
         :param str digitizer:
         :param str adc:
         :param str config_name:
@@ -136,8 +138,8 @@ class hdfReadData(np.ndarray):
             digi_map = hdf_file.file_map.main_digitizer
         else:
             if digitizer not in hdf_file.file_map.digitizers:
-                raise KeyError(
-                    'Specified Digitizer is not among known digitizers')
+                raise KeyError('Specified Digitizer is not among known '
+                               'digitizers')
             else:
                 digi_map = hdf_file.file_map.digitizers[digitizer]
 
@@ -150,7 +152,61 @@ class hdfReadData(np.ndarray):
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
 
-        obj = dset.value.view(cls)
+        # Condition shots keyword
+        # Valid shots types are: None, int, list(int), and slice()
+        # - None      => extract all shots
+        # - int       => extract shot with index int
+        # - list(int) => extract shots with indices specified in list
+        # - slice(start, stop, skip)
+        #             => same as [start:stop:skip]
+        #
+        if shots is None:
+            if dset.shape[0] == 1:
+                data = dset[0, :]
+            else:
+                data = dset[()]
+        elif isinstance(shots, int):
+            if shots in range(dset.shape[0]) \
+                    or -shots-1 in range(dset.shape[0]):
+                data = dset[shots, :]
+            else:
+                raise ValueError('shots is not in range({})'.format(
+                    dset.shape[0]))
+        elif isinstance(shots, list):
+            # all elements need to be integers
+            if all(isinstance(s, int) for s in shots):
+                # condition list
+                shots.sort()
+                shots = list(set(shots))
+                newshots = []
+                for s in shots:
+                    if s < 0:
+                        s = -s-1
+                    if s in range(dset.shape[0]):
+                        if s not in newshots:
+                            newshots.append(s)
+                    else:
+                        print('** Warning: shot {} not a '.format(s)
+                              + 'valid index, '
+                              + 'range({})'.format(dset.shape[0]))
+                newshots.sort()
+
+                if len(newshots) != 0:
+                    data = dset[newshots, :]
+                else:
+                    raise ValueError('shots: none of the elements are '
+                                     'in range({})'.format(dset.shape[0]
+                                                           ))
+            else:
+                raise ValueError("shots keyword needs to be None, int, "
+                                 "list(int), or slice object")
+        elif isinstance(shots, slice):
+            data = dset[shots, :]
+        else:
+            raise ValueError("shots keyword needs to be None, int, "
+                             "list(int), or slice object")
+
+        obj = data.view(cls)
         # obj.header = dheader
 
         # assign dataset info
@@ -165,6 +221,12 @@ class hdfReadData(np.ndarray):
                     'voltage offset': dheader['Offset'][0],
                     'probe name': None,
                     'port': (None, None)}
+
+        # convert to voltage
+        if not keep_bits:
+            offset = abs(obj.info['voltage offset'])
+            dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
+            obj = (dv * obj) - offset
 
         return obj
 
@@ -196,8 +258,13 @@ class hdfReadData(np.ndarray):
                              'port': (None, None)})
 
     def __init__(self, *args, **kwargs):
-        super().__init__()
-        pass
+        super().__init__(self)
+
+        # convert to voltage
+        # if not keep_bits:
+        #    offset = abs(self.info['voltage offset'])
+        #    dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
+        #    self = (dv * self) - offset
 
     def convert_to_v(self):
         """

@@ -155,9 +155,14 @@ class hdfMap_digi_template(object):
 
         .. code-block:: python
 
-            adc_info = [(board, [channel, ],
-                         {'bit': int,
-                         'sample rate': (float, 'MHz')}), ]
+            adc_info = [
+                (board
+                 [channel, ],
+                 {'bit': int, # bit resolutions
+                  'sample rate': (float, str), # str='MHz', 'GHZ', etc
+                  'sample average (hardware)': int, # `None` for none
+                  'shot average (software)': int    # `None` for none
+                  }), ]
 
         where
 
@@ -167,6 +172,11 @@ class hdfMap_digi_template(object):
         - :code:`'bit'` = bit resolution of adc
         - :code:`'sample rate'` = 2-element tuple defining sample rate
           of the adc. First element is value and second is its units.
+        - :code:`'sample average (hardware)'` = `int` for the number of
+            sample averaged together and :code:`None` for no averaging
+        - :code:`'shot average (software)'` = `int` for the number of
+            consecutive shots averaged together and :code:`None` for no
+            averaging
 
         :raise: :exc:`NotImplementedError`
         """

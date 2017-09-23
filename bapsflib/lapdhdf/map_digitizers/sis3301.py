@@ -21,7 +21,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         hdfMap_digi_template.__init__(self, digi_group)
 
         # build self.data_configs
-        self.__build_data_configs()
+        self._build_data_configs()
 
     @property
     def _predefined_adc(self):
@@ -30,7 +30,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         """
         return ['SIS 3301']
 
-    def __build_data_configs(self):
+    def _build_data_configs(self):
         """
         Builds self.data_configs dictionary. A dict. entry follows:
 
@@ -73,7 +73,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
                 # assign active adc's to the configuration
                 self.data_configs[config_name]['adc'] = \
-                    self.__find_config_adc(self.digi_group[name])
+                    self._find_config_adc(self.digi_group[name])
 
                 # add 'group name'
                 self.data_configs[config_name]['group name'] = name
@@ -84,7 +84,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
                 # add adc info
                 self.data_configs[config_name]['SIS 3301'] = \
-                    self.__adc_info('SIS 3301', self.digi_group[name])
+                    self._adc_info('SIS 3301', self.digi_group[name])
 
     @staticmethod
     def parse_config_name(name):
@@ -125,7 +125,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         return active
 
-    def __adc_info(self, adc_name, config_group):
+    def _adc_info(self, adc_name, config_group):
         # 'Raw data + config/SIS 3301' group has only one possible
         # adc ('SIS 3301')
         # adc_info = ( int, # board
@@ -138,7 +138,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         # conns is a list of tuples where each tuple has the same
         # structure as adc_info
-        conns = self.__find_adc_connections(adc_name, config_group)
+        conns = self._find_adc_connections(adc_name, config_group)
 
         for conn in conns:
             # define 'bit' and 'sample rate'
@@ -175,10 +175,10 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         return adc_info
 
     @staticmethod
-    def __find_config_adc(config_group):
+    def _find_config_adc(config_group):
         return ['SIS 3301']
 
-    def __find_adc_connections(self, adc_name, config_group):
+    def _find_adc_connections(self, adc_name, config_group):
         # initialize conn, brd, and chs
         # conn = list of connections
         # brd  = board number

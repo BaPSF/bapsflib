@@ -21,7 +21,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         hdfMap_digi_template.__init__(self, digi_group)
 
         # build self.data_configs
-        self.__build_data_configs()
+        self._build_data_configs()
 
     @property
     def _predefined_adc(self):
@@ -30,7 +30,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         """
         return ['SIS 3302', 'SIS 3305']
 
-    def __build_data_configs(self):
+    def _build_data_configs(self):
         """
         Builds self.data_configs dictionary. A dict. entry follows:
 
@@ -73,7 +73,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
                 # assign active adc's to the configuration
                 self.data_configs[config_name]['adc'] = \
-                    self.__find_config_adc(self.digi_group[name])
+                    self._find_config_adc(self.digi_group[name])
 
                 # add 'group name'
                 self.data_configs[config_name]['group name'] = name
@@ -85,7 +85,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 # add adc info
                 for adc in self.data_configs[config_name]['adc']:
                     self.data_configs[config_name][adc] = \
-                        self.__adc_info(adc, self.digi_group[name])
+                        self._adc_info(adc, self.digi_group[name])
 
     @staticmethod
     def parse_config_name(name):
@@ -123,7 +123,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
         return active
 
-    def __adc_info(self, adc_name, config_group):
+    def _adc_info(self, adc_name, config_group):
         # digitizer 'Raw data + config/SIS crate' two adc's, SIS 3302
         # and SIS 3305
         # adc_info = ( int, # board
@@ -137,8 +137,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         # build adc_info
         if adc_name == 'SIS 3302':
             # for SIS 3302
-            conns = self.__find_adc_connections('SIS 3302',
-                                                config_group)
+            conns = self._find_adc_connections('SIS 3302',
+                                               config_group)
             for conn in conns:
                 # define 'bit' and 'sample rate'
                 conn[2]['bit'] = 16
@@ -154,8 +154,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             # note: sample rate for 'SIS 3305' depends on how
             # diagnostics are connected to the DAQ. Thus, assignment is
             # left to method self.__find_crate_connections.
-            conns = self.__find_adc_connections('SIS 3305',
-                                                config_group)
+            conns = self._find_adc_connections('SIS 3305',
+                                               config_group)
             for conn in conns:
                 # define 'bit' and 'sample rate'
                 # - sample rate is defined in __find_adc_connections
@@ -177,7 +177,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         return adc_info
 
     @staticmethod
-    def __find_config_adc(config_group):
+    def _find_config_adc(config_group):
         active_adc = []
         adc_types = list(config_group.attrs['SIS crate board types'])
         if 2 in adc_types:
@@ -187,7 +187,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
         return active_adc
 
-    def __find_adc_connections(self, adc_name, config_group):
+    def _find_adc_connections(self, adc_name, config_group):
         # initialize conn, brd, and chs
         # conn = list of connections
         # brd  = board number

@@ -39,8 +39,12 @@ class hdfMap_digi_template(object):
         """
         Information dict of digitizer HDF5 Group
         
-        >>> list(info.keys())
-        ['group name', 'group path']
+        .. code-block:: python
+        
+            info = {
+                'group name': str, # name of digitizer group
+                'group path': str  # full path to digitizer group
+            }
         """
 
         self.data_configs = {}
@@ -89,7 +93,7 @@ class hdfMap_digi_template(object):
         return self.__digi_group
 
     @abstractmethod
-    def __build_data_configs(self):
+    def _build_data_configs(self):
         """
         Builds and binds the dictionary :py:data:`data_configs` that
         contains information about how the digitizer was configured.
@@ -99,8 +103,8 @@ class hdfMap_digi_template(object):
 
         - :meth:`parse_config_name`
         - :meth:`is_config_active`
-        - :meth:`__find_config_adc`
-        - :meth:`__adc_info`
+        - :meth:`_find_config_adc`
+        - :meth:`_adc_info`
 
         :raise: :exc:`NotImplementedError`
         """
@@ -115,8 +119,8 @@ class hdfMap_digi_template(object):
 
         :param str name: name of proposed HDF5 digitizer configuration
             group
-        :return: True/False if `name` is a configuration group,
-            name of configuration
+        :return: :code:`True`/:code:`False` if `name` is a configuration
+            group, name of configuration
         :rtype: tuple(bool, str)
         """
         raise NotImplementedError
@@ -132,25 +136,26 @@ class hdfMap_digi_template(object):
         :param dataset_names: list of HDF5 dataset names in the
             digitizer group
         :type dataset_names: list(str)
-        :return: True/False if the digitizer configuration
-            `config_name` was used for collecting the digitizer data
+        :return: :code:`True`/:code:`False` if the digitizer
+            configuration `config_name` was used for collecting the
+            digitizer data
         :rtype: bool
         """
         raise NotImplementedError
 
     @abstractmethod
-    def __adc_info(self, adc_name, config_group):
+    def _adc_info(self, adc_name, config_group):
         """
         Builds information on how the adc was configured.
 
-        Should call on :meth:`__find_adc_connections` to determine
+        Should call on :meth:`_find_adc_connections` to determine
         active connections to the adc.
 
         :param str adc_name: name of analog-digital converter
         :param config_group: instance of the digitizers configuration
             group
         :type config_group: :mod:`h5py.Group`
-        :return: a list of of tuples containing configuration
+        :return: a list of of tuples :code:`adc_info` containing configuration
             information of the adc that looks like
 
         .. code-block:: python
@@ -184,7 +189,7 @@ class hdfMap_digi_template(object):
 
     @staticmethod
     @abstractmethod
-    def __find_config_adc(config_group):
+    def _find_config_adc(config_group):
         """
         Determines the adc's used in the digitizer configuration.
 
@@ -197,15 +202,16 @@ class hdfMap_digi_template(object):
         raise NotImplementedError
 
     @abstractmethod
-    def __find_adc_connections(self, adc_name, config_group):
+    def _find_adc_connections(self, adc_name, config_group):
         """
-        Finds the active connections on the adc.
+        Finds the active connections (boards, channels, and extras) on
+        the adc.
 
         :param str adc_name: name of adc
         :param config_group: digitizer configuration group
         :type config_group: :mod:`h5py.Group`
         :return: list of active adc connections formatted in the same
-            manner as the **return** of :meth:`__adc_info`
+            manner as the **return** of :meth:`_adc_info`
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
@@ -222,10 +228,12 @@ class hdfMap_digi_template(object):
         :param int channel: channel number
         :param str config_name: name of configuration
         :param str adc: name of adc
-        :param bool return_info: True/False to indicate if adc
-            information should be returned
-        :return: (dataset name, adc information)...adc info will
-            contain adc bit resoltions, sample rate, and adc name
+        :param bool return_info: :code:`True`/:code:`False` to indicate
+            if adc information should be returned
+        :return: for :code:`return_info=False`, then dataset name...
+            for :code:`return_info=True`, then (dataset name, adc
+            information)...adc information contains the adc name and the
+            `dict` of :code:`adc_info` constructed by :meth:`_adc_info`
         :rtype: str, dict
         :raise: :exc:`NotImplementedError`
         """

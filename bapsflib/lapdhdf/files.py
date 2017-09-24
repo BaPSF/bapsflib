@@ -138,7 +138,7 @@ class File(h5py.File):
         return self.get(name)
 
     def read_data(self, board, channel, shots=None, digitizer=None,
-                  adc=None, config_name=None):
+                  adc=None, config_name=None, keep_bits=False):
         """
         :param int board: desired board number
         :param int channel: desired channel number
@@ -147,10 +147,12 @@ class File(h5py.File):
         :param str digitizer: name of desired digitizer
         :param str adc: name of desired analog-digital converter
         :param str config_name: name of data configurations
+        :param bool keep_bits: :code:`True` for output in bits,
+            :code:`False` (default) for output in voltage
         :return: instance of :py:mod:`lapdhdf.hdfReadData`
         """
         # TODO: write docstrings
         # consider adding keyword output_voltage
         return hdfReadData(self, board, channel, shots=shots,
                            digitizer=digitizer, adc=adc,
-                           config_name=config_name, keep_bits=False)
+                           config_name=config_name, keep_bits=keep_bits)

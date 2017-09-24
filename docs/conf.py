@@ -184,6 +184,11 @@ texinfo_documents = [
 # B, not F).
 modindex_common_prefix = ['bapsflib.']
 
+# these
+exclude_patterns.extend([
+    'howtos/openfile.rst',
+    'howtos/readdata.rst',
+    'howtos/mapping.rst'])
 
 def setup(app):
     # Register a sphinx.ext.autodoc.between listener to ignore

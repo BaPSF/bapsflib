@@ -95,6 +95,26 @@ which is equivalent to
 Using :data:`digitizer` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+A HDF5 may contain data from more than one digitizer.  In such a
+situation, the :data:`digitizer` keyword can be used to direct the
+read_data method to extract data from the desired digitizer.  If the
+keyword is omitted, then :meth:`~bapsflib.lapdhdf.files.File.read_data`
+will assume the digitizer defined in
+:attr:`~bapsflib.lapdhdf.files.File.file_map`'s
+:attr:`~bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer` property.
+
+Suppose the :file:`test.hdf5` file has two digitizers,
+:code:`'SIS 3301'` and :code:`'SIS crate'`.  In this case,
+:code:`'SIS 3301'` would be assumed as the
+:attr:`~bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer`.  In order to
+extract data from :code:`'SIS crate'` one would do
+
+    >>> data f.read_data(0, 0, digitizer='SIS crate')
+
+A list of all detected digitizers can be obtain by doing
+
+    >>> list(f.file_map.digitizers)
+
 .. _read_w_adc:
 
 Using :data:`adc` keyword

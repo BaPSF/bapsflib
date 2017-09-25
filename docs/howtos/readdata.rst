@@ -33,14 +33,61 @@ wrapper on :class:`numpy.ndarray`, so :code:`data` behaves just like a
 Before calling :meth:`~bapsflib.lapdhdf.files.File.read_data` the data
 in :file:`test.hdf5` resides on disk.  By calling
 :meth:`~bapsflib.lapdhdf.files.File.read_data` the requested data is
-brought into memory as a :class:`numpy.ndarray` and
-:meth:`~bapsflib.lapdhdf.files.File.read_data` returns a :meth:`view`
-onto that array.
+brought into memory as a :class:`numpy.ndarray`, converted from bits to
+voltage, and returned as a :meth:`view` onto that array.
 
 .. _read_w_shots:
 
 Using :data:`shots` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+The :code:`shots` keyword allows for a subset of the data to be
+extracted from the HDF5 file.  This is useful when only a fraction of
+the data needs to be manipulated, since
+:meth:`~bapsflib.lapdhdf.files.File.read_data` will only bring that
+subset of data into memory.
+
+The :code:`shots` keyword can be an :code:`int`, list of :code:`ints`,
+or a :func:`slice` object.  Suppose the HDF5 dataset (:code:`dset`) has
+a shape of
+
+    >>> dset.shape
+    Out: (100, 3000)
+
+The first dimension corresponds to the the :code:`shots` index and the
+second dimension corresponds to the time index.  To read out just shot 4
+then
+
+    >>> data = f.read_data(0, 0, shots=4)
+
+which is equivalent to
+
+    >>> data = dset[4].view()
+
+To read out shots 4, 7, and 10 then
+
+    >>> data = f.read_data(0, 0, shots=[4, 7, 10])
+
+which is equivalent to
+
+    >>> data = dset[(4, 7, 10), :].view()
+
+To read out a slice of shots from 4 to 10 then
+
+    >>> data = f.read_data(0, 0, shots=slice(4, 11, None))
+
+which is equivalent to
+
+    >>> data = dset[4:11:, :].view()
+
+To read out every other shot between 4 and 10 then
+
+    >>> data = f.read_data(0, 0, shots=slice(4, 11, 2))
+
+which is equivalent to
+
+    >>> data = dset[4:11:2, :].view()
+
 
 .. _read_w_digitizer:
 

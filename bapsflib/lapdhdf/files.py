@@ -56,7 +56,8 @@ class File(h5py.File):
     def file_map(self):
         """
         :return: an instance of the
-            :py:class:`lapdhdf.hdfmappers.hdfMap` file mappings.
+            :py:class:`bapsflib.lapdhdf.hdfmappers.hdfMap` file
+            mappings.
         """
         return self.__file_checks.get_hdf_mapping()
 
@@ -149,7 +150,8 @@ class File(h5py.File):
         :param str config_name: name of data configurations
         :param bool keep_bits: :code:`True` for output in bits,
             :code:`False` (default) for output in voltage
-        :return: instance of :py:mod:`lapdhdf.hdfReadData`
+        :return: instance of
+            :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
         """
         # TODO: write docstrings
         # consider adding keyword output_voltage

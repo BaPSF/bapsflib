@@ -1,5 +1,6 @@
 The constructed file mapping object for a LaPD generated HDF5 file is
-bound to the file object as the property :attr:`file_map`
+bound to the file object as the property
+:attr:`~bapsflib.lapdhdf.files.File.file_map`
 
     >>> f = lapdhdf.File('test.hdf5')
     >>> f.file_map

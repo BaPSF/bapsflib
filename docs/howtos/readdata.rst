@@ -45,7 +45,8 @@ The :code:`shots` keyword allows for a subset of the data to be
 extracted from the HDF5 file.  This is useful when only a fraction of
 the data needs to be manipulated, since
 :meth:`~bapsflib.lapdhdf.files.File.read_data` will only bring that
-subset of data into memory.
+subset of data into memory.  If :code:`shots` is not specified, then all
+shots are extracted.
 
 The :code:`shots` keyword can be an :code:`int`, list of :code:`ints`,
 or a :func:`slice` object.  Suppose the HDF5 dataset (:code:`dset`) has

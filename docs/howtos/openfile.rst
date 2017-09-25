@@ -3,7 +3,7 @@ class is done in the same manner as :py:class:`h5py.File`, since
 :py:class:`~bapsflib.lapdhdf.files.File` acts as a wrapper around
 :py:class:`h5py.File`.  :py:class:`~bapsflib.lapdhdf.files.File` adds
 methods and attributes specifically for manipulating data from the Large
-Plasma Device (LaPD), as well as, opening the HDF5 file in 'read-only'
+Plasma Device (LaPD), as well as, opening the HDF5 file as 'read-only'
 by default.
 
 To open a LaPD generated HDF5 file

@@ -9,9 +9,14 @@ bound to the file object as the property
 Basic Structure of :attr:`file_map` Mapping Object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _get_digitizers:
 
 Retrieving Active Digitizers
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+A list of all detected digitizers can be obtain by doing
+
+    >>> list(f.file_map.digitizers)
 
 The file mappings for all the active digitizers are stored in the
 dictionary :code:`f.file_map.digitizers` such that
@@ -25,8 +30,12 @@ dictionary :code:`f.file_map.digitizers` such that
 Retrieving Active Digitizer Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. _get_adcs:
+
 Retrieving Active Analog-Digital Converts (adc's) for a Digitizer Configuration
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. _get_conns:
 
 Retrieving adc Connections and Digitization Settings
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

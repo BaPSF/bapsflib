@@ -111,19 +111,36 @@ extract data from :code:`'SIS crate'` one would do
 
     >>> data = f.read_data(0, 0, digitizer='SIS crate')
 
-A list of all detected digitizers can be obtain by doing
-
-    >>> list(f.file_map.digitizers)
+To see how to retrieve a list of active adc's, then look to
+:ref:`get_digitizers`.
 
 .. _read_w_adc:
 
 Using :data:`adc` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+A digitizer may have several analog-digital converts (adc's).  For
+example, the :code:`'SIS crate'` digitizer can digitized data with two
+different adc's, :code:`'SIS 3302'` and :code:`'SIS 3305'`.  By default,
+if only one adc's is active then
+:meth:`~bapsflib.lapdhdf.files.File.read_data` method will assume that
+one.  If two or more adc's are active then
+:meth:`~bapsflib.lapdhdf.files.File.read_data` will the adc with the
+slower sample rate.  In the case above, that would be
+:code:`'SIS 3302'`.  To extract data from :code:`'SIS 3305'`, then one
+would do
+
+    >>> data = f.read_data(0, 0, adc='SIS 3305')
+
+To see how to retrieve a list of active adc's, then look to
+:ref:`get_adcs`.
+
 .. _read_w_config_name:
 
 Using :data:`config_name` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
 
 .. _read_w_keep_bits:
 

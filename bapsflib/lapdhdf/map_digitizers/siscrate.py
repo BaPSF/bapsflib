@@ -249,12 +249,17 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     shtave = None
 
                 # determine 'sample average (hardware)'
+                # - the HDF5 attribute is the power to 2
+                # - So, a hardware sample of 5 actually means the number
+                #   of points sampled is 2^5
                 if 'Sample averaging (hardware)'\
                         in config_group[name].attrs:
                     splave = config_group[name].attrs[
                         'Sample averaging (hardware)']
-                    if splave == 0 or splave == 1:
+                    if splave == 0:
                         splave = None
+                    else:
+                        splave = 2 ** splave
                 else:
                     splave = None
 

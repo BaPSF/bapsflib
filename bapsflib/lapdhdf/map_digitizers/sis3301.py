@@ -278,6 +278,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                     # save adc settings for return if requested
                     d_info = extras
                     d_info['adc'] = 'SIS 3301'
+                    d_info['configuration name'] = config_name
 
         # (board, channel) combo must be active
         if bc_valid is False:

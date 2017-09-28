@@ -412,6 +412,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     # save adc settings for return if requested
                     d_info = extras
                     d_info['adc'] = adc
+                    d_info['configuration name'] = config_name
 
         # (board, channel) combo must be active
         if bc_valid is False:

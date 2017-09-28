@@ -93,7 +93,7 @@ class hdfReadData(np.ndarray):
 
     def __new__(cls, hdf_file, board, channel,
                 shots=None, digitizer=None, adc=None,
-                config_name=None, keep_bits=False):
+                config_name=None, keep_bits=False, silent=False):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
@@ -129,12 +129,16 @@ class hdfReadData(np.ndarray):
         # TODO: add error handling for 'Offset' field in dheader
         # TODO: add digitizer key to self.info
 
+        # initiate warning string
+        warn_str = ''
+
         # Condition digitizer keyword
         if digitizer is None:
-            print("** Warning: Digitizer not specified so assuming the"
-                  + " 'main_digitizer' ({})".format(
-                    hdf_file.file_map.main_digitizer.info['group name'])
-                  + " defined in the mappings.")
+            warn_str = ('** Warning: Digitizer not specified so '
+                        "assuming the 'main_digitizer' ({})".format(
+                            hdf_file.file_map.main_digitizer.info[
+                                'group name'])
+                        + " defined in the mappings.")
             digi_map = hdf_file.file_map.main_digitizer
         else:
             if digitizer not in hdf_file.file_map.digitizers:
@@ -147,7 +151,7 @@ class hdfReadData(np.ndarray):
         #       board, channel, adc, and config_name
         dname, d_info = digi_map.construct_dataset_name(
             board, channel, config_name=config_name, adc=adc,
-            return_info=True)
+            return_info=True, silent=silent)
         dpath = digi_map.info['group path'] + '/' + dname
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
@@ -186,9 +190,10 @@ class hdfReadData(np.ndarray):
                         if s not in newshots:
                             newshots.append(s)
                     else:
-                        print('** Warning: shot {} not a '.format(s)
-                              + 'valid index, '
-                              + 'range({})'.format(dset.shape[0]))
+                        warn_str += (
+                            '\n** Warning: shot {} not a '.format(s)
+                            + 'valid index, range({})'.format(
+                                dset.shape[0]))
                 newshots.sort()
 
                 if len(newshots) != 0:

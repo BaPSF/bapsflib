@@ -229,7 +229,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # TODO: Replace Warnings with proper error handling
         # TODO: Add a Silent kwd
 
-        # initiate warnign string
+        # initiate warning string
         warn_str = ''
 
         # Condition adc keyword

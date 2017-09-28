@@ -139,7 +139,8 @@ class File(h5py.File):
         return self.get(name)
 
     def read_data(self, board, channel, shots=None, digitizer=None,
-                  adc=None, config_name=None, keep_bits=False):
+                  adc=None, config_name=None, keep_bits=False,
+                  silent=False):
         """
         :param int board: desired board number
         :param int channel: desired channel number
@@ -150,6 +151,9 @@ class File(h5py.File):
         :param str config_name: name of data configurations
         :param bool keep_bits: :code:`True` for output in bits,
             :code:`False` (default) for output in voltage
+        :param bool silent: Defualt :code:`False`. Set :code:`True` to
+            suppress any warning print outs when data is constructed.
+            Exceptions are still raise when necessary.
         :return: instance of
             :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
         """
@@ -157,4 +161,5 @@ class File(h5py.File):
         # consider adding keyword output_voltage
         return hdfReadData(self, board, channel, shots=shots,
                            digitizer=digitizer, adc=adc,
-                           config_name=config_name, keep_bits=keep_bits)
+                           config_name=config_name, keep_bits=keep_bits,
+                           silent=silent)

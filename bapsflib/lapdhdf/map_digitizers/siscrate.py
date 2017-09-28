@@ -339,7 +339,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
     def construct_dataset_name(self, board, channel,
                                config_name=None, adc=None,
-                               return_info=False):
+                               return_info=False, silent=False):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, channel, and adc. Format follows:
@@ -351,10 +351,14 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         :param config_name:
         :param adc:
         :param return_info:
+        :param silent:
         :return:
         """
         # TODO: Replace Warnings with proper error handling
         # TODO: Add a Silent kwd
+
+        # initiate warnign string
+        warn_str = ''
 
         # Condition config_name
         # - if config_name is not specified then the 'active' config
@@ -367,8 +371,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     found += 1
 
             if found == 1:
-                print('** Warning: config_name not specified, assuming '
-                      + config_name + '.')
+                warn_str = ('** Warning: config_name not specified, '
+                            'assuming ' + config_name + '.')
             elif found >= 1:
                 raise Exception("Too many active digitizer "
                                 "configurations detected. Currently do "
@@ -390,8 +394,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         #   '3302' is not active then the list will only contain '3305'.
         if adc is None:
             adc = self.data_configs[config_name]['adc'][0]
-            print('** Warning: No adc specified, so assuming '
-                  + adc + '.')
+            warn_str += ('\n** Warning: No adc specified, so assuming '
+                         + adc + '.')
         elif adc not in self.data_configs[config_name]['adc']:
             raise Exception(
                 'Specified adc ({}) is not in specified '.format(adc)
@@ -433,6 +437,10 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         else:
             raise Exception('We have a problem! Somehow adc '
                             + '({}) is not known.'.format(adc))
+
+        # print warnings
+        if not silent:
+            print(warn_str)
 
         if return_info is True:
             return dataset_name, d_info

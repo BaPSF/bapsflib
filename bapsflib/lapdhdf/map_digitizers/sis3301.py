@@ -210,7 +210,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
     def construct_dataset_name(self, board, channel,
                                config_name=None, adc='SIS 3301',
-                               return_info=False):
+                               return_info=False, silent=False):
         """
         Returns the name of a HDF5 dataset based on its configuration
         name, board, and channel. Format follows:
@@ -222,17 +222,21 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         :param config_name:
         :param adc:
         :param return_info:
+        :param silent:
         :return:
 
         """
         # TODO: Replace Warnings with proper error handling
         # TODO: Add a Silent kwd
 
+        # initiate warnign string
+        warn_str = ''
+
         # Condition adc keyword
         if adc != 'SIS 3301':
-            print('** Warning: passed adc ({}) is not '.format(adc)
-                  + "valid for this digitizer. Forcing "
-                    "adc = 'SIS 3301'")
+            warn_str = ('** Warning: passed adc ({}) is '.format(adc)
+                        + 'not valid for this digitizer. Forcing '
+                        "adc = 'SIS 3301'")
             adc = 'SIS 3301'
 
         # Condition config_name
@@ -246,8 +250,8 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                     found += 1
 
             if found == 1:
-                print('** Warning: config_name not specified, assuming '
-                      + config_name + '.')
+                warn_str += ('\n** Warning: config_name not specified, '
+                             'assuming ' + config_name + '.')
             elif found >= 1:
                 raise Exception("Too many active digitizer "
                                 "configurations detected. Currently do "
@@ -282,6 +286,11 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # checks passed, build dataset_name
         dataset_name = '{0} [{1}:{2}]'.format(config_name, board,
                                               channel)
+
+        # print warnings
+        if not silent:
+            print(warn_str)
+
         if return_info is True:
             return dataset_name, d_info
         else:

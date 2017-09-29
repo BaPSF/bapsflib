@@ -279,6 +279,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                     d_info = extras
                     d_info['adc'] = 'SIS 3301'
                     d_info['configuration name'] = config_name
+                    d_info['digitizer'] = self.info['group name']
 
         # (board, channel) combo must be active
         if bc_valid is False:

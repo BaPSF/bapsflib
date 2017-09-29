@@ -219,6 +219,7 @@ class hdfReadData(np.ndarray):
             'hdf file': hdf_file.filename.split('/')[-1],
             'dataset name': dname,
             'dataset path': dpath,
+            'digitizer': d_info['digitizer'],
             'configuration name': d_info['configuration name'],
             'adc': d_info['adc'],
             'bit': d_info['bit'],

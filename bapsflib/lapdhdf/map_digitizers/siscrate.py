@@ -413,6 +413,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     d_info = extras
                     d_info['adc'] = adc
                     d_info['configuration name'] = config_name
+                    d_info['digitizer'] = self.info['group name']
 
         # (board, channel) combo must be active
         if bc_valid is False:

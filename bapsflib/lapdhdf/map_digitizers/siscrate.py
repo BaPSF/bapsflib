@@ -374,9 +374,12 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 warn_str = ('** Warning: config_name not specified, '
                             'assuming ' + config_name + '.')
             elif found >= 1:
-                raise Exception("Too many active digitizer "
-                                "configurations detected. Currently do "
-                                "not know how to handle.")
+                # raise Exception("Too many active digitizer "
+                #                 "configurations detected. Currently "
+                #                 "do not know how to handle.")
+                raise Exception("There are multiple active digitizer"
+                                "configurations. User must specify"
+                                "config_name keyword.")
             else:
                 raise Exception("No active digitizer configuration "
                                 "detected.")

@@ -92,8 +92,9 @@ class hdfReadData(np.ndarray):
     #    dset or dset.values.
 
     def __new__(cls, hdf_file, board, channel,
-                shots=None, digitizer=None, adc=None,
-                config_name=None, keep_bits=False, silent=False):
+                index=None, digitizer=None, adc=None,
+                config_name=None, keep_bits=False, silent=False,
+                **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
@@ -101,14 +102,20 @@ class hdfReadData(np.ndarray):
         :param hdf_file:
         :param int board:
         :param int channel:
-        :param shots: index/indices of shots to be extracted
-        :type shots: :code:`None`, int, list(int), or
+        :param index: index/indices of shots to be extracted
+        :type index: :code:`None`, int, list(int), or
             slice(start, stop, skip)
         :param str digitizer:
         :param str adc:
         :param str config_name:
         :param bool keep_bits: set :code:`True` keep data in bits opposed
             to converting to voltage
+
+        .. note::
+
+            Keyword :code:`shots` was renamed to :code:`index` in
+            version 0.1.3.dev1.  Keyword :code:`shots` will still work,
+            but will be deprecated in the future.
         """
         # return_view=False -- return a ndarray.view() to save on memory
         #                      when working with multiple datasets...
@@ -156,59 +163,67 @@ class hdfReadData(np.ndarray):
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
 
-        # Condition shots keyword
-        # Valid shots types are: None, int, list(int), and slice()
-        # - None      => extract all shots
+        # backwards compatibility for 'shots' keyword which was changed
+        # to index in v0.1.3.dev1
+        # - keyword 'index' will always take precedence over 'shots'
+        #   keyword
+        #
+        if 'shots' in kwargs and index is None:
+            index = kwargs['shots']
+
+        # Condition index keyword
+        # Valid index types are: None, int, list(int), and slice()
+        # - None      => extract all indices
         # - int       => extract shot with index int
         # - list(int) => extract shots with indices specified in list
         # - slice(start, stop, skip)
         #             => same as [start:stop:skip]
         #
-        if shots is None:
+        if index is None:
             if dset.shape[0] == 1:
                 data = dset[0, :]
             else:
                 data = dset[()]
-        elif isinstance(shots, int):
-            if shots in range(dset.shape[0]) \
-                    or -shots-1 in range(dset.shape[0]):
-                data = dset[shots, :]
+        elif isinstance(index, int):
+            if index in range(dset.shape[0]) \
+                    or -index-1 in range(dset.shape[0]):
+                data = dset[index, :]
             else:
-                raise ValueError('shots is not in range({})'.format(
+                raise ValueError('index is not in range({})'.format(
                     dset.shape[0]))
-        elif isinstance(shots, list):
+        elif isinstance(index, list):
             # all elements need to be integers
-            if all(isinstance(s, int) for s in shots):
+            if all(isinstance(s, int) for s in index):
                 # condition list
-                shots.sort()
-                shots = list(set(shots))
-                newshots = []
-                for s in shots:
+                index.sort()
+                index = list(set(index))
+                newindex = []
+                for s in index:
                     if s < 0:
                         s = -s-1
                     if s in range(dset.shape[0]):
-                        if s not in newshots:
-                            newshots.append(s)
+                        if s not in newindex:
+                            newindex.append(s)
                     else:
                         warn_str += (
                             '\n** Warning: shot {} not a '.format(s)
                             + 'valid index, range({})'.format(
                                 dset.shape[0]))
-                newshots.sort()
+                newindex.sort()
 
-                if len(newshots) != 0:
-                    data = dset[newshots, :]
+                if len(newindex) != 0:
+                    data = dset[newindex, :]
                 else:
-                    raise ValueError('shots: none of the elements are '
+                    raise ValueError('index: none of the elements are '
                                      'in range({})'.format(dset.shape[0]
                                                            ))
             else:
-                raise ValueError("shots keyword needs to be None, int, "
+                raise ValueError("index keyword needs to be None, int, "
                                  "list(int), or slice object")
-        elif isinstance(shots, slice):
-            data = dset[shots, :]
+        elif isinstance(index, slice):
+            data = dset[index, :]
         else:
-            raise ValueError("shots keyword needs to be None, int, "
+            raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
 
         obj = data.view(cls)

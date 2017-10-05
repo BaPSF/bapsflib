@@ -138,14 +138,14 @@ class File(h5py.File):
         """
         return self.get(name)
 
-    def read_data(self, board, channel, shots=None, digitizer=None,
+    def read_data(self, board, channel, index=None, digitizer=None,
                   adc=None, config_name=None, keep_bits=False,
-                  silent=False):
+                  silent=False, **kwargs):
         """
         :param int board: desired board number
         :param int channel: desired channel number
-        :param shots:
-        :type shots: list(int)
+        :param index:
+        :type index: list(int)
         :param str digitizer: name of desired digitizer
         :param str adc: name of desired analog-digital converter
         :param str config_name: name of data configurations
@@ -159,7 +159,7 @@ class File(h5py.File):
         """
         # TODO: write docstrings
         # consider adding keyword output_voltage
-        return hdfReadData(self, board, channel, shots=shots,
+        return hdfReadData(self, board, channel, index=index,
                            digitizer=digitizer, adc=adc,
                            config_name=config_name, keep_bits=keep_bits,
-                           silent=silent)
+                           silent=silent, **kwargs)

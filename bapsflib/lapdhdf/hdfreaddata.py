@@ -18,7 +18,7 @@ import numpy as np
 # from .hdferrors import *
 
 
-class hdfReadData(np.ndarray):
+class hdfReadData(np.recarray):
     """
     Reads the data out of the HDF5 file:
 
@@ -181,13 +181,16 @@ class hdfReadData(np.ndarray):
         #
         if index is None:
             if dset.shape[0] == 1:
-                data = dset[0, :]
+                # data = dset[0, :]
+                index = 0
             else:
-                data = dset[()]
+                # data = dset[()]
+                index = slice(None)
         elif isinstance(index, int):
             if index in range(dset.shape[0]) \
                     or -index-1 in range(dset.shape[0]):
-                data = dset[index, :]
+                # data = dset[index, :]
+                pass
             else:
                 raise ValueError('index is not in range({})'.format(
                     dset.shape[0]))
@@ -212,7 +215,8 @@ class hdfReadData(np.ndarray):
                 newindex.sort()
 
                 if len(newindex) != 0:
-                    data = dset[newindex, :]
+                    # data = dset[newindex, :]
+                    index = newindex
                 else:
                     raise ValueError('index: none of the elements are '
                                      'in range({})'.format(dset.shape[0]
@@ -221,12 +225,28 @@ class hdfReadData(np.ndarray):
                 raise ValueError("index keyword needs to be None, int, "
                                  "list(int), or slice object")
         elif isinstance(index, slice):
-            data = dset[index, :]
+            # data = dset[index, :]
+            pass
         else:
             raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
 
-        obj = data.view(cls)
+        # Construct obj
+        # - obj will be a numpy record array
+        #
+        # 1st column of the digi data header contains the shot number
+        shotkey = dheader.dtype.names[0]
+        sigtype = '<f4' if not keep_bits else dset.dtype
+        mytype = [('shotnum', dheader[shotkey].dtype),
+                  ('signal', sigtype, dset.shape[1])]
+        shape = (dheader[shotkey][index].size,)
+        data = np.empty(shape, dtype=mytype)
+        data['shotnum'] = dheader[shotkey]
+        data['signal'] = dset[index, :]
+        obj = data.view(np.recarray)
+
+        # data = dset[index, :]
+        # obj = data.view(cls)
         # obj.header = dheader
 
         # assign dataset info
@@ -251,7 +271,8 @@ class hdfReadData(np.ndarray):
         if not keep_bits:
             offset = abs(obj.info['voltage offset'])
             dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
-            obj = (dv * obj) - offset
+            obj['signal'] = obj['signal'].astype(np.float32, copy=False)
+            obj['signal'] = (dv * obj['signal']) - offset
 
         return obj
 

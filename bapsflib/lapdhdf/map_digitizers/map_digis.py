@@ -45,7 +45,7 @@ class hdfMap_digitizers(dict):
         #   data types'
         #   1. data sequence
         #   2. digitizer groups (known)
-        #   3. motion lists
+        #   3. controls (known)
         #   4. unknown
         #: list of all group names in the HDF5 data group
         self.data_group_subgroups = []

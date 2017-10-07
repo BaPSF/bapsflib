@@ -108,8 +108,8 @@ class hdfReadData(np.recarray):
         :param str digitizer:
         :param str adc:
         :param str config_name:
-        :param bool keep_bits: set :code:`True` keep data in bits opposed
-            to converting to voltage
+        :param bool keep_bits: set :code:`True` keep data in bits
+            opposed to converting to voltage
 
         .. note::
 
@@ -134,7 +134,6 @@ class hdfReadData(np.recarray):
         #
         # TODO: add error handling for .get() of dheader
         # TODO: add error handling for 'Offset' field in dheader
-        # TODO: add digitizer key to self.info
 
         # initiate warning string
         warn_str = ''
@@ -234,15 +233,20 @@ class hdfReadData(np.recarray):
         # Construct obj
         # - obj will be a numpy record array
         #
-        # 1st column of the digi data header contains the shot number
+        # - 1st column of the digi data header contains the global HDF5
+        #   file shot number
+        # - shotkey = is the field name/key of the dheader shot number
+        #   column
         shotkey = dheader.dtype.names[0]
         sigtype = '<f4' if not keep_bits else dset.dtype
         mytype = [('shotnum', dheader[shotkey].dtype),
-                  ('signal', sigtype, dset.shape[1])]
+                  ('signal', sigtype, dset.shape[1]),
+                  ('xyz', '<f4', 3)]
         shape = (dheader[shotkey][index].size,)
         data = np.empty(shape, dtype=mytype)
         data['shotnum'] = dheader[shotkey]
         data['signal'] = dset[index, :]
+        data['xyz'].fill(np.nan)
         obj = data.view(np.recarray)
 
         # data = dset[index, :]

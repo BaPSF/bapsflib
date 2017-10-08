@@ -26,6 +26,7 @@
 import h5py
 from .map_msi import hdfMap_msi
 from .map_digitizers import hdfMap_digitizers
+from .map_controls import hdfMap_controls
 
 
 class hdfMap(object):
@@ -51,6 +52,7 @@ class hdfMap(object):
         self.__hdf_obj = hdf_obj
         self.__attach_msi()
         self.__attach_digitizers()
+        self.__attach_controls()
 
     @property
     def has_msi_group(self):
@@ -95,20 +97,20 @@ class hdfMap(object):
         return has_digis
 
     @property
-    def has_motion_lists(self):
+    def has_controls(self):
         """
-        :return: True/False if any known motion groups are discovered in
-            the data group
+        :return: :code:`True`/:code:`False` if any known control groups
+            are discovered in the data group
         """
-        if not hasattr(self, 'motionlists'):
-            has_motion = False
-        elif self.motionlists is None:
-            has_motion = False
-        elif len(self.motionlists) == 0:
-            has_motion = False
+        if not hasattr(self, 'controls'):
+            has_controls = False
+        elif self.controls is None:
+            has_controls = False
+        elif len(self.controls) == 0:
+            has_controls = False
         else:
-            has_motion = True
-        return has_motion
+            has_controls = True
+        return has_controls
 
     @property
     def has_unknown_data_subgoups(self):
@@ -172,28 +174,31 @@ class hdfMap(object):
         """
         return self.__digitizers
 
-    def __attach_motionlists(self):
+    def __attach_controls(self):
         """
-        Will attach a dictionary style mapper (self.__motionlists) that
-        contains all motionlist mappings.
+        Will attach a dictionary style mapper (self.__controls) that
+        contains all control mappings.
         """
-        self.__motionlists = None
+        if self.has_data_group:
+            self.__controls = hdfMap_controls(
+                self.__hdf_obj[self.data_group])
+        else:
+            self.__controls = None
 
     @property
-    def motionlists(self):
+    def controls(self):
         """
-        :return: A dictionary style container for all motionlist
-            mappings.
+        :return: A dictionary style container for all control mappings.
 
-        For example, to retrieve mappings of the motionlist group
-        '6k Compumotor' one would call
+        For example, to retrieve mappings of the control group
+        '6K Compumotor' one would call
 
         .. code-block:: python
 
             fmap = hdfMap(file_obj)
-            mmap = fmap.motionlists['6k Compumotor']
+            mmap = fmap.controls['6K Compumotor']
         """
-        return self.__motionlists
+        return self.__controls
 
     def __attach_unknowns(self):
         """
@@ -211,6 +216,7 @@ class hdfMap(object):
             constructor.
         """
         return self.__unknowns
+
     @property
     def is_lapd_hdf(self):
         """

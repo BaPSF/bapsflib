@@ -282,11 +282,11 @@ class hdfCheck(object):
         # Check if any motion lists were discovered
         item = 'Motion Lists'
         found = ''
-        note = '' if self.__hdf_map.has_motion_lists else 'None known'
+        note = '' if self.__hdf_map.has_controls else 'None known'
         status_print(item, found, note, indent=1, item_found_pad=' ')
 
         # Print list of motion lists
-        if self.__hdf_map.has_motion_lists:
+        if self.__hdf_map.has_controls:
             pass
         # ^ not implemented in mapper yet
         #    for key in self.__hdf_map.motion:

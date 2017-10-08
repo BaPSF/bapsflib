@@ -11,6 +11,7 @@
 
 import h5py
 
+from .sixk import hdfMap_control_6k
 
 class hdfMap_controls(dict):
     """
@@ -18,7 +19,7 @@ class hdfMap_controls(dict):
     discovered probe controls in the HDF5 data group.
     """
     _defined_control_mappings = {
-        '6K Compumotor': None}
+        '6K Compumotor': hdfMap_control_6k}
     """
     A dictionary containing references to the defined control mapping
     classes
@@ -84,6 +85,6 @@ class hdfMap_controls(dict):
         for sg_name in self.data_group_subgroups:
             if sg_name in self._defined_control_mappings:
                 control_dict[sg_name] = \
-                    self._defined_control_mappings[sg_name]\
-                    # (self.data_group[sg_name])
+                    self._defined_control_mappings[sg_name](
+                        self.data_group[sg_name])
         return control_dict

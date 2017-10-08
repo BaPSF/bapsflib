@@ -19,3 +19,6 @@ class hdfMap_control_6k(hdfMap_control_template):
 
         # define control type
         self.info['contype'] = 'motion'
+
+        # remove self.info and self.config items that
+        self._verify_map()

@@ -51,14 +51,37 @@ class hdfMap_control_template(object):
         """
 
         # initialize configuration dictionary
-        self.config = {}
+        self.config = {
+            'motion list': NotImplemented,
+            'probe list': NotImplemented,
+            'command list': NotImplemented,
+            'nControlled': NotImplemented,
+            'data fields': NotImplemented
+        }
         """
         .. code-block: python
         
             config = {
                 'motion list': [str, ],
+                'motion list name': motion_dict,
+                ...
+                'probe list': [str, ],
+                'probe name: probe_dict,
+                ...
                 'command list': [],
-                'data fields': (key, dtype)
+                'nControlled': int,
+                'data fields': [(key, dtype), ]
+            }
+            
+            motion_dict = {
+                delta: (dx, dy ,dz),
+                center: (x0, y0, z0),
+                npoints: (nx, ny, nz)
+            }
+            
+            probe_dict = {
+                receptacle: int,
+                port: int
             }
         """
 
@@ -96,3 +119,103 @@ class hdfMap_control_template(object):
     @abstractmethod
     def _build_config(self):
         raise NotImplementedError
+
+    def _verify_map(self):
+        # ---- verify self.info ----
+        if self.info['contype'] == NotImplemented:
+            # 'contype' must be defined
+            errstr = "self.info['contype'] must be defined as:\n" \
+                     "  'motion', 'freq', or 'power'"
+            raise NotImplementedError(errstr)
+        elif self.info['contype'] not in ['motion', 'freq', 'power']:
+            # 'contype' must be one of specified type
+            errstr = "self.info['contype'] must be defined as:\n" \
+                     "  'motion', 'freq', or 'power'"
+            raise NotImplementedError(errstr)
+
+        # ---- verity self.config ----
+        # 'data fields' must be defined
+        if 'data fields' not in self.config:
+            errstr = "self.config['data fields'] must be defined as:" \
+                     "\n  [('field name', dtype), ]"
+            raise NotImplementedError(errstr)
+        elif self.config['data fields'] == NotImplemented:
+            errstr = "self.config['data fields'] must be defined as:" \
+                     "\n  [('field name', dtype), ]"
+            raise NotImplementedError(errstr)
+
+        # contype == 'motion' specific verification
+        if self.contype == 'motion':
+            # verify 'motion list'
+            if 'motion list' not in self.config:
+                # 'motion list' exists
+                errstr = "self.config['motion list'] must be defined"
+                raise NotImplementedError(errstr)
+            elif self.config['motion list'] == NotImplemented:
+                # 'motion list' is defined
+                errstr = "self.config['motion list'] must be defined"
+                raise NotImplementedError(errstr)
+            else:
+                # each 'motion list' must have its own config
+                for name in self.config['motion list']:
+                    if name not in self.config:
+                        errstr = "must defined self.config['motion " \
+                                 "name'] for each motion list in " \
+                                 "self.config['motion list'] = " \
+                                 "[motion name, ]"
+                        raise NotImplementedError(errstr)
+
+            # verify 'probe list'
+            if 'probe list' not in self.config:
+                # 'probe list' exists
+                errstr = "self.config['probe list'] must be defined"
+                raise NotImplementedError(errstr)
+            elif self.config['probe list'] == NotImplemented:
+                # 'probe list' is defined
+                errstr = "self.config['probe list'] must be defined"
+                raise NotImplementedError(errstr)
+            else:
+                # each 'probe list' must have its own config
+                for name in self.config['probe list']:
+                    if name not in self.config:
+                        errstr = "must defined self.config['probe " \
+                                 "name'] for each probe in " \
+                                 "self.config['probe list'] = " \
+                                 "[probe name, ]"
+                        raise NotImplementedError(errstr)
+
+            # delete 'command list' if present
+            if 'command list' in self.config:
+                del(self.config['command list'])
+
+        # verify all other contypes
+        if self.contype != 'motion':
+            # remove 'motion list'
+            if 'motion list' in self.config:
+                # remove 'motion list' children
+                for name in self.config['motion list']:
+                    if name in self.config:
+                        del(self.config[name])
+
+                # remove 'motion list'
+                del(self.config['motion list'])
+
+            # remove 'probe list'
+            if 'probe list' in self.config:
+                # remove 'probe list' children
+                for name in self.config['probe list']:
+                    if name in self.config:
+                        del (self.config[name])
+
+                # remove 'motion list'
+                del (self.config['probe list'])
+
+            # verify 'command list'
+            if 'command list' not in self.config:
+                # 'command list' exists
+                errstr = "self.config['command list'] must be defined"
+                raise NotImplementedError(errstr)
+            elif self.config['command list'] == NotImplemented:
+                # 'motion list' is defined
+                errstr = "self.config['command list'] must be defined"
+                raise NotImplementedError(errstr)

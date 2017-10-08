@@ -5,7 +5,8 @@
 #
 # Copyright 2017 Erik T. Everson and contributors
 #
-# License:
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 # TODO: consider having hdfMap_digi_sis3301 become digi_group
 #  i.e. def __init__(self, digi_group):

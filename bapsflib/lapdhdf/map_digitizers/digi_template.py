@@ -5,9 +5,8 @@
 #
 # Copyright 2017 Erik T. Everson and contributors
 #
-# License:
-#
-# TODO: determine a default structure for all digitizer classes
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 import h5py
 

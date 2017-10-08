@@ -36,7 +36,21 @@ class hdfMap_controls(dict):
         if not isinstance(data_group, h5py.Group):
             raise TypeError('data_group is not of type h5py.Group')
 
+        # store HDF5 data group instance
         self.__data_group = data_group
+
+        # all data_group subgroups
+        # - each of these subgroups can fall into one of four 'LaPD
+        #   data types'
+        #   1. data sequence
+        #   2. digitizer groups (known)
+        #   3. controls (known)
+        #   4. unknown
+        #: list of all group names in the HDF5 data group
+        self.data_group_subgroups = []
+        for item in data_group:
+            if isinstance(data_group[item], h5py.Group):
+                self.data_group_subgroups.append(item)
 
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
@@ -67,4 +81,9 @@ class hdfMap_controls(dict):
         :return: control mapping dictionary
         """
         control_dict = {}
+        for sg_name in self.data_group_subgroups:
+            if sg_name in self._defined_control_mappings:
+                control_dict[sg_name] = \
+                    self._defined_control_mappings[sg_name]\
+                    # (self.data_group[sg_name])
         return control_dict

@@ -5,7 +5,8 @@
 #
 # Copyright 2017 Erik T. Everson and contributors
 #
-# License:
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 import h5py
 
@@ -71,6 +72,33 @@ class File(h5py.File):
         some_list = []
         self.visit(some_list.append)
         return some_list
+
+    @property
+    def list_msi(self):
+        """
+        :return: a list of strings naming the MSI diagnostics found in
+            the HDF5 file
+        :rtype: list(str)
+        """
+        return list(self.file_map.msi)
+
+    @property
+    def list_digitizers(self):
+        """
+        :return: a list of strings naming the digitizers found in the
+            HDF5 file
+        :rtype: list(str)
+        """
+        return list(self.file_map.digitizers)
+
+    @property
+    def list_controls(self):
+        """
+        :return: a list of strings naming the controls found in the
+            HDF5 file
+        :rtype: list(str)
+        """
+        return list(self.file_map.controls)
 
     @property
     def listHDF_file_types(self):

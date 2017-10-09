@@ -11,10 +11,10 @@
 
 import h5py
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 
-class hdfMap_control_template(object):
+class hdfMap_control_template(ABC):
     """
     A template class for all control mapping classes to inherit from.
 

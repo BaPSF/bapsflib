@@ -60,6 +60,39 @@ class hdfMap_control_6k(hdfMap_control_template):
             ('phi', '<f8')
         ]
 
+    def construct_dataset_name(self, *args):
+        # The first arg passed is assumed to be the receptacle number.
+        # If none are passed and there is only one receptacle deployed,
+        # then the deployed receptacle is assumed.
+
+        # Set receptacle value
+        if len(args) == 0 and len(self.list_receptacles) == 1:
+            # assume only receptacle
+            receptacle = self.list_receptacles[0]
+        elif len(args) >= 1:
+            receptacle = args[0]
+            if receptacle not in self.list_receptacles:
+                raise ValueError(
+                    'A valid receptacle number needs to be '
+                    'passed: {}'.format(self.list_receptacles)
+                )
+        else:
+            raise ValueError('A valid receptacle number needs to be '
+                             'passed: {}'.format(self.list_receptacles))
+
+        # Find matching probe to receptacle
+        # - note that probe naming in the HDF5 are not consistent, this
+        #   is why dataset name is constructed based on receptacle and
+        #   not probe name
+        for name in self.config['probe list']:
+            if self.config[name]['receptacle'] == receptacle:
+                pname = name
+
+        # Construct dataset name
+        dname = 'Probe: XY[{0}]: {1}'.format(receptacle, pname)
+
+        return dname
+
     @property
     def list_receptacles(self):
         receptacles = []

@@ -101,6 +101,10 @@ class hdfMap_control_template(ABC):
         """
         return self.info['contype']
 
+    @abstractmethod
+    def construct_dataset_name(self, *args):
+        raise NotImplementedError
+
     @property
     def sgroup_names(self):
         sgroup_names = [name

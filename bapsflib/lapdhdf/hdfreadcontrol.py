@@ -8,81 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: decide on input args for reading out HDF5 data
-#
 
 import h5py
 import numpy as np
 
 
-# from .. import lapdhdf
-# from .hdferrors import *
-
-
-class hdfReadData(np.recarray):
+class hdfReadControl(np.recarray):
     """
-    Reads the data out of the HDF5 file:
-
-    .. py:data:: info
-
-        A dictionary container of metadata for the extracted data. The
-        dict() keys are:
-
-        .. list-table::
-            :widths: 5 3 11
-
-            * - :py:const:`hdf file`
-              - `str`
-              - HDF5 file name the data was retrieved from
-            * - :py:const:`dataset name`
-              - `str`
-              - name of the dataset
-            * - :py:const:`dataset path`
-              - `str`
-              - path to said dataset in the HDF5 file
-            * - :py:const:`digitizer`
-              - `str`
-              - digitizer group name
-            * - :py:const:`adc`
-              - `str`
-              - analog-digital converter in which the data was recorded
-                on
-            * - :py:const:`bit`
-              - `int`
-              - bit resolution for the adc
-            * - :py:const:`sample rate`
-              - (`int`, `float`)
-              - tuple containing sample rate, e.g. (100.0, 'MHz')
-            * - :py:const:`board`
-              - `int`
-              - board that the probe was connected to
-            * - :py:const:`channel`
-              - `int`
-              - channel of the board that the probe was connected to
-            * - :py:const:`voltage offset`
-              - `float`
-              - voltage offset of the digitized signal
-            * - :py:const:`probe name`
-              - `str`
-              - name of deployed probe...empty for user to use at
-                his/her discretion
-            * - :py:const:`port`
-              - (`int`, `str`)
-              - 2-element tuple indicating which port the probe was
-                deployed on, eg. (19, 'W')
-
-    .. 'port' -- 2-element tuple indicating which port the probe was
-                deployed on. e.g. (19, 'W') => deployed on port 19 on
-                the west side of the machine. Second elements
-                descriptors should follow:
-                  'T'  = top
-                  'TW' = top-west
-                  'W'  = west
-                  'BW' = bottom-west
-                  'B'  = bottom
-                  'BE' = bottome-east
-                  'E'  = east
-                  'TE' = top-east
+    Reads out data from a control device in the HDF5 file:
     """
 
     # Extracting Data:
@@ -93,17 +26,14 @@ class hdfReadData(np.recarray):
     #  To extract data, fancy indexing [::] can be used directly on
     #    dset or dset.values.
 
-    def __new__(cls, hdf_file, board, channel,
-                index=None, digitizer=None, adc=None,
-                config_name=None, keep_bits=False, silent=False,
-                **kwargs):
+    def __new__(cls, hdf_file, controls,
+                index=None, silent=False, **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
 
         :param hdf_file:
-        :param int board:
-        :param int channel:
+        :param controls:
         :param index: index/indices of shots to be extracted
         :type index: :code:`None`, int, list(int), or
             slice(start, stop, skip)
@@ -119,34 +49,47 @@ class hdfReadData(np.recarray):
             version 0.1.3.dev1.  Keyword :code:`shots` will still work,
             but will be deprecated in the future.
         """
-        # return_view=False -- return a ndarray.view() to save on memory
-        #                      when working with multiple datasets...
-        #                      this needs to be thought out in more
-        #                      detail
+        # param control:
+        # - control is a string list naming the control to be read out
+        # - if a control contains multiple devices, then it's entry in
+        #   the control list must be a 2-element tuple where the 1st
+        #   element is the control name and the 2nd element is a unique
+        #   specifier.
+        #   e.g. the '6K Compumotor' can have multiple probe drives
+        #   which are identified by their receptacle number, so
         #
-        # numpy uses __new__ to initialize objects, so an __init__ is
-        # not necessary
+        #       controls = [('6K Compumotor', 1),]
         #
-        # What I need to do:
-        #  1. construct the dataset name
-        #     - Required args: board, channel
-        #     - Optional kwds: daq, config_name, shots
-        #  2. extract view from dataset
-        #  3. slice view and assign to obj
+        #   would indicate a readout of receptacle 1 of the
+        #   '6K Compumotor'
+        # - The list can only contain one entry from each contype. i.e.
+        #   This is valid:
         #
-        # TODO: add error handling for .get() of dheader
-        # TODO: add error handling for 'Offset' field in dheader
+        #       control = ['6K Compumotor', 'Waveform', 'N5700_PS']
+        #
+        #   but this is not:
+        #
+        #       controls = ['6K Compumotor', 'NI_XZ']
+        #
+        # Order of Operations:
+        #   1. check for file mapping attribute (hdf_obj.file_map)
+        #   2. check for non-empty controls mapping
+        #      (hdf_obj.file_map.controls)
+        #   3. look for 'controls' in file_map.controls
+        #   4. condition index keyword
+        #   5. build recarray
+        #   6. build obj.info (metadata)
 
         # initiate warning string
         warn_str = ''
 
         # Condition digitizer keyword
         if digitizer is None:
-            warn_str = "** Warning: Digitizer not specified so " \
-                + "assuming the 'main_digitizer' ({})".format(
-                    hdf_file.file_map.main_digitizer.info[
-                        'group name']) \
-                + " defined in the mappings."
+            warn_str = ('** Warning: Digitizer not specified so '
+                        "assuming the 'main_digitizer' ({})".format(
+                hdf_file.file_map.main_digitizer.info[
+                    'group name'])
+                        + " defined in the mappings.")
             digi_map = hdf_file.file_map.main_digitizer
         else:
             if digitizer not in hdf_file.file_map.digitizers:
@@ -249,13 +192,11 @@ class hdfReadData(np.recarray):
         data['shotnum'] = dheader[shotkey]
         data['signal'] = dset[index, :]
         data['xyz'].fill(np.nan)
-        obj = data.view(cls)
-        # obj = data.view(np.recarray)
-        #
-        # Note: if np.recarray is used instead of cls then the
-        #       returned object will be of class np.recarray instead
-        #       of hdfReadData.  In that case, __init__ is never called
-        #       and the hdfReadData methods are never bound.
+        obj = data.view(np.recarray)
+
+        # data = dset[index, :]
+        # obj = data.view(cls)
+        # obj.header = dheader
 
         # assign dataset info
         obj.info = {
@@ -278,9 +219,9 @@ class hdfReadData(np.recarray):
         # convert to voltage
         if not keep_bits:
             offset = abs(obj.info['voltage offset'])
-            # dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
+            dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
             obj['signal'] = obj['signal'].astype(np.float32, copy=False)
-            obj['signal'] = (obj.dv * obj['signal']) - offset
+            obj['signal'] = (dv * obj['signal']) - offset
 
         return obj
 
@@ -293,8 +234,7 @@ class hdfReadData(np.recarray):
         #  a 2-d matrix for example), or to update meta-information from
         #  the parent. Subclasses inherit a default implementation of
         #  this method that does nothing.
-        if obj is None:
-            return
+        if obj is None: return
 
         # Define info attribute
         # - getattr() searches obj for the 'info' attribute. If the
@@ -317,59 +257,7 @@ class hdfReadData(np.recarray):
                              'port': (None, None)})
 
     def __init__(self, *args, **kwargs):
-        # Note: __init__ will only run if __new__ returns an object
-        #       with class hdfReadData.  NumPy structure does allow for
-        #       the return of objects with differing classes, see NumPy
-        #       subclassing documentation.
-        #
         super().__init__()
-
-    def convert_to_v(self):
-        """
-        :return: Convert DAQ signal from bits to voltage.
-
-        .. Warning:: Not implemented yet
-        """
-        raise NotImplementedError
-
-    def convert_to_t(self):
-        """
-        :return: Convert DAQ signal dependent axis from index to time.
-
-        .. Warning:: Not implemented yet
-        """
-        raise NotImplementedError
-
-    @property
-    def dt(self):
-        """
-        :return: time-step dt (in sec) from the 'sample rate' dict()
-            item of :py:data:`self.info`.
-        """
-        # define unit conversions
-        units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
-
-        # calc base dt
-        dt = 1.0 / (self.info['sample rate'][0] *
-                    units[self.info['sample rate'][1]])
-
-        # adjust for hardware averaging
-        if self.info['sample average'] is not None:
-            dt = dt * float(self.info['sample average'])
-        else:
-            print('no sample average')
-
-        return dt
-
-    @property
-    def dv(self):
-        """
-        :return: voltage-step dv (in Volts) from the 'bit' and 'voltage
-            offset' dict() items of :py:data:`self.info`.
-        """
-        dv = (2.0 * abs(self.info['voltage offset']) /
-              (2. ** self.info['bit'] - 1.))
-        return dv
 
     def full_path(self):
         """

@@ -12,6 +12,7 @@
 import h5py
 import numpy as np
 
+from .files import File
 
 class hdfReadControl(np.recarray):
     """
@@ -27,19 +28,23 @@ class hdfReadControl(np.recarray):
     #    dset or dset.values.
 
     def __new__(cls, hdf_file, controls,
-                index=None, silent=False, **kwargs):
+                index=None, shotnum=None, silent=False, **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
 
         :param hdf_file:
         :param controls:
-        :param index: index/indices of shots to be extracted
+        :param index: dataset index/indices of data entries to be
+            extracted
         :type index: :code:`None`, int, list(int), or
             slice(start, stop, skip)
-        :param str digitizer:
-        :param str adc:
-        :param str config_name:
+        :param shotnum: HDF5 file shot number(s) indicating data
+            entries to be extracted (:code:`shotnum` will take
+            precedence over :code:`index`)
+        :type shotnum: :code:`None`, int, list(int), or
+            slice(start, stop, skip)
+        :param bool silent:
         :param bool keep_bits: set :code:`True` keep data in bits
             opposed to converting to voltage
 
@@ -75,13 +80,49 @@ class hdfReadControl(np.recarray):
         #   1. check for file mapping attribute (hdf_obj.file_map)
         #   2. check for non-empty controls mapping
         #      (hdf_obj.file_map.controls)
-        #   3. look for 'controls' in file_map.controls
-        #   4. condition index keyword
-        #   5. build recarray
-        #   6. build obj.info (metadata)
+        #   3. Condition 'controls' argument
+        #   4. look for 'controls' in file_map.controls
+        #   5. condition index keyword
+        #   6. build recarray
+        #   7. build obj.info (metadata)
 
         # initiate warning string
         warn_str = ''
+
+        # -- Condition hdf_file --
+        # Check hdf_file is a lapdhdf.File object
+        if not isinstance(hdf_file, File):
+            raise TypeError("hdf_file needs to be of type lapdhdf.File")
+
+        # Check for non-empty controls
+        if not hdf_file.file_map.controls \
+                or hdf_file.file_map.controls is None:
+            print('** Warning: There are no control devices in the HDF5'
+                  ' file.')
+            return None
+
+        # -- Condition Remaining Arguments --
+        # Condition 'controls' argument
+        if isinstance(controls, list):
+            for ii, val in enumerate(controls):
+                if type(val) is str:
+                    if val not in hdf_file.file_map.controls:
+                        del(controls[ii])
+                elif type(val) is tuple:
+                    if len(val) != 2:
+                        del(controls[ii])
+                    elif type(val[0]) is not str:
+                        del(controls[ii])
+                    elif val not in hdf_file.file_map.controls:
+                        del(controls[ii])
+                else:
+                    del(controls[ii])
+        else:
+            raise ValueError("improper 'controls' arg passed")
+
+        # make sure 'controls' is not empty
+        if not controls:
+            raise ValueError("improper 'controls' arg passed")
 
         # Condition digitizer keyword
         if digitizer is None:

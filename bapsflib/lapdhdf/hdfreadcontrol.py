@@ -201,20 +201,21 @@ class hdfReadControl(np.recarray):
         #     slice(start, stop, skip)
         #               = > same as [start:stop:skip]
         #
-        '''
-        if index is None:
-            # index = 0 if dset.shape[0] == 1 \
-            #     else slice(None, None, None)
-            index = slice(None, None, None)
+        # if index is None:
+        #     index = slice(None, None, None)
+        #
+        if shotnum is not None:
+            # ignore index keyword if shotnum is used
+            pass
+        elif index is None:
+            # defualt to shotnum keyword
+            pass
         elif type(index) is int:
-            if index in range(dset.shape[0]) \
-                    or -index - 1 in range(dset.shape[0]):
-                # data = dset[index, :]
-                pass
-            else:
-                raise ValueError('index is not in range({})'.format(
-                    dset.shape[0]))
-        elif isinstance(index, list):
+            if not (index in range(rowlen)
+                    or -index - 1 in range(rowlen)):
+                raise ValueError(
+                    'index is not in range({})'.format(rowlen))
+        elif type(index) is list:
             # all elements need to be integers
             if all(isinstance(s, int) for s in index):
                 # condition list
@@ -224,33 +225,33 @@ class hdfReadControl(np.recarray):
                 for s in index:
                     if s < 0:
                         s = -s - 1
-                    if s in range(dset.shape[0]):
+                    if s in range(rowlen):
                         if s not in newindex:
                             newindex.append(s)
                     else:
                         warn_str += (
                             '\n** Warning: shot {} not a '.format(s)
-                            + 'valid index, range({})'.format(
-                                dset.shape[0]))
+                            + 'valid index, range({})'.format(rowlen))
                 newindex.sort()
 
                 if len(newindex) != 0:
-                    # data = dset[newindex, :]
                     index = newindex
                 else:
                     raise ValueError('index: none of the elements are '
-                                     'in range({})'.format(dset.shape[0]
-                                                           ))
+                                     'in range({})'.format(rowlen))
             else:
                 raise ValueError("index keyword needs to be None, int, "
                                  "list(int), or slice object")
-        elif isinstance(index, slice):
-            # data = dset[index, :]
+        elif type(index) is slice:
+            # valid type
             pass
         else:
             raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
-        '''
+
+        # Ensure 'shotnum' is valid
+        #
+        # TODO: pickup here
 
         # Construct obj
         # - obj will be a numpy record array

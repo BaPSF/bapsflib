@@ -66,17 +66,26 @@ class hdfMap_control_6k(hdfMap_control_template):
         # then the deployed receptacle is assumed.
 
         # Set receptacle value
-        if len(args) == 0 and len(self.list_receptacles) == 1:
-            # assume only receptacle
-            receptacle = self.list_receptacles[0]
+        err = False
+        if len(args) == 0:
+            if len(self.list_receptacles) == 1:
+                # assume only receptacle
+                receptacle = self.list_receptacles[0]
+            else:
+                err = True
         elif len(args) >= 1:
             receptacle = args[0]
-            if receptacle not in self.list_receptacles:
-                raise ValueError(
-                    'A valid receptacle number needs to be '
-                    'passed: {}'.format(self.list_receptacles)
-                )
+            if receptacle is None:
+                if len(self.list_receptacles) == 1:
+                    # assume only receptacle
+                    receptacle = self.list_receptacles[0]
+                else:
+                    err = True
+            elif receptacle not in self.list_receptacles:
+                err = True
         else:
+            err = True
+        if err:
             raise ValueError('A valid receptacle number needs to be '
                              'passed: {}'.format(self.list_receptacles))
 
@@ -89,7 +98,7 @@ class hdfMap_control_6k(hdfMap_control_template):
                 pname = name
 
         # Construct dataset name
-        dname = 'Probe: XY[{0}]: {1}'.format(receptacle, pname)
+        dname = 'XY[{0}]: {1}'.format(receptacle, pname)
 
         return dname
 

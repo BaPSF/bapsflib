@@ -12,6 +12,7 @@ import h5py
 
 from .hdfchecks import hdfCheck
 from .hdfreaddata import hdfReadData
+from .hdfreadcontrol import hdfReadControl
 
 
 class File(h5py.File):
@@ -191,3 +192,9 @@ class File(h5py.File):
                            digitizer=digitizer, adc=adc,
                            config_name=config_name, keep_bits=keep_bits,
                            silent=silent, **kwargs)
+
+    def read_controls(self, controls,
+                      index=None, shotnum=None, silent=False, **kwargs):
+        return hdfReadControl(self, controls,
+                              index=index, shotnum=shotnum,
+                              silent=silent, **kwargs)

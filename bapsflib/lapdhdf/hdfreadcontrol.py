@@ -12,8 +12,6 @@
 import h5py
 import numpy as np
 
-from .files import File
-
 class hdfReadControl(np.recarray):
     """
     Reads out data from a control device in the HDF5 file:
@@ -91,7 +89,8 @@ class hdfReadControl(np.recarray):
 
         # -- Condition hdf_file --
         # Check hdf_file is a lapdhdf.File object
-        if not isinstance(hdf_file, File):
+        if not (isinstance(hdf_file, h5py.File)
+                and hasattr(hdf_file, 'file_map')):
             raise TypeError("hdf_file needs to be of type lapdhdf.File")
 
         # Check for non-empty controls
@@ -101,8 +100,14 @@ class hdfReadControl(np.recarray):
                   ' file.')
             return None
 
-        # -- Condition Remaining Arguments --
-        # Condition 'controls' argument
+        # -- Condition 'controls' Argument --
+        # condition elements of 'controls' argument
+        # - Controls is a list where elemnts cna be:
+        #   1. a string indicating the name of a control device
+        #   2. a 2-element tuple where the 1st entry is a string
+        #      indicating the name of a control device and the 2nd is
+        #      a unique specifier for that control device
+        #
         if isinstance(controls, list):
             for ii, val in enumerate(controls):
                 if type(val) is str:
@@ -113,7 +118,7 @@ class hdfReadControl(np.recarray):
                         del(controls[ii])
                     elif type(val[0]) is not str:
                         del(controls[ii])
-                    elif val not in hdf_file.file_map.controls:
+                    elif val[0] not in hdf_file.file_map.controls:
                         del(controls[ii])
                 else:
                     del(controls[ii])
@@ -123,55 +128,85 @@ class hdfReadControl(np.recarray):
         # make sure 'controls' is not empty
         if not controls:
             raise ValueError("improper 'controls' arg passed")
-
-        # Condition digitizer keyword
-        if digitizer is None:
-            warn_str = ('** Warning: Digitizer not specified so '
-                        "assuming the 'main_digitizer' ({})".format(
-                hdf_file.file_map.main_digitizer.info[
-                    'group name'])
-                        + " defined in the mappings.")
-            digi_map = hdf_file.file_map.main_digitizer
         else:
-            if digitizer not in hdf_file.file_map.digitizers:
-                raise KeyError('Specified Digitizer is not among known '
-                               'digitizers')
-            else:
-                digi_map = hdf_file.file_map.digitizers[digitizer]
+            nControls = len(controls)
 
-        # Note: digi_map.construct_dataset_name has conditioning for
-        #       board, channel, adc, and config_name
-        dname, d_info = digi_map.construct_dataset_name(
-            board, channel, config_name=config_name, adc=adc,
-            return_info=True, silent=silent)
-        dpath = digi_map.info['group path'] + '/' + dname
-        dset = hdf_file.get(dpath)
-        dheader = hdf_file.get(dpath + ' headers')
-
-        # backwards compatibility for 'shots' keyword which was changed
-        # to index in v0.1.3.dev1
+        # -- Condition index, shotnum, & shots Keywords --
+        # shots   -- is for backwards compatibility but should not be
+        #            used, it is the old name for the 'index' keyword
+        # index   -- row index of dataset, indexed at 0, will supersede
+        #            'shot' keyword, but 'shot' is just the old name for
+        #            the 'index' keyword
+        # shotnum -- global HDF5 file shot number, this is what is
+        #            actually used to link values between datasets, this
+        #            will supersede any other indexing keyword
+        #
+        # - Indexing behavior:
+        #   ~ regardless of which keyword is used, datasets will always
+        #     be matched using the global shot number (shotnum) index
+        #   ~ if multiple 'controls' are specified and a specific
+        #     shotnum is not in all specified 'controls', then that
+        #     shotnum will be omitted from the output dataset
+        #
+        # 'shots' backwards compatibility
+        # - 'shots' keyword which was renamed to 'index' in v0.1.3.dev1
         # - keyword 'index' will always take precedence over 'shots'
         #   keyword
         #
         if 'shots' in kwargs and index is None:
             index = kwargs['shots']
 
-        # Condition index keyword
-        # Valid index types are: None, int, list(int), and slice()
-        # - None      => extract all indices
-        # - int       => extract shot with index int
-        # - list(int) => extract shots with indices specified in list
-        # - slice(start, stop, skip)
-        #             => same as [start:stop:skip]
+        # Determine min rows and shared shot numbers of all control
+        # datasets
         #
-        if index is None:
-            if dset.shape[0] == 1:
-                # data = dset[0, :]
-                index = 0
+        rowlen = None
+        shotnumarr = None
+        for control in controls:
+            # control name and unique specifier
+            if type(control) is tuple:
+                cname = control[0]
+                cspec = control[1]
             else:
-                # data = dset[()]
-                index = slice(None)
-        elif isinstance(index, int):
+                cname = control
+                cspec = None
+
+            # get control dataset
+            cdset_name = hdf_file.file_map.controls[
+                cname].construct_dataset_name(cspec)
+            cdset_path = hdf_file.file_map.controls[cname].info[
+                'group path'] + '/' + cdset_name
+            cdset = hdf_file.get(cdset_path)
+            shotnumkey = cdset.dtype.names[0]
+
+            # Determine min rows
+            if rowlen is None:
+                rowlen = cdset[shotnumkey].shape[0]
+            else:
+                rowlen = min(rowlen, cdset[shotnumkey].shape[0])
+            print(rowlen)
+
+            # Determine shot number intersection of all control datasets
+            if shotnumarr is None:
+                shotnumarr = cdset[shotnumkey].view()
+            else:
+                shotnumarr = np.intersect1d(shotnumarr,
+                                            cdset[shotnumkey].view(),
+                                            assume_unique=True)
+
+        # Ensure 'index' is a valid
+        # - Valid index types are: None, int, list(int), and slice()
+        #     None      => extract all indices
+        #     int       => extract shot with index int
+        #     list(int) => extract shots with indices specified in list
+        #     slice(start, stop, skip)
+        #               = > same as [start:stop:skip]
+        #
+        '''
+        if index is None:
+            # index = 0 if dset.shape[0] == 1 \
+            #     else slice(None, None, None)
+            index = slice(None, None, None)
+        elif type(index) is int:
             if index in range(dset.shape[0]) \
                     or -index - 1 in range(dset.shape[0]):
                 # data = dset[index, :]
@@ -215,6 +250,7 @@ class hdfReadControl(np.recarray):
         else:
             raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
+        '''
 
         # Construct obj
         # - obj will be a numpy record array
@@ -223,6 +259,7 @@ class hdfReadControl(np.recarray):
         #   file shot number
         # - shotkey = is the field name/key of the dheader shot number
         #   column
+        '''
         shotkey = dheader.dtype.names[0]
         sigtype = '<f4' if not keep_bits else dset.dtype
         mytype = [('shotnum', dheader[shotkey].dtype),
@@ -234,35 +271,21 @@ class hdfReadControl(np.recarray):
         data['signal'] = dset[index, :]
         data['xyz'].fill(np.nan)
         obj = data.view(np.recarray)
-
-        # data = dset[index, :]
-        # obj = data.view(cls)
-        # obj.header = dheader
+        '''
+        obj = shotnumarr.view(cls)
 
         # assign dataset info
+        # TODO: add a dict key for each control w/ controls config
+        # - control config dict should include:
+        #   ~ 'contype'
+        #   ~ 'dataset name'
+        #   ~ 'dataset path'
+        #
         obj.info = {
             'hdf file': hdf_file.filename.split('/')[-1],
-            'dataset name': dname,
-            'dataset path': dpath,
-            'digitizer': d_info['digitizer'],
-            'configuration name': d_info['configuration name'],
-            'adc': d_info['adc'],
-            'bit': d_info['bit'],
-            'sample rate': d_info['sample rate'],
-            'sample average': d_info['sample average (hardware)'],
-            'shot average': d_info['shot average (software)'],
-            'board': board,
-            'channel': channel,
-            'voltage offset': dheader['Offset'][0],
+            'controls': controls,
             'probe name': None,
             'port': (None, None)}
-
-        # convert to voltage
-        if not keep_bits:
-            offset = abs(obj.info['voltage offset'])
-            dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
-            obj['signal'] = obj['signal'].astype(np.float32, copy=False)
-            obj['signal'] = (dv * obj['signal']) - offset
 
         return obj
 
@@ -283,17 +306,7 @@ class hdfReadControl(np.recarray):
         #   NOT exist, then the 3rd arg is returned as a default value.
         self.info = getattr(obj, 'info',
                             {'hdf file': None,
-                             'dataset name': None,
-                             'dataset path': None,
-                             'configuration name': None,
-                             'adc': None,
-                             'bit': None,
-                             'sample rate': (None, 'MHz'),
-                             'sample average': None,
-                             'shot average': None,
-                             'board': None,
-                             'channel': None,
-                             'voltage offset': None,
+                             'controls': None,
                              'probe name': None,
                              'port': (None, None)})
 

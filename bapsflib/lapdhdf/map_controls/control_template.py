@@ -56,7 +56,8 @@ class hdfMap_control_template(ABC):
             'probe list': NotImplemented,
             'command list': NotImplemented,
             'nControlled': NotImplemented,
-            'data fields': NotImplemented
+            'dataset fields': NotImplemented,
+            'dset field to numpy field': NotImplemented
         }
         """
         .. code-block: python
@@ -70,7 +71,11 @@ class hdfMap_control_template(ABC):
                 ...
                 'command list': [],
                 'nControlled': int,
-                'data fields': [(key, dtype), ]
+                'dataset fields': [(key, dtype), ],
+                'dset field to numpy field': [
+                    ('dset field name', 
+                     'numpy filed name',
+                      int of numpy index), ]
             }
             
             motion_dict = {
@@ -138,15 +143,72 @@ class hdfMap_control_template(ABC):
             raise NotImplementedError(errstr)
 
         # ---- verity self.config ----
-        # 'data fields' must be defined
-        if 'data fields' not in self.config:
-            errstr = "self.config['data fields'] must be defined as:" \
-                     "\n  [('field name', dtype), ]"
+        # 'dataset fields' must be defined
+        if 'dataset fields' not in self.config:
+            errstr = "self.config['dataset fields'] must be defined " \
+                     "as:\n  [('field name', dtype), ]"
             raise NotImplementedError(errstr)
-        elif self.config['data fields'] == NotImplemented:
-            errstr = "self.config['data fields'] must be defined as:" \
-                     "\n  [('field name', dtype), ]"
+        elif self.config['dataset fields'] == NotImplemented:
+            errstr = "self.config['dataset fields'] must be defined " \
+                     "as:\n  [('field name', dtype), ]"
             raise NotImplementedError(errstr)
+
+        # 'dset field to numpy field' must be defined
+        # - each 'dataset field' needs a mapping to a structured numpy
+        #   field for hdfReadControl
+        # - 'dset field to numpy field' is a list of 3-element tuples
+        #   where each entry in the list corresponds to a dataset field
+        #   name
+        # - the 3-element tuple must follow the format:
+        #
+        #   self.config['dset field to numpy field'][i] = (
+        #       str, # dataset field name
+        #       str, # corresponding structured numpy field name
+        #       int) # index of structured numpy field
+        #
+        #   For example, the '6K Compumotor would look like...
+        #       self.config['dset field to numpy'] = [
+        #           ('x', 'xyz', 0),
+        #           ('y', 'xyz', 1),
+        #           ('z', 'xyz', 2)]
+        #
+        key = 'dset field to numpy field'
+        if key not in self.config:
+            raise NotImplementedError
+        elif self.config[key] == NotImplemented:
+            raise NotImplementedError
+        elif type(self.config[key]) is not list:
+            errstr = "self.config['dset field to numpy field] must " \
+                     + "be a list of 3-element tuples"
+            raise Exception(errstr)
+        elif not all(isinstance(val, tuple)
+                     for val in self.config[key]):
+            errstr = "self.config['dset field to numpy field] must " \
+                     + "be a list of 3-element tuples"
+            raise Exception(errstr)
+        elif not all(len(val) == 3 for val in self.config[key]):
+            errstr = "self.config['dset field to numpy field] must " \
+                     + "be a list of 3-element tuples"
+            raise Exception(errstr)
+        else:
+            err = False
+            dset_fields = [name
+                           for name, dftype
+                           in self.config['dataset fields']]
+            for dfname, npfname, npi in self.config[key]:
+                if dfname not in dset_fields:
+                    err = True
+                    break
+                elif type(npfname) is not str:
+                    err = True
+                    break
+                elif type(npi) is not int:
+                    err = True
+                    break
+            if err:
+                errstr = "self.config['dset field to numpy field] must " \
+                         + "be a list of 3-element tuples"
+                raise Exception(errstr)
 
         # contype == 'motion' specific verification
         if self.contype == 'motion':

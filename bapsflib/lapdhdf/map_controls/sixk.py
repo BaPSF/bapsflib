@@ -50,14 +50,21 @@ class hdfMap_control_6k(hdfMap_control_template):
         # Define number of controlled probes
         self.config['nControlled'] = len(self.config['probe list'])
 
-        # Define 'data fields'
-        self.config['data fields'] = [
+        # Define 'dataset fields'
+        self.config['dataset fields'] = [
             ('Shot number', '<u4'),
             ('x', '<f8'),
             ('y', '<f8'),
             ('z', '<f8'),
             ('theta', '<f8'),
             ('phi', '<f8')
+        ]
+
+        # Define 'dset field to numpy field'
+        self.config['dset field to numpy field'] = [
+            ('x', 'xyz', 0),
+            ('y', 'xyz', 1),
+            ('z', 'xyz', 2)
         ]
 
     def construct_dataset_name(self, *args):

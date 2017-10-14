@@ -18,13 +18,17 @@ class hdfReadControl(np.recarray):
     """
 
     # Extracting Data:
-    #  dset = h5py.get() returns a view of the dataset (dset)
-    #  From here, instantiating from dset will create a copy of the
-    #    data. If you want to keep views then one could use
-    #    dset.values.view().  The dset.vlaues is the np.ndarray.
-    #  To extract data, fancy indexing [::] can be used directly on
-    #    dset or dset.values.
-
+    # - if multiple controls are specified then,
+    #   ~ only one control of each contype can be in the list of
+    #     controls
+    #   ~ if a specified control does not exist in the HDF5 file, then
+    #     it will be deleted from the specified 'controls' list
+    #   ~ the returned structured array will only contain intersecting
+    #     HDF5 shot numbers (i.e. shot numbers that are included in
+    #     all specified control datasets)
+    #   ~ then, those intersecting shot numbers are filtered according
+    #     to the index and shotnum keywords
+    #
     def __new__(cls, hdf_file, controls,
                 index=None, shotnum=None, silent=False, **kwargs):
         """
@@ -43,8 +47,6 @@ class hdfReadControl(np.recarray):
         :type shotnum: :code:`None`, int, list(int), or
             slice(start, stop, skip)
         :param bool silent:
-        :param bool keep_bits: set :code:`True` keep data in bits
-            opposed to converting to voltage
 
         .. note::
 
@@ -87,7 +89,7 @@ class hdfReadControl(np.recarray):
         # initiate warning string
         warn_str = ''
 
-        # -- Condition hdf_file --
+        # ---- Condition hdf_file ----
         # Check hdf_file is a lapdhdf.File object
         if not (isinstance(hdf_file, h5py.File)
                 and hasattr(hdf_file, 'file_map')):
@@ -100,7 +102,7 @@ class hdfReadControl(np.recarray):
                   ' file.')
             return None
 
-        # -- Condition 'controls' Argument --
+        # ---- Condition 'controls' Argument ----
         # condition elements of 'controls' argument
         # - Controls is a list where elemnts cna be:
         #   1. a string indicating the name of a control device
@@ -131,7 +133,7 @@ class hdfReadControl(np.recarray):
         else:
             nControls = len(controls)
 
-        # -- Condition index, shotnum, & shots Keywords --
+        # ---- Condition index, shotnum, & shots Keywords ----
         # shots   -- is for backwards compatibility but should not be
         #            used, it is the old name for the 'index' keyword
         # index   -- row index of dataset, indexed at 0, will supersede
@@ -156,10 +158,9 @@ class hdfReadControl(np.recarray):
         if 'shots' in kwargs and index is None:
             index = kwargs['shots']
 
-        # Determine min rows and shared shot numbers of all control
-        # datasets
+        # Determine shared shot numbers of all control datasets
         #
-        rowlen = None
+        #rowlen = None
         shotnumarr = None
         for control in controls:
             # control name and unique specifier
@@ -179,11 +180,10 @@ class hdfReadControl(np.recarray):
             shotnumkey = cdset.dtype.names[0]
 
             # Determine min rows
-            if rowlen is None:
-                rowlen = cdset[shotnumkey].shape[0]
-            else:
-                rowlen = min(rowlen, cdset[shotnumkey].shape[0])
-            print(rowlen)
+            # if rowlen is None:
+            #     rowlen = cdset[shotnumkey].shape[0]
+            # else:
+            #     rowlen = min(rowlen, cdset[shotnumkey].shape[0])
 
             # Determine shot number intersection of all control datasets
             if shotnumarr is None:
@@ -192,6 +192,9 @@ class hdfReadControl(np.recarray):
                 shotnumarr = np.intersect1d(shotnumarr,
                                             cdset[shotnumkey].view(),
                                             assume_unique=True)
+
+        # Determine min row length
+        rowlen = shotnumarr.shape[0]
 
         # Ensure 'index' is a valid
         # - Valid index types are: None, int, list(int), and slice()
@@ -206,9 +209,10 @@ class hdfReadControl(np.recarray):
         #
         if shotnum is not None:
             # ignore index keyword if shotnum is used
+            index = None
             pass
         elif index is None:
-            # defualt to shotnum keyword
+            # default to shotnum keyword
             pass
         elif type(index) is int:
             if not (index in range(rowlen)
@@ -251,7 +255,44 @@ class hdfReadControl(np.recarray):
 
         # Ensure 'shotnum' is valid
         #
-        # TODO: pickup here
+        if index is not None:
+            # - index conditioning should ensure index is not None only
+            #   if shotnum is not specified (i.e. shotnum is None and
+            #   index is not None)
+            # - translate index keyword to shotnum keyword...the
+            #   remainder of this routine will utilized shotnum only
+            #
+            shotnum = shotnumarr[index]
+        elif shotnum is None:
+            # assume all intersecting entries are desired
+            shotnum = shotnumarr
+        elif type(shotnum) is int:
+            shotnum = np.array(shotnum).view()
+            if shotnum not in shotnumarr:
+                raise ValueError('shotnum [{}]'.format(shotnum)
+                                 + ' is not a valid shot number')
+        elif type(shotnum) is list:
+            shotnum = np.intersect1d(shotnum, shotnumarr).view()
+            if shotnum.shape[0] == 0:
+                raise ValueError('Valid shotnum not passed')
+        elif type(shotnum) is slice:
+            shotnum = np.intersect1d(
+                np.arange(shotnum.start, shotnum.stop, shotnum.step),
+                shotnumarr).view()
+            if shotnum.shape[0] ==0:
+                raise ValueError('Valid shotnum not passed')
+        else:
+            raise ValueError('Valid shotnum not passed')
+
+        # ---- Build obj ----
+
+        # How to find shotnum indices
+        # - let arr1 be the shotnum array you want to filter
+        # - let arr2 be the list of shotnums you want (hence shotnumarr)
+        # - numpy.in1d(arr1, arr2) will return a boolean array of shape
+        #   arr1.shape with shared valued entries being True
+        # - numpy.in1d(arr1, arr2).nonzero() will return an array of
+        #   indices where numpy.ind1d() is True
 
         # Construct obj
         # - obj will be a numpy record array
@@ -273,7 +314,10 @@ class hdfReadControl(np.recarray):
         data['xyz'].fill(np.nan)
         obj = data.view(np.recarray)
         '''
-        obj = shotnumarr.view(cls)
+        if type(shotnum) is np.int32:
+            obj = np.array([shotnum]).view(cls)
+        else:
+            obj = shotnum.view(cls)
 
         # assign dataset info
         # TODO: add a dict key for each control w/ controls config

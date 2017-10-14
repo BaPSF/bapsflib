@@ -62,6 +62,7 @@ class hdfMap_control_6k(hdfMap_control_template):
 
         # Define 'dset field to numpy field'
         self.config['dset field to numpy field'] = [
+            ('Shot number', 'shotnum', 0),
             ('x', 'xyz', 0),
             ('y', 'xyz', 1),
             ('z', 'xyz', 2)

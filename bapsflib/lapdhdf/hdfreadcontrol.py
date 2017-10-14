@@ -285,6 +285,63 @@ class hdfReadControl(np.recarray):
             raise ValueError('Valid shotnum not passed')
 
         # ---- Build obj ----
+        # Determine fields for numpy array
+        npfields = {}
+        for control in controls:
+            if type(control) is tuple:
+                control = control[0]
+
+            conmap = hdf_file.file_map.controls[control]
+            for df_name, nf_name, npi \
+                    in conmap.config['dset field to numpy field']:
+                if nf_name == 'shotnum':
+                    # already in dtype
+                    pass
+                elif nf_name in npfields:
+                    npfields[nf_name][1] += 1
+                else:
+                    npfields[nf_name] = ['<f8', 1]
+
+        # Define dtype and shape for numpy array
+        odytpe = [('shotnum', '<u4')]
+        for key in npfields:
+            if npfields[key][1] == 1:
+                odytpe.append((key, npfields[key][0]))
+            else:
+                odytpe.append((key, npfields[key][0], npfields[key][1]))
+        shape = shotnum.shape
+
+        # Initialize Control Data
+        data = np.empty(shape, dtype=odytpe)
+        data['shotnum'] = shotnum
+
+        # Assign Control Data to Numpy array
+        for control in controls:
+            # control name and unique specifier
+            if type(control) is tuple:
+                cname = control[0]
+                cspec = control[1]
+            else:
+                cname = control
+                cspec = None
+
+            # get control dataset
+            cdset_name = hdf_file.file_map.controls[
+                cname].construct_dataset_name(cspec)
+            cdset_path = hdf_file.file_map.controls[cname].info[
+                'group path'] + '/' + cdset_name
+            cdset = hdf_file.get(cdset_path)
+            shotnumkey = cdset.dtype.names[0]
+
+            # get indices for desired shot numbers
+            shoti = np.in1d(cdset[shotnumkey], shotnum).nonzero()
+
+            # assign values
+            conmap = hdf_file.file_map.controls[cname]
+            for df_name, nf_name, npi \
+                    in conmap.config['dset field to numpy field']:
+                if nf_name != 'shotnum':
+                    data[nf_name][..., npi] = cdset[df_name][shoti]
 
         # How to find shotnum indices
         # - let arr1 be the shotnum array you want to filter
@@ -314,10 +371,11 @@ class hdfReadControl(np.recarray):
         data['xyz'].fill(np.nan)
         obj = data.view(np.recarray)
         '''
-        if type(shotnum) is np.int32:
-            obj = np.array([shotnum]).view(cls)
-        else:
-            obj = shotnum.view(cls)
+        obj = data.view(cls)
+        # if type(shotnum) is np.int32:
+        #    obj = np.array([shotnum]).view(cls)
+        # else:
+        #    obj = shotnum.view(cls)
 
         # assign dataset info
         # TODO: add a dict key for each control w/ controls config

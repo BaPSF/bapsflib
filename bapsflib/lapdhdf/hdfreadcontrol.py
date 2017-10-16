@@ -416,10 +416,3 @@ class hdfReadControl(np.recarray):
     def __init__(self, *args, **kwargs):
         super().__init__()
 
-    def full_path(self):
-        """
-        :return: full path of the dataset in the HDF5 file.
-
-        .. Warning:: Not implemented yet
-        """
-        raise NotImplementedError

@@ -18,6 +18,33 @@ class hdfMap_control_template(ABC):
     """
     A template class for all control mapping classes to inherit from.
 
+    When inheriting from this template the following :code:`__init__`
+    should be defined:
+
+    .. code-block:: python
+
+        def __init__(self, control_group):
+            hdfMap_control_template.__init__(self, control_group)
+
+            # define control type
+            # - control types can be 'motion', 'power', 'waveform'
+            #
+            self.info['contype'] = 'motion'
+
+            # build self.config
+            # - the method _build_config contains the code to build
+            #   the self.config dictionary
+            #
+            self._build_config()
+
+            # verity key class attributes and methonds
+            # - _verify_map() is a template method that ensures
+            #   self.info and self.config were properly constructed so
+            #   that the rest of bapsflib.lapdhdf can utilized the
+            #   mapping.
+            #
+            self._verify_map()
+
     .. note::
 
         Any method that raises a :exc:`NotImplementedError` is intended

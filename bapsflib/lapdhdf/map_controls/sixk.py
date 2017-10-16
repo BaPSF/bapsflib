@@ -20,7 +20,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         # define control type
         self.info['contype'] = 'motion'
 
-        # build self.configs
+        # build self.config
         self._build_config()
 
         # remove self.info and self.config items that

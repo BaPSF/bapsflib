@@ -104,28 +104,14 @@ class hdfReadControl(np.recarray):
 
         # ---- Condition 'controls' Argument ----
         # condition elements of 'controls' argument
-        # - Controls is a list where elemnts cna be:
+        # - Controls is a list where elements can be:
         #   1. a string indicating the name of a control device
         #   2. a 2-element tuple where the 1st entry is a string
         #      indicating the name of a control device and the 2nd is
         #      a unique specifier for that control device
+        # - there can only be one control device per contype
         #
-        if isinstance(controls, list):
-            for ii, val in enumerate(controls):
-                if type(val) is str:
-                    if val not in hdf_file.file_map.controls:
-                        del(controls[ii])
-                elif type(val) is tuple:
-                    if len(val) != 2:
-                        del(controls[ii])
-                    elif type(val[0]) is not str:
-                        del(controls[ii])
-                    elif val[0] not in hdf_file.file_map.controls:
-                        del(controls[ii])
-                else:
-                    del(controls[ii])
-        else:
-            raise ValueError("improper 'controls' arg passed")
+        controls = condition_controls(hdf_file, controls)
 
         # make sure 'controls' is not empty
         if not controls:
@@ -262,10 +248,10 @@ class hdfReadControl(np.recarray):
             # - translate index keyword to shotnum keyword...the
             #   remainder of this routine will utilized shotnum only
             #
-            shotnum = shotnumarr[index]
+            shotnum = shotnumarr[index].view()
         elif shotnum is None:
             # assume all intersecting entries are desired
-            shotnum = shotnumarr
+            shotnum = shotnumarr.view()
         elif type(shotnum) is int:
             shotnum = np.array(shotnum).view()
             if shotnum not in shotnumarr:
@@ -313,7 +299,7 @@ class hdfReadControl(np.recarray):
 
         # Initialize Control Data
         data = np.empty(shape, dtype=odytpe)
-        data['shotnum'] = shotnum
+        data['shotnum'] = shotnum.view()
 
         # Assign Control Data to Numpy array
         for control in controls:
@@ -334,6 +320,16 @@ class hdfReadControl(np.recarray):
             shotnumkey = cdset.dtype.names[0]
 
             # get indices for desired shot numbers
+            # - How to find shotnum indices
+            #   1. let arr1 be the shotnum array you want to filter
+            #   2. let arr2 be the list of shotnums you want
+            #      (hence shotnumarr)
+            #   3. numpy.in1d(arr1, arr2) will return a boolean array
+            #      of shape arr1.shape with shared valued entries being
+            #      True
+            #   4. numpy.in1d(arr1, arr2).nonzero() will return an array
+            #      of indices where numpy.ind1d() is True
+            #
             shoti = np.in1d(cdset[shotnumkey], shotnum).nonzero()
 
             # assign values
@@ -352,25 +348,6 @@ class hdfReadControl(np.recarray):
         #   indices where numpy.ind1d() is True
 
         # Construct obj
-        # - obj will be a numpy record array
-        #
-        # - 1st column of the digi data header contains the global HDF5
-        #   file shot number
-        # - shotkey = is the field name/key of the dheader shot number
-        #   column
-        '''
-        shotkey = dheader.dtype.names[0]
-        sigtype = '<f4' if not keep_bits else dset.dtype
-        mytype = [('shotnum', dheader[shotkey].dtype),
-                  ('signal', sigtype, dset.shape[1]),
-                  ('xyz', '<f4', 3)]
-        shape = (dheader[shotkey][index].size,)
-        data = np.empty(shape, dtype=mytype)
-        data['shotnum'] = dheader[shotkey]
-        data['signal'] = dset[index, :]
-        data['xyz'].fill(np.nan)
-        obj = data.view(np.recarray)
-        '''
         obj = data.view(cls)
         # if type(shotnum) is np.int32:
         #    obj = np.array([shotnum]).view(cls)
@@ -415,4 +392,57 @@ class hdfReadControl(np.recarray):
 
     def __init__(self, *args, **kwargs):
         super().__init__()
+
+
+def condition_controls(hdf_file, controls):
+    # Check hdf_file is a lapdhdf.File object
+    if not (isinstance(hdf_file, h5py.File)
+            and hasattr(hdf_file, 'file_map')):
+        raise TypeError("hdf_file needs to be of type lapdhdf.File")
+
+    # Check for non-empty controls
+    if not hdf_file.file_map.controls \
+            or hdf_file.file_map.controls is None:
+        print('** Warning: There are no control devices in the HDF5'
+              ' file.')
+        return []
+
+    # condition elements of 'controls' argument
+    # - Controls is a list where elements can be:
+    #   1. a string indicating the name of a control device
+    #   2. a 2-element tuple where the 1st entry is a string
+    #      indicating the name of a control device and the 2nd is
+    #      a unique specifier for that control device
+    #
+    if isinstance(controls, list):
+        for ii, device in enumerate(controls):
+            if type(device) is str:
+                if device not in hdf_file.file_map.controls:
+                    del (controls[ii])
+            elif type(device) is tuple:
+                if len(device) != 2:
+                    del (controls[ii])
+                elif type(device[0]) is not str:
+                    del (controls[ii])
+                elif device[0] not in hdf_file.file_map.controls:
+                    del (controls[ii])
+            else:
+                del (controls[ii])
+    else:
+        controls = []
+
+    # enforce one device per contype
+    checked = []
+    for device in controls:
+        contype = hdf_file.file_map.controls[device].contype
+        if contype in checked:
+            controls = []
+            print('** Warning: Multiple devices per contype')
+            break
+        else:
+            checked.append(contype)
+
+    # return conditioned list
+    return controls
+
 

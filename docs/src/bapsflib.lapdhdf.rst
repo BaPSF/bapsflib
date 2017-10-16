@@ -12,6 +12,7 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
+    bapsflib.lapdhdf.map_controls
     bapsflib.lapdhdf.map_digitizers
     bapsflib.lapdhdf.map_msi
 
@@ -52,6 +53,16 @@ bapsflib\.lapdhdf\.hdfmappers
 .. automodule:: bapsflib.lapdhdf.hdfmappers
     :members:
     :undoc-members:
+    :show-inheritance:
+
+bapsflib\.lapdhdf\.hdfreadcontrol
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: bapsflib.lapdhdf.hdfreadcontrol
+    :members:
+    :undoc-members:
+    :special-members:
+    :exclude-members: __array_finalize__, __dict__, __module__
     :show-inheritance:
 
 bapsflib\.lapdhdf\.hdfreaddata

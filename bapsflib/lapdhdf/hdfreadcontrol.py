@@ -91,13 +91,14 @@ class hdfReadControl(np.recarray):
 
         # ---- Condition hdf_file ----
         # Check hdf_file is a lapdhdf.File object
-        if not (isinstance(hdf_file, h5py.File)
-                and hasattr(hdf_file, 'file_map')):
-            raise TypeError("hdf_file needs to be of type lapdhdf.File")
+        try:
+            file_map = hdf_file.file_map
+        except AttributeError:
+            raise AttributeError(
+                "hdf_file needs to be of type lapdhdf.File")
 
         # Check for non-empty controls
-        if not hdf_file.file_map.controls \
-                or hdf_file.file_map.controls is None:
+        if not file_map.controls or file_map.controls is None:
             print('** Warning: There are no control devices in the HDF5'
                   ' file.')
             return None
@@ -145,39 +146,7 @@ class hdfReadControl(np.recarray):
             index = kwargs['shots']
 
         # Determine shared shot numbers of all control datasets
-        #
-        #rowlen = None
-        shotnumarr = None
-        for control in controls:
-            # control name and unique specifier
-            if type(control) is tuple:
-                cname = control[0]
-                cspec = control[1]
-            else:
-                cname = control
-                cspec = None
-
-            # get control dataset
-            cdset_name = hdf_file.file_map.controls[
-                cname].construct_dataset_name(cspec)
-            cdset_path = hdf_file.file_map.controls[cname].info[
-                'group path'] + '/' + cdset_name
-            cdset = hdf_file.get(cdset_path)
-            shotnumkey = cdset.dtype.names[0]
-
-            # Determine min rows
-            # if rowlen is None:
-            #     rowlen = cdset[shotnumkey].shape[0]
-            # else:
-            #     rowlen = min(rowlen, cdset[shotnumkey].shape[0])
-
-            # Determine shot number intersection of all control datasets
-            if shotnumarr is None:
-                shotnumarr = cdset[shotnumkey].view()
-            else:
-                shotnumarr = np.intersect1d(shotnumarr,
-                                            cdset[shotnumkey].view(),
-                                            assume_unique=True)
+        shotnumarr = intersecting_shotnums(hdf_file, controls)
 
         # Determine min row length
         rowlen = shotnumarr.shape[0]
@@ -277,7 +246,7 @@ class hdfReadControl(np.recarray):
             if type(control) is tuple:
                 control = control[0]
 
-            conmap = hdf_file.file_map.controls[control]
+            conmap = file_map.controls[control]
             for df_name, nf_name, npi \
                     in conmap.config['dset field to numpy field']:
                 if nf_name == 'shotnum':
@@ -312,9 +281,9 @@ class hdfReadControl(np.recarray):
                 cspec = None
 
             # get control dataset
-            cdset_name = hdf_file.file_map.controls[
+            cdset_name = file_map.controls[
                 cname].construct_dataset_name(cspec)
-            cdset_path = hdf_file.file_map.controls[cname].info[
+            cdset_path = file_map.controls[cname].info[
                 'group path'] + '/' + cdset_name
             cdset = hdf_file.get(cdset_path)
             shotnumkey = cdset.dtype.names[0]
@@ -333,19 +302,11 @@ class hdfReadControl(np.recarray):
             shoti = np.in1d(cdset[shotnumkey], shotnum).nonzero()
 
             # assign values
-            conmap = hdf_file.file_map.controls[cname]
+            conmap = file_map.controls[cname]
             for df_name, nf_name, npi \
                     in conmap.config['dset field to numpy field']:
                 if nf_name != 'shotnum':
                     data[nf_name][..., npi] = cdset[df_name][shoti]
-
-        # How to find shotnum indices
-        # - let arr1 be the shotnum array you want to filter
-        # - let arr2 be the list of shotnums you want (hence shotnumarr)
-        # - numpy.in1d(arr1, arr2) will return a boolean array of shape
-        #   arr1.shape with shared valued entries being True
-        # - numpy.in1d(arr1, arr2).nonzero() will return an array of
-        #   indices where numpy.ind1d() is True
 
         # Construct obj
         obj = data.view(cls)
@@ -396,13 +357,14 @@ class hdfReadControl(np.recarray):
 
 def condition_controls(hdf_file, controls):
     # Check hdf_file is a lapdhdf.File object
-    if not (isinstance(hdf_file, h5py.File)
-            and hasattr(hdf_file, 'file_map')):
-        raise TypeError("hdf_file needs to be of type lapdhdf.File")
+    try:
+        file_map = hdf_file.file_map
+    except AttributeError:
+        raise AttributeError(
+            "hdf_file needs to be of type lapdhdf.File")
 
     # Check for non-empty controls
-    if not hdf_file.file_map.controls \
-            or hdf_file.file_map.controls is None:
+    if not file_map.controls or file_map.controls is None:
         print('** Warning: There are no control devices in the HDF5'
               ' file.')
         return []
@@ -414,27 +376,27 @@ def condition_controls(hdf_file, controls):
     #      indicating the name of a control device and the 2nd is
     #      a unique specifier for that control device
     #
-    if isinstance(controls, list):
+    if type(controls) is list:
         for ii, device in enumerate(controls):
             if type(device) is str:
-                if device not in hdf_file.file_map.controls:
-                    del (controls[ii])
+                if device not in file_map.controls:
+                    del(controls[ii])
             elif type(device) is tuple:
                 if len(device) != 2:
-                    del (controls[ii])
+                    del(controls[ii])
                 elif type(device[0]) is not str:
-                    del (controls[ii])
-                elif device[0] not in hdf_file.file_map.controls:
-                    del (controls[ii])
+                    del(controls[ii])
+                elif device[0] not in file_map.controls:
+                    del(controls[ii])
             else:
-                del (controls[ii])
+                del(controls[ii])
     else:
         controls = []
 
     # enforce one device per contype
     checked = []
     for device in controls:
-        contype = hdf_file.file_map.controls[device].contype
+        contype = file_map.controls[device].contype
         if contype in checked:
             controls = []
             print('** Warning: Multiple devices per contype')
@@ -446,3 +408,35 @@ def condition_controls(hdf_file, controls):
     return controls
 
 
+def intersecting_shotnums(hdf_file, controls):
+    # Check hdf_file is a lapdhdf.File object
+    # controls = condition_controls(hdf_file, controls)
+
+    shotnumarr = None
+    for device in controls:
+        # control name and unique specifier
+        if type(device) is tuple:
+            cname = device[0]
+            cspec = device[1]
+        else:
+            cname = device
+            cspec = None
+
+        # get control dataset
+        cdset_name = hdf_file.file_map.controls[
+            cname].construct_dataset_name(cspec)
+        cdset_path = hdf_file.file_map.controls[cname].info[
+            'group path'] + '/' + cdset_name
+        cdset = hdf_file.get(cdset_path)
+        shotnumkey = cdset.dtype.names[0]
+
+        # Determine shot number intersection of all control datasets
+        if shotnumarr is None:
+            shotnumarr = cdset[shotnumkey].view()
+        else:
+            shotnumarr = np.intersect1d(shotnumarr,
+                                        cdset[shotnumkey].view(),
+                                        assume_unique=True)
+
+        # return numpy array of intersecting shot numbers
+        return shotnumarr

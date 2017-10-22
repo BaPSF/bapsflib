@@ -194,7 +194,9 @@ class File(h5py.File):
                            silent=silent, **kwargs)
 
     def read_controls(self, controls,
-                      index=None, shotnum=None, silent=False, **kwargs):
+                      index=None, shotnum=None, intersection_set=True,
+                      silent=False, **kwargs):
         return hdfReadControl(self, controls,
                               index=index, shotnum=shotnum,
+                              intersection_set=intersection_set,
                               silent=silent, **kwargs)

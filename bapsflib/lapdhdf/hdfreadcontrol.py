@@ -15,6 +15,11 @@ import numpy as np
 class hdfReadControl(np.recarray):
     """
     Reads out data from a control device in the HDF5 file:
+
+    .. note::
+
+        It is assumed that control data is always extracted with the
+        intent of being matched to digitizer data
     """
 
     # Extracting Data:
@@ -30,7 +35,8 @@ class hdfReadControl(np.recarray):
     #     to the index and shotnum keywords
     #
     def __new__(cls, hdf_file, controls,
-                index=None, shotnum=None, silent=False, **kwargs):
+                index=None, shotnum=None, intersection_set=True,
+                silent=False, **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
@@ -46,13 +52,8 @@ class hdfReadControl(np.recarray):
             precedence over :code:`index`)
         :type shotnum: :code:`None`, int, list(int), or
             slice(start, stop, skip)
+        :param bool intersection_set:
         :param bool silent:
-
-        .. note::
-
-            Keyword :code:`shots` was renamed to :code:`index` in
-            version 0.1.3.dev1.  Keyword :code:`shots` will still work,
-            but will be deprecated in the future.
         """
         # param control:
         # - control is a string list naming the control to be read out
@@ -70,7 +71,7 @@ class hdfReadControl(np.recarray):
         # - The list can only contain one entry from each contype. i.e.
         #   This is valid:
         #
-        #       control = ['6K Compumotor', 'Waveform', 'N5700_PS']
+        #       controls = ['6K Compumotor', 'Waveform', 'N5700_PS']
         #
         #   but this is not:
         #
@@ -99,9 +100,8 @@ class hdfReadControl(np.recarray):
 
         # Check for non-empty controls
         if not file_map.controls or file_map.controls is None:
-            print('** Warning: There are no control devices in the HDF5'
-                  ' file.')
-            return None
+            raise ValueError(
+                'There are no control devices in the HDF5 file.')
 
         # ---- Condition 'controls' Argument ----
         # condition elements of 'controls' argument
@@ -112,7 +112,7 @@ class hdfReadControl(np.recarray):
         #      a unique specifier for that control device
         # - there can only be one control device per contype
         #
-        controls = condition_controls(hdf_file, controls)
+        controls = condition_controls(hdf_file, controls, silent=silent)
 
         # make sure 'controls' is not empty
         if not controls:
@@ -120,36 +120,56 @@ class hdfReadControl(np.recarray):
         else:
             nControls = len(controls)
 
-        # ---- Condition index, shotnum, & shots Keywords ----
-        # shots   -- is for backwards compatibility but should not be
-        #            used, it is the old name for the 'index' keyword
-        # index   -- row index of dataset, indexed at 0, will supersede
-        #            'shot' keyword, but 'shot' is just the old name for
-        #            the 'index' keyword
-        # shotnum -- global HDF5 file shot number, this is what is
-        #            actually used to link values between datasets, this
-        #            will supersede any other indexing keyword
+        # ---- Condition index and shotnum Keywords ----
+        # index   -- row index of dataset
+        #            ~ indexed at 0
+        #            ~ overridden by shotnum
+        # shotnum -- global HDF5 file shot number
+        #            ~ this is the index used to link values between
+        #              datasets
+        #            ~ supersedes any other indexing keyword
         #
-        # - Indexing behavior:
-        #   ~ regardless of which keyword is used, datasets will always
-        #     be matched using the global shot number (shotnum) index
-        #   ~ if multiple 'controls' are specified and a specific
-        #     shotnum is not in all specified 'controls', then that
-        #     shotnum will be omitted from the output dataset
+        # - Indexing behavior: (depends on intersection_set)
         #
-        # 'shots' backwards compatibility
-        # - 'shots' keyword which was renamed to 'index' in v0.1.3.dev1
-        # - keyword 'index' will always take precedence over 'shots'
-        #   keyword
+        #   ~ intersection_set = True
+        #     * index
+        #       > if len(controls) == 1, then index will be the dataset
+        #         row index
+        #       > if len(controls) > 1, then index will correspond to
+        #         the index of the list of intersecting shot numbers of
+        #         all specified control devices
+        #     * shotnum
+        #       > the returned array will only contain shot numbers that
+        #         are in the intersection of shotnum and all the
+        #         specified control device datasets
         #
-        if 'shots' in kwargs and index is None:
-            index = kwargs['shots']
+        #   ~ intersection_set = False
+        #     * index
+        #       > index corresponds to the 1st dataset row index
+        #       > if the 2nd and later datasets don't include the
+        #         shotnum of the 1st dataset, then they will be given a
+        #         numpy.nan value
+        #     * shotnum
+        #       > the returned array will contain all shot numbers
+        #         specified by shotnum
+        #       > if a dataset does not included a shot number contained
+        #         in shotnum, then its entry in the returned array will
+        #         be given a numpy.nan value
+        #
+        # dset_sn - 1D array of shotnum's that will be either the
+        #           intersection of shot numbers of all control device
+        #           datasets specified by controls (for
+        #           intersection_set=True) or the shot numbers of the
+        #           first control device dataset specified in controls
+        #           (for intersection_set=False)
+        # shotnum - regardless of if index or shotnum is specified,
+        #           shotnum will be re-defined to include all shot
+        #           numbers that will be placed into the obj array
 
-        # Determine shared shot numbers of all control datasets
-        shotnumarr = intersecting_shotnums(hdf_file, controls)
-
-        # Determine min row length
-        rowlen = shotnumarr.shape[0]
+        # Determine dset_sn and rowlen
+        method = 'intersection' if intersection_set else 'first'
+        dset_sn = gather_shotnums(hdf_file, controls, method=method)
+        rowlen = dset_sn.shape[0]
 
         # Ensure 'index' is a valid
         # - Valid index types are: None, int, list(int), and slice()
@@ -165,7 +185,6 @@ class hdfReadControl(np.recarray):
         if shotnum is not None:
             # ignore index keyword if shotnum is used
             index = None
-            pass
         elif index is None:
             # default to shotnum keyword
             pass
@@ -176,7 +195,7 @@ class hdfReadControl(np.recarray):
                     'index is not in range({})'.format(rowlen))
         elif type(index) is list:
             # all elements need to be integers
-            if all(isinstance(s, int) for s in index):
+            if all(type(s) is int for s in index):
                 # condition list
                 index.sort()
                 index = list(set(index))
@@ -209,38 +228,82 @@ class hdfReadControl(np.recarray):
                              "list(int), or slice object")
 
         # Ensure 'shotnum' is valid
+        # - here 'shotnum' will be converted from its keyword type to a
+        #   1D array containing the list of shot numbers to be included
+        #   in the returned obj array
         #
         if index is not None:
             # - index conditioning should ensure index is not None only
             #   if shotnum is not specified (i.e. shotnum is None and
             #   index is not None)
-            # - translate index keyword to shotnum keyword...the
-            #   remainder of this routine will utilized shotnum only
             #
-            shotnum = shotnumarr[index].view()
+            shotnum = dset_sn[index].view()
+            if type(shotnum) is np.int32:
+                shotnum = np.array([shotnum]).view()
         elif shotnum is None:
             # assume all intersecting entries are desired
-            shotnum = shotnumarr.view()
+            shotnum = dset_sn.view()
         elif type(shotnum) is int:
-            shotnum = np.array(shotnum).view()
-            if shotnum not in shotnumarr:
-                raise ValueError('shotnum [{}]'.format(shotnum)
-                                 + ' is not a valid shot number')
+            if shotnum in dset_sn:
+                shotnum = np.array([shotnum])
+            else:
+                raise ValueError('shotnum [{}] is not '.format(shotnum)
+                                 + 'a valid shot number')
         elif type(shotnum) is list:
-            shotnum = np.intersect1d(shotnum, shotnumarr).view()
-            if shotnum.shape[0] == 0:
+            # shotnum's have to be ints and >=1
+            if all(type(s) is int for s in shotnum):
+                # remove shot numbers less-than or equal to 0
+                shotnum.sort()
+                shotnum = list(set(shotnum))
+                try:
+                    zindex = shotnum.index(0)
+                    del shotnum[:zindex+1]
+                except ValueError:
+                    # no values less-than or equal to 0
+                    pass
+
+                # convert shotnum to np.array
+                if intersection_set:
+                    shotnum = np.intersect1d(shotnum, dset_sn).view()
+                else:
+                    shotnum = np.array(shotnum).view()
+
+                # ensure obj will not be a zero dim array
+                if shotnum.shape[0] == 0:
+                    raise ValueError('Valid shotnum not passed')
+            else:
                 raise ValueError('Valid shotnum not passed')
         elif type(shotnum) is slice:
-            shotnum = np.intersect1d(
-                np.arange(shotnum.start, shotnum.stop, shotnum.step),
-                shotnumarr).view()
-            if shotnum.shape[0] ==0:
+            try:
+                if shotnum.start <= 0 or shotnum.stop <= 0:
+                    raise ValueError('Valid shotnum not passed')
+            except TypeError:
+                if shotnum.start is None:
+                    shotnum = slice(shotnum.stop-1, shotnum.stop,
+                                    shotnum.step)
+
+            # convert shotnum to np.array
+            if intersection_set:
+                shotnum = np.intersect1d(
+                    np.arange(shotnum.start,
+                              shotnum.stop,
+                              shotnum.step),
+                    dset_sn).view()
+            else:
+                shotnum = np.arange(shotnum.start, shotnum.stop,
+                                    shotnum.step)
+
+            # ensure obj will not be a zero dim array
+            if shotnum.shape[0] == 0:
                 raise ValueError('Valid shotnum not passed')
         else:
             raise ValueError('Valid shotnum not passed')
 
         # ---- Build obj ----
         # Determine fields for numpy array
+        # npfields - dictionary of structured array field names
+        #            npfields['field name'] = [type, shape]
+        #
         npfields = {}
         for control in controls:
             if type(control) is tuple:
@@ -249,6 +312,9 @@ class hdfReadControl(np.recarray):
             conmap = file_map.controls[control]
             for df_name, nf_name, npi \
                     in conmap.config['dset field to numpy field']:
+                # df_name - control dataset field name
+                # nf_name - numpy structured array field name
+                # npi     - numpy index df_name will be inserted into
                 if nf_name == 'shotnum':
                     # already in dtype
                     pass
@@ -258,17 +324,16 @@ class hdfReadControl(np.recarray):
                     npfields[nf_name] = ['<f8', 1]
 
         # Define dtype and shape for numpy array
-        odytpe = [('shotnum', '<u4')]
+        dytpe = [('shotnum', '<u4', 1)]
         for key in npfields:
-            if npfields[key][1] == 1:
-                odytpe.append((key, npfields[key][0]))
-            else:
-                odytpe.append((key, npfields[key][0], npfields[key][1]))
+            dytpe.append((key, npfields[key][0], npfields[key][1]))
         shape = shotnum.shape
 
         # Initialize Control Data
-        data = np.empty(shape, dtype=odytpe)
+        data = np.empty(shape, dtype=dytpe)
         data['shotnum'] = shotnum.view()
+        for field in npfields:
+            data[field][:] = np.nan
 
         # Assign Control Data to Numpy array
         for control in controls:
@@ -281,12 +346,43 @@ class hdfReadControl(np.recarray):
                 cspec = None
 
             # get control dataset
-            cdset_name = file_map.controls[
-                cname].construct_dataset_name(cspec)
-            cdset_path = file_map.controls[cname].info[
-                'group path'] + '/' + cdset_name
+            conmap = file_map.controls[cname]
+            cdset_name = conmap.construct_dataset_name(cspec)
+            cdset_path = conmap.info['group path'] + '/' + cdset_name
             cdset = hdf_file.get(cdset_path)
             shotnumkey = cdset.dtype.names[0]
+
+            if intersection_set:
+                # find cdset indices that match shotnum
+                shoti = np.in1d(cdset[shotnumkey], shotnum)
+
+                # assign values
+                # df_name - device dataset field name
+                # nf_name - corresponding numpy field name
+                # npi     - numpy index that dataset will be assigned to
+                #
+                for df_name, nf_name, npi \
+                        in conmap.config['dset field to numpy field']:
+                    if nf_name != 'shotnum':
+                        data[nf_name][:, npi] = \
+                            cdset[df_name][shoti].view()
+            else:
+                # get intersecting shot numbers
+                sn_intersect = np.intersect1d(cdset[shotnumkey],
+                                              shotnum).view()
+                datai = np.in1d(shotnum, sn_intersect)
+                cdseti = np.in1d(cdset[shotnumkey], sn_intersect)
+
+                # assign values
+                # df_name - device dataset field name
+                # nf_name - corresponding numpy field name
+                # npi     - numpy index that dataset will be assigned to
+                #
+                for df_name, nf_name, npi \
+                        in conmap.config['dset field to numpy field']:
+                    if nf_name != 'shotnum':
+                        data[nf_name][datai, npi] = \
+                            cdset[df_name][cdseti].view()
 
             # get indices for desired shot numbers
             # - How to find shotnum indices
@@ -299,21 +395,17 @@ class hdfReadControl(np.recarray):
             #   4. numpy.in1d(arr1, arr2).nonzero() will return an array
             #      of indices where numpy.ind1d() is True
             #
-            shoti = np.in1d(cdset[shotnumkey], shotnum).nonzero()
+            #shoti = np.in1d(cdset[shotnumkey], shotnum).nonzero()
 
             # assign values
-            conmap = file_map.controls[cname]
-            for df_name, nf_name, npi \
-                    in conmap.config['dset field to numpy field']:
-                if nf_name != 'shotnum':
-                    data[nf_name][..., npi] = cdset[df_name][shoti]
+            #conmap = file_map.controls[cname]
+            #for df_name, nf_name, npi \
+            #        in conmap.config['dset field to numpy field']:
+            #    if nf_name != 'shotnum':
+            #        data[nf_name][..., npi] = cdset[df_name][shoti]
 
         # Construct obj
         obj = data.view(cls)
-        # if type(shotnum) is np.int32:
-        #    obj = np.array([shotnum]).view(cls)
-        # else:
-        #    obj = shotnum.view(cls)
 
         # assign dataset info
         # TODO: add a dict key for each control w/ controls config
@@ -327,6 +419,10 @@ class hdfReadControl(np.recarray):
             'controls': controls,
             'probe name': None,
             'port': (None, None)}
+
+        # print warnings
+        if not silent:
+            print(warn_str)
 
         return obj
 
@@ -355,7 +451,7 @@ class hdfReadControl(np.recarray):
         super().__init__()
 
 
-def condition_controls(hdf_file, controls):
+def condition_controls(hdf_file, controls, silent=False):
     # Check hdf_file is a lapdhdf.File object
     try:
         file_map = hdf_file.file_map
@@ -365,53 +461,71 @@ def condition_controls(hdf_file, controls):
 
     # Check for non-empty controls
     if not file_map.controls or file_map.controls is None:
-        print('** Warning: There are no control devices in the HDF5'
-              ' file.')
+        if not silent:
+            print('** Warning: There are no control devices in the HDF5'
+                  ' file.')
         return []
 
     # condition elements of 'controls' argument
-    # - Controls is a list where elements can be:
+    # - controls is a list where elements can be:
     #   1. a string indicating the name of a control device
     #   2. a 2-element tuple where the 1st entry is a string
     #      indicating the name of a control device and the 2nd is
     #      a unique specifier for that control device
     #
+    # - ensure
+    #   1. controls is in agreement is defined format above
+    #   2. all control device are in file_map.controls
+    #   3. there are not duplicate devices in controls
+    #
     if type(controls) is list:
-        for ii, device in enumerate(controls):
+        new_controls = []
+        for device in controls:
             if type(device) is str:
-                if device not in file_map.controls:
-                    del(controls[ii])
+                if device in file_map.controls \
+                        and device not in new_controls:
+                    new_controls.append(device)
             elif type(device) is tuple:
-                if len(device) != 2:
-                    del(controls[ii])
-                elif type(device[0]) is not str:
-                    del(controls[ii])
-                elif device[0] not in file_map.controls:
-                    del(controls[ii])
-            else:
-                del(controls[ii])
+                try:
+                    if len(device) == 2 \
+                            and type(device[0]) is str \
+                            and device[0] in file_map.controls \
+                            and device not in new_controls:
+                        new_controls.append(device)
+                except IndexError:
+                    pass
     else:
-        controls = []
+        new_controls = []
 
     # enforce one device per contype
     checked = []
+    controls = new_controls
     for device in controls:
         contype = file_map.controls[device].contype
         if contype in checked:
             controls = []
-            print('** Warning: Multiple devices per contype')
+            warn_str = '** Warning: Multiple devices per contype'
             break
         else:
             checked.append(contype)
+
+    # print warnings
+    if not silent:
+        print(warn_str)
 
     # return conditioned list
     return controls
 
 
-def intersecting_shotnums(hdf_file, controls):
+def gather_shotnums(hdf_file, controls, method='union'):
     # Check hdf_file is a lapdhdf.File object
     # controls = condition_controls(hdf_file, controls)
 
+    # condition method keyword
+    if method not in ['union', 'intersection', 'first']:
+        return None
+
+    # build array of shot numbers
     shotnumarr = None
     for device in controls:
         # control name and unique specifier
@@ -430,13 +544,23 @@ def intersecting_shotnums(hdf_file, controls):
         cdset = hdf_file.get(cdset_path)
         shotnumkey = cdset.dtype.names[0]
 
-        # Determine shot number intersection of all control datasets
+        # Define shotnumarr
         if shotnumarr is None:
+            # first assignment
             shotnumarr = cdset[shotnumkey].view()
-        else:
+
+            # break if only want shot numbers for first dataset
+            if method == 'first':
+                break
+        elif method == 'intersection':
+            # build set of intersecting shot numbers
             shotnumarr = np.intersect1d(shotnumarr,
                                         cdset[shotnumkey].view(),
                                         assume_unique=True)
+        else:
+            # method == 'union'
+            shotnumarr = np.union1d(shotnumarr,
+                                    cdset[shotnumkey].view())
 
-        # return numpy array of intersecting shot numbers
-        return shotnumarr
+    # return numpy array of intersecting shot numbers
+    return shotnumarr

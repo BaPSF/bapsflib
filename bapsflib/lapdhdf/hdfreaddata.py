@@ -282,6 +282,10 @@ class hdfReadData(np.recarray):
             obj['signal'] = obj['signal'].astype(np.float32, copy=False)
             obj['signal'] = (obj.dv * obj['signal']) - offset
 
+        # print warnings
+        if not silent:
+            print(warn_str)
+
         return obj
 
     def __array_finalize__(self, obj):

@@ -167,9 +167,10 @@ class File(h5py.File):
         """
         return self.get(name)
 
-    def read_data(self, board, channel, index=None, digitizer=None,
-                  adc=None, config_name=None, keep_bits=False,
-                  silent=False, **kwargs):
+    def read_data(self, board, channel, index=None, shotnum=None,
+                  digitizer=None, adc=None, config_name=None,
+                  keep_bits=False, add_controls=None,
+                  intersection_set=True, silent=False, **kwargs):
         """
         :param int board: desired board number
         :param int channel: desired channel number
@@ -188,15 +189,24 @@ class File(h5py.File):
         """
         # TODO: write docstrings
         # consider adding keyword output_voltage
-        return hdfReadData(self, board, channel, index=index,
-                           digitizer=digitizer, adc=adc,
-                           config_name=config_name, keep_bits=keep_bits,
-                           silent=silent, **kwargs)
+        return hdfReadData(self, board, channel,
+                           index=index,
+                           shotnum=shotnum,
+                           digitizer=digitizer,
+                           adc=adc,
+                           config_name=config_name,
+                           keep_bits=keep_bits,
+                           add_controls=add_controls,
+                           intersection_set=intersection_set,
+                           silent=silent,
+                           **kwargs)
 
     def read_controls(self, controls,
                       index=None, shotnum=None, intersection_set=True,
                       silent=False, **kwargs):
         return hdfReadControl(self, controls,
-                              index=index, shotnum=shotnum,
+                              index=index,
+                              shotnum=shotnum,
                               intersection_set=intersection_set,
-                              silent=silent, **kwargs)
+                              silent=silent,
+                              **kwargs)

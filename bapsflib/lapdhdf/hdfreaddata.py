@@ -14,6 +14,8 @@
 import h5py
 import numpy as np
 
+from .hdfreadcontrol import hdfReadControl, condition_controls,\
+    gather_shotnums
 
 # from .. import lapdhdf
 # from .hdferrors import *
@@ -94,24 +96,41 @@ class hdfReadData(np.recarray):
     #    dset or dset.values.
 
     def __new__(cls, hdf_file, board, channel,
-                index=None, digitizer=None, adc=None,
-                config_name=None, keep_bits=False, silent=False,
-                **kwargs):
+                index=None, shotnum=None, digitizer=None, adc=None,
+                config_name=None, keep_bits=False, add_controls=None,
+                intersection_set=True, silent=False, **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
 
-        :param hdf_file:
-        :param int board:
-        :param int channel:
-        :param index: index/indices of shots to be extracted
-        :type index: :code:`None`, int, list(int), or
-            slice(start, stop, skip)
-        :param str digitizer:
-        :param str adc:
-        :param str config_name:
-        :param bool keep_bits: set :code:`True` keep data in bits
-            opposed to converting to voltage
+        :param hdf_file: object instance of the HDF5 file
+        :type hdf_file: :class:`bapsflib.lapdhdf.files.File`
+        :param int board: board number of data to be extracted
+        :param int channel: channel number of data to be extracted
+        :param index: row index/indices of dataset to be extracted
+            (overridden by :code:`shotnum`)
+        :type index: :code:`None`, int, list(int), or slice()
+        :param shotnum: global HDF5 shot number (overrides
+            :code:`index`)
+        :type shotnum: :code:`None`, int, list(int), or slice()
+        :param str digitizer: name of digitizer for which board and
+            channel belong to
+        :param str adc: name of analog-digital-converter in the
+            digitizer for which board and channel belong to
+        :param str config_name: name of the digitizer configuration to
+            be used
+        :param bool keep_bits: set :code:`True` to keep data in bits,
+            :code:`False` (default) convert data to voltage
+        :param add_controls: list of control devices whose data will
+            be matched with the digitizer data
+        :type add_controls: list of strings and/or 2-element tuples. If
+            an element is a string, then the string is the control
+            device name. If an element is a 2-element tuple, then
+            tuple[0] is the control device name and tuple[1] is a unique
+            specifier for that control device.
+        :param bool intersection_set:
+        :param bool silent: set :code:`True` to suppress command line
+            print out of soft warnings
 
         .. note::
 
@@ -119,20 +138,9 @@ class hdfReadData(np.recarray):
             version 0.1.3.dev1.  Keyword :code:`shots` will still work,
             but will be deprecated in the future.
         """
-        # return_view=False -- return a ndarray.view() to save on memory
-        #                      when working with multiple datasets...
-        #                      this needs to be thought out in more
-        #                      detail
         #
         # numpy uses __new__ to initialize objects, so an __init__ is
         # not necessary
-        #
-        # What I need to do:
-        #  1. construct the dataset name
-        #     - Required args: board, channel
-        #     - Optional kwds: daq, config_name, shots
-        #  2. extract view from dataset
-        #  3. slice view and assign to obj
         #
         # TODO: add error handling for .get() of dheader
         # TODO: add error handling for 'Offset' field in dheader
@@ -140,35 +148,123 @@ class hdfReadData(np.recarray):
         # initiate warning string
         warn_str = ''
 
+        # ---- Condition hdf_file ----
+        # Check hdf_file is a lapdhdf.File object
+        try:
+            file_map = hdf_file.file_map
+        except AttributeError:
+            raise AttributeError(
+                'hdf_file needs to be of type lapdhdf.File')
+
         # Condition digitizer keyword
         if digitizer is None:
             warn_str = "** Warning: Digitizer not specified so " \
                 + "assuming the 'main_digitizer' ({})".format(
-                    hdf_file.file_map.main_digitizer.info[
+                    file_map.main_digitizer.info[
                         'group name']) \
                 + " defined in the mappings."
-            digi_map = hdf_file.file_map.main_digitizer
+            digi_map = file_map.main_digitizer
         else:
-            if digitizer not in hdf_file.file_map.digitizers:
+            try:
+                digi_map = hdf_file.file_map.digitizers[digitizer]
+            except KeyError:
                 raise KeyError('Specified Digitizer is not among known '
                                'digitizers')
-            else:
-                digi_map = hdf_file.file_map.digitizers[digitizer]
 
+        # ---- Check for Control Device Addition ---
+        # condition controls
+        if add_controls is not None:
+            controls = condition_controls(hdf_file, add_controls,
+                                          silent=silent)
+
+            # check controls is not empty
+            if not controls:
+                warn_str = '\n** Warning: no valid controls passed, ' \
+                           'none added to array'
+                controls = None
+        else:
+            controls = None
+
+        # ---- gather info about digi and control datasets ----
+        #
+        # get controls info
+        # cset_sn - 1D array of either the intersection or union of shot
+        #           numbers contained in the control device datasets
+        #
+        if controls is not None:
+            method = 'intersection' if intersection_set else 'union'
+            cset_sn = gather_shotnums(hdf_file, controls, method=method)
+
+            # check resulting array won't be null
+            if intersection_set and cset_sn.shape[0] == 0:
+                raise ValueError(
+                    'Input arguments would result in a null array')
+        else:
+            cset_sn = None
+
+        # Digi Dataset Info
         # Note: digi_map.construct_dataset_name has conditioning for
-        #       board, channel, adc, and config_name
+        #       board, channel, adc, and
+        #
+        # dname   - digitizer dataset name
+        # dpath   - full path to digitizer dataset
+        # dset    - digitizer h5py.Dataset object (data is still on
+        #           disk)
+        # dset_sn - array of dataset shot numbers
+        # dheader - header dataset for the digitizer dataset, this has
+        #           the shot number values
+        #
         dname, d_info = digi_map.construct_dataset_name(
             board, channel, config_name=config_name, adc=adc,
             return_info=True, silent=silent)
         dpath = digi_map.info['group path'] + '/' + dname
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
+        shotnumkey = dheader.dtype.names[0]
+        dset_sn = dheader[shotnumkey].view()
 
-        # backwards compatibility for 'shots' keyword which was changed
-        # to index in v0.1.3.dev1
-        # - keyword 'index' will always take precedence over 'shots'
-        #   keyword
+        # ---- Condition shots, index, and shotnum ----
+        # shots   -- same as index
+        #            ~ overridden by index and shotnum
+        #            ~ this is kept for backwards compatibility
+        #            ~ 'shots' was renamed to 'index' in v0.1.3dev1
+        # index   -- row index of digitizer dataset
+        #            ~ indexed at 0
+        #            ~ overridden by shotnum
+        # shotnum -- global HDF5 file shot number
+        #            ~ this is the index used to link values between
+        #              datasets
+        #            ~ supersedes any other indexing keyword
         #
+        # - Indexing behavior: (depends on intersection_set)
+        #
+        #   ~ intersection_set is only considered if add_controls
+        #     is not None
+        #
+        #   ~ intersection_set = True (DEFAULT)
+        #     * will ensure the returned array will only contain shot
+        #       numbers (shotnum) that has data in the digitizer dataset
+        #       and all specified control device datasets
+        #     * index
+        #       > will be the row index of the digitizer dataset
+        #       > may be trimmed to enforce shot number intersection of
+        #         all datasets
+        #     * shotnum
+        #       > will be the desired global shot numbers
+        #       > may be trimmed to enforce shot number intersection of
+        #         all datasets
+        #
+        #   ~ intersection_set = False
+        #     * does not enforce shot number intersection of all
+        #       datasets. Instread, if a dataset does not include a
+        #       specified shot number, then that entry will be given a
+        #       numpy.nan value
+        #     * index
+        #       > will be the row index of the digitizer dataset
+        #     * shotnum
+        #       > will be the desired global shot numbers
+        #
+        # rename 'shots' to 'index'
         if 'shots' in kwargs and index is None:
             index = kwargs['shots']
 
@@ -180,24 +276,25 @@ class hdfReadData(np.recarray):
         # - slice(start, stop, skip)
         #             => same as [start:stop:skip]
         #
-        if index is None:
-            if dset.shape[0] == 1:
-                # data = dset[0, :]
-                index = 0
-            else:
-                # data = dset[()]
-                index = slice(None)
-        elif isinstance(index, int):
-            if index in range(dset.shape[0]) \
-                    or -index - 1 in range(dset.shape[0]):
-                # data = dset[index, :]
-                pass
-            else:
+        if shotnum is not None:
+            # ignore index keyword if shotnum is used
+            index = None
+        elif index is None:
+            index = 0 if dset.shape[0] == 1 else slice(None)
+            # if dset.shape[0] == 1:
+            #     # data = dset[0, :]
+            #     index = 0
+            # else:
+            #     # data = dset[()]
+            #     index = slice(None)
+        elif type(index) is int:
+            if not (index in range(dset.shape[0])
+                    or -index - 1 in range(dset.shape[0])):
                 raise ValueError('index is not in range({})'.format(
                     dset.shape[0]))
-        elif isinstance(index, list):
+        elif type(index) is list:
             # all elements need to be integers
-            if all(isinstance(s, int) for s in index):
+            if all(type(s) is int for s in index):
                 # condition list
                 index.sort()
                 index = list(set(index))
@@ -216,22 +313,102 @@ class hdfReadData(np.recarray):
                 newindex.sort()
 
                 if len(newindex) != 0:
-                    # data = dset[newindex, :]
                     index = newindex
                 else:
-                    raise ValueError('index: none of the elements are '
-                                     'in range({})'.format(dset.shape[0]
-                                                           ))
+                    raise ValueError(
+                        'index: none of the elements are in '
+                        'range({})'.format(dset.shape[0]))
             else:
                 raise ValueError("index keyword needs to be None, int, "
                                  "list(int), or slice object")
-        elif isinstance(index, slice):
-            # data = dset[index, :]
+        elif type(index) is slice:
+            # valid type
             pass
         else:
             raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
 
+        # Ensure 'shotnum' is valid
+        # - here 'shotnum' will be converted frm its keyword type to a
+        #   1D array containing the list of shot numbers to be included
+        #   in the returned obj array
+        #
+        if index is not None:
+            # - index conditioning should ensure index is not None only
+            #   if shotnum is not specified (i.e. shotnum is None and
+            #   index is not None)
+            #
+            shotnum = dset_sn[index].view()
+            if type(shotnum) is np.int32:
+                shotnum = np.array([shotnum]).view()
+
+            # build intersection
+            if intersection_set and cset_sn is not None:
+                shotnum = np.intersect1d(shotnum, cset_sn).view()
+
+            # ensure obj will not be zero
+            if shotnum.shape[0] == 0:
+                raise ValueError('Valid shotnum not passed')
+        elif type(shotnum) is int:
+            if shotnum in dset_sn:
+                shotnum = np.array([shotnum])
+            else:
+                raise ValueError(
+                    'shotnum [{}] is not a valid'.format(shotnum)
+                    + ' shot number')
+        elif type(shotnum) is list:
+            # shotnum's have to be ints and >=1
+            if all(type(s) is int for s in shotnum):
+                # remove shot numbers less-than or equal to 0
+                shotnum.sort()
+                shotnum = list(set(shotnum))
+                try:
+                    zindex = shotnum.index(0)
+                    del shotnum[:zindex+1]
+                except ValueError:
+                    # no values less-than or equal to 0
+                    pass
+
+                # convert shotnum to np.array
+                if intersection_set and cset_sn is not None:
+                    shotnum = np.intersect1d(shotnum, cset_sn).view()
+                else:
+                    shotnum = np.array(shotnum).view()
+
+                # ensure obj will not be zero
+                if shotnum.shape[0] == 0:
+                    raise ValueError('Valid shotnum not passed')
+            else:
+                raise ValueError('Valid shotnum not passed')
+        elif type(shotnum) is slice:
+            try:
+                if shotnum.start <= 0 or shotnum.stop <= 0:
+                    raise ValueError('Valid shotnum not passed')
+            except TypeError:
+                if shotnum.stop is None:
+                    raise ValueError('Valid shotnum not passed')
+                elif shotnum.start is None:
+                    shotnum = slice(shotnum.stop-1, shotnum.stop,
+                                    shotnum.step)
+
+            # convert shotnum to np.array
+            if intersection_set and cset_sn is not None:
+                shotnum = np.intersect1d(
+                    np.arange(shotnum.start,
+                              shotnum.stop,
+                              shotnum.step),
+                    cset_sn.view())
+            else:
+                shotnum = np.arange(shotnum.start, shotnum.stop,
+                                    shotnum.step)
+
+            # ensure obj will not be a zero dim array
+            if shotnum.shape[0] == 0:
+                raise ValueError('Valid shotnum not passed')
+        else:
+            raise ValueError('Valid shotnum not passed')
+
+        # TODO: PICKUP HERE
         # Construct obj
         # - obj will be a numpy record array
         #

@@ -14,14 +14,13 @@ import numpy as np
 
 class hdfReadControl(np.recarray):
     """
-    Reads out data from a control device in the HDF5 file:
-
-    .. note::
-
-        It is assumed that control data is always extracted with the
-        intent of being matched to digitizer data
+    Reads out control device data from the HDF5 file.
     """
-
+    # .. note::
+    #
+    #     It is assumed that control data is always extracted with the
+    #    intent of being matched to digitizer data
+    #
     # Extracting Data:
     # - if multiple controls are specified then,
     #   ~ only one control of each contype can be in the list of
@@ -117,8 +116,6 @@ class hdfReadControl(np.recarray):
         # make sure 'controls' is not empty
         if not controls:
             raise ValueError("improper 'controls' arg passed")
-        else:
-            nControls = len(controls)
 
         # ---- Condition index and shotnum Keywords ----
         # index   -- row index of dataset
@@ -278,7 +275,9 @@ class hdfReadControl(np.recarray):
                 if shotnum.start <= 0 or shotnum.stop <= 0:
                     raise ValueError('Valid shotnum not passed')
             except TypeError:
-                if shotnum.start is None:
+                if shotnum.stop is None:
+                    raise ValueError('Valid shotnum not passed')
+                elif shotnum.start is None:
                     shotnum = slice(shotnum.stop-1, shotnum.stop,
                                     shotnum.step)
 
@@ -452,6 +451,9 @@ class hdfReadControl(np.recarray):
 
 
 def condition_controls(hdf_file, controls, silent=False):
+    # initialize warning string
+    warn_str = ''
+
     # Check hdf_file is a lapdhdf.File object
     try:
         file_map = hdf_file.file_map

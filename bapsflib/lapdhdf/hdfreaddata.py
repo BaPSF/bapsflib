@@ -408,25 +408,110 @@ class hdfReadData(np.recarray):
         else:
             raise ValueError('Valid shotnum not passed')
 
-        # TODO: PICKUP HERE
-        # Construct obj
+        # ---- Construct obj ---
         # - obj will be a numpy record array
         #
+        # grab control device dataset
+        #
+        if controls is not None:
+            cset = hdfReadControl(hdf_file, controls,
+                                  shotnum=np.ndarray.tolist(shotnum),
+                                  intersection_set=intersection_set,
+                                  silent=silent)
+
+        # Define dtype for obj
         # - 1st column of the digi data header contains the global HDF5
         #   file shot number
         # - shotkey = is the field name/key of the dheader shot number
         #   column
-        shotkey = dheader.dtype.names[0]
         sigtype = '<f4' if not keep_bits else dset.dtype
-        mytype = [('shotnum', dheader[shotkey].dtype),
-                  ('signal', sigtype, dset.shape[1]),
-                  ('xyz', '<f4', 3)]
-        shape = (dheader[shotkey][index].size,)
-        data = np.empty(shape, dtype=mytype)
-        data['shotnum'] = dheader[shotkey]
-        data['signal'] = dset[index, :]
-        data['xyz'].fill(np.nan)
+        shape = shotnum.shape[0]
+        dtype = [('shotnum', '<u4'),
+                 ('signal', sigtype, dset.shape[1]),
+                 ('xyz', '<f4', 3)]
+        if controls is not None:
+            for subdtype in cset.dtype.descr:
+                if subdtype[0] not in [d[0] for d in dtype]:
+                    dtype.append(subdtype)
+
+        # Define numpy array
+        data = np.empty(shape, dtype=dtype)
+
+        # fill array
+        # TODO: PICKUP HERE
+        data['shotnum'] = shotnum
+        if intersection_set:
+            # fill signal
+            sni = np.in1d(dheader[shotnumkey].view(), shotnum)
+            data['signal'] = dset[sni, ...]
+
+            # fill controls
+            if controls is not None:
+                # find intersection shot number indices
+                sni = np.in1d(cset['shotnum'], shotnum)
+
+                # fill xyz
+                if 'xyz' in cset.dtype.names:
+                    data['xyz'] = cset['xyz'][sni, ...]
+                else:
+                    data['xyz'] = np.nan
+
+                # fill remaining controls
+                for field in cset.dtype.names:
+                    if field not in ['shotnum', 'xyz']:
+                        data[field] = cset[field][sni, ...]
+            else:
+                # fill xyz
+                data['xyz'] = np.nan
+        else:
+            # fill signal
+            sn_intersect = np.intersect1d(shotnum,
+                                          dheader[shotnumkey].view())
+            dseti = np.in1d(dheader[shotnumkey].view(), sn_intersect)
+            datai = np.in1d(data['shotnum'], sn_intersect)
+            data['signal'][datai] = dset[dseti, ...].view()
+            if data['signal'].dtype <= np.int:
+                data['signal'][np.invert(datai)] = -99999
+            else:
+                data['signal'][np.invert(datai)] = np.nan
+
+            # fill controls
+            if controls is not None:
+                # find intersection shot number indices
+                sn_intersect = np.intersect1d(shotnum, cset['shotnum'])
+                cseti = np.in1d(cset['shotnum'], sn_intersect)
+                datai = np.in1d(data['shotnum'], sn_intersect)
+
+                # fill xyz
+                if 'xyz' in cset.dtype.names:
+                    data['xyz'][datai, ...] = cset['xyz'][cseti, ...]
+                    data['xyz'][np.invert(datai), ...] = np.nan
+                else:
+                    data['xyz'] = np.nan
+
+                # fill remaining controls
+                for field in cset.dtype.names:
+                    if field not in ['shotnum', 'xyz']:
+                        data[field][datai, ...] = \
+                            cset[field][cseti, ...]
+                        data[field][np.invert(datai), ...] = np.nan
+            else:
+                # fill xyz
+                data['xyz'] = np.nan
+
+
+        #shotkey = dheader.dtype.names[0]
+        #sigtype = '<f4' if not keep_bits else dset.dtype
+        #mytype = [('shotnum', '<u4'),
+        #          ('signal', sigtype, dset.shape[1]),
+        #          ('xyz', '<f4', 3)]
+        #shape = (dheader[shotkey][index].size,)
+        #data = np.empty(shape, dtype=mytype)
+        #data['shotnum'] = dheader[shotkey]
+        #data['signal'] = dset[index, :]
+        #data['xyz'].fill(np.nan)
         obj = data.view(cls)
+        #
         # obj = data.view(np.recarray)
         #
         # Note: if np.recarray is used instead of cls then the

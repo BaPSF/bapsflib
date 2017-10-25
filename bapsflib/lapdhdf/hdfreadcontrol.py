@@ -332,7 +332,10 @@ class hdfReadControl(np.recarray):
         data = np.empty(shape, dtype=dytpe)
         data['shotnum'] = shotnum.view()
         for field in npfields:
-            data[field][:] = np.nan
+            if data.dtype[field] <= np.int:
+                data[field][:] = -99999
+            else:
+                data[field][:] = np.nan
 
         # Assign Control Data to Numpy array
         for control in controls:
@@ -363,8 +366,12 @@ class hdfReadControl(np.recarray):
                 for df_name, nf_name, npi \
                         in conmap.config['dset field to numpy field']:
                     if nf_name != 'shotnum':
-                        data[nf_name][:, npi] = \
-                            cdset[df_name][shoti].view()
+                        if data.dtype[nf_name].shape != ():
+                            data[nf_name][:, npi] = \
+                                cdset[df_name][shoti].view()
+                        else:
+                            data[nf_name] = \
+                                cdset[df_name][shoti].view()
             else:
                 # get intersecting shot numbers
                 sn_intersect = np.intersect1d(cdset[shotnumkey],
@@ -380,8 +387,12 @@ class hdfReadControl(np.recarray):
                 for df_name, nf_name, npi \
                         in conmap.config['dset field to numpy field']:
                     if nf_name != 'shotnum':
-                        data[nf_name][datai, npi] = \
-                            cdset[df_name][cdseti].view()
+                        if data.dtype[nf_name].shape != ():
+                            data[nf_name][datai, npi] = \
+                                cdset[df_name][cdseti].view()
+                        else:
+                            data[nf_name][datai] = \
+                                cdset[df_name][cdseti].view()
 
             # get indices for desired shot numbers
             # - How to find shotnum indices

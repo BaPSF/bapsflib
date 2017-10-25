@@ -65,7 +65,9 @@ class hdfMap_control_6k(hdfMap_control_template):
             ('Shot number', 'shotnum', 0),
             ('x', 'xyz', 0),
             ('y', 'xyz', 1),
-            ('z', 'xyz', 2)
+            ('z', 'xyz', 2),
+            ('theta', 'ptip_rot_theta', 0),
+            ('phi', 'ptip_rot_phi', 0)
         ]
 
     def construct_dataset_name(self, *args):

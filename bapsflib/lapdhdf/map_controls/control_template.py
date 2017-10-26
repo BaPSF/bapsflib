@@ -19,7 +19,7 @@ class hdfMap_control_template(ABC):
     A template class for all control mapping classes to inherit from.
 
     When inheriting from this template the following :code:`__init__`
-    should be defined:
+    should be defined as:
 
     .. code-block:: python
 
@@ -37,9 +37,9 @@ class hdfMap_control_template(ABC):
             #
             self._build_config()
 
-            # verity key class attributes and methonds
+            # verify key class attributes and methods
             # - _verify_map() is a template method that ensures
-            #   self.info and self.config were properly constructed so
+            #   self.info and self.config are properly constructed so
             #   that the rest of bapsflib.lapdhdf can utilized the
             #   mapping.
             #
@@ -67,13 +67,14 @@ class hdfMap_control_template(ABC):
                      'group path': control_group.name,
                      'contype': NotImplemented}
         """
-        Information dict of control HDF5 Group
+        Information dictionary of HDF5 control device
 
         .. code-block:: python
 
             info = {
                 'group name': str, # name of control group
                 'group path': str  # full path to control group
+                'contype': str,    # control device type
             }
         """
 
@@ -81,40 +82,93 @@ class hdfMap_control_template(ABC):
         self.config = {
             'motion list': NotImplemented,
             'probe list': NotImplemented,
-            'command list': NotImplemented,
+            'config name': NotImplemented,
             'nControlled': NotImplemented,
             'dataset fields': NotImplemented,
-            'dset field to numpy field': NotImplemented
-        }
+            'dset field to numpy field': NotImplemented}
         """
-        .. code-block: python
+        Configuration dictionary of HDF5 control device. Dictionary is
+        polymorphic depending on the control type.
         
+        For :code:`info['contype'] == 'motion'`:
+        
+        .. code-block:: python
+            
+            # core config items
             config = {
-                'motion list': [str, ],
-                'motion list name': motion_dict,
-                ...
-                'probe list': [str, ],
-                'probe name: probe_dict,
-                ...
-                'command list': [],
-                'nControlled': int,
-                'dataset fields': [(key, dtype), ],
-                'dset field to numpy field': [
-                    ('dset field name', 
-                     'numpy filed name',
-                      int of numpy index), ]
+                'motion list': [str, ], # list of motion list names
+                'probe list': [str, ],  # list of probe names
+                'nControlled': int,     # number of controlled probes
+                'dataset fields':
+                    [(str,              # name of dataset field
+                      dtype), ],        # numpy dtype of field
+                'dset field to numpy field':
+                    [(str,      # name of dataset field
+                      str,      # name of numpy field that will be used
+                                # by hdfReadControl
+                      int), ]   # numpy array index for which the
+                                # dataset entry will be mapped into
             }
             
+            # specific motion config items
+            for name in config['motion list']:
+                config[name] = motion_dict
+            
+            # motion_dict format
             motion_dict = {
-                delta: (dx, dy ,dz),
-                center: (x0, y0, z0),
-                npoints: (nx, ny, nz)
+                'delta': (dx, dy, dz),  # step-size in xyz
+                'center': (x0, y0, z0), # origin
+                'npoints': (nx, ny, nz) # number of positions in xyz
             }
             
+            # specific probe config items
+            for name in config['probe list']:
+                config[name] = probe_dict
+            
+            # probe_dict format
             probe_dict = {
-                receptacle: int,
-                port: int
+                'receptacle': int, # probe drive receptacle number
+                                   # - used as unique specifier
+                'port': int        # LaPD port the probe drive was
+                                   # connected to
             }
+            
+        
+        For :code:`info['contype'] in ['waveform', 'power']`:
+        
+        .. code-block:: python
+        
+            # core config items
+            config = {
+                'config name': [str, ], # list of control device config
+                                        # name
+                'nControlled': int,     # number of controlled probes
+                'dataset fields':
+                    [(str,              # name of dataset field
+                      dtype), ],        # numpy dtype of field
+                'dset field to numpy field':
+                    [(str,      # name of dataset field
+                      str,      # name of numpy field that will be used
+                                # by hdfReadControl
+                      int), ]   # numpy array index for which the
+                                # dataset entry will be mapped into
+            }
+            
+            # configuration specific items
+            for name in config['config name']:
+                config[name] = {
+                    'IP address': str, # control device IP address
+                    'command list': [] # typically a list of floating
+                                       # point variables whose values
+                                       # correspond to the property
+                                       # controlled by the device
+                                       # - the list index corresponds to
+                                       #   the command list value in the
+                                       #   control device dataset
+                                       # - the list can be polymorphic
+                                       #   to the property type
+                                       #   controlled
+                }
         """
 
     @property
@@ -128,7 +182,8 @@ class hdfMap_control_template(ABC):
     @property
     def contype(self):
         """
-        :return: Type of control
+        :return: Type of control (:code:`'motion'`, :code:`'waveform'`,
+            or :code:`'power'`)
         :rtype: str
         """
         return self.info['contype']
@@ -139,6 +194,10 @@ class hdfMap_control_template(ABC):
 
     @property
     def sgroup_names(self):
+        """
+        :return: list of names of the HDF5 groups in the control group
+        :rtype: [str, ]
+        """
         sgroup_names = [name
                         for name in self.control_group
                         if isinstance(self.control_group[name],
@@ -147,16 +206,36 @@ class hdfMap_control_template(ABC):
 
     @property
     def dataset_names(self):
+        """
+        :return: list of names of the HDF5 datasets in the control group
+        :rtype: [str, ]
+        """
         dnames = [name
                   for name in self.control_group
                   if isinstance(self.control_group[name], h5py.Dataset)]
         return dnames
 
+    @property
+    def unique_specifiers(self):
+        """
+        :return: list of unique specfiers for the control device. Define
+            as :code:`None` if there are none.
+        """
+        return NotImplementedError
+
     @abstractmethod
     def _build_config(self):
+        """
+        This method defines the self.config dictionary.
+        """
         raise NotImplementedError
 
     def _verify_map(self):
+        """
+        This method verifies the dictionaries self.info and self.config
+        to ensure that they are formatted properly for the rest of the
+        :class:`bapsflib.lapdhdf` package.
+        """
         # ---- verify self.info ----
         if self.info['contype'] == NotImplemented:
             # 'contype' must be defined
@@ -277,9 +356,9 @@ class hdfMap_control_template(ABC):
                                  "[probe name, ]"
                         raise NotImplementedError(errstr)
 
-            # delete 'command list' if present
-            if 'command list' in self.config:
-                del(self.config['command list'])
+            # delete 'config name' if present
+            if 'config name' in self.config:
+                del self.config['config name']
 
         # verify all other contypes
         if self.contype != 'motion':
@@ -304,11 +383,11 @@ class hdfMap_control_template(ABC):
                 del (self.config['probe list'])
 
             # verify 'command list'
-            if 'command list' not in self.config:
-                # 'command list' exists
-                errstr = "self.config['command list'] must be defined"
-                raise NotImplementedError(errstr)
-            elif self.config['command list'] == NotImplemented:
-                # 'motion list' is defined
-                errstr = "self.config['command list'] must be defined"
-                raise NotImplementedError(errstr)
+            # if 'command list' not in self.config:
+            #     # 'command list' exists
+            #     errstr = "self.config['command list'] must be defined"
+            #     raise NotImplementedError(errstr)
+            # elif self.config['command list'] == NotImplemented:
+            #     # 'motion list' is defined
+            #     errstr = "self.config['command list'] must be defined"
+            #     raise NotImplementedError(errstr)

@@ -27,9 +27,9 @@ class hdfMap_control_6k(hdfMap_control_template):
         self._verify_map()
 
     def _build_config(self):
-        # remove 'command list'
-        if 'command list' in self.config:
-            del(self.config['command list'])
+        # remove 'config name'
+        if 'config name' in self.config:
+            del self.config['config name']
 
         # build 'motion list' and 'probe list'
         self.config['motion list'] = []
@@ -114,10 +114,23 @@ class hdfMap_control_6k(hdfMap_control_template):
 
     @property
     def list_receptacles(self):
+        """
+        :return: list of probe drive receptacle numbers
+        :rtype: [int, ]
+        """
         receptacles = []
         for name in self.config['probe list']:
             receptacles.append(self.config[name]['receptacle'])
         return receptacles
+
+    @property
+    def unique_specifiers(self):
+        """
+        :return: list of control device unique specifiers. Here the
+            unique specifier is the probe drive receptacle number.
+        :rtype: [int, ]
+        """
+        return self.list_receptacles
 
     def _parse_motionlist(self, ml_gname):
         # A motion list group follows the naming scheme of:
@@ -142,7 +155,7 @@ class hdfMap_control_6k(hdfMap_control_template):
                                     0.0),
                          'npoints': (ml_group.attrs['Nx'],
                                      ml_group.attrs['Ny'],
-                                     0)}
+                                     1)}
 
         return is_ml, ml_name, ml_config
 

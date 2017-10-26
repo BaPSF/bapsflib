@@ -12,6 +12,7 @@
 import h5py
 
 from .sixk import hdfMap_control_6k
+from .waveform import hdfMap_control_waveform
 
 class hdfMap_controls(dict):
     """
@@ -19,7 +20,8 @@ class hdfMap_controls(dict):
     discovered probe controls in the HDF5 data group.
     """
     _defined_control_mappings = {
-        '6K Compumotor': hdfMap_control_6k}
+        '6K Compumotor': hdfMap_control_6k,
+        'Waveform': hdfMap_control_waveform}
     """
     A dictionary containing references to the defined control mapping
     classes

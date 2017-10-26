@@ -82,7 +82,7 @@ class hdfMap_control_template(ABC):
         self.config = {
             'motion list': NotImplemented,
             'probe list': NotImplemented,
-            'config name': NotImplemented,
+            'config names': NotImplemented,
             'nControlled': NotImplemented,
             'dataset fields': NotImplemented,
             'dset field to numpy field': NotImplemented}
@@ -140,12 +140,12 @@ class hdfMap_control_template(ABC):
         
             # core config items
             config = {
-                'config name': [str, ], # list of control device config
-                                        # name
-                'nControlled': int,     # number of controlled probes
+                'config names': [str, ], # list of control device config
+                                         # name
+                'nControlled': int,      # number of controlled probes
                 'dataset fields':
-                    [(str,              # name of dataset field
-                      dtype), ],        # numpy dtype of field
+                    [(str,               # name of dataset field
+                      dtype), ],         # numpy dtype of field
                 'dset field to numpy field':
                     [(str,      # name of dataset field
                       str,      # name of numpy field that will be used
@@ -155,7 +155,7 @@ class hdfMap_control_template(ABC):
             }
             
             # configuration specific items
-            for name in config['config name']:
+            for name in config['config names']:
                 config[name] = {
                     'IP address': str, # control device IP address
                     'command list': [] # typically a list of floating
@@ -240,12 +240,14 @@ class hdfMap_control_template(ABC):
         if self.info['contype'] == NotImplemented:
             # 'contype' must be defined
             errstr = "self.info['contype'] must be defined as:\n" \
-                     "  'motion', 'freq', or 'power'"
+                     "  'motion', 'waveform', or 'power'"
             raise NotImplementedError(errstr)
-        elif self.info['contype'] not in ['motion', 'freq', 'power']:
+        elif self.info['contype'] not in ['motion',
+                                          'waveform',
+                                          'power']:
             # 'contype' must be one of specified type
             errstr = "self.info['contype'] must be defined as:\n" \
-                     "  'motion', 'freq', or 'power'"
+                     "  'motion', 'waveform', or 'power'"
             raise NotImplementedError(errstr)
 
         # ---- verity self.config ----
@@ -356,9 +358,9 @@ class hdfMap_control_template(ABC):
                                  "[probe name, ]"
                         raise NotImplementedError(errstr)
 
-            # delete 'config name' if present
-            if 'config name' in self.config:
-                del self.config['config name']
+            # delete 'config names' if present
+            if 'config names' in self.config:
+                del self.config['config names']
 
         # verify all other contypes
         if self.contype != 'motion':

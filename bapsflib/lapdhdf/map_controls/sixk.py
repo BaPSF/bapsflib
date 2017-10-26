@@ -27,9 +27,9 @@ class hdfMap_control_6k(hdfMap_control_template):
         self._verify_map()
 
     def _build_config(self):
-        # remove 'config name'
-        if 'config name' in self.config:
-            del self.config['config name']
+        # remove 'config names'
+        if 'config names' in self.config:
+            del self.config['config names']
 
         # build 'motion list' and 'probe list'
         self.config['motion list'] = []

@@ -312,6 +312,8 @@ class hdfReadControl(np.recarray):
             for df_name, nf_name, npi \
                     in conmap.config['dset field to numpy field']:
                 # df_name - control dataset field name
+                #           ~ if a tuple instead of a string then the
+                #             dataset field is linked to a command list
                 # nf_name - numpy structured array field name
                 # npi     - numpy index df_name will be inserted into
                 if nf_name == 'shotnum':
@@ -360,12 +362,32 @@ class hdfReadControl(np.recarray):
 
                 # assign values
                 # df_name - device dataset field name
+                #           ~ if a tuple instead of a string then the
+                #             dataset field is linked to a command list
                 # nf_name - corresponding numpy field name
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
                         in conmap.config['dset field to numpy field']:
-                    if nf_name != 'shotnum':
+                    # skip iteration if field is 'shotnum'
+                    if nf_name == 'shotnum':
+                        continue
+
+                    # determine if control device data is linked to a
+                    # command list
+                    #
+                    if type(df_name) is tuple:
+                        command_linked = True
+                        dsi = df_name[1]
+                        df_name = df_name[0]
+                    else:
+                        command_linked = False
+
+                    #
+                    if command_linked:
+                        # TODO: PICKUP HERE
+                        pass
+                    else:
                         if data.dtype[nf_name].shape != ():
                             data[nf_name][:, npi] = \
                                 cdset[df_name][shoti].view()
@@ -393,26 +415,6 @@ class hdfReadControl(np.recarray):
                         else:
                             data[nf_name][datai] = \
                                 cdset[df_name][cdseti].view()
-
-            # get indices for desired shot numbers
-            # - How to find shotnum indices
-            #   1. let arr1 be the shotnum array you want to filter
-            #   2. let arr2 be the list of shotnums you want
-            #      (hence shotnumarr)
-            #   3. numpy.in1d(arr1, arr2) will return a boolean array
-            #      of shape arr1.shape with shared valued entries being
-            #      True
-            #   4. numpy.in1d(arr1, arr2).nonzero() will return an array
-            #      of indices where numpy.ind1d() is True
-            #
-            #shoti = np.in1d(cdset[shotnumkey], shotnum).nonzero()
-
-            # assign values
-            #conmap = file_map.controls[cname]
-            #for df_name, nf_name, npi \
-            #        in conmap.config['dset field to numpy field']:
-            #    if nf_name != 'shotnum':
-            #        data[nf_name][..., npi] = cdset[df_name][shoti]
 
         # Construct obj
         obj = data.view(cls)

@@ -1,20 +1,57 @@
-Reading data from an HDF5 file is straight forward using the
-:meth:`~bapsflib.lapdhdf.files.File.read_data` method on the
-:class:`~bapsflib.lapdhdf.files.File` class.  At a minimum, the
-:meth:`~bapsflib.lapdhdf.files.File.read_data` method only needs a board
-number and channel number, but there are several additional keyword
-options:
+Extracting data from an HDF5 file is done with either the
+:meth:`~bapsflib.lapdhdf.files.File.read_data` method or the
+:meth:`~bapsflib.lapdhdf.files.File.read_controls` method.  The
+:meth:`~bapsflib.lapdhdf.files.File.read_controls` method is designed to
+extract data from probe control devices (e.g. the *6K Compumotor*, the
+*waveform generator*, etc.), where as, the
+:meth:`~bapsflib.lapdhdf.files.File.read_data` method is designed to
+extract digitizer data and mate that data with control data.  Details on
+using the :meth:`~bapsflib.lapdhdf.files.File.read_controls` method can
+be read in the :ref:`read_controls` section.  This section will focus on
+the functionality of :meth:`~bapsflib.lapdhdf.files.File.read_data`.
 
-* :ref:`shots <read_w_shots>`
-* :ref:`digitizer <read_w_digitizer>`
-* :ref:`adc <read_w_adc>`
-* :ref:`config_name <read_w_config_name>`
-* :ref:`keep_bits <read_w_keep_bits>`
+At a minimum the :meth:`~bapsflib.lapdhdf.files.File.read_data` method
+only needs a board number and channel number to extract data, but there
+are several additional keyword options:
 
-that are explained in more detail below.  Assuming the :file:`test.hdf5`
-file has only one digitizer, one adc, and one configuration, then all
-the data recorded on :code:`board = 1` and :code:`channel = 0` can be
-extracted as follows
+.. csv-table::
+    :header: "Keyword", "Default", "Description"
+    :widths: 15, 10, 40
+
+    :ref:`index <read_w_index>`, :code:`None`, "row index of the HDF5
+    dataset
+    "
+    "shotnum", ":code:`None`", "global HDF5 file shot number
+    "
+    :ref:`digitizer <read_w_digitizer>`, :code:`None`, "name of
+    digitizer for which :code:`board` and :code:`channel` belong to
+    "
+    :ref:`adc <read_w_adc>`, :code:`None` , "name of the digitizer
+    analog-digitial-converter for which :code:`board` and
+    :code:`channel` belong to
+    "
+    :ref:`config_name <read_w_config_name>`, :code:`None`, "name of the
+    digitizer configuration
+    "
+    :ref:`keep_bits <read_w_keep_bits>`, :code:`False`, "set
+    :code:`True` to keep the extracted digitizer data in bits opposed to
+    voltage
+    "
+    add_controls, :code:`None`, "list of control devices whose data will
+    be matched and added to the requested digitizer data
+    "
+    intersection_set, :code:`True`, "ensures that the returned data
+    array only contains :code:`shotnum`'s that are inclusive in the
+    digitizer dataset adn all control device datasets
+    "
+    silent, :code:`False`, "set :code:`True` to suppress command line
+    printout of soft-warnings
+    "
+
+that are explained in more detail in the following sections.  Assuming
+the :file:`test.hdf5` file has only one digitizer, one adc, and one
+configuration, then all the data recorded on :code:`board = 1` and
+:code:`channel = 0` can be extracted as follows
 
     >>> from bapsflib import lapdhdf
     >>> f = lapdhdf.File('test.hdf5')
@@ -36,9 +73,9 @@ in :file:`test.hdf5` resides on disk.  By calling
 brought into memory as a :class:`numpy.ndarray`, converted from bits to
 voltage, and returned as a :meth:`view` onto that array.
 
-.. _read_w_shots:
+.. _read_w_index:
 
-Using :data:`shots` keyword
+Using :data:`index` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The :code:`shots` keyword allows for a subset of the data to be

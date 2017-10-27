@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 import h5py
+import numpy as np
 import re
 
 from .control_template import hdfMap_control_template
@@ -79,13 +80,14 @@ class hdfMap_control_waveform(hdfMap_control_template):
             # define 'dataset fields'
             self.config['dataset fields'] = [
                 ('Shot number', '<u4'),
+                ('Configuration name', 'S120'),
                 ('Command index', '<u4')
             ]
 
             # define 'dset field to numpy field'
             self.config['dset field to numpy field'] = [
                 ('Shot number', 'shotnum', 0),
-                ('Command index', 'confreq', 0)
+                (('Command index', None), 'confreq', 0)
             ]
 
     @property
@@ -95,3 +97,12 @@ class hdfMap_control_waveform(hdfMap_control_template):
     @property
     def unique_specifiers(self):
         return None
+
+    def command_value(self, index, *args):
+        try:
+            config_name = self.config['config names'][0]
+            val = self.config[config_name]['command list'][0]
+        except IndexError:
+            val = np.nan
+
+        return val

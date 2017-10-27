@@ -104,6 +104,9 @@ class hdfMap_control_template(ABC):
                       dtype), ],        # numpy dtype of field
                 'dset field to numpy field':
                     [(str,      # name of dataset field
+                                # ~ if a tuple like (str, int) then this
+                                #   indicates that the dataset field is
+                                #   linked to a command list 
                       str,      # name of numpy field that will be used
                                 # by hdfReadControl
                       int), ]   # numpy array index for which the
@@ -148,6 +151,9 @@ class hdfMap_control_template(ABC):
                       dtype), ],         # numpy dtype of field
                 'dset field to numpy field':
                     [(str,      # name of dataset field
+                                # ~ if a tuple like (str) or (str, int)
+                                #   then this indicates that the dataset
+                                #   field is linked to a command list 
                       str,      # name of numpy field that will be used
                                 # by hdfReadControl
                       int), ]   # numpy array index for which the

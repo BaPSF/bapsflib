@@ -14,10 +14,15 @@ Opening a file
 
 .. _read_data:
 
-Extracting/Reading Data
------------------------
+Extracting (Digitizer) Data
+---------------------------
 
 .. include:: readdata.rst
+
+.. _read_controls:
+
+Extracting Control Data
+-----------------------
 
 .. _file_mappings:
 

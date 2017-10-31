@@ -516,7 +516,12 @@ def condition_controls(hdf_file, controls, silent=False):
     checked = []
     controls = new_controls
     for device in controls:
-        contype = file_map.controls[device].contype
+        try:
+            contype = file_map.controls[device].contype
+        except KeyError:
+            # device is a tuple, not a string
+            contype = file_map.controls[device[0]].contype
+
         if contype in checked:
             controls = []
             warn_str = '** Warning: Multiple devices per contype'

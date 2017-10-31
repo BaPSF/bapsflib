@@ -609,8 +609,9 @@ class hdfReadData(np.recarray):
     @property
     def dt(self):
         """
-        :return: time-step dt (in sec) from the 'sample rate' dict()
-            item of :py:data:`self.info`.
+        :return: time-step size (in sec) calculated from the
+            'sample rate' item in :attr:`self.info`.
+        :rtype: float
         """
         # define unit conversions
         units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
@@ -630,8 +631,9 @@ class hdfReadData(np.recarray):
     @property
     def dv(self):
         """
-        :return: voltage-step dv (in Volts) from the 'bit' and 'voltage
-            offset' dict() items of :py:data:`self.info`.
+        :return: voltage-step size (in volts) calculated from the 'bit'
+            and 'voltage offset' items in :attr:`self.info`.
+        :rtype: float
         """
         dv = (2.0 * abs(self.info['voltage offset']) /
               (2. ** self.info['bit'] - 1.))

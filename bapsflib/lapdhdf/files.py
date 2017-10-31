@@ -172,23 +172,40 @@ class File(h5py.File):
                   keep_bits=False, add_controls=None,
                   intersection_set=True, silent=False, **kwargs):
         """
-        :param int board: desired board number
-        :param int channel: desired channel number
-        :param index:
-        :type index: list(int)
-        :param str digitizer: name of desired digitizer
-        :param str adc: name of desired analog-digital converter
-        :param str config_name: name of data configurations
+        :param int board: board number
+        :param int channel: channel number
+        :param index: dataset row index
+        :type index: int, list(int), slice()
+        :param shotnum: HDF5 global shot number
+        :type shotnum: int, list(int), slice()
+        :param str digitizer: name of digitizer
+        :param str adc: name of the digitizer's analog-digital converter
+        :param str config_name: name of digitizer configuration
         :param bool keep_bits: :code:`True` for output in bits,
             :code:`False` (default) for output in voltage
-        :param bool silent: Defualt :code:`False`. Set :code:`True` to
+        :param add_controls: a list of strings and/or 2-element tuples
+            indicating control device data to be mated to the digitizer
+            data. If an element is a string, then that string is the
+            name of the control device, If an element is a 2-element
+            tuple, then the 1st element is the name of the control
+            device and the 2nd element is a unique specifier for that
+            control device.
+        :type add_controls: [str, (str, val), ]
+        :param intersection_set: :code:`True` (default) ensures the
+            returned array only contains shot numbers that are found in
+            the digitizer dataset and all added control device datasets.
+            :code:`False` will cause the returned array to contain shot
+            numbers specified by :data:`shotnum` or, when :data:`index`
+            is used, the matching shot numbers in the digitizer dataset
+            specified by :data:`index`
+        :param bool silent: (default) :code:`False`. Set :code:`True` to
             suppress any warning print outs when data is constructed.
             Exceptions are still raise when necessary.
         :return: instance of
             :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
         """
         # TODO: write docstrings
-        # consider adding keyword output_voltage
+        #
         return hdfReadData(self, board, channel,
                            index=index,
                            shotnum=shotnum,

@@ -26,8 +26,8 @@ Extracting Control Data
 
 .. _file_mappings:
 
-Utilizing the HDF5 LaPD Mapping Object
---------------------------------------
+LaPD HDF5 File Mapping Object
+-----------------------------
 
 .. include:: mapping.rst
 

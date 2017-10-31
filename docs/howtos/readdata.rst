@@ -5,7 +5,7 @@ Extracting data from an HDF5 file is done with either the
 extract data from probe control devices (e.g. the *6K Compumotor*, the
 *waveform generator*, etc.), where as, the
 :meth:`~bapsflib.lapdhdf.files.File.read_data` method is designed to
-extract digitizer data and mate that data with control data.  Details on
+extract digitizer data and mate any specified control data.  Details on
 using the :meth:`~bapsflib.lapdhdf.files.File.read_controls` method can
 be read in the :ref:`read_controls` section.  This section will focus on
 the functionality of :meth:`~bapsflib.lapdhdf.files.File.read_data`.
@@ -44,34 +44,85 @@ are several additional keyword options:
     array only contains :code:`shotnum`'s that are inclusive in the
     digitizer dataset adn all control device datasets
     "
-    silent, :code:`False`, "set :code:`True` to suppress command line
-    printout of soft-warnings
+    :data:`silent`, :code:`False`, "set :code:`True` to suppress command
+    line printout of soft-warnings
     "
 
-that are explained in more detail in the following sections.  Assuming
-the :file:`test.hdf5` file has only one digitizer, one adc, and one
-configuration, then all the data recorded on :code:`board = 1` and
-:code:`channel = 0` can be extracted as follows
+that are explained in more detail in the following sections.
+
+If the :file:`test.hdf5` file has only one digitizer with one active
+adc and one configuration, then the entire dataset collected from the
+signal attached to :code:`board = 1` and :code:`channel = 0` can be
+extracted as follows:
 
     >>> from bapsflib import lapdhdf
     >>> f = lapdhdf.File('test.hdf5')
     >>> board, channel = 1, 0
     >>> data = f.read_data(baord, channel)
-    >>> data
-    Out: hdfReadData([[..., ], [..., ], ..., [..., ]])
 
-where :code:`data` is an instance of
+where :obj:`data` is an instance of
 :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`.  The
 :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` class acts as a
-wrapper on :class:`numpy.ndarray`, so :code:`data` behaves just like a
-:class:`ndarray` with additional attached methods and attributes (e.g.
-:attr:`info`, :attr:`dt`, :attr:`dv`, etc.).
+wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
+a :class:`numpy.recarray` object, but will have additional methods and
+attributes that describe the data's origin and parameters (e.g.
+:attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.info`,
+:attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.dt`,
+:attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv`, etc.).
 
-Before calling :meth:`~bapsflib.lapdhdf.files.File.read_data` the data
-in :file:`test.hdf5` resides on disk.  By calling
-:meth:`~bapsflib.lapdhdf.files.File.read_data` the requested data is
-brought into memory as a :class:`numpy.ndarray`, converted from bits to
-voltage, and returned as a :meth:`view` onto that array.
+By default, :obj:`data` is a structured :mod:`numpy` array with the
+following :data:`dtype`:
+
+    >>> data.dtype
+    Out[0]:
+    dtype([('shotnum', '<u4'),
+           ('signal', '<f4', (12288,)),
+           ('xyz', '<f4', (3,))])
+
+where :code:`'shotnum'` contains the HDF5 shot number, :code:`'signal'`
+contains the signal recorded by the digitizer, and :code:`'xyz'` is a
+3-element array containing the probe position.  In this example,
+the digitized signal is automatically converted into voltage before
+being added to the array and :code:`12288` is the size of the signal's
+time-array.  To keep the digitizer :code:`'signal` in bit values, then
+set :code:`keep_bits=True` at execution of
+:meth:`~bapsflib.lapdhdf.files.File.read_data`.  The field :code:`'xyz'`
+is initialized with :const:`numpy.nan` values, but will be filled out if
+an appropriate control device is specified (see :ref:`adding_controls`).
+
+With :class:`numpy.recarray`'s accessing a data field can be done via
+a dictionary lookup or as an access to a member of the array.  For
+example, accessing the shot number array can be like
+
+    >>> data['shotnum']
+    Out[0]: array([   1,    2,    3, ...], dtype=uint32)
+
+or
+
+    >>> data.shotnum
+    Out[0]: Out[0]: array([   1,    2,    3, ...], dtype=uint32)
+
+Fields :code:`'signal'` and :code:`'xyz'` can be accessed the same way.
+
+.. warning::
+
+    pickup here
+
+.. note::
+
+    Before calling :meth:`~bapsflib.lapdhdf.files.File.read_data` the
+    data in :file:`test.hdf5` resides on disk.  By calling
+    :meth:`~bapsflib.lapdhdf.files.File.read_data` the requested data is
+    brought into memory as a :class:`numpy.ndarray`, converted from bits
+    to voltage, and returned as a :meth:`view` onto that array.
+
+.. _read_subset:
+
+Extracting a Sub-set
+^^^^^^^^^^^^^^^^^^^^
+
+Sub-setting behavior is determined by keywords :data:`index`,
+:data:`shotnum`, and :data:`intersection_set`.
 
 .. _read_w_index:
 
@@ -178,8 +229,13 @@ Using :data:`config_name` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-
 .. _read_w_keep_bits:
 
 Using :data:`keep_bits` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+
+.. _adding_controls:
+
+Adding Control Device Data
+^^^^^^^^^^^^^^^^^^^^^^^^^^

@@ -7,13 +7,14 @@ Welcome to bapsflib's documentation!
 ====================================
 
 .. toctree::
-   :maxdepth: 1
-   :caption: Contents:
+    :maxdepth: 1
+    :caption: Contents:
 
-   about
-   installation
-   howtos
-   packageindex
+    about
+    installation
+    ./howtos/main
+    packageindex
+    glossary
 
 
 Indices and tables

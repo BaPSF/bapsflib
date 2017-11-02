@@ -14,7 +14,7 @@ import numpy as np
 
 class hdfReadControl(np.recarray):
     """
-    Reads out control device data from the HDF5 file.
+    Extracts control device data from the HDF5 file.
     """
     # .. note::
     #
@@ -37,23 +37,43 @@ class hdfReadControl(np.recarray):
                 index=None, shotnum=None, intersection_set=True,
                 silent=False, **kwargs):
         """
-        When inheriting from numpy, the object creation and
-        initialization is handled by __new__ instead of __init__.
-
-        :param hdf_file:
-        :param controls:
-        :param index: dataset index/indices of data entries to be
-            extracted
+        :param hdf_file: object instance of the HDF5 file
+        :type hdf_file: :class:`bapsflib.lapdhdf.files.File`
+        :param controls: a list indicating the desired control devices
+            (see
+            :func:`bapsflib.lapdhdf.hdfreadcontrol.condition_controls`
+            for details)
+        :type controls: [str, (str, val), ]
+        :param index: row index (see 'index behavior below')
         :type index: :code:`None`, int, list(int), or
-            slice(start, stop, skip)
+            slice(start, stop, step)
         :param shotnum: HDF5 file shot number(s) indicating data
             entries to be extracted (:code:`shotnum` will take
             precedence over :code:`index`)
         :type shotnum: :code:`None`, int, list(int), or
-            slice(start, stop, skip)
+            slice(start, stop, step)
         :param bool intersection_set:
         :param bool silent:
+
+        Behavior of :data:`index`
+            * indexing starts at 0
+            * is overridden by :data:`shotnum`
+            * if :code:`intersection_set=True`
+                * If :code:`len(controls) == 1`, then :data:`index` will
+                  be the dataset row index.
+                * If :code:`len(controls) > 1`, then :data:`index` will
+                  correspond to the index of the list of intersecting
+                  shot numbers of all specified control devices.
+            * if :code:`intersection_set=False`
+                * :data:`index` corresponds to the row index of the
+                  dataset for the first control device listed in
+                  :data:`controls`.
+
+        Behavior of :data:`shotnum`
         """
+        # When inheriting from numpy, the object creation and
+        # initialization is handled by __new__ instead of __init__.
+        #
         # param control:
         # - control is a string list naming the control to be read out
         # - if a control contains multiple devices, then it's entry in
@@ -76,16 +96,6 @@ class hdfReadControl(np.recarray):
         #
         #       controls = ['6K Compumotor', 'NI_XZ']
         #
-        # Order of Operations:
-        #   1. check for file mapping attribute (hdf_obj.file_map)
-        #   2. check for non-empty controls mapping
-        #      (hdf_obj.file_map.controls)
-        #   3. Condition 'controls' argument
-        #   4. look for 'controls' in file_map.controls
-        #   5. condition index keyword
-        #   6. build recarray
-        #   7. build obj.info (metadata)
-
         # initiate warning string
         warn_str = ''
 

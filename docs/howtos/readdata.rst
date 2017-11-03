@@ -18,37 +18,35 @@ are several additional keyword options:
     :header: "Keyword", "Default", "Description"
     :widths: 15, 10, 40
 
-    :ref:`index <read_w_index>`, :code:`None`, "row index of the HDF5
-    dataset
+    :data:`index`, :code:`None`, "row index of the HDF5 dataset
     "
-    "shotnum", ":code:`None`", "global HDF5 file shot number
+    ":data:`shotnum`", ":code:`None`", "global HDF5 file shot number
     "
-    :ref:`digitizer <read_w_digitizer>`, :code:`None`, "name of
-    digitizer for which :code:`board` and :code:`channel` belong to
+    :data:`digitizer`, :code:`None`, "name of digitizer for which
+    :code:`board` and :code:`channel` belong to
     "
-    :ref:`adc <read_w_adc>`, :code:`None` , "name of the digitizer
-    analog-digitial-converter for which :code:`board` and
-    :code:`channel` belong to
+    :data:`adc`, :code:`None` , "name of the digitizer
+    analog-digital-converter for which :code:`board` and :code:`channel`
+    belong to
     "
-    :ref:`config_name <read_w_config_name>`, :code:`None`, "name of the
-    digitizer configuration
+    :data:`config_name`, :code:`None`, "name of the digitizer
+    configuration
     "
-    :ref:`keep_bits <read_w_keep_bits>`, :code:`False`, "set
-    :code:`True` to keep the extracted digitizer data in bits opposed to
-    voltage
+    :data:`keep_bits`, :code:`False`, "set :code:`True` to keep the
+    extracted digitizer data in bits opposed to voltage
     "
-    add_controls, :code:`None`, "list of control devices whose data will
-    be matched and added to the requested digitizer data
+    :data:`add_controls`, :code:`None`, "list of control devices whose
+    data will be matched and added to the requested digitizer data
     "
-    intersection_set, :code:`True`, "ensures that the returned data
-    array only contains :code:`shotnum`'s that are inclusive in the
+    :data:`intersection_set`, :code:`True`, "ensures that the returned
+    data array only contains :code:`shotnum`'s that are inclusive in the
     digitizer dataset adn all control device datasets
     "
     :data:`silent`, :code:`False`, "set :code:`True` to suppress command
     line printout of soft-warnings
     "
 
-that are explained in more detail in the following sections.
+that are explained in more detail in the following subsections.
 
 If the :file:`test.hdf5` file has only one digitizer with one active
 adc and one configuration, then the entire dataset collected from the
@@ -105,11 +103,57 @@ For details on handling and manipulating :data:`data` see
 
 .. _read_subset:
 
-Extracting a Sub-set
+Extracting a sub-set
 ^^^^^^^^^^^^^^^^^^^^
 
-Sub-setting behavior is determined by keywords :data:`index`,
-:data:`shotnum`, and :data:`intersection_set`.
+.. Sub-setting behavior is determined by three keywords: :data:`index`,
+   :data:`shotnum`, and :data:`intersection_set`.
+
+There are three keywords for sub-setting a dataset: :data:`index`,
+:data:`shotnum`, and :data:`intersection_set`.  :data:`index` and
+:data:`shotnum` are indexing keywords, whereas, :data:`intersection_set`
+controls sub-setting behavior between the indexing keywords and the
+dataset(s).
+
+:data:`index` refers to the row index of the requested dataset and
+:data:`shotnum` refers to the global HDF5 shot number.  Either indexing
+keyword can be used, but :data:`shotnum` will always override
+:data:`index`.  :data:`index` and :data:`shotnum` can be of :func:`type`
+:code:`int`, :code:`list(int)`, or :func:`slice`.  Sub-setting with
+:data:`index` looks like:
+
+    >>> # read dataset row 10
+    >>> data = f.read_data(board, channel, index=10)
+    >>> # read dataset rows 10, 20, and 30
+    >>> data = f.read_data(board, channel, index=[10, 20, 30])
+    >>> # read dataset rows 10 to 19
+    >>> data = f.read_data(board, channel, index=slice(10, 20))
+    >>> # read every other dataset row from 10 to 19
+    >>> data = f.read_data(board, channel, index=slice(10, 20, 2))
+
+and with :data:`shotnum` looks like:
+
+
+    >>> # read dataset shot number 10
+    >>> data = f.read_data(board, channel, shotnum=10)
+    >>> # read dataset shot numbers 10, 20, and 30
+    >>> data = f.read_data(board, channel, shotnum=[10, 20, 30])
+    >>> # read dataset shot numbers 10 to 19
+    >>> data = f.read_data(board, channel, shotnum=slice(10, 20))
+    >>> # read every 5th dataset shot number from 10 to 19
+    >>> data = f.read_data(board, channel, index=slice(10, 20, 5))
+
+:data:`intersection_set` modifies what shot numbers are returned by
+:meth:`~bapsflib.lapdhdf.files.File.read_data`.  If :data:`index` is
+used and no control device datasets are being mated to the digitizer
+dataset, then :data:`intersection_set` has no affect on the returned
+data array.  If :data:`shotnum` is used, then
+:code:`intersection_set=True` (DEFAULT) will ensure that the returned
+data array only contains shot numbers that are specified by
+:code:`shotnum` and are in the digitizer dataset.  If set to
+:code:`False`, then the returned array will contain all shot numbers
+specified by :code:`shotnum` and any shot numbers not found in the digitizer
+dataset will be filled with :code:`numpy.nan` values.
 
 .. _read_w_index:
 

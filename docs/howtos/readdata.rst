@@ -90,31 +90,18 @@ set :code:`keep_bits=True` at execution of
 is initialized with :const:`numpy.nan` values, but will be filled out if
 an appropriate control device is specified (see :ref:`adding_controls`).
 
-With :class:`numpy.recarray`'s accessing a data field can be done via
-a dictionary lookup or as an access to a member of the array.  For
-example, accessing the shot number array can be like
-
-    >>> data['shotnum']
-    Out[0]: array([   1,    2,    3, ...], dtype=uint32)
-
-or
-
-    >>> data.shotnum
-    Out[0]: Out[0]: array([   1,    2,    3, ...], dtype=uint32)
-
-Fields :code:`'signal'` and :code:`'xyz'` can be accessed the same way.
-
-.. warning::
-
-    pickup here
+For details on handling and manipulating :data:`data` see
+:ref:`handle_data`.
 
 .. note::
 
-    Before calling :meth:`~bapsflib.lapdhdf.files.File.read_data` the
-    data in :file:`test.hdf5` resides on disk.  By calling
-    :meth:`~bapsflib.lapdhdf.files.File.read_data` the requested data is
-    brought into memory as a :class:`numpy.ndarray`, converted from bits
-    to voltage, and returned as a :meth:`view` onto that array.
+    Since :class:`bapsflib.lapdhdf` leverages the :class:`h5py` package,
+    the data in :file:`test.hdf5` resides on disk until one of the read
+    methods, :meth:`~bapsflib.lapdhdf.files.File.read_data` or
+    :meth:`~bapsflib.lapdhdf.files.File.read_data`, is called.  In
+    calling on of these methods, the requested data is brought into
+    memory as a :class:`numpy.ndarray` and a :class:`numpy.view` onto
+    that :data:`ndarray` is returned to the user.
 
 .. _read_subset:
 

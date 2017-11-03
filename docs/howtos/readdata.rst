@@ -152,86 +152,31 @@ data array.  If :data:`shotnum` is used, then
 data array only contains shot numbers that are specified by
 :code:`shotnum` and are in the digitizer dataset.  If set to
 :code:`False`, then the returned array will contain all shot numbers
-specified by :code:`shotnum` and any shot numbers not found in the digitizer
-dataset will be filled with :code:`numpy.nan` values.
+specified by :code:`shotnum` and any shot numbers not found in the
+digitizer dataset will be filled with :code:`numpy.nan` values.
 
-.. _read_w_index:
+.. _read_digi:
 
-Using :data:`index` keyword
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Directing to a Specified Digitizer Dataset
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The :code:`shots` keyword allows for a subset of the data to be
-extracted from the HDF5 file.  This is useful when only a fraction of
-the data needs to be manipulated, since
-:meth:`~bapsflib.lapdhdf.files.File.read_data` will only bring that
-subset of data into memory.  If :code:`shots` is not specified, then all
-shots are extracted.
+It is possible for a LaPD generated HDF5 file to contain multiple
+digitizers, which can have multiple analog-digital-converters and
+multiple data configurations.  In this case,
+:meth:`~bapsflib.lapdhdf.files.File.read_data` utilizes keywords
+:data:`digitizer`, :data:`adc`, and :data:`config_name` to redirect the
+data extraction accordingly.
 
-The :code:`shots` keyword can be an :code:`int`, list of :code:`ints`,
-or a :func:`slice` object.  Suppose the HDF5 dataset (:code:`dset`) has
-a shape of
+If :data:`digitizer` is not specified, then it is assumed that the
+desired digitizer is the one defined in
+:attr:`~bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer`.  Suppose
+the :file:`test.hdf5` has two digitizers, :code:`'SIS 3301'` and
+:code:`'SIS crate'`.  In this case :code:`'SIS 3301'` would be assumed
+as the :attr:`~bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer`.  To
+extract data from :code:`'SIS crate'` one would use the
+:data:`digitizer` keyword as follows
 
-    >>> dset.shape
-    Out: (100, 3000)
-
-The first dimension corresponds to the the :code:`shots` index and the
-second dimension corresponds to the time index.  To read out just shot 4
-then
-
-    >>> data = f.read_data(0, 0, shots=4)
-
-which is equivalent to
-
-    >>> data = dset[4].view()
-
-To read out shots 4, 7, and 10 then
-
-    >>> data = f.read_data(0, 0, shots=[4, 7, 10])
-
-which is equivalent to
-
-    >>> data = dset[(4, 7, 10), :].view()
-
-To read out a slice of shots from 4 to 10 then
-
-    >>> data = f.read_data(0, 0, shots=slice(4, 11, None))
-
-which is equivalent to
-
-    >>> data = dset[4:11:, :].view()
-
-To read out every other shot between 4 and 10 then
-
-    >>> data = f.read_data(0, 0, shots=slice(4, 11, 2))
-
-which is equivalent to
-
-    >>> data = dset[4:11:2, :].view()
-
-
-.. _read_w_digitizer:
-
-Using :data:`digitizer` keyword
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-A HDF5 may contain data from more than one digitizer.  In such a
-situation, the :data:`digitizer` keyword can be used to direct the
-:meth:`~bapsflib.lapdhdf.files.File.read_data` method to extract data
-from the desired digitizer.  If the keyword is omitted, then
-:meth:`~bapsflib.lapdhdf.files.File.read_data` will assume the digitizer
-defined in :attr:`~bapsflib.lapdhdf.files.File.file_map`'s
-:attr:`~bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer` property.
-
-Suppose the :file:`test.hdf5` file has two digitizers,
-:code:`'SIS 3301'` and :code:`'SIS crate'`.  In this case,
-:code:`'SIS 3301'` would be assumed as the
-:attr:`~bapsflib.lapdhdf.hdfmappers.hdfMap.main_digitizer`.  In order to
-extract data from :code:`'SIS crate'` one would do
-
-    >>> data = f.read_data(0, 0, digitizer='SIS crate')
-
-To see how to retrieve a list of active adc's, then look to
-:ref:`get_digitizers`.
+    >>> data = f.read_data(board, channel, digitizer='SIS crate')
 
 .. _read_w_adc:
 

@@ -178,37 +178,23 @@ extract data from :code:`'SIS crate'` one would use the
 
     >>> data = f.read_data(board, channel, digitizer='SIS crate')
 
-.. _read_w_adc:
+Digitizer :code:`'SIS crate'` can have multiple active
+analog-digital-converters (adc's), :code:`'SIS 3302'` and
+:code:`'SIS 3305'`.  By default, if only one adc is active then that adc
+is assumed; however, if multiple adc's are active, then the adc with the
+slower sample rate is assumed. :code:`'SIS 3302'` in this case.  To
+extract data from :code:`'SIS 3305'` on would use the :data:`adc`
+keyword as follows
 
-Using :data:`adc` keyword
-^^^^^^^^^^^^^^^^^^^^^^^^^
+    >>> data = f.read_data(board, channel, digitizer='SIS crate',
+    >>>                    adc='SIS 3305')
 
-A digitizer may have several analog-digital converts (adc's).  For
-example, the :code:`'SIS crate'` digitizer can digitized data with two
-different adc's, :code:`'SIS 3302'` and :code:`'SIS 3305'`.  By default,
-if only one adc's is active then
-:meth:`~bapsflib.lapdhdf.files.File.read_data` method will assume that
-one.  If two or more adc's are active then
-:meth:`~bapsflib.lapdhdf.files.File.read_data` will the adc with the
-slower sample rate.  In the case above, that would be
-:code:`'SIS 3302'`.  To extract data from :code:`'SIS 3305'`, then one
-would do
 
-    >>> data = f.read_data(0, 0, adc='SIS 3305')
-
-To see how to retrieve a list of active adc's, then look to
-:ref:`get_adcs`.
 
 .. _read_w_config_name:
 
 Using :data:`config_name` keyword
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-
-.. _read_w_keep_bits:
-
-Using :data:`keep_bits` keyword
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 .. _adding_controls:

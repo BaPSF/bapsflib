@@ -183,19 +183,24 @@ analog-digital-converters (adc's), :code:`'SIS 3302'` and
 :code:`'SIS 3305'`.  By default, if only one adc is active then that adc
 is assumed; however, if multiple adc's are active, then the adc with the
 slower sample rate is assumed. :code:`'SIS 3302'` in this case.  To
-extract data from :code:`'SIS 3305'` on would use the :data:`adc`
+extract data from :code:`'SIS 3305'` one would use the :data:`adc`
 keyword as follows
 
     >>> data = f.read_data(board, channel, digitizer='SIS crate',
     >>>                    adc='SIS 3305')
 
+A digitizer can have multiple configurations, but typically only one
+configuration is ever active for the HDF5 file.  In the case that
+multiple configurations are active, there is no overlying hierarchy for
+assuming one configuration over another.  Suppose digitizer
+:code:`'SIS crate'` has two configurations, :code:`'config_01'` and
+:code:`'config_02'`.  In this case, one of the configurations has to be
+specified at the time of extraction.  To extract data from
+:code:`'SIS crate'` under the the configuration :code:`'config_02'` one
+would use the :data:`'config_name'` keyword as follows
 
-
-.. _read_w_config_name:
-
-Using :data:`config_name` keyword
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+    >>> data = f.read_data(board, channel, digitizer='SIS crate',
+    >>>                    config_name='config_02')
 
 .. _adding_controls:
 

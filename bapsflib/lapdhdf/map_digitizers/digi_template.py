@@ -73,6 +73,20 @@ class hdfMap_digi_template(object):
         """
 
     @property
+    def active_configs(self):
+        """
+        :return: list of active configuration names
+        """
+        afigs = []
+        for key in self.data_configs:
+            try:
+                if self.data_configs[key]['active']:
+                    afigs.append(key)
+            except KeyError:
+                pass
+        return afigs
+
+    @property
     @abstractmethod
     def _predefined_adc(self):
         """

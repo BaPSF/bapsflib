@@ -31,25 +31,27 @@ from .map_controls import hdfMap_controls
 
 class hdfMap(object):
     """
-    Constructs a complete file mapping of :py:obj:`hdf_obj` that is
-    utilized by :py:class:`lapdhdf.File` to manipulate and read data out
+    Constructs a complete file mapping of :obj:`hdf_obj` that is
+    utilized by :class:`lapdhdf.File` to manipulate and read data out
     of the HDF5 file.
-
-    :param hdf_obj: an object instance of :py:class:`lapdhdf.File`
     """
     # MSI stuff
-    msi_group = 'MSI'
+    msi_gname = 'MSI'
+    """Name of the MSI HDF5 group."""
 
     # Data and Config stuff
-    data_group = 'Raw data + config'
-
-    # possible_digitizer_groups = {'main': ['SIS 3301', 'SIS crates'],
-    #                             'aux': ['LeCroy', 'Waveform']}
-    # possible_motion_groups = ['6K Compumotor', 'NI_XZ']
-    # possible_dsequence_groups = ['Data run sequence']
+    data_gname = 'Raw data + config'
+    """Name of the DATA HDF5 group"""
 
     def __init__(self, hdf_obj):
+        """
+        :param hdf_obj: the HDF5 file object
+        :type hdf_obj: :class:`h5py.File`
+        """
+        # store an instance of the HDF5 object for hdfMap
         self.__hdf_obj = hdf_obj
+
+        # attach the mapping dictionaries
         self.__attach_msi()
         self.__attach_digitizers()
         self.__attach_controls()
@@ -57,34 +59,41 @@ class hdfMap(object):
     @property
     def has_msi_group(self):
         """
-        :return: True/False if 'MSI/' group is detected
+        :return: :code:`True` if MSI group (:attr:`msi_gname`) is
+            detected
+        :rtype: bool
         """
-        detected_msi = True if self.msi_group in self.__hdf_obj \
+        detected_msi = True if self.msi_gname in self.__hdf_obj \
             else False
         return detected_msi
 
     @property
     def has_data_group(self):
         """
-        :return: True/False if 'Raw data + config/' group is detected
+        :return: :code:`True` if data group (:attr:`data_gname`) group
+            is detected
+        :rtype: bool
         """
-        detected_data = True if self.data_group in self.__hdf_obj \
+        detected_data = True if self.data_gname in self.__hdf_obj \
             else False
         return detected_data
 
     @property
     def has_data_run_sequence(self):
         """
-        :return: True/False if the 'Data run sequence/' group is found
+        :return: :code:`True` if the 'Data run sequence/' group is found
             in the data group
+        :rtype: bool
         """
+        # TODO: update when 'Data run squence/' is incorporated
         return False
 
     @property
     def has_digitizers(self):
         """
-        :return: True/False if any known digitizers are discovered in
-            the data group
+        :return: :code:`True` if any known digitizers are discovered in
+            the data group (i.e :attr:`digitizers` is not empty)
+        :rtype: bool
         """
         if not hasattr(self, 'digitizers'):
             has_digis = False
@@ -99,8 +108,9 @@ class hdfMap(object):
     @property
     def has_controls(self):
         """
-        :return: :code:`True`/:code:`False` if any known control groups
-            are discovered in the data group
+        :return: :code:`True` if known control devices are discovered
+            in the data group (i.e. :attr:`controls` is not empty)
+        :rtype: bool
         """
         if not hasattr(self, 'controls'):
             has_controls = False
@@ -115,32 +125,31 @@ class hdfMap(object):
     @property
     def has_unknown_data_subgoups(self):
         """
-        :return: True/False if any unknown groups are discovered in the
-            data groups. These groups could end up being digitizer
-            groups and/or motion groups.
+        :return: :code:`True` if there are any subgroups in the data
+            group that are not known by the mapping constructors.
         """
+        # TODO: need to implement
         return False
 
     def __attach_msi(self):
         """
-        Will attach a dictionary style mapper (self.__msi) that contains
-        all msi diagnostic mappings.
+        Attaches a dictionary (:attr:`__msi`) containing all MSI
+        diagnostic mapping objects.
         """
         if self.has_msi_group:
-            self.__msi = hdfMap_msi(self.__hdf_obj[self.msi_group])
+            self.__msi = hdfMap_msi(self.__hdf_obj[self.msi_gname])
         else:
             self.__msi = None
 
     @property
     def msi(self):
         """
-        :return: A dictionary style container for all MSI diagnostic
-            mappings.
+        :return: A dictionary containing all MSI diagnostic mappings
+            objects.
+        :rtype: dict
 
         For example, to retrieve mappings of LaPD's Magnetic field one
-        would call
-
-        .. code-block:: python
+        would call::
 
             fmap = hdfMap(file_obj)
             bmap = fmap.msi['Magnetic field']
@@ -149,25 +158,23 @@ class hdfMap(object):
 
     def __attach_digitizers(self):
         """
-        Will attach a dictionary style mapper (self.__digitizers) that
-        contains all digitizer mappings.
+        Attaches a dictionary (:attr:`__digitizers`) containing all
+        digitizer mapping objects.
         """
         if self.has_data_group:
             self.__digitizers = hdfMap_digitizers(
-                self.__hdf_obj[self.data_group])
+                self.__hdf_obj[self.data_gname])
         else:
             self.__digitizers = None
 
     @property
     def digitizers(self):
         """
-        :return: A dictionary style container for all digitizer
-            mappings.
+        :return: A dictionary containing all digitizer mapping objects.
+        :rtype: dict
 
-        For example, to retrieve mappings of digitizer group 'SIS 3301'
-        one would call
-
-        .. code-block:: python
+        For example, to retrieve mappings of digitizer
+        :code:`'SIS 3301'` one would call::
 
             fmap = hdfMap(file_obj)
             dmap = fmap.digitizers['SIS 3301']
@@ -176,24 +183,24 @@ class hdfMap(object):
 
     def __attach_controls(self):
         """
-        Will attach a dictionary style mapper (self.__controls) that
-        contains all control mappings.
+        Attaches a dictionary (:attr:`__controls`) containing all
+        control device mapping objects.
         """
         if self.has_data_group:
             self.__controls = hdfMap_controls(
-                self.__hdf_obj[self.data_group])
+                self.__hdf_obj[self.data_gname])
         else:
             self.__controls = None
 
     @property
     def controls(self):
         """
-        :return: A dictionary style container for all control mappings.
+        :return: A dictionary containing all control device mapping
+            objects.
+        :rtype: dict
 
-        For example, to retrieve mappings of the control group
-        '6K Compumotor' one would call
-
-        .. code-block:: python
+        For example, to retrieve mappings of the control device
+        :code:`'6K Compumotor'` one would call::
 
             fmap = hdfMap(file_obj)
             mmap = fmap.controls['6K Compumotor']
@@ -202,19 +209,22 @@ class hdfMap(object):
 
     def __attach_unknowns(self):
         """
-        Will attach a dictionary style mapper (self.__unknowns) that
-        contains all additional subgroups in :py:const:`data_group` that
-        are unknown to the mapping constructor.
+        Attaches a list (:attr:`__unknowns`) with the subgroup names of
+        all the subgroups in the data group (:attr:`data_gname`) that
+        are unknown to the mapping constructors.
         """
+        # TODO: need to implement
         self.__unknowns = None
 
     @property
     def unknowns(self):
         """
-        :return: A dictionary container for all subgroups in
-            :py:const:`data_group` that are unknown to the mapping
-            constructor.
+        :return: A list containing all the subgroup names for the
+            subgroups in the data group (:attr:`data_gname` that are
+            unknown to the mapping constructor.
+        :rtype: list
         """
+        # TODO: need to implement
         return self.__unknowns
 
     @property

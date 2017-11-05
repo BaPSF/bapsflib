@@ -161,10 +161,10 @@ Directing to a Specified Digitizer Dataset
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is possible for a LaPD generated HDF5 file to contain multiple
-digitizers, which can have multiple analog-digital-converters and
-multiple data configurations.  In this case,
-:meth:`~bapsflib.lapdhdf.files.File.read_data` utilizes keywords
-:data:`digitizer`, :data:`adc`, and :data:`config_name` to redirect the
+digitizers, each of which can have multiple analog-digital-converters
+and multiple configuration settings.  For such a case,
+:meth:`~bapsflib.lapdhdf.files.File.read_data` has the keywords
+:data:`digitizer`, :data:`adc`, and :data:`config_name` to direct the
 data extraction accordingly.
 
 If :data:`digitizer` is not specified, then it is assumed that the

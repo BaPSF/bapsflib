@@ -184,17 +184,17 @@ class hdfMap_digi_template(object):
 
         where
 
-        - **board** (`int`) = active board number
-        - **channel** (`list(int)`) = list of active channels on
-          **baord**
-        - :code:`'bit'` = bit resolution of adc
-        - :code:`'sample rate'` = 2-element tuple defining sample rate
+        * :code:`board` (`int`) = active board number
+        * :code:`channel` (`list(int)`) = list of active channels on
+          :code:`board`
+        * :code:`'bit'` = bit resolution of adc
+        * :code:`'sample rate'` = 2-element tuple defining sample rate
           of the adc. First element is value and second is its units.
-        - :code:`'sample average (hardware)'` = `int` for the number of
-            sample averaged together and :code:`None` for no averaging
-        - :code:`'shot average (software)'` = `int` for the number of
-            consecutive shots averaged together and :code:`None` for no
-            averaging
+        * :code:`'sample average (hardware)'` = `int` for the number of
+          sample averaged together and :code:`None` for no averaging
+        * :code:`'shot average (software)'` = `int` for the number of
+          consecutive shots averaged together and :code:`None` for no
+          averaging
 
         :raise: :exc:`NotImplementedError`
         """
@@ -222,7 +222,7 @@ class hdfMap_digi_template(object):
 
         :param str adc_name: name of adc
         :param config_group: digitizer configuration group
-        :type config_group: :mod:`h5py.Group`
+        :type config_group: :class:`h5py.Group`
         :return: list of active adc connections formatted in the same
             manner as the **return** of :meth:`_adc_info`
         :raise: :exc:`NotImplementedError`

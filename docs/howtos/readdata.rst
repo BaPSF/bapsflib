@@ -206,3 +206,67 @@ would use the :data:`'config_name'` keyword as follows
 
 Adding Control Device Data
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Adding control device data to a digitizer dataset is done with the
+keyword :data:`add_controls`.  Specifying :data:`add_controls` will
+trigger a call to the
+:class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl` class and
+extract the desired control device data.
+:class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` then compares and
+mates that control device data with the digitizer data accoding to the
+global HDF5 shot number.
+
+:data:`add_controls` must be a list of strings and/or 2-element tuples
+specifying the desired control device data to be added to the digitizer
+data.  If a control device only controls one probe or has one
+configuration, then it is sufficient to only name that device when
+mating it to the digitizer data.  For example, if a
+:code:`'6K Compumotor'` is only controlling one probe, then the data
+extraction call would look like
+
+    >>> data = f.read_data(board, channel,
+    >>>                    add_controls=['6K Compumotor'])
+
+In the case the :code:`'6K Compumotor'` is controlling multiple probes,
+the :data:`add_controls` call must also provide a unique specifier to
+direct the extraction to the appropriate device in the
+:code:`'6K Compumotor'` control.  This is done with a 2-element tuple
+entry for :data:`add_controls`, where the first element is the control
+device name and the second element is a unique specifier.  For the
+:code:`'6K Compumotor'` the unique specifier is the receptacle number
+of the probe drive [1]_.  Suppose the :code:`'6K Compumotor'` is utilizing
+three probe drives with the receptacles 2, 3, and 4.  To mate control
+device data from receptacle 3, the call would look something like
+
+    >>> control  = '6K Compumotor'
+    >>> unique_spec = 3
+    >>> controls = [(control, unique_spec)]
+    >>> data = f.read_data(board, channel, add_controls=controls)
+
+Multiple control device datasets can be added at once, but only
+one control device for each control type (:code:`'motion'`,
+:code:`'power'`, and :code:`'waveform'`) can be added.  Adding
+:code:`'6K Compumotor'` data from receptacle 3 and :code:`'Waveform'`
+data would look like
+
+    >>> data = f.read_data(board, channel,
+    >>>                    add_controls=[('6K Compumotor', 3),
+    >>>                                  'Waveform'])
+
+Since :code:`'6K Compumotor'` is a :code:`'motion'` control type it
+fills out the field :code:`'xyz'` field in the returned numpy structured
+array; whereas, :code:`'Waveform'` will add field names to the numpy
+structured array according to the fields specified in its mapping
+constructor.
+
+.. note::
+
+    The sub-setting keyword :data:`intersection_set` affects how the
+    control device data is mated to the digitizer data.
+    :code:`intersection_set=True` will ensure that the returned data
+    only contains shot numbers that are in the digitizer dataset and all
+    of the control device datasets.  :code:`intersection_set=False` will
+    fill non-intersecting data entries with a :attr:`numpy.nan` value.
+
+.. [1] Each control device has its own unique specifier type. For
+    example, :code:`'Waveform'` uses a string naming its IP address.

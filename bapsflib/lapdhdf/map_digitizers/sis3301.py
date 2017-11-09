@@ -55,10 +55,10 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []
         dataset_names = []
-        for key in self.digi_group.keys():
-            if isinstance(self.digi_group[key], h5py.Dataset):
+        for key in self.group.keys():
+            if isinstance(self.group[key], h5py.Dataset):
                 dataset_names.append(key)
-            if isinstance(self.digi_group[key], h5py.Group):
+            if isinstance(self.group[key], h5py.Group):
                 subgroup_names.append(key)
 
         # populate self.data_configs
@@ -74,18 +74,18 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
                 # assign active adc's to the configuration
                 self.configs[config_name]['adc'] = \
-                    self._find_config_adc(self.digi_group[name])
+                    self._find_config_adc(self.group[name])
 
                 # add 'group name'
                 self.configs[config_name]['group name'] = name
 
                 # add 'group path'
                 self.configs[config_name]['group path'] = \
-                    self.digi_group[name].name
+                    self.group[name].name
 
                 # add adc info
                 self.configs[config_name]['SIS 3301'] = \
-                    self._adc_info('SIS 3301', self.digi_group[name])
+                    self._adc_info('SIS 3301', self.group[name])
 
     @staticmethod
     def parse_config_name(name):

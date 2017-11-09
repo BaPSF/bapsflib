@@ -98,7 +98,7 @@ class hdfMap_digi_template(object):
         raise NotImplementedError
 
     @property
-    def digi_group(self):
+    def group(self):
         """
         :return: HDF5 digitizer group
         :rtype: :py:mod:`h5py.Group`

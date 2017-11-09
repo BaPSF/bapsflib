@@ -274,3 +274,16 @@ class File(h5py.File):
                               intersection_set=intersection_set,
                               silent=silent,
                               **kwargs)
+
+    def save_report(self, sname):
+        """
+        Save a HDF5 file report based on the HDF5 mappings.
+
+        :param sname: save file name
+
+        .. Warning::
+
+            Not implemented yet.
+        """
+        # TODO: implement this save report
+        raise NotImplementedError

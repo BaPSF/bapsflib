@@ -48,15 +48,15 @@ class hdfMap_digi_template(object):
 
         self.configs = {}
         """
-        :data:`data_configs` will contain all the mapping metadata
-        for each configuration of the digitizer.  If no configurations
-        are found the :data:`data_configs` will be an empty `dict`.
-        Otherwise, the dict keys will be the configuration names and
-        :data:`data_configs` will be structured as:
+        :data:`configs` will contain all the mapping metadata for each
+        configuration of the digitizer.  If no configurations are found
+        the :data:`configs` will be an empty `dict`.  Otherwise, the
+        dict keys will be the configuration names and :data:`configs`
+        will be structured as:
         
         .. code-block:: python
         
-            data_configs[config_name] = {
+            configs[config_name] = {
                 'active': True/False, # config is active or not
                 'adc': ['adc_name', ], # list of active adc's
                 'group name': '', # name of configuration group
@@ -68,8 +68,8 @@ class hdfMap_digi_template(object):
                                'shot average (software)': int,
                                'sample average (hardware)': int}), ]}
         
-        where there will be a corresponding :code:`adc_name` key for each
-        adc in :code:`data_configs[config_name]['adc']`.
+        where there will be a corresponding :code:`adc_name` key for
+        each adc in :code:`configs[config_name]['adc']`.
         """
 
     @property
@@ -106,13 +106,13 @@ class hdfMap_digi_template(object):
         return self.__digi_group
 
     @abstractmethod
-    def _build_data_configs(self):
+    def _build_configs(self):
         """
-        Builds and binds the dictionary :py:data:`data_configs` that
-        contains information about how the digitizer was configured.
+        Builds and binds the dictionary :py:data:`configs` that contains
+        information about how the digitizer was configured.
 
         Should call on the following methods to build
-        :data:`data_configs`:
+        :data:`configs`:
 
         - :meth:`parse_config_name`
         - :meth:`is_config_active`

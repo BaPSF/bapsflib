@@ -22,7 +22,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         hdfMap_digi_template.__init__(self, digi_group)
 
         # build self.data_configs
-        self._build_data_configs()
+        self._build_configs()
 
     @property
     def _predefined_adc(self):
@@ -31,7 +31,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         """
         return ['SIS 3301']
 
-    def _build_data_configs(self):
+    def _build_configs(self):
         """
         Builds self.data_configs dictionary. A dict. entry follows:
 

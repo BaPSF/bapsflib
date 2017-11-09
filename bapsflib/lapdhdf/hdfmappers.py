@@ -32,8 +32,8 @@ from .map_controls import hdfMap_controls
 class hdfMap(object):
     """
     Constructs a complete file mapping of :obj:`hdf_obj` that is
-    utilized by :class:`lapdhdf.File` to manipulate and read data out
-    of the HDF5 file.
+    utilized by :class:`bapsflib.lapdhdf.files.File` to manipulate and
+    read data out of the HDF5 file.
     """
     # MSI stuff
     msi_gname = 'MSI'

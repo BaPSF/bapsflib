@@ -19,21 +19,21 @@ class File(h5py.File):
     """
     Open a HDF5 File.
 
-    see :py:mod:`h5py` documentation for :py:class:`h5py.File` details:
+    see :mod:`h5py` documentation for :class:`h5py.File` details:
     http://docs.h5py.org/en/latest/
 
-    :param name: Name of file (`str` or `unicode`)
-    :param mode: Mode in which to open the file. (default 'r' read-only)
+    :param str name: Name of file (`str` or `unicode`)
+    :param str mode: Mode in which to open the file. (default 'r' read-only)
     :param driver: File driver to use
     :param libver: Compatibility bounds
     :param userblock_size: Size (in bytes) of the user block. If
         nonzero, must be a power of 2 and at least 512.
     :param swmr: Single Write, Multiple Read
-    :param kwds: Driver specific keywords
+    :param kwargs: Driver specific keywords
     """
     def __init__(self, name, mode='r', driver=None, libver=None,
-                 userblock_size=None, swmr=False, **kwds):
-        """what should i put here"""
+                 userblock_size=None, swmr=False, **kwargs):
+        # TODO: re-work the argument pass through to h5py.File
         # TODO: add keyword save_report
         # - this will save the hdfChecks report to a text file alongside
         #   the HDF5 file
@@ -42,33 +42,26 @@ class File(h5py.File):
         #   does not affect save_report
         #
         h5py.File.__init__(self, name, mode, driver, libver,
-                           userblock_size, swmr)
+                           userblock_size, swmr, **kwargs)
 
         print('Begin HDF5 Quick Report:')
         self.__file_checks = hdfCheck(self)
 
-    # @property
-    # def file_checks(self):
-    #    """
-    #    :return: an instance of :py:class:`lapdhdf.hdfchecks.hdfCheck`
-    #    """
-    #    return self.__file_checks
-
     @property
     def file_map(self):
         """
-        :return: an instance of the
-            :py:class:`bapsflib.lapdhdf.hdfmappers.hdfMap` file
-            mappings.
+        :return: HDF5 file mappings
+        :rtype: :class:`bapsflib.lapdhdf.hdfmappers.hdfMap`
         """
         return self.__file_checks.get_hdf_mapping()
 
     @property
     def listHDF_files(self):
         """
-        :return: a list of strings representing the absolute paths
-            (including Group/Dataset name) for each Group and Dataset in
-            the HDF5 file.
+        :return: list of strings representing the absolute paths
+            (base + filename) for each Group and Dataset in the HDF5
+            file.
+        :rtype: list(str)
         """
         some_list = []
         self.visit(some_list.append)
@@ -77,7 +70,7 @@ class File(h5py.File):
     @property
     def list_msi(self):
         """
-        :return: a list of strings naming the MSI diagnostics found in
+        :return: list of strings naming the MSI diagnostics found in
             the HDF5 file
         :rtype: list(str)
         """
@@ -86,7 +79,7 @@ class File(h5py.File):
     @property
     def list_digitizers(self):
         """
-        :return: a list of strings naming the digitizers found in the
+        :return: list of strings naming the digitizers found in the
             HDF5 file
         :rtype: list(str)
         """
@@ -95,7 +88,7 @@ class File(h5py.File):
     @property
     def list_controls(self):
         """
-        :return: a list of strings naming the controls found in the
+        :return: list of strings naming the controls found in the
             HDF5 file
         :rtype: list(str)
         """
@@ -104,9 +97,10 @@ class File(h5py.File):
     @property
     def listHDF_file_types(self):
         """
-        :return: a list of strings indicating if an HDF5 item is a Group
+        :return: list of strings indicating if an HDF5 item is a Group
             or Dataset. This has a one-to-one correspondence to
             listHDF_files.
+        :rtype: list(str)
         """
         some_list = []
         for name in self.listHDF_files:
@@ -118,7 +112,8 @@ class File(h5py.File):
     @property
     def tupHDF_fileSys(self):
         """
-        :return: `zip(listHDF_files, listHDF_file_types)`
+        :return: :code:`zip(listHDF_files, listHDF_file_types)`
+        :rtype: iterator of 2-element tuples
         """
         return zip(self.listHDF_files, self.listHDF_file_types)
 
@@ -172,8 +167,16 @@ class File(h5py.File):
                   keep_bits=False, add_controls=None,
                   intersection_set=True, silent=False, **kwargs):
         """
-        :param int board: board number
-        :param int channel: channel number
+        Provides access to
+        :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` to extract
+        data from a specified digitizer dataset in the HDF5 file and,
+        if requested, mate control device data to the extracted
+        digitizer data. See
+        :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` for more
+        detail.
+
+        :param int board: digitizer board number
+        :param int channel: digitizer channel number
         :param index: dataset row index
         :type index: int, list(int), slice()
         :param shotnum: HDF5 global shot number
@@ -185,25 +188,37 @@ class File(h5py.File):
             :code:`False` (default) for output in voltage
         :param add_controls: a list of strings and/or 2-element tuples
             indicating control device data to be mated to the digitizer
-            data. If an element is a string, then that string is the
-            name of the control device, If an element is a 2-element
-            tuple, then the 1st element is the name of the control
-            device and the 2nd element is a unique specifier for that
-            control device.
-        :type add_controls: [str, (str, val), ]
-        :param intersection_set: :code:`True` (default) ensures the
-            returned array only contains shot numbers that are found in
-            the digitizer dataset and all added control device datasets.
-            :code:`False` will cause the returned array to contain shot
-            numbers specified by :data:`shotnum` or, when :data:`index`
-            is used, the matching shot numbers in the digitizer dataset
-            specified by :data:`index`
-        :param bool silent: (default) :code:`False`. Set :code:`True` to
-            suppress any warning print outs when data is constructed.
-            Exceptions are still raise when necessary.
-        :return: instance of
+            data. (see
             :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
+            for details)
+        :type add_controls: [str, (str, val), ]
+        :param bool intersection_set: :code:`True` (default) forces the
+            returned array to only contain shot numbers that are in the
+            intersection of :data:`shotnum`, the digitizer dataset, and
+            all the control device datasets. (see
+            :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
+            for details)
+        :param bool silent: :code:`False` (default). Set :code:`True` to
+            suppress command line printout of soft-warnings
+        :return: extracted data from digitizer (and control devices)
+        :rtype: :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
         """
+        #
+        # :param add_controls: a list of strings and/or 2-element tuples
+        #     indicating control device data to be mated to the
+        #     digitizer data. If an element is a string, then that
+        #     string is the name of the control device, If an element is
+        #     a 2-element tuple, then the 1st element is the name of the
+        #     control device and the 2nd element is a unique specifier
+        #     for that control device.
+        # :param intersection_set: :code:`True` (default) ensures the
+        #     returned array only contains shot numbers that are found
+        #     in the digitizer dataset and all added control device
+        #     datasets. :code:`False` will cause the returned array to
+        #     contain shot numbers specified by :data:`shotnum` or, when
+        #     :data:`index` is used, the matching shot numbers in the
+        #     digitizer dataset specified by :data:`index`
+        #
         # TODO: write docstrings
         #
         return hdfReadData(self, board, channel,
@@ -221,6 +236,38 @@ class File(h5py.File):
     def read_controls(self, controls,
                       index=None, shotnum=None, intersection_set=True,
                       silent=False, **kwargs):
+        """
+        Provides access to
+        :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl` to
+        extract data from specified control device dataset(s) in the
+        HDF5 file. See
+        :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl` for
+        more detail.
+
+        :param controls: a list of strings and/or 2-element tuples
+            indicating control device data to be extracted. (see
+            :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
+            for details)
+        :type controls: [str, (str, val), ]
+        :param index: row index of the 1st specified control device
+            dataset or row index of the array of intersecting shot
+            numbers (see
+            :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
+            for details)
+        :type index: int, list(int), slice()
+        :param shotnum: HDF5 global shot number
+        :type shotnum: int, list(int), slice()
+        :param bool intersection_set: :code:`True` (default) forces the
+            returned array to only contain shot numbers that are in the
+            intersection of :data:`shotnum` and all the control device
+            datasets. (see
+            :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
+            for details)
+        :param bool silent: :code:`False` (default). Set :code:`True` to
+            suppress command line printout of soft-warnings
+        :return: extracted data from control device(s)
+        :rtype: :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
+        """
         return hdfReadControl(self, controls,
                               index=index,
                               shotnum=shotnum,

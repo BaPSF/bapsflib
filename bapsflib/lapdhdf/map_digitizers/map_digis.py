@@ -18,26 +18,33 @@ from .siscrate import hdfMap_digi_siscrate
 
 class hdfMap_digitizers(dict):
     """
-    Creates a dictionary that contains mapping instances for all the
-    discovered digitizers in the HDF5 data group.
+    A dictionary that contains mapping objects for all the discovered
+    digitizers in the HDF5 data group.  The dictionary keys are the
+    discovered digitizer names.
+
+    For example,
+
+        >>> dmaps = hdfMap_digitizers(data_group)
+        >>> dmaps['SIS 3301']
+        OUT: <bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301>
     """
     _defined_digitizer_mappings = {
         'SIS 3301': hdfMap_digi_sis3301,
         'SIS crate': hdfMap_digi_siscrate}
     """
-    A dictionary containing references to the defined digitizer mapping
-    classes.
+    A dictionary containing references to the defined (known) digitizer 
+    mapping classes.
     """
 
     def __init__(self, data_group):
         """
-        :param data_group: the HDF5 group that contains the digitizer
+        :param data_group: HDF5 (data) group that contains the digitizer
             groups
-        :type data_group: :mod:`h5py.Group`
+        :type data_group: :class:`h5py.Group`
         """
 
         # condition data_group arg
-        if not isinstance(data_group, h5py.Group):
+        if type(data_group) is not h5py.Group:
             raise TypeError('data_group is not of type h5py.Group')
 
         # store HDF5 data group instance
@@ -50,23 +57,25 @@ class hdfMap_digitizers(dict):
         #   2. digitizer groups (known)
         #   3. controls (known)
         #   4. unknown
-        #: list of all group names in the HDF5 data group
-        self.data_group_subgroups = []
-        for item in data_group:
-            if isinstance(data_group[item], h5py.Group):
-                self.data_group_subgroups.append(item)
+        #
+        # list of all group names in the HDF5 data group
+        #
+        self.data_group_subgnames = []
+        for name in data_group:
+            if type(data_group[name]) is h5py.Group:
+                self.data_group_subgnames.append(name)
 
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
 
-    @property
-    def data_group(self):
-        """
-        :return: instance of the HDF5 data group containing the
-            digitizers
-        :rtype: :mod:`h5py.Group`
-        """
-        return self.__data_group
+    # @property
+    # def data_group(self):
+    #     """
+    #     :return: instance of the HDF5 data group containing the
+    #         digitizers
+    #     :rtype: :mod:`h5py.Group`
+    #     """
+    #     return self.__data_group
 
     @property
     def predefined_digitizer_groups(self):
@@ -74,23 +83,25 @@ class hdfMap_digitizers(dict):
         :return: list of the predefined digitizer group names
         :rtype: list(str)
         """
-        return list(self._defined_digitizer_mappings.keys())
+        return list(self._defined_digitizer_mappings)
 
     @property
     def __build_dict(self):
         """
-        Builds a dictionary containing mapping instances of all the
-        discovered digitizers in the data group.
+        Discovers the HDF5 digitizers and builds the dictionary
+        containing the digitizer mapping objects.  This is the
+        dictionary used to initialize :code:`self`.
 
         :return: digitizer mapping dictionary
+        :rtype: dict
         """
         digi_dict = {}
         try:
-            for item in self.data_group_subgroups:
-                if item in self._defined_digitizer_mappings.keys():
-                    digi_dict[item] = \
-                        self._defined_digitizer_mappings[item](
-                            self.data_group[item])
+            for name in self.data_group_subgnames:
+                if name in self._defined_digitizer_mappings:
+                    digi_dict[name] = \
+                        self._defined_digitizer_mappings[name](
+                            self.__data_group[name])
         except TypeError:
             pass
 

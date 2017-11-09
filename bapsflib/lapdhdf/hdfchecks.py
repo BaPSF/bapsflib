@@ -342,11 +342,11 @@ class hdfCheck(object):
         if silent:
             sys.stdout = open(os.devnull, 'w')
 
-        if len(digi.data_configs) != 0:
-            nconfigs = len(digi.data_configs)
+        if len(digi.configs) != 0:
+            nconfigs = len(digi.configs)
             nconf_active = 0
-            for key in digi.data_configs:
-                if digi.data_configs[key]['active']:
+            for key in digi.configs:
+                if digi.configs[key]['active']:
                     nconf_active += 1
 
             item = 'Configurations Detected ({})'.format(nconfigs)
@@ -354,22 +354,22 @@ class hdfCheck(object):
                 nconf_active, nconfigs - nconf_active)
             status_print(item, '', note, indent=2, item_found_pad=' ')
 
-            for conf in digi.data_configs:
+            for conf in digi.configs:
                 # print configuration name
                 item = conf
                 found = ''
-                note = 'used' if digi.data_configs[conf]['active'] \
+                note = 'used' if digi.configs[conf]['active'] \
                     else 'not used'
                 status_print(item, found, note, indent=3,
                              item_found_pad=' ')
 
                 # print path for config
                 item = 'Path: '\
-                       + digi.data_configs[conf]['group path']
+                       + digi.configs[conf]['group path']
                 status_print(item, '', '', indent=4, item_found_pad=' ')
 
                 # print adc details for configuration
-                for adc in digi.data_configs[conf]['adc']:
+                for adc in digi.configs[conf]['adc']:
                     # adc name
                     item = adc + ' adc connections'
                     note = '(brd, [ch, ...])'
@@ -377,10 +377,10 @@ class hdfCheck(object):
                                  item_found_pad=' ')
 
                     # adc connections
-                    nconns = len(digi.data_configs[conf][adc])
+                    nconns = len(digi.configs[conf][adc])
                     for iconn in range(nconns):
-                        conns = digi.data_configs[conf][adc][iconn][0:2]
-                        adc_stats = digi.data_configs[conf][adc][
+                        conns = digi.configs[conf][adc][iconn][0:2]
+                        adc_stats = digi.configs[conf][adc][
                             iconn][2]
                         item = '{}'.format(conns)
                         note = '{0}-bit, {1} {2}'.format(

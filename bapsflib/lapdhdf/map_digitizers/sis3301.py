@@ -50,7 +50,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                 }
         """
         # initialize data_configs
-        self.data_configs = {}
+        # self.data_configs = {}
 
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []
@@ -66,25 +66,25 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             is_config, config_name = self.parse_config_name(name)
             if is_config:
                 # initialize configuration name in the config dict
-                self.data_configs[config_name] = {}
+                self.configs[config_name] = {}
 
                 # determine if config is active
-                self.data_configs[config_name]['active'] = \
+                self.configs[config_name]['active'] = \
                     self.is_config_active(config_name, dataset_names)
 
                 # assign active adc's to the configuration
-                self.data_configs[config_name]['adc'] = \
+                self.configs[config_name]['adc'] = \
                     self._find_config_adc(self.digi_group[name])
 
                 # add 'group name'
-                self.data_configs[config_name]['group name'] = name
+                self.configs[config_name]['group name'] = name
 
                 # add 'group path'
-                self.data_configs[config_name]['group path'] = \
+                self.configs[config_name]['group path'] = \
                     self.digi_group[name].name
 
                 # add adc info
-                self.data_configs[config_name]['SIS 3301'] = \
+                self.configs[config_name]['SIS 3301'] = \
                     self._adc_info('SIS 3301', self.digi_group[name])
 
     @staticmethod
@@ -245,8 +245,8 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         #   is sought out
         if config_name is None:
             found = 0
-            for name in self.data_configs:
-                if self.data_configs[name]['active'] is True:
+            for name in self.configs:
+                if self.configs[name]['active'] is True:
                     config_name = name
                     found += 1
 
@@ -263,10 +263,10 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             else:
                 raise Exception("No active digitizer configuration "
                                 "detected.")
-        elif config_name not in self.data_configs:
+        elif config_name not in self.configs:
             # config_name must be a known configuration
             raise Exception('Invalid configuration name given.')
-        elif self.data_configs[config_name]['active'] is False:
+        elif self.configs[config_name]['active'] is False:
             raise Exception('Specified configuration name is not '
                             'active.')
 
@@ -274,7 +274,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         bc_valid = False
         d_info = None
         for brd, chs, extras in \
-                self.data_configs[config_name]['SIS 3301']:
+                self.configs[config_name]['SIS 3301']:
             if board == brd:
                 if channel in chs:
                     bc_valid = True

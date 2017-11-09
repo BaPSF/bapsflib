@@ -15,7 +15,7 @@ from abc import abstractmethod
 
 class hdfMap_digi_template(object):
     """
-    A template class for all digitizer mapping classes to inherit from.
+    Template class for all digitizer mapping classes to inherit from.
 
     .. note::
 
@@ -25,10 +25,10 @@ class hdfMap_digi_template(object):
     def __init__(self, digi_group):
         """
         :param digi_group: the digitizer HDF5 group
-        :type digi_group: :py:mod:`h5py.Group`
+        :type digi_group: :class:`h5py.Group`
         """
         # condition digi_group arg
-        if isinstance(digi_group, h5py.Group):
+        if type(digi_group) is h5py.Group:
             self.__digi_group = digi_group
         else:
             raise TypeError('arg digi_group is not of type h5py.Group')
@@ -46,9 +46,9 @@ class hdfMap_digi_template(object):
             }
         """
 
-        self.data_configs = {}
+        self.configs = {}
         """
-        :data:`data_configs` will contain all the mapping information
+        :data:`data_configs` will contain all the mapping metadata
         for each configuration of the digitizer.  If no configurations
         are found the :data:`data_configs` will be an empty `dict`.
         Otherwise, the dict keys will be the configuration names and
@@ -78,9 +78,9 @@ class hdfMap_digi_template(object):
         :return: list of active configuration names
         """
         afigs = []
-        for key in self.data_configs:
+        for key in self.configs:
             try:
-                if self.data_configs[key]['active']:
+                if self.configs[key]['active']:
                     afigs.append(key)
             except KeyError:
                 pass

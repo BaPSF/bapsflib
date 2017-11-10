@@ -49,33 +49,38 @@ class hdfMap_digi_template(object):
         self.configs = {}
         """
         :data:`configs` will contain all the mapping metadata for each
-        configuration of the digitizer.  If no configurations are found
-        the :data:`configs` will be an empty `dict`.  Otherwise, the
-        dict keys will be the configuration names and :data:`configs`
-        will be structured as:
-        
-        .. code-block:: python
+        digitizer configuration.  If no configurations are found then
+        :data:`configs` will be an empty :obj:`dict`.  Otherwise, each 
+        found configuration will be given an entry in :data:`configs`
+        where the dictionary key will be the configuration name and its
+        value will be a :obj:`dict` that looks like::
         
             configs[config_name] = {
-                'active': True/False, # config is active or not
+                'active': bool, # True/False if config is active or not
                 'adc': ['adc_name', ], # list of active adc's
                 'group name': '', # name of configuration group
-                'group path': '', # absolute path to configuration group
-                'adc_name': [(int, # board number
-                              [int, ], # list of active channels
-                              {'bit': int, # bit resolution
-                               'sample rate': (float, 'unit'),
-                               'shot average (software)': int,
-                               'sample average (hardware)': int}), ]}
+                'group path': ''  # absolute path to configuration group
+            }
         
-        where there will be a corresponding :code:`adc_name` key for
-        each adc in :code:`configs[config_name]['adc']`.
+        In Addition, for each 
+        :code:`adc_name in configs[config_name]['adc']` there will be
+        a dictionary item added to :data:`configs` that looks like::
+        
+            configs[config_name][adc_name] = [(
+                int,     # board number of active boards
+                [int, ], # channel numbers of active channels
+                {'bit': int, # adc bit resolution
+                 'sample rate': (float, 'unit'), # adc sample rate
+                 'shot average (software)': int, # adc shot averaging
+                 'sample average (hardware)': int # adc sample averaging
+            }), ]
         """
 
     @property
     def active_configs(self):
         """
         :return: list of active configuration names
+        :rtype: list(str)
         """
         afigs = []
         for key in self.configs:
@@ -90,8 +95,8 @@ class hdfMap_digi_template(object):
     @abstractmethod
     def _predefined_adc(self):
         """
-        :return: a list of all known/defined analog-digital converters
-            (adc)
+        :return: list of all predefined (known)
+            analog-digital-converters (adc's) for the digitizer
         :rtype: list(str)
         :raise: :exc:`NotImplementedError`
         """
@@ -101,17 +106,16 @@ class hdfMap_digi_template(object):
     def group(self):
         """
         :return: HDF5 digitizer group
-        :rtype: :py:mod:`h5py.Group`
+        :rtype: :class:`h5py.Group`
         """
         return self.__digi_group
 
     @abstractmethod
     def _build_configs(self):
         """
-        Builds and binds the dictionary :py:data:`configs` that contains
-        information about how the digitizer was configured.
+        Gathers the necessary metadata and fills the :data:`configs`
 
-        Should call on the following methods to build
+        Should call on the following methods to populate
         :data:`configs`:
 
         - :meth:`parse_config_name`
@@ -127,14 +131,14 @@ class hdfMap_digi_template(object):
     @abstractmethod
     def parse_config_name(name):
         """
-        Will parse the passed group name and determine if the group is
-        a digitizer configuration group.
+        Will parse the passed group name and determine if the name
+        matches a digitizer configuration group name.
 
         :param str name: name of proposed HDF5 digitizer configuration
             group
-        :return: :code:`True`/:code:`False` if `name` is a configuration
-            group, name of configuration
-        :rtype: tuple(bool, str)
+        :return: (:code:`True`/:code:`False` if :data:`name` is a
+            configuration group, the name of the configuration)
+        :rtype: (bool, str)
         """
         raise NotImplementedError
 
@@ -164,34 +168,35 @@ class hdfMap_digi_template(object):
         Should call on :meth:`_find_adc_connections` to determine
         active connections to the adc.
 
-        :param str adc_name: name of analog-digital converter
+        :param str adc_name: name of analog-digital-converter
         :param config_group: instance of the digitizers configuration
             group
-        :type config_group: :mod:`h5py.Group`
-        :return: a list of of tuples :code:`adc_info` containing configuration
-            information of the adc that looks like
+        :type config_group: :class:`h5py.Group`
+        :return: a list of of tuples containing configuration
+            information of the requested adc
 
-        .. code-block:: python
+        The returned :data:`adc_info` looks like::
 
-            adc_info = [
-                (board
-                 [channel, ],
-                 {'bit': int, # bit resolutions
-                  'sample rate': (float, str), # str='MHz', 'GHZ', etc
-                  'sample average (hardware)': int, # `None` for none
-                  'shot average (software)': int    # `None` for none
-                  }), ]
+            adc_info = [(
+                board,
+                channels,
+                {'bit': int,
+                 'sample rate': (float, str),
+                 'sample average (hardware)': int,
+                 'shot average (software)': int}
+            ), ]
 
         where
 
         * :code:`board` (`int`) = active board number
-        * :code:`channel` (`list(int)`) = list of active channels on
+        * :code:`channels` (`list(int)`) = list of active channels on
           :code:`board`
         * :code:`'bit'` = bit resolution of adc
-        * :code:`'sample rate'` = 2-element tuple defining sample rate
-          of the adc. First element is value and second is its units.
+        * :code:`'sample rate'` = 2-element tuple defining the sample
+          rate of the adc. First element is value and second is its
+          unit (e.g. :code:`'MHz'`, :code:`'GHz'`, etc.).
         * :code:`'sample average (hardware)'` = `int` for the number of
-          sample averaged together and :code:`None` for no averaging
+          samples averaged together and :code:`None` for no averaging
         * :code:`'shot average (software)'` = `int` for the number of
           consecutive shots averaged together and :code:`None` for no
           averaging
@@ -204,11 +209,11 @@ class hdfMap_digi_template(object):
     @abstractmethod
     def _find_config_adc(config_group):
         """
-        Determines the adc's used in the digitizer configuration.
+        Determines which adc's are used in the digitizer configuration.
 
         :param config_group: the digitizer configuration group
-        :type config_group: :mod:`h5py.Group`
-        :return: list of used adc's
+        :type config_group: :class:`h5py.Group`
+        :return: list of active adc's
         :rtype: list(str)
         :raise: :exc:`NotImplementedError`
         """
@@ -218,13 +223,31 @@ class hdfMap_digi_template(object):
     def _find_adc_connections(self, adc_name, config_group):
         """
         Finds the active connections (boards, channels, and extras) on
-        the adc.
+        the adc.  This is called by :meth:`_adc_info` to help gather all
+        the adc info.  It is specifically designed to find the active
+        board and channel combinations, as well as, any "extra" info
+        that can only be gathered at the same time as determining the
+        active board and channel combinations.
 
         :param str adc_name: name of adc
         :param config_group: digitizer configuration group
         :type config_group: :class:`h5py.Group`
-        :return: list of active adc connections formatted in the same
-            manner as the **return** of :meth:`_adc_info`
+        :return: list of tuples containing the active adc connections
+            and "extra" information
+
+        .. code-block:: python
+
+            adc_conns = [(board, channels, extras), ]
+
+        where
+
+        * :code:`board` (`int`) = active board number
+        * :code:`channels` (`list(int)`) = list of active channels on
+          :code:`board`
+        * :code:`extras` (`dict`) = dictionary of "extra" information,
+          can include the dictionary keys :code:`'bit'`,
+          :code:`'sample rate'`, etc.
+
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
@@ -234,20 +257,46 @@ class hdfMap_digi_template(object):
                                config_name=None, adc=None,
                                return_info=False):
         """
-        Constructs the name of the dataset corresponding to the input
+        Constructs the dataset name corresponding to the input
         arguments.
 
         :param int board: board number
         :param int channel: channel number
         :param str config_name: name of configuration
         :param str adc: name of adc
-        :param bool return_info: :code:`True`/:code:`False` to indicate
-            if adc information should be returned
-        :return: for :code:`return_info=False`, then dataset name...
-            for :code:`return_info=True`, then (dataset name, adc
-            information)...adc information contains the adc name and the
-            `dict` of :code:`adc_info` constructed by :meth:`_adc_info`
-        :rtype: str, dict
+        :param bool return_info: Set :code:`True` to also return an adc
+            information dictionary
+        :return: dataset name (and adc information dictionary if
+            :code:`return_info=True`)
+
+        The returned adc information dictionary should look like::
+
+            adc_dict = {
+                'bit': int,
+                'sample rate': (float, str),
+                'sample average (hardware)': int,
+                'shot average (software)': int,
+                'adc': str,
+                'configuration name': str,
+                'digitizer': str
+            }
+
+        :rtype: str (Default) or (str, adc_dict)
+
+        :data:`config_name` behavior:
+            * If only one configuration is active for the digitizer,
+              then that configuration is assumed and
+              :data:`config_name` does not need to be specified.
+            * If multiple configurations are active for the digitizer,
+              then one of them needs to be specified.
+
+        :data:`adc` behavior:
+            * If only one adc is active, then that adc is assumed and
+              :data:`adc` does not need to be specified.
+            * If multiple adc's are active, then the adc with the
+              slowest sample rate is assumed.  To direct to any other
+              adc, then :data:`adc` needs to be specified.
+
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError

@@ -40,4 +40,5 @@ bapsflib\.lapdhdf\.map\_digitizers\.siscrate
     :members:
     :undoc-members:
     :show-inheritance:
+    :private-members:
 

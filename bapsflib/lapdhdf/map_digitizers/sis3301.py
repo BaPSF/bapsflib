@@ -18,6 +18,10 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
     Mapping class for the 'SIS 3301' digitizer.
     """
     def __init__(self, digi_group):
+        """
+        :param digi_group: the HDF5 digitizer group
+        :type digi_group: :class:`h5py.Group`
+        """
         hdfMap_digi_template.__init__(self, digi_group)
 
         # build self.data_configs
@@ -25,27 +29,24 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
     @property
     def _predefined_adc(self):
+        """
+        Predefined (known) adc's for digitizer 'SIS 3301'
+
+        (See
+        :attr:`~.digi_template.hdfMap_digi_template._predefined_adc`
+        of the base class for details)
+        """
         return ['SIS 3301']
 
     def _build_configs(self):
         """
-        Builds self.data_configs dictionary. A dict. entry follows:
+        Populates :attr:`configs` dictionary
 
-        .. code-block:: python
-
-            data_configs[config_name] = {
-                'active': True/False,
-                'adc': [list of active analog-digital converters],
-                'group name': 'name of config group',
-                'group path': 'absolute path to config group',
-                'SIS 3301': [(brd,
-                         [ch,],
-                         {'bit': 14,
-                          'sample rate': (100.0, 'MHz')}
-                         ), ]
-                }
+        (See :meth:`~.digi_template.hdfMap_digi_template._build_configs`
+        and :attr:`~.digi_template.hdfMap_digi_template.configs`
+        of the base class for details)
         """
-        # self.configs is initialized in the tmeplate
+        # self.configs is initialized in the template
 
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []
@@ -85,15 +86,16 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
     @staticmethod
     def parse_config_name(name):
         """
-        Parses 'name' to see if it matches the naming scheme for a
-        data configuration group.  A group representing a data
-        configuration has the scheme:
+        Parses :code:`name` to determine the digitizer configuration
+        name.  A configuration group name follows the format:
 
-            Configuration: config_name
+            | Configuration: `config_name`
 
-        :param name:
-        :return:
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template.parse_config_name`
+        of the base class for details)
         """
+
         split_name = name.split()
         is_config = True if split_name[0] == 'Configuration:' else False
         config_name = ' '.join(split_name[1::]) if is_config else None
@@ -102,13 +104,12 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
     @staticmethod
     def is_config_active(config_name, dataset_names):
         """
-        The naming of a dataset starts with the name of its
-        corresponding configuration.  This scans 'dataset_names'
-        fo see if 'config_name' is used in the list of datasets.
+        Determines if :code:`config_name` is an active digitizer
+        configuration.
 
-        :param config_name:
-        :param dataset_names:
-        :return:
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template.is_config_active`
+        of the base class for details)
         """
         active = False
 
@@ -122,6 +123,12 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         return active
 
     def _adc_info(self, adc_name, config_group):
+        """
+        Gathers information on the adc configuration.
+
+        (See :meth:`~.digi_template.hdfMap_digi_template._adc_info`
+        of the base class for details)
+        """
         # 'Raw data + config/SIS 3301' group has only one possible
         # adc ('SIS 3301')
         # adc_info = ( int, # board
@@ -172,9 +179,23 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
     @staticmethod
     def _find_config_adc(config_group):
+        """
+        Determines active adc's used in the digitizer configuration.
+
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template._find_config_adc`
+        of the base class for details)
+        """
         return ['SIS 3301']
 
     def _find_adc_connections(self, adc_name, config_group):
+        """
+        Determines active connections on the adc.
+
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template._find_adc_connections`
+        of the base class for details)
+        """
         # initialize conn, brd, and chs
         # conn = list of connections
         # brd  = board number
@@ -208,22 +229,16 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                                config_name=None, adc='SIS 3301',
                                return_info=False, silent=False):
         """
-        Returns the name of a HDF5 dataset based on its configuration
-        name, board, and channel. Format follows:
+        Constructs the HDF5 dataset name based on inputs.  The dataset
+        name follows the format:
 
-            'config_name [brd:ch]'
+            | `config_name` [`board`:`channel`]'
 
-        :param board:
-        :param channel:
-        :param config_name:
-        :param adc:
-        :param return_info:
-        :param silent:
-        :return:
-
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template.construct_dataset_name`
+        of the base class for details)
         """
         # TODO: Replace Warnings with proper error handling
-        # TODO: Add a Silent kwd
 
         # initiate warning string
         warn_str = ''

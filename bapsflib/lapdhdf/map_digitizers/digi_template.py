@@ -151,8 +151,8 @@ class hdfMap_digi_template(object):
     @abstractmethod
     def is_config_active(config_name, dataset_names):
         """
-        Determines if `config_name` was used in collecting the digitizer
-        data.
+        Determines if :code:`config_name` was used in collecting the
+        digitizer data.
 
         :param str config_name: the digitizer configuration name
         :param dataset_names: list of HDF5 dataset names in the

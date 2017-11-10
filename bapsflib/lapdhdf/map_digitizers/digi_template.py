@@ -22,6 +22,11 @@ class hdfMap_digi_template(object):
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
     """
+    # If I wanted the mapping object to also be an instance of the
+    # digit group I would need to change:
+    #    1. inheritance of the templabe from 'object' to 'h5py.Group'
+    #    2. to initialize w/ h5py.Group.__init__(digi_group.id)
+    #
     def __init__(self, digi_group):
         """
         :param digi_group: the digitizer HDF5 group

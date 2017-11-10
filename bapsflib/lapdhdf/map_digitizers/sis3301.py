@@ -8,16 +8,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: consider having hdfMap_digi_sis3301 become digi_group
-#  i.e. def __init__(self, digi_group):
-#           digi_group.__init__()
-#
 import h5py
 
 from .digi_template import hdfMap_digi_template
 
 
 class hdfMap_digi_sis3301(hdfMap_digi_template):
+    """
+    Mapping class for the 'SIS 3301' digitizer.
+    """
     def __init__(self, digi_group):
         hdfMap_digi_template.__init__(self, digi_group)
 
@@ -26,9 +25,6 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
     @property
     def _predefined_adc(self):
-        """
-        :return: ['SIS 3301']
-        """
         return ['SIS 3301']
 
     def _build_configs(self):
@@ -49,8 +45,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                          ), ]
                 }
         """
-        # initialize data_configs
-        # self.data_configs = {}
+        # self.configs is initialized in the tmeplate
 
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []

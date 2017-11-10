@@ -7,10 +7,6 @@
 #
 # License:
 #
-# TODO: consider having hdfMap_digi_siscrate become digi_group
-#  i.e. def __init__(self, digi_group):
-#           digi_group.__init__()
-#
 import h5py
 
 from .digi_template import hdfMap_digi_template

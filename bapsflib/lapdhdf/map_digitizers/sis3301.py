@@ -22,9 +22,10 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         :param digi_group: the HDF5 digitizer group
         :type digi_group: :class:`h5py.Group`
         """
+        # initialize
         hdfMap_digi_template.__init__(self, digi_group)
 
-        # build self.data_configs
+        # populate self.configs
         self._build_configs()
 
     @property
@@ -57,7 +58,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             if isinstance(self.group[key], h5py.Group):
                 subgroup_names.append(key)
 
-        # populate self.data_configs
+        # populate self.configs
         for name in subgroup_names:
             is_config, config_name = self._parse_config_name(name)
             if is_config:

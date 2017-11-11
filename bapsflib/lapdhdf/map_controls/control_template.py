@@ -21,6 +21,7 @@ class hdfMap_control_template(ABC):
     Any inheriting class should define :code:`__init__` as::
 
         def __init__(self, control_group):
+            # initialize
             hdfMap_control_template.__init__(self, control_group)
 
             # define control type
@@ -54,7 +55,7 @@ class hdfMap_control_template(ABC):
         """
 
         # condition control_group arg
-        if isinstance(control_group, h5py.Group):
+        if type(control_group) is h5py.Group:
             self.__control_group = control_group
         else:
             raise TypeError('arg digi_group is not of type h5py.Group')
@@ -71,7 +72,7 @@ class hdfMap_control_template(ABC):
             info = {
                 'group name': str, # name of control group
                 'group path': str  # full path to control group
-                'contype': str,    # control device type
+                'contype': str     # control device type
             }
         """
 

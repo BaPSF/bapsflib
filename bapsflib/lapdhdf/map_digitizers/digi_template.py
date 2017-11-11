@@ -17,6 +17,15 @@ class hdfMap_digi_template(ABC):
     """
     Template class for all digitizer mapping classes to inherit from.
 
+    Any inheriting class should define :code:`__init__` as::
+
+        def __init__(self, digi_group)
+            # initialize
+            hdfMap_digi_template.__init__(self, digi_group)
+
+            # populate self.configs
+            self._build_configs()
+
     .. note::
 
         Any method that raises a :exc:`NotImplementedError` is intended

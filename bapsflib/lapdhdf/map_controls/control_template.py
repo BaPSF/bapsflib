@@ -77,6 +77,8 @@ class hdfMap_control_template(ABC):
         """
 
         # initialize configuration dictionary
+        # TODO: format of configs needs to be solidified
+        #
         self.configs = {
             'motion list': NotImplemented,
             'probe list': NotImplemented,

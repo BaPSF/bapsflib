@@ -16,6 +16,11 @@ from .control_template import hdfMap_control_template
 
 
 class hdfMap_control_waveform(hdfMap_control_template):
+    """
+    .. Warning::
+
+        In development
+    """
     def __init__(self, control_group):
         hdfMap_control_template.__init__(self, control_group)
 

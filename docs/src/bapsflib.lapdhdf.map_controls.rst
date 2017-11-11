@@ -22,12 +22,21 @@ bapsflib\.lapdhdf\.map\_controls\.map\_controls
 .. automodule:: bapsflib.lapdhdf.map_controls.map_controls
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
 
 bapsflib\.lapdhdf\.map\_controls\.sixk
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: bapsflib.lapdhdf.map_controls.sixk
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bapsflib\.lapdhdf\.map\_controls\.waveform
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: bapsflib.lapdhdf.map_controls.waveform
     :members:
     :undoc-members:
     :show-inheritance:

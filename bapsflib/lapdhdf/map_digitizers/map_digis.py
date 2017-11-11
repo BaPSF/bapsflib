@@ -32,7 +32,7 @@ class hdfMap_digitizers(dict):
         'SIS 3301': hdfMap_digi_sis3301,
         'SIS crate': hdfMap_digi_siscrate}
     """
-    A dictionary containing references to the defined (known) digitizer 
+    Dictionary containing references to the defined (known) digitizer 
     mapping classes.
     """
 
@@ -58,8 +58,7 @@ class hdfMap_digitizers(dict):
         #   3. controls (known)
         #   4. unknown
         #
-        # list of all group names in the HDF5 data group
-        #
+        #: list of all group names in the HDF5 data group
         self.data_group_subgnames = []
         for name in data_group:
             if type(data_group[name]) is h5py.Group:

@@ -10,10 +10,10 @@
 #
 import h5py
 
-from abc import abstractmethod
+from abc import ABC, abstractmethod
 
 
-class hdfMap_digi_template(object):
+class hdfMap_digi_template(ABC):
     """
     Template class for all digitizer mapping classes to inherit from.
 

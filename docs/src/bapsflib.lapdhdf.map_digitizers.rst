@@ -16,6 +16,8 @@ bapsflib\.lapdhdf\.map\_digitizers\.digi\_template
     :undoc-members:
     :private-members:
     :show-inheritance:
+    :exclude-members: _abc_cache, _abc_negative_cache,
+         _abc_negative_cache_version, _abc_registry
 
 bapsflib\.lapdhdf\.map\_digitizers\.map\_digis
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

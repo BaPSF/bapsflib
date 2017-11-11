@@ -14,7 +14,10 @@ bapsflib\.lapdhdf\.map\_controls\.control\_template
 .. automodule:: bapsflib.lapdhdf.map_controls.control_template
     :members:
     :undoc-members:
+    :private-members:
     :show-inheritance:
+    :exclude-members: _abc_cache, _abc_negative_cache,
+         _abc_negative_cache_version, _abc_registry
 
 bapsflib\.lapdhdf\.map\_controls\.map\_controls
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

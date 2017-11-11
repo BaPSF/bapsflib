@@ -16,12 +16,9 @@ from abc import ABC, abstractmethod
 
 class hdfMap_control_template(ABC):
     """
-    A template class for all control mapping classes to inherit from.
+    Template class for all control mapping classes to inherit from.
 
-    When inheriting from this template the following :code:`__init__`
-    should be defined as:
-
-    .. code-block:: python
+    Any inheriting class should define :code:`__init__` as::
 
         def __init__(self, control_group):
             hdfMap_control_template.__init__(self, control_group)

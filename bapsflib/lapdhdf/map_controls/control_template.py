@@ -29,15 +29,15 @@ class hdfMap_control_template(ABC):
             #
             self.info['contype'] = 'motion'
 
-            # build self.config
-            # - the method _build_config contains the code to build
-            #   the self.config dictionary
+            # populate self.configs
+            # - the method _build_configs contains the code to build
+            #   the self.configs dictionary
             #
-            self._build_config()
+            self._build_configs()
 
             # verify key class attributes and methods
             # - _verify_map() is a template method that ensures
-            #   self.info and self.config are properly constructed so
+            #   self.info and self.configs are properly constructed so
             #   that the rest of bapsflib.lapdhdf can utilized the
             #   mapping.
             #
@@ -77,7 +77,7 @@ class hdfMap_control_template(ABC):
         """
 
         # initialize configuration dictionary
-        self.config = {
+        self.configs = {
             'motion list': NotImplemented,
             'probe list': NotImplemented,
             'config names': NotImplemented,
@@ -93,7 +93,7 @@ class hdfMap_control_template(ABC):
         .. code-block:: python
             
             # core config items
-            config = {
+            configs = {
                 'motion list': [str, ], # list of motion list names
                 'probe list': [str, ],  # list of probe names
                 'nControlled': int,     # number of controlled probes
@@ -112,8 +112,8 @@ class hdfMap_control_template(ABC):
             }
             
             # specific motion config items
-            for name in config['motion list']:
-                config[name] = motion_dict
+            for name in configs['motion list']:
+                configs[name] = motion_dict
             
             # motion_dict format
             motion_dict = {
@@ -123,8 +123,8 @@ class hdfMap_control_template(ABC):
             }
             
             # specific probe config items
-            for name in config['probe list']:
-                config[name] = probe_dict
+            for name in configs['probe list']:
+                configs[name] = probe_dict
             
             # probe_dict format
             probe_dict = {
@@ -140,9 +140,9 @@ class hdfMap_control_template(ABC):
         .. code-block:: python
         
             # core config items
-            config = {
-                'config names': [str, ], # list of control device config
-                                         # name
+            configs = {
+                'config names': [str, ], # list of control device 
+                                         # config names
                 'nControlled': int,      # number of controlled probes
                 'dataset fields':
                     [(str,               # name of dataset field
@@ -159,8 +159,8 @@ class hdfMap_control_template(ABC):
             }
             
             # configuration specific items
-            for name in config['config names']:
-                config[name] = {
+            for name in configs['config names']:
+                configs[name] = {
                     'IP address': str, # control device IP address
                     'command list': [] # typically a list of floating
                                        # point variables whose values
@@ -176,24 +176,32 @@ class hdfMap_control_template(ABC):
         """
 
     @property
-    def control_group(self):
+    def group(self):
         """
-        :return: HDF5 control group
-        :rtype: :mod:`h5py.Group`
+        :return: HDF5 control device group
+        :rtype: :class:`h5py.Group`
         """
         return self.__control_group
 
     @property
     def contype(self):
         """
-        :return: Type of control (:code:`'motion'`, :code:`'waveform'`,
-            or :code:`'power'`)
+        :return: Type of control device (:code:`'motion'`,
+            :code:`'waveform'`, or :code:`'power'`)
         :rtype: str
         """
         return self.info['contype']
 
     @abstractmethod
     def construct_dataset_name(self, *args):
+        """
+        Constructs the dataset name corresponding to the input
+        arguments.
+
+        :return: name of dataset
+        :rtype: str
+        :raise: :exc:`NotImplementedError`
+        """
         raise NotImplementedError
 
     @property
@@ -203,9 +211,8 @@ class hdfMap_control_template(ABC):
         :rtype: [str, ]
         """
         sgroup_names = [name
-                        for name in self.control_group
-                        if isinstance(self.control_group[name],
-                                      h5py.Group)]
+                        for name in self.group
+                        if type(self.group[name]) is h5py.Group]
         return sgroup_names
 
     @property
@@ -215,28 +222,31 @@ class hdfMap_control_template(ABC):
         :rtype: [str, ]
         """
         dnames = [name
-                  for name in self.control_group
-                  if isinstance(self.control_group[name], h5py.Dataset)]
+                  for name in self.group
+                  if type(self.group[name]) is h5py.Dataset]
         return dnames
 
     @property
     def unique_specifiers(self):
         """
-        :return: list of unique specfiers for the control device. Define
-            as :code:`None` if there are none.
+        :return: list of unique specifiers for the control device.
+            Define as :code:`None` if there are none.
+        :raise: :exc:`NotImplementedError`
         """
-        return NotImplementedError
+        raise NotImplementedError
 
     @abstractmethod
-    def _build_config(self):
+    def _build_configs(self):
         """
-        This method defines the self.config dictionary.
+        Gathers the necessary metadata and fills :data:`configs`.
+
+        :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
 
     def _verify_map(self):
         """
-        This method verifies the dictionaries self.info and self.config
+        This method verifies the dictionaries self.info and self.configs
         to ensure that they are formatted properly for the rest of the
         :class:`bapsflib.lapdhdf` package.
         """
@@ -254,14 +264,14 @@ class hdfMap_control_template(ABC):
                      "  'motion', 'waveform', or 'power'"
             raise NotImplementedError(errstr)
 
-        # ---- verity self.config ----
+        # ---- verity self.configs ----
         # 'dataset fields' must be defined
-        if 'dataset fields' not in self.config:
-            errstr = "self.config['dataset fields'] must be defined " \
+        if 'dataset fields' not in self.configs:
+            errstr = "self.configs['dataset fields'] must be defined " \
                      "as:\n  [('field name', dtype), ]"
             raise NotImplementedError(errstr)
-        elif self.config['dataset fields'] == NotImplemented:
-            errstr = "self.config['dataset fields'] must be defined " \
+        elif self.configs['dataset fields'] == NotImplemented:
+            errstr = "self.configs['dataset fields'] must be defined " \
                      "as:\n  [('field name', dtype), ]"
             raise NotImplementedError(errstr)
 
@@ -273,41 +283,41 @@ class hdfMap_control_template(ABC):
         #   name
         # - the 3-element tuple must follow the format:
         #
-        #   self.config['dset field to numpy field'][i] = (
+        #   self.configs['dset field to numpy field'][i] = (
         #       str, # dataset field name
         #       str, # corresponding structured numpy field name
         #       int) # index of structured numpy field
         #
         #   For example, the '6K Compumotor would look like...
-        #       self.config['dset field to numpy'] = [
+        #       self.configs['dset field to numpy'] = [
         #           ('x', 'xyz', 0),
         #           ('y', 'xyz', 1),
         #           ('z', 'xyz', 2)]
         #
         key = 'dset field to numpy field'
-        if key not in self.config:
+        if key not in self.configs:
             raise NotImplementedError
-        elif self.config[key] == NotImplemented:
+        elif self.configs[key] == NotImplemented:
             raise NotImplementedError
-        elif type(self.config[key]) is not list:
-            errstr = "self.config['dset field to numpy field] must " \
+        elif type(self.configs[key]) is not list:
+            errstr = "self.configs['dset field to numpy field] must " \
                      + "be a list of 3-element tuples"
             raise Exception(errstr)
         elif not all(isinstance(val, tuple)
-                     for val in self.config[key]):
-            errstr = "self.config['dset field to numpy field] must " \
+                     for val in self.configs[key]):
+            errstr = "self.configs['dset field to numpy field] must " \
                      + "be a list of 3-element tuples"
             raise Exception(errstr)
-        elif not all(len(val) == 3 for val in self.config[key]):
-            errstr = "self.config['dset field to numpy field] must " \
+        elif not all(len(val) == 3 for val in self.configs[key]):
+            errstr = "self.configs['dset field to numpy field] must " \
                      + "be a list of 3-element tuples"
             raise Exception(errstr)
         else:
             err = False
             dset_fields = [name
                            for name, dftype
-                           in self.config['dataset fields']]
-            for dfname, npfname, npi in self.config[key]:
+                           in self.configs['dataset fields']]
+            for dfname, npfname, npi in self.configs[key]:
                 if dfname not in dset_fields:
                     err = True
                     break
@@ -318,82 +328,82 @@ class hdfMap_control_template(ABC):
                     err = True
                     break
             if err:
-                errstr = "self.config['dset field to numpy field] must " \
+                errstr = "self.configs['dset field to numpy field] must " \
                          + "be a list of 3-element tuples"
                 raise Exception(errstr)
 
         # contype == 'motion' specific verification
         if self.contype == 'motion':
             # verify 'motion list'
-            if 'motion list' not in self.config:
+            if 'motion list' not in self.configs:
                 # 'motion list' exists
-                errstr = "self.config['motion list'] must be defined"
+                errstr = "self.configs['motion list'] must be defined"
                 raise NotImplementedError(errstr)
-            elif self.config['motion list'] == NotImplemented:
+            elif self.configs['motion list'] == NotImplemented:
                 # 'motion list' is defined
-                errstr = "self.config['motion list'] must be defined"
+                errstr = "self.configs['motion list'] must be defined"
                 raise NotImplementedError(errstr)
             else:
                 # each 'motion list' must have its own config
-                for name in self.config['motion list']:
-                    if name not in self.config:
-                        errstr = "must defined self.config['motion " \
+                for name in self.configs['motion list']:
+                    if name not in self.configs:
+                        errstr = "must defined self.configs['motion " \
                                  "name'] for each motion list in " \
-                                 "self.config['motion list'] = " \
+                                 "self.configs['motion list'] = " \
                                  "[motion name, ]"
                         raise NotImplementedError(errstr)
 
             # verify 'probe list'
-            if 'probe list' not in self.config:
+            if 'probe list' not in self.configs:
                 # 'probe list' exists
-                errstr = "self.config['probe list'] must be defined"
+                errstr = "self.configs['probe list'] must be defined"
                 raise NotImplementedError(errstr)
-            elif self.config['probe list'] == NotImplemented:
+            elif self.configs['probe list'] == NotImplemented:
                 # 'probe list' is defined
-                errstr = "self.config['probe list'] must be defined"
+                errstr = "self.configs['probe list'] must be defined"
                 raise NotImplementedError(errstr)
             else:
                 # each 'probe list' must have its own config
-                for name in self.config['probe list']:
-                    if name not in self.config:
-                        errstr = "must defined self.config['probe " \
+                for name in self.configs['probe list']:
+                    if name not in self.configs:
+                        errstr = "must defined self.configs['probe " \
                                  "name'] for each probe in " \
-                                 "self.config['probe list'] = " \
+                                 "self.configs['probe list'] = " \
                                  "[probe name, ]"
                         raise NotImplementedError(errstr)
 
             # delete 'config names' if present
-            if 'config names' in self.config:
-                del self.config['config names']
+            if 'config names' in self.configs:
+                del self.configs['config names']
 
         # verify all other contypes
         if self.contype != 'motion':
             # remove 'motion list'
-            if 'motion list' in self.config:
+            if 'motion list' in self.configs:
                 # remove 'motion list' children
-                for name in self.config['motion list']:
-                    if name in self.config:
-                        del(self.config[name])
+                for name in self.configs['motion list']:
+                    if name in self.configs:
+                        del(self.configs[name])
 
                 # remove 'motion list'
-                del(self.config['motion list'])
+                del(self.configs['motion list'])
 
             # remove 'probe list'
-            if 'probe list' in self.config:
+            if 'probe list' in self.configs:
                 # remove 'probe list' children
-                for name in self.config['probe list']:
-                    if name in self.config:
-                        del (self.config[name])
+                for name in self.configs['probe list']:
+                    if name in self.configs:
+                        del (self.configs[name])
 
                 # remove 'motion list'
-                del (self.config['probe list'])
+                del (self.configs['probe list'])
 
             # verify 'command list'
-            # if 'command list' not in self.config:
+            # if 'command list' not in self.configs:
             #     # 'command list' exists
-            #     errstr = "self.config['command list'] must be defined"
+            #     errstr = "self.configs['command list'] must be defined"
             #     raise NotImplementedError(errstr)
-            # elif self.config['command list'] == NotImplemented:
+            # elif self.configs['command list'] == NotImplemented:
             #     # 'motion list' is defined
-            #     errstr = "self.config['command list'] must be defined"
+            #     errstr = "self.configs['command list'] must be defined"
             #     raise NotImplementedError(errstr)

@@ -127,7 +127,7 @@ class hdfMap_digi_template(ABC):
     @abstractmethod
     def _build_configs(self):
         """
-        Gathers the necessary metadata and fills the :data:`configs`
+        Gathers the necessary metadata and fills :data:`configs`
 
         Should call on the following methods to populate
         :data:`configs`:

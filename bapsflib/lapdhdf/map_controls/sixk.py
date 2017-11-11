@@ -20,38 +20,38 @@ class hdfMap_control_6k(hdfMap_control_template):
         # define control type
         self.info['contype'] = 'motion'
 
-        # build self.config
-        self._build_config()
+        # populate self.configs
+        self._build_configs()
 
-        # remove self.info and self.config items that
+        # remove self.info and self.configs items that
         self._verify_map()
 
-    def _build_config(self):
+    def _build_configs(self):
         # remove 'config names'
-        if 'config names' in self.config:
-            del self.config['config names']
+        if 'config names' in self.configs:
+            del self.configs['config names']
 
         # build 'motion list' and 'probe list'
-        self.config['motion list'] = []
-        self.config['probe list'] = []
+        self.configs['motion list'] = []
+        self.configs['probe list'] = []
         for name in self.sgroup_names:
             is_ml, ml_name, ml_config = self._parse_motionlist(name)
             if is_ml:
                 # build 'motion list'
-                self.config['motion list'].append(ml_name)
-                self.config[ml_name] = ml_config
+                self.configs['motion list'].append(ml_name)
+                self.configs[ml_name] = ml_config
             else:
                 is_p, p_name, p_config = self._parse_probelist(name)
                 if is_p:
                     # build 'probe list'
-                    self.config['probe list'].append(p_name)
-                    self.config[p_name] = p_config
+                    self.configs['probe list'].append(p_name)
+                    self.configs[p_name] = p_config
 
         # Define number of controlled probes
-        self.config['nControlled'] = len(self.config['probe list'])
+        self.configs['nControlled'] = len(self.configs['probe list'])
 
         # Define 'dataset fields'
-        self.config['dataset fields'] = [
+        self.configs['dataset fields'] = [
             ('Shot number', '<u4'),
             ('x', '<f8'),
             ('y', '<f8'),
@@ -61,7 +61,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         ]
 
         # Define 'dset field to numpy field'
-        self.config['dset field to numpy field'] = [
+        self.configs['dset field to numpy field'] = [
             ('Shot number', 'shotnum', 0),
             ('x', 'xyz', 0),
             ('y', 'xyz', 1),
@@ -103,8 +103,8 @@ class hdfMap_control_6k(hdfMap_control_template):
         # - note that probe naming in the HDF5 are not consistent, this
         #   is why dataset name is constructed based on receptacle and
         #   not probe name
-        for name in self.config['probe list']:
-            if self.config[name]['receptacle'] == receptacle:
+        for name in self.configs['probe list']:
+            if self.configs[name]['receptacle'] == receptacle:
                 pname = name
 
         # Construct dataset name
@@ -119,8 +119,8 @@ class hdfMap_control_6k(hdfMap_control_template):
         :rtype: [int, ]
         """
         receptacles = []
-        for name in self.config['probe list']:
-            receptacles.append(self.config[name]['receptacle'])
+        for name in self.configs['probe list']:
+            receptacles.append(self.configs[name]['receptacle'])
         return receptacles
 
     @property
@@ -146,7 +146,7 @@ class hdfMap_control_6k(hdfMap_control_template):
             is_ml = True
             ml_name = ml_gname.split(': ')[-1]
 
-            ml_group = self.control_group[ml_gname]
+            ml_group = self.group[ml_gname]
             ml_config = {'delta': (ml_group.attrs['Delta x'],
                                    ml_group.attrs['Delta y'],
                                    0.0),
@@ -173,7 +173,7 @@ class hdfMap_control_6k(hdfMap_control_template):
             is_p = True
             p_name = p_gname.split(': ')[-1]
 
-            p_group = self.control_group[p_gname]
+            p_group = self.group[p_gname]
             p_config = {'receptacle': p_group.attrs['Receptacle'],
                         'port': p_group.attrs['Port']}
 

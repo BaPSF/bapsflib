@@ -134,7 +134,7 @@ class hdfMap_digi_template(object):
 
     @staticmethod
     @abstractmethod
-    def parse_config_name(name):
+    def _parse_config_name(name):
         """
         Will parse the passed group name and determine if the name
         matches a digitizer configuration group name.
@@ -149,7 +149,7 @@ class hdfMap_digi_template(object):
 
     @staticmethod
     @abstractmethod
-    def is_config_active(config_name, dataset_names):
+    def _is_config_active(config_name, dataset_names):
         """
         Determines if :code:`config_name` was used in collecting the
         digitizer data.

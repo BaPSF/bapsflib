@@ -5,7 +5,8 @@
 #
 # Copyright 2017 Erik T. Everson and contributors
 #
-# License:
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 import h5py
 
@@ -13,7 +14,14 @@ from .digi_template import hdfMap_digi_template
 
 
 class hdfMap_digi_siscrate(hdfMap_digi_template):
+    """
+    Mapping class for the 'SIS crate' digitizer.
+    """
     def __init__(self, digi_group):
+        """
+        :param digi_group: the HDF5 digitizer group
+        :type digi_group: :class:`h5py.Group`
+        """
         hdfMap_digi_template.__init__(self, digi_group)
 
         # build self.data_configs
@@ -22,30 +30,23 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
     @property
     def _predefined_adc(self):
         """
-        :return: ['SIS 3302', 'SIS 3305']
+        Predefined (known) adc's for digitizer 'SIS crate'
+
+        (See
+        :attr:`~.digi_template.hdfMap_digi_template._predefined_adc`
+        of the base class for details)
         """
         return ['SIS 3302', 'SIS 3305']
 
     def _build_configs(self):
         """
-        Builds self.data_configs dictionary. A dict. entry follows:
+        Populates :attr:`configs` dictionary
 
-        .. code-block:: python
-
-            data_configs[config_name] = {
-                'active': True/False,
-                'adc': [list of active analog-digital converters],
-                'group name': 'name of config group',
-                'group path': 'absolute path to config group',
-                'SIS 3301': [(brd,
-                              [ch,],
-                              {'bit': 14,
-                               'sample rate': (100.0, 'MHz'),
-                               'shot average (software)': int,
-                               'sample average (hardware)': int}), ]}
+        (See :meth:`~.digi_template.hdfMap_digi_template._build_configs`
+        and :attr:`~.digi_template.hdfMap_digi_template.configs`
+        of the base class for details)
         """
-        # initialize data_configs
-        # self.data_configs = {}
+        # self.data_configs is initialized in the template
 
         # collect digi_group's dataset names and sub-group names
         subgroup_names = []
@@ -58,14 +59,14 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
         # populate self.data_configs
         for name in subgroup_names:
-            is_config, config_name = self.parse_config_name(name)
+            is_config, config_name = self._parse_config_name(name)
             if is_config:
                 # initialize configuration name in the config dict
                 self.configs[config_name] = {}
 
                 # determine if config is active
                 self.configs[config_name]['active'] = \
-                    self.is_config_active(config_name, dataset_names)
+                    self._is_config_active(config_name, dataset_names)
 
                 # assign active adc's to the configuration
                 self.configs[config_name]['adc'] = \
@@ -84,29 +85,28 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                         self._adc_info(adc, self.group[name])
 
     @staticmethod
-    def parse_config_name(name):
+    def _parse_config_name(name):
         """
-        Parses 'name' to see if it matches the naming scheme for a
-        data configuration group.  A group representing a data
-        configuration has the scheme:
+        Parses :code:`name` to determine the digitizer configuration
+        name.  A configuration group name follows the format:
 
-            config_name
+            | `config_name`
 
-        :param name:
-        :return:
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template.parse_config_name`
+        of the base class for details)
         """
         return True, name
 
     @staticmethod
-    def is_config_active(config_name, dataset_names):
+    def _is_config_active(config_name, dataset_names):
         """
-        The naming of a dataset starts with the name of its
-        corresponding configuration.  This scans 'dataset_names'
-        fo see if 'config_name' is used in the list of datasets.
+        Determines if :code:`config_name` is an active digitizer
+        configuration.
 
-        :param config_name:
-        :param dataset_names:
-        :return:
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template._is_config_active`
+        of the base class for details)
         """
         active = False
 
@@ -120,8 +120,14 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         return active
 
     def _adc_info(self, adc_name, config_group):
-        # digitizer 'Raw data + config/SIS crate' two adc's, SIS 3302
-        # and SIS 3305
+        """
+        Gathers information on the adc configuration.
+
+        (See :meth:`~.digi_template.hdfMap_digi_template._adc_info`
+        of the base class for details)
+        """
+        # digitizer 'Raw data + config/SIS crate' has two adc's,
+        # SIS 3302 and SIS 3305
         # adc_info = ( int, # board
         #              [int, ], # channels
         #              {'bit': int, # bit resolution
@@ -174,6 +180,13 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
     @staticmethod
     def _find_config_adc(config_group):
+        """
+        Determines active adc's used in the digitizer configuration.
+
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template._find_config_adc`
+        of the base class for details)
+        """
         active_adc = []
         adc_types = list(config_group.attrs['SIS crate board types'])
         if 2 in adc_types:
@@ -184,6 +197,13 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         return active_adc
 
     def _find_adc_connections(self, adc_name, config_group):
+        """
+        Determines active connections on the adc.
+
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template._find_adc_connections`
+        of the base class for details)
+        """
         # initialize conn, brd, and chs
         # conn = list of connections
         # brd  = board number
@@ -337,21 +357,16 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                                config_name=None, adc=None,
                                return_info=False, silent=False):
         """
-        Returns the name of a HDF5 dataset based on its configuration
-        name, board, channel, and adc. Format follows:
+        Constructs the HDF5 dataset name based on inputs.  The dataset
+        name follows the format:
 
-            'config_name [Slot #: SIS #### FPGA # ch #]'
+            | `config_name` [Slot `#`: SIS `####` FPGA `#` ch `#`]
 
-        :param board:
-        :param channel:
-        :param config_name:
-        :param adc:
-        :param return_info:
-        :param silent:
-        :return:
+        (See
+        :meth:`~.digi_template.hdfMap_digi_template.construct_dataset_name`
+        of the base class for details)
         """
         # TODO: Replace Warnings with proper error handling
-        # TODO: Add a Silent kwd
 
         # initiate warning string
         warn_str = ''
@@ -451,13 +466,13 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
     @staticmethod
     def slot_to_brd(slot):
         """
-        Mapping between the SIS crate slot number to the DAQ
-        displayed board number.
+        Translates the 'SIS crate` slot number to the board number and
+        adc.
 
-        :param slot:
-        :return:
+        :param int slot: digitizer slot number
+        :return: (board number, adc name)
+        :rtype: (int, str)
         """
-        # TODO: add arg conditioning
         sb_map = {'5': (1, 'SIS 3302'),
                   '7': (2, 'SIS 3302'),
                   '9': (3, 'SIS 3302'),
@@ -468,7 +483,15 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
     @staticmethod
     def brd_to_slot(brd, adc):
-        # TODO: add arg conditioning
+        """
+        Translates board number and adc name to the digitizer slot
+        number.
+
+        :param int brd: board number
+        :param str adc: adc name
+        :return: digitizer slot number
+        :rtype: int
+        """
         bs_map = {(1, 'SIS 3302'): 5,
                   (2, 'SIS 3302'): 7,
                   (3, 'SIS 3302'): 9,

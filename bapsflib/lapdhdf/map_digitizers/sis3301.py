@@ -59,14 +59,14 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         # populate self.data_configs
         for name in subgroup_names:
-            is_config, config_name = self.parse_config_name(name)
+            is_config, config_name = self._parse_config_name(name)
             if is_config:
                 # initialize configuration name in the config dict
                 self.configs[config_name] = {}
 
                 # determine if config is active
                 self.configs[config_name]['active'] = \
-                    self.is_config_active(config_name, dataset_names)
+                    self._is_config_active(config_name, dataset_names)
 
                 # assign active adc's to the configuration
                 self.configs[config_name]['adc'] = \
@@ -84,7 +84,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                     self._adc_info('SIS 3301', self.group[name])
 
     @staticmethod
-    def parse_config_name(name):
+    def _parse_config_name(name):
         """
         Parses :code:`name` to determine the digitizer configuration
         name.  A configuration group name follows the format:
@@ -95,20 +95,19 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         :meth:`~.digi_template.hdfMap_digi_template.parse_config_name`
         of the base class for details)
         """
-
         split_name = name.split()
         is_config = True if split_name[0] == 'Configuration:' else False
         config_name = ' '.join(split_name[1::]) if is_config else None
         return is_config, config_name
 
     @staticmethod
-    def is_config_active(config_name, dataset_names):
+    def _is_config_active(config_name, dataset_names):
         """
         Determines if :code:`config_name` is an active digitizer
         configuration.
 
         (See
-        :meth:`~.digi_template.hdfMap_digi_template.is_config_active`
+        :meth:`~.digi_template.hdfMap_digi_template._is_config_active`
         of the base class for details)
         """
         active = False

@@ -5,8 +5,10 @@
 #
 # Copyright 2017 Erik T. Everson and contributors
 #
-# License:
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
+# TODO: create a save to file for report
 #
 # Check Template
 #
@@ -47,14 +49,36 @@ from contextlib import contextmanager
 
 
 class hdfCheck(object):
-    def __init__(self, hdf_obj):
-        if isinstance(hdf_obj, h5py.File):
-            self.__hdf_obj = hdf_obj
-        else:
+    """
+    Initiates the HDF5 mapping constructor
+    (:class:`~.hdfmappers.hdfMap`) and prints a file report to screen
+    (or file).
+    """
+    def __init__(self, hdf_obj, silent=False, save_report=False):
+        """
+        :param hdf_obj: HDF5 file object
+        :type hdf_obj: :class:`h5py.File`
+        :param bool silent: :code:`False` (default). Set :code:`True` to
+            suppress command line printout of file report.
+        :param save_report: :code:`False` (default). Set :code:`True` to
+            save file report to a txt file of the same name as the HDF5
+            file or set to string to specify file name.
+        :type save_report: bool or str
+        """
+        # TODO: enable :data:`silent` keyword
+        # TODO: enable :data:`save_report` keyword
+
+        # store an instance of the HDF5 file object for hdfCheck
+        self.__hdf_obj = hdf_obj
+
+        # determine if file was written by the LaPD
+        try:
+            self._hdf_lapd_version = ''
+            status = self.is_lapd_generated(silent=False)[0]
+        except AttributeError:
             raise NotHDFFileError
 
-        self._hdf_lapd_version = ''
-        status = self.is_lapd_generated(silent=False)[0]
+        # build mappings
         if status:
             self.__hdf_map = hdfMap(hdf_obj)
             self.full_check()
@@ -90,7 +114,7 @@ class hdfCheck(object):
             :return:
         """
         is_lapd = False
-        for key in self.__hdf_obj.attrs.keys():
+        for key in self.__hdf_obj.attrs:
             if 'lapd' in key.casefold() and 'version' in key.casefold():
                 self._hdf_lapd_version = \
                     self.__hdf_obj.attrs[key].decode('utf-8')

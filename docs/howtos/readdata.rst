@@ -56,7 +56,7 @@ extracted as follows:
     >>> from bapsflib import lapdhdf
     >>> f = lapdhdf.File('test.hdf5')
     >>> board, channel = 1, 0
-    >>> data = f.read_data(baord, channel)
+    >>> data = f.read_data(board, channel)
 
 where :obj:`data` is an instance of
 :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`.  The

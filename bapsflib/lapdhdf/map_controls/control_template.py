@@ -330,8 +330,8 @@ class hdfMap_control_template(ABC):
                     err = True
                     break
             if err:
-                errstr = "self.configs['dset field to numpy field] must " \
-                         + "be a list of 3-element tuples"
+                errstr = "self.configs['dset field to numpy field] " \
+                         + "must be a list of 3-element tuples"
                 raise Exception(errstr)
 
         # contype == 'motion' specific verification
@@ -403,9 +403,11 @@ class hdfMap_control_template(ABC):
             # verify 'command list'
             # if 'command list' not in self.configs:
             #     # 'command list' exists
-            #     errstr = "self.configs['command list'] must be defined"
+            #     errstr = "self.configs['command list'] must be " \
+            #              "defined"
             #     raise NotImplementedError(errstr)
             # elif self.configs['command list'] == NotImplemented:
             #     # 'motion list' is defined
-            #     errstr = "self.configs['command list'] must be defined"
+            #     errstr = "self.configs['command list'] must be " \
+            #              "defined"
             #     raise NotImplementedError(errstr)

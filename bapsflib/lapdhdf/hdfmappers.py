@@ -5,7 +5,8 @@
 #
 # Copyright 2017 Erik T. Everson and contributors
 #
-# License:
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 # TODO: make a pickle save for the hdfMap...
 #       Then, if a user adds additional mappings for a specific HDF5

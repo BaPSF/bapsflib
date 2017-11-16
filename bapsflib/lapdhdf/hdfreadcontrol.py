@@ -320,7 +320,7 @@ class hdfReadControl(np.recarray):
 
             conmap = file_map.controls[control]
             for df_name, nf_name, npi \
-                    in conmap.config['dset field to numpy field']:
+                    in conmap.configs['dset field to numpy field']:
                 # df_name - control dataset field name
                 #           ~ if a tuple instead of a string then the
                 #             dataset field is linked to a command list
@@ -378,7 +378,7 @@ class hdfReadControl(np.recarray):
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
-                        in conmap.config['dset field to numpy field']:
+                        in conmap.configs['dset field to numpy field']:
                     # skip iteration if field is 'shotnum'
                     if nf_name == 'shotnum':
                         continue
@@ -417,7 +417,7 @@ class hdfReadControl(np.recarray):
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
-                        in conmap.config['dset field to numpy field']:
+                        in conmap.configs['dset field to numpy field']:
                     if nf_name != 'shotnum':
                         if data.dtype[nf_name].shape != ():
                             data[nf_name][datai, npi] = \
@@ -431,7 +431,7 @@ class hdfReadControl(np.recarray):
 
         # assign dataset info
         # TODO: add a dict key for each control w/ controls config
-        # - control config dict should include:
+        # - control configs dict should include:
         #   ~ 'contype'
         #   ~ 'dataset name'
         #   ~ 'dataset path'

@@ -146,9 +146,6 @@ class hdfReadData(np.recarray):
         # TODO: add error handling for .get() of dheader
         # TODO: add error handling for 'Offset' field in dheader
 
-        # for timing
-        tt = [time.time()]
-
         # initiate warning string
         warn_str = ''
 
@@ -177,7 +174,6 @@ class hdfReadData(np.recarray):
 
         # ---- Check for Control Device Addition ---
         # condition controls
-        tt.append(time.time())
         if add_controls is not None:
             controls = condition_controls(hdf_file, add_controls,
                                           silent=silent)
@@ -189,9 +185,6 @@ class hdfReadData(np.recarray):
                 controls = None
         else:
             controls = None
-        tt.append(time.time())
-        print('controls conditioning: {} ms'.format(
-            (tt[-1]-tt[-2]) * 1.0e3))
 
         # ---- gather info about digi and control datasets ----
         #
@@ -209,9 +202,6 @@ class hdfReadData(np.recarray):
                     'Input arguments would result in a null array')
         else:
             cset_sn = None
-        tt.append(time.time())
-        print('controls get shotnums: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Digi Dataset Info
         # Note: digi_map.construct_dataset_name has conditioning for
@@ -233,9 +223,6 @@ class hdfReadData(np.recarray):
         dheader = hdf_file.get(dpath + ' headers')
         shotnumkey = dheader.dtype.names[0]
         dset_sn = dheader[shotnumkey].view()
-        tt.append(time.time())
-        print('get dataset and info: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # ---- Condition shots, index, and shotnum ----
         # shots   -- same as index
@@ -341,9 +328,6 @@ class hdfReadData(np.recarray):
         else:
             raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
-        tt.append(time.time())
-        print('condition index: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Ensure 'shotnum' is valid
         # - here 'shotnum' will be converted frm its keyword type to a
@@ -424,9 +408,6 @@ class hdfReadData(np.recarray):
                 raise ValueError('Valid shotnum not passed')
         else:
             raise ValueError('Valid shotnum not passed')
-        tt.append(time.time())
-        print('condition shotnum: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # ---- Construct obj ---
         # - obj will be a numpy record array
@@ -438,9 +419,6 @@ class hdfReadData(np.recarray):
                                   shotnum=np.ndarray.tolist(shotnum),
                                   intersection_set=intersection_set,
                                   silent=silent)
-        tt.append(time.time())
-        print('get cset: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Define dtype for obj
         # - 1st column of the digi data header contains the global HDF5
@@ -456,15 +434,9 @@ class hdfReadData(np.recarray):
             for subdtype in cset.dtype.descr:
                 if subdtype[0] not in [d[0] for d in dtype]:
                     dtype.append(subdtype)
-        tt.append(time.time())
-        print('define dtype: {} ms'.format(
-              (tt[-1] - tt[-2]) * 1.0e3))
 
         # Define numpy array
         data = np.empty(shape, dtype=dtype)
-        tt.append(time.time())
-        print('initialized data array: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # fill array
         data['shotnum'] = shotnum
@@ -526,9 +498,6 @@ class hdfReadData(np.recarray):
             else:
                 # fill xyz
                 data['xyz'] = np.nan
-        tt.append(time.time())
-        print('Fill data array: {} ms'.format(
-              (tt[-1] - tt[-2]) * 1.0e3))
 
         # Define obj to be returned
         obj = data.view(cls)
@@ -539,9 +508,6 @@ class hdfReadData(np.recarray):
         #       returned object will be of class np.recarray instead
         #       of hdfReadData.  In that case, __init__ is never called
         #       and the hdfReadData methods are never bound.
-        tt.append(time.time())
-        print('Define obj: {} ms'.format(
-              (tt[-1] - tt[-2]) * 1.0e3))
 
         # assign dataset info
         obj.info = {
@@ -557,12 +523,9 @@ class hdfReadData(np.recarray):
             'shot average': d_info['shot average (software)'],
             'board': board,
             'channel': channel,
-            'voltage offset': dheader['Offset'][0],
+            'voltage offset': dheader[0, 'Offset'],
             'probe name': None,
             'port': (None, None)}
-        tt.append(time.time())
-        print('Define obj.info: {} ms'.format(
-              (tt[-1] - tt[-2]) * 1.0e3))
 
         # convert to voltage
         if not keep_bits:
@@ -570,16 +533,11 @@ class hdfReadData(np.recarray):
             # dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
             obj['signal'] = obj['signal'].astype(np.float32, copy=False)
             obj['signal'] = (obj.dv * obj['signal']) - offset
-        tt.append(time.time())
-        print('Convert signal to voltage: {} ms'.format(
-              (tt[-1] - tt[-2]) * 1.0e3))
 
         # print warnings
         if not silent:
             print(warn_str)
 
-        print('Exec time: {} ms'.format(
-            (tt[-1] - tt[0]) * 1.0e3))
         return obj
 
     def __array_finalize__(self, obj):

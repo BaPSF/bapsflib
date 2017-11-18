@@ -98,9 +98,6 @@ class hdfReadControl(np.recarray):
         #       controls = ['6K Compumotor', 'NI_XZ']
         #
 
-        # for timing
-        tt = [time.time()]
-
         # initiate warning string
         warn_str = ''
 
@@ -131,9 +128,6 @@ class hdfReadControl(np.recarray):
         # make sure 'controls' is not empty
         if not controls:
             raise ValueError("improper 'controls' arg passed")
-        tt.append(time.time())
-        print('controls --  controls conditioning: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # ---- Condition index and shotnum Keywords ----
         # index   -- row index of dataset
@@ -185,9 +179,6 @@ class hdfReadControl(np.recarray):
         method = 'intersection' if intersection_set else 'first'
         dset_sn = gather_shotnums(hdf_file, controls, method=method)
         rowlen = dset_sn.shape[0]
-        tt.append(time.time())
-        print('controls -- gather shotnums: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Ensure 'index' is a valid
         # - Valid index types are: None, int, list(int), and slice()
@@ -244,9 +235,6 @@ class hdfReadControl(np.recarray):
         else:
             raise ValueError("index keyword needs to be None, int, "
                              "list(int), or slice object")
-        tt.append(time.time())
-        print('controls -- condition index: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Ensure 'shotnum' is valid
         # - here 'shotnum' will be converted from its keyword type to a
@@ -321,9 +309,6 @@ class hdfReadControl(np.recarray):
                 raise ValueError('Valid shotnum not passed')
         else:
             raise ValueError('Valid shotnum not passed')
-        tt.append(time.time())
-        print('controls -- condition shotnum: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # ---- Build obj ----
         # Determine fields for numpy array
@@ -350,18 +335,12 @@ class hdfReadControl(np.recarray):
                     npfields[nf_name][1] += 1
                 else:
                     npfields[nf_name] = ['<f8', 1]
-        tt.append(time.time())
-        print('controls -- get dtype fields: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Define dtype and shape for numpy array
         dytpe = [('shotnum', '<u4', 1)]
         for key in npfields:
             dytpe.append((key, npfields[key][0], npfields[key][1]))
         shape = shotnum.shape
-        tt.append(time.time())
-        print('controls -- define dtype: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Initialize Control Data
         data = np.empty(shape, dtype=dytpe)
@@ -371,9 +350,6 @@ class hdfReadControl(np.recarray):
                 data[field][:] = -99999
             else:
                 data[field][:] = np.nan
-        tt.append(time.time())
-        print('controls -- initialize data array: {} ms'.format(
-            (tt[-1] - tt[-2]) * 1.0e3))
 
         # Assign Control Data to Numpy array
         for control in controls:

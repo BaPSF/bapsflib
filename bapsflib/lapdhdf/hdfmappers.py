@@ -35,6 +35,12 @@ class hdfMap(object):
     Constructs a complete file mapping of :obj:`hdf_obj` that is
     utilized by :class:`bapsflib.lapdhdf.files.File` to manipulate and
     read data out of the HDF5 file.
+
+    The following classes are leveraged to construct the mappings:
+
+    * :class:`~.map_controls.map_controls.hdfMap_controls`.
+    * :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
+    * :class:`~.map_msi.map_msi.hdfMap_msi`.
     """
     # MSI stuff
     msi_gname = 'MSI'
@@ -135,7 +141,8 @@ class hdfMap(object):
     def __attach_msi(self):
         """
         Attaches a dictionary (:attr:`__msi`) containing all MSI
-        diagnostic mapping objects.
+        diagnostic mapping objects constructed by
+        :class:`~.map_msi.map_msi.hdfMap_msi`.
         """
         if self.has_msi_group:
             self.__msi = hdfMap_msi(self.__hdf_obj[self.msi_gname])
@@ -160,7 +167,8 @@ class hdfMap(object):
     def __attach_digitizers(self):
         """
         Attaches a dictionary (:attr:`__digitizers`) containing all
-        digitizer mapping objects.
+        digitizer mapping objects constructed by
+        :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
         """
         if self.has_data_group:
             self.__digitizers = hdfMap_digitizers(
@@ -185,7 +193,8 @@ class hdfMap(object):
     def __attach_controls(self):
         """
         Attaches a dictionary (:attr:`__controls`) containing all
-        control device mapping objects.
+        control device mapping objects constructed by
+        :class:`~.map_controls.map_controls.hdfMap_controls`.
         """
         if self.has_data_group:
             self.__controls = hdfMap_controls(

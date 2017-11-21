@@ -24,17 +24,21 @@ Extracting (Digitizer) Data
 Extracting Control Data
 -----------------------
 
-.. _handle_data:
+.. note:: To be written
+
+ .. _handle_data:
 
 Handling Extracted Data
 -----------------------
 
-.. include:: handledata.rst
+.. note:: To be written
+
+.. .. include:: handledata.rst
 
 .. _file_mappings:
 
-LaPD HDF5 File Mapping Object
------------------------------
+Mapping Object for a LaPD HDF5 File
+-----------------------------------
 
 .. include:: mapping.rst
 

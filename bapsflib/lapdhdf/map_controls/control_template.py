@@ -71,7 +71,7 @@ class hdfMap_control_template(ABC):
 
             info = {
                 'group name': str, # name of control group
-                'group path': str  # full path to control group
+                'group path': str, # full path to control group
                 'contype': str     # control device type
             }
         """

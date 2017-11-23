@@ -178,14 +178,6 @@ class hdfMap_control_template(ABC):
         """
 
     @property
-    def group(self):
-        """
-        :return: HDF5 control device group
-        :rtype: :class:`h5py.Group`
-        """
-        return self.__control_group
-
-    @property
     def contype(self):
         """
         :return: Type of control device (:code:`'motion'`,
@@ -194,17 +186,37 @@ class hdfMap_control_template(ABC):
         """
         return self.info['contype']
 
-    @abstractmethod
-    def construct_dataset_name(self, *args):
+    @property
+    def dataset_names(self):
         """
-        Constructs the dataset name corresponding to the input
-        arguments.
+        :return: list of names of the HDF5 datasets in the control group
+        :rtype: [str, ]
+        """
+        dnames = [name
+                  for name in self.group
+                  if type(self.group[name]) is h5py.Dataset]
+        return dnames
 
-        :return: name of dataset
-        :rtype: str
-        :raise: :exc:`NotImplementedError`
+    @property
+    def has_command_list(self):
         """
-        raise NotImplementedError
+        :return: :code:`True` if dataset utilizes a command list
+        :rtype: bool
+        """
+        has_cl = False
+        for name in self.configs['config names']:
+            if 'command list' in self.configs[name]:
+                has_cl = True
+                break
+        return has_cl
+
+    @property
+    def group(self):
+        """
+        :return: HDF5 control device group
+        :rtype: :class:`h5py.Group`
+        """
+        return self.__control_group
 
     @property
     def sgroup_names(self):
@@ -217,16 +229,17 @@ class hdfMap_control_template(ABC):
                         if type(self.group[name]) is h5py.Group]
         return sgroup_names
 
-    @property
-    def dataset_names(self):
+    @abstractmethod
+    def construct_dataset_name(self, *args):
         """
-        :return: list of names of the HDF5 datasets in the control group
-        :rtype: [str, ]
+        Constructs the dataset name corresponding to the input
+        arguments.
+
+        :return: name of dataset
+        :rtype: str
+        :raise: :exc:`NotImplementedError`
         """
-        dnames = [name
-                  for name in self.group
-                  if type(self.group[name]) is h5py.Dataset]
-        return dnames
+        raise NotImplementedError
 
     @property
     def unique_specifiers(self):

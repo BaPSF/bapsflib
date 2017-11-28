@@ -79,16 +79,38 @@ class hdfMap_control_template(ABC):
         # initialize configuration dictionary
         # TODO: format of configs needs to be solidified
         #
+        # 'motion list': NotImplemented,
+        # 'probe list': NotImplemented,
         self.configs = {
-            'motion list': NotImplemented,
-            'probe list': NotImplemented,
             'config names': NotImplemented,
             'nControlled': NotImplemented,
             'dataset fields': NotImplemented,
             'dset field to numpy field': NotImplemented}
         """
-        Configuration dictionary of HDF5 control device. Dictionary is
-        polymorphic depending on the control type.
+        Configuration dictionary of HDF5 control device. This dictionary
+        is slightly polymorphic depending on the control type.  That is,
+        there are some core items that exist for all control types and
+        some that are control type dependent.
+        
+        The core items for :code:`configs`::
+        
+            configs = {
+                'config names': [str, ], # list of configuration names
+                'nControlled': int, # number of controlled probes and/or
+                                    # utilized control setups
+                                'dataset fields':
+                    [(str,              # name of dataset field
+                      dtype), ],        # numpy dtype of field
+                'dset field to numpy field':
+                    [(str,      # name of dataset field
+                                # ~ if a tuple like (str, int) then this
+                                #   indicates that the dataset field is
+                                #   linked to a command list 
+                      str,      # name of numpy field that will be used
+                                # by hdfReadControl
+                      int), ]   # numpy array index for which the
+                                # dataset entry will be mapped into
+            }
         
         For :code:`info['contype'] == 'motion'`:
         

@@ -81,11 +81,11 @@ class hdfMap_control_template(ABC):
         #
         # 'motion list': NotImplemented,
         # 'probe list': NotImplemented,
-        self.configs = {
-            'config names': NotImplemented,
-            'nControlled': NotImplemented,
-            'dataset fields': NotImplemented,
-            'dset field to numpy field': NotImplemented}
+        # 'config names': NotImplemented,
+        # 'nControlled': NotImplemented,
+        # 'dataset fields': NotImplemented,
+        # 'dset field to numpy field': NotImplemented
+        self.configs = {}
         """
         Configuration dictionary of HDF5 control device. This dictionary
         is slightly polymorphic depending on the control type.  That is,

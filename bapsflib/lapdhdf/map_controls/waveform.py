@@ -34,16 +34,11 @@ class hdfMap_control_waveform(hdfMap_control_template):
         #self._verify_map()
 
     def _build_configs(self):
-        # build 'config names'
+        # build configuration dictionaries
         # - assume all subgroups are control device configuration groups
         #   and their names correspond to the configuration name
         #
-        self.configs['config names'] = self.sgroup_names
-
-        # add 'config names' specific config info
-        # - i.e. 'IP address' and 'command list'
-        #
-        for name in self.configs['config names']:
+        for name in self.sgroup_names:
             # get configuration group
             cgroup = self.group[name]
 
@@ -81,19 +76,15 @@ class hdfMap_control_waveform(hdfMap_control_template):
                 'cl pattern': None
             }
 
-            # define number of controlled probes
-            self.configs['nControlled'] = \
-                len(self.configs['config names'])
-
             # define 'dataset fields'
-            self.configs['dataset fields'] = [
+            self.configs[name]['dataset fields'] = [
                 ('Shot number', '<u4'),
                 ('Configuration name', 'U'),
                 ('Command index', '<u4')
             ]
 
             # define 'dset field to numpy field'
-            self.configs['dset field to numpy field'] = [
+            self.configs[name]['dset field to numpy field'] = [
                 ('Shot number', 'shotnum', 0),
                 ('Command index', 'command', 0)
             ]
@@ -104,4 +95,4 @@ class hdfMap_control_waveform(hdfMap_control_template):
 
     @property
     def unique_specifiers(self):
-        return self.configs['config names']
+        return list(self.configs)

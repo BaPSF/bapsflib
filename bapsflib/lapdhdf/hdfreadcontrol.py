@@ -386,21 +386,13 @@ class hdfReadControl(np.recarray):
                     if nf_name == 'shotnum':
                         continue
 
-                    # determine if control device data is linked to a
-                    # command list
-                    #
-                    if type(df_name) is tuple:
-                        command_linked = True
-                        dsi = df_name[1]
-                        df_name = df_name[0]
-                    else:
-                        command_linked = False
-
-                    #
-                    if command_linked:
+                    # assign data
+                    if conmap.has_command_list:
+                        # control uses a command list
                         # TODO: filling from command list type
                         pass
                     else:
+                        # control does NOT use command list
                         if data.dtype[nf_name].shape != ():
                             data[nf_name][:, npi] = \
                                 cdset[shoti, df_name].view()
@@ -479,8 +471,6 @@ class hdfReadControl(np.recarray):
 
 
 def condition_controls(hdf_file, controls, silent=False):
-    # initialize warning string
-    warn_str = ''
 
     # Check hdf_file is a lapdhdf.File object
     try:
@@ -502,30 +492,54 @@ def condition_controls(hdf_file, controls, silent=False):
     #   2. a 2-element tuple where the 1st entry is a string
     #      indicating the name of a control device and the 2nd is
     #      a unique specifier for that control device
+    #      ~ in 0.1.3.dev3 the unique specifier is the name used in
+    #        configs['config names']
     #
     # - ensure
     #   1. controls is in agreement is defined format above
     #   2. all control device are in file_map.controls
     #   3. there are not duplicate devices in controls
+    #   4. proper unique specifiers are defined
     #
     if type(controls) is list:
         new_controls = []
         for device in controls:
             if type(device) is str:
-                if device in file_map.controls \
-                        and device not in new_controls:
-                    new_controls.append(device)
-            elif type(device) is tuple:
-                try:
-                    if len(device) == 2 \
-                            and type(device[0]) is str \
-                            and device[0] in file_map.controls \
-                            and device not in new_controls:
+                # ensure proper device and unique specifier are defined
+                if device in new_controls:
+                    raise Exception(
+                        'Control device ({})'.format(device)
+                        + ' can only have one occurrence in controls')
+                elif device in file_map.controls:
+                    if len(file_map.controls[device].configs) == 1:
                         new_controls.append(device)
-                except IndexError:
-                    pass
+                    else:
+                        raise Exception(
+                            'Need to define a unique specifier for '
+                            'control device ({})'.format(device))
+                else:
+                    raise Exception(
+                        'Control device ({})'.format(device)
+                        + ' not in HDF5 file')
+            elif type(device) is tuple:
+                if device[0] in new_controls:
+                    raise Exception(
+                        'Control device ({})'.format(device[0])
+                        + ' can only have one occurrence in controls')
+                elif device[0] in file_map.controls:
+                    if device[1] in file_map.controls[
+                            device[0]].configs:
+                        new_controls.append((device[0], device[1]))
+                    else:
+                        raise Exception(
+                            'Unique specifier for control device '
+                            '({}) is NOT valid'.format(device[0]))
+                else:
+                    raise Exception(
+                        'Control device ({})'.format(device[0])
+                        + ' not in HDF5 file')
     else:
-        new_controls = []
+        raise Exception('controls argument not a list')
 
     # enforce one device per contype
     checked = []
@@ -538,23 +552,20 @@ def condition_controls(hdf_file, controls, silent=False):
             contype = file_map.controls[device[0]].contype
 
         if contype in checked:
-            controls = []
-            warn_str = '** Warning: Multiple devices per contype'
-            break
+            raise Exception('controls has multiple devices per contype')
         else:
             checked.append(contype)
-
-    # print warnings
-    if not silent:
-        print(warn_str)
 
     # return conditioned list
     return controls
 
 
-def gather_shotnums(hdf_file, controls, method='union'):
-    # Check hdf_file is a lapdhdf.File object
-    # controls = condition_controls(hdf_file, controls)
+def gather_shotnums(hdf_file, controls, method='union',
+                    assume_controls_conditioned=False):
+
+    # condition controls
+    if not assume_controls_conditioned:
+        controls = condition_controls(hdf_file, controls)
 
     # condition method keyword
     if method not in ['union', 'intersection', 'first']:

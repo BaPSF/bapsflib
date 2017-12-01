@@ -48,42 +48,37 @@ class hdfMap_control_6k(hdfMap_control_template):
                     # build 'probe list'
                     probe_lists[p_name] = p_config
 
-        # build 'config names' and corresponding dicts
+        # build configuration dictionaries
         # - the receptacle number is the config_name
         #
-        self.configs['config names'] = []
         for pname in probe_lists:
-            self.configs['config names'].append(
-                probe_lists[pname]['receptacle'])
-            self.configs[probe_lists[pname]['receptacle']] = {
+            config_name = probe_lists[pname]['receptacle']
+            self.configs[config_name] = {
                 'probe name': pname,
                 'port': probe_lists[pname]['port'],
                 'receptacle': probe_lists[pname]['receptacle'],
                 'motion lists': {}
             }
 
-        # Define number of controlled probes
-        self.configs['nControlled'] = len(self.configs['config names'])
+            # Define 'dataset fields'
+            self.configs[config_name]['dataset fields'] = [
+                ('Shot number', '<u4'),
+                ('x', '<f8'),
+                ('y', '<f8'),
+                ('z', '<f8'),
+                ('theta', '<f8'),
+                ('phi', '<f8')
+            ]
 
-        # Define 'dataset fields'
-        self.configs['dataset fields'] = [
-            ('Shot number', '<u4'),
-            ('x', '<f8'),
-            ('y', '<f8'),
-            ('z', '<f8'),
-            ('theta', '<f8'),
-            ('phi', '<f8')
-        ]
-
-        # Define 'dset field to numpy field'
-        self.configs['dset field to numpy field'] = [
-            ('Shot number', 'shotnum', 0),
-            ('x', 'xyz', 0),
-            ('y', 'xyz', 1),
-            ('z', 'xyz', 2),
-            ('theta', 'ptip_rot_theta', 0),
-            ('phi', 'ptip_rot_phi', 0)
-        ]
+            # Define 'dset field to numpy field'
+            self.configs[config_name]['dset field to numpy field'] = [
+                ('Shot number', 'shotnum', 0),
+                ('x', 'xyz', 0),
+                ('y', 'xyz', 1),
+                ('z', 'xyz', 2),
+                ('theta', 'ptip_rot_theta', 0),
+                ('phi', 'ptip_rot_phi', 0)
+            ]
 
     def construct_dataset_name(self, *args):
         # The first arg passed is assumed to be the receptacle number.
@@ -132,7 +127,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         :return: list of probe drive receptacle numbers
         :rtype: [int, ]
         """
-        return self.configs['config names']
+        return list(self.configs)
 
     @property
     def unique_specifiers(self):

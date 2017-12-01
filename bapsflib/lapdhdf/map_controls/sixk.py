@@ -119,9 +119,6 @@ class hdfMap_control_6k(hdfMap_control_template):
         #   is why dataset name is constructed based on receptacle and
         #   not probe name
         #
-        #for name in self.configs['probe list']:
-        #    if self.configs[name]['receptacle'] == receptacle:
-        #        pname = name
         pname = self.configs[receptacle]['probe name']
 
         # Construct dataset name

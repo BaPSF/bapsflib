@@ -461,7 +461,8 @@ class hdfReadControl(np.recarray):
         #  a 2-d matrix for example), or to update meta-information from
         #  the parent. Subclasses inherit a default implementation of
         #  this method that does nothing.
-        if obj is None: return
+        if obj is None:
+            return
 
         # Define info attribute
         # - getattr() searches obj for the 'info' attribute. If the

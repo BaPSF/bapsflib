@@ -34,14 +34,6 @@ class hdfMap_control_waveform(hdfMap_control_template):
         #self._verify_map()
 
     def _build_configs(self):
-        # remove 'motion list' and 'probe list' from self.configs
-        # - these are not used by this control device type
-        #
-        if 'motion list' in self.configs:
-            del self.configs['motion list']
-        if 'porbe list' in self.configs:
-            del self.configs['probe list']
-
         # build 'config names'
         # - assume all subgroups are control device configuration groups
         #   and their names correspond to the configuration name
@@ -61,21 +53,32 @@ class hdfMap_control_waveform(hdfMap_control_template):
             ip = cgroup.attrs['IP address']
             ip = ip.decode('utf-8')
 
+            # get device (generator) name
+            # - gdevice get returned as a np.bytes_ string
+            #
+            gdevice = cgroup.attrs['Generator type']
+            gdevice = gdevice.decode('utf-8')
+
             # get command list
             # - cl gets returned as a np.bytes_ string
+            # - remove trailing/leading whitespace
             #
             cl = cgroup.attrs['Waveform command list']
             cl = cl.decode('utf-8').splitlines()
-            pattern = re.compile('(FREQ\s)(\d+\.\d+)')
-            cl_float = []
-            for val in cl:
-                cl_re = re.search(pattern, val)
-                cl_float.append(float(cl_re.group(2)))
+            cl = [cls.strip() for cls in cl]
+            # pattern = re.compile('(FREQ\s)(\d+\.\d+)')
+            # cl_float = []
+            # for val in cl:
+            #     cl_re = re.search(pattern, val)
+            #     cl_float.append(float(cl_re.group(2)))
 
             # assign values
+            # 'command list': tuple(cl_float)
             self.configs[name] = {
                 'IP address': ip,
-                'command list': tuple(cl_float)
+                'device name': gdevice,
+                'command list': cl,
+                'cl pattern': None
             }
 
             # define number of controlled probes
@@ -85,14 +88,14 @@ class hdfMap_control_waveform(hdfMap_control_template):
             # define 'dataset fields'
             self.configs['dataset fields'] = [
                 ('Shot number', '<u4'),
-                ('Configuration name', 'S120'),
+                ('Configuration name', 'U'),
                 ('Command index', '<u4')
             ]
 
             # define 'dset field to numpy field'
             self.configs['dset field to numpy field'] = [
                 ('Shot number', 'shotnum', 0),
-                (('Command index', None), 'confreq', 0)
+                ('Command index', 'command', 0)
             ]
 
     @property
@@ -101,13 +104,4 @@ class hdfMap_control_waveform(hdfMap_control_template):
 
     @property
     def unique_specifiers(self):
-        return None
-
-    def command_value(self, index, *args):
-        try:
-            config_name = self.configs['config names'][0]
-            val = self.configs[config_name]['command list'][0]
-        except IndexError:
-            val = np.nan
-
-        return val
+        return self.configs['config names']

@@ -287,7 +287,15 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                             'sample rate': (None, 'MHz'),
                             'shot average (software)': shtave,
                             'sample average (hardware)': splave})
-                conn.append(subconn)
+                if brd is not None:
+                    # This counters a bazaar occurrence in the
+                    # 'SIS crate' configuration where there's more
+                    # configuration subgroups in config_group than there
+                    # are listed in
+                    # config_group.attrs['SIS crate config indices']
+                    conn.append(subconn)
+
+                # reset values
                 brd = None
                 chs = []
 
@@ -347,7 +355,10 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                             'sample rate': cmode,
                             'shot average (software)': shtave,
                             'sample average (hardware)': splave})
-                conn.append(subconn)
+                if brd is not None:
+                    conn.append(subconn)
+
+                # reset values
                 brd = None
                 chs = []
                 cmode = (None, 'GHz')

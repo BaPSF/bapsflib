@@ -9,7 +9,6 @@
 
 # Sphinx build directory
 docs/_build/
-docs/_build/html
 
 # PyCharm specifics
 .idea/workspace.xml

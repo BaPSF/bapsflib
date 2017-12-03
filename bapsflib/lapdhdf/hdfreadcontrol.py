@@ -481,10 +481,8 @@ def condition_controls(hdf_file, controls, silent=False):
 
     # Check for non-empty controls
     if not file_map.controls or file_map.controls is None:
-        if not silent:
-            print('** Warning: There are no control devices in the HDF5'
-                  ' file.')
-        return []
+        raise AttributeError('There are no control devices in the HDF5'
+                             ' file.')
 
     # condition elements of 'controls' argument
     # - controls is a list where elements can be:
@@ -507,23 +505,26 @@ def condition_controls(hdf_file, controls, silent=False):
             if type(device) is str:
                 # ensure proper device and unique specifier are defined
                 if device in new_controls:
-                    raise Exception(
+                    raise TypeError(
                         'Control device ({})'.format(device)
                         + ' can only have one occurrence in controls')
                 elif device in file_map.controls:
                     if len(file_map.controls[device].configs) == 1:
-                        new_controls.append(device)
+                        new_controls.append((
+                            device,
+                            list(file_map.controls[device].configs)[0]
+                        ))
                     else:
-                        raise Exception(
+                        raise TypeError(
                             'Need to define a unique specifier for '
                             'control device ({})'.format(device))
                 else:
-                    raise Exception(
+                    raise TypeError(
                         'Control device ({})'.format(device)
                         + ' not in HDF5 file')
             elif type(device) is tuple:
                 if device[0] in new_controls:
-                    raise Exception(
+                    raise TypeError(
                         'Control device ({})'.format(device[0])
                         + ' can only have one occurrence in controls')
                 elif device[0] in file_map.controls:
@@ -531,28 +532,25 @@ def condition_controls(hdf_file, controls, silent=False):
                             device[0]].configs:
                         new_controls.append((device[0], device[1]))
                     else:
-                        raise Exception(
+                        raise TypeError(
                             'Unique specifier for control device '
                             '({}) is NOT valid'.format(device[0]))
                 else:
-                    raise Exception(
+                    raise TypeError(
                         'Control device ({})'.format(device[0])
                         + ' not in HDF5 file')
     else:
-        raise Exception('controls argument not a list')
+        raise TypeError('controls argument not a list')
 
     # enforce one device per contype
     checked = []
     controls = new_controls
     for device in controls:
-        try:
-            contype = file_map.controls[device].contype
-        except KeyError:
-            # device is a tuple, not a string
-            contype = file_map.controls[device[0]].contype
+        # device is a tuple, not a string
+        contype = file_map.controls[device[0]].contype
 
         if contype in checked:
-            raise Exception('controls has multiple devices per contype')
+            raise TypeError('controls has multiple devices per contype')
         else:
             checked.append(contype)
 
@@ -567,33 +565,64 @@ def gather_shotnums(hdf_file, controls, method='union',
     if not assume_controls_conditioned:
         controls = condition_controls(hdf_file, controls)
 
-    # condition method keyword
+    # condition 'method' keyword
     if method not in ['union', 'intersection', 'first']:
-        return None
+        raise TypeError("Keyword 'method' can only be one of "
+                        "{}".format(['union',
+                                     'intersection',
+                                     'first']))
 
     # build array of shot numbers
     shotnumarr = None
     for device in controls:
         # control name and unique specifier
-        if type(device) is tuple:
+        try:
+            if type(device) is str:
+                raise TypeError('controls NOT conditioned')
+
+            # get device name (cname) and unique specifier (cspec)
             cname = device[0]
             cspec = device[1]
-        else:
-            cname = device
-            cspec = None
+        except IndexError:
+            raise TypeError('controls NOT conditioned')
 
         # get control dataset
-        cdset_name = hdf_file.file_map.controls[
-            cname].construct_dataset_name(cspec)
-        cdset_path = hdf_file.file_map.controls[cname].info[
-            'group path'] + '/' + cdset_name
+        conmap = hdf_file.file_map.controls[cname]
+        cdset_name = conmap.construct_dataset_name(cspec)
+        cdset_path = conmap.info['group path'] + '/' + cdset_name
         cdset = hdf_file.get(cdset_path)
         shotnumkey = cdset.dtype.names[0]
+
+        # get filter indices for cspec of cname
+        # - a control device that utilizes a 'command list' saves all of
+        #   its data for all of its configurations in one dataset
+        # - in this case, the dataset needs to be filtered for data only
+        #   corresponding to the cspec configuration
+        #
+        if len(conmap.dataset_names) == 1 and len(conmap.configs) != 1:
+            # multiple configs but one dataset
+
+            # get configuration field
+            cfield = None
+            for field in conmap.configs['dataset fields']:
+                if 'configuration' in field[0].casefold():
+                    cfield = field[0]
+                    break
+
+            # get indices for data corresponding to cspec
+            try:
+                cfi = np.where(cdset[cfield] == cspec)
+            except ValueError:
+                raise ValueError(
+                    'control device dataset has NO identifiable '
+                    'configuration field')
+        else:
+            cfi = np.ones(cdset.shape, dtype=bool)
 
         # Define shotnumarr
         if shotnumarr is None:
             # first assignment
-            shotnumarr = cdset[shotnumkey].view()
+            shotnumarr = cdset[cfi, shotnumkey].view()
 
             # break if only want shot numbers for first dataset
             if method == 'first':
@@ -601,12 +630,12 @@ def gather_shotnums(hdf_file, controls, method='union',
         elif method == 'intersection':
             # build set of intersecting shot numbers
             shotnumarr = np.intersect1d(shotnumarr,
-                                        cdset[shotnumkey].view(),
+                                        cdset[cfi, shotnumkey].view(),
                                         assume_unique=True)
         else:
             # method == 'union'
             shotnumarr = np.union1d(shotnumarr,
-                                    cdset[shotnumkey].view())
+                                    cdset[cfi, shotnumkey].view())
 
     # return numpy array of intersecting shot numbers
     return shotnumarr

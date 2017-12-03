@@ -31,7 +31,7 @@ class hdfMap_control_waveform(hdfMap_control_template):
         self._build_configs()
 
         # verify self.info and self.configs
-        #self._verify_map()
+        # self._verify_map()
 
     def _build_configs(self):
         # build configuration dictionaries
@@ -89,7 +89,6 @@ class hdfMap_control_waveform(hdfMap_control_template):
                 ('Command index', 'command', 0)
             ]
 
-    @property
     def construct_dataset_name(self, *args):
         return 'Run time list'
 

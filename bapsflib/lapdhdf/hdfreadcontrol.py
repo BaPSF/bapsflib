@@ -122,8 +122,18 @@ class hdfReadControl(np.recarray):
         #      indicating the name of a control device and the 2nd is
         #      a unique specifier for that control device
         # - there can only be one control device per contype
+        # - some calling routines (such as, lapdhdf.File.read_data)
+        #   already properly condition 'controls', so passing a keyword
+        #   'assume_controls_conditioned' allows for a bypass of
+        #   conditioning here
         #
-        controls = condition_controls(hdf_file, controls, silent=silent)
+        try:
+            if not kwargs['assume_controls_conditioned']:
+                controls = condition_controls(hdf_file, controls,
+                                              silent=silent)
+        except KeyError:
+            controls = condition_controls(hdf_file, controls,
+                                          silent=silent)
 
         # make sure 'controls' is not empty
         if not controls:
@@ -174,10 +184,11 @@ class hdfReadControl(np.recarray):
         # shotnum - regardless of if index or shotnum is specified,
         #           shotnum will be re-defined to include all shot
         #           numbers that will be placed into the obj array
-
+        #
         # Determine dset_sn and rowlen
         method = 'intersection' if intersection_set else 'first'
-        dset_sn = gather_shotnums(hdf_file, controls, method=method)
+        dset_sn = gather_shotnums(hdf_file, controls, method=method,
+                                  assume_controls_conditioned=True)
         rowlen = dset_sn.shape[0]
 
         # Ensure 'index' is a valid
@@ -317,12 +328,14 @@ class hdfReadControl(np.recarray):
         #
         npfields = {}
         for control in controls:
-            if type(control) is tuple:
-                control = control[0]
+            # control name and unique specifier
+            cname = control[0]
+            cspec = control[1]
 
-            conmap = file_map.controls[control]
+            # gather fields
+            cmap = file_map.controls[cname]
             for df_name, nf_name, npi \
-                    in conmap.configs['dset field to numpy field']:
+                    in cmap.configs[cspec]['dset field to numpy field']:
                 # df_name - control dataset field name
                 #           ~ if a tuple instead of a string then the
                 #             dataset field is linked to a command list
@@ -354,17 +367,13 @@ class hdfReadControl(np.recarray):
         # Assign Control Data to Numpy array
         for control in controls:
             # control name and unique specifier
-            if type(control) is tuple:
-                cname = control[0]
-                cspec = control[1]
-            else:
-                cname = control
-                cspec = None
+            cname = control[0]
+            cspec = control[1]
 
             # get control dataset
-            conmap = file_map.controls[cname]
-            cdset_name = conmap.construct_dataset_name(cspec)
-            cdset_path = conmap.info['group path'] + '/' + cdset_name
+            cmap = file_map.controls[cname]
+            cdset_name = cmap.construct_dataset_name(cspec)
+            cdset_path = cmap.info['group path'] + '/' + cdset_name
             cdset = hdf_file.get(cdset_path)
             shotnumkey = cdset.dtype.names[0]
 
@@ -381,18 +390,21 @@ class hdfReadControl(np.recarray):
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
-                        in conmap.configs['dset field to numpy field']:
+                        in cmap.configs[cspec][
+                            'dset field to numpy field']:
                     # skip iteration if field is 'shotnum'
                     if nf_name == 'shotnum':
                         continue
 
                     # assign data
-                    if conmap.has_command_list:
+                    # TODO: filling from command list type
+                    try:
                         # control uses a command list
-                        # TODO: filling from command list type
-                        pass
-                    else:
-                        # control does NOT use command list
+                        #
+                        # get command list
+                        cl = cmap.configs[cspec]['command list']
+                    except KeyError:
+                        # oops control does NOT use command list
                         if data.dtype[nf_name].shape != ():
                             data[nf_name][:, npi] = \
                                 cdset[shoti, df_name].view()
@@ -412,8 +424,20 @@ class hdfReadControl(np.recarray):
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
-                        in conmap.configs['dset field to numpy field']:
-                    if nf_name != 'shotnum':
+                        in cmap.configs[cspec][
+                            'dset field to numpy field']:
+                    # skip iteration if field is 'shotnum'
+                    if nf_name == 'shotnum':
+                        continue
+
+                    # assign data
+                    try:
+                        # control uses a command list
+                        #
+                        # get command list
+                        cl = cmap.configs[cspec]['command list']
+                    except KeyError:
+                        # oops control does NOT use command list
                         if data.dtype[nf_name].shape != ():
                             data[nf_name][datai, npi] = \
                                 cdset[df_name][cdseti].view()
@@ -438,7 +462,7 @@ class hdfReadControl(np.recarray):
             'port': (None, None)}
 
         # print warnings
-        if not silent:
+        if not silent and warn_str != '':
             print(warn_str)
 
         # return obj

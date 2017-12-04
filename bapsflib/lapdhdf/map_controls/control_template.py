@@ -226,8 +226,8 @@ class hdfMap_control_template(ABC):
         :rtype: bool
         """
         has_cl = False
-        for name in self.configs['config names']:
-            if 'command list' in self.configs[name]:
+        for config_name in self.configs:
+            if 'command list' in self.configs[config_name]:
                 has_cl = True
                 break
         return has_cl

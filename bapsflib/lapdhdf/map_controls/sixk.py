@@ -72,12 +72,12 @@ class hdfMap_control_6k(hdfMap_control_template):
 
             # Define 'dset field to numpy field'
             self.configs[config_name]['dset field to numpy field'] = [
-                ('Shot number', 'shotnum', 0),
-                ('x', 'xyz', 0),
-                ('y', 'xyz', 1),
-                ('z', 'xyz', 2),
-                ('theta', 'ptip_rot_theta', 0),
-                ('phi', 'ptip_rot_phi', 0)
+                ('Shot number', ('shotnum', '<u4'), 0),
+                ('x', ('xyz', '<f8'), 0),
+                ('y', ('xyz', '<f8'), 1),
+                ('z', ('xyz', '<f8'), 2),
+                ('theta', ('ptip_rot_theta', '<f8'), 0),
+                ('phi', ('ptip_rot_phi', '<f8'), 0)
             ]
 
     def construct_dataset_name(self, *args):

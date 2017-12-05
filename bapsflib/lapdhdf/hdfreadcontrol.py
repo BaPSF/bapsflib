@@ -339,15 +339,16 @@ class hdfReadControl(np.recarray):
                 # df_name - control dataset field name
                 #           ~ if a tuple instead of a string then the
                 #             dataset field is linked to a command list
-                # nf_name - numpy structured array field name
+                # nf_name - numpy structured array field name and dtype
                 # npi     - numpy index df_name will be inserted into
-                if nf_name == 'shotnum':
+                if nf_name[0] == 'shotnum':
                     # already in dtype
                     pass
-                elif nf_name in npfields:
-                    npfields[nf_name][1] += 1
+                elif nf_name[0] in npfields:
+                    npfields[nf_name[0]][1] += 1
                 else:
-                    npfields[nf_name] = ['<f8', 1]
+                    npfields[nf_name[0]] = [nf_name[1], 1]
+                    # npfields[nf_name] = ['<f8, 1]
 
         # Define dtype and shape for numpy array
         dytpe = [('shotnum', '<u4', 1)]
@@ -361,7 +362,7 @@ class hdfReadControl(np.recarray):
         for field in npfields:
             if data.dtype[field] <= np.int:
                 data[field][:] = -99999
-            else:
+            elif data.dtype[field] <= np.float:
                 data[field][:] = np.nan
 
         # Assign Control Data to Numpy array
@@ -380,54 +381,105 @@ class hdfReadControl(np.recarray):
             # populate control data array
             if intersection_set:
                 # find cdset indices that match shotnum
+                # - Note: if the control device utilizes one dataset for
+                #         all configurations, then 'shoti' will contain
+                #         indices for all the configurations.  This will
+                #         need to be filtered again for the wanted
+                #         configuration.
+                #
                 shoti = np.in1d(cdset[shotnumkey], shotnum)
 
                 # assign values
                 # df_name - device dataset field name
-                #           ~ if a tuple instead of a string then the
-                #             dataset field is linked to a command list
-                # nf_name - corresponding numpy field name
+                # nf_name - corresponding numpy field name and dtype
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
                         in cmap.configs[cspec][
                             'dset field to numpy field']:
                     # skip iteration if field is 'shotnum'
-                    if nf_name == 'shotnum':
+                    if nf_name[0] == 'shotnum':
                         continue
 
                     # assign data
-                    # TODO: filling from command list type
+                    # TODO: need to confirm this works for all cl setups
                     try:
-                        # control uses a command list
+                        # assume control uses a command list
                         #
                         # get command list
                         cl = cmap.configs[cspec]['command list']
+
+                        # filter 'shoti' for values only associated with
+                        # cspec
+                        #
+                        if len(cmap.dataset_names) == 1 \
+                                and len(cmap.configs) != 1:
+                            # multiple configs but one dataset...need
+                            # to filter
+
+                            # get config field
+                            cfield = None
+                            for field in cmap.configs['dataset fields']:
+                                if 'configuration' \
+                                        in field[0].casefold():
+                                    cfield = field[0]
+                                    break
+
+                            # get indices for data corresponding to
+                            # cspec
+                            try:
+                                cfi = np.where(cdset[cfield] == cspec)
+                            except ValueError:
+                                raise ValueError(
+                                    'control device dataset has NO '
+                                    'identifiable configuration field')
+
+                            # filter 'shoti'
+                            shoti = np.logical_and(shoti, cfi)
+
+                        # retrieve array of command indices
+                        ci_arr = cdset[shoti, df_name].view()
+
+                        # assign command values to data
+                        for ci, command in enumerate(cl):
+                            ii = np.where(ci_arr == ci, True, False)
+                            data[nf_name[0]][ii] = command
                     except KeyError:
                         # oops control does NOT use command list
-                        if data.dtype[nf_name].shape != ():
-                            data[nf_name][:, npi] = \
+                        if data.dtype[nf_name[0]].shape != ():
+                            data[nf_name[0]][:, npi] = \
                                 cdset[shoti, df_name].view()
                         else:
-                            data[nf_name] = \
+                            data[nf_name[0]] = \
                                 cdset[shoti, df_name].view()
             else:
+                # TODO: need to confirm this works
                 # get intersecting shot numbers
+                # sn_intersect - shot numbers that are common between
+                #                shotnum and the control dataset
+                # cdseti - a bool array matching the size of the control
+                #          dataset and labeling True for for control
+                #          dataset array shot numbers that are in the
+                #          shotnum
+                # NOTE: cdseti will have to be filtered again for
+                #       control devices that utilize one dataset for
+                #       multiple configurations. They will need to be
+                #       filtered for the desired configuration.
+                #
                 sn_intersect = np.intersect1d(cdset[shotnumkey],
                                               shotnum).view()
-                datai = np.in1d(shotnum, sn_intersect)
                 cdseti = np.in1d(cdset[shotnumkey], sn_intersect)
 
                 # assign values
                 # df_name - device dataset field name
-                # nf_name - corresponding numpy field name
+                # nf_name - corresponding numpy field name and dtype
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
                         in cmap.configs[cspec][
                             'dset field to numpy field']:
                     # skip iteration if field is 'shotnum'
-                    if nf_name == 'shotnum':
+                    if nf_name[0] == 'shotnum':
                         continue
 
                     # assign data
@@ -436,14 +488,59 @@ class hdfReadControl(np.recarray):
                         #
                         # get command list
                         cl = cmap.configs[cspec]['command list']
+
+                        # filter 'datai' and 'cdseti' for values only
+                        # associated with cspec
+                        #
+                        if len(cmap.dataset_names) == 1 \
+                                and len(cmap.configs) != 1:
+                            # multiple configs but one dataset...need
+                            # to filter
+
+                            # get config field
+                            cfield = None
+                            for field in cmap.configs['dataset fields']:
+                                if 'configuration' \
+                                        in field[0].casefold():
+                                    cfield = field[0]
+                                    break
+
+                            # get indices for data corresponding to
+                            # cspec
+                            try:
+                                cfi = np.where(cdset[cfield] == cspec)
+                            except ValueError:
+                                raise ValueError(
+                                    'control device dataset has NO '
+                                    'identifiable configuration field')
+
+                            # filter 'cdseti'
+                            cdseti = np.logical_and(cdseti, cfi)
+
+                        # retrieve array of command indices
+                        ci_arr = cdset[cdseti, df_name].view()
+
+                        # retrieve shot number array for dataset
+                        sn_arr = cdset[cdseti, shotnumkey].view()
+
+                        for ci, command in enumerate(cl):
+                            ii = np.where(ci_arr == ci, True, False)
+                            datai = np.in1d(shotnum, sn_arr[ii])
+                            data[nf_name[0]][datai] = command
+
                     except KeyError:
                         # oops control does NOT use command list
-                        if data.dtype[nf_name].shape != ():
-                            data[nf_name][datai, npi] = \
-                                cdset[df_name][cdseti].view()
+                        #
+                        # get matching data array shot number indices
+                        datai = np.in1d(shotnum, sn_intersect)
+
+                        # fill data array
+                        if data.dtype[nf_name[0]].shape != ():
+                            data[nf_name[0]][datai, npi] = \
+                                cdset[cdseti, df_name].view()
                         else:
-                            data[nf_name][datai] = \
-                                cdset[df_name][cdseti].view()
+                            data[nf_name[0]][datai] = \
+                                cdset[cdseti, df_name].view()
 
         # Construct obj
         obj = data.view(cls)

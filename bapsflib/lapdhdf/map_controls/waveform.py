@@ -85,8 +85,9 @@ class hdfMap_control_waveform(hdfMap_control_template):
 
             # define 'dset field to numpy field'
             self.configs[name]['dset field to numpy field'] = [
-                ('Shot number', 'shotnum', 0),
-                ('Command index', 'command', 0)
+                ('Shot number', ('shotnum', '<u4'), 0),
+                ('Command index',
+                 ('command', np.array(cl).dtype.str), 0)
             ]
 
     def construct_dataset_name(self, *args):

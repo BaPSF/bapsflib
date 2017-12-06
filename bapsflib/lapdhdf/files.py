@@ -48,6 +48,10 @@ class File(h5py.File):
         self.__file_checks = hdfCheck(self)
 
     @property
+    def desription(self):
+        return self['Raw data + config'].attrs['Description'].decode('utf-8').splitlines()
+
+    @property
     def file_map(self):
         """
         :return: HDF5 file mappings

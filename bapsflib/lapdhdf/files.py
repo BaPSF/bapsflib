@@ -48,6 +48,19 @@ class File(h5py.File):
         self.__file_checks = hdfCheck(self)
 
     @property
+    def exp_descr(self):
+        """
+        :return: Experimental description stored in the HDF5 file.
+        :rtype: str
+        """
+        try:
+            edescr = self['Raw data + config'].attrs['Description']
+            edescr = edescr.decode('utf-8').splitlines()
+        except KeyError:
+            edescr = ''
+        return edescr
+
+    @property
     def file_map(self):
         """
         :return: HDF5 file mappings

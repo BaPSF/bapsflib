@@ -243,13 +243,15 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
                 # Find board number
                 config_index = int(name[-2])
+                brd = None
                 for slot, index, board, adc in info_list:
                     if '3302' in adc and config_index == index:
                         brd = board
                         break
 
                 # Find active channels
-                for key in config_group[name].attrs.keys():
+                chs = []
+                for key in config_group[name].attrs:
                     if 'Enable' in key:
                         tf_str = config_group[name].attrs[key]
                         if 'TRUE' in tf_str.decode('utf-8'):
@@ -296,20 +298,22 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     conn.append(subconn)
 
                 # reset values
-                brd = None
-                chs = []
+                # brd = None
+                # chs = []
 
         elif adc_name == 'SIS 3305':
             for name in sis3305_gnames:
 
                 # Find board number
                 config_index = int(name[-2])
+                brd = None
                 for slot, index, board, adc in info_list:
                     if '3305' in adc and config_index == index:
                         brd = board
                         break
 
                 # Find active channels and clock mode
+                chs = []
                 for key in config_group[name].attrs.keys():
                     # channels
                     if 'Enable' in key:
@@ -359,8 +363,6 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     conn.append(subconn)
 
                 # reset values
-                brd = None
-                chs = []
                 cmode = (None, 'GHz')
 
         return conn
@@ -485,13 +487,13 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         :return: (board number, adc name)
         :rtype: (int, str)
         """
-        sb_map = {'5': (1, 'SIS 3302'),
-                  '7': (2, 'SIS 3302'),
-                  '9': (3, 'SIS 3302'),
-                  '11': (4, 'SIS 3302'),
-                  '13': (1, 'SIS 3305'),
-                  '15': (2, 'SIS 3305')}
-        return sb_map['{}'.format(slot)]
+        sb_map = {5: (1, 'SIS 3302'),
+                  7: (2, 'SIS 3302'),
+                  9: (3, 'SIS 3302'),
+                  11: (4, 'SIS 3302'),
+                  13: (1, 'SIS 3305'),
+                  15: (2, 'SIS 3305')}
+        return sb_map[slot]
 
     @staticmethod
     def brd_to_slot(brd, adc):

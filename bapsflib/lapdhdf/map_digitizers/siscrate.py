@@ -238,6 +238,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     sis3305_gnames.append(key)
 
         # Determine connected (brd, ch) combinations
+        # TODO: make this section more efficient
         if adc_name == 'SIS 3302':
             for name in sis3302_gnames:
 

@@ -122,8 +122,18 @@ class hdfReadControl(np.recarray):
         #      indicating the name of a control device and the 2nd is
         #      a unique specifier for that control device
         # - there can only be one control device per contype
+        # - some calling routines (such as, lapdhdf.File.read_data)
+        #   already properly condition 'controls', so passing a keyword
+        #   'assume_controls_conditioned' allows for a bypass of
+        #   conditioning here
         #
-        controls = condition_controls(hdf_file, controls, silent=silent)
+        try:
+            if not kwargs['assume_controls_conditioned']:
+                controls = condition_controls(hdf_file, controls,
+                                              silent=silent)
+        except KeyError:
+            controls = condition_controls(hdf_file, controls,
+                                          silent=silent)
 
         # make sure 'controls' is not empty
         if not controls:
@@ -174,10 +184,11 @@ class hdfReadControl(np.recarray):
         # shotnum - regardless of if index or shotnum is specified,
         #           shotnum will be re-defined to include all shot
         #           numbers that will be placed into the obj array
-
+        #
         # Determine dset_sn and rowlen
         method = 'intersection' if intersection_set else 'first'
-        dset_sn = gather_shotnums(hdf_file, controls, method=method)
+        dset_sn = gather_shotnums(hdf_file, controls, method=method,
+                                  assume_controls_conditioned=True)
         rowlen = dset_sn.shape[0]
 
         # Ensure 'index' is a valid
@@ -317,24 +328,27 @@ class hdfReadControl(np.recarray):
         #
         npfields = {}
         for control in controls:
-            if type(control) is tuple:
-                control = control[0]
+            # control name and unique specifier
+            cname = control[0]
+            cspec = control[1]
 
-            conmap = file_map.controls[control]
+            # gather fields
+            cmap = file_map.controls[cname]
             for df_name, nf_name, npi \
-                    in conmap.configs['dset field to numpy field']:
+                    in cmap.configs[cspec]['dset field to numpy field']:
                 # df_name - control dataset field name
                 #           ~ if a tuple instead of a string then the
                 #             dataset field is linked to a command list
-                # nf_name - numpy structured array field name
+                # nf_name - numpy structured array field name and dtype
                 # npi     - numpy index df_name will be inserted into
-                if nf_name == 'shotnum':
+                if nf_name[0] == 'shotnum':
                     # already in dtype
                     pass
-                elif nf_name in npfields:
-                    npfields[nf_name][1] += 1
+                elif nf_name[0] in npfields:
+                    npfields[nf_name[0]][1] += 1
                 else:
-                    npfields[nf_name] = ['<f8', 1]
+                    npfields[nf_name[0]] = [nf_name[1], 1]
+                    # npfields[nf_name] = ['<f8, 1]
 
         # Define dtype and shape for numpy array
         dytpe = [('shotnum', '<u4', 1)]
@@ -348,86 +362,185 @@ class hdfReadControl(np.recarray):
         for field in npfields:
             if data.dtype[field] <= np.int:
                 data[field][:] = -99999
-            else:
+            elif data.dtype[field] <= np.float:
                 data[field][:] = np.nan
 
         # Assign Control Data to Numpy array
         for control in controls:
             # control name and unique specifier
-            if type(control) is tuple:
-                cname = control[0]
-                cspec = control[1]
-            else:
-                cname = control
-                cspec = None
+            cname = control[0]
+            cspec = control[1]
 
             # get control dataset
-            conmap = file_map.controls[cname]
-            cdset_name = conmap.construct_dataset_name(cspec)
-            cdset_path = conmap.info['group path'] + '/' + cdset_name
+            cmap = file_map.controls[cname]
+            cdset_name = cmap.construct_dataset_name(cspec)
+            cdset_path = cmap.info['group path'] + '/' + cdset_name
             cdset = hdf_file.get(cdset_path)
             shotnumkey = cdset.dtype.names[0]
 
             # populate control data array
             if intersection_set:
                 # find cdset indices that match shotnum
+                # - Note: if the control device utilizes one dataset for
+                #         all configurations, then 'shoti' will contain
+                #         indices for all the configurations.  This will
+                #         need to be filtered again for the wanted
+                #         configuration.
+                #
                 shoti = np.in1d(cdset[shotnumkey], shotnum)
 
                 # assign values
                 # df_name - device dataset field name
-                #           ~ if a tuple instead of a string then the
-                #             dataset field is linked to a command list
-                # nf_name - corresponding numpy field name
+                # nf_name - corresponding numpy field name and dtype
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
-                        in conmap.configs['dset field to numpy field']:
+                        in cmap.configs[cspec][
+                            'dset field to numpy field']:
                     # skip iteration if field is 'shotnum'
-                    if nf_name == 'shotnum':
+                    if nf_name[0] == 'shotnum':
                         continue
 
-                    # determine if control device data is linked to a
-                    # command list
-                    #
-                    if type(df_name) is tuple:
-                        command_linked = True
-                        dsi = df_name[1]
-                        df_name = df_name[0]
-                    else:
-                        command_linked = False
+                    # assign data
+                    # TODO: need to confirm this works for all cl setups
+                    try:
+                        # assume control uses a command list
+                        #
+                        # get command list
+                        cl = cmap.configs[cspec]['command list']
 
-                    #
-                    if command_linked:
-                        # TODO: filling from command list type
-                        pass
-                    else:
-                        if data.dtype[nf_name].shape != ():
-                            data[nf_name][:, npi] = \
+                        # filter 'shoti' for values only associated with
+                        # cspec
+                        #
+                        if len(cmap.dataset_names) == 1 \
+                                and len(cmap.configs) != 1:
+                            # multiple configs but one dataset...need
+                            # to filter
+
+                            # get config field
+                            cfield = None
+                            for field in cmap.configs['dataset fields']:
+                                if 'configuration' \
+                                        in field[0].casefold():
+                                    cfield = field[0]
+                                    break
+
+                            # get indices for data corresponding to
+                            # cspec
+                            try:
+                                cfi = np.where(cdset[cfield] == cspec)
+                            except ValueError:
+                                raise ValueError(
+                                    'control device dataset has NO '
+                                    'identifiable configuration field')
+
+                            # filter 'shoti'
+                            shoti = np.logical_and(shoti, cfi)
+
+                        # retrieve array of command indices
+                        ci_arr = cdset[shoti, df_name].view()
+
+                        # assign command values to data
+                        for ci, command in enumerate(cl):
+                            ii = np.where(ci_arr == ci, True, False)
+                            data[nf_name[0]][ii] = command
+                    except KeyError:
+                        # oops control does NOT use command list
+                        if data.dtype[nf_name[0]].shape != ():
+                            data[nf_name[0]][:, npi] = \
                                 cdset[shoti, df_name].view()
                         else:
-                            data[nf_name] = \
+                            data[nf_name[0]] = \
                                 cdset[shoti, df_name].view()
             else:
+                # TODO: need to confirm this works
                 # get intersecting shot numbers
+                # sn_intersect - shot numbers that are common between
+                #                shotnum and the control dataset
+                # cdseti - a bool array matching the size of the control
+                #          dataset and labeling True for for control
+                #          dataset array shot numbers that are in the
+                #          shotnum
+                # NOTE: cdseti will have to be filtered again for
+                #       control devices that utilize one dataset for
+                #       multiple configurations. They will need to be
+                #       filtered for the desired configuration.
+                #
                 sn_intersect = np.intersect1d(cdset[shotnumkey],
                                               shotnum).view()
-                datai = np.in1d(shotnum, sn_intersect)
                 cdseti = np.in1d(cdset[shotnumkey], sn_intersect)
 
                 # assign values
                 # df_name - device dataset field name
-                # nf_name - corresponding numpy field name
+                # nf_name - corresponding numpy field name and dtype
                 # npi     - numpy index that dataset will be assigned to
                 #
                 for df_name, nf_name, npi \
-                        in conmap.configs['dset field to numpy field']:
-                    if nf_name != 'shotnum':
-                        if data.dtype[nf_name].shape != ():
-                            data[nf_name][datai, npi] = \
-                                cdset[df_name][cdseti].view()
+                        in cmap.configs[cspec][
+                            'dset field to numpy field']:
+                    # skip iteration if field is 'shotnum'
+                    if nf_name[0] == 'shotnum':
+                        continue
+
+                    # assign data
+                    try:
+                        # control uses a command list
+                        #
+                        # get command list
+                        cl = cmap.configs[cspec]['command list']
+
+                        # filter 'datai' and 'cdseti' for values only
+                        # associated with cspec
+                        #
+                        if len(cmap.dataset_names) == 1 \
+                                and len(cmap.configs) != 1:
+                            # multiple configs but one dataset...need
+                            # to filter
+
+                            # get config field
+                            cfield = None
+                            for field in cmap.configs['dataset fields']:
+                                if 'configuration' \
+                                        in field[0].casefold():
+                                    cfield = field[0]
+                                    break
+
+                            # get indices for data corresponding to
+                            # cspec
+                            try:
+                                cfi = np.where(cdset[cfield] == cspec)
+                            except ValueError:
+                                raise ValueError(
+                                    'control device dataset has NO '
+                                    'identifiable configuration field')
+
+                            # filter 'cdseti'
+                            cdseti = np.logical_and(cdseti, cfi)
+
+                        # retrieve array of command indices
+                        ci_arr = cdset[cdseti, df_name].view()
+
+                        # retrieve shot number array for dataset
+                        sn_arr = cdset[cdseti, shotnumkey].view()
+
+                        for ci, command in enumerate(cl):
+                            ii = np.where(ci_arr == ci, True, False)
+                            datai = np.in1d(shotnum, sn_arr[ii])
+                            data[nf_name[0]][datai] = command
+
+                    except KeyError:
+                        # oops control does NOT use command list
+                        #
+                        # get matching data array shot number indices
+                        datai = np.in1d(shotnum, sn_intersect)
+
+                        # fill data array
+                        if data.dtype[nf_name[0]].shape != ():
+                            data[nf_name[0]][datai, npi] = \
+                                cdset[cdseti, df_name].view()
                         else:
-                            data[nf_name][datai] = \
-                                cdset[df_name][cdseti].view()
+                            data[nf_name[0]][datai] = \
+                                cdset[cdseti, df_name].view()
 
         # Construct obj
         obj = data.view(cls)
@@ -446,7 +559,7 @@ class hdfReadControl(np.recarray):
             'port': (None, None)}
 
         # print warnings
-        if not silent:
+        if not silent and warn_str != '':
             print(warn_str)
 
         # return obj
@@ -461,7 +574,8 @@ class hdfReadControl(np.recarray):
         #  a 2-d matrix for example), or to update meta-information from
         #  the parent. Subclasses inherit a default implementation of
         #  this method that does nothing.
-        if obj is None: return
+        if obj is None:
+            return
 
         # Define info attribute
         # - getattr() searches obj for the 'info' attribute. If the
@@ -478,8 +592,6 @@ class hdfReadControl(np.recarray):
 
 
 def condition_controls(hdf_file, controls, silent=False):
-    # initialize warning string
-    warn_str = ''
 
     # Check hdf_file is a lapdhdf.File object
     try:
@@ -490,10 +602,8 @@ def condition_controls(hdf_file, controls, silent=False):
 
     # Check for non-empty controls
     if not file_map.controls or file_map.controls is None:
-        if not silent:
-            print('** Warning: There are no control devices in the HDF5'
-                  ' file.')
-        return []
+        raise AttributeError('There are no control devices in the HDF5'
+                             ' file.')
 
     # condition elements of 'controls' argument
     # - controls is a list where elements can be:
@@ -501,87 +611,139 @@ def condition_controls(hdf_file, controls, silent=False):
     #   2. a 2-element tuple where the 1st entry is a string
     #      indicating the name of a control device and the 2nd is
     #      a unique specifier for that control device
+    #      ~ in 0.1.3.dev3 the unique specifier is the name used in
+    #        configs['config names']
     #
     # - ensure
     #   1. controls is in agreement is defined format above
     #   2. all control device are in file_map.controls
     #   3. there are not duplicate devices in controls
+    #   4. proper unique specifiers are defined
     #
     if type(controls) is list:
         new_controls = []
         for device in controls:
             if type(device) is str:
-                if device in file_map.controls \
-                        and device not in new_controls:
-                    new_controls.append(device)
+                # ensure proper device and unique specifier are defined
+                if device in new_controls:
+                    raise TypeError(
+                        'Control device ({})'.format(device)
+                        + ' can only have one occurrence in controls')
+                elif device in file_map.controls:
+                    if len(file_map.controls[device].configs) == 1:
+                        new_controls.append((
+                            device,
+                            list(file_map.controls[device].configs)[0]
+                        ))
+                    else:
+                        raise TypeError(
+                            'Need to define a unique specifier for '
+                            'control device ({})'.format(device))
+                else:
+                    raise TypeError(
+                        'Control device ({})'.format(device)
+                        + ' not in HDF5 file')
             elif type(device) is tuple:
-                try:
-                    if len(device) == 2 \
-                            and type(device[0]) is str \
-                            and device[0] in file_map.controls \
-                            and device not in new_controls:
-                        new_controls.append(device)
-                except IndexError:
-                    pass
+                if device[0] in new_controls:
+                    raise TypeError(
+                        'Control device ({})'.format(device[0])
+                        + ' can only have one occurrence in controls')
+                elif device[0] in file_map.controls:
+                    if device[1] in file_map.controls[
+                            device[0]].configs:
+                        new_controls.append((device[0], device[1]))
+                    else:
+                        raise TypeError(
+                            'Unique specifier for control device '
+                            '({}) is NOT valid'.format(device[0]))
+                else:
+                    raise TypeError(
+                        'Control device ({})'.format(device[0])
+                        + ' not in HDF5 file')
     else:
-        new_controls = []
+        raise TypeError('controls argument not a list')
 
     # enforce one device per contype
     checked = []
     controls = new_controls
     for device in controls:
-        try:
-            contype = file_map.controls[device].contype
-        except KeyError:
-            # device is a tuple, not a string
-            contype = file_map.controls[device[0]].contype
+        # device is a tuple, not a string
+        contype = file_map.controls[device[0]].contype
 
         if contype in checked:
-            controls = []
-            warn_str = '** Warning: Multiple devices per contype'
-            break
+            raise TypeError('controls has multiple devices per contype')
         else:
             checked.append(contype)
-
-    # print warnings
-    if not silent:
-        print(warn_str)
 
     # return conditioned list
     return controls
 
 
-def gather_shotnums(hdf_file, controls, method='union'):
-    # Check hdf_file is a lapdhdf.File object
-    # controls = condition_controls(hdf_file, controls)
+def gather_shotnums(hdf_file, controls, method='union',
+                    assume_controls_conditioned=False):
 
-    # condition method keyword
+    # condition controls
+    if not assume_controls_conditioned:
+        controls = condition_controls(hdf_file, controls)
+
+    # condition 'method' keyword
     if method not in ['union', 'intersection', 'first']:
-        return None
+        raise TypeError("Keyword 'method' can only be one of "
+                        "{}".format(['union',
+                                     'intersection',
+                                     'first']))
 
     # build array of shot numbers
     shotnumarr = None
     for device in controls:
         # control name and unique specifier
-        if type(device) is tuple:
+        try:
+            if type(device) is str:
+                raise TypeError('controls NOT conditioned')
+
+            # get device name (cname) and unique specifier (cspec)
             cname = device[0]
             cspec = device[1]
-        else:
-            cname = device
-            cspec = None
+        except IndexError:
+            raise TypeError('controls NOT conditioned')
 
         # get control dataset
-        cdset_name = hdf_file.file_map.controls[
-            cname].construct_dataset_name(cspec)
-        cdset_path = hdf_file.file_map.controls[cname].info[
-            'group path'] + '/' + cdset_name
+        conmap = hdf_file.file_map.controls[cname]
+        cdset_name = conmap.construct_dataset_name(cspec)
+        cdset_path = conmap.info['group path'] + '/' + cdset_name
         cdset = hdf_file.get(cdset_path)
         shotnumkey = cdset.dtype.names[0]
+
+        # get filter indices for cspec of cname
+        # - a control device that utilizes a 'command list' saves all of
+        #   its data for all of its configurations in one dataset
+        # - in this case, the dataset needs to be filtered for data only
+        #   corresponding to the cspec configuration
+        #
+        if len(conmap.dataset_names) == 1 and len(conmap.configs) != 1:
+            # multiple configs but one dataset
+
+            # get configuration field
+            cfield = None
+            for field in conmap.configs['dataset fields']:
+                if 'configuration' in field[0].casefold():
+                    cfield = field[0]
+                    break
+
+            # get indices for data corresponding to cspec
+            try:
+                cfi = np.where(cdset[cfield] == cspec)
+            except ValueError:
+                raise ValueError(
+                    'control device dataset has NO identifiable '
+                    'configuration field')
+        else:
+            cfi = np.ones(cdset.shape, dtype=bool)
 
         # Define shotnumarr
         if shotnumarr is None:
             # first assignment
-            shotnumarr = cdset[shotnumkey].view()
+            shotnumarr = cdset[cfi, shotnumkey].view()
 
             # break if only want shot numbers for first dataset
             if method == 'first':
@@ -589,12 +751,12 @@ def gather_shotnums(hdf_file, controls, method='union'):
         elif method == 'intersection':
             # build set of intersecting shot numbers
             shotnumarr = np.intersect1d(shotnumarr,
-                                        cdset[shotnumkey].view(),
+                                        cdset[cfi, shotnumkey].view(),
                                         assume_unique=True)
         else:
             # method == 'union'
             shotnumarr = np.union1d(shotnumarr,
-                                    cdset[shotnumkey].view())
+                                    cdset[cfi, shotnumkey].view())
 
     # return numpy array of intersecting shot numbers
     return shotnumarr

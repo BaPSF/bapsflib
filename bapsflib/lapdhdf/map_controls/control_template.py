@@ -71,7 +71,7 @@ class hdfMap_control_template(ABC):
 
             info = {
                 'group name': str, # name of control group
-                'group path': str  # full path to control group
+                'group path': str, # full path to control group
                 'contype': str     # control device type
             }
         """
@@ -79,16 +79,38 @@ class hdfMap_control_template(ABC):
         # initialize configuration dictionary
         # TODO: format of configs needs to be solidified
         #
-        self.configs = {
-            'motion list': NotImplemented,
-            'probe list': NotImplemented,
-            'config names': NotImplemented,
-            'nControlled': NotImplemented,
-            'dataset fields': NotImplemented,
-            'dset field to numpy field': NotImplemented}
+        # 'motion list': NotImplemented,
+        # 'probe list': NotImplemented,
+        # 'config names': NotImplemented,
+        # 'nControlled': NotImplemented,
+        # 'dataset fields': NotImplemented,
+        # 'dset field to numpy field': NotImplemented
+        self.configs = {}
         """
-        Configuration dictionary of HDF5 control device. Dictionary is
-        polymorphic depending on the control type.
+        Configuration dictionary of HDF5 control device. This dictionary
+        is slightly polymorphic depending on the control type.  That is,
+        there are some core items that exist for all control types and
+        some that are control type dependent.
+        
+        The core items for :code:`configs`::
+        
+            configs = {
+                'config names': [str, ], # list of configuration names
+                'nControlled': int, # number of controlled probes and/or
+                                    # utilized control setups
+                                'dataset fields':
+                    [(str,              # name of dataset field
+                      dtype), ],        # numpy dtype of field
+                'dset field to numpy field':
+                    [(str,      # name of dataset field
+                                # ~ if a tuple like (str, int) then this
+                                #   indicates that the dataset field is
+                                #   linked to a command list 
+                      str,      # name of numpy field that will be used
+                                # by hdfReadControl
+                      int), ]   # numpy array index for which the
+                                # dataset entry will be mapped into
+            }
         
         For :code:`info['contype'] == 'motion'`:
         
@@ -178,14 +200,6 @@ class hdfMap_control_template(ABC):
         """
 
     @property
-    def group(self):
-        """
-        :return: HDF5 control device group
-        :rtype: :class:`h5py.Group`
-        """
-        return self.__control_group
-
-    @property
     def contype(self):
         """
         :return: Type of control device (:code:`'motion'`,
@@ -194,17 +208,37 @@ class hdfMap_control_template(ABC):
         """
         return self.info['contype']
 
-    @abstractmethod
-    def construct_dataset_name(self, *args):
+    @property
+    def dataset_names(self):
         """
-        Constructs the dataset name corresponding to the input
-        arguments.
+        :return: list of names of the HDF5 datasets in the control group
+        :rtype: [str, ]
+        """
+        dnames = [name
+                  for name in self.group
+                  if type(self.group[name]) is h5py.Dataset]
+        return dnames
 
-        :return: name of dataset
-        :rtype: str
-        :raise: :exc:`NotImplementedError`
+    @property
+    def has_command_list(self):
         """
-        raise NotImplementedError
+        :return: :code:`True` if dataset utilizes a command list
+        :rtype: bool
+        """
+        has_cl = False
+        for config_name in self.configs:
+            if 'command list' in self.configs[config_name]:
+                has_cl = True
+                break
+        return has_cl
+
+    @property
+    def group(self):
+        """
+        :return: HDF5 control device group
+        :rtype: :class:`h5py.Group`
+        """
+        return self.__control_group
 
     @property
     def sgroup_names(self):
@@ -217,16 +251,17 @@ class hdfMap_control_template(ABC):
                         if type(self.group[name]) is h5py.Group]
         return sgroup_names
 
-    @property
-    def dataset_names(self):
+    @abstractmethod
+    def construct_dataset_name(self, *args):
         """
-        :return: list of names of the HDF5 datasets in the control group
-        :rtype: [str, ]
+        Constructs the dataset name corresponding to the input
+        arguments.
+
+        :return: name of dataset
+        :rtype: str
+        :raise: :exc:`NotImplementedError`
         """
-        dnames = [name
-                  for name in self.group
-                  if type(self.group[name]) is h5py.Dataset]
-        return dnames
+        raise NotImplementedError
 
     @property
     def unique_specifiers(self):

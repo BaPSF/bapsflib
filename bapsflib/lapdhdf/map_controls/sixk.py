@@ -24,51 +24,61 @@ class hdfMap_control_6k(hdfMap_control_template):
         self._build_configs()
 
         # remove self.info and self.configs items that
-        self._verify_map()
+        #  self._verify_map()
 
     def _build_configs(self):
-        # remove 'config names'
-        if 'config names' in self.configs:
-            del self.configs['config names']
+        # build order:
+        #  1. build a private motion list dictionary
+        #  2. build local probe list dictionary
+        #  3. build configs dict
+        #
+        # TODO: HOW TO ADD MOTION LIST TO DICT
 
         # build 'motion list' and 'probe list'
-        self.configs['motion list'] = []
-        self.configs['probe list'] = []
+        self._motion_lists = {}
+        probe_lists = {}
         for name in self.sgroup_names:
             is_ml, ml_name, ml_config = self._parse_motionlist(name)
             if is_ml:
                 # build 'motion list'
-                self.configs['motion list'].append(ml_name)
-                self.configs[ml_name] = ml_config
+                self._motion_lists[ml_name] = ml_config
             else:
                 is_p, p_name, p_config = self._parse_probelist(name)
                 if is_p:
                     # build 'probe list'
-                    self.configs['probe list'].append(p_name)
-                    self.configs[p_name] = p_config
+                    probe_lists[p_name] = p_config
 
-        # Define number of controlled probes
-        self.configs['nControlled'] = len(self.configs['probe list'])
+        # build configuration dictionaries
+        # - the receptacle number is the config_name
+        #
+        for pname in probe_lists:
+            config_name = probe_lists[pname]['receptacle']
+            self.configs[config_name] = {
+                'probe name': pname,
+                'port': probe_lists[pname]['port'],
+                'receptacle': probe_lists[pname]['receptacle'],
+                'motion lists': {}
+            }
 
-        # Define 'dataset fields'
-        self.configs['dataset fields'] = [
-            ('Shot number', '<u4'),
-            ('x', '<f8'),
-            ('y', '<f8'),
-            ('z', '<f8'),
-            ('theta', '<f8'),
-            ('phi', '<f8')
-        ]
+            # Define 'dataset fields'
+            self.configs[config_name]['dataset fields'] = [
+                ('Shot number', '<u4'),
+                ('x', '<f8'),
+                ('y', '<f8'),
+                ('z', '<f8'),
+                ('theta', '<f8'),
+                ('phi', '<f8')
+            ]
 
-        # Define 'dset field to numpy field'
-        self.configs['dset field to numpy field'] = [
-            ('Shot number', 'shotnum', 0),
-            ('x', 'xyz', 0),
-            ('y', 'xyz', 1),
-            ('z', 'xyz', 2),
-            ('theta', 'ptip_rot_theta', 0),
-            ('phi', 'ptip_rot_phi', 0)
-        ]
+            # Define 'dset field to numpy field'
+            self.configs[config_name]['dset field to numpy field'] = [
+                ('Shot number', ('shotnum', '<u4'), 0),
+                ('x', ('xyz', '<f8'), 0),
+                ('y', ('xyz', '<f8'), 1),
+                ('z', ('xyz', '<f8'), 2),
+                ('theta', ('ptip_rot_theta', '<f8'), 0),
+                ('phi', ('ptip_rot_phi', '<f8'), 0)
+            ]
 
     def construct_dataset_name(self, *args):
         # The first arg passed is assumed to be the receptacle number.
@@ -103,9 +113,8 @@ class hdfMap_control_6k(hdfMap_control_template):
         # - note that probe naming in the HDF5 are not consistent, this
         #   is why dataset name is constructed based on receptacle and
         #   not probe name
-        for name in self.configs['probe list']:
-            if self.configs[name]['receptacle'] == receptacle:
-                pname = name
+        #
+        pname = self.configs[receptacle]['probe name']
 
         # Construct dataset name
         dname = 'XY[{0}]: {1}'.format(receptacle, pname)
@@ -118,10 +127,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         :return: list of probe drive receptacle numbers
         :rtype: [int, ]
         """
-        receptacles = []
-        for name in self.configs['probe list']:
-            receptacles.append(self.configs[name]['receptacle'])
-        return receptacles
+        return list(self.configs)
 
     @property
     def unique_specifiers(self):

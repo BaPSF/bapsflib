@@ -8,7 +8,7 @@
 /*.egg-info
 
 # Sphinx build directory
-docs/_build/
+/docs/_build/
 
 # PyCharm specifics
 .idea/workspace.xml

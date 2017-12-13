@@ -31,7 +31,7 @@ install, invoke the following command:
 
 .. code-block:: bash
 
-    pip3 install git+https://https://github.com/rocco8773/bapsflib.git#egg=bapsflib
+    pip3 install git+https://github.com/rocco8773/bapsflib.git#egg=bapsflib
 
 Now, the :py:mod:`bapsflib` package can be imported like any other
 Python package.
@@ -41,7 +41,7 @@ the package the following command has to be used:
 
 .. code-block:: bash
 
-    pip3 install --upgrade git+https://https://github.com/rocco8773/bapsflib.git#egg=bapsflib
+    pip3 install --upgrade git+https://github.com/rocco8773/bapsflib.git#egg=bapsflib
 
 From a Local GitHub Clone
 ^^^^^^^^^^^^^^^^^^^^^^^^^

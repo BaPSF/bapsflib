@@ -144,8 +144,6 @@ class hdfReadData(np.recarray):
         # numpy uses __new__ to initialize objects, so an __init__ is
         # not necessary
         #
-        # TODO: add error handling for .get() of dheader
-        # TODO: add error handling for 'Offset' field in dheader
 
         # initialize timeing
         if 'timeit' in kwargs:
@@ -237,7 +235,6 @@ class hdfReadData(np.recarray):
         else:
             cset_sn = None
         '''
-        cset_sn = None
 
         # Digi Dataset Info
         # Note: digi_map.construct_dataset_name has conditioning for
@@ -258,7 +255,6 @@ class hdfReadData(np.recarray):
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
         shotnumkey = dheader.dtype.names[0]
-        # dset_sn = dheader[shotnumkey].view()
 
         # print execution timing
         if timeit:
@@ -608,7 +604,8 @@ class hdfReadData(np.recarray):
 
                 # ensure obj will not be zero
                 if shotnum.shape[0] == 0:
-                    raise ValueError('Valid shotnum not passed')
+                    raise ValueError(
+                        'Input shotnum would result in a null array')
             else:
                 raise ValueError('Valid shotnum not passed')
         else:
@@ -636,9 +633,11 @@ class hdfReadData(np.recarray):
         # grab control device dataset
         #
         # - this will ensure cdata.shape == data.shape all the time
+        # - shotnum should always be a ndarray at this point
+        #
         if controls is not None:
             cdata = hdfReadControl(hdf_file, controls,
-                                   shotnum=np.ndarray.tolist(shotnum),
+                                   shotnum=shotnum.tolist(),
                                    intersection_set=intersection_set,
                                    silent=silent)
 
@@ -647,6 +646,17 @@ class hdfReadData(np.recarray):
                 tt.append(time.time())
                 print('tt - read in cdata (control data): '
                       '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
+            # re-filter index, shotnum, and sni
+            # - only need to be filtered if intersection_set=True
+            # - for intersection_set=True, shotnum and index are
+            #   one-to-one
+            if intersection_set:
+                new_sn_mask = np.isin(shotnum, cdata['shotnum'])
+                shotnum = shotnum[new_sn_mask]
+                index = index[new_sn_mask]
+                sni = np.ones(shotnum.shape[0], dtype=bool)
+
         else:
             cdata = None
 
@@ -693,36 +703,27 @@ class hdfReadData(np.recarray):
 
         if intersection_set:
             # fill signal
-            # sni = np.in1d(dset_sn, shotnum)
-            # data['signal'] = dset[sni, ...]
-            data['signal'] = dset[index, ...]
+            data['signal'] = dset[index, ...].view()
 
             # fill controls
             if controls is not None:
                 # find intersection shot number indices
-                sni = np.in1d(cdata['shotnum'], shotnum)
+                csni = np.in1d(cdata['shotnum'], shotnum)
 
                 # fill xyz
                 if 'xyz' in cdata.dtype.names:
-                    data['xyz'] = cdata['xyz'][sni, ...]
+                    data['xyz'] = cdata['xyz'][csni, ...]
                 else:
                     data['xyz'] = np.nan
 
                 # fill remaining controls
                 for field in cdata.dtype.names:
                     if field not in ['shotnum', 'xyz']:
-                        data[field] = cdata[field][sni, ...]
+                        data[field] = cdata[field][csni, ...]
             else:
                 # fill xyz
                 data['xyz'] = np.nan
         else:
-            dset_sn = dheader[shotnumkey].view()
-
-            # fill signal
-            sn_intersect = np.intersect1d(shotnum, dset_sn)
-            dseti = np.in1d(dset_sn, sn_intersect)
-            datai = np.in1d(data['shotnum'], sn_intersect)
-
             # fill signal
             data['signal'][sni] = dset[index, ...].view()
             null_fiiler = -99999 if data['signal'].dtype <= np.int \
@@ -731,24 +732,27 @@ class hdfReadData(np.recarray):
 
             # fill controls
             if controls is not None:
-                # find intersection shot number indices
-                sn_intersect = np.intersect1d(shotnum, cdata['shotnum'])
-                cseti = np.in1d(cdata['shotnum'], sn_intersect)
-                datai = np.in1d(data['shotnum'], sn_intersect)
+                # NOTE: if intersection_set=False, then cdata was
+                #       generated with the same settings and
+                #       data['shotnum'] and cdata['shotnum'] should be
+                #       identical
+                #
+                if not np.array_equal(data['shotnum'],
+                                      cdata['shotnum']):
+                    raise ValueError(
+                        "data['shotnum'] and cdata['shotnum'] are not"
+                        " equal")
 
                 # fill xyz
                 if 'xyz' in cdata.dtype.names:
-                    data['xyz'][datai, ...] = cdata['xyz'][cseti, ...]
-                    data['xyz'][np.invert(datai), ...] = np.nan
+                    data['xyz'] = cdata['xyz']
                 else:
                     data['xyz'] = np.nan
 
                 # fill remaining controls
                 for field in cdata.dtype.names:
                     if field not in ['shotnum', 'xyz']:
-                        data[field][datai, ...] = \
-                            cdata[field][cseti, ...]
-                        data[field][np.invert(datai), ...] = np.nan
+                        data[field] = cdata[field]
             else:
                 # fill xyz
                 data['xyz'] = np.nan
@@ -769,7 +773,16 @@ class hdfReadData(np.recarray):
         #       of hdfReadData.  In that case, __init__ is never called
         #       and the hdfReadData methods are never bound.
 
-        # assign dataset info
+        # get voltage offset
+        try:
+            voffset = dheader[0, 'Offset']
+        except ValueError:
+            voffset = None
+            keep_bits = True
+            warn_str += '\nCould not find voltage offset, forcing ' \
+                        'keep_bits=True'
+
+        # assign dataset meta-info
         obj.info = {
             'hdf file': hdf_file.filename.split('/')[-1],
             'dataset name': dname,
@@ -783,7 +796,7 @@ class hdfReadData(np.recarray):
             'shot average': d_info['shot average (software)'],
             'board': board,
             'channel': channel,
-            'voltage offset': dheader[0, 'Offset'],
+            'voltage offset': voffset,
             'probe name': None,
             'port': (None, None)}
 

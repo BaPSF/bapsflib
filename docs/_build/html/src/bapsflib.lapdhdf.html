@@ -72,7 +72,7 @@ DAQ system.</p>
 <span id="bapsflib-lapdhdf-files"></span><h3><a class="toc-backref" href="#id1">bapsflib.lapdhdf.files</a><a class="headerlink" href="#module-bapsflib.lapdhdf.files" title="Permalink to this headline">¶</a></h3>
 <dl class="class">
 <dt id="bapsflib.lapdhdf.files.File">
-<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.files.</code><code class="descname">File</code><span class="sig-paren">(</span><em>name</em>, <em>mode='r'</em>, <em>driver=None</em>, <em>libver=None</em>, <em>userblock_size=None</em>, <em>swmr=False</em>, <em>**kwds</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.files.</code><code class="descname">File</code><span class="sig-paren">(</span><em>name</em>, <em>mode='r'</em>, <em>driver=None</em>, <em>libver=None</em>, <em>userblock_size=None</em>, <em>swmr=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">h5py._hl.files.File</span></code></p>
 <p>Open a HDF5 File.</p>
 <p>see <code class="xref py py-mod docutils literal"><span class="pre">h5py</span></code> documentation for <code class="xref py py-class docutils literal"><span class="pre">h5py.File</span></code> details:
@@ -82,20 +82,34 @@ DAQ system.</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>name</strong> – Name of file (<cite>str</cite> or <cite>unicode</cite>)</li>
-<li><strong>mode</strong> – Mode in which to open the file. (default ‘r’ read-only)</li>
+<li><strong>name</strong> (<em>str</em>) – Name of file (<cite>str</cite> or <cite>unicode</cite>)</li>
+<li><strong>mode</strong> (<em>str</em>) – Mode in which to open the file. (default ‘r’ read-only)</li>
 <li><strong>driver</strong> – File driver to use</li>
 <li><strong>libver</strong> – Compatibility bounds</li>
 <li><strong>userblock_size</strong> – Size (in bytes) of the user block. If
 nonzero, must be a power of 2 and at least 512.</li>
 <li><strong>swmr</strong> – Single Write, Multiple Read</li>
-<li><strong>kwds</strong> – Driver specific keywords</li>
+<li><strong>kwargs</strong> – Driver specific keywords</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
-<p>what should i put here</p>
+<dl class="attribute">
+<dt id="bapsflib.lapdhdf.files.File.exp_descr">
+<code class="descname">exp_descr</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.exp_descr" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">Experimental description stored in the HDF5 file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.files.File.file_map">
 <code class="descname">file_map</code><a class="headerlink" href="#bapsflib.lapdhdf.files.File.file_map" title="Permalink to this definition">¶</a></dt>
@@ -103,9 +117,9 @@ nonzero, must be a power of 2 and at least 512.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an instance of the
-<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap" title="bapsflib.lapdhdf.hdfmappers.hdfMap"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.hdfmappers.hdfMap</span></code></a> file
-mappings.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">HDF5 file mappings</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap" title="bapsflib.lapdhdf.hdfmappers.hdfMap"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.hdfmappers.hdfMap</span></code></a></td>
 </tr>
 </tbody>
 </table>
@@ -207,9 +221,11 @@ mappings.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings indicating if an HDF5 item is a Group
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of strings indicating if an HDF5 item is a Group
 or Dataset. This has a one-to-one correspondence to
 listHDF_files.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
 </tr>
 </tbody>
 </table>
@@ -222,9 +238,11 @@ listHDF_files.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings representing the absolute paths
-(including Group/Dataset name) for each Group and Dataset in
-the HDF5 file.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of strings representing the absolute paths
+(base + filename) for each Group and Dataset in the HDF5
+file.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
 </tr>
 </tbody>
 </table>
@@ -237,7 +255,7 @@ the HDF5 file.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings naming the controls found in the
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of strings naming the controls found in the
 HDF5 file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
@@ -253,7 +271,7 @@ HDF5 file</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings naming the digitizers found in the
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of strings naming the digitizers found in the
 HDF5 file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
@@ -269,7 +287,7 @@ HDF5 file</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a list of strings naming the MSI diagnostics found in
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of strings naming the MSI diagnostics found in
 the HDF5 file</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list(str)</td>
@@ -281,18 +299,65 @@ the HDF5 file</td>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.files.File.read_controls">
 <code class="descname">read_controls</code><span class="sig-paren">(</span><em>controls</em>, <em>index=None</em>, <em>shotnum=None</em>, <em>intersection_set=True</em>, <em>silent=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.read_controls" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="bapsflib.lapdhdf.files.File.read_data">
-<code class="descname">read_data</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>index=None</em>, <em>shotnum=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em>, <em>keep_bits=False</em>, <em>add_controls=None</em>, <em>intersection_set=True</em>, <em>silent=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.read_data" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<dd><p>Provides access to
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl" title="bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl"><code class="xref py py-class docutils literal"><span class="pre">hdfReadControl</span></code></a> to
+extract data from specified control device dataset(s) in the
+HDF5 file. See
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl" title="bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl"><code class="xref py py-class docutils literal"><span class="pre">hdfReadControl</span></code></a> for
+more detail.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>board</strong> (<em>int</em>) – board number</li>
-<li><strong>channel</strong> (<em>int</em>) – channel number</li>
+<li><strong>controls</strong> (<em>[</em><em>str</em><em>, </em><em>(</em><em>str</em><em>, </em><em>val</em><em>)</em><em>, </em><em>]</em>) – a list of strings and/or 2-element tuples
+indicating control device data to be extracted. (see
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl" title="bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl"><code class="xref py py-class docutils literal"><span class="pre">hdfReadControl</span></code></a>
+for details)</li>
+<li><strong>index</strong> (<em>int</em><em>, </em><em>list</em><em>(</em><em>int</em><em>)</em><em>, </em><em>slice</em><em>(</em><em>)</em>) – row index of the 1st specified control device
+dataset or row index of the array of intersecting shot
+numbers (see
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl" title="bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl"><code class="xref py py-class docutils literal"><span class="pre">hdfReadControl</span></code></a>
+for details)</li>
+<li><strong>shotnum</strong> (<em>int</em><em>, </em><em>list</em><em>(</em><em>int</em><em>)</em><em>, </em><em>slice</em><em>(</em><em>)</em>) – HDF5 global shot number</li>
+<li><strong>intersection_set</strong> (<em>bool</em>) – <code class="code docutils literal"><span class="pre">True</span></code> (default) forces the
+returned array to only contain shot numbers that are in the
+intersection of <code class="xref py py-data docutils literal"><span class="pre">shotnum</span></code> and all the control device
+datasets. (see
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl" title="bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl"><code class="xref py py-class docutils literal"><span class="pre">hdfReadControl</span></code></a>
+for details)</li>
+<li><strong>silent</strong> (<em>bool</em>) – <code class="code docutils literal"><span class="pre">False</span></code> (default). Set <code class="code docutils literal"><span class="pre">True</span></code> to
+suppress command line printout of soft-warnings</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">extracted data from control device(s)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl" title="bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl"><code class="xref py py-class docutils literal"><span class="pre">hdfReadControl</span></code></a></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.files.File.read_data">
+<code class="descname">read_data</code><span class="sig-paren">(</span><em>board</em>, <em>channel</em>, <em>index=None</em>, <em>shotnum=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em>, <em>keep_bits=False</em>, <em>add_controls=None</em>, <em>intersection_set=True</em>, <em>silent=False</em>, <em>robust_define=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.read_data" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provides access to
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="bapsflib.lapdhdf.hdfreaddata.hdfReadData"><code class="xref py py-class docutils literal"><span class="pre">hdfReadData</span></code></a> to extract
+data from a specified digitizer dataset in the HDF5 file and,
+if requested, mate control device data to the extracted
+digitizer data. See
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="bapsflib.lapdhdf.hdfreaddata.hdfReadData"><code class="xref py py-class docutils literal"><span class="pre">hdfReadData</span></code></a> for more
+detail.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board</strong> (<em>int</em>) – digitizer board number</li>
+<li><strong>channel</strong> (<em>int</em>) – digitizer channel number</li>
 <li><strong>index</strong> (<em>int</em><em>, </em><em>list</em><em>(</em><em>int</em><em>)</em><em>, </em><em>slice</em><em>(</em><em>)</em>) – dataset row index</li>
 <li><strong>shotnum</strong> (<em>int</em><em>, </em><em>list</em><em>(</em><em>int</em><em>)</em><em>, </em><em>slice</em><em>(</em><em>)</em>) – HDF5 global shot number</li>
 <li><strong>digitizer</strong> (<em>str</em>) – name of digitizer</li>
@@ -302,30 +367,49 @@ the HDF5 file</td>
 <code class="code docutils literal"><span class="pre">False</span></code> (default) for output in voltage</li>
 <li><strong>add_controls</strong> (<em>[</em><em>str</em><em>, </em><em>(</em><em>str</em><em>, </em><em>val</em><em>)</em><em>, </em><em>]</em>) – a list of strings and/or 2-element tuples
 indicating control device data to be mated to the digitizer
-data. If an element is a string, then that string is the
-name of the control device, If an element is a 2-element
-tuple, then the 1st element is the name of the control
-device and the 2nd element is a unique specifier for that
-control device.</li>
-<li><strong>intersection_set</strong> – <code class="code docutils literal"><span class="pre">True</span></code> (default) ensures the
-returned array only contains shot numbers that are found in
-the digitizer dataset and all added control device datasets.
-<code class="code docutils literal"><span class="pre">False</span></code> will cause the returned array to contain shot
-numbers specified by <code class="xref py py-data docutils literal"><span class="pre">shotnum</span></code> or, when <code class="xref py py-data docutils literal"><span class="pre">index</span></code>
-is used, the matching shot numbers in the digitizer dataset
-specified by <code class="xref py py-data docutils literal"><span class="pre">index</span></code></li>
-<li><strong>silent</strong> (<em>bool</em>) – (default) <code class="code docutils literal"><span class="pre">False</span></code>. Set <code class="code docutils literal"><span class="pre">True</span></code> to
-suppress any warning print outs when data is constructed.
-Exceptions are still raise when necessary.</li>
+data. (see
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="bapsflib.lapdhdf.hdfreaddata.hdfReadData"><code class="xref py py-class docutils literal"><span class="pre">hdfReadData</span></code></a>
+for details)</li>
+<li><strong>intersection_set</strong> (<em>bool</em>) – <code class="code docutils literal"><span class="pre">True</span></code> (default) forces the
+returned array to only contain shot numbers that are in the
+intersection of <code class="xref py py-data docutils literal"><span class="pre">shotnum</span></code>, the digitizer dataset, and
+all the control device datasets. (see
+<a class="reference internal" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="bapsflib.lapdhdf.hdfreaddata.hdfReadData"><code class="xref py py-class docutils literal"><span class="pre">hdfReadData</span></code></a>
+for details)</li>
+<li><strong>silent</strong> (<em>bool</em>) – <code class="code docutils literal"><span class="pre">False</span></code> (default). Set <code class="code docutils literal"><span class="pre">True</span></code> to
+suppress command line printout of soft-warnings</li>
+<li><strong>robust_define</strong> (<em>bool</em>) – performs a double check to make sure
+the dataset shot numbers match the expedted shot numbers…
+<code class="code docutils literal"><span class="pre">dheader[index,</span> <span class="pre">shotnumkey]</span> <span class="pre">==</span> <span class="pre">shotnum</span></code></li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">instance of
-<a class="reference internal" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="bapsflib.lapdhdf.hdfreaddata.hdfReadData"><code class="xref py py-class docutils literal"><span class="pre">hdfReadData</span></code></a></p>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">extracted data from digitizer (and control devices)</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last"><a class="reference internal" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="bapsflib.lapdhdf.hdfreaddata.hdfReadData"><code class="xref py py-class docutils literal"><span class="pre">hdfReadData</span></code></a></p>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.files.File.save_report">
+<code class="descname">save_report</code><span class="sig-paren">(</span><em>sname</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.files.File.save_report" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save a HDF5 file report based on the HDF5 mappings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>sname</strong> – save file name</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet.</p>
+</div>
 </dd></dl>
 
 <dl class="attribute">
@@ -335,7 +419,9 @@ Exceptions are still raise when necessary.</li>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>zip(listHDF_files, listHDF_file_types)</cite></td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">zip(listHDF_files,</span> <span class="pre">listHDF_file_types)</span></code></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">iterator of 2-element tuples</td>
 </tr>
 </tbody>
 </table>
@@ -353,8 +439,27 @@ Exceptions are still raise when necessary.</li>
 
 <dl class="class">
 <dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck">
-<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfchecks.</code><code class="descname">hdfCheck</code><span class="sig-paren">(</span><em>hdf_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfchecks.</code><code class="descname">hdfCheck</code><span class="sig-paren">(</span><em>hdf_obj</em>, <em>silent=False</em>, <em>save_report=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
+<p>Initiates the HDF5 mapping constructor
+(<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap" title="bapsflib.lapdhdf.hdfmappers.hdfMap"><code class="xref py py-class docutils literal"><span class="pre">hdfMap</span></code></a>) and prints a file report to screen
+(or file).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>hdf_obj</strong> (<code class="xref py py-class docutils literal"><span class="pre">h5py.File</span></code>) – HDF5 file object</li>
+<li><strong>silent</strong> (<em>bool</em>) – <code class="code docutils literal"><span class="pre">False</span></code> (default). Set <code class="code docutils literal"><span class="pre">True</span></code> to
+suppress command line printout of file report.</li>
+<li><strong>save_report</strong> (<em>bool</em><em> or </em><em>str</em>) – <code class="code docutils literal"><span class="pre">False</span></code> (default). Set <code class="code docutils literal"><span class="pre">True</span></code> to
+save file report to a txt file of the same name as the HDF5
+file or set to string to specify file name.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.check_all_msi_diagnostics">
 <code class="descname">check_all_msi_diagnostics</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.check_all_msi_diagnostics" title="Permalink to this definition">¶</a></dt>
@@ -368,6 +473,21 @@ self._msi_diagnostic_groups,</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_controls">
+<code class="descname">exist_controls</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_controls" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print the control device check results from the generated HDF5
+mapping.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
 </tr>
 </tbody>
 </table>
@@ -408,21 +528,6 @@ HDF5 mapping.</p>
 <dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_digitizers">
 <code class="descname">exist_digitizers</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_digitizers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Print the digitizer check results from the generated HDF5
-mapping.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>silent</strong> – </td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_motion_lists">
-<code class="descname">exist_motion_lists</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.exist_motion_lists" title="Permalink to this definition">¶</a></dt>
-<dd><p>Print the motion list check results from the generated HDF5
 mapping.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -483,8 +588,8 @@ diag_group_name.</p>
 <dl class="method">
 <dt id="bapsflib.lapdhdf.hdfchecks.hdfCheck.is_lapd_generated">
 <code class="descname">is_lapd_generated</code><span class="sig-paren">(</span><em>silent=True</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfchecks.hdfCheck.is_lapd_generated" title="Permalink to this definition">¶</a></dt>
-<dd><p>Checks the loaded HDF5 file to see if it was generated by
-the LaPD Control System.</p>
+<dd><p>Checks the loaded HDF5 file to see if it was generated by the
+LaPD Control System.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -606,13 +711,19 @@ system.</p>
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfmappers.</code><code class="descname">hdfMap</code><span class="sig-paren">(</span><em>hdf_obj</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">object</span></code></p>
 <p>Constructs a complete file mapping of <code class="xref py py-obj docutils literal"><span class="pre">hdf_obj</span></code> that is
-utilized by <code class="xref py py-class docutils literal"><span class="pre">lapdhdf.File</span></code> to manipulate and read data out
-of the HDF5 file.</p>
+utilized by <a class="reference internal" href="#bapsflib.lapdhdf.files.File" title="bapsflib.lapdhdf.files.File"><code class="xref py py-class docutils literal"><span class="pre">bapsflib.lapdhdf.files.File</span></code></a> to manipulate and
+read data out of the HDF5 file.</p>
+<p>The following classes are leveraged to construct the mappings:</p>
+<ul class="simple">
+<li><a class="reference internal" href="bapsflib.lapdhdf.map_controls.html#bapsflib.lapdhdf.map_controls.map_controls.hdfMap_controls" title="bapsflib.lapdhdf.map_controls.map_controls.hdfMap_controls"><code class="xref py py-class docutils literal"><span class="pre">hdfMap_controls</span></code></a>.</li>
+<li><a class="reference internal" href="bapsflib.lapdhdf.map_digitizers.html#bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers" title="bapsflib.lapdhdf.map_digitizers.map_digis.hdfMap_digitizers"><code class="xref py py-class docutils literal"><span class="pre">hdfMap_digitizers</span></code></a>.</li>
+<li><a class="reference internal" href="bapsflib.lapdhdf.map_msi.html#bapsflib.lapdhdf.map_msi.map_msi.hdfMap_msi" title="bapsflib.lapdhdf.map_msi.map_msi.hdfMap_msi"><code class="xref py py-class docutils literal"><span class="pre">hdfMap_msi</span></code></a>.</li>
+</ul>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hdf_obj</strong> – an object instance of <code class="xref py py-class docutils literal"><span class="pre">lapdhdf.File</span></code></td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hdf_obj</strong> (<code class="xref py py-class docutils literal"><span class="pre">h5py.File</span></code>) – the HDF5 file object</td>
 </tr>
 </tbody>
 </table>
@@ -623,22 +734,26 @@ of the HDF5 file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary style container for all control mappings.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing all control device mapping
+objects.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
 </tr>
 </tbody>
 </table>
-<p>For example, to retrieve mappings of the control group
-‘6K Compumotor’ one would call</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+<p>For example, to retrieve mappings of the control device
+<code class="code docutils literal"><span class="pre">'6K</span> <span class="pre">Compumotor'</span></code> one would call:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
 <span class="n">mmap</span> <span class="o">=</span> <span class="n">fmap</span><span class="o">.</span><span class="n">controls</span><span class="p">[</span><span class="s1">&#39;6K Compumotor&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.data_group">
-<code class="descname">data_group</code><em class="property"> = 'Raw data + config'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_group" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.data_gname">
+<code class="descname">data_gname</code><em class="property"> = 'Raw data + config'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_gname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the DATA HDF5 group</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers">
@@ -647,14 +762,15 @@ of the HDF5 file.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary style container for all digitizer
-mappings.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing all digitizer mapping objects.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
 </tr>
 </tbody>
 </table>
-<p>For example, to retrieve mappings of digitizer group ‘SIS 3301’
-one would call</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+<p>For example, to retrieve mappings of digitizer
+<code class="code docutils literal"><span class="pre">'SIS</span> <span class="pre">3301'</span></code> one would call:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
 <span class="n">dmap</span> <span class="o">=</span> <span class="n">fmap</span><span class="o">.</span><span class="n">digitizers</span><span class="p">[</span><span class="s1">&#39;SIS 3301&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -667,8 +783,10 @@ one would call</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code>/<code class="code docutils literal"><span class="pre">False</span></code> if any known control groups
-are discovered in the data group</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if known control devices are discovered
+in the data group (i.e. <a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.controls" title="bapsflib.lapdhdf.hdfmappers.hdfMap.controls"><code class="xref py py-attr docutils literal"><span class="pre">controls</span></code></a> is not empty)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -681,7 +799,10 @@ are discovered in the data group</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if ‘Raw data + config/’ group is detected</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if data group (<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_gname" title="bapsflib.lapdhdf.hdfmappers.hdfMap.data_gname"><code class="xref py py-attr docutils literal"><span class="pre">data_gname</span></code></a>) group
+is detected</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -694,8 +815,10 @@ are discovered in the data group</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if the ‘Data run sequence/’ group is found
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if the ‘Data run sequence/’ group is found
 in the data group</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -708,8 +831,10 @@ in the data group</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if any known digitizers are discovered in
-the data group</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if any known digitizers are discovered in
+the data group (i.e <a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers" title="bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers"><code class="xref py py-attr docutils literal"><span class="pre">digitizers</span></code></a> is not empty)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -722,7 +847,10 @@ the data group</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if ‘MSI/’ group is detected</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if MSI group (<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.msi_gname" title="bapsflib.lapdhdf.hdfmappers.hdfMap.msi_gname"><code class="xref py py-attr docutils literal"><span class="pre">msi_gname</span></code></a>) is
+detected</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -735,9 +863,8 @@ the data group</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if any unknown groups are discovered in the
-data groups. These groups could end up being digitizer
-groups and/or motion groups.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if there are any subgroups in the data
+group that are not known by the mapping constructors.</td>
 </tr>
 </tbody>
 </table>
@@ -750,8 +877,10 @@ groups and/or motion groups.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><cite>str</cite> identifying the LaPD DAQ Software version number
-used to generated the HDF5 file (‘’ if NOT LaPD generated)</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the LaPD DAQ Software version number used to generated
+the HDF5 file (‘’ if NOT LaPD generated)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">str</td>
 </tr>
 </tbody>
 </table>
@@ -764,7 +893,9 @@ used to generated the HDF5 file (‘’ if NOT LaPD generated)</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">True/False if HDF5 file was generated by the LaPD</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><code class="code docutils literal"><span class="pre">True</span></code> if the HDF5 file was generated by the LaPD</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">bool</td>
 </tr>
 </tbody>
 </table>
@@ -777,15 +908,16 @@ used to generated the HDF5 file (‘’ if NOT LaPD generated)</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">an instance of the main digitizer in self.digitizers</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">the mapping object for the digitizer that is assumed
+to be the ‘main digitizer’ in <a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers" title="bapsflib.lapdhdf.hdfmappers.hdfMap.digitizers"><code class="xref py py-attr docutils literal"><span class="pre">digitizers</span></code></a></td>
 </tr>
 </tbody>
 </table>
 <p>The main digitizer is determine by scanning through the local
 tuple <code class="xref py py-const docutils literal"><span class="pre">possible_candidates</span></code> that contains a
 hierarchical list of digitizers. The first digitizer found is
-considered the main digitizer.</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">possible_candidates</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;SIS 3301&#39;</span><span class="p">,</span> <span class="s1">&#39;SIS crate&#39;</span><span class="p">)</span>
+assumed to be the ‘main digitizer’.:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">possible_candidates</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;SIS 3301&#39;</span><span class="p">,</span> <span class="s1">&#39;SIS crate&#39;</span><span class="p">)</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -797,23 +929,26 @@ considered the main digitizer.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary style container for all MSI diagnostic
-mappings.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary containing all MSI diagnostic mappings
+objects.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
 </tr>
 </tbody>
 </table>
 <p>For example, to retrieve mappings of LaPD’s Magnetic field one
-would call</p>
-<div class="highlight-python"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
+would call:</p>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="n">fmap</span> <span class="o">=</span> <span class="n">hdfMap</span><span class="p">(</span><span class="n">file_obj</span><span class="p">)</span>
 <span class="n">bmap</span> <span class="o">=</span> <span class="n">fmap</span><span class="o">.</span><span class="n">msi</span><span class="p">[</span><span class="s1">&#39;Magnetic field&#39;</span><span class="p">]</span>
 </pre></div>
 </div>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.msi_group">
-<code class="descname">msi_group</code><em class="property"> = 'MSI'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.msi_group" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.msi_gname">
+<code class="descname">msi_gname</code><em class="property"> = 'MSI'</em><a class="headerlink" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.msi_gname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the MSI HDF5 group.</p>
+</dd></dl>
 
 <dl class="attribute">
 <dt id="bapsflib.lapdhdf.hdfmappers.hdfMap.unknowns">
@@ -822,9 +957,11 @@ would call</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A dictionary container for all subgroups in
-<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_group" title="bapsflib.lapdhdf.hdfmappers.hdfMap.data_group"><code class="xref py py-const docutils literal"><span class="pre">data_group</span></code></a> that are unknown to the mapping
-constructor.</td>
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list containing all the subgroup names for the
+subgroups in the data group (<a class="reference internal" href="#bapsflib.lapdhdf.hdfmappers.hdfMap.data_gname" title="bapsflib.lapdhdf.hdfmappers.hdfMap.data_gname"><code class="xref py py-attr docutils literal"><span class="pre">data_gname</span></code></a> that are
+unknown to the mapping constructor.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">list</td>
 </tr>
 </tbody>
 </table>
@@ -842,7 +979,7 @@ constructor.</td>
 
 <dl class="function">
 <dt id="bapsflib.lapdhdf.hdfreadcontrol.gather_shotnums">
-<code class="descclassname">bapsflib.lapdhdf.hdfreadcontrol.</code><code class="descname">gather_shotnums</code><span class="sig-paren">(</span><em>hdf_file</em>, <em>controls</em>, <em>method='union'</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreadcontrol.gather_shotnums" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">bapsflib.lapdhdf.hdfreadcontrol.</code><code class="descname">gather_shotnums</code><span class="sig-paren">(</span><em>hdf_file</em>, <em>controls</em>, <em>method='union'</em>, <em>assume_controls_conditioned=False</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreadcontrol.gather_shotnums" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="class">
@@ -973,6 +1110,16 @@ dataset for the first control device listed in
 </div>
 <div class="section" id="module-bapsflib.lapdhdf.hdfreaddata">
 <span id="bapsflib-lapdhdf-hdfreaddata"></span><h3><a class="toc-backref" href="#id6">bapsflib.lapdhdf.hdfreaddata</a><a class="headerlink" href="#module-bapsflib.lapdhdf.hdfreaddata" title="Permalink to this headline">¶</a></h3>
+<dl class="function">
+<dt id="bapsflib.lapdhdf.hdfreaddata.condition_shotnum_int">
+<code class="descclassname">bapsflib.lapdhdf.hdfreaddata.</code><code class="descname">condition_shotnum_int</code><span class="sig-paren">(</span><em>shotnum</em>, <em>dheader</em>, <em>shotnumkey</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.condition_shotnum_int" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="bapsflib.lapdhdf.hdfreaddata.condition_shotnum_list">
+<code class="descclassname">bapsflib.lapdhdf.hdfreaddata.</code><code class="descname">condition_shotnum_list</code><span class="sig-paren">(</span><em>shotnum</em>, <em>dheader</em>, <em>shotnumkey</em>, <em>intersection_set</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.condition_shotnum_list" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <dl class="class">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData">
 <em class="property">class </em><code class="descclassname">bapsflib.lapdhdf.hdfreaddata.</code><code class="descname">hdfReadData</code><span class="sig-paren">(</span><em>*args</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData" title="Permalink to this definition">¶</a></dt>
@@ -1094,7 +1241,7 @@ but will be deprecated in the future.</p>
 
 <dl class="staticmethod">
 <dt id="bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__">
-<em class="property">static </em><code class="descname">__new__</code><span class="sig-paren">(</span><em>hdf_file</em>, <em>board</em>, <em>channel</em>, <em>index=None</em>, <em>shotnum=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em>, <em>keep_bits=False</em>, <em>add_controls=None</em>, <em>intersection_set=True</em>, <em>silent=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__" title="Permalink to this definition">¶</a></dt>
+<em class="property">static </em><code class="descname">__new__</code><span class="sig-paren">(</span><em>hdf_file</em>, <em>board</em>, <em>channel</em>, <em>index=None</em>, <em>shotnum=None</em>, <em>digitizer=None</em>, <em>adc=None</em>, <em>config_name=None</em>, <em>keep_bits=False</em>, <em>add_controls=None</em>, <em>intersection_set=True</em>, <em>silent=False</em>, <em>robust_define=False</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="headerlink" href="#bapsflib.lapdhdf.hdfreaddata.hdfReadData.__new__" title="Permalink to this definition">¶</a></dt>
 <dd><p>When inheriting from numpy, the object creation and
 initialization is handled by __new__ instead of __init__.</p>
 <table class="docutils field-list" frame="void" rules="none">

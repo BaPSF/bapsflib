@@ -325,7 +325,7 @@ class hdfReadData(np.recarray):
 
             # ensure shot numbers are >= 1
             if start <= 0:
-                start = 0
+                start = 1
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()

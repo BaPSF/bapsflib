@@ -15,8 +15,7 @@ import h5py
 import numpy as np
 import time
 
-from .hdfreadcontrol import hdfReadControl, condition_controls,\
-    gather_shotnums
+from .hdfreadcontrol import hdfReadControl, condition_controls
 
 # from .. import lapdhdf
 # from .hdferrors import *

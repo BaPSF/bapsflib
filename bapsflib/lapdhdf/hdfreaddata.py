@@ -329,9 +329,20 @@ class hdfReadData(np.recarray):
             # get the start, stop, and step for the shot number array
             start, stop, step = shotnum.indices(stop_sn)
 
-            # ensure shot numbers are >= 1
-            if start <= 0:
-                start = 1
+            # determine smallest possible shot number
+            # - intersection_set = True
+            #   * start = max of first_sn and shotnum.start
+            # - intersection_set = False
+            #   * start = min of first_sn and shotnum.start
+            first_sn = [dheader[0, shotnumkey]]
+            if shotnum.start is not None:
+                # ensure shot numbers are >= 1
+                if start <= 0:
+                    start = 1
+
+                # add to first_sn
+                first_sn.append(start)
+            start = max(first_sn) if intersection_set else min(first_sn)
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()

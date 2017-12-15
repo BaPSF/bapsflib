@@ -8,17 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: decide on input args for reading out HDF5 data
 #
 
-import h5py
 import numpy as np
 import time
 
 from .hdfreadcontrol import hdfReadControl, condition_controls
-
-# from .. import lapdhdf
-# from .hdferrors import *
 
 
 class hdfReadData(np.recarray):
@@ -144,7 +139,7 @@ class hdfReadData(np.recarray):
         # not necessary
         #
 
-        # initialize timeing
+        # initialize timing
         if 'timeit' in kwargs:
             timeit = kwargs['timeit']
             if timeit:

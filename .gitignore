@@ -14,7 +14,5 @@
 /.idea/workspace.xml
 
 # macOS Files
-/.DS_Store
-/docs/.DS_Store
-/bapsflib/.DS_Store
+.DS_Store
 

@@ -35,7 +35,7 @@ class hdfReadControl(np.recarray):
     #     to the index and shotnum keywords
     #
     def __new__(cls, hdf_file, controls,
-                index=None, shotnum=None, intersection_set=True,
+                shotnum=slice(None), intersection_set=True,
                 silent=False, **kwargs):
         """
         :param hdf_file: object instance of the HDF5 file
@@ -45,9 +45,6 @@ class hdfReadControl(np.recarray):
             :func:`bapsflib.lapdhdf.hdfreadcontrol.condition_controls`
             for details)
         :type controls: [str, (str, val), ]
-        :param index: row index (see 'index behavior below')
-        :type index: :code:`None`, int, list(int), or
-            slice(start, stop, step)
         :param shotnum: HDF5 file shot number(s) indicating data
             entries to be extracted (:code:`shotnum` will take
             precedence over :code:`index`)
@@ -56,21 +53,15 @@ class hdfReadControl(np.recarray):
         :param bool intersection_set:
         :param bool silent:
 
-        Behavior of :data:`index`
-            * indexing starts at 0
-            * is overridden by :data:`shotnum`
-            * if :code:`intersection_set=True`
-                * If :code:`len(controls) == 1`, then :data:`index` will
-                  be the dataset row index.
-                * If :code:`len(controls) > 1`, then :data:`index` will
-                  correspond to the index of the list of intersecting
-                  shot numbers of all specified control devices.
-            * if :code:`intersection_set=False`
-                * :data:`index` corresponds to the row index of the
-                  dataset for the first control device listed in
-                  :data:`controls`.
-
         Behavior of :data:`shotnum`
+            * indexing starts at 1
+            * if :code:`intersection_set=True`, then only data
+              corresponding to shot numbers that are specified in
+              shotnum and are in all control datasets will be returned
+            * if :code:`intersection_set=False`, then the returned array
+              will have entries for all shot numbers specified in
+              shotnum but entries that do not correlate with data in
+              control datasets will be give null values.
         """
         # When inheriting from numpy, the object creation and
         # initialization is handled by __new__ instead of __init__.
@@ -149,36 +140,39 @@ class hdfReadControl(np.recarray):
         if not controls:
             raise ValueError("improper 'controls' arg passed")
 
-        # ---- Condition index and shotnum Keywords ----
-        # index   -- row index of dataset
-        #            ~ indexed at 0
-        #            ~ overridden by shotnum
+        # ---- Condition shotnum ----
         # shotnum -- global HDF5 file shot number
         #            ~ this is the index used to link values between
         #              datasets
-        #            ~ supersedes any other indexing keyword
+        #
+        # Through conditioning the following are (re-)defined:
+        # index   -- row index of control dataset(s)
+        #            ~ if len(controls) = 1, then will be an int or a
+        #              list(int), or list(list(int))
+        #            ~ if len(controls) > 1, then will be a
+        #              list(list(int)) where len(index) = len(controls)
+        # shotnum -- global HDF5 shot number
+        #            ~ index at 1
+        #            ~ will be a filtered version of input kwarg shotnum
+        #              based on intersection_set
+        #            ~ converted to np.ndarray(dtype=uint32,
+        #                                      shape=(sn_size,))
+        # sni     -- bool array for providing a one-to-one mapping
+        #            between shotnum[sni] and index
+        #            ~ np.ndarray(dtype=bool,
+        #                         shape=(nControls, sn_size))
+        #            ~ cdata['shotnum'][sni] = shtonum[sni]
+        #                                    = cdset[index, shotnumkey]
         #
         # - Indexing behavior: (depends on intersection_set)
         #
-        #   ~ intersection_set = True
-        #     * index
-        #       > if len(controls) == 1, then index will be the dataset
-        #         row index
-        #       > if len(controls) > 1, then index will correspond to
-        #         the index of the list of intersecting shot numbers of
-        #         all specified control devices
-        #     * shotnum
+        #   ~ shotnum
+        #     * intersection_set = True
         #       > the returned array will only contain shot numbers that
         #         are in the intersection of shotnum and all the
         #         specified control device datasets
         #
-        #   ~ intersection_set = False
-        #     * index
-        #       > index corresponds to the 1st dataset row index
-        #       > if the 2nd and later datasets don't include the
-        #         shotnum of the 1st dataset, then they will be given a
-        #         numpy.nan value
-        #     * shotnum
+        #     * intersection_set = False
         #       > the returned array will contain all shot numbers
         #         specified by shotnum
         #       > if a dataset does not included a shot number contained
@@ -196,81 +190,56 @@ class hdfReadControl(np.recarray):
         #           numbers that will be placed into the obj array
         #
         # Determine dset_sn and rowlen
-        method = 'intersection' if intersection_set else 'first'
-        dset_sn = gather_shotnums(hdf_file, controls, method=method,
-                                  assume_controls_conditioned=True)
-        rowlen = dset_sn.shape[0]
+        # method = 'intersection' if intersection_set else 'first'
+        # dset_sn = gather_shotnums(hdf_file, controls, method=method,
+        #                           assume_controls_conditioned=True)
 
-        # Ensure 'index' is a valid
-        # - Valid index types are: None, int, list(int), and slice()
-        #     None      => extract all indices
-        #     int       => extract shot with index int
-        #     list(int) => extract shots with indices specified in list
-        #     slice(start, stop, skip)
-        #               = > same as [start:stop:skip]
+        # Grab control datasets
         #
-        # if index is None:
-        #     index = slice(None, None, None)
-        #
-        if shotnum is not None:
-            # ignore index keyword if shotnum is used
-            index = None
-        elif index is None:
-            # default to shotnum keyword
-            pass
-        elif type(index) is int:
-            if not (index in range(rowlen)
-                    or -index - 1 in range(rowlen)):
-                raise ValueError(
-                    'index is not in range({})'.format(rowlen))
-        elif type(index) is list:
-            # all elements need to be integers
-            if all(type(s) is int for s in index):
-                # condition list
-                index.sort()
-                index = list(set(index))
-                newindex = []
-                for s in index:
-                    if s < 0:
-                        s = -s - 1
-                    if s in range(rowlen):
-                        if s not in newindex:
-                            newindex.append(s)
-                    else:
-                        warn_str += (
-                            '\n** Warning: shot {} not a '.format(s)
-                            + 'valid index, range({})'.format(rowlen))
-                newindex.sort()
+        cdset_dict = {}
+        shotnumkey_dict = {}
+        for control in controls:
+            # control name and unique specifier
+            cname = control[0]
+            cspec = control[1]
 
-                if len(newindex) != 0:
-                    index = newindex
-                else:
-                    raise ValueError('index: none of the elements are '
-                                     'in range({})'.format(rowlen))
-            else:
-                raise ValueError("index keyword needs to be None, int, "
-                                 "list(int), or slice object")
-        elif type(index) is slice:
-            # valid type
-            pass
-        else:
-            raise ValueError("index keyword needs to be None, int, "
-                             "list(int), or slice object")
+            # gather control datasets
+            cmap = file_map.controls[cname]
+            cdset_name = cmap.construct_dataset_name(cspec)
+            cdset_path = cmap.info['group path'] + '/' + cdset_name
+            cdset_dict[cname] = hdf_file.get(cdset_path)
+            shotnumkey_dict[cname] = cdset_dict[cname].dtype.names[0]
+
+        # Catch shotnum if a slice object
+        # - If shotnum is a slice object then catch it and convert it to
+        #   a list.
+        #
+        if type(shotnum) is slice:
+            # determine largest possible shot number
+            last_sn = [
+                cdset_dict[cname][-1, shotnumkey_dict[cname]] + 1
+                for cname in cdset_dict
+            ]
+            if shotnum.stop is not None:
+                last_sn.append(shotnum.stop)
+            stop_sn = max(last_sn)
+
+            # get the start, stop, and step for the shot number array
+            start, stop, step = shotnum.indices(stop_sn)
+
+            # ensure shot numbers are >= 1
+            if start <= 0:
+                start = 1
+
+            # re-define shotnum as a list
+            shotnum = np.arange(start, stop, step).tolist()
 
         # Ensure 'shotnum' is valid
         # - here 'shotnum' will be converted from its keyword type to a
         #   1D array containing the list of shot numbers to be included
         #   in the returned obj array
         #
-        if index is not None:
-            # - index conditioning should ensure index is not None only
-            #   if shotnum is not specified (i.e. shotnum is None and
-            #   index is not None)
-            #
-            shotnum = dset_sn[index].view()
-            if type(shotnum) is np.int32:
-                shotnum = np.array([shotnum]).view()
-        elif shotnum is None:
+        if shotnum is None:
             # assume all intersecting entries are desired
             shotnum = dset_sn.view()
         elif type(shotnum) is int:

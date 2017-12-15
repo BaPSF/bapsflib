@@ -13,6 +13,7 @@ import h5py
 import numpy as np
 import time
 
+
 class hdfReadControl(np.recarray):
     """
     Extracts control device data from the HDF5 file.
@@ -557,6 +558,10 @@ class hdfReadControl(np.recarray):
             'controls': controls,
             'probe name': None,
             'port': (None, None)}
+
+        # populate meta-info from controls.configs
+        # TODO: populate info from controls.configs
+        #
 
         # print warnings
         if not silent and warn_str != '':

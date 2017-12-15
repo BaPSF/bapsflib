@@ -9,7 +9,6 @@
 #   license terms and contributor agreement.
 #
 
-import h5py
 import numpy as np
 import time
 
@@ -98,6 +97,16 @@ class hdfReadControl(np.recarray):
         #
         #       controls = ['6K Compumotor', 'NI_XZ']
         #
+
+        # initialize timing
+        if 'timeit' in kwargs:
+            timeit = kwargs['timeit']
+            if timeit:
+                tt = [time.time()]
+            else:
+                timeit = False
+        else:
+            timeit = False
 
         # initiate warning string
         warn_str = ''
@@ -352,13 +361,13 @@ class hdfReadControl(np.recarray):
                     # npfields[nf_name] = ['<f8, 1]
 
         # Define dtype and shape for numpy array
-        dytpe = [('shotnum', '<u4', 1)]
+        dtype = [('shotnum', '<u4', 1)]
         for key in npfields:
-            dytpe.append((key, npfields[key][0], npfields[key][1]))
+            dtype.append((key, npfields[key][0], npfields[key][1]))
         shape = shotnum.shape
 
         # Initialize Control Data
-        data = np.empty(shape, dtype=dytpe)
+        data = np.empty(shape, dtype=dtype)
         data['shotnum'] = shotnum.view()
         for field in npfields:
             if data.dtype[field] <= np.int:

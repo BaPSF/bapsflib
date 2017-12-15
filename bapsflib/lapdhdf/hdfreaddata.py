@@ -452,7 +452,7 @@ class hdfReadData(np.recarray):
             print('tt - define data: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # fill array
+        # fill 'shotnum' field of data array
         data['shotnum'] = shotnum
         if robust_define:
             # Double check that the correct shot numbers are being read
@@ -471,6 +471,7 @@ class hdfReadData(np.recarray):
             else:
                 print('!! Shot number indexing working properly.')
 
+        # fill remaining fields of data array
         if intersection_set:
             # fill signal
             data['signal'] = dset[index, ...].view()
@@ -494,6 +495,8 @@ class hdfReadData(np.recarray):
                 # fill xyz
                 data['xyz'] = np.nan
         else:
+            # non-intersection fill
+            #
             # fill signal
             data['signal'][sni] = dset[index, ...].view()
             null_fiiler = -99999 if data['signal'].dtype <= np.int \

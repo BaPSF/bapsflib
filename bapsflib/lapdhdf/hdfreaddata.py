@@ -326,7 +326,7 @@ class hdfReadData(np.recarray):
             else:
                 stop_sn = last_sn + 1
 
-            # get the start, stop, and step or the shot number array
+            # get the start, stop, and step for the shot number array
             start, stop, step = shotnum.indices(stop_sn)
 
             # ensure shot numbers are >= 1

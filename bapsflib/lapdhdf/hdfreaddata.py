@@ -744,7 +744,7 @@ def condition_shotnum_int(shotnum, dheader, shotnumkey):
                 # smallest
                 some_dset_sn = dheader[-step_from_end - 1::, shotnumkey]
                 index = np.where(some_dset_sn == shotnum)[0][0]
-                index += step_from_front
+                index += dheader.shape[0] - step_from_end - 1
         else:
             raise ValueError(
                 'shotnum [{}] would result in a'.format(shotnum)

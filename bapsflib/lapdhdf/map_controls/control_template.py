@@ -220,6 +220,14 @@ class hdfMap_control_template(ABC):
         return dnames
 
     @property
+    def group(self):
+        """
+        :return: HDF5 control device group
+        :rtype: :class:`h5py.Group`
+        """
+        return self.__control_group
+
+    @property
     def has_command_list(self):
         """
         :return: :code:`True` if dataset utilizes a command list
@@ -233,12 +241,15 @@ class hdfMap_control_template(ABC):
         return has_cl
 
     @property
-    def group(self):
+    def one_config_per_dset(self):
         """
-        :return: HDF5 control device group
-        :rtype: :class:`h5py.Group`
+        :return: :code:'True' if each control configuration has its
+            own dataset
+        :type: bool
         """
-        return self.__control_group
+        n_dset = len(self.dataset_names)
+        n_configs = len(self.configs)
+        return True if n_dset == n_configs else False
 
     @property
     def sgroup_names(self):

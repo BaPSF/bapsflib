@@ -94,5 +94,13 @@ class hdfMap_control_waveform(hdfMap_control_template):
         return 'Run time list'
 
     @property
+    def name(self):
+        """
+        :return: name of control device
+        :rtype: str
+        """
+        return 'Waveform'
+
+    @property
     def unique_specifiers(self):
         return list(self.configs)

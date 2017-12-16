@@ -275,6 +275,14 @@ class hdfMap_control_template(ABC):
         raise NotImplementedError
 
     @property
+    def name(self):
+        """
+        :return: name of control device
+        :rtype: str
+        """
+        raise NotImplementedError
+
+    @property
     def unique_specifiers(self):
         """
         :return: list of unique specifiers for the control device.

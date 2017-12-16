@@ -130,6 +130,14 @@ class hdfMap_control_6k(hdfMap_control_template):
         return list(self.configs)
 
     @property
+    def name(self):
+        """
+        :return: name of control device
+        :rtype: str
+        """
+        return '6K Compumotor'
+
+    @property
     def unique_specifiers(self):
         """
         :return: list of control device unique specifiers. Here the

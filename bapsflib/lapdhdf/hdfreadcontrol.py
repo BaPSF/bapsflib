@@ -204,6 +204,12 @@ class hdfReadControl(np.recarray):
             cspec = control[1]
 
             # gather control datasets
+            # TODO: determine shotnumkey through cmap.configs
+            #       - i.e. scan
+            #         cmap.configs[cspec]['dset field to numpy field']
+            #         for numpy field 'shotnum' and grab the associated
+            #         dset field
+            #
             cmap = file_map.controls[cname]
             cdset_name = cmap.construct_dataset_name(cspec)
             cdset_path = cmap.info['group path'] + '/' + cdset_name
@@ -227,9 +233,21 @@ class hdfReadControl(np.recarray):
             # get the start, stop, and step for the shot number array
             start, stop, step = shotnum.indices(stop_sn)
 
-            # ensure shot numbers are >= 1
-            if start <= 0:
-                start = 1
+            # determine smallest possible shot number
+            # - intersection_set = True
+            #   * start = max of first_sn and shotnum.start
+            # - intersection_set = False
+            #   * start = min of first_sn and shotnum.start
+            first_sn = [cdset_dict[cname][0, shotnumkey_dict[cname]]
+                        for cname in cdset_dict]
+            if shotnum.start is not None:
+                # ensure shot numbers are >= 1
+                if start <= 0:
+                    start = 1
+
+                # add to first_sn
+                first_sn.append(start)
+            start = max(first_sn) if intersection_set else min(first_sn)
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()
@@ -239,66 +257,53 @@ class hdfReadControl(np.recarray):
         #   1D array containing the list of shot numbers to be included
         #   in the returned obj array
         #
-        if shotnum is None:
-            # assume all intersecting entries are desired
-            shotnum = dset_sn.view()
-        elif type(shotnum) is int:
-            if shotnum in dset_sn:
-                shotnum = np.array([shotnum])
-            else:
-                raise ValueError('shotnum [{}] is not '.format(shotnum)
-                                 + 'a valid shot number')
-        elif type(shotnum) is list:
-            # shotnum's have to be ints and >=1
-            if all(type(s) is int for s in shotnum):
-                # remove shot numbers less-than or equal to 0
-                shotnum.sort()
-                shotnum = list(set(shotnum))
-                try:
-                    zindex = shotnum.index(0)
-                    del shotnum[:zindex+1]
-                except ValueError:
-                    # no values less-than or equal to 0
-                    pass
+        index_dict = {}
+        shotnum_dict = {}
+        sni_dict = {}
+        for control in controls:
+            # control name and unique specifier
+            cname = control[0]
+            cspec = control[1]
 
-                # convert shotnum to np.array
-                if intersection_set:
-                    shotnum = np.intersect1d(shotnum, dset_sn).view()
+            # get a conditioned version of index, shotnum, and sni for
+            # each control
+            if type(shotnum) is int:
+                v1, v2, v3 = \
+                    condition_shotnum_int(shotnum,
+                                          cdset_dict[cname],
+                                          shotnumkey_dict[cname],
+                                          cmap, cspec)
+                index_dict[cname] = v1
+                shotnum_dict[cname] = v2
+                sni_dict[cname] = v3
+            else:
+                raise ValueError('Valid shotnum not passed')
+            '''
+            elif type(shotnum) is list:
+                # shotnum's have to be ints and >=1
+                if all(type(s) is int for s in shotnum):
+                    # remove shot numbers less-than or equal to 0
+                    shotnum.sort()
+                    shotnum = list(set(shotnum))
+                    try:
+                        zindex = shotnum.index(0)
+                        del shotnum[:zindex+1]
+                    except ValueError:
+                        # no values less-than or equal to 0
+                        pass
+
+                    # convert shotnum to np.array
+                    if intersection_set:
+                        shotnum = np.intersect1d(shotnum, dset_sn).view()
+                    else:
+                        shotnum = np.array(shotnum).view()
+
+                    # ensure obj will not be a zero dim array
+                    if shotnum.shape[0] == 0:
+                        raise ValueError('Valid shotnum not passed')
                 else:
-                    shotnum = np.array(shotnum).view()
-
-                # ensure obj will not be a zero dim array
-                if shotnum.shape[0] == 0:
                     raise ValueError('Valid shotnum not passed')
-            else:
-                raise ValueError('Valid shotnum not passed')
-        elif type(shotnum) is slice:
-            try:
-                if shotnum.start <= 0 or shotnum.stop <= 0:
-                    raise ValueError('Valid shotnum not passed')
-            except TypeError:
-                if shotnum.stop is None:
-                    raise ValueError('Valid shotnum not passed')
-                elif shotnum.start is None:
-                    shotnum = slice(shotnum.stop-1, shotnum.stop,
-                                    shotnum.step)
-
-            # convert shotnum to np.array
-            if intersection_set:
-                shotnum = np.intersect1d(
-                    np.arange(shotnum.start,
-                              shotnum.stop,
-                              shotnum.step),
-                    dset_sn).view()
-            else:
-                shotnum = np.arange(shotnum.start, shotnum.stop,
-                                    shotnum.step)
-
-            # ensure obj will not be a zero dim array
-            if shotnum.shape[0] == 0:
-                raise ValueError('Valid shotnum not passed')
-        else:
-            raise ValueError('Valid shotnum not passed')
+            '''
 
         # ---- Build obj ----
         # Determine fields for numpy array
@@ -743,3 +748,330 @@ def gather_shotnums(hdf_file, controls, method='union',
 
     # return numpy array of intersecting shot numbers
     return shotnumarr
+
+
+def condition_shotnum_int(shotnum, cdset, shotnumkey, cmap, cspec):
+    # Inputs:
+    # shotnum    (int)          - the desired shot number
+    # cdset      (h5py.Dataset) - the control dataset
+    # shotnumkey (str)          - field name for the shot number column
+    #                             in cdset
+    # cmap                      - file mapping object for the control
+    #                             device
+    # cspec                     - unique specifier (aka configuration
+    #                             name) for control device
+    #
+    # Returns:
+    # index (int) - cdset row index for the specifed shotnum
+    # shotnum (np.array([int], dtype=uint32))
+    #
+    # Initialize come vars
+    n_configs = len(cmap.configs)
+    configs_per_row = 1 if cmap.one_config_per_dset else n_configs
+
+    # Calc. index, shotnum, and sni
+    if configs_per_row == 1:
+        # the dataset only saves data for one configuration
+        index, shotnum, sni = \
+            condition_shotnum_int_simple(shotnum, cdset, shotnumkey)
+    else:
+        # the dataset saves saves data for multiple configurations
+        index, shotnum, sni = \
+            condition_shotnum_int_complex(shotnum, cdset, shotnumkey,
+                                          cmap, cspec)
+
+    # return calculated arrays
+    return index, shotnum, sni
+
+
+def condition_shotnum_int_simple(shotnum, cdset, shotnumkey):
+    # this is for a dataset that only records data for one configuration
+    #
+    # initialize sni
+    sni = np.array([True], dtype=bool)
+
+    # find index
+    if cdset.shape[0] == 1:
+        # only one possible index and shotnum
+        if shotnum == cdset[0, shotnumkey]:
+            index = 0
+        else:
+            index = []
+            sni[0] = False
+    elif shotnum >= 1:
+        # get 1st and last shot number
+        first_sn, last_sn = cdset[[-1, 0], shotnumkey]
+
+        if last_sn - first_sn + 1 == cdset.shape[0]:
+            # shot numbers are sequential
+            if shotnum <= last_sn:
+                index = shotnum - first_sn
+            else:
+                # shotnum not in dataset
+                index = []
+                sni[0] = False
+        elif first_sn <= shotnum <= last_sn:
+            # shot numbers are NOT sequential, but shotnum may
+            # be in the array
+            step_from_front = shotnum - first_sn
+            step_from_end = last_sn - shotnum
+
+            if cdset.shape[0] <= \
+                    min(step_from_front, step_from_end) + 1:
+                # cdset.shape is smaller than the theoretical
+                # sequential array
+                dset_sn = cdset[shotnumkey].view()
+                index_arr = np.where(dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0]
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    index = []
+                    sni[0] = False
+                else:
+                    # something went wrong..the routine's assumptions
+                    # do not match the format of the dataset
+                    raise ValueError
+            elif step_from_front <= step_from_end:
+                # extracting from the beginning of the array
+                # is the smallest
+                some_dset_sn = cdset[0:step_from_front + 1,
+                                     shotnumkey]
+                index_arr = np.where(some_dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0]
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    index = []
+                    sni[0] = False
+                else:
+                    # something went wrong...the routine's assumptions
+                    # do not match the format of the dataset
+                    raise ValueError
+            else:
+                # extracting from the end of the array is the
+                # smallest
+                start, stop, step = \
+                    slice(-step_from_end - 1,
+                          None,
+                          None).indices(cdset.shape[0])
+                some_dset_sn = cdset[start::,
+                                     shotnumkey]
+                index_arr = np.where(some_dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0] + start
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    index = []
+                    sni[0] = False
+                else:
+                    # something went wrong...the routine's assumptions
+                    # do not match the format of the dataset
+                    raise ValueError
+        else:
+            # shotnum is out of range
+            index = []
+            sni[0] = False
+    else:
+        index = []
+        sni[0] = False
+
+    # make shotnum a np.array
+    shotnum = np.array([shotnum])
+
+    # return calculated arrays
+    return index, shotnum.view(), sni.view()
+
+
+def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
+                                  cspec):
+    """
+    .. note::
+
+        There is an assumption each shot number spans n_configs number
+        of rows in the dataset, where n_configs is the number of
+        control device configurations.  It is also assumed that the
+        order inwhich the configs are recorded is the same for each shot
+        number.  That is, if there are 3 configs (config01, config02,
+        and config03) and the first three rows of dataset are recorded
+        in that order, then the next three rows will maintain that
+        order.
+
+    :param ind shotnum: desired HDF5 shot number
+    :param cdset: control device dataset
+    :type cdset: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in the control device dataset that
+        contains the shot numbers
+    :param cmap: mapping object for control device
+    :param cspec: unique specifier (configuration name) for the control
+        device
+    :return: index, shotnum, sni
+    """
+    # this is for a dataset that only records data for one configuration
+    #
+    # Ensure there is only one dataset for all configs
+    # Note: we should only get to this point if n_dsets != n_configs
+    n_dsets = len(cmap.dataset_names)
+    n_configs = len(cmap.configs)
+    if n_dsets != 1:
+        raise ValueError(
+            'Control has {} datasets and'.format(n_dsets)
+            + ' {} configurations, do NOT'.format(n_configs)
+            + ' know how to handle')
+
+    # determine configkey
+    configkey = ''
+    for df in cmap.configs[cspec]['dataset fields']:
+        if 'configuration' in df[0].casefold():
+            configkey = df[0]
+            break
+    if configkey == '':
+        raise ValueError(
+            'Can NOT find configuration field in the control'
+            + ' ({}) dataset'.format(cmap.name))
+
+    # initialize sni
+    sni = np.array([True], dtype=bool)
+
+    # find index
+    if cdset.shape[0] == n_configs:
+        # only one possible shotnum, index can be 0 to n_configs-1
+        #
+        # NOTE: The HDF5 configuration field stores a string with the
+        #       name of the configuration.  When reading that into a
+        #       numpy array the string becomes a byte string (i.e. b'').
+        #       When comparing with np.where() the comparing string
+        #       needs to be encoded (i.e. cspec.encode()).
+        #
+        if shotnum == cdset[0, shotnumkey]:
+            config_name_arr = cdset[0:n_configs, configkey]
+            index_arr = np.where(config_name_arr == cspec.encode())[0]
+
+            if index_arr.shape[0] == 1:
+                index = index_arr[0]
+            else:
+                # something went wrong...either no configurations
+                # are found and the routines assumption's do not
+                # match the format of the dataset
+                raise ValueError
+        else:
+            index = []
+            sni[0] = False
+    elif shotnum >= 1:
+        # get 1st and last shot number
+        first_sn, last_sn = cdset[[-1, 0], shotnumkey]
+
+        if n_configs * (last_sn - first_sn + 1) == cdset.shape[0]:
+            # shot numbers are sequential and there are n_configs per
+            # shot number
+            if shotnum <= last_sn:
+                index = shotnum - first_sn
+
+                # adjust index to correspond to associated configuration
+                config_name_arr = cdset[0:n_configs, configkey]
+                index_arr = np.where(config_name_arr
+                                     == cspec.encode())[0]
+                if index_arr.shape[0] == 1:
+                    index_stretch = index_arr[0] + 1
+                    index = index_stretch * index
+                else:
+                    # something went wrong...either no configurations
+                    # are found or the routine's assumptions do not
+                    # match the format of the dataset
+                    raise ValueError
+            else:
+                # shotnum not in dataset
+                index = []
+                sni[0] = False
+        elif first_sn <= shotnum <= last_sn:
+            # shot numbers are NOT sequential, but shotnum may
+            # be in the array
+            step_from_front = shotnum - first_sn
+            step_from_end = last_sn - shotnum
+
+            # determine adjusted start to the array read
+            config_name_arr = cdset[0:n_configs, configkey]
+            index_arr = np.where(config_name_arr
+                                 == cspec.encode())[0]
+            if index_arr.shape[0] == 1:
+                start_adj = index_arr[0]
+            else:
+                # something went wrong...either no configurations
+                # are found or the routine's assumptions do not
+                # match the format of the dataset
+                raise ValueError
+
+            if cdset.shape[0] <= n_configs * (
+                    min(step_from_front, step_from_end) + 1):
+                # cdset.shape is smaller than the theoretical
+                # sequential array
+                dset_sn = cdset[start_adj::n_configs, shotnumkey].view()
+                index_arr = np.where(dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0]
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    index = []
+                    sni[0] = False
+                else:
+                    # something went wrong...the routine's assumptions
+                    # do not match the format of the dataset
+                    raise ValueError
+            elif step_from_front <= step_from_end:
+                # extracting from the beginning of the array
+                # is the smallest
+                start = start_adj
+                stop = n_configs * (step_from_front + 1)
+                stop += start_adj
+                step = n_configs
+                some_dset_sn = cdset[start:stop:step, shotnumkey].view()
+                index_arr = np.where(some_dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0]
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    index = []
+                    sni[0] = False
+                else:
+                    # something went wrong...the routine's assumptions
+                    # do not match the format of the dataset
+                    raise ValueError
+            else:
+                # extracting from the end of the array is the
+                # smallest
+                start, stop, step = \
+                    slice(-n_configs * (step_from_end + 1),
+                          None,
+                          n_configs).indices(cdset.shape[0])
+                start -= start_adj
+                some_dset_sn = cdset[start::step, shotnumkey].view()
+                index_arr = np.where(some_dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0] + start
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    index = []
+                    sni[0] = False
+                else:
+                    # something went wrong...the routine's assumptions
+                    # do not match the format of the dataset
+                    raise ValueError
+        else:
+            # shotnum is out of range
+            index = []
+            sni[0] = False
+    else:
+        index = []
+        sni[0] = False
+
+    # make shotnum a np.array
+    shotnum = np.array([shotnum])
+
+    # return calculated arrays
+    return index, shotnum.view(), sni.view()

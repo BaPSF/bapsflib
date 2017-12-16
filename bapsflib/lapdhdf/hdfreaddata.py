@@ -850,8 +850,7 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                 shotnum = only_sn
                 sni = np.array([True], dtype=bool)
             else:
-                sni = np.where(shotnum == only_sn,
-                               True, False)
+                sni = np.where(shotnum == only_sn, True, False)
         else:
             raise ValueError(
                 'shotnum(s) [{}] would'.format(shotnum)
@@ -891,13 +890,12 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                     sni = np.isin(shotnum, dset_sn)
 
                 # define index
-                index = np.where(np.isin(dset_sn, shotnum))
+                index = np.where(np.isin(dset_sn, shotnum))[0]
             elif step_front_read <= step_end_read:
                 # extracting fro the beginning of the array
                 # is the smallest
-                some_dset_sn = dheader[
-                               0:step_front_read + 1,
-                               shotnumkey]
+                some_dset_sn = dheader[0:step_front_read + 1,
+                                       shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
                 # intersect shot numbers
@@ -906,14 +904,15 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                     sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
-                index = np.where(np.isin(some_dset_sn,
-                                         shotnum))
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
             else:
                 # extracting from the end of the array is
                 # the smallest
-                some_dset_sn = dheader[
-                               -step_end_read - 1::,
-                               shotnumkey]
+                start, stop, step = \
+                    slice(-step_end_read - 1,
+                          None,
+                          None).indices(dheader.shape[0])
+                some_dset_sn = dheader[start::, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
                 # intersect shot numbers
@@ -922,10 +921,9 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                     sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
-                index = np.where(np.isin(some_dset_sn,
-                                         shotnum))
-                index += (dheader.shape[0]
-                          - step_end_read - 1)
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
+                if index.shape[0] != 0:
+                    index += start
 
     # ensure obj will not be zero
     if shotnum.shape[0] == 0:

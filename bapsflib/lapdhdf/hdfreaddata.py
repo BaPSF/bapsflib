@@ -714,10 +714,10 @@ def condition_shotnum_int(shotnum, dheader, shotnumkey):
 
         if last_sn - first_sn + 1 == dheader.shape[0]:
             # shot numbers are sequential
-            index = shotnum - first_sn
-
-            # make sure index is within range
-            if index >= dheader.shape[0]:
+            if shotnum <= last_sn:
+                index = shotnum - first_sn
+            else:
+                # shotnum not in dataset
                 raise ValueError(
                     'shotnum [{}] would result'.format(shotnum)
                     + ' in a null array')
@@ -732,19 +732,58 @@ def condition_shotnum_int(shotnum, dheader, shotnumkey):
                 # dheader.shape is smaller than the theoretical
                 # sequential array
                 dset_sn = dheader[shotnumkey].view()
-                index = np.where(dset_sn == shotnum)[0][0]
+                index_arr = np.where(dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0]
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    raise ValueError(
+                        'shotnum [{}] would result in'.format(shotnum)
+                        + ' a null array')
+                else:
+                    raise ValueError(
+                        'something went wrong...to many shotnum'
+                        ' indices found')
             elif step_from_front <= step_from_end:
                 # extracting from the beginning of the array
                 # is the smallest
                 some_dset_sn = dheader[0:step_from_front + 1,
                                        shotnumkey]
-                index = np.where(some_dset_sn == shotnum)[0][0]
+                index_arr = np.where(some_dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0]
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    raise ValueError(
+                        'shotnum [{}] would result in'.format(shotnum)
+                        + ' a null array')
+                else:
+                    raise ValueError(
+                        'something went wrong...to many shotnum'
+                        ' indices found')
             else:
                 # extracting from the end of the array is the
                 # smallest
-                some_dset_sn = dheader[-step_from_end - 1::, shotnumkey]
-                index = np.where(some_dset_sn == shotnum)[0][0]
-                index += step_from_front
+                start, stop, step = \
+                    slice(-step_from_end - 1,
+                          None,
+                          None).indices(dheader.shape[0])
+                some_dset_sn = dheader[start::, shotnumkey]
+                index_arr = np.where(some_dset_sn == shotnum)[0]
+
+                if index_arr.shape[0] == 1:
+                    index = index_arr[0] + start
+                elif index_arr.shape[0] == 0:
+                    # shotnum not found
+                    raise ValueError(
+                        'shotnum [{}] would result in'.format(shotnum)
+                        + ' a null array')
+                else:
+                    raise ValueError(
+                        'something went wrong...to many shotnum'
+                        ' indices found')
         else:
             raise ValueError(
                 'shotnum [{}] would result in a'.format(shotnum)
@@ -811,8 +850,7 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                 shotnum = only_sn
                 sni = np.array([True], dtype=bool)
             else:
-                sni = np.where(shotnum == only_sn,
-                               True, False)
+                sni = np.where(shotnum == only_sn, True, False)
         else:
             raise ValueError(
                 'shotnum(s) [{}] would'.format(shotnum)
@@ -852,13 +890,12 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                     sni = np.isin(shotnum, dset_sn)
 
                 # define index
-                index = np.where(np.isin(dset_sn, shotnum))
+                index = np.where(np.isin(dset_sn, shotnum))[0]
             elif step_front_read <= step_end_read:
                 # extracting fro the beginning of the array
                 # is the smallest
-                some_dset_sn = dheader[
-                               0:step_front_read + 1,
-                               shotnumkey]
+                some_dset_sn = dheader[0:step_front_read + 1,
+                                       shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
                 # intersect shot numbers
@@ -867,14 +904,15 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                     sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
-                index = np.where(np.isin(some_dset_sn,
-                                         shotnum))
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
             else:
                 # extracting from the end of the array is
                 # the smallest
-                some_dset_sn = dheader[
-                               -step_end_read - 1::,
-                               shotnumkey]
+                start, stop, step = \
+                    slice(-step_end_read - 1,
+                          None,
+                          None).indices(dheader.shape[0])
+                some_dset_sn = dheader[start::, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
                 # intersect shot numbers
@@ -883,10 +921,9 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                     sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
-                index = np.where(np.isin(some_dset_sn,
-                                         shotnum))
-                index += (dheader.shape[0]
-                          - step_end_read - 1)
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
+                if index.shape[0] != 0:
+                    index += start
 
     # ensure obj will not be zero
     if shotnum.shape[0] == 0:

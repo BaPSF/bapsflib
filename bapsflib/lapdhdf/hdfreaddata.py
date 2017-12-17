@@ -178,7 +178,7 @@ class hdfReadData(np.recarray):
         # print execution timing
         if timeit:
             tt.append(time.time())
-            print('tt - hdf_obj conditioning: '
+            print('tt - hdf_file conditioning: '
                   '{} ms'.format((tt[-1]-tt[-2])*1.E3))
 
         # ---- Check for Control Device Addition ---

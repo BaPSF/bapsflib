@@ -370,7 +370,7 @@ class hdfReadData(np.recarray):
             elif type(index) is list:
                 index = np.array(index)
             elif type(index) is slice:
-                start, stop, step = index.indices(shotnum.shape[0])
+                start, stop, step = index.indices(dheader.shape[0])
                 index = np.arange(start, stop, step)
         elif type(shotnum) is int:
             # ensure shotnum is valid and determine its corresponding

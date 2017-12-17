@@ -12,6 +12,8 @@
 import numpy as np
 import time
 
+from functools import reduce
+
 
 class hdfReadControl(np.recarray):
     """
@@ -115,6 +117,12 @@ class hdfReadControl(np.recarray):
             raise ValueError(
                 'There are no control devices in the HDF5 file.')
 
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - hdf_file conditioning: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
         # ---- Condition 'controls' Argument ----
         # condition elements of 'controls' argument
         # - Controls is a list where elements can be:
@@ -139,6 +147,12 @@ class hdfReadControl(np.recarray):
         # make sure 'controls' is not empty
         if not controls:
             raise ValueError("improper 'controls' arg passed")
+
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - condition controls: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Condition shotnum ----
         # shotnum -- global HDF5 file shot number
@@ -257,6 +271,15 @@ class hdfReadControl(np.recarray):
         #   1D array containing the list of shot numbers to be included
         #   in the returned obj array
         #
+        # Notes:
+        # 1. shotnum can not be converted to a np.array until after
+        #    shotnum, index, and sni are determined for each control
+        # 2. all entries in shotnum_dict, index_dict, and sni_dic
+        #    should be np.arrays
+        # 3. shotnum values used to fill shotnum_dict should not go
+        #    through an intersection filtering in here, this will be
+        #    done after this for-loop
+        #
         index_dict = {}
         shotnum_dict = {}
         sni_dict = {}
@@ -264,6 +287,7 @@ class hdfReadControl(np.recarray):
             # control name and unique specifier
             cname = control[0]
             cspec = control[1]
+            cmap = file_map.controls[cname]
 
             # get a conditioned version of index, shotnum, and sni for
             # each control
@@ -276,6 +300,8 @@ class hdfReadControl(np.recarray):
                 index_dict[cname] = v1
                 shotnum_dict[cname] = v2
                 sni_dict[cname] = v3
+            elif type(shotnum) is list:
+                raise NotImplementedError
             else:
                 raise ValueError('Valid shotnum not passed')
             '''
@@ -304,6 +330,49 @@ class hdfReadControl(np.recarray):
                 else:
                     raise ValueError('Valid shotnum not passed')
             '''
+
+        # ensure shotnum is np.array
+        shotnum = np.array([shotnum]) if type(shotnum) is int \
+            else np.array(shotnum)
+
+        # squeeze shotnum
+        if len(shotnum.shape) != 1:
+            shotnum = shotnum.squeeze()
+
+        # re-filter index, shotnum, sni
+        if intersection_set:
+            # determine intersecting shot numbers
+            # - I'm assuming no intersection as been performed yet
+            #
+            sn_list = [shotnum_dict[key][sni_dict[key]]
+                       for key in shotnum_dict]
+            sn_list.append(shotnum)
+            shotnum_intersect = reduce(
+                lambda x, y: np.intersect1d(x, y, assume_unique=True),
+                sn_list)
+            if shotnum_intersect.shape[0] == 0:
+                raise ValueError(
+                    'Input shotnum would result in a null array')
+            else:
+                shotnum = shotnum_intersect
+
+            # now filter
+            for cname in shotnum_dict:
+                new_sn_mask = np.isin(
+                    shotnum_dict[cname][sni_dict[cname]], shotnum)
+                new_sn = \
+                    shotnum_dict[cname][sni_dict[cname][new_sn_mask]]
+                new_index = index_dict[cname][new_sn_mask]
+                shotnum_dict[cname] = new_sn
+                index_dict[cname] = new_index
+                sni_dict[cname] = np.ones(new_index.shape[0],
+                                          dtype=bool)
+
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - condition shotnum: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Build obj ----
         # Determine fields for numpy array
@@ -340,14 +409,28 @@ class hdfReadControl(np.recarray):
             dtype.append((key, npfields[key][0], npfields[key][1]))
         shape = shotnum.shape
 
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - define dtype: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
         # Initialize Control Data
         data = np.empty(shape, dtype=dtype)
         data['shotnum'] = shotnum.view()
+
+        # TODO: this should be done in the main array fill section
         for field in npfields:
             if data.dtype[field] <= np.int:
                 data[field][:] = -99999
             elif data.dtype[field] <= np.float:
                 data[field][:] = np.nan
+
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - initialize data np.ndarray: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # Assign Control Data to Numpy array
         for control in controls:
@@ -357,10 +440,12 @@ class hdfReadControl(np.recarray):
 
             # get control dataset
             cmap = file_map.controls[cname]
-            cdset_name = cmap.construct_dataset_name(cspec)
-            cdset_path = cmap.info['group path'] + '/' + cdset_name
-            cdset = hdf_file.get(cdset_path)
-            shotnumkey = cdset.dtype.names[0]
+            cdset = cdset_dict[cname]
+            shotnumkey = shotnumkey_dict[cname]
+            sni = sni_dict[cname]
+            index = index_dict[cname]
+            if type(index) is np.ndarray:
+                index = index.tolist()
 
             # populate control data array
             if intersection_set:
@@ -371,7 +456,7 @@ class hdfReadControl(np.recarray):
                 #         need to be filtered again for the wanted
                 #         configuration.
                 #
-                shoti = np.in1d(cdset[shotnumkey], shotnum)
+                # shoti = np.in1d(cdset[shotnumkey], shotnum)
 
                 # assign values
                 # df_name - device dataset field name
@@ -387,55 +472,25 @@ class hdfReadControl(np.recarray):
 
                     # assign data
                     # TODO: need to confirm this works for all cl setups
-                    try:
-                        # assume control uses a command list
-                        #
+                    if cmap.has_command_list:
                         # get command list
                         cl = cmap.configs[cspec]['command list']
 
-                        # filter 'shoti' for values only associated with
-                        # cspec
-                        #
-                        if len(cmap.dataset_names) == 1 \
-                                and len(cmap.configs) != 1:
-                            # multiple configs but one dataset...need
-                            # to filter
-
-                            # get config field
-                            cfield = None
-                            for field in cmap.configs['dataset fields']:
-                                if 'configuration' \
-                                        in field[0].casefold():
-                                    cfield = field[0]
-                                    break
-
-                            # get indices for data corresponding to
-                            # cspec
-                            try:
-                                cfi = np.where(cdset[cfield] == cspec)
-                            except ValueError:
-                                raise ValueError(
-                                    'control device dataset has NO '
-                                    'identifiable configuration field')
-
-                            # filter 'shoti'
-                            shoti = np.logical_and(shoti, cfi)
-
                         # retrieve array of command indices
-                        ci_arr = cdset[shoti, df_name].view()
+                        ci_arr = cdset[index, df_name].view()
 
                         # assign command values to data
                         for ci, command in enumerate(cl):
                             ii = np.where(ci_arr == ci, True, False)
                             data[nf_name[0]][ii] = command
-                    except KeyError:
-                        # oops control does NOT use command list
+                    else:
+                        # control does NOT use command list
                         if data.dtype[nf_name[0]].shape != ():
                             data[nf_name[0]][:, npi] = \
-                                cdset[shoti, df_name].view()
+                                cdset[index, df_name].view()
                         else:
                             data[nf_name[0]] = \
-                                cdset[shoti, df_name].view()
+                                cdset[index, df_name].view()
             else:
                 # TODO: need to confirm this works
                 # get intersecting shot numbers
@@ -526,6 +581,21 @@ class hdfReadControl(np.recarray):
                             data[nf_name[0]][datai] = \
                                 cdset[cdseti, df_name].view()
 
+            # print execution timing
+            if timeit:
+                tt.append(time.time())
+                print('tt - fill data - '
+                      + '{}: '.format(cname)
+                      + '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
+        # print execution timing
+        if timeit:
+            n_controls = len(controls)
+            tt.append(time.time())
+            print('tt - fill data array: '
+                  '{} ms'.format((tt[-1] - tt[-n_controls-2]) * 1.E3)
+                  + ' (intersection_set={})'.format(intersection_set))
+
         # Construct obj
         obj = data.view(cls)
 
@@ -549,6 +619,12 @@ class hdfReadControl(np.recarray):
         # print warnings
         if not silent and warn_str != '':
             print(warn_str)
+
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - total execution time: '
+                  '{} ms'.format((tt[-1] - tt[0]) * 1.E3))
 
         # return obj
         return obj
@@ -882,8 +958,15 @@ def condition_shotnum_int_simple(shotnum, cdset, shotnumkey):
     # make shotnum a np.array
     shotnum = np.array([shotnum])
 
+    # make index a np.array
+    if type(index) is not np.ndarray:
+        if type(index) is list:
+            index = np.array(index, dtype=np.uint32)
+        else:
+            index = np.array([index])
+
     # return calculated arrays
-    return index, shotnum.view(), sni.view()
+    return index.view(), shotnum.view(), sni.view()
 
 
 def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
@@ -1070,8 +1153,12 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
         index = []
         sni[0] = False
 
-    # make shotnum a np.array
-    shotnum = np.array([shotnum])
+    # make index a np.array
+    if type(index) is not np.ndarray:
+        if type(index) is list:
+            index = np.array(index, dtype=np.uint32)
+        else:
+            index = np.array([index])
 
     # return calculated arrays
-    return index, shotnum.view(), sni.view()
+    return index.view(), shotnum.view(), sni.view()

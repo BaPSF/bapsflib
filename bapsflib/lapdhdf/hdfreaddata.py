@@ -363,6 +363,15 @@ class hdfReadData(np.recarray):
             if shotnum.shape[0] == 0:
                 raise ValueError(
                     'Input arguments would result in a null array')
+
+            # convert index to np.ndarray
+            if type(index) is int:
+                index = np.array([index])
+            elif type(index) is list:
+                index = np.array(index)
+            elif type(index) is slice:
+                start, stop, step = index.indices(shotnum.shape[0])
+                index = np.arange(start, stop, step)
         elif type(shotnum) is int:
             # ensure shotnum is valid and determine its corresponding
             # index
@@ -385,10 +394,6 @@ class hdfReadData(np.recarray):
         if len(shotnum.shape) != 1:
             shotnum = shotnum.squeeze()
 
-        # make sure index is not an ndarray
-        if type(index) is np.ndarray:
-            index = index.tolist()
-
         # print execution timing
         if timeit:
             tt.append(time.time())
@@ -407,6 +412,7 @@ class hdfReadData(np.recarray):
         #
         if controls is not None:
             cdata = hdfReadControl(hdf_file, controls,
+                                   assume_controls_conditioned=True,
                                    shotnum=shotnum.tolist(),
                                    intersection_set=intersection_set,
                                    silent=silent)
@@ -459,6 +465,12 @@ class hdfReadData(np.recarray):
 
         # fill 'shotnum' field of data array
         data['shotnum'] = shotnum
+
+        # make sure index is not an ndarray
+        if type(index) is np.ndarray:
+            index = index.tolist()
+
+        # double check shot numbers
         if robust_define:
             # Double check that the correct shot numbers are being read
             # in
@@ -801,8 +813,15 @@ def condition_shotnum_int(shotnum, dheader, shotnumkey):
     # make shotnum a np.array
     shotnum = np.array([shotnum])
 
+    # make index a np.array
+    if type(index) is not np.ndarray:
+        if type(index) is list:
+            index = np.array(index, dtype=np.uint32)
+        else:
+            index = np.array([index])
+
     # return calculated arrays
-    return index, shotnum.view(), sni.view()
+    return index.view(), shotnum.view(), sni.view()
 
 
 def condition_shotnum_list(shotnum, dheader, shotnumkey,
@@ -930,9 +949,5 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
         raise ValueError(
             'Input shotnum would result in a null array')
 
-    # make sure index is not an ndarray
-    if type(index) is np.ndarray:
-        index = index.tolist()
-
     # return calculated arrays
-    return index, shotnum.view(), sni.view()
+    return index.view(), shotnum.view(), sni.view()

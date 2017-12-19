@@ -911,7 +911,7 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                 # define index
                 index = np.where(np.isin(dset_sn, shotnum))[0]
             elif step_front_read <= step_end_read:
-                # extracting fro the beginning of the array
+                # extracting from the beginning of the array
                 # is the smallest
                 some_dset_sn = dheader[0:step_front_read + 1,
                                        shotnumkey]

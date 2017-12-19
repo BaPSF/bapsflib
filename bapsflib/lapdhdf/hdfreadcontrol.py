@@ -303,7 +303,14 @@ class hdfReadControl(np.recarray):
                 shotnum_dict[cname] = v2
                 sni_dict[cname] = v3
             elif type(shotnum) is list:
-                raise NotImplementedError
+                v1, v2, v3 = \
+                    condition_shotnum_list(shotnum,
+                                           cdset_dict[cname],
+                                           shotnumkey_dict[cname],
+                                           cmap, cspec)
+                index_dict[cname] = v1
+                shotnum_dict[cname] = v2
+                sni_dict[cname] = v3
             else:
                 raise ValueError('Valid shotnum not passed')
             '''
@@ -657,7 +664,7 @@ class hdfReadControl(np.recarray):
     #     super().__init__()
 
 
-def condition_controls(hdf_file, controls):
+def condition_controls(hdf_file, controls, **kwargs):
 
     # Check hdf_file is a lapdhdf.File object
     try:
@@ -1239,13 +1246,47 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
 
         if last_sn - first_sn + 1 == cdset.shape[0]:
             # shot numbers are sequential
-            # TODO: pickup here
             index = shotnum - first_sn
 
-        elif first_sn <= shotnum <= last_sn:
-            pass
+            # build sni and filter index
+            sni = np.where(index < cdset.shape[0], True, False)
+            index = index[sni]
         else:
-            pass
+            # shot numbers are not sequential
+            step_front_read = shotnum[-1] - first_sn
+            step_end_read = last_sn - shotnum[0]
+
+            if cdset.shape[0] <= 1 + min(step_front_read,
+                                         step_end_read):
+                # cdset.shape is smaller than the theoretical reads from
+                # either end of the array
+                #
+                cdset_sn = cdset[shotnumkey].view()
+                sni = np.isin(shotnum, cdset_sn)
+
+                # define index
+                index = np.where(np.isin(cdset_sn, shotnum))[0]
+            elif step_front_read <= step_end_read:
+                # extracting from the beginning of the array is the
+                # smallest
+                some_cdset_sn = cdset[0:step_front_read + 1, shotnumkey]
+                sni = np.isin(shotnum, some_cdset_sn)
+
+                # define index
+                index = np.where(np.isin(some_cdset_sn, shotnum))[0]
+            else:
+                # extracting from the end of the array is the smallest
+                start, stop, step = slice(-step_end_read - 1,
+                                          None,
+                                          None).indices(cdset.shape[0])
+                some_cdset_sn = cdset[start::, shotnumkey]
+                sni = np.isin(shotnum, some_cdset_sn)
+
+                # define index
+                # NOTE: if index is empty (i.e. index.shape[0] == 0)
+                #       then adding an int still returns an empty array
+                index = np.where(np.isin(some_cdset_sn, shotnum))[0]
+                index += start
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()
@@ -1255,4 +1296,5 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
                                    cspec):
     # this is for a dataset that only records data for one configuration
     #
+    # TODO: pickup here
     pass

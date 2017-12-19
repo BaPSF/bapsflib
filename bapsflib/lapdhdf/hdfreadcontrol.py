@@ -653,11 +653,11 @@ class hdfReadControl(np.recarray):
                              'probe name': None,
                              'port': (None, None)})
 
-    def __init__(self, *args, **kwargs):
-        super().__init__()
+    # def __init__(self, *args, **kwargs):
+    #     super().__init__()
 
 
-def condition_controls(hdf_file, controls, silent=False):
+def condition_controls(hdf_file, controls):
 
     # Check hdf_file is a lapdhdf.File object
     try:
@@ -1164,3 +1164,95 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()
+
+
+def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
+    # Inputs:
+    # shotnum    (list(int))    - the desired shot number
+    # cdset      (h5py.Dataset) - the control dataset
+    # shotnumkey (str)          - field name for the shot number column
+    #                             in cdset
+    # cmap                      - file mapping object for the control
+    #                             device
+    # cspec                     - unique specifier (aka configuration
+    #                             name) for control device
+    #
+    # Returns:
+    # index    np.array(dtype=uint32) - cdset row index for the
+    #                                   specified shotnum
+    # shotnum  np.array(dtype=uint32) - shot numbers
+    # sni      np.array(dtype=bool)   - shotnum mask such that:
+    #            shotnum[sni] = cdset[index, shotnumkey]
+    #
+    # Initialize come vars
+    n_configs = len(cmap.configs)
+    configs_per_row = 1 if cmap.one_config_per_dset else n_configs
+
+    # remove shot numbers less-than or equal to 0
+    shotnum.sort()
+    shotnum = list(set(shotnum))
+    shotnum.sort()
+    if min(shotnum) <= 0:
+        # remove values less-than or equal to 0
+        new_sn = [sn for sn in shotnum if sn > 0]
+        shotnum = new_sn
+
+    # ensure shotnum is not empty
+    if len(shotnum) == 0:
+        raise ValueError('Valid shotnum not passed.')
+
+    # convert shotnum to np.array
+    # - shotnum is always a list up to this point
+    shotnum = np.array(shotnum).view()
+
+    # Calc. index, shotnum, and sni
+    if configs_per_row == 1:
+        # the dataset only saves data for one configuration
+        index, shotnum, sni = \
+            condition_shotnum_list_simple(shotnum, cdset, shotnumkey)
+    else:
+        # the dataset saves saves data for multiple configurations
+        # index, shotnum, sni = \
+        #     condition_shotnum_list_complex(shotnum, cdset, shotnumkey,
+        #                                   cmap, cspec)
+        pass
+
+    # return calculated arrays
+    return index, shotnum, sni
+
+
+def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
+    # this is for a dataset that only records data for one configuration
+    #
+    # get corresponding indices for shotnum
+    # build associated sni array
+    #
+    if cdset.shape[0] == 1:
+        # only one possible shot number
+        only_sn = cdset[0, shotnumkey]
+        sni = np.where(shotnum == only_sn, True, False)
+        index = np.array([0]) \
+            if True in sni else np.empty(shape=0, dtype=np.uint32)
+    else:
+        # get 1st and last shot number
+        first_sn, last_sn = cdset[[-1, 0], shotnumkey]
+
+        if last_sn - first_sn + 1 == cdset.shape[0]:
+            # shot numbers are sequential
+            # TODO: pickup here
+            index = shotnum - first_sn
+
+        elif first_sn <= shotnum <= last_sn:
+            pass
+        else:
+            pass
+
+    # return calculated arrays
+    return index.view(), shotnum.view(), sni.view()
+
+
+def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
+                                   cspec):
+    # this is for a dataset that only records data for one configuration
+    #
+    pass

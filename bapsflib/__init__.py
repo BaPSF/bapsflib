@@ -23,5 +23,6 @@ https://github.com/rocco8773/bapsflib
 
 from . import lapdhdf
 from . import lapdtoolbox
+from . import plasma
 
 # from .viewers import HDFViewer

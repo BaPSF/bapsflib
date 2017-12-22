@@ -14,3 +14,4 @@ Modules
 
    src/bapsflib.lapdhdf
    src/bapsflib.lapdtoolbox
+   src/bapsflib.plasma

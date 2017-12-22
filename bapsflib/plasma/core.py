@@ -19,6 +19,7 @@ pconst = constants.physical_constants
 
 class ConstantTemplate(float):
     """Template class for constants"""
+
     def __new__(cls, value, cgs_unit):
         """
         :param float value: value of constant
@@ -35,21 +36,37 @@ class ConstantTemplate(float):
 
     @property
     def unit(self):
-        """units of of constant"""
+        """units of constant"""
         return self._unit
 
 
-AMU = ConstantTemplate(1000.0 * constants.m_u, 'g')  # atomic mass unit
-C = ConstantTemplate(10.0 * constants.c, 'cm s^-1')  # speed of light
-E = ConstantTemplate(4.8032e-10, 'statcoul')  # fundamental charge
-KB = ConstantTemplate(1.3807e-16, 'erg k^-1')  # Boltzmann constant
-ME = ConstantTemplate(1000.0 * constants.m_e, 'g')  # electron mass
-MP = ConstantTemplate(1000.0 * constants.m_p, 'g')  # proton mass
+#: atomic mass unit (g)
+AMU = ConstantTemplate(1000.0 * constants.m_u, 'g')
+
+#: speed of light (cm/s)
+C = ConstantTemplate(100.0 * constants.c, 'cm s^-1')
+
+#: fundamental charge (statcoul)
+E = ConstantTemplate(4.8032e-10, 'statcoul')
+
+#: Boltzmann constant (erg/K)
+KB = ConstantTemplate(1.3807e-16, 'erg k^-1')
+
+#: electron mass (g)
+ME = ConstantTemplate(1000.0 * constants.m_e, 'g')
+
+#: proton mass (g)
+MP = ConstantTemplate(1000.0 * constants.m_p, 'g')
 
 
+# ---- frequency constants ----
 def fce(Bo):
     """
     electron-cyclotron frequency (Hz)
+
+    .. math::
+
+        f_{ce} = \Omega_{ce} / ( 2 \pi ) = e B_{o} / (2 \pi m_{e} c)
 
     :param float Bo: magnetic field (in Gauss)
     """
@@ -60,6 +77,10 @@ def fce(Bo):
 def fci(Z, Bo, m_i):
     """
     ion-cyclotron frequency (Hz)
+
+    .. math::
+
+        f_{ci} = \Omega_{ci} / ( 2 \pi ) = Z e B_{o} / (2 \pi m_{i} c)
 
     :param int Z: charge number
     :param float Bo: magnetic-field (in Gauss)
@@ -73,6 +94,11 @@ def fpe(n_e):
     """
     electron-plasma frequency (Hz)
 
+    .. math::
+
+        f_{pe} &= \omega_{pe} / ( 2 \pi ) \\\\
+               &= \sqrt{n_{e} e^{2} / (\pi m_{e})}
+
     :param float n_e: electron number density (in cm^-3)
     """
     _fpe = ope(n_e) / (2.0 * math.pi)
@@ -82,6 +108,11 @@ def fpe(n_e):
 def fpi(Z, n_i, m_i):
     """
     ion-plasma frequency (Hz)
+
+    .. math::
+
+        f_{pi} &= \omega_{pi} / ( 2 \pi ) \\\\
+               &= \sqrt{n_{i} (Z e)^{2} / (\pi m_{i})}
 
     :param Z: ion charge number
     :param float n_i: ion number density (in cm^-3)
@@ -95,9 +126,11 @@ def oce(Bo):
     """
     electron-cyclotron frequency (rad/s)
 
+    .. math::
+
+        \Omega_{ce} = e B_{o} / (m_{e} c)
+
     :param float Bo: magnetic-field (in Gauss)
-    :return: electorn-cyclotron frequency (in rad/s)
-    :rtype: float
     """
     _oce = (E * Bo) / (ME * C)
     return ConstantTemplate(_oce, 'rad s^-1')
@@ -107,11 +140,13 @@ def oci(Z, Bo, m_i):
     """
     ion-cyclotron frequency (rads / s)
 
+    .. math::
+
+        \Omega_{ci} = Z e B_{o} / (m_{i} c)
+
     :param int Z: charge number
     :param float Bo: magnetic-field (in Gauss)
     :param float m_i: ion-mass (in g)
-    :return: ion-cyclotron frequency (in rads / s)
-    :rtype: float
     """
     _oci = (Z * E * Bo) / (m_i * C)
     return ConstantTemplate(_oci, 'rad s^-1')
@@ -121,9 +156,11 @@ def ope(n_e):
     """
     electron-plasma frequency (in rad/s)
 
+    .. math::
+
+        \omega_{pe}^{2} = 4 \pi n_{e} e^2 / m_{e}
+
     :param float n_e: electron number density (in cm^-3)
-    :return: electron-plasma frequency (in rad/s)
-    :rtype: float
     """
     _ope = math.sqrt(4 * math.pi * n_e * E * E / ME)
     return ConstantTemplate(_ope, 'rad s^-1')
@@ -133,11 +170,127 @@ def opi(Z, n_i, m_i):
     """
     ion-plasma frequency (in rad/s)
 
+    .. math::
+
+        \omega_{pi}^{2} = 4 \pi n_{i} (Z e)^{2} / m_{i}
+
     :param Z: ion charge number
     :param float n_i: ion number density (in cm^-3)
     :param float m_i: ion mass (in g)
-    :return: ion-plasma frequency (in rad/s)
-    :rtype: float
     """
     _opi = math.sqrt(4 * math.pi * n_i * (Z * E) * (Z * E) / m_i)
     return ConstantTemplate(_opi, 'rad s^-1')
+
+
+# ---- length constants ----
+def lD(kT, n):
+    """
+    Debye Length (in cm)
+
+    .. math::
+
+        \lambda_{D} = \sqrt{k_{B} T / (4 \pi n e^{2})}
+
+    :param float kT: temperature (in eV)
+    :param float n: number density (in cm^-3)
+    """
+    kT = kT * constants.e * 1.e7  # eV to ergs
+    _lD = math.sqrt(kT / (4.0 * math.pi * n)) / E
+    return ConstantTemplate(_lD, 'cm')
+
+
+def lpe(n_e):
+    """
+    electron-inertial length (cm)
+
+    .. math::
+
+        l_{pe} = c / \omega_{pe}
+
+    :param float n_e: electron number density (in cm^-3)
+    """
+    _lpe = C / ope(n_e)
+    return ConstantTemplate(_lpe, 'cm')
+
+
+def lpi(Z, n_i, m_i):
+    """
+    ion-inertial length (cm)
+
+    .. math::
+
+        l_{pi} = c / \omega_{pi}
+
+    :param int Z: charge number
+    :param float n_i: ion number density (in cm^-3)
+    :param float m_i: ion mass (in g)
+    """
+    _lpi = C / opi(Z, n_i, m_i)
+    return ConstantTemplate(_lpi, 'cm')
+
+
+# ---- velocity constants ----
+def cs(Z, kTe, m_i, gamma=1.5):
+    """
+    ion sound speed (cm/s)
+
+    .. math::
+
+        C_{s} = \sqrt{\gamma Z k T_{e} / m_{i}}
+
+    :param int Z: charge number
+    :param float kTe: electron temperature (in eV)
+    :param float m_i: ion mass (in g)
+    :param gamma: adiabatic index
+    """
+    # TODO: double check adiabatic index default value
+    kTe = kTe * constants.e * 1.e7 # eV to ergs
+    _cs = math.sqrt(gamma * Z * kTe / m_i)
+    return ConstantTemplate(_cs, 'cm s^-1')
+
+
+def VA(Bo, n_i, m_i):
+    """
+    Alfven Velocity (in cm/s)
+
+    .. math::
+
+        V_{A} = B_{o} / \sqrt{4 \pi n_{i} m_{i}}
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float n_i: ion number density (in cm^-3)
+    :param float m_i: ion mass (in g)
+    """
+    _VA = Bo / math.sqrt(4.0 * math.pi * n_i * m_i)
+    return ConstantTemplate(_VA, 'cm s^-1')
+
+
+def vTe(kTe):
+    """
+    electron thermal velocity (in cm/s)
+
+    .. math::
+
+        v_{T_{e}} = \sqrt{k T_{e} / m_{e}}
+
+    :param float kTe: electron temperature (in eV)
+    """
+    kTe = kTe * constants.e * 1.e7 # eV to erg
+    _vTe = math.sqrt(kTe / ME)
+    return ConstantTemplate(_vTe, 'cm s^-1')
+
+
+def vTi(kTi, m_i):
+    """
+    ion thermal velocity (in cm/s)
+
+    .. math::
+
+        v_{T_{i}} = \sqrt{k T_{i} / m_{i}}
+
+    :param float kTi: ion temperature (in eV)
+    :param float m_i: ion mass (in g)
+    """
+    kTi = kTi * constants.e * 1.e7 # eV to erg
+    _vTi = math.sqrt(kTi / m_i)
+    return ConstantTemplate(_vTi, 'cm s^-1')

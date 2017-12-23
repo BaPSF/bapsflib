@@ -88,7 +88,7 @@ def fci(Bo, m_i, Z):
     :param float m_i: ion-mass (in g)
     :param int Z: charge number
     """
-    _fci = oci(Z, Bo, m_i) / (2.0 * constants.pi)
+    _fci = oci(Bo, m_i, Z) / (2.0 * constants.pi)
     return ConstantTemplate(_fci, 'Hz')
 
 
@@ -120,7 +120,7 @@ def fpi(m_i, n_i, Z):
     :param float n_i: ion number density (in cm^-3)
     :param int Z: ion charge number
     """
-    _fpi = opi(Z, n_i, m_i) / (2.0 * math.pi)
+    _fpi = opi(m_i, n_i, Z) / (2.0 * math.pi)
     return ConstantTemplate(_fpi, 'Hz')
 
 
@@ -137,6 +137,7 @@ def fUH(Bo, n_e):
     """
     _fUH = oUH(Bo, n_e) / (2.0 * math.pi)
     return ConstantTemplate(_fUH, 'Hz')
+
 
 def oce(Bo):
     """
@@ -258,7 +259,7 @@ def lpi(m_i, n_i, Z):
     :param float n_i: ion number density (in cm^-3)
     :param int Z: ion charge number
     """
-    _lpi = C / opi(Z, n_i, m_i)
+    _lpi = C / opi(m_i, n_i, Z)
     return ConstantTemplate(_lpi, 'cm')
 
 
@@ -290,7 +291,7 @@ def rci(Bo, kTi, m_i, Z, **kwargs):
     :param float m_i: ion mass (in g)
     :param int Z: ion charge number
     """
-    _rci = vTi(kTi, m_i) / oci(Z, Bo, m_i)
+    _rci = vTi(kTi, m_i) / oci(Bo, m_i, Z)
     return ConstantTemplate(_rci, 'cm')
 
 
@@ -340,7 +341,7 @@ def vTe(kTe):
 
     :param float kTe: electron temperature (in eV)
     """
-    kTe = kTe * constants.e * 1.e7 # eV to erg
+    kTe = kTe * constants.e * 1.e7  # eV to erg
     _vTe = math.sqrt(kTe / ME)
     return ConstantTemplate(_vTe, 'cm s^-1')
 

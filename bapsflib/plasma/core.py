@@ -8,6 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+# TODO: add lower-hybrid resonance
+#
 """Core plasma paramters in (cgs)."""
 
 import math
@@ -74,7 +76,7 @@ def fce(Bo):
     return ConstantTemplate(_fce, 'Hz')
 
 
-def fci(Z, Bo, m_i):
+def fci(Bo, m_i, Z):
     """
     ion-cyclotron frequency (Hz)
 
@@ -82,9 +84,9 @@ def fci(Z, Bo, m_i):
 
         f_{ci} = \Omega_{ci} / ( 2 \pi ) = Z e B_{o} / (2 \pi m_{i} c)
 
-    :param int Z: charge number
     :param float Bo: magnetic-field (in Gauss)
     :param float m_i: ion-mass (in g)
+    :param int Z: charge number
     """
     _fci = oci(Z, Bo, m_i) / (2.0 * constants.pi)
     return ConstantTemplate(_fci, 'Hz')
@@ -105,7 +107,7 @@ def fpe(n_e):
     return ConstantTemplate(_fpe, 'Hz')
 
 
-def fpi(Z, n_i, m_i):
+def fpi(m_i, n_i, Z):
     """
     ion-plasma frequency (Hz)
 
@@ -114,13 +116,27 @@ def fpi(Z, n_i, m_i):
         f_{pi} &= \omega_{pi} / ( 2 \pi ) \\\\
                &= \sqrt{n_{i} (Z e)^{2} / (\pi m_{i})}
 
-    :param Z: ion charge number
-    :param float n_i: ion number density (in cm^-3)
     :param float m_i: ion mass (in g)
+    :param float n_i: ion number density (in cm^-3)
+    :param int Z: ion charge number
     """
     _fpi = opi(Z, n_i, m_i) / (2.0 * math.pi)
     return ConstantTemplate(_fpi, 'Hz')
 
+
+def fUH(Bo, n_e):
+    """
+    Upper-Hybrid Resonance frequency (Hz)
+
+    .. math::
+
+        f_{UH} = \omega_{UH} / (2 \pi)
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float n_e: electron numbeer density (in cm^-3)
+    """
+    _fUH = oUH(Bo, n_e) / (2.0 * math.pi)
+    return ConstantTemplate(_fUH, 'Hz')
 
 def oce(Bo):
     """
@@ -136,7 +152,7 @@ def oce(Bo):
     return ConstantTemplate(_oce, 'rad s^-1')
 
 
-def oci(Z, Bo, m_i):
+def oci(Bo, m_i, Z):
     """
     ion-cyclotron frequency (rads / s)
 
@@ -144,9 +160,9 @@ def oci(Z, Bo, m_i):
 
         \Omega_{ci} = Z e B_{o} / (m_{i} c)
 
-    :param int Z: charge number
     :param float Bo: magnetic-field (in Gauss)
     :param float m_i: ion-mass (in g)
+    :param int Z: charge number
     """
     _oci = (Z * E * Bo) / (m_i * C)
     return ConstantTemplate(_oci, 'rad s^-1')
@@ -166,7 +182,7 @@ def ope(n_e):
     return ConstantTemplate(_ope, 'rad s^-1')
 
 
-def opi(Z, n_i, m_i):
+def opi(m_i, n_i, Z):
     """
     ion-plasma frequency (in rad/s)
 
@@ -174,12 +190,29 @@ def opi(Z, n_i, m_i):
 
         \omega_{pi}^{2} = 4 \pi n_{i} (Z e)^{2} / m_{i}
 
-    :param Z: ion charge number
-    :param float n_i: ion number density (in cm^-3)
     :param float m_i: ion mass (in g)
+    :param float n_i: ion number density (in cm^-3)
+    :param int Z: ion charge number
     """
     _opi = math.sqrt(4 * math.pi * n_i * (Z * E) * (Z * E) / m_i)
     return ConstantTemplate(_opi, 'rad s^-1')
+
+
+def oUH(Bo, n_e):
+    """
+    Upper-Hybrid Resonance frequency (rad/s)
+
+    .. math::
+
+        \omega_{UH}^{2} =\omega_{pe}^{2} + \Omega_{ce}^{2}
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float n_e: electron number density (in cm^-3)
+    """
+    _ope = ope(n_e)
+    _oce = oce(Bo)
+    _ouh = math.sqrt((_ope ** 2) + (_oce ** 2))
+    return ConstantTemplate(_ouh, 'rad s^-1')
 
 
 # ---- length constants ----
@@ -213,7 +246,7 @@ def lpe(n_e):
     return ConstantTemplate(_lpe, 'cm')
 
 
-def lpi(Z, n_i, m_i):
+def lpi(m_i, n_i, Z):
     """
     ion-inertial length (cm)
 
@@ -221,16 +254,48 @@ def lpi(Z, n_i, m_i):
 
         l_{pi} = c / \omega_{pi}
 
-    :param int Z: charge number
-    :param float n_i: ion number density (in cm^-3)
     :param float m_i: ion mass (in g)
+    :param float n_i: ion number density (in cm^-3)
+    :param int Z: ion charge number
     """
     _lpi = C / opi(Z, n_i, m_i)
     return ConstantTemplate(_lpi, 'cm')
 
 
+def rce(Bo, kTe):
+    """
+    electron gyroradius (cm)
+
+    .. math::
+
+        r_{ce} = v_{T_{e}} / \Omega_{ce}
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float kTe: electron temperature (in eV)
+    """
+    _rce = vTe(kTe) / oce(Bo)
+    return ConstantTemplate(_rce, 'cm')
+
+
+def rci(Bo, kTi, m_i, Z, **kwargs):
+    """
+    ion gyroradius (cm)
+
+    .. math::
+
+        r_{ci} = v_{T_{i}} / \Omega_{ci}
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float kTi: ion temperature (in eV)
+    :param float m_i: ion mass (in g)
+    :param int Z: ion charge number
+    """
+    _rci = vTi(kTi, m_i) / oci(Z, Bo, m_i)
+    return ConstantTemplate(_rci, 'cm')
+
+
 # ---- velocity constants ----
-def cs(Z, kTe, m_i, gamma=1.5):
+def cs(kTe, m_i, Z, gamma=1.5):
     """
     ion sound speed (cm/s)
 
@@ -238,10 +303,10 @@ def cs(Z, kTe, m_i, gamma=1.5):
 
         C_{s} = \sqrt{\gamma Z k T_{e} / m_{i}}
 
-    :param int Z: charge number
     :param float kTe: electron temperature (in eV)
     :param float m_i: ion mass (in g)
-    :param gamma: adiabatic index
+    :param int Z: charge number
+    :param float gamma: adiabatic index
     """
     # TODO: double check adiabatic index default value
     kTe = kTe * constants.e * 1.e7 # eV to ergs
@@ -249,7 +314,7 @@ def cs(Z, kTe, m_i, gamma=1.5):
     return ConstantTemplate(_cs, 'cm s^-1')
 
 
-def VA(Bo, n_i, m_i):
+def VA(Bo, m_i, n_i):
     """
     Alfven Velocity (in cm/s)
 
@@ -258,8 +323,8 @@ def VA(Bo, n_i, m_i):
         V_{A} = B_{o} / \sqrt{4 \pi n_{i} m_{i}}
 
     :param float Bo: magnetic field (in Gauss)
-    :param float n_i: ion number density (in cm^-3)
     :param float m_i: ion mass (in g)
+    :param float n_i: ion number density (in cm^-3)
     """
     _VA = Bo / math.sqrt(4.0 * math.pi * n_i * m_i)
     return ConstantTemplate(_VA, 'cm s^-1')

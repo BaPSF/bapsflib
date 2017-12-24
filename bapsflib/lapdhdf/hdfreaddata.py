@@ -20,67 +20,6 @@ from ..plasma import core
 class hdfReadData(np.recarray):
     """
     Reads the data out of the HDF5 file:
-
-    .. py:data:: info
-
-        A dictionary container of metadata for the extracted data. The
-        dict() keys are:
-
-        .. list-table::
-            :widths: 5 3 11
-
-            * - :py:const:`hdf file`
-              - `str`
-              - HDF5 file name the data was retrieved from
-            * - :py:const:`dataset name`
-              - `str`
-              - name of the dataset
-            * - :py:const:`dataset path`
-              - `str`
-              - path to said dataset in the HDF5 file
-            * - :py:const:`digitizer`
-              - `str`
-              - digitizer group name
-            * - :py:const:`adc`
-              - `str`
-              - analog-digital converter in which the data was recorded
-                on
-            * - :py:const:`bit`
-              - `int`
-              - bit resolution for the adc
-            * - :py:const:`sample rate`
-              - (`int`, `float`)
-              - tuple containing sample rate, e.g. (100.0, 'MHz')
-            * - :py:const:`board`
-              - `int`
-              - board that the probe was connected to
-            * - :py:const:`channel`
-              - `int`
-              - channel of the board that the probe was connected to
-            * - :py:const:`voltage offset`
-              - `float`
-              - voltage offset of the digitized signal
-            * - :py:const:`probe name`
-              - `str`
-              - name of deployed probe...empty for user to use at
-                his/her discretion
-            * - :py:const:`port`
-              - (`int`, `str`)
-              - 2-element tuple indicating which port the probe was
-                deployed on, eg. (19, 'W')
-
-    .. 'port' -- 2-element tuple indicating which port the probe was
-                deployed on. e.g. (19, 'W') => deployed on port 19 on
-                the west side of the machine. Second elements
-                descriptors should follow:
-                  'T'  = top
-                  'TW' = top-west
-                  'W'  = west
-                  'BW' = bottom-west
-                  'B'  = bottom
-                  'BE' = bottome-east
-                  'E'  = east
-                  'TE' = top-east
     """
 
     # Extracting Data:
@@ -574,7 +513,7 @@ class hdfReadData(np.recarray):
                         'keep_bits=True'
 
         # assign dataset meta-info
-        obj.info = {
+        obj._info = {
             'hdf file': hdf_file.filename.split('/')[-1],
             'dataset name': dname,
             'dataset path': dpath,
@@ -589,7 +528,8 @@ class hdfReadData(np.recarray):
             'channel': channel,
             'voltage offset': voffset,
             'probe name': None,
-            'port': (None, None)}
+            'port': (None, None)
+        }
 
         # plasma parameter dict
         obj._plasma = {
@@ -609,7 +549,7 @@ class hdfReadData(np.recarray):
         # convert to voltage
         if not keep_bits:
             offset = abs(obj.info['voltage offset'])
-            # dv = 2.0 * offset / (2. ** obj.info['bit'] - 1.)
+            # dv = 2.0 * offset / (2. ** obj._info['bit'] - 1.)
             obj['signal'] = obj['signal'].astype(np.float32, copy=False)
             obj['signal'] = (obj.dv * obj['signal']) - offset
 
@@ -636,25 +576,26 @@ class hdfReadData(np.recarray):
         if obj is None:
             return
 
-        # Define info attribute
-        # - getattr() searches obj for the 'info' attribute. If the
+        # Define _info attribute
+        # - getattr() searches obj for the '_info' attribute. If the
         #   attribute exists, then it's returned. If the attribute does
         #   NOT exist, then the 3rd arg is returned as a default value.
-        self.info = getattr(obj, 'info',
-                            {'hdf file': None,
-                             'dataset name': None,
-                             'dataset path': None,
-                             'configuration name': None,
-                             'adc': None,
-                             'bit': None,
-                             'sample rate': (None, 'MHz'),
-                             'sample average': None,
-                             'shot average': None,
-                             'board': None,
-                             'channel': None,
-                             'voltage offset': None,
-                             'probe name': None,
-                             'port': (None, None)})
+        self._info = getattr(obj, '_info', {
+            'hdf file': None,
+            'dataset name': None,
+            'dataset path': None,
+            'configuration name': None,
+            'adc': None,
+            'bit': None,
+            'sample rate': (None, 'MHz'),
+            'sample average': None,
+            'shot average': None,
+            'board': None,
+            'channel': None,
+            'voltage offset': None,
+            'probe name': None,
+            'port': (None, None)
+        })
 
         # Define plasma attribute
         self._plasma = getattr(obj, '_plasma', {
@@ -694,6 +635,81 @@ class hdfReadData(np.recarray):
         .. Warning:: Not implemented yet
         """
         raise NotImplementedError
+
+    @property
+    def info(self):
+        """
+        A dictionary of metadata for the extracted data. The
+        dict() keys are:
+
+        .. list-table::
+            :widths: 5 3 11
+
+            * - :const:`hdf file`
+              - `str`
+              - HDF5 file name the data was retrieved from
+            * - :const:`dataset name`
+              - `str`
+              - name of the dataset
+            * - :const:`dataset path`
+              - `str`
+              - path to said dataset in the HDF5 file
+            * - :const:`digitizer`
+              - `str`
+              - digitizer group name
+            * - :const:`configuration name`
+              - `str`
+              - name of data configuration
+            * - :const:`adc`
+              - `str`
+              - analog-digital converter in which the data was recorded
+                on
+            * - :const:`bit`
+              - `int`
+              - bit resolution for the adc
+            * - :const:`sample rate`
+              - (`int`, `float`)
+              - tuple containing sample rate, e.g. (100.0, 'MHz')
+            * - :const:`sample rate`
+              - `int`
+              - (hardware sampling) number of data sample average
+                together
+            * - :const:`shot average`
+              - `int`
+              - (software averaging) number of shot sequences averaged
+                together
+            * - :const:`board`
+              - `int`
+              - board that the probe was connected to
+            * - :const:`channel`
+              - `int`
+              - channel of the board that the probe was connected to
+            * - :const:`voltage offset`
+              - `float`
+              - voltage offset of the digitized signal
+            * - :const:`probe name`
+              - `str`
+              - name of deployed probe...empty for user to use at
+                his/her discretion
+            * - :const:`port`
+              - (`int`, `str`)
+              - 2-element tuple indicating which port the probe was
+                deployed on, eg. (19, 'W')
+
+        .. 'port' -- 2-element tuple indicating which port the probe was
+                     deployed on. e.g. (19, 'W') => deployed on port 19
+                     on the west side of the machine. Second elements
+                     descriptors should follow:
+                     'T'  = top
+                     'TW' = top-west
+                     'W'  = west
+                     'BW' = bottom-west
+                     'B'  = bottom
+                     'BE' = bottome-east
+                     'E'  = east
+                     'TE' = top-east
+        """
+        return self._info
 
     @property
     def dt(self):
@@ -741,6 +757,62 @@ class hdfReadData(np.recarray):
         """
         Dictionary of plasma parameters. (All quantities are in cgs
         units except temperature is in eV)
+
+        +----------------+---------------------------------------------+
+        | Base Values                                                  |
+        +================+=============================================+
+        | :const:`Bo`    | magnetic field                              |
+        +----------------+---------------------------------------------+
+        | :const:`kT`    | temperature (generic)                       |
+        +----------------+---------------------------------------------+
+        | :const:`kTe`   | electron temperature                        |
+        +----------------+---------------------------------------------+
+        | :const:`kTi`   | ion temperature                             |
+        +----------------+---------------------------------------------+
+        | :const:`gamma` | adiabatic index                             |
+        +----------------+---------------------------------------------+
+        | :const:`m_e`   | electron mass                               |
+        +----------------+---------------------------------------------+
+        | :const:`m_i`   | ion mass                                    |
+        +----------------+---------------------------------------------+
+        | :const:`n`     | plasma number density                       |
+        +----------------+---------------------------------------------+
+        | :const:`n_e`   | electron number density                     |
+        +----------------+---------------------------------------------+
+        | :const:`n_i`   | ion number density                          |
+        +----------------+---------------------------------------------+
+        | :const:`Z`     | ion charge number                           |
+        +----------------+---------------------------------------------+
+        | Calculated Values                                            |
+        +----------------+---------------------------------------------+
+        | :const:`fce`   | electron cyclotron frequency                |
+        +----------------+---------------------------------------------+
+        | :const:`fci`   | ion cyclotron frequency                     |
+        +----------------+---------------------------------------------+
+        | :const:`fpe`   | electron plasma frequency                   |
+        +----------------+---------------------------------------------+
+        | :const:`fpi`   | ion plasma frequency                        |
+        +----------------+---------------------------------------------+
+        | :const:`fUH`   | Upper-Hybrid Resonance frequency            |
+        +----------------+---------------------------------------------+
+        | :const:`lD`    | Debye Length                                |
+        +----------------+---------------------------------------------+
+        | :const:`lpe`   | electron-inertial length                    |
+        +----------------+---------------------------------------------+
+        | :const:`lpi`   | ion-inertial length                         |
+        +----------------+---------------------------------------------+
+        | :const:`rce`   | electron gyroradius                         |
+        +----------------+---------------------------------------------+
+        | :const:`rci`   | ion gyroradius                              |
+        +----------------+---------------------------------------------+
+        | :const:`cs`    | ion sound speed                             |
+        +----------------+---------------------------------------------+
+        | :const:`VA`    | Alfven speed                                |
+        +----------------+---------------------------------------------+
+        | :const:`vTe`   | electron thermal velocity                   |
+        +----------------+---------------------------------------------+
+        | :const:`vTi`   | ion thermal velocity                        |
+        +----------------+---------------------------------------------+
         """
         return self._plasma
 

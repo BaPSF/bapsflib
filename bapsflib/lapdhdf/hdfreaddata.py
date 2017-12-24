@@ -593,17 +593,17 @@ class hdfReadData(np.recarray):
 
         # plasma parameter dict
         obj._plasma = {
-            'Bo': (None, 'Gauss'),
-            'kT': (None, 'eV'),
-            'kTe': (None, 'eV'),
-            'kTi': (None, 'eV'),
-            'gamma': (1.5, 'arb'),
-            'm_e': (float(core.ME), core.ME.unit),
-            'm_i': (None, 'g'),
-            'n': (None, 'cm^-3'),
-            'n_e': (None, 'cm^-3'),
-            'n_i': (None, 'cm^-3'),
-            'Z': (None, 'arb')
+            'Bo': None,
+            'kT': None,
+            'kTe': None,
+            'kTi': None,
+            'gamma': core.FloatUnit(1.5, 'arb'),
+            'm_e': core.ME,
+            'm_i': None,
+            'n': None,
+            'n_e': None,
+            'n_i': None,
+            'Z': None
         }
 
         # convert to voltage
@@ -658,17 +658,17 @@ class hdfReadData(np.recarray):
 
         # Define plasma attribute
         self._plasma = getattr(obj, '_plasma', {
-            'Bo': (None, 'Gauss'),
-            'kT': (None, 'eV'),
-            'kTe': (None, 'eV'),
-            'kTi': (None, 'eV'),
-            'gamma': (1.5, 'arb'),
-            'm_e': (float(core.ME), core.ME.unit),
-            'm_i': (None, 'g'),
-            'n': (None, 'cm^-3'),
-            'n_e': (None, 'cm^-3'),
-            'n_i': (None, 'cm^-3'),
-            'Z': (None, 'arb')
+            'Bo': None,
+            'kT': None,
+            'kTe': None,
+            'kTi': None,
+            'gamma': core.FloatUnit(1.5, 'arb'),
+            'm_e': core.ME,
+            'm_i': None,
+            'n': None,
+            'n_e': None,
+            'n_i': None,
+            'Z': None
         })
 
     def __init__(self, *args, **kwargs):
@@ -758,72 +758,59 @@ class hdfReadData(np.recarray):
         :param float gamma: adiabatic index (arb.)
         """
         # define base values
-        self._plasma['Bo'] = Bo
-        self._plasma['kTe'] = kTe
-        self._plasma['kTi'] = kTi
-        self._plasma['m_i'] = m_i
-        self._plasma['n_e'] = n_e
-        self._plasma['Z'] = Z
+        self._plasma['Bo'] = core.FloatUnit(Bo, 'G')
+        self._plasma['kTe'] = core.FloatUnit(kTe, 'eV')
+        self._plasma['kTi'] = core.FloatUnit(kTi, 'eV')
+        self._plasma['m_i'] = core.FloatUnit(m_i, 'g')
+        self._plasma['n_e'] = core.FloatUnit(n_e, 'cm^-3')
+        self._plasma['Z'] = core.IntUnit(Z, 'arb')
 
         # define gamma (adiabatic index)
         # - default = 1.5
         if gamma is not None:
-            self._plasma['gamma'] = gamma
+            self._plasma['gamma'] = core.FloatUnit(gamma, 'arb')
 
         # define plasma temperature
         # - if omitted then assumed kTe
         # TODO: double check assumption
         if 'kT' in kwargs:
-            self._plasma['kT'] = kwargs['kT']
+            self._plasma['kT'] = core.FloatUnit(kwargs['kT'], 'eV')
         else:
-            self._plasma['kT'] = kTe
+            self._plasma['kT'] = core.FloatUnit(kTe, 'eV')
 
         # define plasma number density
         # - if omitted then assumed n_e
         if 'n' in kwargs:
-            self._plasma['n'] = kwargs['n']
+            self._plasma['n'] = core.FloatUnit(kwargs['n'], 'cm^-3')
         else:
-            self._plasma['n'] = n_e
+            self._plasma['n'] = core.FloatUnit(n_e, 'cm^-3')
 
         # define ion number density
         if 'n_i' in kwargs:
-            self._plasma['n_i'] = kwargs['n_i']
+            self._plasma['n_i'] = core.FloatUnit(kwargs['n_i'], 'cm^-3')
         else:
-            self._plasma['n_i'] = n_e / float(Z)
+            self._plasma['n_i'] = core.FloatUnit(n_e / float(Z),
+                                                 'cm^-3')
 
         # add key frequencies
-        _fce = core.fce(**self._plasma)
-        _fci = core.fci(**self._plasma)
-        _fpe = core.fpe(**self._plasma)
-        _fpi = core.fpi(**self._plasma)
-        _fUH = core.fUH(**self._plasma)
-        self._plasma['fce'] = (float(_fce), _fce.unit)
-        self._plasma['fci'] = (float(_fci), _fci.unit)
-        self._plasma['fpe'] = (float(_fpe), _fpe.unit)
-        self._plasma['fpi'] = (float(_fpi), _fpi.unit)
-        self._plasma['fUH'] = (float(_fUH), _fUH.unit)
+        self._plasma['fce'] = core.fce(**self._plasma)
+        self._plasma['fci'] = core.fci(**self._plasma)
+        self._plasma['fpe'] = core.fpe(**self._plasma)
+        self._plasma['fpi'] = core.fpi(**self._plasma)
+        self._plasma['fUH'] = core.fUH(**self._plasma)
 
         # add key lengths
-        _lD = core.lD(**self._plasma)
-        _lpe = core.lpe(**self._plasma)
-        _lpi = core.lpi(**self._plasma)
-        _rce = core.rce(**self._plasma)
-        _rci = core.rci(**self._plasma)
-        self._plasma['lD'] = (float(_lD), _lD.unit)
-        self._plasma['lpe'] = (float(_lpe), _lpe.unit)
-        self._plasma['lpi'] = (float(_lpi), _lpi.unit)
-        self._plasma['rce'] = (float(_rce), _rce.unit)
-        self._plasma['rci'] = (float(_rci), _rci.unit)
+        self._plasma['lD'] = core.lD(**self._plasma)
+        self._plasma['lpe'] = core.lpe(**self._plasma)
+        self._plasma['lpi'] = core.lpi(**self._plasma)
+        self._plasma['rce'] = core.rce(**self._plasma)
+        self._plasma['rci'] = core.rci(**self._plasma)
 
         # add key velocities
-        _cs = core.cs(**self._plasma)
-        _VA = core.VA(**self._plasma)
-        _vTe = core.vTe(**self._plasma)
-        _vTi = core.vTi(**self._plasma)
-        self._plasma['cs'] = (float(_cs), _cs.unit)
-        self._plasma['VA'] = (float(_VA), _VA.unit)
-        self._plasma['vTe'] = (float(_vTe), _vTe.unit)
-        self._plasma['vTi'] = (float(_vTi), _vTi.unit)
+        self._plasma['cs'] = core.cs(**self._plasma)
+        self._plasma['VA'] = core.VA(**self._plasma)
+        self._plasma['vTe'] = core.vTe(**self._plasma)
+        self._plasma['vTi'] = core.vTi(**self._plasma)
 
 
 def condition_shotnum_int(shotnum, dheader, shotnumkey):

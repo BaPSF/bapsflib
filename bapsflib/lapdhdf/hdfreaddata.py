@@ -765,6 +765,10 @@ class hdfReadData(np.recarray):
         self._plasma['n_e'] = core.FloatUnit(n_e, 'cm^-3')
         self._plasma['Z'] = core.IntUnit(Z, 'arb')
 
+        # define ion number density
+        self._plasma['n_i'] = core.FloatUnit(
+            self._plasma['n_e'] / self._plasma['Z'], 'cm^-3')
+
         # define gamma (adiabatic index)
         # - default = 1.5
         if gamma is not None:
@@ -785,13 +789,47 @@ class hdfReadData(np.recarray):
         else:
             self._plasma['n'] = core.FloatUnit(n_e, 'cm^-3')
 
-        # define ion number density
-        if 'n_i' in kwargs:
-            self._plasma['n_i'] = core.FloatUnit(kwargs['n_i'], 'cm^-3')
-        else:
-            self._plasma['n_i'] = core.FloatUnit(n_e / float(Z),
-                                                 'cm^-3')
+        # add key plasma constants
+        self._update_plasma_constants()
 
+    def set_plamsa_value(self, key, value):
+        # keys can be:
+        #   Bo, gamma, kT, kTe, kTi, m_i, n, n_e, Z
+        #
+        # set plasma value
+        if key == 'Bo':
+            self._plasma['Bo'] = core.FloatUnit(value, 'G')
+        elif key == 'gamma':
+            self._plasma['gamma'] = core.FloatUnit(value, 'arb')
+        elif key in ['kT', 'kTe', 'kTi']:
+            self._plasma[key] = core.FloatUnit(value, 'eV')
+
+            if key == 'kTe' and self._plasma['kt'] is None:
+                self._plasma['kT'] = self._plasma[key]
+        elif key == 'm_i':
+            self._plasma[key] = core.FloatUnit(value, 'g')
+        elif key in ['n', 'n_e']:
+            self._plasma[key] = core.FloatUnit(value, 'cm^-3')
+
+            # re-calc n_i and n
+            if key == 'n_e':
+                self._plasma['n_i'] = core.FloatUnit(
+                    self._plasma['n_e'] / self._plasma['Z'], 'cm^-3')
+
+                if self._plasma['n'] is None:
+                    self._plasma['n'] = self._plasma['n_e']
+        elif key == 'Z':
+            self._plasma[key] = core.IntUnit(value, 'arb')
+
+            # re-calc n_i
+            self._plasma['n_i'] = \
+                core.FloatUnit(self._plasma['n_e'] / self._plasma['Z'],
+                               'cm^-3')
+
+        # update key plasma constants
+        self._update_plasma_constants()
+
+    def _update_plasma_constants(self):
         # add key frequencies
         self._plasma['fce'] = core.fce(**self._plasma)
         self._plasma['fci'] = core.fci(**self._plasma)

@@ -699,7 +699,7 @@ class hdfReadData(np.recarray):
     def dt(self):
         """
         :return: time-step size (in sec) calculated from the
-            'sample rate' item in :attr:`self.info`.
+            'sample rate' item in :attr:`info`.
         :rtype: float
         """
         # define unit conversions
@@ -721,7 +721,7 @@ class hdfReadData(np.recarray):
     def dv(self):
         """
         :return: voltage-step size (in volts) calculated from the 'bit'
-            and 'voltage offset' items in :attr:`self.info`.
+            and 'voltage offset' items in :attr:`info`.
         :rtype: float
         """
         dv = (2.0 * abs(self.info['voltage offset']) /
@@ -739,7 +739,8 @@ class hdfReadData(np.recarray):
     @property
     def plasma(self):
         """
-        Dictionary of plasma parameters
+        Dictionary of plasma parameters. (All quantities are in cgs
+        units except temperature is in eV)
         """
         return self._plasma
 
@@ -793,9 +794,13 @@ class hdfReadData(np.recarray):
         self._update_plasma_constants()
 
     def set_plamsa_value(self, key, value):
-        # keys can be:
-        #   Bo, gamma, kT, kTe, kTi, m_i, n, n_e, Z
-        #
+        """
+        Re-define one of the base plasma values (Bo, gamma, kT, kTe,
+        kTi, m_i, n, n_e, or Z) in the :attr:`plasma` dictionary.
+
+        :param str key: one of the base plasma values
+        :param value: value for key
+        """
         # set plasma value
         if key == 'Bo':
             self._plasma['Bo'] = core.FloatUnit(value, 'G')
@@ -830,6 +835,10 @@ class hdfReadData(np.recarray):
         self._update_plasma_constants()
 
     def _update_plasma_constants(self):
+        """
+        Updates the calculated plasma constants (fci, fce, fpe, etc.) in
+        :attr:`plasma`.
+        """
         # add key frequencies
         self._plasma['fce'] = core.fce(**self._plasma)
         self._plasma['fci'] = core.fci(**self._plasma)

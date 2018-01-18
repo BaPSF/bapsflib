@@ -91,9 +91,12 @@ def fce(Bo, **kwargs):
 
     .. math::
 
-        f_{ce} = \Omega_{ce} / ( 2 \pi ) = e B_{o} / (2 \pi m_{e} c)
+        f_{ce} = \\frac{\Omega_{ce}}{2 \pi}
+        = -\\frac{|e| B_{o}}{2 \pi m_{e} c}
 
     :param float Bo: magnetic field (in Gauss)
+
+    .. note:: see function :func:`oce`
     """
     _fce = oce(Bo) / (2.0 * math.pi)
     return FloatUnit(_fce, 'Hz')
@@ -105,11 +108,14 @@ def fci(Bo, m_i, Z, **kwargs):
 
     .. math::
 
-        f_{ci} = \Omega_{ci} / ( 2 \pi ) = Z e B_{o} / (2 \pi m_{i} c)
+        f_{ci} = \\frac{\Omega_{ci}}{2 \pi}
+        = \\frac{Z |e| B_{o}}{2 \pi m_{i} c}
 
     :param float Bo: magnetic-field (in Gauss)
     :param float m_i: ion-mass (in g)
     :param int Z: charge number
+
+    .. note:: see function :func:`oci`
     """
     _fci = oci(Bo, m_i, Z) / (2.0 * constants.pi)
     return FloatUnit(_fci, 'Hz')
@@ -139,10 +145,12 @@ def fpe(n_e, **kwargs):
 
     .. math::
 
-        f_{pe} &= \omega_{pe} / ( 2 \pi ) \\\\
-               &= \sqrt{n_{e} e^{2} / (\pi m_{e})}
+        f_{pe} = \\frac{\omega_{pe}}{2 \pi}
+        = \sqrt{\\frac{n_{e} e^{2}}{\pi m_{e}}}
 
     :param float n_e: electron number density (in cm^-3)
+
+    .. note:: see function :func:`ope`
     """
     _fpe = ope(n_e) / (2.0 * math.pi)
     return FloatUnit(_fpe, 'Hz')
@@ -154,12 +162,14 @@ def fpi(m_i, n_i, Z, **kwargs):
 
     .. math::
 
-        f_{pi} &= \omega_{pi} / ( 2 \pi ) \\\\
-               &= \sqrt{n_{i} (Z e)^{2} / (\pi m_{i})}
+        f_{pi} = \\frac{\omega_{pi}}{2 \pi}
+        = \sqrt{\\frac{n_{i} (Z e)^{2}}{\pi m_{i}}}
 
     :param float m_i: ion mass (in g)
     :param float n_i: ion number density (in cm^-3)
     :param int Z: ion charge number
+
+    .. note:: see function :func:`opi`
     """
     _fpi = opi(m_i, n_i, Z) / (2.0 * math.pi)
     return FloatUnit(_fpi, 'Hz')
@@ -171,10 +181,12 @@ def fUH(Bo, n_e, **kwargs):
 
     .. math::
 
-        f_{UH} = \omega_{UH} / (2 \pi)
+        f_{UH} = \\frac{\omega_{UH}}{2 \pi}
 
     :param float Bo: magnetic field (in Gauss)
     :param float n_e: electron number density (in cm^-3)
+
+    .. note:: see function :func:`oUH`
     """
     _fUH = oUH(Bo, n_e) / (2.0 * math.pi)
     return FloatUnit(_fUH, 'Hz')
@@ -186,7 +198,7 @@ def oce(Bo, **kwargs):
 
     .. math::
 
-        \Omega_{ce} = e B_{o} / (m_{e} c)
+        \Omega_{ce} = -\\frac{|e| B_{o}}{m_{e} c}
 
     :param float Bo: magnetic-field (in Gauss)
     """
@@ -200,7 +212,7 @@ def oci(Bo, m_i, Z, **kwargs):
 
     .. math::
 
-        \Omega_{ci} = Z e B_{o} / (m_{i} c)
+        \Omega_{ci} = \\frac{Z |e| B_{o}}{m_{i} c}
 
     :param float Bo: magnetic-field (in Gauss)
     :param float m_i: ion-mass (in g)
@@ -248,7 +260,7 @@ def ope(n_e, **kwargs):
 
     .. math::
 
-        \omega_{pe}^{2} = 4 \pi n_{e} e^2 / m_{e}
+        \omega_{pe}^{2} = \\frac{4 \pi n_{e} e^2}{m_{e}}
 
     :param float n_e: electron number density (in cm^-3)
     """
@@ -262,7 +274,7 @@ def opi(m_i, n_i, Z, **kwargs):
 
     .. math::
 
-        \omega_{pi}^{2} = 4 \pi n_{i} (Z e)^{2} / m_{i}
+        \omega_{pi}^{2} = \\frac{4 \pi n_{i} (Z e)^{2}}{m_{i}}
 
     :param float m_i: ion mass (in g)
     :param float n_i: ion number density (in cm^-3)

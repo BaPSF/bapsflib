@@ -115,6 +115,24 @@ def fci(Bo, m_i, Z, **kwargs):
     return FloatUnit(_fci, 'Hz')
 
 
+def fLH(Bo, m_i, n_i, Z, **kwargs):
+    """
+    Lower-Hybrid Resonance frequency (Hz)
+
+    .. math::
+        f_{LH} = \\frac{\omega_{LH}}{2 \pi}
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float m_i: ion mass (in g)
+    :param float n_i: ion number density (in cm^-3)
+    :param int Z: ion charge number
+
+    .. note:: for details see function :func:`oLH`
+    """
+    _fLH = oLH(Bo, m_i, n_i, Z) / (2.0 * math.pi)
+    return FloatUnit(_fLH, 'Hz')
+
+
 def fpe(n_e, **kwargs):
     """
     electron-plasma frequency (Hz)
@@ -156,7 +174,7 @@ def fUH(Bo, n_e, **kwargs):
         f_{UH} = \omega_{UH} / (2 \pi)
 
     :param float Bo: magnetic field (in Gauss)
-    :param float n_e: electron numbeer density (in cm^-3)
+    :param float n_e: electron number density (in cm^-3)
     """
     _fUH = oUH(Bo, n_e) / (2.0 * math.pi)
     return FloatUnit(_fUH, 'Hz')
@@ -172,7 +190,7 @@ def oce(Bo, **kwargs):
 
     :param float Bo: magnetic-field (in Gauss)
     """
-    _oce = (E * Bo) / (ME * C)
+    _oce = (-E * Bo) / (ME * C)
     return FloatUnit(_oce, 'rad s^-1')
 
 
@@ -190,6 +208,38 @@ def oci(Bo, m_i, Z, **kwargs):
     """
     _oci = (Z * E * Bo) / (m_i * C)
     return FloatUnit(_oci, 'rad s^-1')
+
+
+def oLH(Bo, m_i, n_i, Z, **kwargs):
+    """
+    Lower-Hybrid Resonance frequency (rad/s)
+
+    .. math::
+        \\frac{1}{\omega_{LH}^{2}}=
+        \\frac{1}{\Omega_{i}^{2}+\omega_{pi}^{2}}
+        + \\frac{1}{\\lvert \Omega_{e}\Omega_{i} \\rvert}
+
+    .. note::
+
+        This form is for a quasi-neutral plasma that satisfies
+
+        .. math::
+            \\frac{Z m_{e}}{m_{i}} \ll
+            1 - \\left(\\frac{V_{A}}{c}\\right)^{2}
+
+    :param float Bo: magnetic field (in Gauss)
+    :param float m_i: ion mass (in g)
+    :param float n_i: ion number density (in cm^-3)
+    :param int Z: ion charge number
+    """
+    _args = {'Bo': Bo, 'm_i': m_i, 'n_i': n_i, 'Z': Z}
+    _opi = ope(**_args)
+    _oce = oce(**_args)
+    _oci = oci(**_args)
+    first_term = 1.0 / ((_oci ** 2) + (_opi ** 2))
+    second_term = 1.0 / math.fabs(_oce * _oci)
+    _olh = math.sqrt(1.0 / (first_term + second_term))
+    return FloatUnit(_olh, 'rad s^-1')
 
 
 def ope(n_e, **kwargs):
@@ -297,7 +347,7 @@ def rce(Bo, kTe, **kwargs):
     :param float Bo: magnetic field (in Gauss)
     :param float kTe: electron temperature (in eV)
     """
-    _rce = vTe(kTe) / oce(Bo)
+    _rce = vTe(kTe) / abs(oce(Bo))
     return FloatUnit(_rce, 'cm')
 
 
@@ -319,13 +369,18 @@ def rci(Bo, kTi, m_i, Z, **kwargs):
 
 
 # ---- velocity constants ----
-def cs(kTe, m_i, Z, gamma=1.5, **kwargs):
+def cs(kTe, m_i, Z, gamma=1.0, **kwargs):
     """
     ion sound speed (cm/s)
 
     .. math::
 
         C_{s} = \sqrt{\gamma Z k T_{e} / m_{i}}
+
+    .. note::
+
+        By default :math:`\gamma=1` for the case of
+        :math:`T_{i}\ll T_{e}.`
 
     :param float kTe: electron temperature (in eV)
     :param float m_i: ion mass (in g)

@@ -9,6 +9,9 @@
 #   license terms and contributor agreement.
 #
 # TODO: add plasma betas (electron, ion, and total)
+# TODO: add Coulomb Logarithm
+# TODO: add collision frequencies
+# TODO: add mean-free-paths
 #
 """Core plasma paramters in (cgs)."""
 
@@ -245,7 +248,7 @@ def oLH(Bo, m_i, n_i, Z, **kwargs):
     :param int Z: ion charge number
     """
     _args = {'Bo': Bo, 'm_i': m_i, 'n_i': n_i, 'Z': Z}
-    _opi = ope(**_args)
+    _opi = opi(**_args)
     _oce = oce(**_args)
     _oci = oci(**_args)
     first_term = 1.0 / ((_oci ** 2) + (_opi ** 2))

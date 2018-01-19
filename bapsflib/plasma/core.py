@@ -395,12 +395,12 @@ def cs(kTe, m_i, Z, gamma=1.0, **kwargs):
 
     .. math::
 
-        C_{s} = \sqrt{\gamma Z k T_{e} / m_{i}}
+        C_{s} = \sqrt{\\frac{\gamma Z k T_{e}}{m_{i}}}
 
     .. note::
 
-        By default :math:`\gamma=1` for the case of
-        :math:`T_{i}\ll T_{e}.`
+        :math:`\gamma=1` for the case of :math:`T_{i}\ll T_{e}`
+        (DEFAULT)
 
     :param float kTe: electron temperature (in eV)
     :param float m_i: ion mass (in g)
@@ -415,11 +415,11 @@ def cs(kTe, m_i, Z, gamma=1.0, **kwargs):
 
 def VA(Bo, m_i, n_i, **kwargs):
     """
-    Alfven Velocity (in cm/s)
+    Alfvén Velocity (in cm/s)
 
     .. math::
 
-        V_{A} = B_{o} / \sqrt{4 \pi n_{i} m_{i}}
+        V_{A} = \\frac{B_{o}}{\sqrt{4 \pi n_{i} m_{i}}}
 
     :param float Bo: magnetic field (in Gauss)
     :param float m_i: ion mass (in g)
@@ -435,7 +435,7 @@ def vTe(kTe, **kwargs):
 
     .. math::
 
-        v_{T_{e}} = \sqrt{k T_{e} / m_{e}}
+        v_{T_{e}} = \sqrt{\\frac{k T_{e}}{m_{e}}}
 
     :param float kTe: electron temperature (in eV)
     """
@@ -450,7 +450,7 @@ def vTi(kTi, m_i, **kwargs):
 
     .. math::
 
-        v_{T_{i}} = \sqrt{k T_{i} / m_{i}}
+        v_{T_{i}} = \sqrt{\\frac{k T_{i}}{m_{i}}}
 
     :param float kTi: ion temperature (in eV)
     :param float m_i: ion mass (in g)

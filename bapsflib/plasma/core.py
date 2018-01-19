@@ -8,7 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: add lower-hybrid resonance
+# TODO: add plasma betas (electron, ion, and total)
 #
 """Core plasma paramters in (cgs)."""
 
@@ -130,7 +130,7 @@ def fLH(Bo, m_i, n_i, Z, **kwargs):
 
     :param float Bo: magnetic field (in Gauss)
     :param float m_i: ion mass (in g)
-    :param float n_i: ion number density (in cm^-3)
+    :param float n_i: ion number density (in :math:`cm^{-3}`)
     :param int Z: ion charge number
 
     .. note:: for details see function :func:`oLH`
@@ -148,7 +148,7 @@ def fpe(n_e, **kwargs):
         f_{pe} = \\frac{\omega_{pe}}{2 \pi}
         = \sqrt{\\frac{n_{e} e^{2}}{\pi m_{e}}}
 
-    :param float n_e: electron number density (in cm^-3)
+    :param float n_e: electron number density (in :math:`cm^{-3}`)
 
     .. note:: see function :func:`ope`
     """
@@ -166,7 +166,7 @@ def fpi(m_i, n_i, Z, **kwargs):
         = \sqrt{\\frac{n_{i} (Z e)^{2}}{\pi m_{i}}}
 
     :param float m_i: ion mass (in g)
-    :param float n_i: ion number density (in cm^-3)
+    :param float n_i: ion number density (in :math:`cm^{-3}`)
     :param int Z: ion charge number
 
     .. note:: see function :func:`opi`
@@ -184,7 +184,7 @@ def fUH(Bo, n_e, **kwargs):
         f_{UH} = \\frac{\omega_{UH}}{2 \pi}
 
     :param float Bo: magnetic field (in Gauss)
-    :param float n_e: electron number density (in cm^-3)
+    :param float n_e: electron number density (in :math:`cm^{-3}`)
 
     .. note:: see function :func:`oUH`
     """
@@ -241,7 +241,7 @@ def oLH(Bo, m_i, n_i, Z, **kwargs):
 
     :param float Bo: magnetic field (in Gauss)
     :param float m_i: ion mass (in g)
-    :param float n_i: ion number density (in cm^-3)
+    :param float n_i: ion number density (in :math:`cm^{-3}`)
     :param int Z: ion charge number
     """
     _args = {'Bo': Bo, 'm_i': m_i, 'n_i': n_i, 'Z': Z}
@@ -262,7 +262,7 @@ def ope(n_e, **kwargs):
 
         \omega_{pe}^{2} = \\frac{4 \pi n_{e} e^2}{m_{e}}
 
-    :param float n_e: electron number density (in cm^-3)
+    :param float n_e: electron number density (in :math:`cm^{-3}`)
     """
     _ope = math.sqrt(4 * math.pi * n_e * E * E / ME)
     return FloatUnit(_ope, 'rad s^-1')
@@ -277,7 +277,7 @@ def opi(m_i, n_i, Z, **kwargs):
         \omega_{pi}^{2} = \\frac{4 \pi n_{i} (Z e)^{2}}{m_{i}}
 
     :param float m_i: ion mass (in g)
-    :param float n_i: ion number density (in cm^-3)
+    :param float n_i: ion number density (in :math:`cm^{-3}`)
     :param int Z: ion charge number
     """
     _opi = math.sqrt(4 * math.pi * n_i * (Z * E) * (Z * E) / m_i)
@@ -293,7 +293,7 @@ def oUH(Bo, n_e, **kwargs):
         \omega_{UH}^{2} =\omega_{pe}^{2} + \Omega_{ce}^{2}
 
     :param float Bo: magnetic field (in Gauss)
-    :param float n_e: electron number density (in cm^-3)
+    :param float n_e: electron number density (in :math:`cm^{-3}`)
     """
     _ope = ope(n_e)
     _oce = oce(Bo)
@@ -308,10 +308,10 @@ def lD(kT, n, **kwargs):
 
     .. math::
 
-        \lambda_{D} = \sqrt{k_{B} T / (4 \pi n e^{2})}
+        \lambda_{D} = \sqrt{\\frac{k_{B} T}{4 \pi n e^{2}}}
 
     :param float kT: temperature (in eV)
-    :param float n: number density (in cm^-3)
+    :param float n: number density (in :math:`cm^{-3}`)
     """
     kT = kT * constants.e * 1.e7  # eV to ergs
     _lD = math.sqrt(kT / (4.0 * math.pi * n)) / E
@@ -324,9 +324,11 @@ def lpe(n_e, **kwargs):
 
     .. math::
 
-        l_{pe} = c / \omega_{pe}
+        l_{pe} = \\frac{c}{\omega_{pe}}
 
-    :param float n_e: electron number density (in cm^-3)
+    :param float n_e: electron number density (in :math:`cm^{-3}`)
+
+    .. note:: see function :func:`ope`
     """
     _lpe = C / ope(n_e)
     return FloatUnit(_lpe, 'cm')
@@ -338,11 +340,13 @@ def lpi(m_i, n_i, Z, **kwargs):
 
     .. math::
 
-        l_{pi} = c / \omega_{pi}
+        l_{pi} = \\frac{c}{\omega_{pi}}
 
     :param float m_i: ion mass (in g)
-    :param float n_i: ion number density (in cm^-3)
+    :param float n_i: ion number density (in :math:`cm^{-3}`)
     :param int Z: ion charge number
+
+    .. note:: see function :func:`opi`
     """
     _lpi = C / opi(m_i, n_i, Z)
     return FloatUnit(_lpi, 'cm')
@@ -354,10 +358,12 @@ def rce(Bo, kTe, **kwargs):
 
     .. math::
 
-        r_{ce} = v_{T_{e}} / \Omega_{ce}
+        r_{ce} = \\frac{v_{T_{e}}}{\Omega_{ce}}
 
     :param float Bo: magnetic field (in Gauss)
     :param float kTe: electron temperature (in eV)
+
+    .. note:: see functions :func:`vTe` and :func:`oce`
     """
     _rce = vTe(kTe) / abs(oce(Bo))
     return FloatUnit(_rce, 'cm')
@@ -369,12 +375,14 @@ def rci(Bo, kTi, m_i, Z, **kwargs):
 
     .. math::
 
-        r_{ci} = v_{T_{i}} / \Omega_{ci}
+        r_{ci} = \\frac{v_{T_{i}}}{\Omega_{ci}}
 
     :param float Bo: magnetic field (in Gauss)
     :param float kTi: ion temperature (in eV)
     :param float m_i: ion mass (in g)
     :param int Z: ion charge number
+
+    .. note:: see functions :func:`vTi` and :func:`oci`
     """
     _rci = vTi(kTi, m_i) / oci(Bo, m_i, Z)
     return FloatUnit(_rci, 'cm')
@@ -415,7 +423,7 @@ def VA(Bo, m_i, n_i, **kwargs):
 
     :param float Bo: magnetic field (in Gauss)
     :param float m_i: ion mass (in g)
-    :param float n_i: ion number density (in cm^-3)
+    :param float n_i: ion number density (in :math:`cm^{-3}`)
     """
     _VA = Bo / math.sqrt(4.0 * math.pi * n_i * m_i)
     return FloatUnit(_VA, 'cm s^-1')

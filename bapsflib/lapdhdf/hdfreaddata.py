@@ -537,7 +537,7 @@ class hdfReadData(np.recarray):
             'kT': None,
             'kTe': None,
             'kTi': None,
-            'gamma': core.FloatUnit(1.5, 'arb'),
+            'gamma': core.FloatUnit(1.0, 'arb'),
             'm_e': core.ME,
             'm_i': None,
             'n': None,
@@ -603,7 +603,7 @@ class hdfReadData(np.recarray):
             'kT': None,
             'kTe': None,
             'kTi': None,
-            'gamma': core.FloatUnit(1.5, 'arb'),
+            'gamma': core.FloatUnit(1.0, 'arb'),
             'm_e': core.ME,
             'm_i': None,
             'n': None,
@@ -843,7 +843,7 @@ class hdfReadData(np.recarray):
             self._plasma['n_e'] / self._plasma['Z'], 'cm^-3')
 
         # define gamma (adiabatic index)
-        # - default = 1.5
+        # - default = 1.0
         if gamma is not None:
             self._plasma['gamma'] = core.FloatUnit(gamma, 'arb')
 
@@ -917,6 +917,7 @@ class hdfReadData(np.recarray):
         self._plasma['fpe'] = core.fpe(**self._plasma)
         self._plasma['fpi'] = core.fpi(**self._plasma)
         self._plasma['fUH'] = core.fUH(**self._plasma)
+        self._plasma['fLH'] = core.fLH(**self._plasma)
 
         # add key lengths
         self._plasma['lD'] = core.lD(**self._plasma)

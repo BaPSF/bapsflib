@@ -836,6 +836,28 @@ def gather_shotnums(hdf_file, controls, method='union',
 
 
 def condition_shotnum_int(shotnum, cdset, shotnumkey, cmap, cspec):
+    """
+    Conditions **shotnum** (when an `int`) against the control dataset
+    **cdset**.  Utilizes functions :func:`condition_shotnum_int_simple`
+    and :func:`condition_shotnum_int_complex`.
+
+    :param int shotnum: desired HDF5 shot number
+    :param cdset: control device dataset
+    :type cdset: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in the control device dataset that
+        contains the shot numbers
+    :param cmap: mapping object for control device
+    :param cspec: unique specifier (configuration name) for the control
+        device
+    :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = cdset[index, shotnumkey]
+    """
     # Inputs:
     # shotnum    (int)          - the desired shot number
     # cdset      (h5py.Dataset) - the control dataset
@@ -870,6 +892,25 @@ def condition_shotnum_int(shotnum, cdset, shotnumkey, cmap, cspec):
 
 
 def condition_shotnum_int_simple(shotnum, cdset, shotnumkey):
+    """
+    Conditions **shotnum** (when an `int`) against control dataset
+    **cdset** when the control dataset contains recorded data for
+    ONLY ONE device configuration.
+
+    :param int shotnum: desired HDF5 shot number
+    :param cdset: control device dataset
+    :type cdset: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in the control device dataset that
+        contains the shot numbers
+    :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = cdset[index, shotnumkey]
+    """
     # this is for a dataset that only records data for one configuration
     #
     # initialize sni
@@ -981,18 +1022,22 @@ def condition_shotnum_int_simple(shotnum, cdset, shotnumkey):
 def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
                                   cspec):
     """
-    .. note::
+    Conditions **shotnum** (when an `int`) against control dataset
+    **cdset** when the control dataset contains recorded data for
+    multiple device configurations.
 
-        There is an assumption each shot number spans n_configs number
-        of rows in the dataset, where n_configs is the number of
-        control device configurations.  It is also assumed that the
-        order inwhich the configs are recorded is the same for each shot
-        number.  That is, if there are 3 configs (config01, config02,
-        and config03) and the first three rows of dataset are recorded
-        in that order, then the next three rows will maintain that
-        order.
+    .. admonition:: Dataset Assumption
 
-    :param ind shotnum: desired HDF5 shot number
+        There is an assumption that each shot number spans **n_configs**
+        number of rows in the dataset, where **n_configs** is the number
+        of control device configurations.  It is also assumed that the
+        order in which the configs are recorded is the same for each
+        shot number.  That is, if there are 3 configs (config01,
+        config02, and config03) and the first three rows of the dataset
+        are recorded in that order, then each following grouping of
+        three rows will maintain that order.
+
+    :param int shotnum: desired HDF5 shot number
     :param cdset: control device dataset
     :type cdset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
@@ -1001,6 +1046,13 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
     :param cspec: unique specifier (configuration name) for the control
         device
     :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = cdset[index, shotnumkey]
     """
     # this is for a dataset that only records data for one configuration
     #
@@ -1174,6 +1226,28 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
 
 
 def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
+    """
+    Conditions **shotnum** (when a `list`) against the control dataset
+    **cdset**.  Utilizes functions :func:`condition_shotnum_list_simple`
+    and :func:`condition_shotnum_list_complex`.
+
+    :param int shotnum: desired HDF5 shot number
+    :param cdset: control device dataset
+    :type cdset: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in the control device dataset that
+        contains the shot numbers
+    :param cmap: mapping object for control device
+    :param cspec: unique specifier (configuration name) for the control
+        device
+    :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = cdset[index, shotnumkey]
+    """
     # Inputs:
     # shotnum    (list(int))    - the desired shot number
     # cdset      (h5py.Dataset) - the control dataset
@@ -1218,7 +1292,7 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
         index, shotnum, sni = \
             condition_shotnum_list_simple(shotnum, cdset, shotnumkey)
     else:
-        # the dataset saves saves data for multiple configurations
+        # the dataset saves data for multiple configurations
         # index, shotnum, sni = \
         #     condition_shotnum_list_complex(shotnum, cdset, shotnumkey,
         #                                   cmap, cspec)
@@ -1229,6 +1303,25 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
 
 
 def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
+    """
+    Conditions **shotnum** (when a `list`) against control dataset
+    **cdset** when the control dataset contains recorded data for
+    ONLY ONE device configuration.
+
+    :param int shotnum: desired HDF5 shot number
+    :param cdset: control device dataset
+    :type cdset: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in the control device dataset that
+        contains the shot numbers
+    :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = cdset[index, shotnumkey]
+    """
     # this is for a dataset that only records data for one configuration
     #
     # get corresponding indices for shotnum
@@ -1294,7 +1387,39 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
 
 def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
                                    cspec):
+    """
+    Conditions **shotnum** (when a `list`) against control dataset
+    **cdset** when the control dataset contains recorded data for
+    multiple device configurations.
+
+    .. admonition:: Dataset Assumption
+
+        There is an assumption that each shot number spans **n_configs**
+        number of rows in the dataset, where **n_configs** is the number
+        of control device configurations.  It is also assumed that the
+        order in which the configs are recorded is the same for each
+        shot number.  That is, if there are 3 configs (config01,
+        config02, and config03) and the first three rows of the dataset
+        are recorded in that order, then each following grouping of
+        three rows will maintain that order.
+
+    :param int shotnum: desired HDF5 shot number
+    :param cdset: control device dataset
+    :type cdset: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in the control device dataset that
+        contains the shot numbers
+    :param cmap: mapping object for control device
+    :param cspec: unique specifier (configuration name) for the control
+        device
+    :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = cdset[index, shotnumkey]
+    """
     # this is for a dataset that only records data for one configuration
     #
-    # TODO: pickup here
     pass

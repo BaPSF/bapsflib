@@ -1067,6 +1067,9 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
             + ' know how to handle')
 
     # determine configkey
+    # - configkey is the dataset field name for the column that contains
+    #   the associated configuration name
+    #
     configkey = ''
     for df in cmap.configs[cspec]['dataset fields']:
         if 'configuration' in df[0].casefold():
@@ -1094,12 +1097,12 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
             config_name_arr = cdset[0:n_configs, configkey]
             index_arr = np.where(config_name_arr == cspec.encode())[0]
 
-            if index_arr.shape[0] == 1:
+            if index_arr.size == 1:
                 index = index_arr[0]
             else:
-                # something went wrong...either no configurations
-                # are found and the routines assumption's do not
-                # match the format of the dataset
+                # something went wrong...no configurations are found
+                # and, thus, the routines assumption's do not match
+                # the format of the dataset
                 raise ValueError
         else:
             index = []
@@ -1118,7 +1121,7 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
                 config_name_arr = cdset[0:n_configs, configkey]
                 index_arr = np.where(config_name_arr
                                      == cspec.encode())[0]
-                if index_arr.shape[0] == 1:
+                if index_arr.size == 1:
                     index_stretch = index_arr[0] + 1
                     index = index_stretch * index
                 else:
@@ -1192,7 +1195,8 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
                     slice(-n_configs * (step_from_end + 1),
                           None,
                           n_configs).indices(cdset.shape[0])
-                start -= start_adj
+                # start -= start_adj
+                start += start_adj
                 some_dset_sn = cdset[start::step, shotnumkey].view()
                 index_arr = np.where(some_dset_sn == shotnum)[0]
 
@@ -1231,7 +1235,8 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
     **cdset**.  Utilizes functions :func:`condition_shotnum_list_simple`
     and :func:`condition_shotnum_list_complex`.
 
-    :param int shotnum: desired HDF5 shot number
+    :param shotnum: desired HDF5 shot number
+    :type shotnum: list(int)
     :param cdset: control device dataset
     :type cdset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
@@ -1293,13 +1298,12 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
             condition_shotnum_list_simple(shotnum, cdset, shotnumkey)
     else:
         # the dataset saves data for multiple configurations
-        # index, shotnum, sni = \
-        #     condition_shotnum_list_complex(shotnum, cdset, shotnumkey,
-        #                                   cmap, cspec)
-        pass
+        index, shotnum, sni = \
+            condition_shotnum_list_complex(shotnum, cdset, shotnumkey,
+                                           cmap, cspec)
 
     # return calculated arrays
-    return index, shotnum, sni
+    return index.view(), shotnum.view(), sni.view()
 
 
 def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
@@ -1308,7 +1312,8 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
     **cdset** when the control dataset contains recorded data for
     ONLY ONE device configuration.
 
-    :param int shotnum: desired HDF5 shot number
+    :param shotnum: desired HDF5 shot number
+    :type shotnum: :class:`numpy.ndarray`
     :param cdset: control device dataset
     :type cdset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
@@ -1345,7 +1350,7 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
             sni = np.where(index < cdset.shape[0], True, False)
             index = index[sni]
         else:
-            # shot numbers are not sequential
+            # shot numbers are NOT sequential
             step_front_read = shotnum[-1] - first_sn
             step_end_read = last_sn - shotnum[0]
 
@@ -1403,7 +1408,8 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
         are recorded in that order, then each following grouping of
         three rows will maintain that order.
 
-    :param int shotnum: desired HDF5 shot number
+    :param shotnum: desired HDF5 shot number
+    :type shotnum: :class:`numpy.ndarray`
     :param cdset: control device dataset
     :type cdset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
@@ -1422,4 +1428,131 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
     """
     # this is for a dataset that only records data for one configuration
     #
-    pass
+    # Ensure there is only one dataset for all configs
+    # Note: we should only get to this point if n_dsets != n_configs
+    n_dsets = len(cmap.dataset_names)
+    n_configs = len(cmap.configs)
+    if n_dsets != 1:
+        raise ValueError(
+            'Control has {} datasets and'.format(n_dsets)
+            + ' {} configurations, do NOT'.format(n_configs)
+            + ' know how to handle')
+
+    # determine configkey
+    # - configkey is the dataset field name for the column that contains
+    #   the associated configuration name
+    #
+    configkey = ''
+    for df in cmap.configs[cspec]['dataset fields']:
+        if 'configuration' in df[0].casefold():
+            configkey = df[0]
+            break
+    if configkey == '':
+        raise ValueError(
+            'Can NOT find configuration field in the control'
+            + ' ({}) dataset'.format(cmap.name))
+
+    # find index
+    if cdset.shape[0] == n_configs:
+        # only one possible shotnum, index can be 0 to n_configs-1
+        #
+        # NOTE: The HDF5 configuration field stores a string with the
+        #       name of the configuration.  When reading that into a
+        #       numpy array the string becomes a byte string (i.e. b'').
+        #       When comparing with np.where() the comparing string
+        #       needs to be encoded (i.e. cspec.encode()).
+        #
+        only_sn = cdset[0, shotnumkey]
+        sni = np.where(shotnum == only_sn, True, False)
+
+        # construct index
+        if True not in sni:
+            # shotnum does not contain only_sn
+            index = np.empty(shape=0, dtype=np.uint32)
+        else:
+            config_name_arr = cdset[0:n_configs, configkey]
+            index = np.where(config_name_arr == cspec.encode())[0]
+
+            if index.size != 1:
+                # something went wrong...no configurations are found
+                # and, thus, the routines assumption's do not match
+                # the format of the dataset
+                raise ValueError
+    else:
+        # get 1st and last shot number
+        first_sn, last_sn = cdset[[-1, 0], shotnumkey]
+
+        # find sub-group index corresponding to the requested device
+        # configuration
+        config_name_arr = cdset[0:n_configs, configkey]
+        config_where = np.where(config_name_arr == cspec.encode())[0]
+        if config_where.size == 1:
+            config_subindex = config_where[0]
+        else:
+            # something went wrong...either no configurations
+            # are found or the routine's assumptions do not
+            # match the format of the dataset
+            raise ValueError
+
+        # construct index for remaining scenarios
+        if n_configs * (last_sn - first_sn + 1) == cdset.shape[0]:
+            # shot numbers are sequential and there are n_configs per
+            # shot number
+            index = shotnum - first_sn
+
+            # adjust index to correspond to associated configuration
+            index = (config_subindex + 1) * index
+
+            # build sni and filter index
+            sni = np.where(index < cdset.shape[0], True, False)
+            index = index[sni]
+        else:
+            # shot numbers are NOT sequential
+            step_front_read = shotnum[-1] - first_sn
+            step_end_read = last_sn - shotnum[0]
+
+            # construct index and sni
+            if cdset.shape[0] <= n_configs * (
+                    min(step_front_read, step_end_read) + 1):
+                # cdset.shape is smaller than the theoretical
+                # sequential array
+                cdset_sn = cdset[config_subindex::n_configs,
+                                 shotnumkey].view()
+                sni = np.isin(shotnum, cdset_sn)
+                index = np.where(np.isin(cdset_sn, shotnum))[0]
+
+                # adjust index to correspond to associated configuration
+                index = (config_subindex + 1) * index
+            elif step_front_read <= step_end_read:
+                # extracting from the beginning of the array is the
+                # smallest
+                start = config_subindex
+                stop = n_configs * (step_front_read + 1)
+                stop += config_subindex
+                step = n_configs
+                some_cdset_sn = cdset[start:stop:step,
+                                      shotnumkey].view()
+                sni = np.isin(shotnum, some_cdset_sn)
+                index = np.where(np.isin(some_cdset_sn, shotnum))[0]
+
+                # adjust index to correspond to associated configuration
+                index = (config_subindex + 1) * index
+            else:
+                # extracting from the end of the array is the
+                # smallest
+                start, stop, step = \
+                    slice(-n_configs * (step_end_read + 1),
+                          None,
+                          n_configs).indices(cdset.shape[0])
+                start += config_subindex
+                some_cdset_sn = cdset[start:stop:step,
+                                      shotnumkey].view()
+                sni = np.isin(shotnum, some_cdset_sn)
+                index = np.where(np.isin(some_cdset_sn, shotnum))
+
+                # adjust index to correspond to associated configuration
+                index = (config_subindex + 1) * index
+                index += start
+
+    # return calculated arrays
+    return index.view(), shotnum.view(), sni.view()

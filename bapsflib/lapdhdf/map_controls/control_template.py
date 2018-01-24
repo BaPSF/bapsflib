@@ -51,7 +51,7 @@ class hdfMap_control_template(ABC):
     def __init__(self, control_group):
         """
         :param control_group: the control HDF5 group
-        :type control_group: :mod:`h5py.Group`
+        :type control_group: :class:`h5py.Group`
         """
 
         # condition control_group arg

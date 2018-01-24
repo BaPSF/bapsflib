@@ -10,6 +10,8 @@
 #
 import tempfile
 import h5py
+import math
+import numpy as np
 
 
 class TemporaryWaveform(h5py.File):
@@ -34,14 +36,8 @@ class TemporaryWaveform(h5py.File):
         self.create_group('/Raw data + config/Waveform')
         self._wgroup = self['Raw data + config/Waveform']
 
-        # add config subgroups
-        self._config_names = []
-        for i in range(n_configs):
-            config_name = 'config{:02}'.format(n_configs)
-            self._config_names.append(config_name)
-            self._wgroup.create_group(config_name)
-
-        # add dataset
+        # build waveform groups, datasets, and attributes
+        self._update_waverform()
 
     @property
     def n_configs(self):
@@ -57,12 +53,43 @@ class TemporaryWaveform(h5py.File):
 
     def _update_waverform(self):
         """Updates Groups, Datasets, and Attributes"""
-        #
+        # waveform needs to be re-built...must clear group first
+        self._wgroup.clear()
 
-    def _set_attrs(self):
-        self._wgroup.attrs.update({
-            'IP address': b'192.168.1.1',
-            'Generator type': b''
+        # add configuration sub-groups
+        self._config_names = []
+        for i in range(self.n_configs):
+            config_name = 'config{:02}'.format(i + 1)
+            self._config_names.append(config_name)
+            self._wgroup.create_group(config_name)
+            self._set_attrs(config_name, i + 1)
+
+        # add and populate dataset
+        sn_size = 100
+        self._wgroup.create_dataset(
+            'Run time list', shape=(sn_size * self.n_configs,),
+            dtype=[('Shot number', '<i4'),
+                   ('Configuration name', 'S120'),
+                   ('Command index', '<i4')])
+        dset = self._wgroup['Run time list']
+        ci_list = ([0] * 5) + ([1] * 5) + ([2] * 5)
+        ci_list = ci_list * int(math.ceil(sn_size / 15))
+        ci_list = ci_list[:sn_size:]
+        for i, config in enumerate(self._config_names):
+            dset[i::self.n_configs, 'Shot number'] = \
+                np.arange(sn_size, dtype='<i4') + 1
+            dset[i::self.n_configs, 'Configuration name'] = \
+                config.encode()
+            dset[i::self.n_configs, 'Command index'] = np.array(ci_list)
+            ci_list.reverse()
+
+    def _set_attrs(self, config_name, config_number):
+        self._wgroup[config_name].attrs.update({
+            'IP address': '192.168.1.{}'.format(config_number).encode(),
+            'Generator type': b'Agilent 33220A - LAN',
+            'Waveform comand list': b'FREQ 40000.000000 \n'
+                                    b'FREQ 80000.000000 \n'
+                                    b'FREQ 120000.000000 \n'
         })
 
 

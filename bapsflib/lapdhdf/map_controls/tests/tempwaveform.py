@@ -61,7 +61,15 @@ class TemporaryWaveform(h5py.File):
 
     @property
     def sn_size(self):
+        """Number of shot numbers in dataset"""
         return self._sn_size
+
+    @sn_size.setter
+    def sn_size(self, val):
+        """Set the number of shot numbers in the dataset"""
+        if val != self._sn_size:
+            self._sn_size = val
+            self._update_waverform()
 
     def _update_waverform(self):
         """Updates Groups, Datasets, and Attributes"""

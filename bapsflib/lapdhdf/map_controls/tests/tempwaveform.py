@@ -20,12 +20,12 @@ class TemporaryWaveform(h5py.File):
     """
     def __init__(self, n_configs, suffix='.hdf5', prefix='', dir=None):
         # Create Temporary HDF5 File
-        self.tempdir = tempfile.TemporaryDirectory(prefix='hdf-test_')\
-            if dir is None else None
+        tempdir = dir.name \
+            if isinstance(dir, tempfile.TemporaryDirectory) else dir
         self.tempfile = \
             tempfile.NamedTemporaryFile(suffix=suffix,
                                         prefix=prefix,
-                                        dir=self.tempdir.name,
+                                        dir=tempdir,
                                         delete=False)
         h5py.File.__init__(self, self.tempfile.name, 'w')
 
@@ -46,10 +46,15 @@ class TemporaryWaveform(h5py.File):
 
     @n_configs.setter
     def n_configs(self, val):
-        """Set number of wavefrom configurations"""
+        """Set number of waveform configurations"""
         if val != self._n_configs:
             self._n_configs = val
             self._update_waverform()
+
+    @property
+    def config_names(self):
+        """list of waveform configuration names"""
+        return self._config_names
 
     def _update_waverform(self):
         """Updates Groups, Datasets, and Attributes"""
@@ -87,9 +92,9 @@ class TemporaryWaveform(h5py.File):
         self._wgroup[config_name].attrs.update({
             'IP address': '192.168.1.{}'.format(config_number).encode(),
             'Generator type': b'Agilent 33220A - LAN',
-            'Waveform comand list': b'FREQ 40000.000000 \n'
-                                    b'FREQ 80000.000000 \n'
-                                    b'FREQ 120000.000000 \n'
+            'Waveform command list': b'FREQ 40000.000000 \n'
+                                     b'FREQ 80000.000000 \n'
+                                     b'FREQ 120000.000000 \n'
         })
 
 

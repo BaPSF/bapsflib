@@ -32,6 +32,9 @@ class TemporaryWaveform(h5py.File):
         # store number on configurations
         self._n_configs = n_configs
 
+        # define number of shotnumbers
+        self._sn_size = 100
+
         # add data and waveform groups
         self.create_group('/Raw data + config/Waveform')
         self._wgroup = self['Raw data + config/Waveform']
@@ -56,6 +59,10 @@ class TemporaryWaveform(h5py.File):
         """list of waveform configuration names"""
         return self._config_names
 
+    @property
+    def sn_size(self):
+        return self._sn_size
+
     def _update_waverform(self):
         """Updates Groups, Datasets, and Attributes"""
         # waveform needs to be re-built...must clear group first
@@ -70,19 +77,18 @@ class TemporaryWaveform(h5py.File):
             self._set_attrs(config_name, i + 1)
 
         # add and populate dataset
-        sn_size = 100
         self._wgroup.create_dataset(
-            'Run time list', shape=(sn_size * self.n_configs,),
+            'Run time list', shape=(self._sn_size * self.n_configs,),
             dtype=[('Shot number', '<i4'),
                    ('Configuration name', 'S120'),
                    ('Command index', '<i4')])
         dset = self._wgroup['Run time list']
         ci_list = ([0] * 5) + ([1] * 5) + ([2] * 5)
-        ci_list = ci_list * int(math.ceil(sn_size / 15))
-        ci_list = ci_list[:sn_size:]
+        ci_list = ci_list * int(math.ceil(self._sn_size / 15))
+        ci_list = ci_list[:self._sn_size:]
         for i, config in enumerate(self._config_names):
             dset[i::self.n_configs, 'Shot number'] = \
-                np.arange(sn_size, dtype='<i4') + 1
+                np.arange(self._sn_size, dtype='<i4') + 1
             dset[i::self.n_configs, 'Configuration name'] = \
                 config.encode()
             dset[i::self.n_configs, 'Command index'] = np.array(ci_list)

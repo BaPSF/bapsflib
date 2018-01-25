@@ -285,11 +285,10 @@ class hdfMap_control_template(ABC):
     @property
     def unique_specifiers(self):
         """
-        :return: list of unique specifiers for the control device.
-            Define as :code:`None` if there are none.
-        :raise: :exc:`NotImplementedError`
+        :return: list of unique specifiers (keys in :attr:`configs`) for
+            the control device.
         """
-        raise NotImplementedError
+        return list(self.configs)
 
     @abstractmethod
     def _build_configs(self):

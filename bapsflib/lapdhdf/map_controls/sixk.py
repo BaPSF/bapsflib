@@ -137,14 +137,14 @@ class hdfMap_control_6k(hdfMap_control_template):
         """
         return '6K Compumotor'
 
-    @property
-    def unique_specifiers(self):
-        """
-        :return: list of control device unique specifiers. Here the
-            unique specifier is the probe drive receptacle number.
-        :rtype: [int, ]
-        """
-        return self.list_receptacles
+    # @property
+    # def unique_specifiers(self):
+    #     """
+    #     :return: list of control device unique specifiers. Here the
+    #         unique specifier is the probe drive receptacle number.
+    #     :rtype: [int, ]
+    #     """
+    #     return self.list_receptacles
 
     def _parse_motionlist(self, ml_gname):
         # A motion list group follows the naming scheme of:

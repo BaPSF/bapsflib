@@ -100,7 +100,3 @@ class hdfMap_control_waveform(hdfMap_control_template):
         :rtype: str
         """
         return 'Waveform'
-
-    @property
-    def unique_specifiers(self):
-        return list(self.configs)

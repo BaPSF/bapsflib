@@ -1501,7 +1501,9 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
             index = shotnum - first_sn
 
             # adjust index to correspond to associated configuration
-            index = (config_subindex + 1) * index
+            # - stretch by n_configs then shift by config_subindex
+            #
+            index = (n_configs * index) + config_subindex
 
             # build sni and filter index
             sni = np.where(index < cdset.shape[0], True, False)

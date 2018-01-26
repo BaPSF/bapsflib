@@ -14,7 +14,7 @@ import numpy as np
 import time
 
 from .hdfreadcontrol import hdfReadControl, condition_controls
-from ..plasma import core
+from bapsflib.plasma import core
 
 
 class hdfReadData(np.recarray):

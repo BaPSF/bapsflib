@@ -14,30 +14,39 @@ import math
 import numpy as np
 
 
-class TemporaryWaveform(h5py.File):
+class FauxWaveform(h5py.Group):
     """
     A Temporary HDF5 file with Waveform control group.
     """
-    def __init__(self, n_configs, suffix='.hdf5', prefix='', dir=None):
+    def __init__(self, id, n_configs=1, sn_size=100):
         # Create Temporary HDF5 File
-        tempdir = dir.name \
-            if isinstance(dir, tempfile.TemporaryDirectory) else dir
-        self.tempfile = \
-            tempfile.NamedTemporaryFile(suffix=suffix,
-                                        prefix=prefix,
-                                        dir=tempdir,
-                                        delete=False)
-        h5py.File.__init__(self, self.tempfile.name, 'w')
+        #tempdir = dir.name \
+        #    if isinstance(dir, tempfile.TemporaryDirectory) else dir
+        #self.tempfile = \
+        #    tempfile.NamedTemporaryFile(suffix=suffix,
+        #                                prefix=prefix,
+        #                                dir=tempdir,
+        #                                delete=False)
+        #h5py.File.__init__(self, self.tempfile.name, 'w')
+
+        # create waveform group
+        if not isinstance(id, h5py.h5g.GroupID):
+            raise ValueError('{} is not a GroupID'.format(id))
+
+        gid = h5py.h5g.create(id, b'Waveform')
+        # super().__init__()
+        h5py.Group.__init__(self, gid)
 
         # store number on configurations
         self._n_configs = n_configs
 
         # define number of shotnumbers
-        self._sn_size = 100
+        self._sn_size = sn_size
 
         # add data and waveform groups
-        self.create_group('/Raw data + config/Waveform')
-        self._wgroup = self['Raw data + config/Waveform']
+        # self.create_group('/Raw data + config/Waveform')
+        # self._wgroup = self['Raw data + config/Waveform']
+        self._wgroup = self
 
         # build waveform groups, datasets, and attributes
         self._update_waverform()

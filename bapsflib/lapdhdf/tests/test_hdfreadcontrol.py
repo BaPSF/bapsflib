@@ -17,7 +17,7 @@ import numpy as np
 
 import unittest as ut
 
-from ..map_controls import TemporaryWaveform
+from ..map_controls import FauxWaveform
 from ..map_controls.waveform import hdfMap_control_waveform
 from ..hdfreadcontrol import condition_shotnum_list
 
@@ -28,8 +28,8 @@ class TestConditionShotnumList(ut.TestCase):
 
     def setUp(self):
         self.tempdir = tempfile.TemporaryDirectory(prefix='hdf-test_')
-        self.f = TemporaryWaveform(self.N_WAVEFORM_CONFIGS,
-                                   dir=self.tempdir)
+        self.f = FauxWaveform(self.N_WAVEFORM_CONFIGS,
+                              dir=self.tempdir)
         self.cgroup = self.f['Raw data + config/Waveform']
         self.cmap = hdfMap_control_waveform(self.cgroup)
 

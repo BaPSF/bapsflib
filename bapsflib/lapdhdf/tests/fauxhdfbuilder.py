@@ -27,6 +27,11 @@ class FauxHDFBuilder(h5py.File):
     _KNOWN_MODULES.update(_KNOWN_DIGITIZERS)
 
     def __init__(self, name=None, add_modules=None, **kwargs):
+        """
+        :param str name: name of HDF5 file
+        :param add_modules:
+        :param kwargs:
+        """
         # define file name, directory, and path
         if name is None:
             # create temporary directory and file
@@ -49,6 +54,16 @@ class FauxHDFBuilder(h5py.File):
         # create root groups
         self.create_group('MSI')
         self.create_group('Raw data + config/')
+
+        # create file attributes
+        self.attrs['LaPD HDF5 software version'] = b'0.0.0'
+
+        # create MSI attributes
+        # - none at the moment
+        self['Raw data + config'].attrs['Description'] = \
+            b'some description'
+
+        # create 'Raw data + config' attributes
 
         # add waveform
         self._modules = {}

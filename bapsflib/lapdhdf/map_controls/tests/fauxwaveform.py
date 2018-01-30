@@ -18,7 +18,7 @@ class FauxWaveform(h5py.Group):
     """
     A Temporary HDF5 file with Waveform control group.
     """
-    def __init__(self, id, n_configs=1, sn_size=100):
+    def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # Create Temporary HDF5 File
         #tempdir = dir.name \
         #    if isinstance(dir, tempfile.TemporaryDirectory) else dir

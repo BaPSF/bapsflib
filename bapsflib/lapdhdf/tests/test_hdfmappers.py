@@ -30,6 +30,7 @@ class TestHDFMap(ut.TestCase):
         self.f.cleanup()
 
     def test_attribute_existence(self):
+        # informational attributes
         self.assertTrue(hasattr(self.map, 'msi'))
         self.assertTrue(hasattr(self.map, 'digitizers'))
         self.assertTrue(hasattr(self.map, 'main_digitizer'))
@@ -46,44 +47,44 @@ class TestHDFMap(ut.TestCase):
         self.assertTrue(hasattr(self.map, 'has_controls'))
         self.assertTrue(hasattr(self.map, 'has_unknowns'))
 
+    def test_hdf_version(self):
+        self.assertEqual(self.map.hdf_version, '0.0.0')
+
     def test_base_hdf(self):
+        """No diagnostics, digitizers, or control devices"""
+        # existence of root groups
         self.assertTrue(self.map.has_msi_group)
         self.assertTrue(self.map.has_data_group)
+
+        # ensure HDF is empty
         self.assertFalse(self.map.has_data_run_sequence)
         self.assertFalse(self.map.has_diagnostics)
         self.assertFalse(self.map.has_digitizers)
         self.assertFalse(self.map.has_controls)
         self.assertFalse(self.map.has_unknowns)
 
-    def test_has_attributes(self):
-        self.assertTrue(self.map.has_msi_group)
-        self.assertTrue(self.map.has_data_group)
-        self.assertFalse(self.map.has_data_run_sequence)
-        self.assertFalse(self.map.has_digitizers)
-        self.assertFalse(self.map.has_controls)
-        self.assertFalse(self.map.has_unknowns)
-
-    def test_msi(self):
+        # ensure format of informational attributes
         self.assertIsInstance(self.map.msi, dict)
         self.assertEqual(len(self.map.msi), 0)
-
-    def test_digitizers(self):
         self.assertIsInstance(self.map.digitizers, dict)
         self.assertEqual(len(self.map.digitizers), 0)
-
-    def test_controls(self):
         self.assertIsInstance(self.map.controls, dict)
         self.assertEqual(len(self.map.controls), 0)
-
-    def test_unknowns(self):
         self.assertIsInstance(self.map.unknowns, list)
         self.assertEqual(len(self.map.unknowns), 0)
-
-    def test_hdf_version(self):
-        self.assertEqual(self.map.hdf_version, '0.0.0')
-
-    def test_main_dgitizer(self):
         self.assertIs(self.map.main_digitizer, None)
+
+    def test_hdf_one_control(self):
+        pass
+
+    def test_hdf_one_digitizer(self):
+        pass
+
+    def test_hdf_one_diagnostic(self):
+        pass
+
+    def test_hdf_one_unknown(self):
+        pass
 
 
 if __name__ == '__main__':

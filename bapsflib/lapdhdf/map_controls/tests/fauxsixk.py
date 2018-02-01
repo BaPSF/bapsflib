@@ -32,7 +32,7 @@ class FauxSixK(h5py.Group):
         # define number of shot numbers
         self._sn_size = sn_size
 
-        # build control sub-groups, datasets, and attributes
+        # build control device sub-groups, datasets, and attributes
         self._update()
 
     @property
@@ -65,7 +65,10 @@ class FauxSixK(h5py.Group):
             self._update()
 
     def _update(self):
-        """Updates control group structure"""
+        """
+        Updates control group structure (Groups, Datasets, and
+        Attributes)
+        """
         self._config_names = []
 
     def _set_attrs(self):

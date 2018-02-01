@@ -49,9 +49,13 @@ class TestHDFMap(ut.TestCase):
         self.assertTrue(hasattr(self.map, 'has_digitizers'))
         self.assertTrue(hasattr(self.map, 'has_controls'))
         self.assertTrue(hasattr(self.map, 'has_unknowns'))
+        self.assertTrue(hasattr(self.map, 'is_lapd_hdf'))
 
     def test_hdf_version(self):
         self.assertEqual(self.map.hdf_version, '0.0.0')
+
+    def test_is_lapd_hdf(self):
+        self.assertTrue(self.map.is_lapd_hdf)
 
     def test_base_hdf(self):
         """No diagnostics, digitizers, or control devices"""

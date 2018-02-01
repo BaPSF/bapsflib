@@ -69,15 +69,11 @@ class FauxHDFBuilder(h5py.File):
         self._modules = {}
         try:
             # add modules if known
-            for key, val in add_modules.items():
-                if key in self._KNOWN_MODULES:
-                    self._add_module(key, val)
-
-        except TypeError:
-            # add nothing if add_modules == None
             if add_modules is not None:
-                self.cleanup()
-                raise ValueError
+                for key, val in add_modules.items():
+                    if key in self._KNOWN_MODULES:
+                        self._add_module(key, val)
+
         except (ValueError, AttributeError):
             self.cleanup()
             raise ValueError(

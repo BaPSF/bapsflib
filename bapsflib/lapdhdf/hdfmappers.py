@@ -146,13 +146,13 @@ class hdfMap(object):
         return has_controls
 
     @property
-    def has_unknown_data_subgroups(self):
+    def has_unknowns(self):
         """
         :return: :code:`True` if there are any subgroups in the data
             group that are not known by the mapping constructors.
         """
-        # TODO: need to implement
-        return False
+        has_unknowns = False if len(self.unknowns) == 0 else True
+        return has_unknowns
 
     def __attach_msi(self):
         """

@@ -37,13 +37,31 @@ class TestHDFMap(ut.TestCase):
         self.assertTrue(hasattr(self.map, 'unknowns'))
         self.assertTrue(hasattr(self.map, 'hdf_version'))
 
+        # has indicators
+        self.assertTrue(hasattr(self.map, 'has_msi_group'))
+        self.assertTrue(hasattr(self.map, 'has_data_group'))
+        self.assertTrue(hasattr(self.map, 'has_data_run_sequence'))
+        self.assertTrue(hasattr(self.map, 'has_diagnostics'))
+        self.assertTrue(hasattr(self.map, 'has_digitizers'))
+        self.assertTrue(hasattr(self.map, 'has_controls'))
+        self.assertTrue(hasattr(self.map, 'has_unknowns'))
+
+    def test_base_hdf(self):
+        self.assertTrue(self.map.has_msi_group)
+        self.assertTrue(self.map.has_data_group)
+        self.assertFalse(self.map.has_data_run_sequence)
+        self.assertFalse(self.map.has_diagnostics)
+        self.assertFalse(self.map.has_digitizers)
+        self.assertFalse(self.map.has_controls)
+        self.assertFalse(self.map.has_unknowns)
+
     def test_has_attributes(self):
         self.assertTrue(self.map.has_msi_group)
         self.assertTrue(self.map.has_data_group)
         self.assertFalse(self.map.has_data_run_sequence)
         self.assertFalse(self.map.has_digitizers)
         self.assertFalse(self.map.has_controls)
-        self.assertFalse(self.map.has_unknown_data_subgoups)
+        self.assertFalse(self.map.has_unknowns)
 
     def test_msi(self):
         self.assertIsInstance(self.map.msi, dict)
@@ -58,7 +76,7 @@ class TestHDFMap(ut.TestCase):
         self.assertEqual(len(self.map.controls), 0)
 
     def test_unknowns(self):
-        self.assertIsInstance(self.map.unknowns, dict)
+        self.assertIsInstance(self.map.unknowns, list)
         self.assertEqual(len(self.map.unknowns), 0)
 
     def test_hdf_version(self):

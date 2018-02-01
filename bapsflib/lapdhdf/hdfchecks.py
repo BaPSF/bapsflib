@@ -161,7 +161,7 @@ class hdfCheck(object):
         msi_detected = self.__hdf_map.has_msi_group
 
         # print status to screen
-        item = self.__hdf_map.msi_gname + '/'
+        item = self.__hdf_map._MSI_GNAME + '/'
         found = 'yes' if msi_detected else 'no'
         status_print(item, found, '')
 
@@ -238,7 +238,7 @@ class hdfCheck(object):
         data_detected = self.__hdf_map.has_data_group
 
         # print status to screen
-        item = self.__hdf_map.data_gname + '/ '
+        item = self.__hdf_map._DATA_GNAME + '/ '
         found = 'yes' if data_detected else 'no'
         status_print(item, found, '')
 

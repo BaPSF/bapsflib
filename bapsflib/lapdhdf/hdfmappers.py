@@ -43,11 +43,11 @@ class hdfMap(object):
     * :class:`~.map_msi.map_msi.hdfMap_msi`.
     """
     # MSI stuff
-    msi_gname = 'MSI'
+    _MSI_GNAME = 'MSI'
     """Name of the MSI HDF5 group."""
 
     # Data and Config stuff
-    data_gname = 'Raw data + config'
+    _DATA_GNAME = 'Raw data + config'
     """Name of the DATA HDF5 group"""
 
     def __init__(self, hdf_obj):
@@ -71,7 +71,7 @@ class hdfMap(object):
             detected
         :rtype: bool
         """
-        detected_msi = True if self.msi_gname in self.__hdf_obj \
+        detected_msi = True if self._MSI_GNAME in self.__hdf_obj \
             else False
         return detected_msi
 
@@ -82,7 +82,7 @@ class hdfMap(object):
             is detected
         :rtype: bool
         """
-        detected_data = True if self.data_gname in self.__hdf_obj \
+        detected_data = True if self._DATA_GNAME in self.__hdf_obj \
             else False
         return detected_data
 
@@ -146,7 +146,7 @@ class hdfMap(object):
         return has_controls
 
     @property
-    def has_unknown_data_subgoups(self):
+    def has_unknown_data_subgroups(self):
         """
         :return: :code:`True` if there are any subgroups in the data
             group that are not known by the mapping constructors.
@@ -161,7 +161,7 @@ class hdfMap(object):
         :class:`~.map_msi.map_msi.hdfMap_msi`.
         """
         if self.has_msi_group:
-            self.__msi = hdfMap_msi(self.__hdf_obj[self.msi_gname])
+            self.__msi = hdfMap_msi(self.__hdf_obj[self._MSI_GNAME])
         else:
             self.__msi = {}
 
@@ -188,7 +188,7 @@ class hdfMap(object):
         """
         if self.has_data_group:
             self.__digitizers = hdfMap_digitizers(
-                self.__hdf_obj[self.data_gname])
+                self.__hdf_obj[self._DATA_GNAME])
         else:
             self.__digitizers = {}
 
@@ -214,7 +214,7 @@ class hdfMap(object):
         """
         if self.has_data_group:
             self.__controls = hdfMap_controls(
-                self.__hdf_obj[self.data_gname])
+                self.__hdf_obj[self._DATA_GNAME])
         else:
             self.__controls = {}
 
@@ -239,8 +239,29 @@ class hdfMap(object):
         all the subgroups in the data group (:attr:`data_gname`) that
         are unknown to the mapping constructors.
         """
-        # TODO: need to implement
-        self.__unknowns = {}
+        # add unknowns (Groups & Datasets) from levels
+        # 1. root -- '/'
+        # 2. MSI group -- '/MSI'
+        # 3. data group -- '/Raw data + config'
+        self.__unknowns = []
+
+        # scan through root
+        for item in self.__hdf_obj:
+            if item not in [self._MSI_GNAME, self._DATA_GNAME]:
+                self.__unknowns.append(self.__hdf_obj[item].name)
+
+        # scan through MSI group
+        for item in self.__hdf_obj[self._MSI_GNAME]:
+            if item not in self.msi:
+                self.__unknowns.append(
+                    self.__hdf_obj[self._MSI_GNAME][item].name)
+
+        # scan through data group
+        dknowns = list(self.digitizers) + list(self.controls)
+        for item in self.__hdf_obj[self._DATA_GNAME]:
+            if item not in dknowns:
+                self.__unknowns.append(
+                    self.__hdf_obj[self._DATA_GNAME][item].name)
 
     @property
     def unknowns(self):

@@ -11,6 +11,7 @@
 import h5py
 import tempfile
 import os
+import inspect
 
 from ..map_controls.tests import FauxWaveform
 
@@ -72,7 +73,7 @@ class FauxHDFBuilder(h5py.File):
             if add_modules is not None:
                 for key, val in add_modules.items():
                     if key in self._KNOWN_MODULES:
-                        self._add_module(key, val)
+                        self.add_module(key, val)
 
         except (ValueError, AttributeError):
             self.cleanup()
@@ -123,7 +124,37 @@ class FauxHDFBuilder(h5py.File):
             os.unlink(self.tempfile.name)
             self.tempdir.cleanup()
 
-    def _add_module(self, mod_name, mod_inputs):
+    def valid_modules(self):
+        """
+        List of valid modules and their input arguments. For
+        example,::
+
+            valid_modules = [
+                {'name': 'Waveform',
+                 'args': {'n_configs': 1, 'sn_size': 100}},
+            ]
+        """
+        # gather mod_name and mod_args
+        vmods = []
+        mod_args = {}
+        for mod_name in self._KNOWN_MODULES:
+            sign = inspect.signature(self._KNOWN_MODULES[mod_name])
+            for arg_name in sign.parameters:
+                if arg_name != 'id' and arg_name != 'kwargs':
+                    # do not add h5py.GroupID and kwargs arguments to
+                    # dictionary
+                    mod_args[arg_name] = \
+                        sign.parameters[arg_name].default
+
+            # build dict
+            vmods.append({'name': mod_name,
+                          'args': mod_args.copy()})
+            mod_args.clear()
+
+        # return valid modules
+        return vmods
+
+    def add_module(self, mod_name, mod_inputs):
         """
         Adds all the groups and datasets to the HDF5 file for the
         requested module.
@@ -132,20 +163,27 @@ class FauxHDFBuilder(h5py.File):
         :param dict mod_inputs: dictionary of input arguments for the
             module adder
         """
-        # determine appropriate root directory for module type
-        if mod_name in self._KNOWN_MSI:
-            # for MSI diagnostics
-            root_dir = 'MSI'
+        if mod_name not in self._KNOWN_MODULES:
+            # requested module not known
+            pass
+        elif mod_name in self.modules:
+            # requested module already added
+            pass
         else:
-            # for digitizers and control devices
-            root_dir = 'Raw data + config'
+            # determine appropriate root directory for module type
+            if mod_name in self._KNOWN_MSI:
+                # for MSI diagnostics
+                root_dir = 'MSI'
+            else:
+                # for digitizers and control devices
+                root_dir = 'Raw data + config'
 
-        # condition arguments for the module adder
-        if isinstance(mod_inputs, dict):
-            mod_inputs.update({'id': self[root_dir].id})
-        else:
-            mod_inputs = {'id': self[root_dir].id}
+            # condition arguments for the module adder
+            if isinstance(mod_inputs, dict):
+                mod_inputs.update({'id': self[root_dir].id})
+            else:
+                mod_inputs = {'id': self[root_dir].id}
 
-        # add requested module
-        self._modules[mod_name] = \
-            self._KNOWN_MODULES[mod_name](**mod_inputs)
+            # add requested module
+            self._modules[mod_name] = \
+                self._KNOWN_MODULES[mod_name](**mod_inputs)

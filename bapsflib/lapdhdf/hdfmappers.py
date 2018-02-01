@@ -97,7 +97,7 @@ class hdfMap(object):
         return False
 
     @property
-    def has_diagnostics(self):
+    def has_msi(self):
         """
         :return: :code:`True` if any known MSI diagnostics are
             discovered in the MSI group (i.e. :attr:`msi` is not empty)

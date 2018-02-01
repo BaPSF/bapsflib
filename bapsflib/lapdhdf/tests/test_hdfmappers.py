@@ -42,7 +42,7 @@ class TestHDFMap(ut.TestCase):
         self.assertTrue(hasattr(self.map, 'has_msi_group'))
         self.assertTrue(hasattr(self.map, 'has_data_group'))
         self.assertTrue(hasattr(self.map, 'has_data_run_sequence'))
-        self.assertTrue(hasattr(self.map, 'has_diagnostics'))
+        self.assertTrue(hasattr(self.map, 'has_msi'))
         self.assertTrue(hasattr(self.map, 'has_digitizers'))
         self.assertTrue(hasattr(self.map, 'has_controls'))
         self.assertTrue(hasattr(self.map, 'has_unknowns'))
@@ -58,7 +58,7 @@ class TestHDFMap(ut.TestCase):
 
         # ensure HDF is empty
         self.assertFalse(self.map.has_data_run_sequence)
-        self.assertFalse(self.map.has_diagnostics)
+        self.assertFalse(self.map.has_msi)
         self.assertFalse(self.map.has_digitizers)
         self.assertFalse(self.map.has_controls)
         self.assertFalse(self.map.has_unknowns)

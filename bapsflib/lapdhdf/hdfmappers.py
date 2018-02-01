@@ -97,6 +97,21 @@ class hdfMap(object):
         return False
 
     @property
+    def has_diagnostics(self):
+        """
+        :return: :code:`True` if any known MSI diagnostics are
+            discovered in the MSI group (i.e. :attr:`msi` is not empty)
+        :rtype: bool
+        """
+        if not hasattr(self, 'msi'):
+            has_diagnostics = False
+        elif len(self.msi) == 0:
+            has_diagnostics = False
+        else:
+            has_diagnostics = True
+        return has_diagnostics
+
+    @property
     def has_digitizers(self):
         """
         :return: :code:`True` if any known digitizers are discovered in

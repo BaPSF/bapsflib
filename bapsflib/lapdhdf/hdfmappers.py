@@ -62,6 +62,7 @@ class hdfMap(object):
         self.__attach_msi()
         self.__attach_digitizers()
         self.__attach_controls()
+        self.__attach_unknowns()
 
     @property
     def has_msi_group(self):
@@ -147,7 +148,7 @@ class hdfMap(object):
         if self.has_msi_group:
             self.__msi = hdfMap_msi(self.__hdf_obj[self.msi_gname])
         else:
-            self.__msi = None
+            self.__msi = {}
 
     @property
     def msi(self):
@@ -174,7 +175,7 @@ class hdfMap(object):
             self.__digitizers = hdfMap_digitizers(
                 self.__hdf_obj[self.data_gname])
         else:
-            self.__digitizers = None
+            self.__digitizers = {}
 
     @property
     def digitizers(self):
@@ -200,7 +201,7 @@ class hdfMap(object):
             self.__controls = hdfMap_controls(
                 self.__hdf_obj[self.data_gname])
         else:
-            self.__controls = None
+            self.__controls = {}
 
     @property
     def controls(self):
@@ -224,7 +225,7 @@ class hdfMap(object):
         are unknown to the mapping constructors.
         """
         # TODO: need to implement
-        self.__unknowns = None
+        self.__unknowns = {}
 
     @property
     def unknowns(self):

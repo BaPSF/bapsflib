@@ -24,10 +24,13 @@ class TestHDFMap(ut.TestCase):
     """
     def setUp(self):
         self.f = FauxHDFBuilder()
-        self.map = hdfMap(self.f)
 
     def tearDown(self):
         self.f.cleanup()
+
+    @property
+    def map(self):
+        return hdfMap(self.f)
 
     def test_attribute_existence(self):
         # informational attributes
@@ -75,7 +78,36 @@ class TestHDFMap(ut.TestCase):
         self.assertIs(self.map.main_digitizer, None)
 
     def test_hdf_one_control(self):
-        pass
+        """
+        No diagnostics or digitizers, One control device ('Waveform')
+        """
+        # add waveform control
+        self.f.add_module('Waveform')
+
+        # existence of root groups
+        self.assertTrue(self.map.has_msi_group)
+        self.assertTrue(self.map.has_data_group)
+
+        # ensure HDF only has controls
+        self.assertFalse(self.map.has_data_run_sequence)
+        self.assertFalse(self.map.has_msi)
+        self.assertFalse(self.map.has_digitizers)
+        self.assertTrue(self.map.has_controls)
+        self.assertFalse(self.map.has_unknowns)
+
+        # ensure format of informational attributes
+        self.assertIsInstance(self.map.msi, dict)
+        self.assertEqual(len(self.map.msi), 0)
+        self.assertIsInstance(self.map.digitizers, dict)
+        self.assertEqual(len(self.map.digitizers), 0)
+        self.assertIsInstance(self.map.controls, dict)
+        self.assertEqual(len(self.map.controls), 1)
+        self.assertIsInstance(self.map.unknowns, list)
+        self.assertEqual(len(self.map.unknowns), 0)
+        self.assertIs(self.map.main_digitizer, None)
+
+        # remove waveform control
+        self.f.remove_module('Waveform')
 
     def test_hdf_one_digitizer(self):
         pass

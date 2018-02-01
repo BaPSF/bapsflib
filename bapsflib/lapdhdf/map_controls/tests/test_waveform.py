@@ -11,12 +11,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-#from .fauxwaveform import FauxWaveform
 from ..waveform import hdfMap_control_waveform
 
-from bapsflib.lapdhdf.tests.fauxhdfbuilder import FauxHDFBuilder
+from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
-import tempfile
 import h5py
 import unittest as ut
 
@@ -26,18 +24,14 @@ class TestWaveform(ut.TestCase):
     N_CONFIGS = 1
 
     def setUp(self):
-        # self.tempdir = tempfile.TemporaryDirectory(prefix='hdf-test_')
-        # self.f = FauxWaveform(self.N_CONFIGS, dir=self.tempdir)
-        self.f = FauxHDFBuilder()
-        self.controls = self.f.modules['waveform']
-        self.controls.n_configs = self.N_CONFIGS
+        self.f = FauxHDFBuilder(
+            add_modules={'Waveform': {'n_configs': self.N_CONFIGS}})
+        self.controls = self.f.modules['Waveform']
         self.cgroup = self.f['Raw data + config/Waveform']
         self.cmap = hdfMap_control_waveform(self.cgroup)
 
     def tearDown(self):
         self.f.cleanup()
-        #self.f.close()
-        #self.tempdir.cleanup()
 
     def test_info(self):
         self.assertTrue(hasattr(self.cmap, 'info'))

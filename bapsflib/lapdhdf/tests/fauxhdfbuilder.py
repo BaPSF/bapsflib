@@ -154,13 +154,13 @@ class FauxHDFBuilder(h5py.File):
         # return valid modules
         return vmods
 
-    def add_module(self, mod_name, mod_inputs):
+    def add_module(self, mod_name, mod_args=None):
         """
         Adds all the groups and datasets to the HDF5 file for the
         requested module.
 
         :param str mod_name: name of module (e.g. :code:`'Waveform'`)
-        :param dict mod_inputs: dictionary of input arguments for the
+        :param dict mod_args: dictionary of input arguments for the
             module adder
         """
         if mod_name not in self._KNOWN_MODULES:
@@ -179,11 +179,18 @@ class FauxHDFBuilder(h5py.File):
                 root_dir = 'Raw data + config'
 
             # condition arguments for the module adder
-            if isinstance(mod_inputs, dict):
-                mod_inputs.update({'id': self[root_dir].id})
+            if isinstance(mod_args, dict):
+                mod_args.update({'id': self[root_dir].id})
             else:
-                mod_inputs = {'id': self[root_dir].id}
+                mod_args = {'id': self[root_dir].id}
 
             # add requested module
             self._modules[mod_name] = \
-                self._KNOWN_MODULES[mod_name](**mod_inputs)
+                self._KNOWN_MODULES[mod_name](**mod_args)
+
+    def remove_module(self, mod_name):
+        """Removed an added module"""
+        if mod_name in self._modules:
+            mod_path = self._modules[mod_name].name
+            del self[mod_path]
+            del self._modules[mod_name]

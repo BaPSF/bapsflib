@@ -8,7 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import tempfile
 import h5py
 import math
 import numpy as np
@@ -16,7 +15,7 @@ import numpy as np
 
 class FauxWaveform(h5py.Group):
     """
-    A Temporary HDF5 file with Waveform control group.
+    Creates a Faux 'Waveform' Group in a HDF5 file
     """
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # Create Temporary HDF5 File

@@ -18,37 +18,22 @@ class FauxWaveform(h5py.Group):
     Creates a Faux 'Waveform' Group in a HDF5 file
     """
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
-        # Create Temporary HDF5 File
-        #tempdir = dir.name \
-        #    if isinstance(dir, tempfile.TemporaryDirectory) else dir
-        #self.tempfile = \
-        #    tempfile.NamedTemporaryFile(suffix=suffix,
-        #                                prefix=prefix,
-        #                                dir=tempdir,
-        #                                delete=False)
-        #h5py.File.__init__(self, self.tempfile.name, 'w')
-
-        # create waveform group
+        # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
             raise ValueError('{} is not a GroupID'.format(id))
 
+        # create control group
         gid = h5py.h5g.create(id, b'Waveform')
-        # super().__init__()
         h5py.Group.__init__(self, gid)
 
         # store number on configurations
         self._n_configs = n_configs
 
-        # define number of shotnumbers
+        # define number of shot numbers
         self._sn_size = sn_size
 
-        # add data and waveform groups
-        # self.create_group('/Raw data + config/Waveform')
-        # self._wgroup = self['Raw data + config/Waveform']
-        self._wgroup = self
-
-        # build waveform groups, datasets, and attributes
-        self._update_waverform()
+        # build control device sub-groups, datasets, and attributes
+        self._update()
 
     @property
     def n_configs(self):
@@ -60,7 +45,7 @@ class FauxWaveform(h5py.Group):
         """Set number of waveform configurations"""
         if val != self._n_configs:
             self._n_configs = val
-            self._update_waverform()
+            self._update()
 
     @property
     def config_names(self):
@@ -77,28 +62,31 @@ class FauxWaveform(h5py.Group):
         """Set the number of shot numbers in the dataset"""
         if val != self._sn_size:
             self._sn_size = val
-            self._update_waverform()
+            self._update()
 
-    def _update_waverform(self):
-        """Updates Groups, Datasets, and Attributes"""
+    def _update(self):
+        """
+        Updates control group structure (Groups, Datasets, and
+        Attributes)
+        """
         # waveform needs to be re-built...must clear group first
-        self._wgroup.clear()
+        self.clear()
 
         # add configuration sub-groups
         self._config_names = []
         for i in range(self.n_configs):
             config_name = 'config{:02}'.format(i + 1)
             self._config_names.append(config_name)
-            self._wgroup.create_group(config_name)
+            self.create_group(config_name)
             self._set_attrs(config_name, i + 1)
 
         # add and populate dataset
-        self._wgroup.create_dataset(
+        self.create_dataset(
             'Run time list', shape=(self._sn_size * self.n_configs,),
             dtype=[('Shot number', '<i4'),
                    ('Configuration name', 'S120'),
                    ('Command index', '<i4')])
-        dset = self._wgroup['Run time list']
+        dset = self['Run time list']
         ci_list = ([0] * 5) + ([1] * 5) + ([2] * 5)
         ci_list = ci_list * int(math.ceil(self._sn_size / 15))
         ci_list = ci_list[:self._sn_size:]
@@ -111,7 +99,10 @@ class FauxWaveform(h5py.Group):
             ci_list.reverse()
 
     def _set_attrs(self, config_name, config_number):
-        self._wgroup[config_name].attrs.update({
+        """
+        Sets attributes for the control group and its sub-members
+        """
+        self[config_name].attrs.update({
             'IP address': '192.168.1.{}'.format(config_number).encode(),
             'Generator type': b'Agilent 33220A - LAN',
             'Waveform command list': b'FREQ 40000.000000 \n'

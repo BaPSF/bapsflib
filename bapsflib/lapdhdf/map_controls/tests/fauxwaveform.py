@@ -41,9 +41,9 @@ class FauxWaveform(h5py.Group):
         return self._n_configs
 
     @n_configs.setter
-    def n_configs(self, val):
+    def n_configs(self, val: int):
         """Set number of waveform configurations"""
-        if val != self._n_configs:
+        if val != self._n_configs and val >= 1:
             self._n_configs = val
             self._update()
 
@@ -69,7 +69,7 @@ class FauxWaveform(h5py.Group):
         Updates control group structure (Groups, Datasets, and
         Attributes)
         """
-        # waveform needs to be re-built...must clear group first
+        # clear group before rebuild
         self.clear()
 
         # add configuration sub-groups

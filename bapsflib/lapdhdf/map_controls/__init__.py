@@ -9,4 +9,3 @@
 #   license terms and contributor agreement.
 #
 from .map_controls import hdfMap_controls
-from .tests.fauxwaveform import FauxWaveform

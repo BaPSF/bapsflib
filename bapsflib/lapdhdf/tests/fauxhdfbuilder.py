@@ -14,6 +14,7 @@ import os
 import inspect
 
 from ..map_controls.tests import FauxWaveform
+from ..map_controls.tests import FauxSixK
 
 
 class FauxHDFBuilder(h5py.File):
@@ -22,7 +23,8 @@ class FauxHDFBuilder(h5py.File):
     """
     _KNOWN_MSI = {}
     _KNOWN_DIGITIZERS = {}
-    _KNOWN_CONTROLS = {'Waveform': FauxWaveform}
+    _KNOWN_CONTROLS = {'Waveform': FauxWaveform,
+                       '6K Compumotor': FauxSixK}
     _KNOWN_MODULES = _KNOWN_CONTROLS.copy()
     _KNOWN_MODULES.update(_KNOWN_MSI)
     _KNOWN_MODULES.update(_KNOWN_DIGITIZERS)

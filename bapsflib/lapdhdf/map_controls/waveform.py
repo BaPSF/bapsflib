@@ -93,10 +93,10 @@ class hdfMap_control_waveform(hdfMap_control_template):
     def construct_dataset_name(self, *args):
         return 'Run time list'
 
-    @property
-    def name(self):
-        """
-        :return: name of control device
-        :rtype: str
-        """
-        return 'Waveform'
+    # @property
+    # def name(self):
+    #     """
+    #     :return: name of control device
+    #     :rtype: str
+    #     """
+    #     return 'Waveform'

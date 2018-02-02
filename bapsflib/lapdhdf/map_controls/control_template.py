@@ -262,6 +262,14 @@ class hdfMap_control_template(ABC):
                         if type(self.group[name]) is h5py.Group]
         return sgroup_names
 
+    @property
+    def name(self):
+        """
+        :return: name of control device
+        :rtype: str
+        """
+        return self.group.name.split('/')[-1]
+
     @abstractmethod
     def construct_dataset_name(self, *args):
         """
@@ -271,14 +279,6 @@ class hdfMap_control_template(ABC):
         :return: name of dataset
         :rtype: str
         :raise: :exc:`NotImplementedError`
-        """
-        raise NotImplementedError
-
-    @property
-    def name(self):
-        """
-        :return: name of control device
-        :rtype: str
         """
         raise NotImplementedError
 

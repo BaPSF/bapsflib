@@ -9,3 +9,4 @@
 #   license terms and contributor agreement.
 #
 from .fauxwaveform import FauxWaveform
+from .fauxsixk import FauxSixK

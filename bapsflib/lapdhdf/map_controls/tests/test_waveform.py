@@ -28,56 +28,60 @@ class TestWaveform(ut.TestCase):
             add_modules={'Waveform': {'n_configs': self.N_CONFIGS}})
         self.controls = self.f.modules['Waveform']
         self.cgroup = self.f['Raw data + config/Waveform']
-        self.cmap = hdfMap_control_waveform(self.cgroup)
+        #self.map = hdfMap_control_waveform(self.cgroup)
 
     def tearDown(self):
         self.f.cleanup()
 
+    @property
+    def map(self):
+        return hdfMap_control_waveform(self.cgroup)
+
     def test_info(self):
-        self.assertTrue(hasattr(self.cmap, 'info'))
-        self.assertDictEqual(self.cmap.info, {
+        self.assertTrue(hasattr(self.map, 'info'))
+        self.assertDictEqual(self.map.info, {
             'group name': 'Waveform',
             'group path': '/Raw data + config/Waveform',
             'contype': 'waveform'})
 
     def test_contype(self):
-        self.assertTrue(hasattr(self.cmap, 'contype'))
-        self.assertEqual(self.cmap.contype, 'waveform')
+        self.assertTrue(hasattr(self.map, 'contype'))
+        self.assertEqual(self.map.contype, 'waveform')
 
     def test_dataset_names(self):
-        self.assertEqual(self.cmap.dataset_names, ['Run time list'])
+        self.assertEqual(self.map.dataset_names, ['Run time list'])
 
     def test_group(self):
-        self.assertIs(self.cmap.group, self.cgroup)
+        self.assertIs(self.map.group, self.cgroup)
 
     def test_has_command_list(self):
-        self.assertTrue(self.cmap.has_command_list)
+        self.assertTrue(self.map.has_command_list)
 
     def test_one_config_per_dataset(self):
         if self.controls.n_configs == 1:
-            self.assertTrue(self.cmap.one_config_per_dset)
+            self.assertTrue(self.map.one_config_per_dset)
         else:
-            self.assertFalse(self.cmap.one_config_per_dset)
+            self.assertFalse(self.map.one_config_per_dset)
 
     def test_spgroup_names(self):
         sgroup_names = [name
                         for name in self.cgroup
                         if isinstance(self.cgroup[name], h5py.Group)]
-        self.assertEqual(self.cmap.sgroup_names, sgroup_names)
+        self.assertEqual(self.map.sgroup_names, sgroup_names)
 
     def test_configs(self):
-        self.assertTrue(hasattr(self.cmap, 'configs'))
-        self.assertEqual(len(self.cmap.configs), self.N_CONFIGS)
+        self.assertTrue(hasattr(self.map, 'configs'))
+        self.assertEqual(len(self.map.configs), self.N_CONFIGS)
 
-        for config in self.cmap.configs:
+        for config in self.map.configs:
             self.assertIn(config, self.controls.config_names)
-            self.assertIn('IP address', self.cmap.configs[config])
-            self.assertIn('device name', self.cmap.configs[config])
-            self.assertIn('command list', self.cmap.configs[config])
-            self.assertIn('cl pattern', self.cmap.configs[config])
-            self.assertIn('dataset fields', self.cmap.configs[config])
+            self.assertIn('IP address', self.map.configs[config])
+            self.assertIn('device name', self.map.configs[config])
+            self.assertIn('command list', self.map.configs[config])
+            self.assertIn('cl pattern', self.map.configs[config])
+            self.assertIn('dataset fields', self.map.configs[config])
             self.assertIn('dset field to numpy field',
-                          self.cmap.configs[config])
+                          self.map.configs[config])
 
 
 class TestWaveform2(TestWaveform):

@@ -113,8 +113,16 @@ class FauxSixK(h5py.Group):
 
     def _set_6K_attrs(self):
         """Sets the '6K Compumotor' group attributes"""
-        self.attrs.update({})
-        pass
+        self.attrs.update({
+            'Created date': b'5/21/2004 4:09:05 PM',
+            'Description': b'Controls XY probe drives using the 6K '
+                           b'Compumotor motor controller.',
+            'Device name': b'6K Compumotor',
+            'Module IP address': b'192.168.7.6',
+            'Module BI path': b'C:\\ACQ II home\\Modules\\XY probe '
+                              b'drive\\XY probe drive.vi',
+            'Type': b'Motion'
+        })
 
     def _add_probe_groups(self):
         """Adds all probe groups"""

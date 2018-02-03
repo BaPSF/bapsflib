@@ -60,22 +60,27 @@ class FauxSixK(h5py.Group):
 
     @property
     def n_motionlists(self):
+        """
+        Number of motion lists used. If :code:`n_configs == 1`
+        """
         return self._n_motionlists
 
     @n_motionlists.setter
     def n_motionlists(self, val: int):
+        """Setter for n_motionlists"""
         if val != self._n_motionlists and self.n_configs == 1:
             self._n_motionlists = val
             self._update()
 
     @property
     def n_probes(self):
+        """Number of probes drives used"""
         return self._n_probes
 
     @property
     def config_names(self):
-        """list of waveform configuration names"""
-        return self._config_names
+        """list of configuration names"""
+        return list(self._configs)
 
     @property
     def sn_size(self):
@@ -98,9 +103,12 @@ class FauxSixK(h5py.Group):
         self.clear()
 
         # re-initialize key lists
-        self._config_names = []
+        # self._config_names = []
         self._probe_names = []
         self._motionlist_names = []
+
+        # re-initialize key dicts
+        self._configs = {}
 
         # set root attributes
         self._set_6K_attrs()
@@ -109,7 +117,8 @@ class FauxSixK(h5py.Group):
         self._add_probe_groups()
         self._add_motionlist_groups()
 
-        # TODO: CREATE DATASET
+        # add datasets
+        self._add_datasets()
 
     def _set_6K_attrs(self):
         """Sets the '6K Compumotor' group attributes"""
@@ -143,7 +152,7 @@ class FauxSixK(h5py.Group):
                 receptacle = i + 1
 
             # gather configuration names
-            self._config_names.append(receptacle)
+            #self._config_names.append(receptacle)
 
             # create probe group
             probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
@@ -158,6 +167,11 @@ class FauxSixK(h5py.Group):
                 'Probe type': b'LaPD probe',
                 'Receptacle': receptacle
             })
+
+            # fill configs dict
+            self._configs[receptacle] = {'probe name': pname,
+                                         'receptacle': receptacle,
+                                         'motion lists': []}
 
     def _add_motionlist_groups(self):
         """Add motion list groups"""
@@ -233,5 +247,64 @@ class FauxSixK(h5py.Group):
                 'Motion count': -99999
             })
 
-    def _add_dataset(self, dname):
-        pass
+        # fill configs dict
+        if self.n_motionlists == 1:
+            # same ml for all configs
+            for config_name in self._configs:
+                self._configs[config_name]['motion lists'].append(
+                    self._motionlist_names[0])
+        else:
+            # there's one config and all ml's are in it
+            for config_name in self._configs:
+                self._configs[config_name]['motion lists'] = \
+                    self._motionlist_names
+
+    def _add_datasets(self):
+        """Create datasets for each configurations"""
+        # TODO: fill data fields 'x', 'y', 'z', 'theta', 'phi'
+        shape = (self.sn_size, )
+        dtype = np.dtype([('Shot number', np.int32),
+                          ('x', np.float64),
+                          ('y', np.float64),
+                          ('z', np.float64),
+                          ('theta', np.float64),
+                          ('phi', np.float64),
+                          ('Motion list', np.bytes0, 120),
+                          ('Probe name', np.bytes0, 120)])
+
+        # create numpy array
+        data = np.ndarray(shape=shape, dtype=dtype)
+
+        # assign universal data
+        data['Shot number'] = np.arange(1, shape[0] + 1, 1,
+                                        dtype=data['Shot number'].dtype)
+
+        # create dataset
+        for cname in self._configs:
+            # construct dataset name
+            dset_name = 'XY[{0}]: {1}'.format(
+                self._configs[cname]['receptacle'],
+                self._configs[cname]['probe name']
+            )
+            self._configs[cname]['dset name'] = dset_name
+
+            # fill motion list name
+            if self.n_motionlists == 1:
+                data['Motion list'] = self._motionlist_names[0]
+            else:
+                start = 0
+                for ml in self._motionlist_names:
+                    ml_gname = 'Motion list: ' + ml
+                    ml_sn_size = \
+                        self[ml_gname].attrs['Data motion count']
+                    stop = start + ml_sn_size
+                    data['Motion list'][start:stop:] = ml
+
+                    # move start
+                    start = stop
+
+            # fill 'Probe name' field
+            data['Probe name'] = dset_name.encode()
+
+            # create dataset
+            self.create_dataset(dset_name, data=data.copy())

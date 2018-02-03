@@ -69,6 +69,10 @@ class FauxSixK(h5py.Group):
             self._update()
 
     @property
+    def n_probes(self):
+        return self._n_probes
+
+    @property
     def config_names(self):
         """list of waveform configuration names"""
         return self._config_names
@@ -131,6 +135,50 @@ class FauxSixK(h5py.Group):
                 'Receptacle': receptacle
             })
 
+        # determine possible data point arrangements for motion lists
+        # 1. find divisible numbers of sn_size
+        # 2. find (Nx, Ny) combos for each dataset
+        sn_size_for_ml = []
+        NN = []
+        if self.n_motionlists == 1:
+            # set shot number size per for each motion list
+            sn_size_for_ml.append(self.sn_size)
+
+            # find divisible numbers
+            sn_div = []
+            for j in range(sn_size_for_ml[0]):
+                if sn_size_for_ml[0] % (j + 1) == 0:
+                    sn_div.append(j + 1)
+
+            # build [(Nx, Ny), ]
+            sn_div_index = random.randint(0, len(sn_div) - 1)
+            Nx = sn_div[sn_div_index]
+            Ny = int(self.sn_size / Nx)
+            NN.append((Nx, Ny))
+        else:
+            # set shot number size per for each motion list
+            sn_per_ml = int(math.floor(
+                self.sn_size / self.n_motionlists))
+            sn_remainder = (self.sn_size
+                            - ((self.n_motionlists - 1) * sn_per_ml))
+            sn_size_for_ml.extend([sn_per_ml]
+                                  * (self.n_motionlists - 1))
+            sn_size_for_ml.append(sn_remainder)
+
+            # build NN of each motion list
+            for i in range(self.n_motionlists):
+                # find divisible numbers
+                sn_div = []
+                for j in range(sn_size_for_ml[i]):
+                    if sn_size_for_ml[i] % (j + 1) == 0:
+                        sn_div.append(j + 1)
+
+                # build (Nx, Ny)
+                sn_div_index = random.randint(0, len(sn_div) - 1)
+                Nx = sn_div[sn_div_index]
+                Ny = int(sn_size_for_ml[i] / Nx)
+                NN.append((Nx, Ny))
+
         # add motionlist sub-groups
         # - define motionlist names
         # - create motionlist group
@@ -144,16 +192,7 @@ class FauxSixK(h5py.Group):
             ml_gname = 'Motion list: ' + ml_name
             self.create_group(ml_gname)
 
-            # find divisible numbers of sn_size
-            sn_div = []
-            for j in range(self.sn_size):
-                if self.sn_size % (j + 1) == 0:
-                    sn_div.append(j + 1)
-
             # set motionlist attributes
-            sn_div_index = random.randint(0, len(sn_div) - 1)
-            Nx = sn_div[sn_div_index]
-            Ny = int( self.sn_size / Nx)
             timestamp = dt.now().strftime('%-m/%-d/%Y %-I:%M:%S %p')
             self[ml_gname].attrs.update({
                 'Created date': timestamp.encode(),
@@ -161,10 +200,10 @@ class FauxSixK(h5py.Group):
                 'Grid cneter y': 0.0,
                 'Delta x': 1.0,
                 'Delta y': 1.0,
-                'Nx': Nx,
-                'Ny': Ny,
+                'Nx': NN[i][0],
+                'Ny': NN[i][1],
                 'Motion list': ml_name.encode(),
-                'Data motion count': Nx * Ny,
+                'Data motion count': sn_size_for_ml[i],
                 'Motion count': -99999
             })
 

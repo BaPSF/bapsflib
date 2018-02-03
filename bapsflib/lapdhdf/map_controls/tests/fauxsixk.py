@@ -102,9 +102,57 @@ class FauxSixK(h5py.Group):
         self._probe_names = []
         self._motionlist_names = []
 
-        # add probe sub-groups
-        self._add_probe_groups()
+        # set root attributes
+        self._set_6K_attrs()
 
+        # add sub-groups
+        self._add_probe_groups()
+        self._add_motionlist_groups()
+
+        # TODO: CREATE DATASET
+
+    def _set_6K_attrs(self):
+        """Sets the '6K Compumotor' group attributes"""
+        self.attrs.update({})
+        pass
+
+    def _add_probe_groups(self):
+        """Adds all probe groups"""
+        # - define probe names
+        # - define receptacle number
+        # - define configuration name
+        # - create probe groups and sub-groups
+        # - define probe group attributes
+        for i in range(self.n_configs):
+            # define probe name
+            pname = 'probe{:02}'.format(i + 1)
+            self._probe_names.append(pname)
+
+            # define receptacle number
+            if self.n_configs == 1:
+                receptacle = random.randint(1, self._MAX_CONFIGS)
+            else:
+                receptacle = i + 1
+
+            # gather configuration names
+            self._config_names.append(receptacle)
+
+            # create probe group
+            probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
+            self.create_group(probe_gname)
+            self.create_group(probe_gname + '/Axes[0]')
+            self.create_group(probe_gname + '/Axes[1]')
+
+            # set probe group attributes
+            self[probe_gname].attrs.update({
+                'Port': -99999,
+                'Probe': pname.encode(),
+                'Probe type': b'LaPD probe',
+                'Receptacle': receptacle
+            })
+
+    def _add_motionlist_groups(self):
+        """Add motion list groups"""
         # determine possible data point arrangements for motion lists
         # 1. find divisible numbers of sn_size
         # 2. find (Nx, Ny) combos for each dataset
@@ -155,7 +203,7 @@ class FauxSixK(h5py.Group):
         # - define motionlist group attributes
         for i in range(self.n_motionlists):
             # define motionlist name
-            ml_name = 'ml-{:04}'.format(i+1)
+            ml_name = 'ml-{:04}'.format(i + 1)
             self._motionlist_names.append(ml_name)
 
             # create motionlist group
@@ -175,43 +223,6 @@ class FauxSixK(h5py.Group):
                 'Motion list': ml_name.encode(),
                 'Data motion count': sn_size_for_ml[i],
                 'Motion count': -99999
-            })
-
-            # TODO: CREATE DATASET
-
-    def _add_probe_groups(self):
-        """Adds all probe groups"""
-        # - define probe names
-        # - define receptacle number
-        # - define configuration name
-        # - create probe groups and sub-groups
-        # - define probe group attributes
-        for i in range(self.n_configs):
-            # define probe name
-            pname = 'probe{:02}'.format(i + 1)
-            self._probe_names.append(pname)
-
-            # define receptacle number
-            if self.n_configs == 1:
-                receptacle = random.randint(1, self._MAX_CONFIGS)
-            else:
-                receptacle = i + 1
-
-            # gather configuration names
-            self._config_names.append(receptacle)
-
-            # create probe group
-            probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
-            self.create_group(probe_gname)
-            self.create_group(probe_gname + '/Axes[0]')
-            self.create_group(probe_gname + '/Axes[1]')
-
-            # set probe group attributes
-            self[probe_gname].attrs.update({
-                'Port': -99999,
-                'Probe': pname.encode(),
-                'Probe type': b'LaPD probe',
-                'Receptacle': receptacle
             })
 
     def _add_dataset(self, dname):

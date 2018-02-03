@@ -97,43 +97,13 @@ class FauxSixK(h5py.Group):
         # clear group before rebuild
         self.clear()
 
+        # re-initialize key lists
         self._config_names = []
         self._probe_names = []
         self._motionlist_names = []
 
         # add probe sub-groups
-        # - define probe names
-        # - receptacle number
-        # - configuration name
-        # - create probe groups and sub-groups
-        # - define probe group attributes
-        for i in range(self.n_configs):
-            # define probe name
-            pname = 'probe{:02}'.format(i + 1)
-            self._probe_names.append(pname)
-
-            # define receptacle number
-            if self.n_configs == 1:
-                receptacle = random.randint(1, self._MAX_CONFIGS)
-            else:
-                receptacle = i + 1
-
-            # gather configuration names
-            self._config_names.append(receptacle)
-
-            # create probe group
-            probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
-            self.create_group(probe_gname)
-            self.create_group(probe_gname + '/Axes[0]')
-            self.create_group(probe_gname + '/Axes[1]')
-
-            # set probe group attributes
-            self[probe_gname].attrs.update({
-                'Port': -99999,
-                'Probe': pname.encode(),
-                'Probe type': b'LaPD probe',
-                'Receptacle': receptacle
-            })
+        self._add_probe_groups()
 
         # determine possible data point arrangements for motion lists
         # 1. find divisible numbers of sn_size
@@ -208,3 +178,41 @@ class FauxSixK(h5py.Group):
             })
 
             # TODO: CREATE DATASET
+
+    def _add_probe_groups(self):
+        """Adds all probe groups"""
+        # - define probe names
+        # - define receptacle number
+        # - define configuration name
+        # - create probe groups and sub-groups
+        # - define probe group attributes
+        for i in range(self.n_configs):
+            # define probe name
+            pname = 'probe{:02}'.format(i + 1)
+            self._probe_names.append(pname)
+
+            # define receptacle number
+            if self.n_configs == 1:
+                receptacle = random.randint(1, self._MAX_CONFIGS)
+            else:
+                receptacle = i + 1
+
+            # gather configuration names
+            self._config_names.append(receptacle)
+
+            # create probe group
+            probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
+            self.create_group(probe_gname)
+            self.create_group(probe_gname + '/Axes[0]')
+            self.create_group(probe_gname + '/Axes[1]')
+
+            # set probe group attributes
+            self[probe_gname].attrs.update({
+                'Port': -99999,
+                'Probe': pname.encode(),
+                'Probe type': b'LaPD probe',
+                'Receptacle': receptacle
+            })
+
+    def _add_dataset(self, dname):
+        pass

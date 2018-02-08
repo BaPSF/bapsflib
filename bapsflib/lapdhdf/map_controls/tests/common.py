@@ -14,39 +14,34 @@ import h5py
 
 class ControlTestCase(ut.TestCase):
 
-    @property
-    def map(self):
-        return NotImplemented
+    def assertControlMapBasics(self, map):
+        # assert attribute existence
+        self.assertTrue(hasattr(map, 'info'))
+        self.assertTrue(hasattr(map, 'configs'))
+        self.assertTrue(hasattr(map, 'contype'))
+        self.assertTrue(hasattr(map, 'dataset_names'))
+        self.assertTrue(hasattr(map, 'group'))
+        self.assertTrue(hasattr(map, 'has_command_list'))
+        self.assertTrue(hasattr(map, 'one_config_per_dset'))
+        self.assertTrue(hasattr(map, 'sgroup_names'))
+        self.assertTrue(hasattr(map, 'name'))
+        self.assertTrue(hasattr(map, 'construct_dataset_name'))
+        self.assertTrue(hasattr(map, 'unique_specifiers'))
 
-    def test_attributes_generic(self):
-        # test for existence
-        self.assertTrue(hasattr(self.map, 'info'))
-        self.assertTrue(hasattr(self.map, 'configs'))
-        self.assertTrue(hasattr(self.map, 'contype'))
-        self.assertTrue(hasattr(self.map, 'dataset_names'))
-        self.assertTrue(hasattr(self.map, 'group'))
-        self.assertTrue(hasattr(self.map, 'has_command_list'))
-        self.assertTrue(hasattr(self.map, 'one_config_per_dset'))
-        self.assertTrue(hasattr(self.map, 'sgroup_names'))
-        self.assertTrue(hasattr(self.map, 'name'))
-        self.assertTrue(hasattr(self.map, 'construct_dataset_name'))
-        self.assertTrue(hasattr(self.map, 'unique_specifiers'))
-
-        # test type and keys fo map.info
-        self.assertIsInstance(self.map.info, dict)
-        self.assertIn('group name', self.map.info)
-        self.assertIn('group path', self.map.info)
-        self.assertIn('contype', self.map.info)
+        # test type and keys for map.info
+        self.assertIsInstance(map.info, dict)
+        self.assertIn('group name', map.info)
+        self.assertIn('group path', map.info)
+        self.assertIn('contype', map.info)
 
         # test type for map.configs
-        self.assertIsInstance(self.map.configs, dict)
+        self.assertIsInstance(map.configs, dict)
 
-    def test_contype(self):
-        self.assertEqual(self.map.info['contype'], self.map.contype)
+        # assert contype
+        self.assertEqual(map.info['contype'], map.contype)
 
-    def test_group(self):
-        self.assertIsInstance(self.map.group, h5py.Group)
+        # assert attribute 'group' type
+        self.assertIsInstance(map.group, h5py.Group)
 
-    def test_unique_specifiers(self):
-        self.assertListEqual(list(self.map.configs),
-                             self.map.unique_specifiers)
+        # test attribute 'unique_specifiers'
+        self.assertListEqual(list(map.configs), map.unique_specifiers)

@@ -21,7 +21,7 @@ import unittest as ut
 
 
 class TestWaveform(ControlTestCase):
-    """Test clase for hdfMap_control_waveform"""
+    """Test class for hdfMap_control_waveform"""
     # N_CONFIGS = 1
 
     def setUp(self):

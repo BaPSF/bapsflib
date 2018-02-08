@@ -237,7 +237,7 @@ class FauxSixK(h5py.Group):
             self[ml_gname].attrs.update({
                 'Created date': timestamp.encode(),
                 'Grid center x': 0.0,
-                'Grid cneter y': 0.0,
+                'Grid center y': 0.0,
                 'Delta x': 1.0,
                 'Delta y': 1.0,
                 'Nx': NN[i][0],

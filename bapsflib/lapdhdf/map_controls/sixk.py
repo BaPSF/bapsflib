@@ -82,6 +82,10 @@ class hdfMap_control_6k(hdfMap_control_template):
                 ('phi', ('ptip_rot_phi', '<f8'), 0)
             ]
 
+            # Define 'dset name'
+            self.configs[config_name]['dset name'] = \
+                self.construct_dataset_name(config_name)
+
     def construct_dataset_name(self, *args):
         # The first arg passed is assumed to be the receptacle number.
         # If none are passed and there is only one receptacle deployed,

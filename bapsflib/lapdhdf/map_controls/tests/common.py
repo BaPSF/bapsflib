@@ -45,6 +45,7 @@ class ControlTestCase(ut.TestCase):
             self.assertIn('dataset fields', cmap.configs[config])
             self.assertIn('dset field to numpy field',
                           cmap.configs[config])
+            self.assertIn('dset name', cmap.configs[config])
 
         # assert contype
         self.assertEqual(cmap.info['contype'], cmap.contype)

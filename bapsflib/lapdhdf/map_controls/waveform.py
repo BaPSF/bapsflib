@@ -92,6 +92,10 @@ class hdfMap_control_waveform(hdfMap_control_template):
                  ('command', np.array(cl).dtype.str), 0)
             ]
 
+            # Define 'dset name'
+            self.configs[name]['dset name'] = \
+                self.construct_dataset_name(name)
+
     def construct_dataset_name(self, *args):
         return 'Run time list'
 

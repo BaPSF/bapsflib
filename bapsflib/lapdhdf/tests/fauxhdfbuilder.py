@@ -15,6 +15,7 @@ import inspect
 
 from ..map_controls.tests import FauxWaveform
 from ..map_controls.tests import FauxSixK
+from ..map_digitizers.tests import FauxSIS3301
 
 
 class FauxHDFBuilder(h5py.File):
@@ -22,7 +23,7 @@ class FauxHDFBuilder(h5py.File):
     Builds a Faux HDF5 file that simulates a HDF5 build by the LaPD.
     """
     _KNOWN_MSI = {}
-    _KNOWN_DIGITIZERS = {}
+    _KNOWN_DIGITIZERS = {'SIS 3301': FauxSIS3301}
     _KNOWN_CONTROLS = {'Waveform': FauxWaveform,
                        '6K Compumotor': FauxSixK}
     _KNOWN_MODULES = _KNOWN_CONTROLS.copy()

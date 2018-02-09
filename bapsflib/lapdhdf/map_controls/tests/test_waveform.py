@@ -16,7 +16,6 @@ from .common import ControlTestCase
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
-import h5py
 import unittest as ut
 
 
@@ -69,6 +68,9 @@ class TestWaveform(ControlTestCase):
     def assertWaveformDetails(self):
         # test dataset names
         self.assertEqual(self.map.dataset_names, ['Run time list'])
+
+        # test construct_dataset_names
+        # TODO: how to test 'construct_dataset_names'
 
         # re-test all sub-group names
         self.assertSubgroupNames(self.map, self.cgroup)

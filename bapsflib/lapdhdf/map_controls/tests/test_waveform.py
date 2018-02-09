@@ -42,7 +42,7 @@ class TestWaveform(ControlTestCase):
         return self.f['Raw data + config/Waveform']
 
     def test_map_basics(self):
-        self.assertControlMapBasics(self.map)
+        self.assertControlMapBasics(self.map, self.cgroup)
 
     def test_info(self):
         self.assertEqual(self.map.info['group name'], 'Waveform')
@@ -70,6 +70,9 @@ class TestWaveform(ControlTestCase):
         # test dataset names
         self.assertEqual(self.map.dataset_names, ['Run time list'])
 
+        # re-test all sub-group names
+        self.assertSubgroupNames(self.map, self.cgroup)
+
         # test attribute 'group'
         self.assertEqual(self.map.group, self.cgroup)
 
@@ -82,17 +85,8 @@ class TestWaveform(ControlTestCase):
         else:
             self.assertFalse(self.map.one_config_per_dset)
 
-        # test all sub-group names
-        self.assertSubgroupNames()
-
         # test that 'configs' attribute is setup correctly
         self.assertConfigs()
-
-    def assertSubgroupNames(self):
-        sgroup_names = [name
-                        for name in self.cgroup
-                        if isinstance(self.cgroup[name], h5py.Group)]
-        self.assertEqual(self.map.sgroup_names, sgroup_names)
 
     def assertConfigs(self):
         self.assertEqual(len(self.map.configs), self.controls.n_configs)

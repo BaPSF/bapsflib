@@ -40,7 +40,7 @@ class TestSixK(ControlTestCase):
         return self.f['Raw data + config/6K Compumotor']
 
     def test_map_basics(self):
-        self.assertControlMapBasics(self.map)
+        self.assertControlMapBasics(self.map, self.cgroup)
 
     def test_info(self):
         self.assertEqual(self.map.info['group name'], '6K Compumotor')
@@ -79,10 +79,13 @@ class TestSixK(ControlTestCase):
     def assertSixKDetails(self):
         # test dataset names
 
+        # re-test all sub-group names
+        self.assertSubgroupNames(self.map, self.cgroup)
+
         # test attribute 'group'
         self.assertEqual(self.map.group, self.cgroup)
 
-        # test form command list
+        # test for command list
         self.assertFalse(self.map.has_command_list)
 
         # test that 'configs' attribute is setup correctly

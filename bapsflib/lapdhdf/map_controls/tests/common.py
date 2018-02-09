@@ -34,8 +34,17 @@ class ControlTestCase(ut.TestCase):
         self.assertIn('group path', map.info)
         self.assertIn('contype', map.info)
 
-        # test type for map.configs
+        # test map.configs
+        # - must be a dict
+        # - each key must have a dict value
+        # - each sub-dict must have certain keys
+        # TODO: add assertion of sub-dict value format
         self.assertIsInstance(map.configs, dict)
+        for config in map.configs:
+            self.assertIsInstance(map.configs[config], dict)
+            self.assertIn('dataset fields', map.configs[config])
+            self.assertIn('dset field to numpy field',
+                          self.map.configs[config])
 
         # assert contype
         self.assertEqual(map.info['contype'], map.contype)

@@ -98,14 +98,14 @@ class TestWaveform(ControlTestCase):
         self.assertEqual(len(self.map.configs), self.controls.n_configs)
 
         for config in self.map.configs:
+            # keys 'dataset fields' and 'dset to numpy field' tested in
+            # assertControlMapBasic
+            #
             self.assertIn(config, self.controls.config_names)
             self.assertIn('IP address', self.map.configs[config])
             self.assertIn('device name', self.map.configs[config])
             self.assertIn('command list', self.map.configs[config])
             self.assertIn('cl pattern', self.map.configs[config])
-            self.assertIn('dataset fields', self.map.configs[config])
-            self.assertIn('dset field to numpy field',
-                          self.map.configs[config])
 
 
 if __name__ == '__main__':

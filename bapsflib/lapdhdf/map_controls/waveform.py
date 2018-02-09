@@ -8,6 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+# TODO: add 'dset name' to configs dict
+#
 import h5py
 import numpy as np
 import re

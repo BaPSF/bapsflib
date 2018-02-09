@@ -40,6 +40,9 @@ class FauxSixK(h5py.Group):
         # define number of shot numbers
         self._sn_size = sn_size
 
+        # set root attributes
+        self._set_6K_attrs()
+
         # build control device sub-groups, datasets, and attributes
         self._update()
 
@@ -109,9 +112,6 @@ class FauxSixK(h5py.Group):
 
         # re-initialize key dicts
         self._configs = {}
-
-        # set root attributes
-        self._set_6K_attrs()
 
         # add sub-groups
         self._add_probe_groups()

@@ -16,7 +16,6 @@ from .common import ControlTestCase
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
-import h5py
 import unittest as ut
 
 
@@ -78,6 +77,10 @@ class TestSixK(ControlTestCase):
 
     def assertSixKDetails(self):
         # test dataset names
+        # TODO: test dataset names
+
+        # test construct_dataset_names
+        # TODO: how to test 'construct_dataset_names'
 
         # re-test all sub-group names
         self.assertSubgroupNames(self.map, self.cgroup)
@@ -87,6 +90,9 @@ class TestSixK(ControlTestCase):
 
         # test for command list
         self.assertFalse(self.map.has_command_list)
+
+        # test attribute 'one_config_per_dataset'
+        self.assertTrue(self.map.one_config_per_dset)
 
         # test that 'configs' attribute is setup correctly
         self.assertConfigs()
@@ -103,7 +109,6 @@ class TestSixK(ControlTestCase):
             self.assertIn('port', self.map.configs[config])
             self.assertIn('receptacle', self.map.configs[config])
             self.assertIn('motion lists', self.map.configs[config])
-            # self.assertIn('dset name', self.map.configs[config])
 
             self.assertEqual(config,
                              self.map.configs[config]['receptacle'])

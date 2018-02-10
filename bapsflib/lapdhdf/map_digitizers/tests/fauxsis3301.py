@@ -18,12 +18,14 @@ class FauxSIS3301(h5py.Group):
     Creates a Faux 'SIS 3301' Group in a HDF5 file.
     """
 
-    def __init__(self, id, n_configs=1, sn_size=100, nt=10000, **kwargs):
+    def __init__(self, id, n_configs=1, sn_size=100, nt=10000,
+                 **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
             raise ValueError('{} is not a GroupID'.format(id))
 
         # create control group
+        # noinspection PyUnresolvedReferences
         gid = h5py.h5g.create(id, b'SIS 3301')
         h5py.Group.__init__(self, gid)
 
@@ -57,7 +59,8 @@ class FauxSIS3301(h5py.Group):
         """
         if isinstance(val, np.ndarray):
             if val.shape == self._active_brdch.shape \
-                    and val.dtype == self._active_brdch.dtype:
+                    and val.dtype == self._active_brdch.dtype\
+                    and np.any(val):
                 self._active_brdch = val
                 self._update()
             else:
@@ -165,6 +168,37 @@ class FauxSIS3301(h5py.Group):
             'Stop delay': 0,
             'Trigger mode': b'Start/stop'
         })
+
+        # create and build Board[] and Channels[] sub-groups
+        brd_count = 0
+        brd_bool_arr = np.any(self._active_brdch, axis=1)
+        brd_index = np.where(brd_bool_arr)[0]
+        for brd in brd_index:
+            # create Board[] group
+            # TODO: properly define attribute 'Board samples'
+            brd_name = 'Board[{}]'.format(brd_count)
+            brd_count += 1
+            self[gname].create_group(brd_name)
+            self[gname + '/' + brd_name].attrs.update({
+                'Board': brd,
+                'Board samples': -99999
+            })
+
+            # get active channels
+            ch_index = np.where(self._active_brdch[brd])[0]
+            ch_count = 0
+            for ch in ch_index:
+                # create Channels[]
+                ch_name = 'Channels[{}]'.format(ch_count)
+                ch_count += 1
+                brd_path = gname + '/' + brd_name
+                self[brd_path].create_group(ch_name)
+                self[brd_path + '/' + ch_name].attrs.update({
+                    'Board': brd,
+                    'Channel': ch,
+                    'DC offset (mV)': 0.0,
+                    'Data type': b'type info'
+                })
 
     def _set_sis3301_attrs(self):
         """Sets the 'SIS 3301' group attributes"""

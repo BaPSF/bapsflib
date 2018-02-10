@@ -132,6 +132,20 @@ class FauxSIS3301(h5py.Group):
         else:
             warn('`val` not valid, no update performed')
 
+    def _set_sis3301_attrs(self):
+        """Sets the 'SIS 3301' group attributes"""
+        self.attrs.update({
+            'Created date': b'5/21/2004 4:09:05 PM',
+            'Description': b'Struck Innovative Systeme 3301 8 channel '
+                           b'ADC boards, 100 MHz.  Also provides '
+                           b'access to SIS 3820 VME clock distribute.',
+            'Device name': b'SIS 3301',
+            'Module IP address': b'192.168.7.3',
+            'Module VI path': b'C:\\ACQ II home\\Modules\\SIS 3301\\'
+                              b'SIS 3301.vi',
+            'Type': b'Data acquisition'
+        })
+
     def _update(self):
         """
         Updates digitizer group structure (Groups, Datasets, and
@@ -150,6 +164,9 @@ class FauxSIS3301(h5py.Group):
         # reset active configuration if necessary
         if self._active_config not in self._config_names:
             self._active_config = self._config_names[0]
+
+        # build datasets
+        self._build_datasets()
 
     def _build_config_group(self, config_name):
         # create configuration group
@@ -200,16 +217,35 @@ class FauxSIS3301(h5py.Group):
                     'Data type': b'type info'
                 })
 
-    def _set_sis3301_attrs(self):
-        """Sets the 'SIS 3301' group attributes"""
-        self.attrs.update({
-            'Created date': b'5/21/2004 4:09:05 PM',
-            'Description': b'Struck Innovative Systeme 3301 8 channel '
-                           b'ADC boards, 100 MHz.  Also provides '
-                           b'access to SIS 3820 VME clock distribute.',
-            'Device name': b'SIS 3301',
-            'Module IP address': b'192.168.7.3',
-            'Module VI path': b'C:\\ACQ II home\\Modules\\SIS 3301\\'
-                              b'SIS 3301.vi',
-            'Type': b'Data acquisition'
-        })
+    def _build_datasets(self):
+        brds, chs = np.where(self._active_brdch)
+        for i in range(brds.size):
+            brd = brds[i]
+            ch = chs[i]
+
+            # create dataset
+            dset_name = (self._active_config
+                         + ' [{}:{}]'.format(brd, ch))
+            shape = (self._sn_size, self._nt)
+            dtype = np.int16
+            data = np.ndarray(shape=shape, dtype=dtype)
+            self.create_dataset(dset_name, data=data)
+
+            # create header dataset
+            dheader_name = dset_name + ' headers'
+            shape = (self._sn_size, )
+            dtype = np.dtype([('Shot', np.uint32),
+                              ('Scale', np.float64),
+                              ('Offset', np.float64),
+                              ('Min', np.int16),
+                              ('Max', np.int16),
+                              ('Clipped', np.uint8)])
+            dheader = np.ndarray(shape=shape, dtype=dtype)
+            dheader['Shot'] = np.arange(1, shape[0] + 1, 1,
+                                        dtype=dheader['Shot'].dtype)
+            dheader['Scale'] = 3.051944077014923E-4
+            dheader['Offset'] = -2.5
+            dheader['Min'] = data.min(axis=1)
+            dheader['Max'] = data.max(axis=1)
+            dheader['Clipped'] = 0
+            self.create_dataset(dheader_name, data=dheader)

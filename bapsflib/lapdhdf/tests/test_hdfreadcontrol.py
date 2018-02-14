@@ -14,12 +14,13 @@
 import tempfile
 import h5py
 import numpy as np
-
 import unittest as ut
 
-from ..map_controls import FauxWaveform
+# from ..map_controls import FauxWaveform
 from ..map_controls.waveform import hdfMap_control_waveform
 from ..hdfreadcontrol import condition_shotnum_list
+
+from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
 
 class TestConditionShotnumList(ut.TestCase):
@@ -27,15 +28,28 @@ class TestConditionShotnumList(ut.TestCase):
     N_WAVEFORM_CONFIGS = 3
 
     def setUp(self):
-        self.tempdir = tempfile.TemporaryDirectory(prefix='hdf-test_')
-        self.f = FauxWaveform(self.N_WAVEFORM_CONFIGS,
-                              dir=self.tempdir)
-        self.cgroup = self.f['Raw data + config/Waveform']
-        self.cmap = hdfMap_control_waveform(self.cgroup)
+        # self.tempdir = tempfile.TemporaryDirectory(prefix='hdf-test_')
+        # self.f = FauxWaveform(self.N_WAVEFORM_CONFIGS,
+        #                       dir=self.tempdir)
+        self.f = FauxHDFBuilder(
+            add_modules=
+            {'Waveform': {'n_configs': self.N_WAVEFORM_CONFIGS}})
+        self.mod = self.f.modules['Waveform']
+        # self.cgroup = self.f['Raw data + config/Waveform']
+        # self.map = hdfMap_control_waveform(self.cgroup)
 
     def tearDown(self):
-        self.f.close()
-        self.tempdir.cleanup()
+        self.f.cleanup()
+        # self.f.close()
+        # self.tempdir.cleanup()
+
+    @property
+    def cgroup(self):
+        return self.f['Raw data + config/Waveform']
+
+    @property
+    def map(self):
+        return hdfMap_control_waveform(self.cgroup)
 
     def test_single_shotnum(self):
         """Test a single shot number"""
@@ -43,11 +57,11 @@ class TestConditionShotnumList(ut.TestCase):
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             index, shotnum, sni = condition_shotnum_list(og_shotnum,
                                                          cdset,
                                                          shotnumkey,
-                                                         self.cmap,
+                                                         self.map,
                                                          cspec)
             self.suite_of_array_assertions(og_shotnum, index, shotnum, sni,
                                            cdset, shotnumkey, configkey,
@@ -55,15 +69,15 @@ class TestConditionShotnumList(ut.TestCase):
 
     def test_two_shotnum(self):
         """Test several cases of two shot number lists."""
-        shotnum_list = [[50, 51], [50, 60], [1, self.f.sn_size]]
+        shotnum_list = [[50, 51], [50, 60], [1, self.mod.sn_size]]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
         for og_shotnum in shotnum_list:
-            for cspec in self.cmap.configs:
+            for cspec in self.map.configs:
                 index, shotnum, sni = \
                     condition_shotnum_list(og_shotnum, cdset, shotnumkey,
-                                           self.cmap, cspec)
+                                           self.map, cspec)
                 self.suite_of_array_assertions(og_shotnum,
                                                index, shotnum, sni,
                                                cdset, shotnumkey,
@@ -77,10 +91,10 @@ class TestConditionShotnumList(ut.TestCase):
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
         for og_shotnum in shotnum_list:
-            for cspec in self.cmap.configs:
+            for cspec in self.map.configs:
                 index, shotnum, sni = \
                     condition_shotnum_list(og_shotnum, cdset, shotnumkey,
-                                           self.cmap, cspec)
+                                           self.map, cspec)
                 self.suite_of_array_assertions(og_shotnum,
                                                index, shotnum, sni,
                                                cdset, shotnumkey,
@@ -91,9 +105,9 @@ class TestConditionShotnumList(ut.TestCase):
         og_shotnum = [0]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             self.assertRaises(ValueError, condition_shotnum_list,
-                              og_shotnum, cdset, shotnumkey, self.cmap,
+                              og_shotnum, cdset, shotnumkey, self.map,
                               cspec)
 
     def test_neg_shotnums(self):
@@ -102,10 +116,10 @@ class TestConditionShotnumList(ut.TestCase):
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         for og_shotnum in shotnum_list:
-            for cspec in self.cmap.configs:
+            for cspec in self.map.configs:
                 self.assertRaises(ValueError, condition_shotnum_list,
                                   og_shotnum, cdset, shotnumkey,
-                                  self.cmap, cspec)
+                                  self.map, cspec)
 
     def test_out_of_range_shotnum(self):
         """
@@ -113,15 +127,15 @@ class TestConditionShotnumList(ut.TestCase):
         the shot numbers in the dataset.
         """
         # shotnum is larger than largest recorded shot number
-        og_shotnum = [self.f.sn_size + 1]
+        og_shotnum = [self.mod.sn_size + 1]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             index, shotnum, sni = condition_shotnum_list(og_shotnum,
                                                          cdset,
                                                          shotnumkey,
-                                                         self.cmap,
+                                                         self.map,
                                                          cspec)
             self.suite_of_array_assertions(og_shotnum,
                                            index, shotnum, sni,
@@ -129,15 +143,15 @@ class TestConditionShotnumList(ut.TestCase):
                                            cspec)
 
         # shotnum out of range above (sn_size+1) and below (-1)
-        og_shotnum = [-1, self.f.sn_size + 1]
+        og_shotnum = [-1, self.mod.sn_size + 1]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             index, shotnum, sni = condition_shotnum_list(og_shotnum,
                                                          cdset,
                                                          shotnumkey,
-                                                         self.cmap,
+                                                         self.map,
                                                          cspec)
             self.suite_of_array_assertions(og_shotnum,
                                            index, shotnum, sni,
@@ -149,11 +163,11 @@ class TestConditionShotnumList(ut.TestCase):
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             index, shotnum, sni = condition_shotnum_list(og_shotnum,
                                                          cdset,
                                                          shotnumkey,
-                                                         self.cmap,
+                                                         self.map,
                                                          cspec)
             self.suite_of_array_assertions(og_shotnum,
                                            index, shotnum, sni,
@@ -162,16 +176,17 @@ class TestConditionShotnumList(ut.TestCase):
 
         # shotnum out of range
         # above (sn_size+1, sn_size+10, sn_size+100) and valid
-        og_shotnum = [10, 15, self.f.sn_size + 1, self.f.sn_size + 10,
-                      self.f.sn_size + 100]
+        og_shotnum = [10, 15, self.mod.sn_size + 1,
+                      self.mod.sn_size + 10,
+                      self.mod.sn_size + 100]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             index, shotnum, sni = condition_shotnum_list(og_shotnum,
                                                          cdset,
                                                          shotnumkey,
-                                                         self.cmap,
+                                                         self.map,
                                                          cspec)
             self.suite_of_array_assertions(og_shotnum,
                                            index, shotnum, sni,
@@ -182,17 +197,17 @@ class TestConditionShotnumList(ut.TestCase):
         # shotnum out of range
         # below (-5, -1, 0), above (sn_size+1, sn_size+10, sn_size+100),
         # and valid
-        og_shotnum = [-5, -1, 0, 10, 15, self.f.sn_size + 1,
-                      self.f.sn_size + 10,
-                      self.f.sn_size + 100]
+        og_shotnum = [-5, -1, 0, 10, 15, self.mod.sn_size + 1,
+                      self.mod.sn_size + 10,
+                      self.mod.sn_size + 100]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.cmap.configs:
+        for cspec in self.map.configs:
             index, shotnum, sni = condition_shotnum_list(og_shotnum,
                                                          cdset,
                                                          shotnumkey,
-                                                         self.cmap,
+                                                         self.map,
                                                          cspec)
             self.suite_of_array_assertions(og_shotnum,
                                            index, shotnum, sni,
@@ -239,7 +254,7 @@ class TestConditionShotnumList(ut.TestCase):
         #   recorded shot numbers
         #
         og_i1 = og_i
-        og_i2 = np.where(og_arr <= self.f.sn_size)[0]
+        og_i2 = np.where(og_arr <= self.mod.sn_size)[0]
         if og_i1.size != 0 and og_i2.size != 0:
             og_i = og_i1[np.isin(og_i1, og_i2)]
             self.assertTrue(np.all(np.isin(shotnum[sni], og_arr[og_i])))

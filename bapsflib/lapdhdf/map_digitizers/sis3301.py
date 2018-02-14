@@ -267,18 +267,18 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                 # raise Exception("Too many active digitizer "
                 #                 "configurations detected. Currently "
                 #                 "do not know how to handle,")
-                raise Exception("There are multiple active digitizer"
-                                "configurations. User must specify"
-                                "config_name keyword.")
+                raise ValueError("There are multiple active digitizer"
+                                 "configurations. User must specify"
+                                 "config_name keyword.")
             else:
-                raise Exception("No active digitizer configuration "
-                                "detected.")
+                raise ValueError("No active digitizer configuration "
+                                 "detected.")
         elif config_name not in self.configs:
             # config_name must be a known configuration
-            raise Exception('Invalid configuration name given.')
+            raise ValueError('Invalid configuration name given.')
         elif self.configs[config_name]['active'] is False:
-            raise Exception('Specified configuration name is not '
-                            'active.')
+            raise ValueError('Specified configuration name is not '
+                             'active.')
 
         # search if (board, channel) combo is connected
         bc_valid = False
@@ -297,7 +297,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         # (board, channel) combo must be active
         if bc_valid is False:
-            raise Exception('Specified (board, channel) is not valid')
+            raise ValueError('Specified (board, channel) is not valid')
 
         # checks passed, build dataset_name
         dataset_name = '{0} [{1}:{2}]'.format(config_name, board,

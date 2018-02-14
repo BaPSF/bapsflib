@@ -11,6 +11,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+# TODO: detailed tests on map.configs
 # TODO: testing of shot and sample averaging identification
 # - this feature has to be added to the FauxSIS3301 first
 #
@@ -45,9 +46,14 @@ class TestSIS3301(DigitizerTestCase):
         return self.f['Raw data + config/SIS 3301']
 
     def test_map_basics(self):
+        """Test all required basic map features."""
         self.assertDigitizerMapBasics(self.map, self.dgroup)
 
     def test_active_configs(self):
+        """
+        Test the map's identification of the active configuration
+        returned by the :attr:`active_configs` attribute.
+        """
         # one config and one active config
         if self.mod.knobs.n_configs != 1:
             self.mod.knobs.n_configs = 1
@@ -61,10 +67,15 @@ class TestSIS3301(DigitizerTestCase):
         self.assertTrue(self.map.active_configs[0] == 'config02')
 
     def test_adc_identification(self):
+        """Test the map's identification of a configurations adc."""
         config = self.map.active_configs[0]
         self.assertEqual(self.map.configs[config]['adc'], ['SIS 3301'])
 
     def test_brdch_identification(self):
+        """
+        Test the map's identification of a configurations connected
+        board and channel combinations.
+        """
         # one config and one active config
         if self.mod.knobs.n_configs != 1:
             self.mod.knobs.n_configs = 1
@@ -89,6 +100,10 @@ class TestSIS3301(DigitizerTestCase):
         self.assertChannels(config, my_bcs)
 
     def assertBoards(self, config_name, my_bcs):
+        """
+        Asserts the map identified boards matches the pre-defined
+        connected boards.
+        """
         # get defined boards
         brds = []
         for brd, chs in my_bcs:
@@ -103,6 +118,10 @@ class TestSIS3301(DigitizerTestCase):
         self.assertEqual(brds, map_brds)
 
     def assertChannels(self, config_name, my_bcs):
+        """
+        Asserts the map identified channels for each board matches the
+        pre-defined connected channels for each board.
+        """
         # get defined boards
         brds = []
         for brd, chs in my_bcs:
@@ -116,6 +135,10 @@ class TestSIS3301(DigitizerTestCase):
             self.assertEqual(conn[1], my_bcs[ibrd][1])
 
     def test_construct_dataset_name(self):
+        """
+        Test behavior of the map's :meth:`construct_dataset_name`
+        method.
+        """
         # default inputs: board, channel
         # keywords to test:
         # - config_name

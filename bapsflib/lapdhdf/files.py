@@ -48,6 +48,7 @@ class File(h5py.File):
         self.__file_checks = hdfCheck(self)
 
     def some_info(self):
+        """this returns string 'soem info'"""
         return 'some info'
 
     @property

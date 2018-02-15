@@ -12,11 +12,52 @@ import h5py
 import math
 import numpy as np
 
+from warnings import warn
+
 
 class FauxWaveform(h5py.Group):
     """
     Creates a Faux 'Waveform' Group in a HDF5 file
     """
+    class _knobs(object):
+        """
+        A class that contains all the controls for specifying the
+        digitizer group structure.
+        """
+        def __init__(self, val):
+            super().__init__()
+            self._faux = val
+
+        @property
+        def n_configs(self):
+            """Number of waveform configurations"""
+            return self._faux._n_configs
+
+        @n_configs.setter
+        def n_configs(self, val: int):
+            """Set number of waveform configurations"""
+            if val >= 1 and isinstance(val, int):
+                if val != self._faux._n_configs:
+                    self._faux._n_configs = val
+                    self._faux._update()
+            else:
+                warn('`val` not valid, no update performed')
+
+        @property
+        def sn_size(self):
+            """Number of shot numbers in dataset"""
+            return self._faux._sn_size
+
+        @sn_size.setter
+        def sn_size(self, val):
+            """Set the number of shot numbers in the dataset"""
+            if isinstance(val, int) and val >= 1:
+                if val != self._faux._sn_size:
+                    self._faux._sn_size = val
+                    self._faux._update()
+            else:
+                warn('`val` not valid, no update performed')
+
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
@@ -36,33 +77,38 @@ class FauxWaveform(h5py.Group):
         self._update()
 
     @property
-    def n_configs(self):
-        """Number of waveform configurations"""
-        return self._n_configs
+    def knobs(self):
+        """Knobs for controlling structure of digitizer group"""
+        return self._knobs(self)
 
-    @n_configs.setter
-    def n_configs(self, val: int):
-        """Set number of waveform configurations"""
-        if val != self._n_configs and val >= 1:
-            self._n_configs = val
-            self._update()
+    # @property
+    # def n_configs(self):
+    #     """Number of waveform configurations"""
+    #     return self._n_configs
+
+    # @n_configs.setter
+    # def n_configs(self, val: int):
+    #     """Set number of waveform configurations"""
+    #     if val != self._n_configs and val >= 1:
+    #         self._n_configs = val
+    #         self._update()
 
     @property
     def config_names(self):
         """list of waveform configuration names"""
         return self._config_names
 
-    @property
-    def sn_size(self):
-        """Number of shot numbers in dataset"""
-        return self._sn_size
+    # @property
+    # def sn_size(self):
+    #     """Number of shot numbers in dataset"""
+    #     return self._sn_size
 
-    @sn_size.setter
-    def sn_size(self, val):
-        """Set the number of shot numbers in the dataset"""
-        if val != self._sn_size:
-            self._sn_size = val
-            self._update()
+    # @sn_size.setter
+    # def sn_size(self, val):
+    #     """Set the number of shot numbers in the dataset"""
+    #     if val != self._sn_size:
+    #         self._sn_size = val
+    #         self._update()
 
     def _update(self):
         """
@@ -74,7 +120,7 @@ class FauxWaveform(h5py.Group):
 
         # add configuration sub-groups
         self._config_names = []
-        for i in range(self.n_configs):
+        for i in range(self._n_configs):
             config_name = 'config{:02}'.format(i + 1)
             self._config_names.append(config_name)
             self.create_group(config_name)
@@ -82,7 +128,7 @@ class FauxWaveform(h5py.Group):
 
         # add and populate dataset
         self.create_dataset(
-            'Run time list', shape=(self._sn_size * self.n_configs,),
+            'Run time list', shape=(self._sn_size * self._n_configs,),
             dtype=[('Shot number', '<i4'),
                    ('Configuration name', 'S120'),
                    ('Command index', '<i4')])
@@ -91,11 +137,11 @@ class FauxWaveform(h5py.Group):
         ci_list = ci_list * int(math.ceil(self._sn_size / 15))
         ci_list = ci_list[:self._sn_size:]
         for i, config in enumerate(self._config_names):
-            dset[i::self.n_configs, 'Shot number'] = \
+            dset[i::self._n_configs, 'Shot number'] = \
                 np.arange(self._sn_size, dtype='<i4') + 1
-            dset[i::self.n_configs, 'Configuration name'] = \
+            dset[i::self._n_configs, 'Configuration name'] = \
                 config.encode()
-            dset[i::self.n_configs, 'Command index'] = np.array(ci_list)
+            dset[i::self._n_configs, 'Command index'] = np.array(ci_list)
             ci_list.reverse()
 
     def _set_attrs(self, config_name, config_number):
@@ -109,5 +155,3 @@ class FauxWaveform(h5py.Group):
                                      b'FREQ 80000.000000 \n'
                                      b'FREQ 120000.000000 \n'
         })
-
-

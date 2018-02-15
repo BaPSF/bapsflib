@@ -47,6 +47,10 @@ class File(h5py.File):
         print('Begin HDF5 Quick Report:')
         self.__file_checks = hdfCheck(self)
 
+    def some_info(self):
+        """this returns string 'soem info'"""
+        return 'some info'
+
     @property
     def exp_descr(self):
         """

@@ -102,7 +102,7 @@ class FauxSIS3301(h5py.Group):
         @sn_size.setter
         def sn_size(self, val):
             """Set the number of shot numbers in a dataset"""
-            if isinstance(val, int):
+            if isinstance(val, int) and val >= 1:
                 if val != self._faux._sn_size:
                     self._faux._sn_size = val
                     self._faux._update()

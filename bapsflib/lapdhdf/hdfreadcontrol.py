@@ -265,8 +265,10 @@ class hdfReadControl(np.recarray):
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()
-        elif type(shotnum) is list and len(shotnum) == 1:
-            shotnum = shotnum[0]
+        elif type(shotnum) is int:
+            shotnum = [shotnum]
+        # elif type(shotnum) is list and len(shotnum) == 1:
+        #     shotnum = shotnum[0]
 
         # Ensure 'shotnum' is valid
         # - here 'shotnum' will be converted from its keyword type to a
@@ -694,6 +696,9 @@ def condition_controls(hdf_file, controls, **kwargs):
     #   4. proper unique specifiers are defined
     #
     if type(controls) is list:
+        if len(controls) == 0:
+            raise ValueError('controls argument empty')
+
         new_controls = []
         for device in controls:
             if type(device) is str:

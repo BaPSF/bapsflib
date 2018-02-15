@@ -11,12 +11,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import tempfile
 import h5py
 import numpy as np
 import unittest as ut
 
-# from ..map_controls import FauxWaveform
 from ..map_controls.waveform import hdfMap_control_waveform
 from ..hdfreadcontrol import condition_shotnum_list
 

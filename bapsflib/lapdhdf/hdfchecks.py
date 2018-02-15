@@ -219,8 +219,12 @@ class hdfCheck(object):
         :param silent:
         :return:
         """
-        for ii, diag in enumerate(self.__hdf_map.msi.found_diagnostics):
-            self.exist_msi_diagnostic(diag, silent=silent)
+        try:
+            for ii, diag in \
+                    enumerate(self.__hdf_map.msi.found_diagnostics):
+                self.exist_msi_diagnostic(diag, silent=silent)
+        except TypeError:
+            pass
 
     def exist_data_group(self, silent=True):
         """

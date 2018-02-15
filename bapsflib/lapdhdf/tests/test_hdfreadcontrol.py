@@ -23,23 +23,14 @@ from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
 class TestConditionShotnumList(ut.TestCase):
     """Test Case for condition_shotnum_list"""
-    N_WAVEFORM_CONFIGS = 3
 
     def setUp(self):
-        # self.tempdir = tempfile.TemporaryDirectory(prefix='hdf-test_')
-        # self.f = FauxWaveform(self.N_WAVEFORM_CONFIGS,
-        #                       dir=self.tempdir)
         self.f = FauxHDFBuilder(
-            add_modules=
-            {'Waveform': {'n_configs': self.N_WAVEFORM_CONFIGS}})
+            add_modules={'Waveform': {'n_configs': 1, 'sn_size': 100}})
         self.mod = self.f.modules['Waveform']
-        # self.cgroup = self.f['Raw data + config/Waveform']
-        # self.map = hdfMap_control_waveform(self.cgroup)
 
     def tearDown(self):
         self.f.cleanup()
-        # self.f.close()
-        # self.tempdir.cleanup()
 
     @property
     def cgroup(self):
@@ -49,57 +40,48 @@ class TestConditionShotnumList(ut.TestCase):
     def map(self):
         return hdfMap_control_waveform(self.cgroup)
 
-    def test_single_shotnum(self):
-        """Test a single shot number"""
-        og_shotnum = [10]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for cspec in self.map.configs:
-            index, shotnum, sni = condition_shotnum_list(og_shotnum,
-                                                         cdset,
-                                                         shotnumkey,
-                                                         self.map,
-                                                         cspec)
-            self.suite_of_array_assertions(og_shotnum, index, shotnum, sni,
-                                           cdset, shotnumkey, configkey,
-                                           cspec)
+    def test_simple_dataset(self):
+        """
+        Tests for a dataset containing recorded data for a single
+        configuration.
+        """
+        if self.mod.knobs.n_configs != 1:
+            self.mod.knobs.n_configs = 1
 
-    def test_two_shotnum(self):
-        """Test several cases of two shot number lists."""
-        shotnum_list = [[50, 51], [50, 60], [1, self.mod.sn_size]]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
-                index, shotnum, sni = \
-                    condition_shotnum_list(og_shotnum, cdset, shotnumkey,
-                                           self.map, cspec)
-                self.suite_of_array_assertions(og_shotnum,
-                                               index, shotnum, sni,
-                                               cdset, shotnumkey,
-                                               configkey, cspec)
+        # test zero shot number
+        self.assertZeroSN()
 
-    def test_ten_shotnum(self):
-        """Test several cases of 10 shot number lists."""
-        shotnum_list = [[50, 51, 52, 53, 54, 55, 56, 57, 58, 59],
-                        [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
-                index, shotnum, sni = \
-                    condition_shotnum_list(og_shotnum, cdset, shotnumkey,
-                                           self.map, cspec)
-                self.suite_of_array_assertions(og_shotnum,
-                                               index, shotnum, sni,
-                                               cdset, shotnumkey,
-                                               configkey, cspec)
+        # test negative shot number cases
+        self.assertNegativeSN()
 
-    def test_zero_shotnum(self):
-        """Test the zero shot number case."""
+        # test in range shot number cases
+        self.assertInRangeSN()
+
+        # test out of range shot number cases
+        self.assertOutRangeSN()
+
+    def test_complex_dataset(self):
+        """
+        Tests for a dataset containing recorded data for a multiple
+        configurations.
+        """
+        if self.mod.knobs.n_configs != 3:
+            self.mod.knobs.n_configs = 3
+
+        # test zero shot number
+        self.assertZeroSN()
+
+        # test negative shot number cases
+        self.assertNegativeSN()
+
+        # test in range shot number cases
+        self.assertInRangeSN()
+
+        # test out of range shot number cases
+        self.assertOutRangeSN()
+
+    def assertZeroSN(self):
+        """Assert the zero shot number case."""
         og_shotnum = [0]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
@@ -108,9 +90,12 @@ class TestConditionShotnumList(ut.TestCase):
                               og_shotnum, cdset, shotnumkey, self.map,
                               cspec)
 
-    def test_neg_shotnums(self):
-        """Test the zero shot number case."""
-        shotnum_list = [[-1], [-10, -5, 0]]
+    def assertNegativeSN(self):
+        """Assert negative shot number cases."""
+        shotnum_list = [
+            [-1],
+            [-10, -5, 0]
+        ]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         for og_shotnum in shotnum_list:
@@ -119,102 +104,72 @@ class TestConditionShotnumList(ut.TestCase):
                                   og_shotnum, cdset, shotnumkey,
                                   self.map, cspec)
 
-    def test_out_of_range_shotnum(self):
+    def assertInRangeSN(self):
         """
-        Test conditioning of shotnum with shot numbers out of range of
-        the shot numbers in the dataset.
+        Assert shot numbers cases within range of dataset shot numbers.
         """
-        # shotnum is larger than largest recorded shot number
-        og_shotnum = [self.mod.sn_size + 1]
+        shotnum_list = [
+            [10],
+            [50, 51],
+            [50, 60],
+            [1, self.mod.knobs.sn_size],
+            [50, 51, 52, 53, 54, 55, 56, 57, 58, 59],
+            [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]
+        ]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.map.configs:
-            index, shotnum, sni = condition_shotnum_list(og_shotnum,
-                                                         cdset,
-                                                         shotnumkey,
-                                                         self.map,
-                                                         cspec)
-            self.suite_of_array_assertions(og_shotnum,
-                                           index, shotnum, sni,
-                                           cdset, shotnumkey, configkey,
-                                           cspec)
+        for og_shotnum in shotnum_list:
+            for cspec in self.map.configs:
+                index, shotnum, sni = \
+                    condition_shotnum_list(og_shotnum, cdset,
+                                           shotnumkey,
+                                           self.map, cspec)
+                self.assertSNSuite(og_shotnum,
+                                   index, shotnum, sni,
+                                   cdset, shotnumkey,
+                                   configkey, cspec)
 
-        # shotnum out of range above (sn_size+1) and below (-1)
-        og_shotnum = [-1, self.mod.sn_size + 1]
+    def assertOutRangeSN(self):
+        """
+        Assert shot number cases where some shot numbers are out of
+        range of the dataset shotnumbers.
+        """
+        # - one above largest shot number
+        # - out of range above (sn_size+1) and below (-1)
+        # - out of range below (-5, -1, 0) and valid
+        # - out of range above (sn_size+1, sn_size+10, sn_size+100)
+        #   and valid
+        # - out of range below (-5, -1, 0), above (sn_size+1,
+        #   sn_size+10, sn_size+100), and valid
+        #
+        shotnum_list = [
+            [self.mod.knobs.sn_size + 1],
+            [-1, self.mod.knobs.sn_size + 1],
+            [-5, -1, 0, 10, 15],
+            [10, 15, self.mod.knobs.sn_size + 1,
+             self.mod.knobs.sn_size + 10,
+             self.mod.knobs.sn_size + 100],
+            [-5, -1, 0, 10, 15, self.mod.knobs.sn_size + 1,
+             self.mod.knobs.sn_size + 10,
+             self.mod.knobs.sn_size + 100]
+        ]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
-        for cspec in self.map.configs:
-            index, shotnum, sni = condition_shotnum_list(og_shotnum,
-                                                         cdset,
-                                                         shotnumkey,
-                                                         self.map,
-                                                         cspec)
-            self.suite_of_array_assertions(og_shotnum,
-                                           index, shotnum, sni,
-                                           cdset, shotnumkey, configkey,
-                                           cspec)
+        for og_shotnum in shotnum_list:
+            for cspec in self.map.configs:
+                index, shotnum, sni = \
+                    condition_shotnum_list(og_shotnum, cdset,
+                                           shotnumkey,
+                                           self.map, cspec)
+                self.assertSNSuite(og_shotnum,
+                                   index, shotnum, sni,
+                                   cdset, shotnumkey,
+                                   configkey, cspec)
 
-        # shotnum out of range below (-5, -1, 0) and valid
-        og_shotnum = [-5, -1, 0, 10, 15]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for cspec in self.map.configs:
-            index, shotnum, sni = condition_shotnum_list(og_shotnum,
-                                                         cdset,
-                                                         shotnumkey,
-                                                         self.map,
-                                                         cspec)
-            self.suite_of_array_assertions(og_shotnum,
-                                           index, shotnum, sni,
-                                           cdset, shotnumkey, configkey,
-                                           cspec)
-
-        # shotnum out of range
-        # above (sn_size+1, sn_size+10, sn_size+100) and valid
-        og_shotnum = [10, 15, self.mod.sn_size + 1,
-                      self.mod.sn_size + 10,
-                      self.mod.sn_size + 100]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for cspec in self.map.configs:
-            index, shotnum, sni = condition_shotnum_list(og_shotnum,
-                                                         cdset,
-                                                         shotnumkey,
-                                                         self.map,
-                                                         cspec)
-            self.suite_of_array_assertions(og_shotnum,
-                                           index, shotnum, sni,
-                                           cdset, shotnumkey,
-                                           configkey,
-                                           cspec)
-
-        # shotnum out of range
-        # below (-5, -1, 0), above (sn_size+1, sn_size+10, sn_size+100),
-        # and valid
-        og_shotnum = [-5, -1, 0, 10, 15, self.mod.sn_size + 1,
-                      self.mod.sn_size + 10,
-                      self.mod.sn_size + 100]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for cspec in self.map.configs:
-            index, shotnum, sni = condition_shotnum_list(og_shotnum,
-                                                         cdset,
-                                                         shotnumkey,
-                                                         self.map,
-                                                         cspec)
-            self.suite_of_array_assertions(og_shotnum,
-                                           index, shotnum, sni,
-                                           cdset, shotnumkey,
-                                           configkey,
-                                           cspec)
-
-    def suite_of_array_assertions(self, og_shotnum, index, shotnum, sni,
-                                  cdset, shotnumkey, configkey, cspec):
+    def assertSNSuite(self, og_shotnum, index, shotnum, sni,
+                      cdset, shotnumkey, configkey, cspec):
         """Suite of assertions for shot number conditioning"""
         # all return variables should be np.ndarray
         self.assertTrue(isinstance(index, np.ndarray))
@@ -252,7 +207,7 @@ class TestConditionShotnumList(ut.TestCase):
         #   recorded shot numbers
         #
         og_i1 = og_i
-        og_i2 = np.where(og_arr <= self.mod.sn_size)[0]
+        og_i2 = np.where(og_arr <= self.mod.knobs.sn_size)[0]
         if og_i1.size != 0 and og_i2.size != 0:
             og_i = og_i1[np.isin(og_i1, og_i2)]
             self.assertTrue(np.all(np.isin(shotnum[sni], og_arr[og_i])))
@@ -274,14 +229,6 @@ class TestConditionShotnumList(ut.TestCase):
             cname_arr = cdset[index.tolist(), configkey]
             for name in cname_arr:
                 self.assertEqual(name.decode('utf-8'), cspec)
-
-
-class TestConditionShotnumListSimple(TestConditionShotnumList):
-    """
-    Test Case for condition_shotnum_list for a dataset that has
-    recorded data for only one configuration.
-    """
-    N_WAVEFORM_CONFIGS = 1
 
 
 if __name__ == '__main__':

@@ -16,7 +16,8 @@ import numpy as np
 import unittest as ut
 
 from ..map_controls.waveform import hdfMap_control_waveform
-from ..hdfreadcontrol import condition_shotnum_list
+from ..files import File
+from ..hdfreadcontrol import condition_shotnum_list, condition_controls
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
@@ -229,6 +230,123 @@ class TestConditionShotnumList(ut.TestCase):
             cname_arr = cdset[index.tolist(), configkey]
             for name in cname_arr:
                 self.assertEqual(name.decode('utf-8'), cspec)
+
+
+class TestConditonControls(ut.TestCase):
+    """Test Case for condition_controls"""
+    # What to test:
+    # 1. passing of non lapdhdf.File object
+    #    - raises AttributeError
+    # 2. passing of controls as None (or not a list)
+    #    - raises TypeError
+    # 3. HDF5 file with no controls
+    #    - raises AttributeError
+    # 4. HDF5 file with one control
+    #    - pass controls with
+    #      a. just control name, no config
+    #      b. control name and valid config
+    #      c. control name and invalid config
+    #      d. two control names
+    # 5. HDF5 file with multiple controls
+    #
+    def setUp(self):
+        self.f = FauxHDFBuilder(
+            add_modules={'Waveform': {'n_configs': 3,
+                                      'sn_size': 100},
+                         '6K Compumotor': {'n_configs': 2,
+                                           'sn_size': 100}})
+
+    def tearDown(self):
+        self.f.cleanup()
+
+    @property
+    def lapdf(self):
+        return File(self.f.filename)
+
+    def test_simple_puts(self):
+        # hdf_file = h5py.File (but NOT lapdhdf.File)
+        # controls = None
+        self.assertRaises(AttributeError,
+                          condition_controls, self.f, None)
+
+        # hdf_file = lapdhdf.File
+        # controls = empty list
+        self.assertRaises(ValueError,
+                          condition_controls, self.lapdf, [])
+
+        # hdf_file = lapdhdf.File
+        # controls = not a list
+        self.assertRaises(TypeError,
+                          condition_controls, self.lapdf, None)
+
+    def test_file_w_one_control(self):
+        # set one control device
+        modules = list(self.f.modules.keys())
+        for mod in modules:
+            self.f.remove_module(mod)
+        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 100})
+
+        con_list = [
+            ['Waveform'],
+            ['Waveform', '6K Compumotor'],
+            [('Waveform', 'config01')],
+            [('Waveform', 'config01'), ('Waveform', 'config02')],
+            [('Waveform', 'config01'), '6K Compumotor']
+        ]
+        # ------ Waveform w/ one Configuration ------
+        # conditions that work
+        con_list = [
+            ['Waveform'],
+            [('Waveform', 'config01')]
+        ]
+        for og_con in con_list:
+            self.assertEqual(
+                condition_controls(self.lapdf, og_con),
+                [('Waveform', 'config01')])
+
+        # conditions that raise TypeError
+        con_list = [
+            ['Waveform', 'config01'],
+            ['Waveform', ('Waveform', 'config01')],
+            ['Waveform', '6K Compumotor']
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, self.lapdf, og_con)
+
+        # ------ Waveform w/ three Configurations ------
+        self.f.modules['Waveform'].knobs.n_configs = 3
+
+        # conditions that work
+        con_list = [
+            [('Waveform', 'config01')],
+            [('Waveform', 'config02')]
+        ]
+        for og_con in con_list:
+            self.assertEqual(
+                condition_controls(self.lapdf, og_con),
+                og_con)
+
+        # conditions that raise TypeError
+        con_list = [
+            ['Waveform'],
+            ['Waveform', '6K Compumotor'],
+            ['6K Compumotor', ('Waveform', 'config01')],
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, self.lapdf,
+                              og_con)
+
+    def test_file_w_no_controls(self):
+        # remove all control devices
+        modules = list(self.f.modules.keys())
+        if len(modules) != 0:
+            for mod in modules:
+                self.f.remove_module(mod)
+
+        self.assertRaises(AttributeError,
+                          condition_controls, self.lapdf, [])
 
 
 if __name__ == '__main__':

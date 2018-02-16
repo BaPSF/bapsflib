@@ -232,7 +232,7 @@ class TestConditionShotnumList(ut.TestCase):
                 self.assertEqual(name.decode('utf-8'), cspec)
 
 
-class TestConditonControls(ut.TestCase):
+class TestConditIonControls(ut.TestCase):
     """Test Case for condition_controls"""
     # What to test:
     # 1. passing of non lapdhdf.File object
@@ -286,13 +286,6 @@ class TestConditonControls(ut.TestCase):
             self.f.remove_module(mod)
         self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 100})
 
-        con_list = [
-            ['Waveform'],
-            ['Waveform', '6K Compumotor'],
-            [('Waveform', 'config01')],
-            [('Waveform', 'config01'), ('Waveform', 'config02')],
-            [('Waveform', 'config01'), '6K Compumotor']
-        ]
         # ------ Waveform w/ one Configuration ------
         # conditions that work
         con_list = [
@@ -337,6 +330,168 @@ class TestConditonControls(ut.TestCase):
             self.assertRaises(TypeError,
                               condition_controls, self.lapdf,
                               og_con)
+
+    def test_file_w_multiple_controls(self):
+        # set modules
+        modules = list(self.f.modules.keys())
+        for mod in modules:
+            self.f.remove_module(mod)
+        self.f.add_module('Waveform',
+                          {'n_configs': 1, 'sn_size': 100})
+        self.f.add_module('6K Compumotor',
+                          {'n_configs': 1, 'sn_size': 100})
+
+        # ------ 1 Waveform Config & 1 6K Config ------
+        # conditions that work
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+        con_list = [
+            (['Waveform'],
+             [('Waveform', 'config01')]),
+            ([('Waveform', 'config01')],
+             [('Waveform', 'config01')]),
+            (['6K Compumotor'],
+             [('6K Compumotor', sixk_cspec)]),
+            ([('6K Compumotor', sixk_cspec)],
+             [('6K Compumotor', sixk_cspec)]),
+            (['Waveform', '6K Compumotor'],
+             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
+            (['Waveform', ('6K Compumotor', sixk_cspec)],
+             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
+            ([('Waveform', 'config01'), '6K Compumotor'],
+             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
+            ([('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)],
+             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)])
+        ]
+        for og_con, correct_con in con_list:
+            self.assertEqual(
+                condition_controls(self.lapdf, og_con),
+                correct_con)
+
+        # conditions that raise TypeError
+        con_list = [
+            ['Waveform', 'config01'],
+            ['6K Compumotor', sixk_cspec],
+            ['Waveform', ('Waveform', 'config01')],
+            ['6K Compumotor', ('6K Compumotor', sixk_cspec)],
+            [('Waveform', 'config02')]
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, self.lapdf, og_con)
+
+        # ------ 3 Waveform Config & 1 6K Config ------
+        self.f.modules['Waveform'].knobs.n_configs = 3
+        # conditions that work
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+        con_list = [
+            ([('Waveform', 'config01')],
+             [('Waveform', 'config01')]),
+            ([('Waveform', 'config03')],
+             [('Waveform', 'config03')]),
+            (['6K Compumotor'],
+             [('6K Compumotor', sixk_cspec)]),
+            ([('6K Compumotor', sixk_cspec)],
+             [('6K Compumotor', sixk_cspec)]),
+            ([('Waveform', 'config01'), '6K Compumotor'],
+             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
+            ([('Waveform', 'config02'), ('6K Compumotor', sixk_cspec)],
+             [('Waveform', 'config02'), ('6K Compumotor', sixk_cspec)])
+        ]
+        for og_con, correct_con in con_list:
+            self.assertEqual(
+                condition_controls(self.lapdf, og_con),
+                correct_con)
+
+        # conditions that raise TypeError
+        con_list = [
+            ['Waveform'],
+            ['Waveform', 'config01'],
+            ['6K Compumotor', sixk_cspec],
+            ['Waveform', '6K Compumotor'],
+            ['Waveform', ('6K Compumotor', sixk_cspec)],
+            ['Waveform', ('Waveform', 'config01')],
+            ['6K Compumotor', ('6K Compumotor', sixk_cspec)],
+            [('Waveform', 'config05')]
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, self.lapdf, og_con)
+
+        # ------ 1 Waveform Config & 3 6K Config ------
+        self.f.modules['Waveform'].knobs.n_configs = 1
+        self.f.modules['6K Compumotor'].knobs.n_configs = 3
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names
+        # conditions that work
+        con_list = [
+            (['Waveform'],
+             [('Waveform', 'config01')]),
+            ([('Waveform', 'config01')],
+             [('Waveform', 'config01')]),
+            ([('6K Compumotor', sixk_cspec[0])],
+             [('6K Compumotor', sixk_cspec[0])]),
+            ([('6K Compumotor', sixk_cspec[2])],
+             [('6K Compumotor', sixk_cspec[2])]),
+            (['Waveform', ('6K Compumotor', sixk_cspec[1])],
+             [('Waveform', 'config01'),
+              ('6K Compumotor', sixk_cspec[1])])
+        ]
+        for og_con, correct_con in con_list:
+            self.assertEqual(
+                condition_controls(self.lapdf, og_con),
+                correct_con)
+
+        # conditions that raise TypeError
+        con_list = [
+            ['Waveform', 'config01'],
+            ['6K Compumotor'],
+            ['6K Compumotor', sixk_cspec[0]],
+            ['Waveform', '6K Compumotor'],
+            [('Waveform', 'config01'), '6K Compumotor'],
+            ['Waveform', ('Waveform', 'config01')],
+            ['6K Compumotor', ('6K Compumotor', sixk_cspec[1])],
+            [('Waveform', 'config02')]
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, self.lapdf, og_con)
+
+        # ------ 3 Waveform Config & 3 6K Config ------
+        self.f.modules['Waveform'].knobs.n_configs = 3
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names
+        # conditions that work
+        con_list = [
+            ([('Waveform', 'config01')],
+             [('Waveform', 'config01')]),
+            ([('Waveform', 'config02')],
+             [('Waveform', 'config02')]),
+            ([('6K Compumotor', sixk_cspec[0])],
+             [('6K Compumotor', sixk_cspec[0])]),
+            ([('6K Compumotor', sixk_cspec[2])],
+             [('6K Compumotor', sixk_cspec[2])]),
+            ([('Waveform', 'config03'),
+              ('6K Compumotor', sixk_cspec[1])],
+             [('Waveform', 'config03'),
+              ('6K Compumotor', sixk_cspec[1])])
+        ]
+        for og_con, correct_con in con_list:
+            self.assertEqual(
+                condition_controls(self.lapdf, og_con),
+                correct_con)
+
+        # conditions that raise TypeError
+        con_list = [
+            ['Waveform'],
+            ['Waveform', 'config01'],
+            ['6K Compumotor'],
+            ['6K Compumotor', sixk_cspec[0]],
+            ['Waveform', '6K Compumotor'],
+            [('Waveform', 'config01'), '6K Compumotor'],
+            ['Waveform', ('Waveform', 'config01')],
+            ['6K Compumotor', ('6K Compumotor', sixk_cspec[1])],
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, self.lapdf, og_con)
 
     def test_file_w_no_controls(self):
         # remove all control devices

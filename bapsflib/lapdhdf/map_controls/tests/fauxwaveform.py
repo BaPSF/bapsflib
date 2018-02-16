@@ -78,7 +78,7 @@ class FauxWaveform(h5py.Group):
 
     @property
     def knobs(self):
-        """Knobs for controlling structure of digitizer group"""
+        """Knobs for controlling structure of control device group"""
         return self._knobs(self)
 
     # @property

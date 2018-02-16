@@ -42,7 +42,7 @@ class FauxSixK(h5py.Group):
         @n_configs.setter
         def n_configs(self, val: int):
             """Set number of 6K configurations"""
-            if 1 <= val >= self._faux._Max_CONFIGS \
+            if 1 <= val <= self._faux._MAX_CONFIGS \
                     and isinstance(val, int):
                 if val != self._faux._n_configs:
                     self._faux._n_configs = val

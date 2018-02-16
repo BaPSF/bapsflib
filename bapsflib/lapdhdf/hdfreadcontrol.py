@@ -696,9 +696,16 @@ def condition_controls(hdf_file, controls, **kwargs):
     #   4. proper unique specifiers are defined
     #
     if type(controls) is list:
+        # catch an empty list
         if len(controls) == 0:
             raise ValueError('controls argument empty')
 
+        # all list items have to be strings or tuples
+        if not all([True if isinstance(con, (str, tuple)) else False
+                    for con in controls]):
+            raise TypeError('controls argument invalid')
+
+        # condition controls
         new_controls = []
         for device in controls:
             if type(device) is str:

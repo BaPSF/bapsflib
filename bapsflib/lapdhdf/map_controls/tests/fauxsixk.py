@@ -14,13 +14,78 @@ import math
 import numpy as np
 
 from datetime import datetime as dt
+from warnings import warn
 
 
+# noinspection PyPep8Naming
 class FauxSixK(h5py.Group):
     """
     Creates a Faux '6K Compumotor' Group in a HDF5 file.
     """
     _MAX_CONFIGS = 4
+
+    # noinspection PyProtectedMember
+    class _knobs(object):
+        """
+        A class that contains all the controls for specifying the
+        digitizer group structure.
+        """
+        def __init__(self, val):
+            super().__init__()
+            self._faux = val
+
+        @property
+        def n_configs(self):
+            """Number of 6K configurations"""
+            return self._faux._n_configs
+
+        @n_configs.setter
+        def n_configs(self, val: int):
+            """Set number of 6K configurations"""
+            if 1 <= val >= self._faux._Max_CONFIGS \
+                    and isinstance(val, int):
+                if val != self._faux._n_configs:
+                    self._faux._n_configs = val
+                    self._faux._n_probes = self._faux._n_configs
+                    if val > 1:
+                        self._faux._n_motionlists = 1
+                    self._faux._update()
+            else:
+                warn('`val` not valid, no update performed')
+
+        @property
+        def n_motionlists(self):
+            """
+            Number of motion lists used. Will always be one unless
+            :code:`n_configs == 1` and then :code:`n_motionlists >= 1`
+            """
+            return self._faux._n_motionlists
+
+        @n_motionlists.setter
+        def n_motionlists(self, val):
+            """Setter for n_motionlists"""
+            if val >= 1 and isinstance(val, int):
+                if val != self._faux._n_motionlists\
+                        and self._faux._n_configs == 1:
+                    self._faux._n_motionlists = val
+                    self._faux._update()
+            else:
+                warn('`val` not valid, no update performed')
+
+        @property
+        def sn_size(self):
+            """Number of shot numbers in dataset"""
+            return self._faux._sn_size
+
+        @sn_size.setter
+        def sn_size(self, val):
+            """Set the number of shot numbers in the dataset"""
+            if val >= 1 and isinstance(val, int):
+                if val != self._faux._sn_size:
+                    self._faux._sn_size = val
+                    self._faux._update()
+            else:
+                warn('`val` not valid, no update performed')
 
     def __init__(self, id, n_configs=1, n_motionlists=1,
                  sn_size=100, **kwargs):
@@ -47,33 +112,38 @@ class FauxSixK(h5py.Group):
         self._update()
 
     @property
-    def n_configs(self):
-        """Number of waveform configurations"""
-        return self._n_configs
+    def knobs(self):
+        """Knobs for controlling structure of control device group"""
+        return self._knobs(self)
 
-    @n_configs.setter
-    def n_configs(self, val: int):
-        """Set number of waveform configurations"""
-        if val != self._n_configs and 1 <= val <= self._MAX_CONFIGS:
-            self._n_configs = val
-            self._n_probes = self._n_configs
-            if val > 1:
-                self._n_motionlists = 1
-            self._update()
+    # @property
+    # def n_configs(self):
+    #     """Number of waveform configurations"""
+    #     return self._n_configs
 
-    @property
-    def n_motionlists(self):
-        """
-        Number of motion lists used. If :code:`n_configs == 1`
-        """
-        return self._n_motionlists
+    # @n_configs.setter
+    # def n_configs(self, val: int):
+    #     """Set number of waveform configurations"""
+    #     if val != self._n_configs and 1 <= val <= self._MAX_CONFIGS:
+    #         self._n_configs = val
+    #         self._n_probes = self._n_configs
+    #         if val > 1:
+    #             self._n_motionlists = 1
+    #         self._update()
 
-    @n_motionlists.setter
-    def n_motionlists(self, val: int):
-        """Setter for n_motionlists"""
-        if val != self._n_motionlists and self.n_configs == 1:
-            self._n_motionlists = val
-            self._update()
+    # @property
+    # def n_motionlists(self):
+    #     """
+    #     Number of motion lists used. If :code:`n_configs == 1`
+    #     """
+    #     return self._n_motionlists
+
+    # @n_motionlists.setter
+    # def n_motionlists(self, val: int):
+    #     """Setter for n_motionlists"""
+    #     if val != self._n_motionlists and self.n_configs == 1:
+    #         self._n_motionlists = val
+    #         self._update()
 
     @property
     def n_probes(self):
@@ -85,17 +155,17 @@ class FauxSixK(h5py.Group):
         """list of configuration names"""
         return list(self._configs)
 
-    @property
-    def sn_size(self):
-        """Number of shot numbers in dataset"""
-        return self._sn_size
+    # @property
+    # def sn_size(self):
+    #     """Number of shot numbers in dataset"""
+    #     return self._sn_size
 
-    @sn_size.setter
-    def sn_size(self, val):
-        """Set the number of shot numbers in the dataset"""
-        if val != self._sn_size:
-            self._sn_size = val
-            self._update()
+    # @sn_size.setter
+    # def sn_size(self, val):
+    #     """Set the number of shot numbers in the dataset"""
+    #     if val != self._sn_size:
+    #         self._sn_size = val
+    #         self._update()
 
     def _update(self):
         """
@@ -140,19 +210,19 @@ class FauxSixK(h5py.Group):
         # - define configuration name
         # - create probe groups and sub-groups
         # - define probe group attributes
-        for i in range(self.n_configs):
+        for i in range(self._n_configs):
             # define probe name
             pname = 'probe{:02}'.format(i + 1)
             self._probe_names.append(pname)
 
             # define receptacle number
-            if self.n_configs == 1:
+            if self._n_configs == 1:
                 receptacle = random.randint(1, self._MAX_CONFIGS)
             else:
                 receptacle = i + 1
 
             # gather configuration names
-            #self._config_names.append(receptacle)
+            # self._config_names.append(receptacle)
 
             # create probe group
             probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
@@ -173,6 +243,7 @@ class FauxSixK(h5py.Group):
                                          'receptacle': receptacle,
                                          'motion lists': []}
 
+    # noinspection PyPep8Naming
     def _add_motionlist_groups(self):
         """Add motion list groups"""
         # determine possible data point arrangements for motion lists
@@ -180,9 +251,9 @@ class FauxSixK(h5py.Group):
         # 2. find (Nx, Ny) combos for each dataset
         sn_size_for_ml = []
         NN = []
-        if self.n_motionlists == 1:
+        if self._n_motionlists == 1:
             # set shot number size per for each motion list
-            sn_size_for_ml.append(self.sn_size)
+            sn_size_for_ml.append(self._sn_size)
 
             # find divisible numbers
             sn_div = []
@@ -193,20 +264,20 @@ class FauxSixK(h5py.Group):
             # build [(Nx, Ny), ]
             sn_div_index = random.randint(0, len(sn_div) - 1)
             Nx = sn_div[sn_div_index]
-            Ny = int(self.sn_size / Nx)
+            Ny = int(self._sn_size / Nx)
             NN.append((Nx, Ny))
         else:
             # set shot number size per for each motion list
             sn_per_ml = int(math.floor(
-                self.sn_size / self.n_motionlists))
-            sn_remainder = (self.sn_size
-                            - ((self.n_motionlists - 1) * sn_per_ml))
+                self._sn_size / self._n_motionlists))
+            sn_remainder = (self._sn_size
+                            - ((self._n_motionlists - 1) * sn_per_ml))
             sn_size_for_ml.extend([sn_per_ml]
-                                  * (self.n_motionlists - 1))
+                                  * (self._n_motionlists - 1))
             sn_size_for_ml.append(sn_remainder)
 
             # build NN of each motion list
-            for i in range(self.n_motionlists):
+            for i in range(self._n_motionlists):
                 # find divisible numbers
                 sn_div = []
                 for j in range(sn_size_for_ml[i]):
@@ -223,7 +294,7 @@ class FauxSixK(h5py.Group):
         # - define motionlist names
         # - create motionlist group
         # - define motionlist group attributes
-        for i in range(self.n_motionlists):
+        for i in range(self._n_motionlists):
             # define motionlist name
             ml_name = 'ml-{:04}'.format(i + 1)
             self._motionlist_names.append(ml_name)
@@ -248,7 +319,7 @@ class FauxSixK(h5py.Group):
             })
 
         # fill configs dict
-        if self.n_motionlists == 1:
+        if self._n_motionlists == 1:
             # same ml for all configs
             for config_name in self._configs:
                 self._configs[config_name]['motion lists'].append(
@@ -262,7 +333,7 @@ class FauxSixK(h5py.Group):
     def _add_datasets(self):
         """Create datasets for each configurations"""
         # TODO: fill data fields 'x', 'y', 'z', 'theta', 'phi'
-        shape = (self.sn_size, )
+        shape = (self._sn_size, )
         dtype = np.dtype([('Shot number', np.int32),
                           ('x', np.float64),
                           ('y', np.float64),
@@ -289,7 +360,7 @@ class FauxSixK(h5py.Group):
             self._configs[cname]['dset name'] = dset_name
 
             # fill motion list name
-            if self.n_motionlists == 1:
+            if self._n_motionlists == 1:
                 data['Motion list'] = self._motionlist_names[0]
             else:
                 start = 0

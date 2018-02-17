@@ -17,7 +17,10 @@ import unittest as ut
 
 from ..map_controls.waveform import hdfMap_control_waveform
 from ..files import File
-from ..hdfreadcontrol import condition_shotnum_list, condition_controls
+from ..hdfreadcontrol import (condition_shotnum_list,
+                              do_shotnum_intersection,
+                              condition_controls,
+                              hdfReadControl)
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
@@ -232,7 +235,86 @@ class TestConditionShotnumList(ut.TestCase):
                 self.assertEqual(name.decode('utf-8'), cspec)
 
 
-class TestConditIonControls(ut.TestCase):
+class TestDoShotnumIntersection(ut.TestCase):
+    """Test Case for do_shotnum_intersection"""
+    def test_one_control(self):
+        # test a case that results in a null result
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {'Waveform': shotnum}
+        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
+        index_dict = {'Waveform': np.array([])}
+        self.assertRaises(ValueError,
+                          do_shotnum_intersection,
+                          shotnum, shotnum_dict, sni_dict, index_dict)
+
+        # test a working case
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {'Waveform': shotnum}
+        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
+        index_dict = {'Waveform': np.array([5, 6, 7])}
+        sni_dict['Waveform'][[5, 6, 7]] = True
+        shotnum, shotnum_dict, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum,
+                                    shotnum_dict,
+                                    sni_dict,
+                                    index_dict)
+        self.assertTrue(np.array_equal(shotnum, [6, 7, 8]))
+        self.assertTrue(np.array_equal(shotnum,
+                                       shotnum_dict['Waveform']))
+        self.assertTrue(np.array_equal(sni_dict['Waveform'],
+                                       [True] * 3))
+        self.assertTrue(np.array_equal(index_dict['Waveform'],
+                                       [5, 6, 7]))
+
+    def test_two_controls(self):
+        # test a case that results in a null result
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {
+            'Waveform': shotnum,
+            '6K Compumotor': shotnum
+        }
+        sni_dict = {
+            'Waveform': np.zeros(shotnum.shape, dtype=bool),
+            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
+        }
+        index_dict = {
+            'Waveform': np.array([]),
+            '6K Compumotor': np.array([5, 6, 7])
+        }
+        sni_dict['6K Compumotor'][[6, 7, 8]] = True
+        self.assertRaises(ValueError,
+                          do_shotnum_intersection,
+                          shotnum, shotnum_dict, sni_dict, index_dict)
+
+        # test a working case
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {
+            'Waveform': shotnum,
+            '6K Compumotor': shotnum
+        }
+        sni_dict = {
+            'Waveform': np.zeros(shotnum.shape, dtype=bool),
+            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
+        }
+        index_dict = {
+            'Waveform': np.array([5, 6]),
+            '6K Compumotor': np.array([5, 6, 7])
+        }
+        sni_dict['Waveform'][[5, 6]] = True
+        sni_dict['6K Compumotor'][[5, 6, 7]] = True
+        shotnum, shotnum_dict, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum,
+                                    shotnum_dict,
+                                    sni_dict,
+                                    index_dict)
+        self.assertTrue(np.array_equal(shotnum, [6, 7]))
+        for key in shotnum_dict:
+            self.assertTrue(np.array_equal(shotnum, shotnum_dict[key]))
+            self.assertTrue(np.array_equal(sni_dict[key], [True] * 2))
+            self.assertTrue(np.array_equal(index_dict[key], [5, 6]))
+
+
+class TestConditionControls(ut.TestCase):
     """Test Case for condition_controls"""
     # What to test:
     # 1. passing of non lapdhdf.File object
@@ -502,6 +584,129 @@ class TestConditIonControls(ut.TestCase):
 
         self.assertRaises(AttributeError,
                           condition_controls, self.lapdf, [])
+
+
+class TestHDFReadControl(ut.TestCase):
+    """Test Case for hdfReadControls class."""
+    # Note:
+    # - TestConditionShotnumList tests hdfReadControl's ability to
+    #   properly identify the dataset indices corresponding to the
+    #   desired shot numbers (and checks against the original dataset)
+    # - TestDoIntersection tests hdfReadControl's ability to intersect
+    #   all shot numbers between the datasets and shotnum
+    # - Thus, testing here should focus on the construction and
+    #   basic population of cdata and no so much ensuring the exact dset
+    #   values are populated
+    #
+    # What to test:
+    # 1. handling of hdf_file input
+    # 2. reading from one control dataset
+    #    - shotnum is not given, int, list(int), and slice
+    #    - handling of intersection_set
+    # 3. reading from two control datasets
+    #    - shotnum is not given, int, list(int), and slice
+    #    - handling of intersection_set
+    #
+    # When implemented:
+    # 1. advanced handling of command list parsing
+    #
+
+    def setUp(self):
+        self.f = FauxHDFBuilder()
+
+    def tearDown(self):
+        self.f.cleanup()
+
+    @property
+    def lapdf(self):
+        return File(self.f.filename)
+
+    def test_hdf_file_handling(self):
+        # Note:
+        # - all possibilities of the 'controls' argument are not tested
+        #   here since they are essentially tested with the
+        #   TestConditionControls class
+        #
+        # not a lapdfhdf.File object but a h5py.File object
+        self.assertRaises(AttributeError, hdfReadControl, self.f, [])
+
+        # a lapdhdf.File object with no control devices
+        self.assertRaises(ValueError, hdfReadControl, self.lapdf, [])
+
+        # improper (empty) controls argument
+        self.f.add_module('Waveform')
+        self.assertRaises(ValueError, hdfReadControl, self.lapdf, [])
+        self.assertRaises(ValueError,
+                          hdfReadControl, self.lapdf, [],
+                          assume_controls_conditioned=True)
+
+    def test_output_obj_format(self):
+        # 1. output data is a np.recarray
+        # 2. has attributes 'info' and 'configs' (both are dicts)
+        #
+        # remove all modules
+        self.f.remove_all_modules()
+        self.f.add_module('Waveform')
+        cdata = hdfReadControl(self.lapdf, ['Waveform'], shotnum=1)
+
+        # subclass of cdata is a np.reccarray
+        self.assertIsInstance(cdata, np.recarray)
+
+        # required fields in all cdata
+        self.assertIn('shotnum', cdata.dtype.fields)
+
+        # look for required attributes
+        # TODO: attribute 'configs' needs to be added
+        #
+        self.assertTrue(hasattr(cdata, 'info'))
+        # self.assertTrue(hasattr(cdata, 'configs'))
+
+    def test_single_simple_control(self):
+        """
+        Testing HDF5 with one control device that saves data from
+        ONE configuration into ONE dataset. (Simple Control)
+        """
+        # 1. Dataset with sequential shot numbers
+        #    - intersection_set = True
+        #      > shotnum = omitted, int, list, slice
+        #    - intersection_set = False
+        #      > shotnum = omitted, int, list, slice
+        # 2. Dataset with a jump in shot numbers
+        #
+        # clean HDF5 file
+        self.f.remove_all_modules()
+        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 100})
+
+        # ------ Dataset w/ Sequential Shot Numbers ------
+        # ------ intersection_set = True            ------
+        sn_list = [1, [2], [10, 20, 30], [90, 110], slice(40, 61, 3)]
+        control = [('Waveform', 'config01')]
+        for shotnum in sn_list:
+            cdata = hdfReadControl(self.lapdf, control, shotnum=shotnum)
+            self.assertCDataFormat(cdata, control, shotnum)
+
+    def test_single_complex_control(self):
+        """
+        Testing HDF5 with one control device that saves data from
+        multiple configurations into one dataset. (Complex Control)
+        """
+        pass
+
+    def assertCDataFormat(self, cdata, control, shotnum,
+                          intersection_set=True):
+        # define device and config
+        device = control[0][0]
+        config = control[0][1]
+        cmap = self.lapdf.file_map.controls[device]
+        cdset_name = cmap.construct_dataset_name(config)
+        cdset_path = cmap.info['group path'] + '/' + cdset_name
+        cdset = self.f[cdset_path]
+
+        # check that all fields are in cdata
+        field_map = cmap.configs[config]['dset field to numpy field']
+        fields = [item[1][0] for item in field_map]
+        for field in fields:
+            self.assertIn(field, cdata.dtype.fields)
 
 
 if __name__ == '__main__':

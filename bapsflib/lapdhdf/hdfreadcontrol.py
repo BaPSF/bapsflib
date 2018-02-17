@@ -230,9 +230,8 @@ class hdfReadControl(np.recarray):
             cdset_dict[cname] = hdf_file.get(cdset_path)
             shotnumkey_dict[cname] = cdset_dict[cname].dtype.names[0]
 
-        # Catch shotnum if a slice object
-        # - If shotnum is a slice object then catch it and convert it to
-        #   a list.
+        # Catch shotnum if a slice object or int
+        # - For either case, convert shotnum to a list
         #
         if type(shotnum) is slice:
             # determine largest possible shot number
@@ -267,18 +266,20 @@ class hdfReadControl(np.recarray):
             shotnum = np.arange(start, stop, step).tolist()
         elif type(shotnum) is int:
             shotnum = [shotnum]
-        # elif type(shotnum) is list and len(shotnum) == 1:
-        #     shotnum = shotnum[0]
+        elif type(shotnum) is not list:
+            raise ValueError('Valid shotnum not passed')
 
         # Ensure 'shotnum' is valid
-        # - here 'shotnum' will be converted from its keyword type to a
-        #   1D array containing the list of shot numbers to be included
-        #   in the returned obj array
+        # - at this point 'shotnum' should be a list
+        # - after this block (by the time you get to
+        #   ---- Build obj ----) 'shotnum' will be converted to a numpy
+        #   1D array containing the shot numbers to be included in the
+        #   returned obj array
         #
         # Notes:
         # 1. shotnum can not be converted to a np.array until after
         #    shotnum, index, and sni are determined for each control
-        # 2. all entries in shotnum_dict, index_dict, and sni_dic
+        # 2. all entries in shotnum_dict, index_dict, and sni_dict
         #    should be np.arrays
         # 3. shotnum values used to fill shotnum_dict should not go
         #    through an intersection filtering in here, this will be
@@ -295,6 +296,11 @@ class hdfReadControl(np.recarray):
 
             # get a conditioned version of index, shotnum, and sni for
             # each control
+            index_dict[cname], shotnum_dict[cname], sni_dict[cname] = \
+                condition_shotnum_list(shotnum, cdset_dict[cname],
+                                       shotnumkey_dict[cname],
+                                       cmap, cspec)
+            '''
             if type(shotnum) is int:
                 v1, v2, v3 = \
                     condition_shotnum_int(shotnum,
@@ -304,7 +310,7 @@ class hdfReadControl(np.recarray):
                 index_dict[cname] = v1
                 shotnum_dict[cname] = v2
                 sni_dict[cname] = v3
-            elif type(shotnum) is list:
+            if type(shotnum) is list:
                 v1, v2, v3 = \
                     condition_shotnum_list(shotnum,
                                            cdset_dict[cname],
@@ -316,68 +322,21 @@ class hdfReadControl(np.recarray):
             else:
                 raise ValueError('Valid shotnum not passed')
             '''
-            elif type(shotnum) is list:
-                # shotnum's have to be ints and >=1
-                if all(type(s) is int for s in shotnum):
-                    # remove shot numbers less-than or equal to 0
-                    shotnum.sort()
-                    shotnum = list(set(shotnum))
-                    try:
-                        zindex = shotnum.index(0)
-                        del shotnum[:zindex+1]
-                    except ValueError:
-                        # no values less-than or equal to 0
-                        pass
 
-                    # convert shotnum to np.array
-                    if intersection_set:
-                        shotnum = np.intersect1d(shotnum, dset_sn).view()
-                    else:
-                        shotnum = np.array(shotnum).view()
-
-                    # ensure obj will not be a zero dim array
-                    if shotnum.shape[0] == 0:
-                        raise ValueError('Valid shotnum not passed')
-                else:
-                    raise ValueError('Valid shotnum not passed')
-            '''
-
-        # ensure shotnum is np.array
-        shotnum = np.array([shotnum]) if type(shotnum) is int \
-            else np.array(shotnum)
-
-        # squeeze shotnum
+        # convert shotnum from list to np.array
+        shotnum = np.array(shotnum)
         if len(shotnum.shape) != 1:
             shotnum = shotnum.squeeze()
+        # shotnum = np.array([shotnum]) if type(shotnum) is int \
+        #     else np.array(shotnum)
 
         # re-filter index, shotnum, sni
         if intersection_set:
-            # determine intersecting shot numbers
-            # - I'm assuming no intersection as been performed yet
-            #
-            sn_list = [shotnum_dict[key][sni_dict[key]]
-                       for key in shotnum_dict]
-            sn_list.append(shotnum)
-            shotnum_intersect = reduce(
-                lambda x, y: np.intersect1d(x, y, assume_unique=True),
-                sn_list)
-            if shotnum_intersect.shape[0] == 0:
-                raise ValueError(
-                    'Input shotnum would result in a null array')
-            else:
-                shotnum = shotnum_intersect
-
-            # now filter
-            for cname in shotnum_dict:
-                new_sn_mask = np.isin(
-                    shotnum_dict[cname][sni_dict[cname]], shotnum)
-                new_sn = \
-                    shotnum_dict[cname][sni_dict[cname][new_sn_mask]]
-                new_index = index_dict[cname][new_sn_mask]
-                shotnum_dict[cname] = new_sn
-                index_dict[cname] = new_index
-                sni_dict[cname] = np.ones(new_index.shape[0],
-                                          dtype=bool)
+            shotnum, shotnum_dict, sni_dict, index_dict = \
+                do_shotnum_intersection(shotnum,
+                                        shotnum_dict,
+                                        sni_dict,
+                                        index_dict)
 
         # print execution timing
         if timeit:
@@ -1241,6 +1200,7 @@ def condition_shotnum_int_complex(shotnum, cdset, shotnumkey, cmap,
     return index.view(), shotnum.view(), sni.view()
 
 
+# rename to condition_shotnum
 def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
     """
     Conditions **shotnum** (when a `list`) against the control dataset
@@ -1318,6 +1278,7 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
     return index.view(), shotnum.view(), sni.view()
 
 
+# rename to condition_shotnum_w_simple_dset
 def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
     """
     Conditions **shotnum** (when a `list`) against control dataset
@@ -1402,6 +1363,7 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
     return index.view(), shotnum.view(), sni.view()
 
 
+# rename to condition_shotnum_w_complex_dset
 def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
                                    cspec):
     """
@@ -1570,3 +1532,34 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()
+
+
+def do_shotnum_intersection(shotnum, shotnum_dict, sni_dict, index_dict):
+    # determine intersecting shot numbers
+    # - I'm assuming no intersection as been performed yet
+    #
+    sn_list = [shotnum_dict[key][sni_dict[key]]
+               for key in shotnum_dict]
+    sn_list.append(shotnum)
+    shotnum_intersect = reduce(
+        lambda x, y: np.intersect1d(x, y, assume_unique=True),
+        sn_list)
+    if shotnum_intersect.shape[0] == 0:
+        raise ValueError(
+            'Input shotnum would result in a null array')
+    else:
+        shotnum = shotnum_intersect
+
+    # now filter
+    for cname in shotnum_dict:
+        new_sn_mask = np.isin(
+            shotnum_dict[cname][sni_dict[cname]], shotnum)
+        new_sn = \
+            shotnum_dict[cname][sni_dict[cname]][new_sn_mask]
+        new_index = index_dict[cname][new_sn_mask]
+        shotnum_dict[cname] = new_sn
+        index_dict[cname] = new_index
+        sni_dict[cname] = np.ones(new_index.shape[0],
+                                  dtype=bool)
+
+    return shotnum, shotnum_dict, sni_dict, index_dict

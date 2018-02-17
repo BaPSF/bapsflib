@@ -591,21 +591,29 @@ class TestHDFReadControl(ut.TestCase):
     # Note:
     # - TestConditionShotnumList tests hdfReadControl's ability to
     #   properly identify the dataset indices corresponding to the
-    #   desired shot numbers (and checks against the original dataset)
+    #   desired shot numbers (it checks against the original dataset)
     # - TestDoIntersection tests hdfReadControl's ability to intersect
     #   all shot numbers between the datasets and shotnum
     # - Thus, testing here should focus on the construction and
-    #   basic population of cdata and no so much ensuring the exact dset
-    #   values are populated
+    #   basic population of cdata and not so much ensuring the exact
+    #   dset values are populated
     #
     # What to test:
     # 1. handling of hdf_file input
-    # 2. reading from one control dataset
-    #    - shotnum is not given, int, list(int), and slice
-    #    - handling of intersection_set
+    # 2. reading from one 'simple' control dataset
+    #    - intersection_set = True/False
+    #      > when False proper NaN/-99999/'' data should be filled
+    #    - ensure fields are properly transferred over
+    #    - for command list datasets, commands are properly assigned
+    # 3. reading from one 'complex' control dataset
+    #    - intersection_set = True/False
+    #      > when False proper NaN/-99999/'' data should be filled
+    #    - ensure fields are properly transferred over
+    #    - for command list datasets, commands are properly assigned
     # 3. reading from two control datasets
-    #    - shotnum is not given, int, list(int), and slice
-    #    - handling of intersection_set
+    #    - testing against 'simple' datasets should suffice
+    #    - intersection_set = True/False
+    #      > when False proper NaN/-99999/'' data should be filled
     #
     # When implemented:
     # 1. advanced handling of command list parsing
@@ -675,15 +683,23 @@ class TestHDFReadControl(ut.TestCase):
         #
         # clean HDF5 file
         self.f.remove_all_modules()
-        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 100})
+        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
 
         # ------ Dataset w/ Sequential Shot Numbers ------
         # ------ intersection_set = True            ------
-        sn_list = [1, [2], [10, 20, 30], [90, 110], slice(40, 61, 3)]
+        sn_list = [1, [2], [10, 20, 30], [45, 110], slice(40, 61, 3)]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45],
+            [40, 43, 46, 49]
+        ]
         control = [('Waveform', 'config01')]
-        for shotnum in sn_list:
+        for shotnum, correct_shotnum in zip(sn_list, sn_list_correct):
             cdata = hdfReadControl(self.lapdf, control, shotnum=shotnum)
-            self.assertCDataFormat(cdata, control, shotnum)
+            self.assertCDataFormat(cdata, control,
+                                   shotnum, correct_shotnum)
 
     def test_single_complex_control(self):
         """
@@ -693,7 +709,7 @@ class TestHDFReadControl(ut.TestCase):
         pass
 
     def assertCDataFormat(self, cdata, control, shotnum,
-                          intersection_set=True):
+                          correct_shotnum, intersection_set=True):
         # define device and config
         device = control[0][0]
         config = control[0][1]
@@ -701,12 +717,26 @@ class TestHDFReadControl(ut.TestCase):
         cdset_name = cmap.construct_dataset_name(config)
         cdset_path = cmap.info['group path'] + '/' + cdset_name
         cdset = self.f[cdset_path]
+        shotnumkey = cdset.dtype.names[0]
+
+        # check shot numbers are correct
+        self.assertTrue(np.array_equal(cdata['shotnum'],
+                                       correct_shotnum))
 
         # check that all fields are in cdata
         field_map = cmap.configs[config]['dset field to numpy field']
         fields = [item[1][0] for item in field_map]
         for field in fields:
             self.assertIn(field, cdata.dtype.fields)
+
+        # intersection_set = False
+        # - check null values are inserted
+        # TODO: check proper null values fill the array
+        if not intersection_set:
+            pass
+
+        # need to check command list functionality
+        # TODO: command list functionality
 
 
 if __name__ == '__main__':

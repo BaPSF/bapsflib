@@ -192,8 +192,14 @@ class FauxHDFBuilder(h5py.File):
                 self._KNOWN_MODULES[mod_name](**mod_args)
 
     def remove_module(self, mod_name):
-        """Removed an added module"""
+        """Remove requested module"""
         if mod_name in self._modules:
             mod_path = self._modules[mod_name].name
             del self[mod_path]
             del self._modules[mod_name]
+
+    def remove_all_modules(self):
+        """Remove all modules"""
+        modules = self._modules
+        for mod in modules:
+            self.remove_module(mod)

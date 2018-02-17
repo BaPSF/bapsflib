@@ -300,28 +300,6 @@ class hdfReadControl(np.recarray):
                 condition_shotnum_list(shotnum, cdset_dict[cname],
                                        shotnumkey_dict[cname],
                                        cmap, cspec)
-            '''
-            if type(shotnum) is int:
-                v1, v2, v3 = \
-                    condition_shotnum_int(shotnum,
-                                          cdset_dict[cname],
-                                          shotnumkey_dict[cname],
-                                          cmap, cspec)
-                index_dict[cname] = v1
-                shotnum_dict[cname] = v2
-                sni_dict[cname] = v3
-            if type(shotnum) is list:
-                v1, v2, v3 = \
-                    condition_shotnum_list(shotnum,
-                                           cdset_dict[cname],
-                                           shotnumkey_dict[cname],
-                                           cmap, cspec)
-                index_dict[cname] = v1
-                shotnum_dict[cname] = v2
-                sni_dict[cname] = v3
-            else:
-                raise ValueError('Valid shotnum not passed')
-            '''
 
         # convert shotnum from list to np.array
         shotnum = np.array(shotnum)

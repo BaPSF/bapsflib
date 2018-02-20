@@ -683,11 +683,22 @@ class TestHDFReadControl(ut.TestCase):
         #
         # clean HDF5 file
         self.f.remove_all_modules()
-        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
+        # self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
+        self.f.add_module('6K Compumotor',
+                          {'n_configs': 1, 'sn_size': 50,
+                           'n_motionlists': 1})
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+        control = [('6K Compumotor', sixk_cspec)]
 
         # ------ Dataset w/ Sequential Shot Numbers ------
         # ------ intersection_set = True            ------
-        sn_list = [1, [2], [10, 20, 30], [45, 110], slice(40, 61, 3)]
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            slice(40, 61, 3)
+        ]
         sn_list_correct = [
             [1],
             [2],
@@ -695,11 +706,108 @@ class TestHDFReadControl(ut.TestCase):
             [45],
             [40, 43, 46, 49]
         ]
-        control = [('Waveform', 'config01')]
-        for shotnum, correct_shotnum in zip(sn_list, sn_list_correct):
-            cdata = hdfReadControl(self.lapdf, control, shotnum=shotnum)
-            self.assertCDataFormat(cdata, control,
-                                   shotnum, correct_shotnum)
+        sn_list_valid = sn_list_correct
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v)
+
+        # ------ Dataset w/ Sequential Shot Numbers ------
+        # ------ intersection_set = False           ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            slice(40, 61, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            [40, 43, 46, 49, 52, 55, 58]
+        ]
+        sn_list_valid = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45],
+            [40, 43, 46, 49]
+        ]
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            cdata = hdfReadControl(self.lapdf, control,
+                                   shotnum=sn_r,
+                                   intersection_set=False)
+            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v,
+                                   intersection_set=False)
+
+        # ------ Dataset w/ a Jump in Shot Numbers ------
+        # create a jump in the dataset
+        dset_name = self.f.modules['6K Compumotor']._configs[
+            sixk_cspec]['dset name']
+        dset = self.f.modules['6K Compumotor'][dset_name]
+        sn_arr = dset['Shot number']
+        sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
+        dset['Shot number'] = sn_arr
+
+        # ------ Dataset w/ a Jump in Shot Numbers ------
+        # ------ intersection_set = True           ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [22, 36, 110],
+            slice(38, 75, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [22],
+            [41, 44, 47, 50, 53, 56, 59]
+        ]
+        sn_list_valid = sn_list_correct
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v)
+
+        # ------ Dataset w/ a Jump in Shot Numbers ------
+        # ------ intersection_set = False          ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [22, 36, 110],
+            slice(38, 75, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [22, 36, 110],
+            [38, 41, 44, 47, 50, 53, 56, 59, 62, 65, 68, 71, 74]
+        ]
+        sn_list_valid = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [22],
+            [41, 44, 47, 50, 53, 56, 59]
+        ]
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            cdata = hdfReadControl(self.lapdf, control,
+                                   shotnum=sn_r,
+                                   intersection_set=False)
+            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v,
+                                   intersection_set=False)
 
     def test_single_complex_control(self):
         """
@@ -708,8 +816,15 @@ class TestHDFReadControl(ut.TestCase):
         """
         pass
 
-    def assertCDataFormat(self, cdata, control, shotnum,
-                          correct_shotnum, intersection_set=True):
+    def test_two_controls(self):
+        pass
+
+    def test_command_list_functionality(self):
+        # perform on simple and complex datasets
+        pass
+
+    def assertCDataFormat(self, cdata, control, sn_requested,
+                          sn_correct, sn_valid, intersection_set=True):
         # define device and config
         device = control[0][0]
         config = control[0][1]
@@ -721,19 +836,56 @@ class TestHDFReadControl(ut.TestCase):
 
         # check shot numbers are correct
         self.assertTrue(np.array_equal(cdata['shotnum'],
-                                       correct_shotnum))
+                                       sn_correct))
 
         # check that all fields are in cdata
         field_map = cmap.configs[config]['dset field to numpy field']
         fields = [item[1][0] for item in field_map]
+        fields = list(set(fields))
         for field in fields:
             self.assertIn(field, cdata.dtype.fields)
 
         # intersection_set = False
         # - check null values are inserted
         # TODO: check proper null values fill the array
-        if not intersection_set:
-            pass
+        sni = np.isin(cdata['shotnum'], sn_valid)
+        sni_not = np.logical_not(sni)
+        for field in fields:
+            if field == 'shotnum':
+                continue
+
+            dtype = cdata.dtype[field].base
+
+            if intersection_set:
+                # there should be NO NaN fills
+                if np.issubdtype(dtype, np.integer):
+                    cd_nan = np.where(cdata[field] == -99999,
+                                      True, False)
+                elif np.issubdtype(dtype, np.floating):
+                    cd_nan = np.isnan(cdata[field])
+                elif np.issubdtype(dtype, np.flexible):
+                    cd_nan = np.where(cdata[field] == '', True, False)
+
+                # test
+                # 1. cd_nan should be False for all entries
+                # 2. sni should be True for all entries
+                self.assertTrue(np.all(np.logical_not(cd_nan)))
+                self.assertTrue(np.all(sni))
+            else:
+                # there is a possibility for NaN fill
+                if np.issubdtype(dtype, np.integer):
+                    cd_nan = np.where(cdata[field] == -99999,
+                                      True, False)
+                elif np.issubdtype(dtype, np.floating):
+                    cd_nan = np.isnan(cdata[field])
+                elif np.issubdtype(dtype, np.flexible):
+                    cd_nan = np.where(cdata[field] == '', True, False)
+
+                # test
+                # 1. cd_nan should be False for all sni entries
+                # 2. cd_nan should be True for all sni_not entries
+                self.assertTrue(np.all(np.logical_not(cd_nan[sni])))
+                self.assertTrue(np.all(cd_nan[sni_not]))
 
         # need to check command list functionality
         # TODO: command list functionality

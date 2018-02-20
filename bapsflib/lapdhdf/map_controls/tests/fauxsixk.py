@@ -377,5 +377,14 @@ class FauxSixK(h5py.Group):
             # fill 'Probe name' field
             data['Probe name'] = dset_name.encode()
 
+            # fill remaining fields
+            # TODO: need to connect this to motion lists
+            #
+            data['x'].fill(0.0)
+            data['y'].fill(0.0)
+            data['z'].fill(0.0)
+            data['theta'].fill(0.0)
+            data['phi'].fill(0.0)
+
             # create dataset
             self.create_dataset(dset_name, data=data.copy())

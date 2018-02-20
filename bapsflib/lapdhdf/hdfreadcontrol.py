@@ -260,7 +260,8 @@ class hdfReadControl(np.recarray):
 
                 # add to first_sn
                 first_sn.append(start)
-            start = max(first_sn) if intersection_set else min(first_sn)
+            if intersection_set:
+                start = max(first_sn)
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()
@@ -368,11 +369,11 @@ class hdfReadControl(np.recarray):
         data['shotnum'] = shotnum.view()
 
         # TODO: this should be done in the main array fill section
-        for field in npfields:
-            if data.dtype[field] <= np.int:
-                data[field][:] = -99999
-            elif data.dtype[field] <= np.float:
-                data[field][:] = np.nan
+        # for field in npfields:
+        #    if data.dtype[field] <= np.int:
+        #        data[field][:] = -99999
+        #    elif data.dtype[field] <= np.float:
+        #        data[field][:] = np.nan
 
         # print execution timing
         if timeit:
@@ -434,9 +435,12 @@ class hdfReadControl(np.recarray):
                     else:
                         # control does NOT use command list
                         if data.dtype[nf_name[0]].shape != ():
+                            # for fields that contain arrays
+                            # (e.g. 'xyz')
                             data[nf_name[0]][:, npi] = \
                                 cdset[index, df_name].view()
                         else:
+                            # for fields that contain a constant
                             data[nf_name[0]] = \
                                 cdset[index, df_name].view()
             else:
@@ -453,9 +457,9 @@ class hdfReadControl(np.recarray):
                 #       multiple configurations. They will need to be
                 #       filtered for the desired configuration.
                 #
-                sn_intersect = np.intersect1d(cdset[shotnumkey],
-                                              shotnum).view()
-                cdseti = np.in1d(cdset[shotnumkey], sn_intersect)
+                # sn_intersect = np.intersect1d(cdset[shotnumkey],
+                #                               shotnum).view()
+                # cdseti = np.in1d(cdset[shotnumkey], sn_intersect)
 
                 # assign values
                 # df_name - device dataset field name
@@ -470,6 +474,76 @@ class hdfReadControl(np.recarray):
                         continue
 
                     # assign data
+                    if cmap.has_command_list:
+                        # get command list
+                        cl = cmap.configs[cspec]['command list']
+
+                        # retrieve array of command indices
+                        ci_arr = cdset[index, df_name].view()
+
+                        # NaN fill data
+                        # TODO: this will need to be modified for dtype
+                        data[nf_name[0]].fill('')
+
+                        # assign command values to data
+                        # 1. find where command index (ci) is in the
+                        #    command index array (ci_arr)
+                        # 2. ci_arr.size == index.size
+                        # 3. ii.size == ci_arr.size
+                        # 4. sni.size != index.size
+                        # 5. np.where(sni)[0].size == index.size
+                        #
+                        for ci, command in enumerate(cl):
+                            # find command index (ci) locations in
+                            # command index array (ci_arr)
+                            # - ii is a boolean mask
+                            # - ii.size == ci_arr.size == index.size
+                            #
+                            ii = np.where(ci_arr == ci, True, False)
+
+                            # need a re-filtered sni for this specific
+                            # ci
+                            #
+                            sni_for_ci = np.zeros(sni.shape, dtype=bool)
+                            sni_for_ci[np.where(sni)[0][ii]] = True
+
+                            # assign value
+                            data[nf_name[0]][sni_for_ci] = command
+                    else:
+                        # control does NOT use command list
+                        # overhead for NaN filling
+                        sni_not = np.logical_not(sni)
+                        fname = nf_name[0]
+
+                        # begin data assignment
+                        if data.dtype[fname].shape != ():
+                            # for fields that contain arrays
+                            # (e.g. 'xyz')
+                            data[fname][sni, npi] = \
+                                cdset[index, df_name].view()
+
+                            # NaN fill
+                            dtype = data.dtype[fname].base
+                            if np.issubdtype(dtype, np.integer):
+                                data[fname][sni_not, npi] = -99999
+                            elif np.issubdtype(dtype, np.floating):
+                                data[fname][sni_not, npi] = np.nan
+                            elif np.issubdtype(dtype, np.flexible):
+                                data[fname][sni_not, npi] = ''
+                        else:
+                            # for fields that contain a constant
+                            data[fname][sni] = \
+                                cdset[index, df_name].view()
+
+                            # NaN fill
+                            dtype = data.dtype[fname].base
+                            if np.issubdtype(dtype, np.integer):
+                                data[fname][sni_not] = -99999
+                            elif np.issubdtype(dtype, np.floating):
+                                data[fname][sni_not] = np.nan
+                            elif np.issubdtype(dtype, np.flexible):
+                                data[fname][sni_not] = ''
+                    '''
                     try:
                         # control uses a command list
                         #
@@ -528,6 +602,7 @@ class hdfReadControl(np.recarray):
                         else:
                             data[nf_name[0]][datai] = \
                                 cdset[cdseti, df_name].view()
+                    '''
 
             # print execution timing
             if timeit:

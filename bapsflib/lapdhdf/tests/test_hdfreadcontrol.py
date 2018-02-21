@@ -669,7 +669,7 @@ class TestHDFReadControl(ut.TestCase):
         self.assertTrue(hasattr(cdata, 'info'))
         # self.assertTrue(hasattr(cdata, 'configs'))
 
-    def test_single_simple_control(self):
+    def test_single_control(self):
         """
         Testing HDF5 with one control device that saves data from
         ONE configuration into ONE dataset. (Simple Control)
@@ -683,12 +683,15 @@ class TestHDFReadControl(ut.TestCase):
         #
         # clean HDF5 file
         self.f.remove_all_modules()
-        # self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 50,
                            'n_motionlists': 1})
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
         control = [('6K Compumotor', sixk_cspec)]
+        control_plus = [('6K Compumotor', sixk_cspec,
+                         {'sn_requested': [],
+                          'sn_correct': [],
+                          'sn_valid': []})]
 
         # ------ Dataset w/ Sequential Shot Numbers ------
         # ------ intersection_set = True            ------
@@ -710,8 +713,16 @@ class TestHDFReadControl(ut.TestCase):
         for sn_r, sn_c, sn_v in zip(sn_list_requested,
                                     sn_list_correct,
                                     sn_list_valid):
+            # update control plus
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_v
+
+            # grab requested control data
             cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
-            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v)
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c)
 
         # ------ Dataset w/ Sequential Shot Numbers ------
         # ------ intersection_set = False           ------
@@ -739,10 +750,17 @@ class TestHDFReadControl(ut.TestCase):
         for sn_r, sn_c, sn_v in zip(sn_list_requested,
                                     sn_list_correct,
                                     sn_list_valid):
+            # update control plus
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_v
+
+            # grab requested control data
             cdata = hdfReadControl(self.lapdf, control,
                                    shotnum=sn_r,
                                    intersection_set=False)
-            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v,
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c,
                                    intersection_set=False)
 
         # ------ Dataset w/ a Jump in Shot Numbers ------
@@ -774,8 +792,16 @@ class TestHDFReadControl(ut.TestCase):
         for sn_r, sn_c, sn_v in zip(sn_list_requested,
                                     sn_list_correct,
                                     sn_list_valid):
+            # update control plus
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_v
+
+            # grab requested control data
             cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
-            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v)
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c)
 
         # ------ Dataset w/ a Jump in Shot Numbers ------
         # ------ intersection_set = False          ------
@@ -803,89 +829,319 @@ class TestHDFReadControl(ut.TestCase):
         for sn_r, sn_c, sn_v in zip(sn_list_requested,
                                     sn_list_correct,
                                     sn_list_valid):
+            # update control plus
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_v
+
+            # grab requested control data
             cdata = hdfReadControl(self.lapdf, control,
                                    shotnum=sn_r,
                                    intersection_set=False)
-            self.assertCDataFormat(cdata, control, sn_r, sn_c, sn_v,
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c,
                                    intersection_set=False)
 
-    def test_single_complex_control(self):
-        """
-        Testing HDF5 with one control device that saves data from
-        multiple configurations into one dataset. (Complex Control)
-        """
-        pass
-
     def test_two_controls(self):
-        pass
+        """
+        Testing HDF5 with two control devices.  Each control is setup
+        with on configuration each.
+        """
+        # clean HDF5 file
+        self.f.remove_all_modules()
+        self.f.add_module('6K Compumotor',
+                          {'n_configs': 1, 'sn_size': 50,
+                           'n_motionlists': 1})
+        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+        control = [('Waveform', 'config01'),
+                   ('6K Compumotor', sixk_cspec)]
+        control_plus = [('Waveform', 'config01',
+                         {'sn_requested': [],
+                          'sn_correct': [],
+                          'sn_valid': []}),
+                        ('6K Compumotor', sixk_cspec,
+                         {'sn_requested': [],
+                          'sn_correct': [],
+                          'sn_valid': []})]
 
+        # ---- Both Datasets Have Matching Sequential Shot Numbers ----
+        # ---- intersection_set = True                             ----
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            slice(40, 61, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45],
+            [40, 43, 46, 49]
+        ]
+        sn_list_waveform = sn_list_correct
+        sn_list_sixk = sn_list_correct
+        for sn_r, sn_c, sn_w, sn_sixk in zip(sn_list_requested,
+                                             sn_list_correct,
+                                             sn_list_waveform,
+                                             sn_list_sixk):
+            # update control plus
+            # 0 = Waveform
+            # 1 = 6K Compumotor
+            #
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_w
+            control_plus[1][2]['sn_requested'] = sn_r
+            control_plus[1][2]['sn_correct'] = sn_c
+            control_plus[1][2]['sn_valid'] = sn_sixk
+
+            # grab requested control data
+            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c)
+
+        # ---- Both Datasets Have Matching Sequential Shot Numbers ----
+        # ---- intersection_set = False                            ----
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            slice(40, 61, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            [40, 43, 46, 49, 52, 55, 58]
+        ]
+        sn_list_waveform = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45],
+            [40, 43, 46, 49]
+        ]
+        sn_list_sixk = sn_list_waveform
+        for sn_r, sn_c, sn_w, sn_sixk in zip(sn_list_requested,
+                                             sn_list_correct,
+                                             sn_list_waveform,
+                                             sn_list_sixk):
+            # update control plus
+            # 0 = Waveform
+            # 1 = 6K Compumotor
+            #
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_w
+            control_plus[1][2]['sn_requested'] = sn_r
+            control_plus[1][2]['sn_correct'] = sn_c
+            control_plus[1][2]['sn_valid'] = sn_sixk
+
+            # grab requested control data
+            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r,
+                                   intersection_set=False)
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c,
+                                   intersection_set=False)
+
+        # ---- Both Datasets Have Matching Sequential Shot Numbers ----
+        # ---- Waveform has a jump of 10 at sn = 20                ----
+        # ---- 6K Compumotor has a jump of 8 at sn = 30            ----
+        #
+        # Place sn jump in 'Waveform'
+        dset_name = self.f.modules['Waveform']._configs[
+            'config01']['dset name']
+        dset = self.f.modules['Waveform'][dset_name]
+        sn_arr = dset['Shot number']
+        sn_arr[20::] = np.arange(31, 61, 1, dtype=sn_arr.dtype)
+        dset['Shot number'] = sn_arr
+
+        # Place sn jump in '6K Compumotor'
+        dset_name = self.f.modules['6K Compumotor']._configs[
+            sixk_cspec]['dset name']
+        dset = self.f.modules['6K Compumotor'][dset_name]
+        sn_arr = dset['Shot number']
+        sn_arr[30::] = np.arange(38, 58, 1, dtype=sn_arr.dtype)
+        dset['Shot number'] = sn_arr
+
+        # ---- Both Datasets Have Matching Sequential Shot Numbers ----
+        # ---- intersection_set = True                             ----
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [22, 45, 110],
+            slice(35, 50, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20],
+            [45],
+            [38, 41, 44, 47]
+        ]
+        sn_list_waveform = sn_list_correct
+        sn_list_sixk = sn_list_correct
+        for sn_r, sn_c, sn_w, sn_sixk in zip(sn_list_requested,
+                                             sn_list_correct,
+                                             sn_list_waveform,
+                                             sn_list_sixk):
+            # update control plus
+            # 0 = Waveform
+            # 1 = 6K Compumotor
+            #
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_w
+            control_plus[1][2]['sn_requested'] = sn_r
+            control_plus[1][2]['sn_correct'] = sn_c
+            control_plus[1][2]['sn_valid'] = sn_sixk
+
+            # grab requested control data
+            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c)
+
+        # ---- Both Datasets Have Matching Sequential Shot Numbers ----
+        # ---- intersection_set = False                            ----
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [22, 45, 110],
+            slice(35, 50, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [22, 45, 110],
+            [35, 38, 41, 44, 47]
+        ]
+        sn_list_waveform = [
+            [1],
+            [2],
+            [10, 20],
+            [45],
+            [35, 38, 41, 44, 47]
+        ]
+        sn_list_sixk = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [22, 45],
+            [38, 41, 44, 47]
+        ]
+        for sn_r, sn_c, sn_w, sn_sixk in zip(sn_list_requested,
+                                             sn_list_correct,
+                                             sn_list_waveform,
+                                             sn_list_sixk):
+            # update control plus
+            # 0 = Waveform
+            # 1 = 6K Compumotor
+            #
+            control_plus[0][2]['sn_requested'] = sn_r
+            control_plus[0][2]['sn_correct'] = sn_c
+            control_plus[0][2]['sn_valid'] = sn_w
+            control_plus[1][2]['sn_requested'] = sn_r
+            control_plus[1][2]['sn_correct'] = sn_c
+            control_plus[1][2]['sn_valid'] = sn_sixk
+
+            # grab requested control data
+            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r,
+                                   intersection_set=False)
+
+            # assert cdata format
+            self.assertCDataFormat(cdata, control_plus, sn_c,
+                                   intersection_set=False)
+
+    @ut.skip
     def test_command_list_functionality(self):
         # perform on simple and complex datasets
         pass
 
-    def assertCDataFormat(self, cdata, control, sn_requested,
-                          sn_correct, sn_valid, intersection_set=True):
-        # define device and config
-        device = control[0][0]
-        config = control[0][1]
-        cmap = self.lapdf.file_map.controls[device]
-        cdset_name = cmap.construct_dataset_name(config)
-        cdset_path = cmap.info['group path'] + '/' + cdset_name
-        cdset = self.f[cdset_path]
-        shotnumkey = cdset.dtype.names[0]
-
+    def assertCDataFormat(self, cdata, control_plus, sn_correct,
+                          intersection_set=True):
         # check shot numbers are correct
         self.assertTrue(np.array_equal(cdata['shotnum'],
                                        sn_correct))
 
-        # check that all fields are in cdata
-        field_map = cmap.configs[config]['dset field to numpy field']
-        fields = [item[1][0] for item in field_map]
-        fields = list(set(fields))
-        for field in fields:
-            self.assertIn(field, cdata.dtype.fields)
+        # perform assertions based on control
+        for control in control_plus:
+            # extract necessary content
+            device = control[0]
+            config = control[1]
+            # sn_r = control[2]['sn_requested']
+            # sn_c = control[2]['sn_correct']
+            sn_v = control[2]['sn_valid']
 
-        # intersection_set = False
-        # - check null values are inserted
-        # TODO: check proper null values fill the array
-        sni = np.isin(cdata['shotnum'], sn_valid)
-        sni_not = np.logical_not(sni)
-        for field in fields:
-            if field == 'shotnum':
-                continue
+            # retrieve control mapping
+            cmap = self.lapdf.file_map.controls[device]
 
-            dtype = cdata.dtype[field].base
+            # gather fields that should be in cdata for this control
+            # device
+            field_map = cmap.configs[config][
+                'dset field to numpy field']
+            fields = [item[1][0] for item in field_map]
+            fields = list(set(fields))
 
-            if intersection_set:
-                # there should be NO NaN fills
-                if np.issubdtype(dtype, np.integer):
-                    cd_nan = np.where(cdata[field] == -99999,
-                                      True, False)
-                elif np.issubdtype(dtype, np.floating):
-                    cd_nan = np.isnan(cdata[field])
-                elif np.issubdtype(dtype, np.flexible):
-                    cd_nan = np.where(cdata[field] == '', True, False)
+            # check that all fields are in cdata
+            for field in fields:
+                self.assertIn(field, cdata.dtype.fields)
 
-                # test
-                # 1. cd_nan should be False for all entries
-                # 2. sni should be True for all entries
-                self.assertTrue(np.all(np.logical_not(cd_nan)))
-                self.assertTrue(np.all(sni))
-            else:
-                # there is a possibility for NaN fill
-                if np.issubdtype(dtype, np.integer):
-                    cd_nan = np.where(cdata[field] == -99999,
-                                      True, False)
-                elif np.issubdtype(dtype, np.floating):
-                    cd_nan = np.isnan(cdata[field])
-                elif np.issubdtype(dtype, np.flexible):
-                    cd_nan = np.where(cdata[field] == '', True, False)
+            # Check proper fill of "NaN" vlaues
+            #
+            sni = np.isin(cdata['shotnum'], sn_v)
+            sni_not = np.logical_not(sni)
+            for field in fields:
+                if field == 'shotnum':
+                    continue
 
-                # test
-                # 1. cd_nan should be False for all sni entries
-                # 2. cd_nan should be True for all sni_not entries
-                self.assertTrue(np.all(np.logical_not(cd_nan[sni])))
-                self.assertTrue(np.all(cd_nan[sni_not]))
+                # dtype for field
+                dtype = cdata.dtype[field].base
+
+                # assert "NaN" fills
+                if intersection_set:
+                    # there should be NO NaN fills
+                    if np.issubdtype(dtype, np.integer):
+                        cd_nan = np.where(cdata[field] == -99999,
+                                          True, False)
+                    elif np.issubdtype(dtype, np.floating):
+                        cd_nan = np.isnan(cdata[field])
+                    elif np.issubdtype(dtype, np.flexible):
+                        cd_nan = np.where(cdata[field] == '',
+                                          True, False)
+
+                    # test
+                    # 1. cd_nan should be False for all entries
+                    # 2. sni should be True for all entries
+                    self.assertTrue(np.all(np.logical_not(cd_nan)))
+                    self.assertTrue(np.all(sni))
+                else:
+                    # there is a possibility for NaN fill
+                    if np.issubdtype(dtype, np.integer):
+                        cd_nan = np.where(cdata[field] == -99999,
+                                          True, False)
+                    elif np.issubdtype(dtype, np.floating):
+                        cd_nan = np.isnan(cdata[field])
+                    elif np.issubdtype(dtype, np.flexible):
+                        cd_nan = np.where(cdata[field] == '',
+                                          True, False)
+
+                    # test
+                    # 1. cd_nan should be False for all sni entries
+                    # 2. cd_nan should be True for all sni_not entries
+                    self.assertTrue(np.all(np.logical_not(cd_nan[sni])))
+                    self.assertTrue(np.all(cd_nan[sni_not]))
 
         # need to check command list functionality
         # TODO: command list functionality

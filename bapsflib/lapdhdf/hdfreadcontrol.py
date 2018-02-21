@@ -13,6 +13,7 @@ import numpy as np
 import time
 
 from functools import reduce
+from warnings import warn
 
 
 class hdfReadControl(np.recarray):
@@ -525,11 +526,20 @@ class hdfReadControl(np.recarray):
                             # NaN fill
                             dtype = data.dtype[fname].base
                             if np.issubdtype(dtype, np.integer):
+                                # any integer, signed or not
                                 data[fname][sni_not, npi] = -99999
                             elif np.issubdtype(dtype, np.floating):
+                                # any float type
                                 data[fname][sni_not, npi] = np.nan
                             elif np.issubdtype(dtype, np.flexible):
+                                # string, unicode, void
                                 data[fname][sni_not, npi] = ''
+                            else:
+                                # no real NaN concept exists
+                                # - this shouldn't happen though
+                                warn('dtype ({}) of '.format(dtype)
+                                     + '{} has no Nan '.format(fname)
+                                     + 'concept...no NaN fill done')
                         else:
                             # for fields that contain a constant
                             data[fname][sni] = \
@@ -538,71 +548,20 @@ class hdfReadControl(np.recarray):
                             # NaN fill
                             dtype = data.dtype[fname].base
                             if np.issubdtype(dtype, np.integer):
+                                # any integer, signed or not
                                 data[fname][sni_not] = -99999
                             elif np.issubdtype(dtype, np.floating):
+                                # any float type
                                 data[fname][sni_not] = np.nan
                             elif np.issubdtype(dtype, np.flexible):
+                                # string, unicode, void
                                 data[fname][sni_not] = ''
-                    '''
-                    try:
-                        # control uses a command list
-                        #
-                        # get command list
-                        cl = cmap.configs[cspec]['command list']
-
-                        # filter 'datai' and 'cdseti' for values only
-                        # associated with cspec
-                        #
-                        if len(cmap.dataset_names) == 1 \
-                                and len(cmap.configs) != 1:
-                            # multiple configs but one dataset...need
-                            # to filter
-
-                            # get config field
-                            cfield = None
-                            for field in cmap.configs['dataset fields']:
-                                if 'configuration' \
-                                        in field[0].casefold():
-                                    cfield = field[0]
-                                    break
-
-                            # get indices for data corresponding to
-                            # cspec
-                            try:
-                                cfi = np.where(cdset[cfield] == cspec)
-                            except ValueError:
-                                raise ValueError(
-                                    'control device dataset has NO '
-                                    'identifiable configuration field')
-
-                            # filter 'cdseti'
-                            cdseti = np.logical_and(cdseti, cfi)
-
-                        # retrieve array of command indices
-                        ci_arr = cdset[cdseti, df_name].view()
-
-                        # retrieve shot number array for dataset
-                        sn_arr = cdset[cdseti, shotnumkey].view()
-
-                        for ci, command in enumerate(cl):
-                            ii = np.where(ci_arr == ci, True, False)
-                            datai = np.in1d(shotnum, sn_arr[ii])
-                            data[nf_name[0]][datai] = command
-
-                    except KeyError:
-                        # oops control does NOT use command list
-                        #
-                        # get matching data array shot number indices
-                        datai = np.in1d(shotnum, sn_intersect)
-
-                        # fill data array
-                        if data.dtype[nf_name[0]].shape != ():
-                            data[nf_name[0]][datai, npi] = \
-                                cdset[cdseti, df_name].view()
-                        else:
-                            data[nf_name[0]][datai] = \
-                                cdset[cdseti, df_name].view()
-                    '''
+                            else:
+                                # no real NaN concept exists
+                                # - this shouldn't happen though
+                                warn('dtype ({}) of '.format(dtype)
+                                     + '{} has no Nan '.format(fname)
+                                     + 'concept...no NaN fill done')
 
             # print execution timing
             if timeit:

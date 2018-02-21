@@ -95,8 +95,8 @@ class FauxWaveform(h5py.Group):
 
     @property
     def config_names(self):
-        """list of waveform configuration names"""
-        return self._config_names
+        """list of configuration names"""
+        return list(self._configs)
 
     # @property
     # def sn_size(self):
@@ -118,11 +118,15 @@ class FauxWaveform(h5py.Group):
         # clear group before rebuild
         self.clear()
 
+        # re-initialize key dicts
+        self._configs = {}
+
         # add configuration sub-groups
-        self._config_names = []
+        # self._config_names = []
         for i in range(self._n_configs):
             config_name = 'config{:02}'.format(i + 1)
-            self._config_names.append(config_name)
+            # self._config_names.append(config_name)
+            self._configs[config_name] = {}
             self.create_group(config_name)
             self._set_attrs(config_name, i + 1)
 
@@ -136,12 +140,18 @@ class FauxWaveform(h5py.Group):
         ci_list = ([0] * 5) + ([1] * 5) + ([2] * 5)
         ci_list = ci_list * int(math.ceil(self._sn_size / 15))
         ci_list = ci_list[:self._sn_size:]
-        for i, config in enumerate(self._config_names):
+        # for i, config in enumerate(self._config_names):
+        for i, config in enumerate(self._configs):
+            # add dataset name to configs
+            self._configs[config]['dset name'] = 'Run time list'
+
+            # fill dataset
             dset[i::self._n_configs, 'Shot number'] = \
                 np.arange(self._sn_size, dtype='<i4') + 1
             dset[i::self._n_configs, 'Configuration name'] = \
                 config.encode()
-            dset[i::self._n_configs, 'Command index'] = np.array(ci_list)
+            dset[i::self._n_configs, 'Command index'] = \
+                np.array(ci_list)
             ci_list.reverse()
 
     def _set_attrs(self, config_name, config_number):
@@ -155,3 +165,9 @@ class FauxWaveform(h5py.Group):
                                      b'FREQ 80000.000000 \n'
                                      b'FREQ 120000.000000 \n'
         })
+
+        # add command list to _configs
+        cl = self[config_name].attrs['Waveform command list']
+        cl = cl.decode('utf-8').splitlines()
+        cl = [command.strip() for command in cl]
+        self._configs[config_name]['command list'] = cl

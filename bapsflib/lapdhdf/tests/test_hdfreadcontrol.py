@@ -674,12 +674,23 @@ class TestHDFReadControl(ut.TestCase):
         Testing HDF5 with one control device that saves data from
         ONE configuration into ONE dataset. (Simple Control)
         """
+        # Test Outline:
         # 1. Dataset with sequential shot numbers
-        #    - intersection_set = True
-        #      > shotnum = omitted, int, list, slice
-        #    - intersection_set = False
-        #      > shotnum = omitted, int, list, slice
+        #    a. intersection_set = True
+        #       - shotnum = int, list, slice
+        #    b. intersection_set = False
+        #       - shotnum = int, list, slice
+        #    c. shotnum omitted
+        #       - intersection_set = True/False
+        #         (should be no difference)
         # 2. Dataset with a jump in shot numbers
+        #    a. intersection_set = True
+        #       - shotnum = int, list, slice
+        #    b. intersection_set = False
+        #       - shotnum = int, list, slice
+        #    c. shotnum omitted
+        #       - intersection_set = True/False
+        #         (should be no difference)
         #
         # clean HDF5 file
         self.f.remove_all_modules()
@@ -763,6 +774,24 @@ class TestHDFReadControl(ut.TestCase):
             self.assertCDataFormat(cdata, control_plus, sn_c,
                                    intersection_set=False)
 
+        # ------ Dataset w/ Sequential Shot Numbers ------
+        # ------ shotnum omitted                    ------
+        # ------ intersection_set = True/False      ------
+        sn_c = np.arange(1, 51, 1).tolist()
+        control_plus[0][2]['sn_requested'] = slice(None)
+        control_plus[0][2]['sn_correct'] = sn_c
+        control_plus[0][2]['sn_valid'] = sn_c
+
+        # grab & test data for intersection_set=True
+        cdata = hdfReadControl(self.lapdf, control)
+        self.assertCDataFormat(cdata, control_plus, sn_c)
+
+        # grab & test data for intersection_set=True
+        cdata = hdfReadControl(self.lapdf, control,
+                               intersection_set=False)
+        self.assertCDataFormat(cdata, control_plus, sn_c,
+                               intersection_set=False)
+
         # ------ Dataset w/ a Jump in Shot Numbers ------
         # create a jump in the dataset
         dset_name = self.f.modules['6K Compumotor']._configs[
@@ -842,6 +871,26 @@ class TestHDFReadControl(ut.TestCase):
             # assert cdata format
             self.assertCDataFormat(cdata, control_plus, sn_c,
                                    intersection_set=False)
+
+        # ------ Dataset w/ a Jump in Shot Numbers ------
+        # ------ shotnum omitted                   ------
+        # ------ intersection_set = True/False     ------
+        sn_c = sn_arr.tolist()
+        control_plus[0][2]['sn_requested'] = slice(None)
+        control_plus[0][2]['sn_correct'] = sn_c
+        control_plus[0][2]['sn_valid'] = sn_c
+
+        # grab & test data for intersection_set=True
+        cdata = hdfReadControl(self.lapdf, control)
+        self.assertCDataFormat(cdata, control_plus, sn_c)
+
+        # grab & test data for intersection_set=True
+        sn_c = np.arange(1, 61, 1).tolist()
+        control_plus[0][2]['sn_correct'] = sn_c
+        cdata = hdfReadControl(self.lapdf, control,
+                               intersection_set=False)
+        self.assertCDataFormat(cdata, control_plus, sn_c,
+                               intersection_set=False)
 
     def test_two_controls(self):
         """
@@ -1066,8 +1115,11 @@ class TestHDFReadControl(ut.TestCase):
 
     @ut.skip
     def test_command_list_functionality(self):
-        # perform on simple and complex datasets
-        pass
+        """
+        Testing HDF5 with a control device that utilizes a command list.
+        """
+        # clean HDF5 file
+        self.f.remove_all_modules()
 
     def assertCDataFormat(self, cdata, control_plus, sn_correct,
                           intersection_set=True):

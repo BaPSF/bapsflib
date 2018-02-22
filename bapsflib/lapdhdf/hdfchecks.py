@@ -49,7 +49,7 @@ import os
 import sys
 
 from .hdferrors import NotHDFFileError, NotLaPDHDFError, NoMSIError
-from .hdfmappers import hdfMap
+from .hdfmapper import hdfMap
 
 from contextlib import contextmanager
 

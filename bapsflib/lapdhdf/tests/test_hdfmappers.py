@@ -15,7 +15,7 @@ import unittest as ut
 
 from . import FauxHDFBuilder
 
-from ..hdfmappers import hdfMap
+from ..hdfmapper import hdfMap
 
 
 class TestHDFMap(ut.TestCase):

@@ -17,6 +17,8 @@ class FauxSIS3301(h5py.Group):
     """
     Creates a Faux 'SIS 3301' Group in a HDF5 file.
     """
+
+    # noinspection SpellCheckingInspection
     class _knobs(object):
         """
         A class that contains all the controls for specifying the

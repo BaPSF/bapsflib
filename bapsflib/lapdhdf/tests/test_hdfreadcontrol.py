@@ -1193,6 +1193,7 @@ class TestHDFReadControl(ut.TestCase):
         """
         Testing HDF5 with a control device that utilizes a command list.
         """
+        # TODO: command list functionality
         # clean HDF5 file
         # self.f.remove_all_modules()
         pass
@@ -1270,9 +1271,6 @@ class TestHDFReadControl(ut.TestCase):
                     # 2. cd_nan should be True for all sni_not entries
                     self.assertTrue(np.all(np.logical_not(cd_nan[sni])))
                     self.assertTrue(np.all(cd_nan[sni_not]))
-
-        # need to check command list functionality
-        # TODO: command list functionality
 
 
 if __name__ == '__main__':

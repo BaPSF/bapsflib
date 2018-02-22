@@ -19,23 +19,24 @@ from warnings import warn
 class hdfReadControl(np.recarray):
     """
     Extracts control device data from the HDF5 file.
+
+    .. note::
+
+        * It is assumed that control data is always extracted with the
+          intent of being matched to digitizer data.
+        * Only one control for each :const:`contype` can be specified
+          at a time.
     """
-    # .. note::
-    #
-    #     It is assumed that control data is always extracted with the
-    #    intent of being matched to digitizer data
     #
     # Extracting Data:
     # - if multiple controls are specified then,
     #   ~ only one control of each contype can be in the list of
     #     controls
     #   ~ if a specified control does not exist in the HDF5 file, then
-    #     it will be deleted from the specified 'controls' list
-    #   ~ the returned structured array will only contain intersecting
-    #     HDF5 shot numbers (i.e. shot numbers that are included in
-    #     all specified control datasets)
-    #   ~ then, those intersecting shot numbers are filtered according
-    #     to the index and shotnum keywords
+    #     a TypeError will be raised
+    #   ~ if a control device configuration is not specified, then if
+    #     the control has one config then that config will be assumed,
+    #     otherwise, a TypeError will be raised
     #
     def __new__(cls, hdf_file, controls,
                 shotnum=slice(None), intersection_set=True,
@@ -49,47 +50,52 @@ class hdfReadControl(np.recarray):
             for details)
         :type controls: [str, (str, val), ]
         :param shotnum: HDF5 file shot number(s) indicating data
-            entries to be extracted (:code:`shotnum` will take
-            precedence over :code:`index`)
-        :type shotnum: :code:`None`, int, list(int), or
-            slice(start, stop, step)
-        :param bool intersection_set:
-        :param bool silent:
+            entries to be extracted
+        :type shotnum: int, list(int), or slice(start, stop, step)
+        :param bool intersection_set: :code:`True` (DEFAULT) will force
+            the returned shot numbers to be the intersection of
+            :data:`shotnum` and the shot numbers contained in each
+            control device dataset. :code:`False` will return the union
+            instead of the intersection
+        :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
+            to suppress command line printout of soft-warnings
 
-        Behavior of :data:`shotnum`
-            * indexing starts at 1
+        Behavior of :data:`shotnum` and :data:`intersection_set`:
+            * :data:`shotnum` indexing starts at 1
+            * any values :code:`<= 0` will be thrown out
             * if :code:`intersection_set=True`, then only data
               corresponding to shot numbers that are specified in
               shotnum and are in all control datasets will be returned
             * if :code:`intersection_set=False`, then the returned array
               will have entries for all shot numbers specified in
-              shotnum but entries that do not correlate with data in
-              control datasets will be give null values.
+              shotnum but entries that do not correlate with shot
+              numbers in control datasets will be give null values of
+              :code:`-99999`, :code:`numpy.nan`, or :code:`''`,
+              depending on :code:`numpy.dtype`.
         """
         # When inheriting from numpy, the object creation and
         # initialization is handled by __new__ instead of __init__.
         #
-        # param control:
-        # - control is a string list naming the control to be read out
-        # - if a control contains multiple devices, then it's entry in
-        #   the control list must be a 2-element tuple where the 1st
-        #   element is the control name and the 2nd element is a unique
-        #   specifier.
-        #   e.g. the '6K Compumotor' can have multiple probe drives
-        #   which are identified by their receptacle number, so
+        # :param: controls:
+        # - :data:`controls` is a list of strings or 2-element tuples
+        # - if an element is a string
+        #   * that string is the name of the desired control device
+        #   * the control device must have only one configuration
+        # - if an element is a 2-element tuple:
+        #   * the 1st value is a string naming the control device
+        #   * the 2nd value is the device configuration name as defined
+        #     in the device mapping
+        # - :data:`controls` can only contain one control device for
+        #   each :data:`contype`
+        # - Examples:
+        #   1. a '6K Compumotor' with multiple configurations
         #
-        #       controls = [('6K Compumotor', 1),]
+        #       controls = [('6K Compumotor', 1)]
         #
-        #   would indicate a readout of receptacle 1 of the
-        #   '6K Compumotor'
-        # - The list can only contain one entry from each contype. i.e.
-        #   This is valid:
+        #   2. a '6K Compumotor' with multiple configurations and a
+        #      'Waveform' with one configuration
         #
-        #       controls = ['6K Compumotor', 'Waveform', 'N5700_PS']
-        #
-        #   but this is not:
-        #
-        #       controls = ['6K Compumotor', 'NI_XZ']
+        #       contorls = ['Waveform, ('6K Compumotor', 1)]
         #
 
         # initialize timing
@@ -125,13 +131,6 @@ class hdfReadControl(np.recarray):
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Condition 'controls' Argument ----
-        # condition elements of 'controls' argument
-        # - Controls is a list where elements can be:
-        #   1. a string indicating the name of a control device
-        #   2. a 2-element tuple where the 1st entry is a string
-        #      indicating the name of a control device and the 2nd is
-        #      a unique specifier for that control device
-        # - there can only be one control device per contype
         # - some calling routines (such as, lapdhdf.File.read_data)
         #   already properly condition 'controls', so passing a keyword
         #   'assume_controls_conditioned' allows for a bypass of
@@ -156,6 +155,7 @@ class hdfReadControl(np.recarray):
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Condition shotnum ----
+        # TODO: REVIEW THIS COMMENT BLOCK
         # shotnum -- global HDF5 file shot number
         #            ~ this is the index used to link values between
         #              datasets
@@ -218,23 +218,29 @@ class hdfReadControl(np.recarray):
             cname = control[0]
             cspec = control[1]
 
-            # gather control datasets
-            # TODO: determine shotnumkey through cmap.configs
-            #       - i.e. scan
-            #         cmap.configs[cspec]['dset field to numpy field']
-            #         for numpy field 'shotnum' and grab the associated
-            #         dset field
-            #
+            # gather control datasets and shotnumkey's
             cmap = file_map.controls[cname]
             cdset_name = cmap.construct_dataset_name(cspec)
             cdset_path = cmap.info['group path'] + '/' + cdset_name
             cdset_dict[cname] = hdf_file.get(cdset_path)
-            shotnumkey_dict[cname] = cdset_dict[cname].dtype.names[0]
+            shotnumkey = ''
+            for item in \
+                    cmap.configs[cspec]['dset field to numpy field']:
+                if item[1][0] == 'shotnum':
+                    shotnumkey = item[0]
+                    break
+            if shotnumkey == '':
+                raise ValueError(
+                    'no shot number field defined for control device')
+            else:
+                shotnumkey_dict[cname] = shotnumkey
 
         # Catch shotnum if a slice object or int
         # - For either case, convert shotnum to a list
         #
         if type(shotnum) is slice:
+            # Here convert slice to list
+            #
             # determine largest possible shot number
             last_sn = [
                 cdset_dict[cname][-1, shotnumkey_dict[cname]] + 1
@@ -259,16 +265,18 @@ class hdfReadControl(np.recarray):
                 if start <= 0:
                     start = 1
             else:
-                start = 1
+                # start wasn't specified in slice object
+                start = min(first_sn)
 
-            # add to first_sn
-            first_sn.append(start)
+            # adjust start for intersection_set
             if intersection_set:
+                first_sn.append(start)
                 start = max(first_sn)
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()
         elif type(shotnum) is int:
+            # Here convert int to list
             shotnum = [shotnum]
         elif type(shotnum) is not list:
             raise ValueError('Valid shotnum not passed')
@@ -309,8 +317,6 @@ class hdfReadControl(np.recarray):
         shotnum = np.array(shotnum)
         if len(shotnum.shape) != 1:
             shotnum = shotnum.squeeze()
-        # shotnum = np.array([shotnum]) if type(shotnum) is int \
-        #     else np.array(shotnum)
 
         # re-filter index, shotnum, sni
         if intersection_set:
@@ -342,18 +348,18 @@ class hdfReadControl(np.recarray):
             for df_name, nf_name, npi \
                     in cmap.configs[cspec]['dset field to numpy field']:
                 # df_name - control dataset field name
-                #           ~ if a tuple instead of a string then the
-                #             dataset field is linked to a command list
                 # nf_name - numpy structured array field name and dtype
                 # npi     - numpy index df_name will be inserted into
+                #
                 if nf_name[0] == 'shotnum':
                     # already in dtype
                     pass
                 elif nf_name[0] in npfields:
+                    # field will be an array, increment size
                     npfields[nf_name[0]][1] += 1
                 else:
+                    # initialize
                     npfields[nf_name[0]] = [nf_name[1], 1]
-                    # npfields[nf_name] = ['<f8, 1]
 
         # Define dtype and shape for numpy array
         dtype = [('shotnum', '<u4', 1)]
@@ -371,13 +377,6 @@ class hdfReadControl(np.recarray):
         data = np.empty(shape, dtype=dtype)
         data['shotnum'] = shotnum.view()
 
-        # TODO: this should be done in the main array fill section
-        # for field in npfields:
-        #    if data.dtype[field] <= np.int:
-        #        data[field][:] = -99999
-        #    elif data.dtype[field] <= np.float:
-        #        data[field][:] = np.nan
-
         # print execution timing
         if timeit:
             tt.append(time.time())
@@ -393,7 +392,7 @@ class hdfReadControl(np.recarray):
             # get control dataset
             cmap = file_map.controls[cname]
             cdset = cdset_dict[cname]
-            shotnumkey = shotnumkey_dict[cname]
+            # shotnumkey = shotnumkey_dict[cname]
             sni = sni_dict[cname]
             index = index_dict[cname]
             if type(index) is np.ndarray:
@@ -401,16 +400,7 @@ class hdfReadControl(np.recarray):
 
             # populate control data array
             if intersection_set:
-                # find cdset indices that match shotnum
-                # - Note: if the control device utilizes one dataset for
-                #         all configurations, then 'shoti' will contain
-                #         indices for all the configurations.  This will
-                #         need to be filtered again for the wanted
-                #         configuration.
-                #
-                # shoti = np.in1d(cdset[shotnumkey], shotnum)
-
-                # assign values
+                # assign values for each field
                 # df_name - device dataset field name
                 # nf_name - corresponding numpy field name and dtype
                 # npi     - numpy index that dataset will be assigned to
@@ -447,23 +437,6 @@ class hdfReadControl(np.recarray):
                             data[nf_name[0]] = \
                                 cdset[index, df_name].view()
             else:
-                # TODO: need to confirm this works
-                # get intersecting shot numbers
-                # sn_intersect - shot numbers that are common between
-                #                shotnum and the control dataset
-                # cdseti - a bool array matching the size of the control
-                #          dataset and labeling True for for control
-                #          dataset array shot numbers that are in the
-                #          shotnum
-                # NOTE: cdseti will have to be filtered again for
-                #       control devices that utilize one dataset for
-                #       multiple configurations. They will need to be
-                #       filtered for the desired configuration.
-                #
-                # sn_intersect = np.intersect1d(cdset[shotnumkey],
-                #                               shotnum).view()
-                # cdseti = np.in1d(cdset[shotnumkey], sn_intersect)
-
                 # assign values
                 # df_name - device dataset field name
                 # nf_name - corresponding numpy field name and dtype
@@ -635,9 +608,6 @@ class hdfReadControl(np.recarray):
                              'probe name': None,
                              'port': (None, None)})
 
-    # def __init__(self, *args, **kwargs):
-    #     super().__init__()
-
 
 def condition_controls(hdf_file, controls, **kwargs):
 
@@ -737,6 +707,7 @@ def condition_controls(hdf_file, controls, **kwargs):
     return controls
 
 
+'''
 def gather_shotnums(hdf_file, controls, method='union',
                     assume_controls_conditioned=False):
 
@@ -818,6 +789,7 @@ def gather_shotnums(hdf_file, controls, method='union',
 
     # return numpy array of intersecting shot numbers
     return shotnumarr
+'''
 
 
 # rename to condition_shotnum

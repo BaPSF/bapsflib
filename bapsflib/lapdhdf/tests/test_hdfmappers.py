@@ -33,6 +33,7 @@ class TestHDFMap(ut.TestCase):
         return hdfMap(self.f)
 
     def test_attribute_existence(self):
+        """Test existence of required attributes."""
         # informational attributes
         self.assertTrue(hasattr(self.map, 'msi'))
         self.assertTrue(hasattr(self.map, 'digitizers'))
@@ -52,13 +53,20 @@ class TestHDFMap(ut.TestCase):
         self.assertTrue(hasattr(self.map, 'is_lapd_hdf'))
 
     def test_hdf_version(self):
+        """
+        Test LaPD HDF5 software version attribute is properly read.
+        """
         self.assertEqual(self.map.hdf_version, '0.0.0')
 
     def test_is_lapd_hdf(self):
+        """Test attriubte is_lapd_hdf"""
         self.assertTrue(self.map.is_lapd_hdf)
 
     def test_base_hdf(self):
-        """No diagnostics, digitizers, or control devices"""
+        """
+        Test map structure for file with no diagnostics, digitizers,
+        or control devices
+        """
         # existence of root groups
         self.assertTrue(self.map.has_msi_group)
         self.assertTrue(self.map.has_data_group)
@@ -83,9 +91,12 @@ class TestHDFMap(ut.TestCase):
 
     def test_hdf_one_control(self):
         """
-        No diagnostics or digitizers, One control device ('Waveform')
+        Test map structure for file with NO diagnostics, NO digitizers,
+        and ONE control device ('Waveform').
         """
         # add waveform control
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
         self.f.add_module('Waveform')
 
         # existence of root groups
@@ -114,12 +125,15 @@ class TestHDFMap(ut.TestCase):
         self.f.remove_module('Waveform')
 
     def test_hdf_one_digitizer(self):
+        # TODO: write tests for mapping one digitizer
         pass
 
     def test_hdf_one_diagnostic(self):
+        # TODO: write tests for mapping one msi diagnostic
         pass
 
     def test_hdf_one_unknown(self):
+        # TODO: write tests for mapping of unknown modules (Groups)
         pass
 
 

@@ -62,7 +62,7 @@ class File(h5py.File):
     def file_map(self):
         """
         HDF5 file mappings
-        (:class:`bapsflib.lapdhdf.hdfmappers.hdfMap`)
+        (:class:`bapsflib.lapdhdf.hdfmapper.hdfMap`)
         """
         return self.__file_checks.get_hdf_mapping()
 

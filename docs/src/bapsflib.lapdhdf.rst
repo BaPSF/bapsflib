@@ -47,10 +47,10 @@ bapsflib\.lapdhdf\.hdferrors
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfmappers
+bapsflib\.lapdhdf\.hdfmapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdfmappers
+.. automodule:: bapsflib.lapdhdf.hdfmapper
     :members:
     :undoc-members:
     :show-inheritance:

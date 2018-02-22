@@ -57,7 +57,7 @@ from contextlib import contextmanager
 class hdfCheck(object):
     """
     Initiates the HDF5 mapping constructor
-    (:class:`~.hdfmappers.hdfMap`) and prints a file report to screen
+    (:class:`~.hdfmapper.hdfMap`) and prints a file report to screen
     (or file).
     """
     def __init__(self, hdf_obj, silent=False, save_report=False):
@@ -452,7 +452,7 @@ class hdfCheck(object):
     def get_hdf_mapping(self):
         """
         :return: an instance of the file mapping
-            :py:class:`lapdhdf.hdfmappers.hdfMap`
+            :py:class:`lapdhdf.hdfmapper.hdfMap`
         """
         return self.__hdf_map
 

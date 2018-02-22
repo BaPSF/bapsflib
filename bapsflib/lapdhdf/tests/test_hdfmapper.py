@@ -20,7 +20,7 @@ from ..hdfmapper import hdfMap
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib.lapdhdf.hdfmappers.hdfMap`
+    Test Case for :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap`
     """
     def setUp(self):
         self.f = FauxHDFBuilder()

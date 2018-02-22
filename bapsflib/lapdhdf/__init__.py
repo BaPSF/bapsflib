@@ -11,7 +11,7 @@
 """
 The :mod:`bapsflib.lapdhdf` module contains the necessary tools to
 open (:class:`~bapsflib.lapdhdf.files.File`),
-map (:class:`~bapsflib.lapdhdf.hdfmappers.hdfMap`),
+map (:class:`~bapsflib.lapdhdf.hdfmapper.hdfMap`),
 check, (:class:`~bapsflib.lapdhdf.hdfchecks.hdfCheck`)
 and read out (:meth:`~bapsflib.lapdhdf.files.File.read_data` and
 :meth:`~bapsflib.lapdhdf.files.File.read_controls`)

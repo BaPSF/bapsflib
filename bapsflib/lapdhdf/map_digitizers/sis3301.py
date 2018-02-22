@@ -243,13 +243,6 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # initiate warning string
         warn_str = ''
 
-        # Condition adc keyword
-        if adc != 'SIS 3301':
-            warn_str = ('** Warning: passed adc ({}) is '.format(adc)
-                        + 'not valid for this digitizer. Forcing '
-                        "adc = 'SIS 3301'")
-            adc = 'SIS 3301'
-
         # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
@@ -279,6 +272,17 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         elif self.configs[config_name]['active'] is False:
             raise ValueError('Specified configuration name is not '
                              'active.')
+
+        # Condition adc keyword
+        if adc != 'SIS 3301':
+            # warn_str = ('** Warning: passed adc ({}) is '.format(adc)
+            #             + 'not valid for this digitizer. Forcing '
+            #             "adc = 'SIS 3301'")
+            # adc = 'SIS 3301'
+            raise ValueError(
+                'Specified adc ({}) is not in specified '.format(
+                    adc)
+                + 'configuration ({}).'.format(config_name))
 
         # search if (board, channel) combo is connected
         bc_valid = False

@@ -258,9 +258,11 @@ class hdfReadControl(np.recarray):
                 # ensure shot numbers are >= 1
                 if start <= 0:
                     start = 1
+            else:
+                start = 1
 
-                # add to first_sn
-                first_sn.append(start)
+            # add to first_sn
+            first_sn.append(start)
             if intersection_set:
                 start = max(first_sn)
 

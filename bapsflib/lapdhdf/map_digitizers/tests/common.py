@@ -73,3 +73,56 @@ class DigitizerTestCase(ut.TestCase):
 
         # assert attribute 'group' type
         self.assertIsInstance(dmap.group, h5py.Group)
+
+        # ------ Basic construct_dataset_name() Behavior ------
+        #
+        # 1. board is invalid (board = -1)
+        # 2. channel is invalid (channel = -1)
+        # 3. config_name is invalid (config_name='')
+        # 4. adc is invalid (adc='')
+        # 5. return_into=False returns string
+        # 6. return_info=True returns 2-element tuple
+        #
+        # gather active map info
+        config = dmap.active_configs[0]
+        adc = dmap.configs[config]['adc'][0]
+        brd = dmap.configs[config][adc][0][0]
+        ch = dmap.configs[config][adc][0][1][0]
+
+        # (1) invalid board number
+        self.assertRaises(ValueError,
+                          dmap.construct_dataset_name, -1, 1)
+
+        # (2) invalid channel number
+        self.assertRaises(ValueError,
+                          dmap.construct_dataset_name, brd, -1)
+
+        # (3) invalid config_name
+        self.assertRaises(ValueError,
+                          dmap.construct_dataset_name,
+                          brd, ch, config_name='')
+
+        # (4) invalid adc
+        self.assertRaises(ValueError,
+                          dmap.construct_dataset_name,
+                          brd, ch, adc='')
+        # (5) returned object must be string
+        dname = dmap.construct_dataset_name(brd, ch)
+        self.assertIsInstance(dname, str)
+
+        # (6) returned object must be 2-element tuple
+        # 0 = is a string
+        # 1 = is a dict
+        #
+        dname = dmap.construct_dataset_name(brd, ch, return_info=True)
+        self.assertIsInstance(dname, tuple)
+        self.assertEqual(len(dname), 2)
+        self.assertIsInstance(dname[0], str)
+        self.assertIsInstance(dname[1], dict)
+        self.assertIn('bit', dname[1])
+        self.assertIn('sample rate', dname[1])
+        self.assertIn('shot average (software)', dname[1])
+        self.assertIn('sample average (hardware)', dname[1])
+        self.assertIn('adc', dname[1])
+        self.assertIn('configuration name', dname[1])
+        self.assertIn('digitizer', dname[1])

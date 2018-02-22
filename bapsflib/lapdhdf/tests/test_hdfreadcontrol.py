@@ -11,7 +11,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import h5py
 import numpy as np
 import unittest as ut
 
@@ -175,6 +174,18 @@ class TestConditionShotnumList(ut.TestCase):
     def assertSNSuite(self, og_shotnum, index, shotnum, sni,
                       cdset, shotnumkey, configkey, cspec):
         """Suite of assertions for shot number conditioning"""
+        # og_shotnum - original requested shot number
+        # index      - index of dataset
+        # shotnum    - calculate shot number array
+        # sni        - boolean mask for shotnum
+        #               shotnum[sni] = cdset[index, shotnumkey]
+        # cdset      - control devices dataset
+        # shotnumky  - field in cdset that corresponds to shot numbers
+        # configkey  - field in cdset that corresponds to configuration
+        #              names
+        # cspec      - unique specifier for control device
+        #              (i.e. configuration name)
+
         # all return variables should be np.ndarray
         self.assertTrue(isinstance(index, np.ndarray))
         self.assertTrue(isinstance(shotnum, np.ndarray))
@@ -199,7 +210,7 @@ class TestConditionShotnumList(ut.TestCase):
             self.assertTrue(np.all(np.isin(shotnum, og_arr[og_i])))
             self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum)))
         else:
-            # condtion_shotnum_list should have thrown a ValueError
+            # condition_shotnum_list should have thrown a ValueError
             # since no valid shot number was originally passed in
             raise RuntimeError(
                 'something went wrong, `condition_shotnum_list` should '
@@ -238,6 +249,7 @@ class TestConditionShotnumList(ut.TestCase):
 class TestDoShotnumIntersection(ut.TestCase):
     """Test Case for do_shotnum_intersection"""
     def test_one_control(self):
+        """Test intersection behavior with one control device"""
         # test a case that results in a null result
         shotnum = np.arange(1, 21, 1)
         shotnum_dict = {'Waveform': shotnum}
@@ -267,6 +279,7 @@ class TestDoShotnumIntersection(ut.TestCase):
                                        [5, 6, 7]))
 
     def test_two_controls(self):
+        """Test intersection behavior with two control devices"""
         # test a case that results in a null result
         shotnum = np.arange(1, 21, 1)
         shotnum_dict = {
@@ -345,7 +358,8 @@ class TestConditionControls(ut.TestCase):
     def lapdf(self):
         return File(self.f.filename)
 
-    def test_simple_puts(self):
+    def test_basic_input_handling(self):
+        """Test input handling of `hdf_file` and `controls`"""
         # hdf_file = h5py.File (but NOT lapdhdf.File)
         # controls = None
         self.assertRaises(AttributeError,
@@ -362,6 +376,9 @@ class TestConditionControls(ut.TestCase):
                           condition_controls, self.lapdf, None)
 
     def test_file_w_one_control(self):
+        """
+        Test `controls` conditioning for file with one control device.
+        """
         # set one control device
         modules = list(self.f.modules.keys())
         for mod in modules:
@@ -414,6 +431,10 @@ class TestConditionControls(ut.TestCase):
                               og_con)
 
     def test_file_w_multiple_controls(self):
+        """
+        Test `controls` conditioning for file with multiple (2) control
+        devices.
+        """
         # set modules
         modules = list(self.f.modules.keys())
         for mod in modules:
@@ -576,6 +597,9 @@ class TestConditionControls(ut.TestCase):
                               condition_controls, self.lapdf, og_con)
 
     def test_file_w_no_controls(self):
+        """
+        Test `controls` conditioning for file with no control devices.
+        """
         # remove all control devices
         modules = list(self.f.modules.keys())
         if len(modules) != 0:
@@ -600,23 +624,21 @@ class TestHDFReadControl(ut.TestCase):
     #
     # What to test:
     # 1. handling of hdf_file input
-    # 2. reading from one 'simple' control dataset
+    # 2. output object format
+    # 3. reading from one control dataset
+    #    - for all cases ensure fields are properly transferred over
+    #    - datasets w/ sequential and non-sequential shot numbers
     #    - intersection_set = True/False
-    #      > when False proper NaN/-99999/'' data should be filled
-    #    - ensure fields are properly transferred over
+    #      > shotnum is omitted, int, list, or slice
+    #      > proper fill of "NaN" values
+    # 4. reading from two control datasets
+    #    - for all cases ensure fields are properly transferred over
+    #    - datasets w/ sequential and non-sequential shot numbers
+    #    - intersection_set = True/False
+    #      > shotnum is omitted, int, list, or slice
+    #      > proper fill of "NaN" values
+    # 5. command list functionality
     #    - for command list datasets, commands are properly assigned
-    # 3. reading from one 'complex' control dataset
-    #    - intersection_set = True/False
-    #      > when False proper NaN/-99999/'' data should be filled
-    #    - ensure fields are properly transferred over
-    #    - for command list datasets, commands are properly assigned
-    # 3. reading from two control datasets
-    #    - testing against 'simple' datasets should suffice
-    #    - intersection_set = True/False
-    #      > when False proper NaN/-99999/'' data should be filled
-    #
-    # When implemented:
-    # 1. advanced handling of command list parsing
     #
 
     def setUp(self):
@@ -630,6 +652,7 @@ class TestHDFReadControl(ut.TestCase):
         return File(self.f.filename)
 
     def test_hdf_file_handling(self):
+        """Test handling of input argument `hdf_file`."""
         # Note:
         # - all possibilities of the 'controls' argument are not tested
         #   here since they are essentially tested with the
@@ -649,6 +672,7 @@ class TestHDFReadControl(ut.TestCase):
                           assume_controls_conditioned=True)
 
     def test_output_obj_format(self):
+        """Test format of returned object."""
         # 1. output data is a np.recarray
         # 2. has attributes 'info' and 'configs' (both are dicts)
         #
@@ -657,7 +681,7 @@ class TestHDFReadControl(ut.TestCase):
         self.f.add_module('Waveform')
         cdata = hdfReadControl(self.lapdf, ['Waveform'], shotnum=1)
 
-        # subclass of cdata is a np.reccarray
+        # subclass of cdata is a np.recarray
         self.assertIsInstance(cdata, np.recarray)
 
         # required fields in all cdata
@@ -1200,6 +1224,16 @@ class TestHDFReadControl(ut.TestCase):
 
     def assertCDataFormat(self, cdata, control_plus, sn_correct,
                           intersection_set=True):
+        """Assertion for detailed format of returned data object."""
+        # cdata            - returned data object of hdfReadControl()
+        # control_plus     - control name, control configureation, and
+        #                    expected shot numbers ('sn_valid')
+        # sn_correct       - the correct shot numbers
+        #                    (i.e. cdata['shotnumm'] == sn_correct)
+        # intersection_set - whether cdata is generated w/
+        #                    intersection_set=True (or False)
+        #
+
         # check shot numbers are correct
         self.assertTrue(np.array_equal(cdata['shotnum'],
                                        sn_correct))

@@ -1261,7 +1261,7 @@ class TestHDFReadControl(ut.TestCase):
             for field in fields:
                 self.assertIn(field, cdata.dtype.fields)
 
-            # Check proper fill of "NaN" vlaues
+            # Check proper fill of "NaN" values
             #
             sni = np.isin(cdata['shotnum'], sn_v)
             sni_not = np.logical_not(sni)

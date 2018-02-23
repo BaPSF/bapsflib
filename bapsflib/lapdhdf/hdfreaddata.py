@@ -13,7 +13,10 @@
 import numpy as np
 import time
 
-from .hdfreadcontrol import hdfReadControl, condition_controls
+from .hdfreadcontrol import (hdfReadControl,
+                             condition_controls,
+                             condition_shotnum_list)
+
 from bapsflib.plasma import core
 
 
@@ -21,7 +24,6 @@ class hdfReadData(np.recarray):
     """
     Reads the data out of the HDF5 file:
     """
-
     # Extracting Data:
     #  dset = h5py.get() returns a view of the dataset (dset)
     #  From here, instantiating from dset will create a copy of the
@@ -112,8 +114,8 @@ class hdfReadData(np.recarray):
             try:
                 digi_map = hdf_file.file_map.digitizers[digitizer]
             except KeyError:
-                raise KeyError('Specified Digitizer is not among known '
-                               'digitizers')
+                raise ValueError('Specified Digitizer is not among '
+                                 'known digitizers')
 
         # print execution timing
         if timeit:
@@ -155,9 +157,20 @@ class hdfReadData(np.recarray):
         # shotnumkey - field name for shot number column in the digi
         #              header dataset (dheader)
         #
+        # Build kwargs for construct_dataset_name()
+        kwargs = {'return_info': True,
+                  'silent': silent}
+        if config_name is not None:
+            kwargs['config_name'] = config_name
+        if adc is not None:
+            kwargs['adc'] = adc
+
+        # Get dataset
         dname, d_info = digi_map.construct_dataset_name(
-            board, channel, config_name=config_name, adc=adc,
-            return_info=True, silent=silent)
+            board, channel, **kwargs)
+        #dname, d_info = digi_map.construct_dataset_name(
+        #    board, channel, config_name=config_name, adc=adc,
+        #    return_info=True, silent=silent)
         dpath = digi_map.info['group path'] + '/' + dname
         dset = hdf_file.get(dpath)
         dheader = hdf_file.get(dpath + ' headers')
@@ -215,7 +228,7 @@ class hdfReadData(np.recarray):
         #
         #   ~ intersection_set = False
         #     * does not enforce shot number intersection of all
-        #       datasets. Instread, if a dataset does not include a
+        #       datasets. Instead, if a dataset does not include a
         #       specified shot number, then that entry will be given a
         #       numpy.nan value
         #     * index
@@ -241,7 +254,7 @@ class hdfReadData(np.recarray):
             # ignore index keyword if shotnum is used
             index = None
         elif index is None:
-            index = 0 if dset.shape[0] == 1 else slice(None, None, None)
+            index = 0 if dset.shape[0] == 1 else slice(None)
 
         # print execution timing
         if timeit:
@@ -620,20 +633,8 @@ class hdfReadData(np.recarray):
         #
         super().__init__()
 
-    def convert_to_v(self):
-        """
-        :return: Convert DAQ signal from bits to voltage.
-
-        .. Warning:: Not implemented yet
-        """
-        raise NotImplementedError
-
-    def convert_to_t(self):
-        """
-        :return: Convert DAQ signal dependent axis from index to time.
-
-        .. Warning:: Not implemented yet
-        """
+    def convert_signal(self, to_volt=False, to_bits=False):
+        """converts signal from volts (bits) to bits (volts)"""
         raise NotImplementedError
 
     @property
@@ -865,7 +866,7 @@ class hdfReadData(np.recarray):
         # add key plasma constants
         self._update_plasma_constants()
 
-    def set_plamsa_value(self, key, value):
+    def set_plasma_value(self, key, value):
         """
         Re-define one of the base plasma values (Bo, gamma, kT, kTe,
         kTi, m_i, n, n_e, or Z) in the :attr:`plasma` dictionary.

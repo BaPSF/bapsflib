@@ -21,7 +21,9 @@ class DigitizerTestCase(ut.TestCase):
         self.assertTrue(hasattr(dmap, 'configs'))
         self.assertTrue(hasattr(dmap, 'active_configs'))
         self.assertTrue(hasattr(dmap, 'group'))
+        self.assertTrue(hasattr(dmap, 'shotnum_field'))
         self.assertTrue(hasattr(dmap, 'construct_dataset_name'))
+        self.assertTrue(hasattr(dmap, 'construct_header_dataset_name'))
 
         # test type and keys for map.info
         self.assertIsInstance(dmap.info, dict)

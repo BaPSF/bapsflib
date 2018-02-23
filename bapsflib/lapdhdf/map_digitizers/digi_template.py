@@ -107,6 +107,12 @@ class hdfMap_digi_template(ABC):
 
     @property
     @abstractmethod
+    def shotnum_field(self):
+        """Field name for shot number column in header dataset"""
+        raise NotImplementedError
+
+    @property
+    @abstractmethod
     def _predefined_adc(self):
         """
         :return: list of all predefined (known)
@@ -313,4 +319,9 @@ class hdfMap_digi_template(ABC):
 
         :raise: :exc:`NotImplementedError`
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def construct_header_dataset_name(self, board, channel, **kwargs):
+        """"Name of header dataset"""
         raise NotImplementedError

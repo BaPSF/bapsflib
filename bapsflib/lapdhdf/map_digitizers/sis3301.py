@@ -29,6 +29,11 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         self._build_configs()
 
     @property
+    def shotnum_field(self):
+        """Field name for shot number column in header dataset"""
+        return 'Shot'
+
+    @property
     def _predefined_adc(self):
         """
         Predefined (known) adc's for digitizer 'SIS 3301'
@@ -315,3 +320,15 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             return dataset_name, d_info
         else:
             return dataset_name
+
+    def construct_header_dataset_name(self, board, channel, **kwargs):
+        """"Name of header dataset"""
+        # ensure return_info kwarg is always False
+        kwargs['return_info'] = False
+
+        # get dataset naem
+        dset_name = self.construct_dataset_name(board, channel,
+                                                **kwargs)
+        # build and return header name
+        dheader_name = dset_name + ' headers'
+        return dheader_name

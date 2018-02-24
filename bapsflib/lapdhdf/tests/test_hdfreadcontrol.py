@@ -704,6 +704,14 @@ class TestHDFReadControl(ut.TestCase):
                           hdfReadControl,
                           self.lapdf, ['Waveform'], shotnum=[1, 'blah'])
 
+        # shotnum is not int, list, or slice
+        self.assertRaises(ValueError,
+                          hdfReadControl,
+                          self.lapdf, ['Waveform'], shotnum=None)
+        self.assertRaises(ValueError,
+                          hdfReadControl,
+                          self.lapdf, ['Waveform'], shotnum='blah')
+
     def test_single_control(self):
         """
         Testing HDF5 with one control device that saves data from

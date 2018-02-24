@@ -280,6 +280,11 @@ class hdfReadControl(np.recarray):
             shotnum = [shotnum]
         elif type(shotnum) is not list:
             raise ValueError('Valid shotnum not passed')
+        else:
+            # shotnum is a list
+            # ensure all elements are int
+            if not all(isinstance(sn, int) for sn in shotnum):
+                raise ValueError('Valid shotnum not passed')
 
         # Ensure 'shotnum' is valid
         # - at this point 'shotnum' should be a list
@@ -834,7 +839,7 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
     # sni      np.array(dtype=bool)   - shotnum mask such that:
     #            shotnum[sni] = cdset[index, shotnumkey]
     #
-    # Initialize come vars
+    # Initialize some vars
     n_configs = len(cmap.configs)
     configs_per_row = 1 if cmap.one_config_per_dset else n_configs
 

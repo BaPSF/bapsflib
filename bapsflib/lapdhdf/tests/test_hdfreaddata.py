@@ -24,6 +24,7 @@ class TestHDFReadData(ut.TestCase):
     """Test Case for hdfReadData"""
     #
     # Notes:
+    # - tests are currently performed on digitizer 'SIS 3301'
     # - board and channel args are not directly tested here since...
     #   1. they are directly passed to the construct_dataset_name()
     #      method bound to the digitizer map
@@ -76,13 +77,41 @@ class TestHDFReadData(ut.TestCase):
 
     def test_hdf_file_handling(self):
         """Test handling of input argument `hdf_file`."""
-        # clean and update HDF5 file
+        # setup HDF5 file
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
 
         # not a lapdfhdf.File object but a h5py.File object
         self.assertRaises(AttributeError, hdfReadData, self.f, 0, 0)
+
+    def test_misc_behavior(self):
+        """Test miscellaneous behavior"""
+        # setup HDF5 file
+        self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+
+        # shotnum is a list, but not all elements are ints
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, shotnum=[1, 'blah'])
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, shotnum=None)
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, shotnum='blahe')
+
+        # index is a list, but not all elements are ints
+        self.assertRaises(TypeError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, index=[1, 'blah'])
+        self.assertRaises(TypeError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, index=None)
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, index='blah')
 
     def test_read_w_index(self):
         """Test reading out data using `index` keyword"""
@@ -144,6 +173,7 @@ class TestHDFReadData(ut.TestCase):
         dheader = self.lapdf.get(
             'Raw data + config/SIS 3301/config01 [0:0] headers')
         for ii, ii_c in zip(index_list, index_list_correct):
+            # defined data for testing
             data = hdfReadData(self.lapdf, 0, 0, index=ii)
             shotnum = {'correct': dheader[ii_c, 'Shot'].view(),
                        'valid': dheader[ii_c, 'Shot'].view()}

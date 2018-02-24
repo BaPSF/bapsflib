@@ -33,7 +33,8 @@ class hdfReadData(np.recarray):
     #    dset or dset.values.
 
     def __new__(cls, hdf_file, board, channel,
-                index=None, shotnum=None, digitizer=None, adc=None,
+                index=slice(None), shotnum=slice(None),
+                digitizer=None, adc=None,
                 config_name=None, keep_bits=False, add_controls=None,
                 intersection_set=True, silent=False,
                 robust_define=False, **kwargs):
@@ -149,7 +150,8 @@ class hdfReadData(np.recarray):
         #       board, channel, adc, and
         #
         # dname      - digitizer dataset name
-        # dpath      - full path to digitizer dataset
+        # dhname     - digitizer header dataset name
+        # dpath      - full path to digitizer group
         # dset       - digitizer h5py.Dataset object (data is still on
         #              disk)
         # dheader    - header dataset for the digitizer dataset, this
@@ -168,13 +170,12 @@ class hdfReadData(np.recarray):
         # Get dataset
         dname, d_info = digi_map.construct_dataset_name(
             board, channel, **kwargs)
-        #dname, d_info = digi_map.construct_dataset_name(
-        #    board, channel, config_name=config_name, adc=adc,
-        #    return_info=True, silent=silent)
-        dpath = digi_map.info['group path'] + '/' + dname
-        dset = hdf_file.get(dpath)
-        dheader = hdf_file.get(dpath + ' headers')
-        shotnumkey = dheader.dtype.names[0]
+        dhname = digi_map.construct_header_dataset_name(
+            board, channel, **kwargs)
+        dpath = digi_map.info['group path'] + '/'
+        dset = hdf_file.get(dpath + dname)
+        dheader = hdf_file.get(dpath + dhname)
+        shotnumkey = digi_map.shotnum_field
 
         # print execution timing
         if timeit:
@@ -189,24 +190,28 @@ class hdfReadData(np.recarray):
         #            ~ 'shots' was renamed to 'index' in v0.1.3dev1
         # index   -- row index of digitizer dataset
         #            ~ indexed at 0
-        #            ~ overridden by shotnum
+        #            ~ supersedes any other indexing keywords
         # shotnum -- global HDF5 file shot number
         #            ~ this is the index used to link values between
         #              datasets
-        #            ~ supersedes any other indexing keyword
+        #            ~ overridden by `index`
         #
         # Through conditioning the following are defined (whether index
         # or shotnum is given):
         # index   -- row index of digitizer dataset (dset)
-        #            ~ will be an int array of valid indices or a bool
-        #              array indicating valid indices
+        #            ~ @ start: int, list(int), or slice
+        #            ~ @ end: np.array with dtype == np.integer
         # shotnum -- int array of global HDF5 shot numbers to be added
         #            to data
         #            ~ data['shotnum'] = shotnum
-        # sni     -- int or bool array for indexing shotnum (and
-        #            consequently data['shotnum']
-        #            ~ provides a one-to-one mapping to index
-        #            ~ data['shotnum'][sni] = dset[index, shotnumkey]
+        #            ~ @ start: int, list(int), or slice
+        #            ~ @ end: np.array with dtype == np.integer
+        # sni     -- array for mapping index to shotnum
+        #            ~ data['shotnum'][sni] = dheader[index, shotnumkey]
+        #            ~ data['signal'][sni, ...] = dset[index, ...]
+        #            ~ data['singal'][np.logical_not(sni), ...] = np.nan
+        #            ~ @ start: not defined
+        #            ~ @ end: np.array with dtype == np.bool
         #
         # - Indexing behavior: (depends on intersection_set)
         #
@@ -240,9 +245,13 @@ class hdfReadData(np.recarray):
         if 'shots' in kwargs and index is None:
             index = kwargs['shots']
 
-        # Condition index keyword
-        # Valid index types are: None, int, list(int), and slice()
-        # - None      => extract all indices
+        # Determine if indexing w.r.t. `index` or `shotnum`
+        index_with = 'shotnum' \
+            if shotnum != slice(None) and index == slice(None)\
+            else 'index'
+
+        # Condition `index` keyword
+        # Valid index types are: int, list(int), and slice()
         # - int       => extract shot with index int
         # - list(int) => extract shots with indices specified in list
         # - slice(start, stop, skip)
@@ -250,74 +259,17 @@ class hdfReadData(np.recarray):
         #
         # Note: I'm letting the slicing of dset[index, shotnumkey] to
         #       throw the appropriate errors
-        if shotnum is not None:
-            # ignore index keyword if shotnum is used
-            index = None
-        elif index is None:
-            index = 0 if dset.shape[0] == 1 else slice(None)
-
-        # print execution timing
-        if timeit:
-            tt.append(time.time())
-            print('tt - condition index: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
-
-        # Condition shotnum keyword
-        # - If shotnum is a slice object then catch it and convert it to
-        #   a list
-        if type(shotnum) is slice:
-            # determine largest possible shot number
-            last_sn = dheader[-1, shotnumkey]
-            if shotnum.stop is not None:
-                stop_sn = max(shotnum.stop, last_sn+1)
-            else:
-                stop_sn = last_sn + 1
-
-            # get the start, stop, and step for the shot number array
-            start, stop, step = shotnum.indices(stop_sn)
-
-            # determine smallest possible shot number
-            # - intersection_set = True
-            #   * start = max of first_sn and shotnum.start
-            # - intersection_set = False
-            #   * start = min of first_sn and shotnum.start
-            first_sn = [dheader[0, shotnumkey]]
-            if shotnum.start is not None:
-                # ensure shot numbers are >= 1
-                if start <= 0:
-                    start = 1
-
-                # add to first_sn
-                first_sn.append(start)
-            start = max(first_sn) if intersection_set else min(first_sn)
-
-            # re-define shotnum as a list
-            shotnum = np.arange(start, stop, step).tolist()
-
-        # Ensure 'shotnum' is valid
-        # - here 'shotnum' will be converted from its keyword type to a
-        #   1D array containing the list of shot numbers to be included
-        #   in the returned obj array
         #
-        if index is not None:
-            # - index conditioning should ensure index is not None only
-            #   if shotnum is not specified (i.e. shotnum is None and
-            #   index is not None)
-            #
-            # shotnum = dset_sn[index].view()
+        if index_with == 'index':
+            # Define `shotnum`
             shotnum = dheader[index, shotnumkey].view()
-            if type(shotnum) is not np.ndarray:
+            if shotnum.shape == () and shotnum.size == 1:
                 shotnum = np.array([shotnum]).view()
 
             # define sni
             sni = np.ones(shotnum.shape[0], dtype=bool)
 
-            # ensure obj will not be zero
-            if shotnum.shape[0] == 0:
-                raise ValueError(
-                    'Input arguments would result in a null array')
-
-            # convert index to np.ndarray
+            # convert `index` to np.ndarray
             if type(index) is int:
                 index = np.array([index])
             elif type(index) is list:
@@ -325,27 +277,62 @@ class hdfReadData(np.recarray):
             elif type(index) is slice:
                 start, stop, step = index.indices(dheader.shape[0])
                 index = np.arange(start, stop, step)
-        elif type(shotnum) is int:
-            # ensure shotnum is valid and determine its corresponding
-            # index
-            #
-            index, shotnum, sni = condition_shotnum_int(shotnum,
-                                                        dheader,
-                                                        shotnumkey)
-        elif type(shotnum) is list:
-            # shotnum's have to be ints and >=1
-            if all(type(s) is int for s in shotnum):
-                index, shotnum, sni = \
-                    condition_shotnum_list(shotnum, dheader, shotnumkey,
-                                           intersection_set)
-            else:
-                raise ValueError('Valid shotnum not passed')
-        else:
-            raise ValueError('Valid shotnum not passed')
 
-        # squeeze shotnum
-        if len(shotnum.shape) != 1:
-            shotnum = shotnum.squeeze()
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - condition index: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
+        # Condition `shotnum` keyword
+        #
+        if index_with == 'shotnum':
+            # convert `shotnum` to list
+            if isinstance(shotnum, slice):
+                # determine largest possible shot number
+                last_sn = dheader[-1, shotnumkey]
+                if shotnum.stop is not None:
+                    stop_sn = max(shotnum.stop, last_sn + 1)
+                else:
+                    stop_sn = last_sn + 1
+
+                # get the start, stop, and step for the shot number
+                # array
+                start, stop, step = shotnum.indices(stop_sn)
+
+                # determine smallest possible shot number
+                # - intersection_set = True
+                #   * start = max of first_sn and shotnum.start
+                # - intersection_set = False
+                #   * start = min of first_sn and shotnum.start
+                first_sn = [dheader[0, shotnumkey]]
+                if shotnum.start is not None:
+                    # ensure shot numbers are >= 1
+                    if start <= 0:
+                        start = 1
+
+                    # add to first_sn
+                    first_sn.append(start)
+                start = max(first_sn) if intersection_set else min(
+                    first_sn)
+
+                # re-define shotnum as a list
+                shotnum = np.arange(start, stop, step).tolist()
+            elif isinstance(shotnum, int):
+                shotnum = [shotnum]
+            elif isinstance(shotnum, list):
+                # ensure all elements are int
+                if not all(isinstance(sn, int) for sn in shotnum):
+                    raise ValueError('Valid `shotnum` not passed')
+            else:
+                raise ValueError('Valid `shotnum` not passed')
+
+            # Calc. the corresponding `index` and `sni`
+            # - `shotnum` will be converted from list to np.array
+            # - `index` and `sni` will be np.array's
+            index, shotnum, sni = \
+                condition_shotnum_list(shotnum, dheader, shotnumkey,
+                                       intersection_set)
 
         # print execution timing
         if timeit:

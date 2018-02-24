@@ -693,6 +693,17 @@ class TestHDFReadControl(ut.TestCase):
         self.assertTrue(hasattr(cdata, 'info'))
         # self.assertTrue(hasattr(cdata, 'configs'))
 
+    def test_misc_behavior(self):
+        """Test miscellaneous behavior"""
+        # setup HDF5 file
+        self.f.remove_all_modules()
+        self.f.add_module('Waveform')
+
+        # shotnum is a list, but not all elements are ints
+        self.assertRaises(ValueError,
+                          hdfReadControl,
+                          self.lapdf, ['Waveform'], shotnum=[1, 'blah'])
+
     def test_single_control(self):
         """
         Testing HDF5 with one control device that saves data from

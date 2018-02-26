@@ -8,7 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-
 import numpy as np
 import time
 
@@ -18,7 +17,7 @@ from warnings import warn
 
 class hdfReadControl(np.recarray):
     """
-    Extracts control device data from the HDF5 file.
+    Reads control device data from the HDF5 file.
 
     .. note::
 

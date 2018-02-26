@@ -83,6 +83,10 @@ class TestConditionShotnumList(ut.TestCase):
         # test out of range shot number cases
         self.assertOutRangeSN()
 
+    def test_dataset_w_one_sn(self):
+        # TODO: WRITE TEST FOR DATASET W/ SN_SIZE=1
+        pass
+
     def assertZeroSN(self):
         """Assert the zero shot number case."""
         og_shotnum = [0]

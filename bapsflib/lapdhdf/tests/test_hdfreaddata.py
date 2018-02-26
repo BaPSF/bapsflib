@@ -594,23 +594,22 @@ class TestHDFReadData(ut.TestCase):
         #    c. index (& shotnum) omitted
         #       - intersection_set = True
         #       - in this condition hdfReadData assumes index
-        # 2. Dataset with sequential shot numbers
-        #    a. invalid indices
-        #    b. intersection_set = True
-        #       - index = int, list, slice
-        #    c. index (& shotnum) omitted
-        #       - intersection_set = True/
-        #       - in this condition hdfReadData assumes index
         #
         # Note:
         # - When using `index`, intersection_set = False only comes in
         #   play when control device data is added
+        # - When using `index` hdfReadData does note care if the shot
+        #   numbers are sequential or not
         #
 
         # setup HDF5 file
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        dset = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0]')
+        dheader = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0] headers')
 
         # ======        Dataset w/ Sequential Shot Numbers        ======
         # ------ Invalid `index` values                           ------
@@ -638,10 +637,6 @@ class TestHDFReadData(ut.TestCase):
             [40, 43, 46, 49],
             [49]
         ]
-        dset = self.lapdf.get(
-            'Raw data + config/SIS 3301/config01 [0:0]')
-        dheader = self.lapdf.get(
-            'Raw data + config/SIS 3301/config01 [0:0] headers')
         for ii, ii_c in zip(index_list, index_list_correct):
             # defined data for testing
             data = hdfReadData(self.lapdf, 0, 0, index=ii)
@@ -651,9 +646,14 @@ class TestHDFReadData(ut.TestCase):
             # perform assertion
             self.assertDataFormat(data, shotnum, dset)
 
-        # ------ `index` (and `shotnum`) omitted                 ------
+        # ------ `index` (and `shotnum`) omitted                  ------
+        # defined data for testing
+        data = hdfReadData(self.lapdf, 0, 0)
+        shotnum = {'correct': dheader['Shot'].view(),
+                   'valid': dheader['Shot'].view()}
 
-        # ======        Dataset w/ a Jump in Shot Numbers        ======
+        # perform assertion
+        self.assertDataFormat(data, shotnum, dset)
 
     def test_read_w_shotnum(self):
         pass
@@ -666,6 +666,9 @@ class TestHDFReadData(ut.TestCase):
 
     def test_add_controls(self):
         # TODO: add tests for adding control device data
+        # - will have to test a shotnum that is in digi data but not in
+        #   control data w/ intersection_set = True
+        #
         pass
 
     def assertDataFormat(self, data, shotnum, dset, keep_bits=False,

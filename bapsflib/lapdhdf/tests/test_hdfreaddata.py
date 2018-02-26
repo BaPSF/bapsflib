@@ -584,6 +584,9 @@ class TestHDFReadData(ut.TestCase):
                           hdfReadData,
                           self.lapdf, 0, 0, index='blah')
 
+        # TODO: test when `index` and `shotnum` are both used
+        # - should default to `index`
+
     def test_read_w_index(self):
         """Test reading out data using `index` keyword"""
         # Test Outline: (#see Note below)
@@ -656,7 +659,174 @@ class TestHDFReadData(ut.TestCase):
         self.assertDataFormat(data, shotnum, dset)
 
     def test_read_w_shotnum(self):
-        pass
+        """Test reading out data using `index` keyword"""
+        # Test Outline: (#see Note below)
+        # 1. Dataset with sequential shot numbers
+        #    a. intersection_set = True
+        #       - shotnum = int, list, slice
+        #    b. intersection_set = False
+        #       - shotnum = int, list, slice
+        # 2. Dataset with sequential shot numbers
+        #    a. intersection_set = True
+        #       - shotnum = int, list, slice
+        #    b. intersection_set = False
+        #       - shotnum = int, list, slice
+        #
+        # Note:
+        # - TestConditionShotnum tests hdfReadData's ability to properly
+        #   identify the dataset indices corresponding to the desired
+        #   shot numbers (it checks against the original dataset)
+        # - TestConditionShotnum also tests hdfReadData's ability to
+        #   intersect shot numbers between shotnum and the digi data,
+        #   but not the control device data...intersection with control
+        #   device data will be done with test_add_controls
+        # - Thus, testing here should focus on the construction and
+        #   basic population of data and not so much ensuring the exact
+        #   dset values are populated
+        # - The condition of omitting `shotnum` and `index` is not
+        #   tested here since omitting both defaults to `index`. `index`
+        #   is tested with test_read_w_index
+        #
+        # setup HDF5 file
+        self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        dset = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0]')
+        dheader = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0] headers')
+
+        # ======        Dataset w/ Sequential Shot Numbers        ======
+        # ------ intersection_set = True                          ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            slice(40, 61, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45],
+            [40, 43, 46, 49]
+        ]
+        sn_list_valid = sn_list_correct
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0, shotnum=sn_r)
+
+            # perform assertion
+            self.assertDataFormat(data, shotnum, dset)
+
+        # ------ intersection_set = False                         ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            slice(40, 61, 3)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45, 110],
+            [40, 43, 46, 49, 52, 55, 58]
+        ]
+        sn_list_valid = [
+            [1],
+            [2],
+            [10, 20, 30],
+            [45],
+            [40, 43, 46, 49]
+        ]
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0, shotnum=sn_r,
+                               intersection_set=False)
+
+            # perform assertion
+            self.assertDataFormat(data, shotnum, dset,
+                                  intersection_set=False)
+
+        # ======         Dataset w/ Jump in Shot Numbers         ======
+        # create shot number jump
+        dheader[30::, 'Shot'] = np.arange(41, 61, 1)
+
+        # ------ intersection_set = True                         ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 35],
+            [45, 110],
+            slice(34, 65, 4)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20],
+            [45],
+            [42, 46, 50, 54, 58]
+        ]
+        sn_list_valid = sn_list_correct
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0, shotnum=sn_r)
+
+            # perform assertion
+            self.assertDataFormat(data, shotnum, dset)
+
+        # ------ intersection_set = False                        ------
+        sn_list_requested = [
+            1,
+            [2],
+            [10, 20, 35],
+            [45, 110],
+            slice(34, 65, 4)
+        ]
+        sn_list_correct = [
+            [1],
+            [2],
+            [10, 20, 35],
+            [45, 110],
+            [34, 38, 42, 46, 50, 54, 58, 62]
+        ]
+        sn_list_valid = [
+            [1],
+            [2],
+            [10, 20],
+            [45],
+            [42, 46, 50, 54, 58]
+        ]
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0, shotnum=sn_r,
+                               intersection_set=False)
+
+            # perform assertion
+            self.assertDataFormat(data, shotnum, dset,
+                                  intersection_set=False)
 
     def test_digitizer_kwarg_functionality(self):
         pass

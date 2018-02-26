@@ -166,6 +166,8 @@ class FauxHDFBuilder(h5py.File):
         :param dict mod_args: dictionary of input arguments for the
             module adder
         """
+        # TODO: behavior when adding a module that already exists ??
+        #
         if mod_name not in self._KNOWN_MODULES:
             # requested module not known
             pass

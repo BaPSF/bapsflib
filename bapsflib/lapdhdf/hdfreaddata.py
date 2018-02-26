@@ -9,20 +9,20 @@
 #   license terms and contributor agreement.
 #
 #
-
 import numpy as np
 import time
 
 from .hdfreadcontrol import (hdfReadControl,
-                             condition_controls,
-                             condition_shotnum_list)
+                             condition_controls)
 
 from bapsflib.plasma import core
+from warnings import warn
 
 
+# noinspection PyInitNewSignature
 class hdfReadData(np.recarray):
     """
-    Reads the data out of the HDF5 file:
+    Reads digitizer (and controld device) data form the HDF5 file.
     """
     # Extracting Data:
     #  dset = h5py.get() returns a view of the dataset (dset)
@@ -31,13 +31,12 @@ class hdfReadData(np.recarray):
     #    dset.values.view().  The dset.vlaues is the np.ndarray.
     #  To extract data, fancy indexing [::] can be used directly on
     #    dset or dset.values.
-
+    #
     def __new__(cls, hdf_file, board, channel,
                 index=slice(None), shotnum=slice(None),
                 digitizer=None, adc=None,
                 config_name=None, keep_bits=False, add_controls=None,
-                intersection_set=True, silent=False,
-                robust_define=False, **kwargs):
+                intersection_set=True, silent=False, **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
@@ -331,8 +330,8 @@ class hdfReadData(np.recarray):
             # - `shotnum` will be converted from list to np.array
             # - `index` and `sni` will be np.array's
             index, shotnum, sni = \
-                condition_shotnum_list(shotnum, dheader, shotnumkey,
-                                       intersection_set)
+                condition_shotnum(shotnum, dheader, shotnumkey,
+                                  intersection_set)
 
         # print execution timing
         if timeit:
@@ -367,12 +366,16 @@ class hdfReadData(np.recarray):
             # - only need to be filtered if intersection_set=True
             # - for intersection_set=True, shotnum and index are
             #   one-to-one
+            #
             if intersection_set:
                 new_sn_mask = np.isin(shotnum, cdata['shotnum'])
-                shotnum = shotnum[new_sn_mask]
-                index = index[new_sn_mask]
-                sni = np.ones(shotnum.shape[0], dtype=bool)
-
+                if True not in new_sn_mask:
+                    raise ValueError(
+                        'Input shotnum would result in a null array')
+                else:
+                    shotnum = shotnum[new_sn_mask]
+                    index = index[new_sn_mask]
+                    sni = np.ones(shotnum.shape[0], dtype=bool)
         else:
             cdata = None
 
@@ -409,24 +412,6 @@ class hdfReadData(np.recarray):
         # make sure index is not an ndarray
         if type(index) is np.ndarray:
             index = index.tolist()
-
-        # double check shot numbers
-        if robust_define:
-            # Double check that the correct shot numbers are being read
-            # in
-            #
-            # NOTE: for some odd reason an HDF5 compound can not be
-            #       indexed with a numpy array, whereas, a HDF5 scalar
-            #       dataset can be
-            #
-            sn_double = dheader[index, shotnumkey].view()
-            if type(sn_double) is not np.ndarray:
-                sn_double = np.array([sn_double])
-            if not np.array_equal(shotnum[sni], sn_double):
-                raise AssertionError(
-                    'routine is not indexing shot numbers properly')
-            else:
-                print('!! Shot number indexing working properly.')
 
         # fill remaining fields of data array
         if intersection_set:
@@ -495,13 +480,6 @@ class hdfReadData(np.recarray):
 
         # Define obj to be returned
         obj = data.view(cls)
-        #
-        # obj = data.view(np.recarray)
-        #
-        # Note: if np.recarray is used instead of cls then the
-        #       returned object will be of class np.recarray instead
-        #       of hdfReadData.  In that case, __init__ is never called
-        #       and the hdfReadData methods are never bound.
 
         # get voltage offset
         try:
@@ -509,8 +487,8 @@ class hdfReadData(np.recarray):
         except ValueError:
             voffset = None
             keep_bits = True
-            warn_str += '\nCould not find voltage offset, forcing ' \
-                        'keep_bits=True'
+            warn('Could not find voltage offset, forcing '
+                 'keep_bits=True')
 
         # assign dataset meta-info
         obj._info = {
@@ -528,7 +506,8 @@ class hdfReadData(np.recarray):
             'channel': channel,
             'voltage offset': voffset,
             'probe name': None,
-            'port': (None, None)
+            'port': (None, None),
+            'signal units': 'bits'
         }
 
         # plasma parameter dict
@@ -553,6 +532,9 @@ class hdfReadData(np.recarray):
             obj['signal'] = obj['signal'].astype(np.float32, copy=False)
             obj['signal'] = (obj.dv * obj['signal']) - offset
 
+            # update 'signal units'
+            obj._info['signal units'] = 'V'
+
         # print warnings
         if not silent and warn_str != '':
             print(warn_str)
@@ -562,6 +544,8 @@ class hdfReadData(np.recarray):
             tt.append(time.time())
             print('tt - execution time: '
                   '{} ms'.format((tt[-1] - tt[0]) * 1.E3))
+
+        # return obj
         return obj
 
     def __array_finalize__(self, obj):
@@ -594,7 +578,8 @@ class hdfReadData(np.recarray):
             'channel': None,
             'voltage offset': None,
             'probe name': None,
-            'port': (None, None)
+            'port': (None, None),
+            'signal units': ''
         })
 
         # Define plasma attribute
@@ -612,16 +597,16 @@ class hdfReadData(np.recarray):
             'Z': None
         })
 
-    def __init__(self, *args, **kwargs):
-        # Note: __init__ will only run if __new__ returns an object
-        #       with class hdfReadData.  NumPy structure does allow for
-        #       the return of objects with differing classes, see NumPy
-        #       subclassing documentation.
-        #
-        super().__init__()
-
-    def convert_signal(self, to_volt=False, to_bits=False):
+    def convert_signal(self, to_volt=False, to_bits=False, force=False):
         """converts signal from volts (bits) to bits (volts)"""
+        #
+        # 1. investigate if 'signal' values are np.integer or
+        #    np.floating
+        #    - np.integer => 'signal' is in bits
+        #    - np.floating => 'signal' is in volts
+        # 2. only convert if requested conversion is not current state
+        # 3. update 'signal units' in self._info
+        #
         raise NotImplementedError
 
     @property
@@ -697,7 +682,7 @@ class hdfReadData(np.recarray):
                      'E'  = east
                      'TE' = top-east
         """
-        return self._info
+        return self._info.copy()
 
     @property
     def dt(self):
@@ -921,130 +906,42 @@ class hdfReadData(np.recarray):
         self._plasma['vTi'] = core.vTi(**self._plasma)
 
 
-def condition_shotnum_int(shotnum, dheader, shotnumkey):
-    # Variable  - Returned as
-    # index     - int
-    # shotnum   - np.array([int], dtype=uint32)
-    # sni       - np.array([bool], dtype=bool)
+def condition_shotnum(shotnum, dheader, shotnumkey,
+                      intersection_set):
+    """
+    Conditions **shotnum** against the digitizer header dataset.
+
+    :param shotnum: desired HDF5 shot number(s)
+    :type shotnum: list(int)
+    :param dheader: digitizer header dataset
+    :param dheader: :class:`h5py.Dataset`
+    :param str shotnumkey: field name in **dheader** that contains the
+        shot numbers
+    :param bool intersection_set: Set :code:`True` to intersect
+        **shotnum** with the shot numbers in :code:`dheader[shotnumkey]`
+    :return: index, shotnum, sni
+
+    .. note::
+
+        The returned :class:`numpy.ndarray`'s (:const:`index`,
+        :const:`shotnum`, and :const:`sni`) follow the rule::
+
+            shotnum[sni] = dheader[index, shotnumkey]
+    """
+    # Inputs:
+    # shotnum           list(int)     - the desired shot number(s)
+    # cheader           h5py.Dataset  - the digi header dataset
+    # shotnumkey        str           - field name for the shot number
+    #                                   column in dheader
+    # intersection_set  bool          - intersect shotnum with
+    #                                   dheader[shotnumkey]
     #
-    if dheader.shape[0] == 1:
-        # only one possible index and shotnum
-        if shotnum == dheader[0, shotnumkey]:
-            index = 0
-        else:
-            raise ValueError(
-                'shotnum [{}] would result in a'.format(shotnum)
-                + ' null array')
-    elif shotnum >= 1:
-        # get 1st and last shot number for further conditioning
-        first_sn, last_sn = dheader[[-1, 0], shotnumkey]
-
-        if last_sn - first_sn + 1 == dheader.shape[0]:
-            # shot numbers are sequential
-            if shotnum <= last_sn:
-                index = shotnum - first_sn
-            else:
-                # shotnum not in dataset
-                raise ValueError(
-                    'shotnum [{}] would result'.format(shotnum)
-                    + ' in a null array')
-        elif first_sn <= shotnum <= last_sn:
-            # shot numbers are NOT sequential, but shotnum may
-            # be in the array
-            step_from_front = shotnum - first_sn
-            step_from_end = last_sn - shotnum
-
-            if dheader.shape[0] <= \
-                    min(step_from_front, step_from_end) + 1:
-                # dheader.shape is smaller than the theoretical
-                # sequential array
-                dset_sn = dheader[shotnumkey].view()
-                index_arr = np.where(dset_sn == shotnum)[0]
-
-                if index_arr.shape[0] == 1:
-                    index = index_arr[0]
-                elif index_arr.shape[0] == 0:
-                    # shotnum not found
-                    raise ValueError(
-                        'shotnum [{}] would result in'.format(shotnum)
-                        + ' a null array')
-                else:
-                    raise ValueError(
-                        'something went wrong...to many shotnum'
-                        ' indices found')
-            elif step_from_front <= step_from_end:
-                # extracting from the beginning of the array
-                # is the smallest
-                some_dset_sn = dheader[0:step_from_front + 1,
-                                       shotnumkey]
-                index_arr = np.where(some_dset_sn == shotnum)[0]
-
-                if index_arr.shape[0] == 1:
-                    index = index_arr[0]
-                elif index_arr.shape[0] == 0:
-                    # shotnum not found
-                    raise ValueError(
-                        'shotnum [{}] would result in'.format(shotnum)
-                        + ' a null array')
-                else:
-                    raise ValueError(
-                        'something went wrong...to many shotnum'
-                        ' indices found')
-            else:
-                # extracting from the end of the array is the
-                # smallest
-                start, stop, step = \
-                    slice(-step_from_end - 1,
-                          None,
-                          None).indices(dheader.shape[0])
-                some_dset_sn = dheader[start::, shotnumkey]
-                index_arr = np.where(some_dset_sn == shotnum)[0]
-
-                if index_arr.shape[0] == 1:
-                    index = index_arr[0] + start
-                elif index_arr.shape[0] == 0:
-                    # shotnum not found
-                    raise ValueError(
-                        'shotnum [{}] would result in'.format(shotnum)
-                        + ' a null array')
-                else:
-                    raise ValueError(
-                        'something went wrong...to many shotnum'
-                        ' indices found')
-        else:
-            raise ValueError(
-                'shotnum [{}] would result in a'.format(shotnum)
-                + ' null array')
-    else:
-        raise ValueError(
-            'shotnum [{}] would result in a'.format(shotnum)
-            + ' null array')
-
-    # define sni
-    # - if shotnum is an int then index, shotnum, and sni
-    #   are all one-to-one
-    sni = np.array([True], dtype=bool)
-
-    # make shotnum a np.array
-    shotnum = np.array([shotnum])
-
-    # make index a np.array
-    if type(index) is not np.ndarray:
-        if type(index) is list:
-            index = np.array(index, dtype=np.uint32)
-        else:
-            index = np.array([index])
-
-    # return calculated arrays
-    return index.view(), shotnum.view(), sni.view()
-
-
-def condition_shotnum_list(shotnum, dheader, shotnumkey,
-                           intersection_set):
-    # Variable  - Returned as
-    # index     - int or list(int)
-    # shotnum   - np.array([int], dtype=uint32)
-    # sni       - np.array([bool], dtype=bool)
+    # Returns:
+    # index    np.array(dtype=uint32) - cdset row index for the
+    #                                   specified shotnum
+    # shotnum  np.array(dtype=uint32) - shot numbers
+    # sni      np.array(dtype=bool)   - shotnum mask such that:
+    #            shotnum[sni] = cdset[index, shotnumkey]
     #
     # remove shot numbers less-than or equal to 0
     shotnum.sort()
@@ -1071,24 +968,15 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
     # - shotnum is always a list up to this point
     shotnum = np.array(shotnum).view()
 
-    # get corresponding indices for shotnum
-    # build associated sni array
+    # Calc. corresponding `index` and `sni` for shotnum
+    # - intersection will after initial calculation
     #
     if dheader.shape[0] == 1:
-        # only on possible index for shotnum
+        # only one possible shot number
         only_sn = dheader[0, shotnumkey]
-        if only_sn in shotnum:
-            index = 0
-
-            if intersection_set:
-                shotnum = only_sn
-                sni = np.array([True], dtype=bool)
-            else:
-                sni = np.where(shotnum == only_sn, True, False)
-        else:
-            raise ValueError(
-                'shotnum(s) [{}] would'.format(shotnum)
-                + ' result in a null array')
+        sni = np.where(shotnum == only_sn, True, False)
+        index = np.array([0]) \
+            if True in sni else np.empty(shape=0, dtype=np.uint32)
     else:
         # get 1st and last shot number for further
         # conditioning
@@ -1101,7 +989,7 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
             # build sni
             # - this will also mask index s.t. index has
             #   no values outside dheader.shape
-            sni = index < dheader.shape[0]
+            sni = np.where(index < dheader.shape[0], True, False)
             index = index[sni]
         else:
             # shot numbers are NOT sequential
@@ -1118,30 +1006,19 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                 dset_sn = dheader[shotnumkey].view()
                 sni = np.isin(shotnum, dset_sn)
 
-                # intersect shot numbers
-                if intersection_set and not np.all(sni):
-                    shotnum = shotnum[sni]
-                    sni = np.isin(shotnum, dset_sn)
-
                 # define index
                 index = np.where(np.isin(dset_sn, shotnum))[0]
             elif step_front_read <= step_end_read:
-                # extracting from the beginning of the array
-                # is the smallest
+                # extracting from the beginning of the array is the
+                # smallest
                 some_dset_sn = dheader[0:step_front_read + 1,
                                        shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
-                # intersect shot numbers
-                if intersection_set and not np.all(sni):
-                    shotnum = shotnum[sni]
-                    sni = np.isin(shotnum, some_dset_sn)
-
                 # define index
                 index = np.where(np.isin(some_dset_sn, shotnum))[0]
             else:
-                # extracting from the end of the array is
-                # the smallest
+                # extracting from the end of the array is the smallest
                 start, stop, step = \
                     slice(-step_end_read - 1,
                           None,
@@ -1149,20 +1026,27 @@ def condition_shotnum_list(shotnum, dheader, shotnumkey,
                 some_dset_sn = dheader[start::, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
-                # intersect shot numbers
-                if intersection_set and not np.all(sni):
-                    shotnum = shotnum[sni]
-                    sni = np.isin(shotnum, some_dset_sn)
-
                 # define index
+                # NOTE: if index is empty (i.e. index.shape[0] == 0)
+                #       then adding an int still returns an empty array
                 index = np.where(np.isin(some_dset_sn, shotnum))[0]
-                if index.shape[0] != 0:
-                    index += start
+                index += start
 
-    # ensure obj will not be zero
-    if shotnum.shape[0] == 0:
-        raise ValueError(
-            'Input shotnum would result in a null array')
+    # filter shotnum and ensure obj will not be empty
+    if intersection_set:
+        # check for empty shotnum
+        if True not in sni:
+            raise ValueError(
+                'Input shotnum would result in a null array')
+
+        # filter
+        shotnum = shotnum[sni]
+        sni = np.ones(shotnum.shape, dtype=bool)
+    else:
+        # empty shotnum
+        if shotnum.shape[0] == 0:
+            raise ValueError(
+                'Input shotnum would result in a null array')
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()

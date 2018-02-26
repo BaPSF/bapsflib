@@ -15,9 +15,480 @@ import numpy as np
 import unittest as ut
 
 from ..files import File
-from ..hdfreaddata import hdfReadData
+from ..hdfreaddata import (hdfReadData, condition_shotnum)
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
+
+
+class TestConditionShotnum(ut.TestCase):
+    """Test Case for condition_shotnum"""
+
+    def setUp(self):
+        self.f = FauxHDFBuilder(
+            add_modules={'SIS 3301': {'n_configs': 1, 'sn_size': 50}})
+        self.mod = self.f.modules['SIS 3301']
+
+    def tearDown(self):
+        self.f.cleanup()
+
+    @property
+    def group(self):
+        return self.f['Raw data + config/SIS 3301']
+
+    @property
+    def dheader(self):
+        return self.group['config01 [0:0] headers']
+
+    def test_sequential_sn(self):
+        """
+        Test shotnum conditioning on a dheader with sequential shot
+        numbers
+        """
+        # setup HDF5 file
+        self.mod._update()
+
+        # test zero shot number
+        self.assertZeroSN()
+
+        # test negative shot number cases
+        self.assertZeroSN()
+
+        # ====== test cases have NO valid shot numbers ======
+        # ------ intersection_set = True               ------
+        sn_requested = [
+            [self.mod.knobs.sn_size + 1],
+            [-1, self.mod.knobs.sn_size + 1],
+            [-1, 0, 60]
+        ]
+        for sn in sn_requested:
+            self.assertRaises(ValueError,
+                              condition_shotnum,
+                              sn, self.dheader, 'Shot', True)
+
+        # ------ intersection_set = False              ------
+        shotnum = {}
+        sn_requested = [
+            [self.mod.knobs.sn_size + 1],
+            [-1, self.mod.knobs.sn_size + 1],
+            [-1, 0, 60]
+        ]
+        sn_correct = [
+            [self.mod.knobs.sn_size + 1],
+            [self.mod.knobs.sn_size + 1],
+            [60]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ====== test in range shot number cases ======
+        # ------ intersection_set = True         ------
+        shotnum = {}
+        sn_requested = [
+            [1],
+            [10],
+            [5, 40],
+            [30, 41],
+            [1, self.mod.knobs.sn_size],
+            [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
+            [1, 11, 21, 31, 41]
+        ]
+        sn_correct = sn_requested
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot', True)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ------ intersection_set = False         ------
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ====== test out of range shot number cases ======
+        # ------ intersection_set = True             ------
+        shotnum = {}
+        sn_requested = [
+            [1, self.mod.knobs.sn_size + 1],
+            [-1, 10, self.mod.knobs.sn_size + 1],
+            [48, 49, 50, 51, 52]
+        ]
+        sn_correct = [
+            [1],
+            [10],
+            [48, 49, 50]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot', True)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ------ intersection_set = False             ------
+        shotnum = {}
+        sn_requested = [
+            [1, self.mod.knobs.sn_size + 1],
+            [-1, 10, self.mod.knobs.sn_size + 1],
+            [48, 49, 50, 51, 52]
+        ]
+        sn_correct = [
+            [1, self.mod.knobs.sn_size + 1],
+            [10, self.mod.knobs.sn_size + 1],
+            [48, 49, 50, 51, 52]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+    def test_non_sequential_sn(self):
+        """
+        Test shotnum conditioning on a dheader with sequential shot
+        numbers
+        """
+        # setup HDF5 file
+        # - shot numbers will have a 10 shot number jump after shot
+        #   number 30
+        #   [..., 29, 30, 41, 42, ...]
+        #
+        self.mod._update()
+        sn_arr = np.arange(1, self.mod.knobs.sn_size + 1, 1)
+        sn_arr[30::] = np.arange(41, 61, 1)
+        self.dheader['Shot'] = sn_arr
+
+        # test zero shot number
+        self.assertZeroSN()
+
+        # test negative shot number cases
+        self.assertZeroSN()
+
+        # ====== test cases have NO valid shot numbers ======
+        # ------ intersection_set = True               ------
+        sn_requested = [
+            [sn_arr[-1] + 1],
+            [-1, sn_arr[-1] + 1],
+            [35],
+            [-1, 0, 70]
+        ]
+        for sn in sn_requested:
+            self.assertRaises(ValueError,
+                              condition_shotnum,
+                              sn, self.dheader, 'Shot', True)
+
+        # ------ intersection_set = False              ------
+        shotnum = {}
+        sn_requested = [
+            [sn_arr[-1] + 1],
+            [-1, sn_arr[-1] + 1],
+            [35],
+            [-1, 0, 70]
+        ]
+        sn_correct = [
+            [sn_arr[-1] + 1],
+            [sn_arr[-1] + 1],
+            [35],
+            [70]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ====== test in range shot number cases ======
+        # ------ intersection_set = True         ------
+        shotnum = {}
+        sn_requested = [
+            [1],
+            [10],
+            [5, 60],
+            [29, 30, 41, 42],
+            [1, 11, 21, 41, 51]
+        ]
+        sn_correct = sn_requested
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  True)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ------ intersection_set = False         ------
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ====== test out of range shot number cases ======
+        # ------ intersection_set = True             ------
+        shotnum = {}
+        sn_requested = [
+            [1, sn_arr[-1] + 1],
+            [-1, 10, sn_arr[-1] + 1],
+            [28, 29, 30, 31, 32],
+            [58, 59, 60, 61, 62]
+        ]
+        sn_correct = [
+            [1],
+            [10],
+            [28, 29, 30],
+            [58, 59, 60]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  True)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ------ intersection_set = False             ------
+        shotnum = {}
+        sn_requested = [
+            [1, sn_arr[-1] + 1],
+            [-1, 10, sn_arr[-1] + 1],
+            [28, 29, 30, 31, 32],
+            [58, 59, 60, 61, 62]
+        ]
+        sn_correct = [
+            [1, sn_arr[-1] + 1],
+            [10, sn_arr[-1] + 1],
+            [28, 29, 30, 31, 32],
+            [58, 59, 60, 61, 62]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+    def test_dataset_w_one_sn(self):
+        """
+        Test shotnum conditioning on a dheader with a single shot
+        number
+        """
+        # setup HDF5 file
+        self.mod.knobs.sn_size = 1
+
+        # test zero shot number
+        self.assertZeroSN()
+
+        # test negative shot number cases
+        self.assertZeroSN()
+
+        # ====== test cases have NO valid shot numbers ======
+        # ------ intersection_set = True               ------
+        sn_requested = [
+            [-1, 0, 2],
+            [5],
+        ]
+        for sn in sn_requested:
+            self.assertRaises(ValueError,
+                              condition_shotnum,
+                              sn, self.dheader, 'Shot', True)
+
+        # ------ intersection_set = False              ------
+        shotnum = {}
+        sn_requested = [
+            [-1, 0, 2],
+            [5]
+        ]
+        sn_correct = [
+            [2],
+            [5]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ====== test out of  range shot number cases ======
+        # ------ intersection_set = True               ------
+        shotnum = {}
+        sn_requested = [
+            [1],
+            [-1, 0, 1, 2],
+            [1, 5]
+        ]
+        sn_correct = [
+            [1],
+            [1],
+            [1]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  True)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+        # ------ intersection_set = True               ------
+        shotnum = {}
+        sn_requested = [
+            [1],
+            [-1, 0, 1, 2],
+            [1, 5]
+        ]
+        sn_correct = [
+            [1],
+            [1, 2],
+            [1, 5]
+        ]
+        for sn_r, sn_c in zip(sn_requested, sn_correct):
+            shotnum['requested'] = sn_r
+            shotnum['correct'] = sn_c
+            index, sn, sni = \
+                condition_shotnum(sn_r, self.dheader, 'Shot',
+                                  False)
+            shotnum['shotnum'] = sn
+
+            # assert
+            self.assertSNSuite(shotnum, index, sni,
+                               self.dheader, 'Shot')
+
+    def assertZeroSN(self):
+        """Assert the zero shot number case."""
+        # for intersection_set = True
+        self.assertRaises(ValueError,
+                          condition_shotnum,
+                          [0], self.dheader, 'Shot', True)
+
+        # for intersection_set = False
+        self.assertRaises(ValueError,
+                          condition_shotnum,
+                          [0], self.dheader, 'Shot', False)
+
+    def assertNegativeSN(self):
+        """Assert negative shot number cases."""
+        shotnum_list = [
+            [-1],
+            [-10, -5, 0]
+        ]
+        for og_sn in shotnum_list:
+            # for intersection_set = True
+            self.assertRaises(ValueError,
+                              condition_shotnum,
+                              og_sn, self.dheader, 'Shot', True)
+
+            # for intersection_set = False
+            self.assertRaises(ValueError,
+                              condition_shotnum,
+                              [0], self.dheader, 'Shot', False)
+
+    def assertSNSuite(self, shotnum_dict, index, sni, dheader,
+                      shotnumkey):
+        """Suite of assertions for shot number conditioning"""
+        # og_shotnum - original requested shot number
+        # index      - index of dataset
+        # shotnum    - calculate shot number array
+        # sni        - boolean mask for shotnum
+        #               shotnum[sni] = dheader[index, shotnumkey]
+        # dheader    - digi header dataset
+        # shotnumkey - field in dheader that corresponds to shot numbers
+        #
+        sn_r = shotnum_dict['requested']
+        shotnum = shotnum_dict['shotnum']
+        sn_c = shotnum_dict['correct']
+
+        # all return variables should be np.ndarray
+        self.assertTrue(isinstance(index, np.ndarray))
+        self.assertTrue(isinstance(shotnum, np.ndarray))
+        self.assertTrue(isinstance(sni, np.ndarray))
+
+        # all should be 1D arrays
+        self.assertEqual(index.shape[0], index.size)
+        self.assertEqual(shotnum.shape[0], shotnum.size)
+        self.assertEqual(sni.shape[0], sni.size)
+
+        # equate array sizes
+        self.assertEqual(shotnum.size, sni.size)
+        self.assertEqual(np.count_nonzero(sni), index.size)
+
+        # all shotnum > 0
+        self.assertTrue(np.all(np.where(shotnum > 0, True, False)))
+
+        # ensure correct shot numbers were determined
+        self.assertTrue(np.array_equal(shotnum, sn_c))
+
+        # shotnum[sni] = dheader[index, shotnumkey]
+        if len(index.tolist()) == 0:
+            self.assertTrue(np.all(np.logical_not(sni)))
+        else:
+            self.assertTrue(np.array_equal(
+                shotnum[sni], dheader[index.tolist(), shotnumkey]))
 
 
 class TestHDFReadData(ut.TestCase):
@@ -115,28 +586,25 @@ class TestHDFReadData(ut.TestCase):
 
     def test_read_w_index(self):
         """Test reading out data using `index` keyword"""
-        # Test Outline:
+        # Test Outline: (#see Note below)
         # 1. Dataset with sequential shot numbers
         #    a. invalid indices
         #    b. intersection_set = True
         #       - index = int, list, slice
-        #    c. intersection_set = False
-        #       - index = int, list, slice
-        #    d. index (& shotnum) omitted
-        #       - intersection_set = True/False
-        #         (should be no difference)
+        #    c. index (& shotnum) omitted
+        #       - intersection_set = True
         #       - in this condition hdfReadData assumes index
         # 2. Dataset with sequential shot numbers
-        #    a. intersection_set = True
-        #       - index = int, list, slice
-        #    b. intersection_set = False
+        #    a. invalid indices
+        #    b. intersection_set = True
         #       - index = int, list, slice
         #    c. index (& shotnum) omitted
-        #       - intersection_set = True/False
-        #         (should be no difference)
+        #       - intersection_set = True/
         #       - in this condition hdfReadData assumes index
-        # 3. neither index or shotnum are specified
-        #    - in this condition hdfReadData assumes index
+        #
+        # Note:
+        # - When using `index`, intersection_set = False only comes in
+        #   play when control device data is added
         #
 
         # setup HDF5 file
@@ -144,7 +612,8 @@ class TestHDFReadData(ut.TestCase):
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
 
-        # ======              Invalid `index` values              ======
+        # ======        Dataset w/ Sequential Shot Numbers        ======
+        # ------ Invalid `index` values                           ------
         index_list = [
             [-51],
             [40, 55]
@@ -154,19 +623,20 @@ class TestHDFReadData(ut.TestCase):
                               hdfReadData,
                               self.lapdf, 0, 0, index=index)
 
-        # ======        Dataset w/ Sequential Shot Numbers        ======
         # ------ intersection_set = True                          ------
         index_list = [
             0,
             [2],
             [10, 20, 40],
-            slice(40, 80, 3)
+            slice(40, 80, 3),
+            [-1]
         ]
         index_list_correct = [
             [0],
             [2],
             [10, 20, 40],
-            [40, 43, 46, 49]
+            [40, 43, 46, 49],
+            [49]
         ]
         dset = self.lapdf.get(
             'Raw data + config/SIS 3301/config01 [0:0]')
@@ -181,6 +651,10 @@ class TestHDFReadData(ut.TestCase):
             # perform assertion
             self.assertDataFormat(data, shotnum, dset)
 
+        # ------ `index` (and `shotnum`) omitted                 ------
+
+        # ======        Dataset w/ a Jump in Shot Numbers        ======
+
     def test_read_w_shotnum(self):
         pass
 
@@ -191,6 +665,7 @@ class TestHDFReadData(ut.TestCase):
         pass
 
     def test_add_controls(self):
+        # TODO: add tests for adding control device data
         pass
 
     def assertDataFormat(self, data, shotnum, dset, keep_bits=False,

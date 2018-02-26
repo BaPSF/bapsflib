@@ -109,7 +109,7 @@ class TestConditionShotnumList(ut.TestCase):
 
     def assertInRangeSN(self):
         """
-        Assert shot numbers cases within range of dataset shot numbers.
+        Assert shot numbers cases with in-range of dataset shot numbers.
         """
         shotnum_list = [
             [10],
@@ -180,7 +180,7 @@ class TestConditionShotnumList(ut.TestCase):
         # sni        - boolean mask for shotnum
         #               shotnum[sni] = cdset[index, shotnumkey]
         # cdset      - control devices dataset
-        # shotnumky  - field in cdset that corresponds to shot numbers
+        # shotnumkey - field in cdset that corresponds to shot numbers
         # configkey  - field in cdset that corresponds to configuration
         #              names
         # cspec      - unique specifier for control device

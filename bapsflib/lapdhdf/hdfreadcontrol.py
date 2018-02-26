@@ -804,7 +804,7 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
     **cdset**.  Utilizes functions :func:`condition_shotnum_list_simple`
     and :func:`condition_shotnum_list_complex`.
 
-    :param shotnum: desired HDF5 shot number
+    :param shotnum: desired HDF5 shot number(s)
     :type shotnum: list(int)
     :param cdset: control device dataset
     :type cdset: :class:`h5py.Dataset`
@@ -823,7 +823,7 @@ def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
             shotnum[sni] = cdset[index, shotnumkey]
     """
     # Inputs:
-    # shotnum    (list(int))    - the desired shot number
+    # shotnum    (list(int))    - the desired shot number(s)
     # cdset      (h5py.Dataset) - the control dataset
     # shotnumkey (str)          - field name for the shot number column
     #                             in cdset

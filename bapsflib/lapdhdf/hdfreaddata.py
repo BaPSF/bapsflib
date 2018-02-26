@@ -309,11 +309,14 @@ class hdfReadData(np.recarray):
                     # ensure shot numbers are >= 1
                     if start <= 0:
                         start = 1
+                else:
+                    # start wasn't specified in slice object
+                    start = min(first_sn)
 
-                    # add to first_sn
+                # adjust start for intersection_set
+                if intersection_set:
                     first_sn.append(start)
-                start = max(first_sn) if intersection_set else min(
-                    first_sn)
+                    start = max(first_sn)
 
                 # re-define shotnum as a list
                 shotnum = np.arange(start, stop, step).tolist()

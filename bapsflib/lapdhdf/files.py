@@ -97,12 +97,13 @@ class File(h5py.File):
         """
         return list(self.file_map.controls)
 
-    def read_data(self, board, channel, index=None, shotnum=None,
-                  digitizer=None, adc=None, config_name=None,
-                  keep_bits=False, add_controls=None,
+    def read_data(self, board, channel,
+                  index=slice(None), shotnum=slice(None),
+                  digitizer=None, adc=None,
+                  config_name=None, keep_bits=False, add_controls=None,
                   intersection_set=True, silent=False,
                   robust_define=False, **kwargs):
-        # TODO: this needs updating
+        # TODO: docstrings and code block needs updating
         """
         Provides access to
         :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` to extract

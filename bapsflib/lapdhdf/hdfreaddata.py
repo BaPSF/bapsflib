@@ -732,14 +732,6 @@ class hdfReadData(np.recarray):
               (2. ** self.info['bit'] - 1.))
         return dv
 
-    def full_path(self):
-        """
-        :return: full path of the dataset in the HDF5 file.
-
-        .. Warning:: Not implemented yet
-        """
-        raise NotImplementedError
-
     @property
     def plasma(self):
         """

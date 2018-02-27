@@ -839,15 +839,32 @@ class TestHDFReadData(ut.TestCase):
                                   intersection_set=False)
 
     def test_digitizer_kwarg_functionality(self):
+        """Test kwarg `digitizer` functionality"""
+        #
+        # Test Outline:
+        # 1.
+        # will have to test dual digitizers when FausSISCrate is built
         pass
 
+    @ut.skip
     def test_adc_kwarg_functionality(self):
+        pass
+
+    @ut.skip
+    def test_config_name_kwarg_functionality(self):
         pass
 
     def test_add_controls(self):
         # TODO: add tests for adding control device data
         # - will have to test a shotnum that is in digi data but not in
         #   control data w/ intersection_set = True
+        #
+        pass
+
+    @ut.skip
+    def test_obj_attributes(self):
+        # 1. assertWarn(UserWarning) when keep_bits=False and no
+        #    voltage offset is found
         #
         pass
 
@@ -878,12 +895,78 @@ class TestHDFReadData(ut.TestCase):
             self.assertTrue(np.issubdtype(data.dtype['signal'].base,
                                           np.floating))
 
-        # check proper fill of "Nan" values
+        # ------ Check proper fill of "NaN" values in 'signal' ------
+        # check proper fill of "Nan" values in 'signal'
         # TODO: this section needs to be written
-        if intersection_set:
-            pass
+        #
+        # grab dtype
+        dtype = data.dtype['signal'].base
+
+        # find "NaN" elements
+        if np.issubdtype(dtype, np.integer):
+            # 'signal' is an integer
+            d_nan = np.where(data['signal'] == -99999, True, False)
+        elif np.issubdtype(dtype, np.floating):
+            # 'signal' is an integer
+            d_nan = np.isnan(data['signal'])
         else:
-            pass
+            # something went wrong
+            raise ValueError(
+                "dtype of data['signal'] is not an integer or "
+                "float")
+
+        # perform tests
+        if intersection_set:
+            # there should be NO "NaN" fills
+            # 1. d_nan should be False for all entries
+            #
+            self.assertTrue(np.all(np.logical_not(d_nan)))
+        else:
+            # there could be "NaN" fills
+            #
+            # build `sni` and `sni_not`
+            sni = np.isin(data['shotnum'], shotnum['valid'])
+            sni_not = np.logical_not(sni)
+
+            # test
+            # 1. d_nan should be False for all sni entries
+            # 2. d_nan should be True for all sni_not entries
+            self.assertTrue(np.all(np.logical_not(d_nan[sni])))
+            self.assertTrue(np.all(d_nan[sni_not]))
+
+        # ------ Check proper fill of "NaN" values in 'xyz' ------
+        # 'xyz' behavior:
+        # 1. NO motion control device added
+        #    - all 'xyz' entries should be np.nan
+        # 2. motion control device added
+        #    a. intersection_set = True
+        #       - NO 'xyz' element should be np.nan
+        #    b. intersection_set = False
+        #       - some entries will be np.nan and some won't
+        #
+        # Note:
+        # - hdfReadControl handles the construction of 'xyz' when a
+        #   control device is added (#2 above).  Thus, I assume the
+        #   behavior is correct by the time it gets to hdfReadData
+        # - Thus, here only #1 from above is tested
+        #
+        # Determine if a motion control was added
+        controls = data.info['added controls']
+        motion_added = False
+        if len(controls) != 0:
+            # Possible motion control added
+            for con, config in controls:
+                if self.lapdf.file_map.controls[con].contype \
+                        == 'motion':
+                    # a motion control was added
+                    motion_added = True
+                    break
+
+        # test
+        if not motion_added:
+            self.assertTrue(np.all(np.isnan(data['xyz'])))
+
+
 
 
 if __name__ == '__main__':

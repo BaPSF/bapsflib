@@ -1052,11 +1052,194 @@ class TestHDFReadData(ut.TestCase):
         #                   self.lapdf, 0, 0, config_name='blah')
 
     def test_add_controls(self):
-        # TODO: add tests for adding control device data
-        # - will have to test a shotnum that is in digi data but not in
-        #   control data w/ intersection_set = True
+        """Test kwarg `add_controls` functionality"""
         #
-        pass
+        # Behavior:
+        # 1. omitted
+        #    - no control device data is added
+        # 2. specified
+        #    - the control device data fields are added to `data`
+        #    a. intersection_set = True
+        #       - shot numbers are intersected between shotnum, the
+        #         digitizer shot numbers, and the control device shot
+        #         numbers
+        #    b. intersection_set = False
+        #       - no intersection of shot numbers is done and the
+        #         control device data will have "NaN" fills where
+        #         appropriate
+        #
+        # Test Outline:
+        # 1. specify a 'motion' control device
+        #    a. intersection_set = True
+        #       - ensure all control fields are included in data
+        #       - shotnum in digi but not in control
+        #    b. intersection_set = False
+        #       - ensure all control fields are included in data
+        #       - shotnum in digi but not in control
+        # 2. specify a non-motion control device
+        #    a. intersection_set = True
+        #       - ensure all control fields are included in data
+        #       - shotnum in digi but not in control
+        #    b. intersection_set = False
+        #       - ensure all control fields are included in data
+        #       - shotnum in digi but not in control
+        #
+        # Note:
+        # - conditioning of `add_controls` is handled by function
+        #   hdfreadcontrol.condition_controls(), which is tested in
+        #   test_hdfreadcontrol.py.  Thus, the exact structure of
+        #   `add_controls` is not tested here.
+        # - Only behavior in adding control device data to `data` is
+        #   done here
+        # - the call to hdfReadControl is always done using a shot
+        #   number list. Thus, testing with hdfReadData with `index` or
+        #   `shotnum` accesses hdfReadControl in the same way
+        #
+        # setup HDF5
+        # - add 'SIS 3301', 'Waveform', and '6K Compumotor'
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
+        self.f.add_module('6K Compumotor',
+                          {'n_configs': 1, 'sn_size': 50})
+        dset = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0]')
+        sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+
+        # ======          adding a motion control device          ======
+        control = [('6K Compumotor', sixk_cspec)]
+
+        # place shot number jumps in the control datasets
+        cdset_name = self.f.modules['6K Compumotor']._configs[
+            sixk_cspec]['dset name']
+        cdset = self.f.modules['6K Compumotor'][cdset_name]
+        sn_arr = cdset['Shot number']
+        sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
+        cdset['Shot number'] = sn_arr
+
+        # ------ intersection_set = True        ------
+        sn_list_requested = [
+            [1],
+            [28, 29, 30, 31, 32],
+            [48, 49, 50, 51, 52]
+        ]
+        sn_list_correct = [
+            [1],
+            [28, 29, 30],
+            [48, 49, 50]
+        ]
+        sn_list_valid = sn_list_correct
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0,
+                               shotnum=sn_r, add_controls=control)
+
+            # perform assertion
+            self.assertDataWithControl(data, shotnum, dset, control)
+
+        # ------ intersection_set = False       ------
+        sn_list_requested = [
+            [1],
+            [28, 29, 30, 31, 32],
+            [48, 49, 50, 51, 52]
+        ]
+        sn_list_correct = [
+            [1],
+            [28, 29, 30, 31, 32],
+            [48, 49, 50, 51, 52]
+        ]
+        sn_list_valid = [
+            [1],
+            [28, 29, 30, 31, 32],
+            [48, 49, 50]
+        ]
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0,
+                               shotnum=sn_r, add_controls=control,
+                               intersection_set=False)
+
+            # perform assertion
+            self.assertDataWithControl(data, shotnum, dset, control,
+                                       intersection_set=False)
+
+        # ======        adding a non-motion control device        ======
+        control = [('Waveform', 'config01')]
+
+        # place shot number jumps in the control datasets
+        cdset_name = self.f.modules['Waveform']._configs[
+            'config01']['dset name']
+        cdset = self.f.modules['Waveform'][cdset_name]
+        sn_arr = cdset['Shot number']
+        sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
+        cdset['Shot number'] = sn_arr
+
+        # ------ intersection_set = True        ------
+        sn_list_requested = [
+            [1],
+            [28, 29, 30, 31, 32],
+            [48, 49, 50, 51, 52]
+        ]
+        sn_list_correct = [
+            [1],
+            [28, 29, 30],
+            [48, 49, 50]
+        ]
+        sn_list_valid = sn_list_correct
+        for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                    sn_list_correct,
+                                    sn_list_valid):
+            # define data for testing
+            shotnum = {'requested': sn_r,
+                       'correct': sn_c,
+                       'valid': sn_v}
+            data = hdfReadData(self.lapdf, 0, 0,
+                               shotnum=sn_r, add_controls=control)
+
+            # perform assertion
+            self.assertDataWithControl(data, shotnum, dset, control)
+
+            # ------ intersection_set = False       ------
+            sn_list_requested = [
+                [1],
+                [28, 29, 30, 31, 32],
+                [48, 49, 50, 51, 52]
+            ]
+            sn_list_correct = [
+                [1],
+                [28, 29, 30, 31, 32],
+                [48, 49, 50, 51, 52]
+            ]
+            sn_list_valid = [
+                [1],
+                [28, 29, 30, 31, 32],
+                [48, 49, 50]
+            ]
+            for sn_r, sn_c, sn_v in zip(sn_list_requested,
+                                        sn_list_correct,
+                                        sn_list_valid):
+                # define data for testing
+                shotnum = {'requested': sn_r,
+                           'correct': sn_c,
+                           'valid': sn_v}
+                data = hdfReadData(self.lapdf, 0, 0,
+                                   shotnum=sn_r, add_controls=control,
+                                   intersection_set=False)
+
+                # perform assertion
+                self.assertDataWithControl(data, shotnum, dset, control,
+                                           intersection_set=False)
 
     @ut.skip
     def test_obj_attributes(self):
@@ -1075,7 +1258,6 @@ class TestHDFReadData(ut.TestCase):
         self.assertIn('signal', data.dtype.fields)
         self.assertIn('xyz', data.dtype.fields)
         self.assertEqual(data.dtype['xyz'].shape, (3,))
-        self.assertTrue(np.all(np.isnan(data['xyz'])))
 
         # check shot numbers are correct
         self.assertTrue(np.array_equal(data['shotnum'],
@@ -1160,6 +1342,32 @@ class TestHDFReadData(ut.TestCase):
         # test
         if not motion_added:
             self.assertTrue(np.all(np.isnan(data['xyz'])))
+
+    def assertDataWithControl(self, data, shotnum, dset, controls,
+                              intersection_set=True):
+        # assert data format
+        self.assertDataFormat(data, shotnum, dset,
+                              intersection_set=intersection_set)
+
+        # check all control device field are added
+        for control in controls:
+            # define control
+            device = control[0]
+            config = control[1]
+
+            # retrieve control mapping
+            cmap = self.lapdf.file_map.controls[device]
+
+            # gather fields that should be in data for this control
+            # device
+            field_map = cmap.configs[config][
+                'dset field to numpy field']
+            fields = [item[1][0] for item in field_map]
+            fields = list(set(fields))
+
+            # check that all fields are in cdata
+            for field in fields:
+                self.assertIn(field, data.dtype.fields)
 
 
 if __name__ == '__main__':

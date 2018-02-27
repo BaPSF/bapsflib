@@ -407,71 +407,65 @@ class hdfReadData(np.recarray):
             print('tt - define data: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # fill 'shotnum' field of data array
-        data['shotnum'] = shotnum
-
         # make sure index is not an ndarray
         if type(index) is np.ndarray:
             index = index.tolist()
 
-        # fill remaining fields of data array
+        # fill 'shotnum' field of data array
+        data['shotnum'] = shotnum
+
+        # fill 'signal' fields of data array
         if intersection_set:
             # fill signal
-            data['signal'] = dset[index, ...].view()
-
-            # fill controls
-            if len(controls) != 0:
-                # find intersection shot number indices
-                csni = np.in1d(cdata['shotnum'], shotnum)
-
-                # fill xyz
-                if 'xyz' in cdata.dtype.names:
-                    data['xyz'] = cdata['xyz'][csni, ...]
-                else:
-                    data['xyz'] = np.nan
-
-                # fill remaining controls
-                for field in cdata.dtype.names:
-                    if field not in ['shotnum', 'xyz']:
-                        data[field] = cdata[field][csni, ...]
-            else:
-                # fill xyz
-                data['xyz'] = np.nan
+            data['signal'] = dset[index, ...]
         else:
-            # non-intersection fill
-            #
             # fill signal
-            data['signal'][sni] = dset[index, ...].view()
-            null_fiiler = -99999 if data['signal'].dtype <= np.int \
-                else np.nan
-            data['signal'][np.logical_not(sni)] = null_fiiler
-
-            # fill controls
-            if len(controls) != 0:
-                # NOTE: if intersection_set=False, then cdata was
-                #       generated with the same settings and
-                #       data['shotnum'] and cdata['shotnum'] should be
-                #       identical
-                #
-                if not np.array_equal(data['shotnum'],
-                                      cdata['shotnum']):
-                    raise ValueError(
-                        "data['shotnum'] and cdata['shotnum'] are not"
-                        " equal")
-
-                # fill xyz
-                if 'xyz' in cdata.dtype.names:
-                    data['xyz'] = cdata['xyz']
-                else:
-                    data['xyz'] = np.nan
-
-                # fill remaining controls
-                for field in cdata.dtype.names:
-                    if field not in ['shotnum', 'xyz']:
-                        data[field] = cdata[field]
+            data['signal'][sni] = dset[index, ...]
+            if np.issubdtype(data['signal'].dtype, np.integer):
+                data['signal'][np.logical_not(sni)] = -99999
             else:
-                # fill xyz
+                # dtype is np.floating
+                data['signal'][np.logical_not(sni)] = np.nan
+
+        # fill fields related to controls
+        if len(controls) != 0:
+            # Note: shot numbers of cdata and data are one-to-one
+            #       by this point so intersection_set is irrelevant
+            #
+            if not np.array_equal(data['shotnum'],
+                                  cdata['shotnum']):
+                raise ValueError(
+                    "data['shotnum'] and cdata['shotnum'] are not"
+                    " equal")
+
+            # fill xyz
+            if 'xyz' in cdata.dtype.names:
+                data['xyz'] = cdata['xyz']
+            else:
                 data['xyz'] = np.nan
+
+            # fill remaining controls
+            for field in cdata.dtype.names:
+                if field not in ['shotnum', 'xyz']:
+                    data[field] = cdata[field]
+            '''
+            # find intersection shot number indices
+            csni = np.in1d(cdata['shotnum'], shotnum)
+
+            # fill xyz
+            if 'xyz' in cdata.dtype.names:
+                data['xyz'] = cdata['xyz'][csni, ...]
+            else:
+                data['xyz'] = np.nan
+
+            # fill remaining controls
+            for field in cdata.dtype.names:
+                if field not in ['shotnum', 'xyz']:
+                    data[field] = cdata[field][csni, ...]
+            '''
+        else:
+            # fill xyz
+            data['xyz'] = np.nan
 
         # print execution timing
         if timeit:
@@ -487,9 +481,9 @@ class hdfReadData(np.recarray):
             voffset = dheader[0, 'Offset']
         except ValueError:
             voffset = None
-            keep_bits = True
-            warn('Could not find voltage offset, forcing '
-                 'keep_bits=True')
+            if not keep_bits:
+                warn('Could not find voltage offset, calculating '
+                     'voltage without offset')
 
         # assign dataset meta-info
         obj._info = {
@@ -528,10 +522,17 @@ class hdfReadData(np.recarray):
         }
 
         # convert to voltage
+        # - 'signal' dtype is assigned based on keep_bit
+        #
+        # obj['signal'] = obj['signal'].astype(np.float32, copy=False)
+        #
         if not keep_bits:
-            offset = abs(obj.info['voltage offset'])
-            # dv = 2.0 * offset / (2. ** obj._info['bit'] - 1.)
-            obj['signal'] = obj['signal'].astype(np.float32, copy=False)
+            # define offset
+            offset = abs(obj.info['voltage offset']) \
+                if obj.info['voltage offset'] is not None \
+                else 0.0
+
+            # calc voltage
             obj['signal'] = (obj.dv * obj['signal']) - offset
 
             # update 'signal units'

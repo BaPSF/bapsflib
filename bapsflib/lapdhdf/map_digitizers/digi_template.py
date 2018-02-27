@@ -106,6 +106,11 @@ class hdfMap_digi_template(ABC):
         return afigs
 
     @property
+    def digi_name(self):
+        """Name of digitizer"""
+        return self.info['group name']
+
+    @property
     @abstractmethod
     def shotnum_field(self):
         """Field name for shot number column in header dataset"""

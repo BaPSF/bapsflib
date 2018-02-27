@@ -82,10 +82,11 @@ class hdfReadData(np.recarray):
         #
 
         # initialize timing
+        tt = []
         if 'timeit' in kwargs:
             timeit = kwargs['timeit']
             if timeit:
-                tt = [time.time()]
+                tt = tt.append(time.time())
             else:
                 timeit = False
         else:
@@ -133,9 +134,9 @@ class hdfReadData(np.recarray):
             if not controls:
                 warn_str = '\n** Warning: no valid controls passed, ' \
                            'none added to array'
-                controls = None
+                controls = []
         else:
-            controls = None
+            controls = []
 
         # print execution timing
         if timeit:
@@ -249,17 +250,15 @@ class hdfReadData(np.recarray):
             if shotnum != slice(None) and index == slice(None)\
             else 'index'
 
-        # Condition `index` keyword
-        # Valid index types are: int, list(int), and slice()
-        # - int       => extract shot with index int
-        # - list(int) => extract shots with indices specified in list
-        # - slice(start, stop, skip)
-        #             => same as [start:stop:skip]
-        #
-        # Note: I'm letting the slicing of dset[index, shotnumkey] to
-        #       throw the appropriate errors
+        # Condition `index` and `shotnum` keywords
+        # - Valid indexing types are: int, list(int), and slice()
         #
         if index_with == 'index':
+            # Condition `index` keyword
+            #
+            # Note: I'm letting the slicing of dset[index, shotnumkey]
+            #       to throw the appropriate errors
+            #
             # Define `shotnum`
             shotnum = dheader[index, shotnumkey].view()
             if shotnum.shape == () and shotnum.size == 1:
@@ -277,15 +276,14 @@ class hdfReadData(np.recarray):
                 start, stop, step = index.indices(dheader.shape[0])
                 index = np.arange(start, stop, step)
 
-        # print execution timing
-        if timeit:
-            tt.append(time.time())
-            print('tt - condition index: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
-
-        # Condition `shotnum` keyword
-        #
-        if index_with == 'shotnum':
+            # print execution timing
+            if timeit:
+                tt.append(time.time())
+                print('tt - condition index: '
+                      '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+        else:
+            # Condition `shotnum` keyword
+            #
             # convert `shotnum` to list
             if isinstance(shotnum, slice):
                 # determine largest possible shot number
@@ -336,11 +334,11 @@ class hdfReadData(np.recarray):
                 condition_shotnum(shotnum, dheader, shotnumkey,
                                   intersection_set)
 
-        # print execution timing
-        if timeit:
-            tt.append(time.time())
-            print('tt - condition shotnum: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            # print execution timing
+            if timeit:
+                tt.append(time.time())
+                print('tt - condition shotnum: '
+                      '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Retrieve Control Data ---
         # 1. retrieve the numpy array for control data
@@ -352,7 +350,7 @@ class hdfReadData(np.recarray):
         # - this will ensure cdata.shape == data.shape all the time
         # - shotnum should always be a ndarray at this point
         #
-        if controls is not None:
+        if len(controls) != 0:
             cdata = hdfReadControl(hdf_file, controls,
                                    assume_controls_conditioned=True,
                                    shotnum=shotnum.tolist(),
@@ -395,7 +393,7 @@ class hdfReadData(np.recarray):
         dtype = [('shotnum', '<u4'),
                  ('signal', sigtype, dset.shape[1]),
                  ('xyz', '<f4', 3)]
-        if controls is not None:
+        if len(controls) != 0:
             for subdtype in cdata.dtype.descr:
                 if subdtype[0] not in [d[0] for d in dtype]:
                     dtype.append(subdtype)
@@ -422,7 +420,7 @@ class hdfReadData(np.recarray):
             data['signal'] = dset[index, ...].view()
 
             # fill controls
-            if controls is not None:
+            if len(controls) != 0:
                 # find intersection shot number indices
                 csni = np.in1d(cdata['shotnum'], shotnum)
 
@@ -449,7 +447,7 @@ class hdfReadData(np.recarray):
             data['signal'][np.logical_not(sni)] = null_fiiler
 
             # fill controls
-            if controls is not None:
+            if len(controls) != 0:
                 # NOTE: if intersection_set=False, then cdata was
                 #       generated with the same settings and
                 #       data['shotnum'] and cdata['shotnum'] should be
@@ -510,7 +508,8 @@ class hdfReadData(np.recarray):
             'voltage offset': voffset,
             'probe name': None,
             'port': (None, None),
-            'signal units': 'bits'
+            'signal units': 'bits',
+            'added controls': controls
         }
 
         # plasma parameter dict
@@ -582,7 +581,8 @@ class hdfReadData(np.recarray):
             'voltage offset': None,
             'probe name': None,
             'port': (None, None),
-            'signal units': ''
+            'signal units': '',
+            'added controls': []
         })
 
         # Define plasma attribute

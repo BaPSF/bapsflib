@@ -1051,6 +1051,59 @@ class TestHDFReadData(ut.TestCase):
         #                   hdfReadData,
         #                   self.lapdf, 0, 0, config_name='blah')
 
+    def test_keep_bits_kwarg_functionality(self):
+        """Test kwarg `keep_bits` functionality"""
+        #
+        # Behavior:
+        # 1. keep_bits = False (Default)
+        #    - convert 'signal' bit values to voltage
+        #      ~ Num. of bits is defined in the mappers
+        #      ~ voltage offset is defined in the header dataset
+        #      ~ if voltage offset cannot be found, then keep_bits will
+        #        revert to True
+        # 2. keep_bits = True
+        #    - keep 'signal' in bit values
+        #
+        # Test Outline:
+        # 1. keep_bits = True
+        # 2. keep_bits = False, but there no 'Offset' field in the
+        #    header dataset
+        #
+        # Note:
+        # - keep_bits = False is being call for almost every other test
+        #   in this TestCase
+        #
+        # setup HDF5
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        dset = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0]')
+        dheader_name = \
+            'Raw data + config/SIS 3301/config01 [0:0] headers'
+        dheader = self.lapdf.get(dheader_name)
+
+        # ------ test keep_bits=True ------
+        data = hdfReadData(self.lapdf, 0, 0, index=0, keep_bits=True)
+        self.assertDataFormat(data,
+                              {'requested': [1],
+                               'correct': [1],
+                               'valid': [1]}, dset,
+                              keep_bits=True)
+
+        # ----- keep_bits=False, but no Offset ------
+        # remove 'Offset' from the header dataset
+        fnames = list(dheader.dtype.names)
+        del fnames[fnames.index('Offset')]
+        fnames = tuple(fnames)
+        del self.f['Raw data + config/SIS 3301/config01 [0:0] headers']
+        self.f.create_dataset(dheader_name, data=dheader[fnames])
+
+        # test
+        self.assertWarns(UserWarning,
+                         hdfReadData,
+                         self.lapdf, 0, 0, shotnum=1, keep_bits=False)
+
     def test_add_controls(self):
         """Test kwarg `add_controls` functionality"""
         #

@@ -980,9 +980,76 @@ class TestHDFReadData(ut.TestCase):
         #                   self.lapdf, 0, 0,
         #                   digitizer='SIS Crate', adc='blah')
 
-    @ut.skip
     def test_config_name_kwarg_functionality(self):
-        pass
+        """Test kwarg `config_name` functionality"""
+        #
+        # Behavior:
+        # 1. not specified
+        #    a. digitizer w/ One active config
+        #       - will default to active config and run
+        #    b. digitizer w/ MULTIPLE active config'S
+        #       - will raise ValueError
+        # 2. specified
+        #    a. digitizer w/ ONE active config
+        #       i. `config_name` is active config
+        #          - routine wil run with `config_name`
+        #       ii. `config_name` not an active config
+        #          - raises ValueError
+        #    b. digitizer w/ MULTIPLE active configs
+        #       i. `config_name` is among active configs
+        #          - routine wil run with `config_name`
+        #       ii. `config_name` not an active config
+        #          - raises ValueError
+        #
+        # Test Outline:
+        # 1. not specified
+        #    a. digitizer w/ One active config
+        #    b. digitizer w/ MULTIPLE active config'S
+        # 2. `config_name` for digitizer w/ ONE active config
+        #    a. `config_name` is active config
+        #    b. `config_name` not an active config
+        # 3. `config_name` for digitizer w/ MULTIPLE active configs
+        #    a. `config_name` is among active configs
+        #    b. `config_name` not an active config
+        #
+        # Note:
+        # - the digi_map.construct_dataset_name() handles conditioning
+        #   of `config_name` and, thus, the digi map tests should
+        #   handle all details of `config_name` handling
+        #
+        # setup HDF5
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 3, 'sn_size': 50})
+
+        # ----- `config_name` not specified ------
+        data = hdfReadData(self.lapdf, 0, 0)
+        self.assertEqual(data.info['configuration name'], 'config01')
+
+        # ----- `config_name` specified for digitizer w/ ONE ------
+        # ----- active configuration                         ------
+        # valid `config_name`
+        data = hdfReadData(self.lapdf, 0, 0, config_name='config01')
+        self.assertEqual(data.info['configuration name'], 'config01')
+
+        # invalid `config_name`
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, config_name='blah')
+
+        # ----- `config_name` specified for digitizer w/ ------
+        # ----- MULTIPLE active configurations           ------
+        # TODO: #3 NEEDS TO BE ADDED
+        # - WHEN MULTIPLE CONFIGS IS INCORPORATED IN THE FAUX BUILDERS
+        #
+        # initialize digi w/ multiple configurations
+
+        # valid `config_name`
+
+        # invalid `config_name`
+        # self.assertRaises(ValueError,
+        #                   hdfReadData,
+        #                   self.lapdf, 0, 0, config_name='blah')
 
     def test_add_controls(self):
         # TODO: add tests for adding control device data

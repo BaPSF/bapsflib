@@ -183,6 +183,22 @@ class hdfReadData(np.recarray):
             print('tt - get dset and dheader: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
+        # ---- Condition `keep_bits` ----
+        if 'Offset' not in dheader.dtype.names:
+            # there's no voltage offset value to calculate dv
+            if not keep_bits:
+                warn('Could not find voltage offset, calculating '
+                     'voltage without offset')
+
+            # force keep_bits True
+            keep_bits = True
+
+        # print execution timing
+        if timeit:
+            tt.append(time.time())
+            print('tt - condition keep_bits kwarg: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
         # ---- Condition shots, index, and shotnum ----
         # shots   -- same as index (legacy, do NOT use)
         #            ~ overridden by index and shotnum
@@ -481,9 +497,6 @@ class hdfReadData(np.recarray):
             voffset = dheader[0, 'Offset']
         except ValueError:
             voffset = None
-            if not keep_bits:
-                warn('Could not find voltage offset, calculating '
-                     'voltage without offset')
 
         # assign dataset meta-info
         obj._info = {
@@ -528,9 +541,7 @@ class hdfReadData(np.recarray):
         #
         if not keep_bits:
             # define offset
-            offset = abs(obj.info['voltage offset']) \
-                if obj.info['voltage offset'] is not None \
-                else 0.0
+            offset = abs(obj.info['voltage offset'])
 
             # calc voltage
             obj['signal'] = (obj.dv * obj['signal']) - offset

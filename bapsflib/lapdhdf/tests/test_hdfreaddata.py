@@ -884,7 +884,7 @@ class TestHDFReadData(ut.TestCase):
                           self.lapdf, 0, 0, digitizer='blah')
 
         # ----- `digitizer` specified w/ TWO Digitizer ------
-        # TODO: #3 NEEDS TO BE ADDED WHEN FausSISCrate IS CREATED
+        # TODO: #3 NEEDS TO BE ADDED WHEN FauxSISCrate IS CREATED
         #
         # added another digit to the HDF5 file
         # self.f.add_module('SIS Crate',
@@ -904,9 +904,81 @@ class TestHDFReadData(ut.TestCase):
                           hdfReadData,
                           self.lapdf, 0, 0, digitizer='blah')
 
-    @ut.skip
     def test_adc_kwarg_functionality(self):
-        pass
+        """Test kwarg `adc` functionality"""
+        #
+        # Behavior:
+        # 1. not specified
+        #    a. digitizer w/ ONE adc
+        #       - defaults to the one
+        #    b. digitizer w/ MULTIPLE adc's
+        #       - defaults to the one w/ the slowest sample rate
+        # 2. specified
+        #    a. digitizer w/ ONE adc
+        #       i. `adc` is valid
+        #           - routine runs w/ `adc`
+        #       ii. `adc` is NOT valid
+        #           - raises ValueError
+        #    b. digitizer w/ MULTIPLE adc's
+        #       i. `adc` is valid
+        #           - routine runs w/ `adc`
+        #       ii. `adc` is NOT valid
+        #           - raises ValueError
+        #
+        # Test Outline:
+        # 1. not specified
+        #    a. digitizer w/ ONE adc
+        #    b. digitizer w/ MULTIPLE adc's
+        # 2. `adc` specfied for digitizer w/ ONE adc
+        #    a. `adc` is valid
+        #    b. `adc` is NOT valid
+        # 3. `adc` specified for digitizer w/ MULTIPLE adc's
+        #    a. `adc` is valid
+        #    b. `adc` is NOT valid
+        #
+        # Note:
+        # - the digi_map.construct_dataset_name() handles conditioning
+        #   of `adc` and, thus, the digi map tests should handle all
+        #   details of `adc` handling
+        #
+        # setup HDF5
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+
+        # ----- `adc` not specified ------
+        data = hdfReadData(self.lapdf, 0, 0)
+        self.assertEqual(data.info['adc'], 'SIS 3301')
+
+        # ----- `adc` specified for digitizer w/ ONE adc ------
+        # valid `adc`
+        data = hdfReadData(self.lapdf, 0, 0, adc='SIS 3301')
+        self.assertEqual(data.info['adc'], 'SIS 3301')
+
+        # invalid `adc`
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, adc='blah')
+
+        # ----- `adc` specified for digitizer w/ TWO adc's ------
+        # TODO: #3 NEEDS TO BE ADDED WHEN FauxSISCrate IS CREATED
+        #
+        # added another digit to the HDF5 file
+        # self.f.add_module('SIS Crate',
+        #                   {'n_configs': 1, 'sn_size': 50})
+        # main_digi = self.lapdf.file_map.main_digitizer.digi_name
+
+        # valid `adc`
+        # for adc in ['SIS 3302', 'SIS 3305']:
+        #     data = hdfReadData(self.lapdf, 0, 0,
+        #                        digitizer='SIS Crate', adc=adc)
+        #     self.assertEqual(data.info['adc'], adc)
+
+        # invalid `adc`
+        # self.assertRaises(ValueError,
+        #                   hdfReadData,
+        #                   self.lapdf, 0, 0,
+        #                   digitizer='SIS Crate', adc='blah')
 
     @ut.skip
     def test_config_name_kwarg_functionality(self):

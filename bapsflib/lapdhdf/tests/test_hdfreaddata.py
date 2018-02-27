@@ -841,10 +841,68 @@ class TestHDFReadData(ut.TestCase):
     def test_digitizer_kwarg_functionality(self):
         """Test kwarg `digitizer` functionality"""
         #
+        # Behavior:
+        # 1. not specified
+        #    - will default to the file_map.main_digitizer
+        # 2. specified
+        #    a. specified digi exists (valid)
+        #       i. only one digis is in HDF5
+        #          - routine runs w/ specified `digitizer`
+        #       ii. multiple digis are in HDF5
+        #          - routine runs w/ specified `digitizer`
+        #    b. specified digi DOES NOT exist (not valid)
+        #       - ValueError is raised
+        #
         # Test Outline:
-        # 1.
-        # will have to test dual digitizers when FausSISCrate is built
-        pass
+        # 1. `digitizer` not specified
+        # 2. `digitizer` specified w/ one existing digis
+        #    a. `digitizer` is valid
+        #    b. `digitizer` is NOT valid
+        # 3. `digitizer` specified w/ two existing digis
+        #    a. `digitizer` is valid
+        #    a. `digitizer` is valid (and NOT main_digitizer)
+        #    b. `digitizer` is NOT valid
+        #
+        # setup HDF5
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        main_digi = self.lapdf.file_map.main_digitizer.digi_name
+
+        # ----- `digitizer` not specified ------
+        data = hdfReadData(self.lapdf, 0, 0)
+        self.assertEqual(data.info['digitizer'], main_digi)
+
+        # ----- `digitizer` specified w/ ONE Digitizer ------
+        # valid `digitizer`
+        data = hdfReadData(self.lapdf, 0, 0, digitizer='SIS 3301')
+        self.assertEqual(data.info['digitizer'], 'SIS 3301')
+
+        # invalid `digitizer`
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, digitizer='blah')
+
+        # ----- `digitizer` specified w/ TWO Digitizer ------
+        # TODO: #3 NEEDS TO BE ADDED WHEN FausSISCrate IS CREATED
+        #
+        # added another digit to the HDF5 file
+        # self.f.add_module('SIS Crate',
+        #                   {'n_configs': 1, 'sn_size': 50})
+        # main_digi = self.lapdf.file_map.main_digitizer.digi_name
+
+        # valid `digitizer`
+        data = hdfReadData(self.lapdf, 0, 0, digitizer='SIS 3301')
+        self.assertEqual(data.info['digitizer'], main_digi)
+
+        # valid `digitizer` (not main_digitizer)
+        # data = hdfReadData(self.lapdf, 0, 0, digitizer='SIS Crate')
+        # self.assertEqual(data.info['digitizer'], 'SIS Crate')
+
+        # invalid `digitizer`
+        self.assertRaises(ValueError,
+                          hdfReadData,
+                          self.lapdf, 0, 0, digitizer='blah')
 
     @ut.skip
     def test_adc_kwarg_functionality(self):
@@ -896,8 +954,6 @@ class TestHDFReadData(ut.TestCase):
                                           np.floating))
 
         # ------ Check proper fill of "NaN" values in 'signal' ------
-        # check proper fill of "Nan" values in 'signal'
-        # TODO: this section needs to be written
         #
         # grab dtype
         dtype = data.dtype['signal'].base
@@ -965,8 +1021,6 @@ class TestHDFReadData(ut.TestCase):
         # test
         if not motion_added:
             self.assertTrue(np.all(np.isnan(data['xyz'])))
-
-
 
 
 if __name__ == '__main__':

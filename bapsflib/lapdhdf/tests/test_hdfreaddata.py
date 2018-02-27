@@ -584,8 +584,18 @@ class TestHDFReadData(ut.TestCase):
                           hdfReadData,
                           self.lapdf, 0, 0, index='blah')
 
-        # TODO: test when `index` and `shotnum` are both used
-        # - should default to `index`
+        # test when `index` and `shotnum` are both used
+        # - hdfReadData should ignore `shotnum` and default to `index`
+        #
+        dset = self.lapdf.get(
+            'Raw data + config/SIS 3301/config01 [0:0]')
+        index = [2, 3]
+        shotnum = [45, 50]
+        data = hdfReadData(self.lapdf, 0, 0,
+                           index=index, shotnum=shotnum)
+        self.assertDataFormat(data,
+                              {'correct': [3, 4], 'valid': [3, 4]},
+                              dset)
 
     def test_read_w_index(self):
         """Test reading out data using `index` keyword"""

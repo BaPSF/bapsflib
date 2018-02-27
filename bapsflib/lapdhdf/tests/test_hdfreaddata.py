@@ -1294,12 +1294,46 @@ class TestHDFReadData(ut.TestCase):
                 self.assertDataWithControl(data, shotnum, dset, control,
                                            intersection_set=False)
 
-    @ut.skip
     def test_obj_attributes(self):
-        # 1. assertWarn(UserWarning) when keep_bits=False and no
-        #    voltage offset is found
-        #
-        pass
+        """Ensure existence of keey attributes"""
+        # setup HDF5
+        if len(self.f.modules) >= 1:
+            self.f.remove_all_modules()
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+
+        # Define test data
+        data = hdfReadData(self.lapdf, 0, 0)
+
+        # Key Attribute Existence
+        self.assertTrue(hasattr(data, 'info'))
+        self.assertTrue(hasattr(data, 'plasma'))
+        self.assertTrue(hasattr(data, 'set_plasma'))
+        self.assertTrue(hasattr(data, 'set_plasma_value'))
+        self.assertTrue(hasattr(data, 'dt'))
+        self.assertTrue(hasattr(data, 'dv'))
+        self.assertTrue(hasattr(data, 'convert_signal'))
+
+        # Keys in `info` attribute
+        self.assertTrue(hasattr(data.info, 'hdf file'))
+        self.assertTrue(hasattr(data.info, 'dataset name'))
+        self.assertTrue(hasattr(data.info, 'dataset path'))
+        self.assertTrue(hasattr(data.info, 'digitizer'))
+        self.assertTrue(hasattr(data.info, 'configuration name'))
+        self.assertTrue(hasattr(data.info, 'adc'))
+        self.assertTrue(hasattr(data.info, 'bit'))
+        self.assertTrue(hasattr(data.info, 'sample rate'))
+        self.assertTrue(hasattr(data.info, 'sample average'))
+        self.assertTrue(hasattr(data.info, 'shot average'))
+        self.assertTrue(hasattr(data.info, 'board'))
+        self.assertTrue(hasattr(data.info, 'channel'))
+        self.assertTrue(hasattr(data.info, 'voltage offset'))
+        self.assertTrue(hasattr(data.info, 'probe name'))
+        self.assertTrue(hasattr(data.info, 'port'))
+        self.assertTrue(hasattr(data.info, 'signal units'))
+        self.assertTrue(hasattr(data.info, 'added controls'))
+
+        # `dt` functionality
+        # TODO: test calc of dt for sample (hardware) averaging
 
     def assertDataFormat(self, data, shotnum, dset, keep_bits=False,
                          intersection_set=True):

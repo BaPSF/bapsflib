@@ -102,7 +102,7 @@ class File(h5py.File):
                   digitizer=None, adc=None,
                   config_name=None, keep_bits=False, add_controls=None,
                   intersection_set=True, silent=False,
-                  robust_define=False, **kwargs):
+                  **kwargs):
         # TODO: docstrings and code block needs updating
         """
         Provides access to
@@ -138,9 +138,6 @@ class File(h5py.File):
             for details)
         :param bool silent: :code:`False` (default). Set :code:`True` to
             suppress command line printout of soft-warnings
-        :param bool robust_define: performs a double check to make sure
-            the dataset shot numbers match the expedted shot numbers...
-            :code:`dheader[index, shotnumkey] == shotnum`
         :return: extracted data from digitizer (and control devices)
         :rtype: :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
         """
@@ -172,7 +169,6 @@ class File(h5py.File):
                            add_controls=add_controls,
                            intersection_set=intersection_set,
                            silent=silent,
-                           robust_define=robust_define,
                            **kwargs)
 
     def read_controls(self, controls,

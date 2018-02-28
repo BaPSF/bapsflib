@@ -435,6 +435,8 @@ class hdfReadData(np.recarray):
             # fill signal
             data['signal'] = dset[index, :]
         else:
+            # non-intersection fill
+            #
             # fill signal
             data['signal'][sni] = dset[index, :]
             if np.issubdtype(data['signal'].dtype, np.integer):
@@ -1023,7 +1025,7 @@ def condition_shotnum(shotnum, dheader, shotnumkey,
                 #       then adding an int still returns an empty array
                 index = np.where(np.isin(some_dset_sn, shotnum))[0]
                 index += start
-
+                
     # filter shotnum and ensure obj will not be empty
     if intersection_set:
         # check for empty shotnum

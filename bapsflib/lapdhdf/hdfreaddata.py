@@ -435,8 +435,6 @@ class hdfReadData(np.recarray):
             # fill signal
             data['signal'] = dset[index, :]
         else:
-            # non-intersection fill
-            #
             # fill signal
             data['signal'][sni] = dset[index, :]
             if np.issubdtype(data['signal'].dtype, np.integer):

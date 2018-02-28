@@ -3,10 +3,12 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
+#
+# TODO: add 'dset name' to configs dict
 #
 import h5py
 
@@ -80,6 +82,10 @@ class hdfMap_control_6k(hdfMap_control_template):
                 ('phi', ('ptip_rot_phi', '<f8'), 0)
             ]
 
+            # Define 'dset name'
+            self.configs[config_name]['dset name'] = \
+                self.construct_dataset_name(config_name)
+
     def construct_dataset_name(self, *args):
         # The first arg passed is assumed to be the receptacle number.
         # If none are passed and there is only one receptacle deployed,
@@ -129,22 +135,22 @@ class hdfMap_control_6k(hdfMap_control_template):
         """
         return list(self.configs)
 
-    @property
-    def name(self):
-        """
-        :return: name of control device
-        :rtype: str
-        """
-        return '6K Compumotor'
+    # @property
+    # def name(self):
+    #     """
+    #     :return: name of control device
+    #     :rtype: str
+    #     """
+    #     return '6K Compumotor'
 
-    @property
-    def unique_specifiers(self):
-        """
-        :return: list of control device unique specifiers. Here the
-            unique specifier is the probe drive receptacle number.
-        :rtype: [int, ]
-        """
-        return self.list_receptacles
+    # @property
+    # def unique_specifiers(self):
+    #     """
+    #     :return: list of control device unique specifiers. Here the
+    #         unique specifier is the probe drive receptacle number.
+    #     :rtype: [int, ]
+    #     """
+    #     return self.list_receptacles
 
     def _parse_motionlist(self, ml_gname):
         # A motion list group follows the naming scheme of:

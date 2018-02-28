@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -104,6 +104,17 @@ class hdfMap_digi_template(ABC):
             except KeyError:
                 pass
         return afigs
+
+    @property
+    def digi_name(self):
+        """Name of digitizer"""
+        return self.info['group name']
+
+    @property
+    @abstractmethod
+    def shotnum_field(self):
+        """Field name for shot number column in header dataset"""
+        raise NotImplementedError
 
     @property
     @abstractmethod
@@ -313,4 +324,9 @@ class hdfMap_digi_template(ABC):
 
         :raise: :exc:`NotImplementedError`
         """
+        raise NotImplementedError
+
+    @abstractmethod
+    def construct_header_dataset_name(self, board, channel, **kwargs):
+        """"Name of header dataset"""
         raise NotImplementedError

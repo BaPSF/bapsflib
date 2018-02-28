@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License:
 #
@@ -23,5 +23,6 @@ https://github.com/rocco8773/bapsflib
 
 from . import lapdhdf
 from . import lapdtoolbox
+from . import plasma
 
 # from .viewers import HDFViewer

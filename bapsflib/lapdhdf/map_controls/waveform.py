@@ -3,10 +3,12 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
+#
+# TODO: add 'dset name' to configs dict
 #
 import h5py
 import numpy as np
@@ -90,17 +92,17 @@ class hdfMap_control_waveform(hdfMap_control_template):
                  ('command', np.array(cl).dtype.str), 0)
             ]
 
+            # Define 'dset name'
+            self.configs[name]['dset name'] = \
+                self.construct_dataset_name(name)
+
     def construct_dataset_name(self, *args):
         return 'Run time list'
 
-    @property
-    def name(self):
-        """
-        :return: name of control device
-        :rtype: str
-        """
-        return 'Waveform'
-
-    @property
-    def unique_specifiers(self):
-        return list(self.configs)
+    # @property
+    # def name(self):
+    #     """
+    #     :return: name of control device
+    #     :rtype: str
+    #     """
+    #     return 'Waveform'

@@ -1,15 +1,15 @@
 A file mapping is constructed by
-:class:`~bapsflib.lapdhdf.hdfmappers.hdfMap` and its called daughter
+:class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` and its called daughter
 routines.  When a HDF5 file is opened with
 :class:`~bapsflib.lapdhdf.files.File`,
-:class:`~bapsflib.lapdhdf.hdfmappers.hdfMap` is automatically called to
+:class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` is automatically called to
 construct a file mapping and an instance of the mapping object is bound
 to the file object as :attr:`~bapsflib.lapdhdf.files.File.file_map`.
 Thus, the file mappings for :file:`test.hdf5` can be accessed like
 
     >>> f = lapdhdf.File('test.hdf5')
     >>> f.file_map
-    Out: <bapsflib.lapdhdf.hdfmappers.hdfMap>
+    Out: <bapsflib.lapdhdf.hdfmapper.hdfMap>
 
 Basic Structure of :attr:`file_map` Mapping Object
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

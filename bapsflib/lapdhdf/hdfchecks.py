@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -49,7 +49,7 @@ import os
 import sys
 
 from .hdferrors import NotHDFFileError, NotLaPDHDFError, NoMSIError
-from .hdfmappers import hdfMap
+from .hdfmapper import hdfMap
 
 from contextlib import contextmanager
 
@@ -57,7 +57,7 @@ from contextlib import contextmanager
 class hdfCheck(object):
     """
     Initiates the HDF5 mapping constructor
-    (:class:`~.hdfmappers.hdfMap`) and prints a file report to screen
+    (:class:`~.hdfmapper.hdfMap`) and prints a file report to screen
     (or file).
     """
     def __init__(self, hdf_obj, silent=False, save_report=False):
@@ -161,7 +161,7 @@ class hdfCheck(object):
         msi_detected = self.__hdf_map.has_msi_group
 
         # print status to screen
-        item = self.__hdf_map.msi_gname + '/'
+        item = self.__hdf_map._MSI_GNAME + '/'
         found = 'yes' if msi_detected else 'no'
         status_print(item, found, '')
 
@@ -219,8 +219,12 @@ class hdfCheck(object):
         :param silent:
         :return:
         """
-        for ii, diag in enumerate(self.__hdf_map.msi.found_diagnostics):
-            self.exist_msi_diagnostic(diag, silent=silent)
+        try:
+            for ii, diag in \
+                    enumerate(self.__hdf_map.msi.found_diagnostics):
+                self.exist_msi_diagnostic(diag, silent=silent)
+        except TypeError:
+            pass
 
     def exist_data_group(self, silent=True):
         """
@@ -238,7 +242,7 @@ class hdfCheck(object):
         data_detected = self.__hdf_map.has_data_group
 
         # print status to screen
-        item = self.__hdf_map.data_gname + '/ '
+        item = self.__hdf_map._DATA_GNAME + '/ '
         found = 'yes' if data_detected else 'no'
         status_print(item, found, '')
 
@@ -448,7 +452,7 @@ class hdfCheck(object):
     def get_hdf_mapping(self):
         """
         :return: an instance of the file mapping
-            :py:class:`lapdhdf.hdfmappers.hdfMap`
+            :py:class:`lapdhdf.hdfmapper.hdfMap`
         """
         return self.__hdf_map
 

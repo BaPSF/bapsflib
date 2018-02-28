@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -27,6 +27,11 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
         # populate self.configs
         self._build_configs()
+
+    @property
+    def shotnum_field(self):
+        """Field name for shot number column in header dataset"""
+        return 'Shot number'
 
     @property
     def _predefined_adc(self):
@@ -403,18 +408,18 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 # raise Exception("Too many active digitizer "
                 #                 "configurations detected. Currently "
                 #                 "do not know how to handle.")
-                raise Exception("There are multiple active digitizer"
-                                "configurations. User must specify"
-                                "config_name keyword.")
+                raise ValueError("There are multiple active digitizer"
+                                 "configurations. User must specify"
+                                 "config_name keyword.")
             else:
-                raise Exception("No active digitizer configuration "
-                                "detected.")
+                raise ValueError("No active digitizer configuration "
+                                 "detected.")
         elif config_name not in self.configs:
             # config_name must be a known configuration
-            raise Exception('Invalid configuration name given.')
+            raise ValueError('Invalid configuration name given.')
         elif self.configs[config_name]['active'] is False:
-            raise Exception('Specified configuration name is not '
-                            'active.')
+            raise ValueError('Specified configuration name is not '
+                             'active.')
 
         # Condition adc
         # - if adc is not specified then the slow adc '3302' is assumed
@@ -426,7 +431,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             warn_str += ('\n** Warning: No adc specified, so assuming '
                          + adc + '.')
         elif adc not in self.configs[config_name]['adc']:
-            raise Exception(
+            raise ValueError(
                 'Specified adc ({}) is not in specified '.format(adc)
                 + 'configuration ({}).'.format(config_name))
 
@@ -446,7 +451,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
 
         # (board, channel) combo must be active
         if bc_valid is False:
-            raise Exception('Specified (board, channel) is not valid')
+            raise ValueError('Specified (board, channel) is not valid')
 
         # checks passed, build dataset_name
         if '3302' in adc:
@@ -466,8 +471,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                            + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga,
                                                                 ch)
         else:
-            raise Exception('We have a problem! Somehow adc '
-                            + '({}) is not known.'.format(adc))
+            raise ValueError('We have a problem! Somehow adc '
+                             + '({}) is not known.'.format(adc))
 
         # print warnings
         if not silent:
@@ -477,6 +482,18 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             return dataset_name, d_info
         else:
             return dataset_name
+
+    def construct_header_dataset_name(self, board, channel, **kwargs):
+        """"Name of header dataset"""
+        # ensure return_info kwarg is always False
+        kwargs['return_info'] = False
+
+        # get dataset naem
+        dset_name = self.construct_dataset_name(board, channel,
+                                                **kwargs)
+        # build and return header name
+        dheader_name = dset_name + ' headers'
+        return dheader_name
 
     @staticmethod
     def slot_to_brd(slot):

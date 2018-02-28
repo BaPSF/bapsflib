@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -23,7 +23,8 @@ class File(h5py.File):
     http://docs.h5py.org/en/latest/
 
     :param str name: Name of file (`str` or `unicode`)
-    :param str mode: Mode in which to open the file. (default 'r' read-only)
+    :param str mode: Mode in which to open the file.
+        (default 'r' read-only)
     :param driver: File driver to use
     :param libver: Compatibility bounds
     :param userblock_size: Size (in bytes) of the user block. If
@@ -49,10 +50,7 @@ class File(h5py.File):
 
     @property
     def exp_descr(self):
-        """
-        :return: Experimental description stored in the HDF5 file.
-        :rtype: str
-        """
+        """Experimental description (from the HDF5 file)"""
         try:
             edescr = self['Raw data + config'].attrs['Description']
             edescr = edescr.decode('utf-8').splitlines()
@@ -63,18 +61,16 @@ class File(h5py.File):
     @property
     def file_map(self):
         """
-        :return: HDF5 file mappings
-        :rtype: :class:`bapsflib.lapdhdf.hdfmappers.hdfMap`
+        HDF5 file mappings
+        (:class:`bapsflib.lapdhdf.hdfmapper.hdfMap`)
         """
         return self.__file_checks.get_hdf_mapping()
 
     @property
-    def listHDF_files(self):
+    def list_file_items(self):
         """
-        :return: list of strings representing the absolute paths
-            (base + filename) for each Group and Dataset in the HDF5
-            file.
-        :rtype: list(str)
+        list of absolute paths for all items (Groups and Datasets) in
+        the HDF5 file
         """
         some_list = []
         self.visit(some_list.append)
@@ -83,103 +79,31 @@ class File(h5py.File):
     @property
     def list_msi(self):
         """
-        :return: list of strings naming the MSI diagnostics found in
-            the HDF5 file
-        :rtype: list(str)
+        list of all mapped MSI diagnostics
         """
         return list(self.file_map.msi)
 
     @property
     def list_digitizers(self):
         """
-        :return: list of strings naming the digitizers found in the
-            HDF5 file
-        :rtype: list(str)
+        list of all mapped digitizers
         """
         return list(self.file_map.digitizers)
 
     @property
     def list_controls(self):
         """
-        :return: list of strings naming the controls found in the
-            HDF5 file
-        :rtype: list(str)
+        list of all mapped control devices
         """
         return list(self.file_map.controls)
 
-    @property
-    def listHDF_file_types(self):
-        """
-        :return: list of strings indicating if an HDF5 item is a Group
-            or Dataset. This has a one-to-one correspondence to
-            listHDF_files.
-        :rtype: list(str)
-        """
-        some_list = []
-        for name in self.listHDF_files:
-            class_type = self.get(name, getclass=True)
-            some_list.append(class_type.__name__)
-
-        return some_list
-
-    @property
-    def tupHDF_fileSys(self):
-        """
-        :return: :code:`zip(listHDF_files, listHDF_file_types)`
-        :rtype: iterator of 2-element tuples
-        """
-        return zip(self.listHDF_files, self.listHDF_file_types)
-
-    @property
-    def getAttrItems(self):
-        """
-        .. Warning:: Do not use. Will be deprecated.
-
-        :return: dict of `File.attrs.items()`
-        """
-        return dict(self.attrs.items())
-
-    @property
-    def getAttrKeys(self):
-        """
-        .. Warning:: Do not use. Will be deprecated.
-
-        :return: list of `File.attrs.keys()`
-        """
-        return list(self.attrs.keys())
-
-    @property
-    def getAttrValues(self):
-        """
-        .. Warning:: Do not use. Will be deprecated.
-
-        :return: list of `File.attrs.values()`
-        """
-        return list(self.attrs.values())
-
-    def getItemType(self, name):
-        """
-        .. Warning:: Do not use. Will be deprecated.
-
-        :param name: name of Group/Dataset
-        :return: `str` indicating if `name` is a 'Group' of 'Dataset'
-        """
-        return self.get(name, getclass=True).__name__
-    
-    def getItem(self, name):
-        """
-        .. Warning:: Do not use. Will be deprecated.
-
-        :param name: name of Group/Dataset
-        :return: `File.get(name)`
-        """
-        return self.get(name)
-
-    def read_data(self, board, channel, index=None, shotnum=None,
-                  digitizer=None, adc=None, config_name=None,
-                  keep_bits=False, add_controls=None,
+    def read_data(self, board, channel,
+                  index=slice(None), shotnum=slice(None),
+                  digitizer=None, adc=None,
+                  config_name=None, keep_bits=False, add_controls=None,
                   intersection_set=True, silent=False,
-                  robust_define=False, **kwargs):
+                  **kwargs):
+        # TODO: docstrings and code block needs updating
         """
         Provides access to
         :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` to extract
@@ -214,9 +138,6 @@ class File(h5py.File):
             for details)
         :param bool silent: :code:`False` (default). Set :code:`True` to
             suppress command line printout of soft-warnings
-        :param bool robust_define: performs a double check to make sure
-            the dataset shot numbers match the expedted shot numbers...
-            :code:`dheader[index, shotnumkey] == shotnum`
         :return: extracted data from digitizer (and control devices)
         :rtype: :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`
         """
@@ -248,46 +169,65 @@ class File(h5py.File):
                            add_controls=add_controls,
                            intersection_set=intersection_set,
                            silent=silent,
-                           robust_define=robust_define,
                            **kwargs)
 
     def read_controls(self, controls,
-                      index=None, shotnum=None, intersection_set=True,
+                      shotnum=slice(None), intersection_set=True,
                       silent=False, **kwargs):
         """
-        Provides access to
-        :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl` to
-        extract data from specified control device dataset(s) in the
-        HDF5 file. See
+        Reads data out of control device datasets.  See
         :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl` for
         more detail.
 
         :param controls: a list of strings and/or 2-element tuples
-            indicating control device data to be extracted. (see
+            indicating the control device(s). (see
             :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
             for details)
         :type controls: [str, (str, val), ]
-        :param index: row index of the 1st specified control device
-            dataset or row index of the array of intersecting shot
-            numbers (see
-            :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
-            for details)
-        :type index: int, list(int), slice()
-        :param shotnum: HDF5 global shot number
+        :param shotnum: HDF5 file shot number(s) indicating data
+            entries to be extracted
         :type shotnum: int, list(int), slice()
-        :param bool intersection_set: :code:`True` (default) forces the
-            returned array to only contain shot numbers that are in the
-            intersection of :data:`shotnum` and all the control device
-            datasets. (see
+        :param bool intersection_set: :code:`True` (DEFAULT) will force
+            the returned shot numbers to be the intersection of
+            :data:`shotnum` and the shot numbers contained in each
+            control device dataset. :code:`False` will return the union
+            instead of the intersection  (see
             :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
             for details)
-        :param bool silent: :code:`False` (default). Set :code:`True` to
-            suppress command line printout of soft-warnings
+        :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
+            to suppress command line printout of soft-warnings
         :return: extracted data from control device(s)
         :rtype: :class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`
+
+        :Example:
+
+            >>> # open HDF5 file
+            >>> f = File('sample.hdf5')
+            >>>
+            >>> # list control devices
+            >>> f.list_controls
+            ['6K Compumotor', 'Waveform']
+            >>>
+            >>> # list '6K Compumotor' configurations
+            >>> list(f.file_map.controls['6K Compumotor'].configs)
+            [2, 3]
+            >>>
+            >>> # extract all '6k Compumotor', configuration 3 data
+            >>> cdata = f.read_controls([('6K Compumotor', 3)])
+            >>>
+            >>> # list 'Waveform' configurations
+            >>> list(f.file_map.controls['Waveform'].configs)
+            ['config01']
+            >>>
+            >>> # extract 'Waveform' data
+            >>> cdata = f.read_controls(['Waveform'])
+            >>>
+            >>> # extract both 'Waveform' and '6K Compumotor'
+            >>> controls = ['Waveform', ('6K Compumotor', 2)]
+            >>> cdata = f.read_controls(controls)
+
         """
         return hdfReadControl(self, controls,
-                              index=index,
                               shotnum=shotnum,
                               intersection_set=intersection_set,
                               silent=silent,

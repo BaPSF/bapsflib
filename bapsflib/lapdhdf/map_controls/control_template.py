@@ -3,12 +3,11 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017 Erik T. Everson and contributors
+# Copyright 2017-2018 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-
 import h5py
 
 from abc import ABC, abstractmethod
@@ -51,7 +50,7 @@ class hdfMap_control_template(ABC):
     def __init__(self, control_group):
         """
         :param control_group: the control HDF5 group
-        :type control_group: :mod:`h5py.Group`
+        :type control_group: :class:`h5py.Group`
         """
 
         # condition control_group arg
@@ -262,6 +261,14 @@ class hdfMap_control_template(ABC):
                         if type(self.group[name]) is h5py.Group]
         return sgroup_names
 
+    @property
+    def name(self):
+        """
+        :return: name of control device
+        :rtype: str
+        """
+        return self.group.name.split('/')[-1]
+
     @abstractmethod
     def construct_dataset_name(self, *args):
         """
@@ -285,11 +292,10 @@ class hdfMap_control_template(ABC):
     @property
     def unique_specifiers(self):
         """
-        :return: list of unique specifiers for the control device.
-            Define as :code:`None` if there are none.
-        :raise: :exc:`NotImplementedError`
+        :return: list of unique specifiers (keys in :attr:`configs`) for
+            the control device.
         """
-        raise NotImplementedError
+        return list(self.configs)
 
     @abstractmethod
     def _build_configs(self):

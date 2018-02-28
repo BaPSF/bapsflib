@@ -86,7 +86,7 @@ class hdfReadData(np.recarray):
         if 'timeit' in kwargs:
             timeit = kwargs['timeit']
             if timeit:
-                tt = tt.append(time.time())
+                tt.append(time.time())
             else:
                 timeit = False
         else:
@@ -433,10 +433,10 @@ class hdfReadData(np.recarray):
         # fill 'signal' fields of data array
         if intersection_set:
             # fill signal
-            data['signal'] = dset[index, ...]
+            data['signal'] = dset[index, :]
         else:
             # fill signal
-            data['signal'][sni] = dset[index, ...]
+            data['signal'][sni] = dset[index, :]
             if np.issubdtype(data['signal'].dtype, np.integer):
                 data['signal'][np.logical_not(sni)] = -99999
             else:
@@ -464,21 +464,6 @@ class hdfReadData(np.recarray):
             for field in cdata.dtype.names:
                 if field not in ['shotnum', 'xyz']:
                     data[field] = cdata[field]
-            '''
-            # find intersection shot number indices
-            csni = np.in1d(cdata['shotnum'], shotnum)
-
-            # fill xyz
-            if 'xyz' in cdata.dtype.names:
-                data['xyz'] = cdata['xyz'][csni, ...]
-            else:
-                data['xyz'] = np.nan
-
-            # fill remaining controls
-            for field in cdata.dtype.names:
-                if field not in ['shotnum', 'xyz']:
-                    data[field] = cdata[field][csni, ...]
-            '''
         else:
             # fill xyz
             data['xyz'] = np.nan

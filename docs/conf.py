@@ -187,11 +187,15 @@ texinfo_documents = [
 # B, not F).
 modindex_common_prefix = ['bapsflib.']
 
-# these
+# prevents files that match these patterns from being included in source
+# files
+# - prevents file file.inc.rst from being loaded twice: once when
+#   included as a source file and second when it's inserted into another
+#   .rst file with .. include
+#
 exclude_patterns.extend([
-    'howtos/openfile.rst',
-    'howtos/readdata.rst',
-    'howtos/mapping.rst'])
+    '**.inc.rst'
+])
 
 
 def setup(app):

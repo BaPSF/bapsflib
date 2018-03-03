@@ -2,8 +2,8 @@ Extracting data from an HDF5 file is done with either the
 :meth:`~bapsflib.lapdhdf.files.File.read_data` method or the
 :meth:`~bapsflib.lapdhdf.files.File.read_controls` method.  The
 :meth:`~bapsflib.lapdhdf.files.File.read_controls` method is designed to
-extract data from probe control devices (e.g. the *6K Compumotor*, the
-*waveform generator*, etc.), where as, the
+extract data from probe control devices (e.g. the **6K Compumotor**, the
+**Waveform** generator, etc.), where as, the
 :meth:`~bapsflib.lapdhdf.files.File.read_data` method is designed to
 extract digitizer data and mate any specified control data.  Details on
 using the :meth:`~bapsflib.lapdhdf.files.File.read_controls` method can
@@ -18,40 +18,44 @@ are several additional keyword options:
     :header: "Keyword", "Default", "Description"
     :widths: 15, 10, 40
 
-    :data:`index`, :code:`None`, "row index of the HDF5 dataset
+    :data:`index`, :code:`slice(None)`, "row index of the HDF5 dataset
     "
-    ":data:`shotnum`", ":code:`None`", "global HDF5 file shot number
+    ":data:`shotnum`", ":code:`slice(None)`", "global HDF5 file shot
+    number
     "
-    :data:`digitizer`, :code:`None`, "name of digitizer for which
+    :data:`digitizer`, :code:`None`, "name of the digitizer for which
     :code:`board` and :code:`channel` belong to
     "
-    :data:`adc`, :code:`None` , "name of the digitizer
-    analog-digital-converter for which :code:`board` and :code:`channel`
-    belong to
+    :data:`adc`, :code:`None` , "name of the digitizer's
+    analog-digital-converter (adc) for which :code:`board` and
+    :code:`channel` belong to
     "
     :data:`config_name`, :code:`None`, "name of the digitizer
     configuration
     "
-    :data:`keep_bits`, :code:`False`, "set :code:`True` to keep the
-    extracted digitizer data in bits opposed to voltage
+    :data:`keep_bits`, :code:`False`, "Set :code:`True` to return the
+    digitizer data in bit values. By default the digitizer data is
+    converted to voltage.
     "
     :data:`add_controls`, :code:`None`, "list of control devices whose
     data will be matched and added to the requested digitizer data
     "
-    :data:`intersection_set`, :code:`True`, "ensures that the returned
-    data array only contains :code:`shotnum`'s that are inclusive in the
-    digitizer dataset adn all control device datasets
+    :data:`intersection_set`, :code:`True`, "Ensures that the returned
+    data array only contains shot numbers that are inclusive in
+    :code:`shotnum`, the digitizer dataset, and  all control device
+    datasets.
     "
     :data:`silent`, :code:`False`, "set :code:`True` to suppress command
     line printout of soft-warnings
     "
 
-that are explained in more detail in the following subsections.
+These keywords are explained in more detail in the following
+subsections.
 
 If the :file:`test.hdf5` file has only one digitizer with one active
 adc and one configuration, then the entire dataset collected from the
 signal attached to :code:`board = 1` and :code:`channel = 0` can be
-extracted as follows:
+extracted as follows::
 
     >>> from bapsflib import lapdhdf
     >>> f = lapdhdf.File('test.hdf5')
@@ -69,10 +73,9 @@ attributes that describe the data's origin and parameters (e.g.
 :attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv`, etc.).
 
 By default, :obj:`data` is a structured :mod:`numpy` array with the
-following :data:`dtype`:
+following :data:`dtype`::
 
     >>> data.dtype
-    Out[0]:
     dtype([('shotnum', '<u4'),
            ('signal', '<f4', (12288,)),
            ('xyz', '<f4', (3,))])
@@ -85,8 +88,9 @@ being added to the array and :code:`12288` is the size of the signal's
 time-array.  To keep the digitizer :code:`'signal` in bit values, then
 set :code:`keep_bits=True` at execution of
 :meth:`~bapsflib.lapdhdf.files.File.read_data`.  The field :code:`'xyz'`
-is initialized with :const:`numpy.nan` values, but will be filled out if
-an appropriate control device is specified (see :ref:`adding_controls`).
+is initialized with :const:`numpy.nan` values, but will be populated if
+a control device of :code:`contype = 'motion'` is added (see
+:ref:`adding_controls`).
 
 For details on handling and manipulating :data:`data` see
 :ref:`handle_data`.
@@ -117,52 +121,76 @@ dataset(s).
 
 :data:`index` refers to the row index of the requested dataset and
 :data:`shotnum` refers to the global HDF5 shot number.  Either indexing
-keyword can be used, but :data:`shotnum` will always override
-:data:`index`.  :data:`index` and :data:`shotnum` can be of :func:`type`
-:code:`int`, :code:`list(int)`, or :func:`slice`.  Sub-setting with
-:data:`index` looks like:
+keyword can be used, but :data:`index` overrides :data:`shotnum`.
+:data:`index` and :data:`shotnum` can be of :func:`type`
+:code:`int`, :code:`list(int)`, or :code:`slice()`.  Sub-setting with
+:data:`index` looks like::
 
     >>> # read dataset row 10
-    >>> data = f.read_data(board, channel, index=10)
+    >>> data = f.read_data(board, channel, index=9)
+    >>> data['shotnum']
+    array([10], dtype=uint32)
+
     >>> # read dataset rows 10, 20, and 30
-    >>> data = f.read_data(board, channel, index=[10, 20, 30])
+    >>> data = f.read_data(board, channel, index=[9, 19, 29])
+
     >>> # read dataset rows 10 to 19
-    >>> data = f.read_data(board, channel, index=slice(10, 20))
-    >>> # read every other dataset row from 10 to 19
-    >>> data = f.read_data(board, channel, index=slice(10, 20, 2))
+    >>> data = f.read_data(board, channel, index=slice(9, 19))
 
-and with :data:`shotnum` looks like:
+    >>> # read every third row in the dataset from row 10 to 19
+    >>> data = f.read_data(board, channel, index=slice(9, 19, 3))
+    >>> data['shotnum']
+    array([10, 13, 16, 19], dtype=uint32)
 
+Sub-setting with :data:`shotnum` looks like::
 
     >>> # read dataset shot number 10
     >>> data = f.read_data(board, channel, shotnum=10)
+    >>> data['shotnum']
+    array([10], dtype=uint32)
+
     >>> # read dataset shot numbers 10, 20, and 30
     >>> data = f.read_data(board, channel, shotnum=[10, 20, 30])
+
     >>> # read dataset shot numbers 10 to 19
     >>> data = f.read_data(board, channel, shotnum=slice(10, 20))
+
     >>> # read every 5th dataset shot number from 10 to 19
     >>> data = f.read_data(board, channel, index=slice(10, 20, 5))
+    >>> data['shotnum']
+    array([10, 15], dtype=uint32)
 
 :data:`intersection_set` modifies what shot numbers are returned by
-:meth:`~bapsflib.lapdhdf.files.File.read_data`.  If :data:`index` is
-used and no control device datasets are being mated to the digitizer
-dataset, then :data:`intersection_set` has no affect on the returned
-data array.  If :data:`shotnum` is used, then
-:code:`intersection_set=True` (DEFAULT) will ensure that the returned
-data array only contains shot numbers that are specified by
-:code:`shotnum` and are in the digitizer dataset.  If set to
-:code:`False`, then the returned array will contain all shot numbers
-specified by :code:`shotnum` and any shot numbers not found in the
-digitizer dataset will be filled with :code:`numpy.nan` values.
+:meth:`~bapsflib.lapdhdf.files.File.read_data`.  By default
+:code:`intersection_set=True` and forces the returned data to only
+correspond to shot numbers that exist in the digitizer dataset, any
+specified control device datasets, and those shot numbers represented by
+:data:`index` or :data:`shotnum`.  Setting to :code:`False` will return
+all shot numbers :code:`>=1` associated with :data:`index` or
+:data:`shotnum` and array entries that are not associated with a dataset
+will be filled with a "NaN" value (:code:`np.nan` for floats,
+:code:`-99999` for integers, and :code:`''` for strings).
+
+.. :data:`intersection_set` modifies what shot numbers are returned by
+   :meth:`~bapsflib.lapdhdf.files.File.read_data`.  If :data:`index` is
+   used and no control device datasets are being mated to the digitizer
+   dataset, then :data:`intersection_set` has no affect on the returned
+   data array.  If :data:`shotnum` is used, then
+   :code:`intersection_set=True` (DEFAULT) will ensure that the returned
+   data array only contains shot numbers that are specified by
+   :code:`shotnum` and are in the digitizer dataset.  If set to
+   :code:`False`, then the returned array will contain all shot numbers
+   specified by :code:`shotnum` and any shot numbers not found in the
+   digitizer dataset will be filled with :code:`numpy.nan` values.
 
 .. _read_digi:
 
-Directing to a Specified Digitizer Dataset
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Specifying :code:`digitizer`, :code:`adc`, and :code:`config_name`
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 It is possible for a LaPD generated HDF5 file to contain multiple
 digitizers, each of which can have multiple analog-digital-converters
-and multiple configuration settings.  For such a case,
+(adc) and multiple configuration settings.  For such a case,
 :meth:`~bapsflib.lapdhdf.files.File.read_data` has the keywords
 :data:`digitizer`, :data:`adc`, and :data:`config_name` to direct the
 data extraction accordingly.
@@ -174,20 +202,24 @@ the :file:`test.hdf5` has two digitizers, :code:`'SIS 3301'` and
 :code:`'SIS crate'`.  In this case :code:`'SIS 3301'` would be assumed
 as the :attr:`~bapsflib.lapdhdf.hdfmapper.hdfMap.main_digitizer`.  To
 extract data from :code:`'SIS crate'` one would use the
-:data:`digitizer` keyword as follows
+:data:`digitizer` keyword as follows::
 
     >>> data = f.read_data(board, channel, digitizer='SIS crate')
+    >>> data.info['digitizer']
+    'SIS crate'
 
 Digitizer :code:`'SIS crate'` can have multiple active
-analog-digital-converters (adc's), :code:`'SIS 3302'` and
-:code:`'SIS 3305'`.  By default, if only one adc is active then that adc
-is assumed; however, if multiple adc's are active, then the adc with the
-slower sample rate is assumed. :code:`'SIS 3302'` in this case.  To
-extract data from :code:`'SIS 3305'` one would use the :data:`adc`
-keyword as follows
+adc's, :code:`'SIS 3302'` and :code:`'SIS 3305'`.  By default, if only
+one adc is active then that adc is assumed; however, if multiple adc's
+are active, then the adc with the slower sample rate is assumed.
+:code:`'SIS 3302'` has the slower sample rate in this case.  To extract
+data from :code:`'SIS 3305'` one would use the :data:`adc` keyword as
+follows::
 
     >>> data = f.read_data(board, channel, digitizer='SIS crate',
     >>>                    adc='SIS 3305')
+    >>> data.info['adc']
+    'SIS 3305'
 
 A digitizer can have multiple configurations, but typically only one
 configuration is ever active for the HDF5 file.  In the case that
@@ -197,10 +229,14 @@ assuming one configuration over another.  Suppose digitizer
 :code:`'config_02'`.  In this case, one of the configurations has to be
 specified at the time of extraction.  To extract data from
 :code:`'SIS crate'` under the the configuration :code:`'config_02'` one
-would use the :data:`'config_name'` keyword as follows
+would use the :data:`'config_name'` keyword as follows::
 
+    >>> f.file_map.digitizers['SIS crate'].active_configs
+    ['config_01', 'config_02']
     >>> data = f.read_data(board, channel, digitizer='SIS crate',
     >>>                    config_name='config_02')
+    >>> data.info['configuration name']
+    'config_02'
 
 .. _adding_controls:
 
@@ -218,55 +254,67 @@ global HDF5 shot number.
 
 :data:`add_controls` must be a list of strings and/or 2-element tuples
 specifying the desired control device data to be added to the digitizer
-data.  If a control device only controls one probe or has one
-configuration, then it is sufficient to only name that device when
-mating it to the digitizer data.  For example, if a
+data.  If a control device only controls one configuration, then it is
+sufficient to only name that device.  For example, if a
 :code:`'6K Compumotor'` is only controlling one probe, then the data
-extraction call would look like
+extraction call would look like::
 
+    >>> list(f.file_map.controls['6K Compumotor'].configs)
+    [3]
     >>> data = f.read_data(board, channel,
     >>>                    add_controls=['6K Compumotor'])
+    >>> data.info['added controls']
+    [('6K Compumotor', 3)]
 
-In the case the :code:`'6K Compumotor'` is controlling multiple probes,
-the :data:`add_controls` call must also provide a unique specifier to
-direct the extraction to the appropriate device in the
-:code:`'6K Compumotor'` control.  This is done with a 2-element tuple
-entry for :data:`add_controls`, where the first element is the control
-device name and the second element is a unique specifier.  For the
-:code:`'6K Compumotor'` the unique specifier is the receptacle number
-of the probe drive [1]_.  Suppose the :code:`'6K Compumotor'` is utilizing
-three probe drives with the receptacles 2, 3, and 4.  To mate control
-device data from receptacle 3, the call would look something like
+In the case the :code:`'6K Compumotor'` has multiple configurations
+(controlling multiple probes), the :data:`add_controls` call must also
+provide the configuration name to direct the extraction.  This is done
+with a 2-element tuple entry for :data:`add_controls`, where the first
+element is the control device name and the second element is the
+configuration name.  For the :code:`'6K Compumotor'` the configuration
+name is the receptacle number of the probe drive [1]_.  Suppose the
+:code:`'6K Compumotor'` is utilizing three probe drives with the
+receptacles 2, 3, and 4.  To mate control device data from receptacle 3,
+the call would look something like::
 
-    >>> control  = '6K Compumotor'
-    >>> unique_spec = 3
-    >>> controls = [(control, unique_spec)]
-    >>> data = f.read_data(board, channel, add_controls=controls)
+    >>> list(f.file_map.controls['6K Compumotor'].configs)
+    [2, 3, 4]
+    >>> control  = [('6K Compumotor', 3)]
+    >>> data = f.read_data(board, channel, add_controls=control)
+    >>> data.info['added controls']
+    [('6K Compumotor', 3)]
 
 Multiple control device datasets can be added at once, but only
 one control device for each control type (:code:`'motion'`,
 :code:`'power'`, and :code:`'waveform'`) can be added.  Adding
 :code:`'6K Compumotor'` data from receptacle 3 and :code:`'Waveform'`
-data would look like
+data would look like::
 
+    >>> list(f.file_map.controls['Waveform'].configs)
+    ['config01']
+    >>> f.file_map.controls['Waveform'].contype
+    'waveform'
+    >>> f.file_map.controls['6K Compumotor'].contype
+    'motion'
     >>> data = f.read_data(board, channel,
     >>>                    add_controls=[('6K Compumotor', 3),
     >>>                                  'Waveform'])
+    >>> data.info['added controls']
+    [('6K Compumotor', 3), ('Waveform', 'config01')]
 
 Since :code:`'6K Compumotor'` is a :code:`'motion'` control type it
-fills out the field :code:`'xyz'` field in the returned numpy structured
+fills out the :code:`'xyz'` field in the returned numpy structured
 array; whereas, :code:`'Waveform'` will add field names to the numpy
 structured array according to the fields specified in its mapping
-constructor.
+constructor.  See :ref:`read_controls` for details on these added
+fields.
 
-.. note::
-
-    The sub-setting keyword :data:`intersection_set` affects how the
-    control device data is mated to the digitizer data.
-    :code:`intersection_set=True` will ensure that the returned data
-    only contains shot numbers that are in the digitizer dataset and all
-    of the control device datasets.  :code:`intersection_set=False` will
-    fill non-intersecting data entries with a :attr:`numpy.nan` value.
-
-.. [1] Each control device has its own unique specifier type. For
-    example, :code:`'Waveform'` uses a string naming its IP address.
+.. [1] Each control device has its own concept of what constitutes a
+    configuration. The configuration has be unique to a block of
+    recorded data.  For the :code:`'6K Compumotor'` the receptical
+    number is used as the configuration name, whereas, for the
+    :code:`'Waveform'` control the confiugration name is the name of the
+    configuration group inside the :code:`'Waveform` group.  Since the
+    configurations are contain in the
+    :code:`f.file_map.contorols[con_name].configs` dictionary, the
+    configuration name need not be a string.

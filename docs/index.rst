@@ -13,6 +13,7 @@ Welcome to bapsflib's documentation!
     about
     installation
     ./howtos/main
+    ./hdfmap/main
     packageindex
     glossary
 

@@ -11,14 +11,28 @@
 #
 import h5py
 
+from .interferometerarray import hdfMap_msi_interarr
+
 
 class hdfMap_msi(dict):
-    __defined_diagnostic_mappings = {
-        'Discharge': 'discharge map',
-        'Gas pressure': 'gas pressure map',
-        'Heater': 'heater map',
-        'Interferometer array': 'inter map',
-        'Magnetic field': 'magnetic field map'}
+    """
+    A dictionary that contains mapping objects for all the discovered
+    MSI diagnostics in the HDF5 MSI group.  The dictionary keys are the
+    discovered MSI diagnostic names.
+    """
+    _defined_diagnostic_mappings = {
+        'Interferometer array': hdfMap_msi_interarr,
+    }
+    """
+    Dictionary containing references to the defined (known) MSI
+    diagnostic mapping classes.
+    """
+    # __defined_diagnostic_mappings = {
+    #     'Discharge': 'discharge map',
+    #     'Gas pressure': 'gas pressure map',
+    #     'Heater': 'heater map',
+    #     'Interferometer array': 'inter map',
+    #     'Magnetic field': 'magnetic field map'}
 
     def __init__(self, msi_group):
 
@@ -26,43 +40,48 @@ class hdfMap_msi(dict):
         if not isinstance(msi_group, h5py.Group):
             raise TypeError('msi_group is not of type h5py.Group')
 
+        # store HDF5 MSI group
         self.__msi_group = msi_group
 
         # Determine Diagnostics in msi
         # - it is assumed that any subgroup of 'MSI/' is a diagnostic
         # - any dataset directly under 'MSI/' is ignored
-        self.found_diagnostics = []
-        for key in msi_group.keys():
-            if isinstance(msi_group[key], h5py.Group):
-                self.found_diagnostics.append(key)
-
-        if len(self.found_diagnostics) == 0:
-            self.found_diagnostics = None
+        self.msi_group_subgnames = []
+        for diag in msi_group:
+            if isinstance(msi_group[diag], h5py.Group):
+                self.msi_group_subgnames.append(diag)
 
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
 
     @property
-    def group(self):
-        return self.__msi_group
-
-    @property
     def predefined_diagnostic_groups(self):
-        return list(self.__defined_diagnostic_mappings.keys())
-
-    def is_diagnostic_in_context(self, diag_name):
-        return diag_name in self.predefined_diagnostic_groups
+        """
+        :return: list of the pre-defined MSI diagnostic group names
+        :rtype: list(str)
+        """
+        return list(self._defined_diagnostic_mappings.keys())
 
     @property
     def __build_dict(self):
+        """
+        Discovers the HDF5 MSI diagnostics and builds the dictionary
+        containing the diagnostic mapping objects.  This is the
+        dictionary used to initialize :code:`self`.
+
+        :return: MSI diagnostic mapping dictionary
+        :rtype: dict
+        """
         # do not attach item if mapping is not known
         msi_dict = {}
         try:
-            for item in self.found_diagnostics:
-                if item in self.__defined_diagnostic_mappings.keys():
-                    msi_dict[item] = \
-                        self.__defined_diagnostic_mappings[item]
+            for name in self.msi_group_subgnames:
+                if name in self._defined_diagnostic_mappings:
+                    msi_dict[name] = \
+                        self._defined_diagnostic_mappings[name](
+                            self.__msi_group[name])
         except TypeError:
             pass
 
+        # return dictionary
         return msi_dict

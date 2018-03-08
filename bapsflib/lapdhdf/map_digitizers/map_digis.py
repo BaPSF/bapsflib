@@ -22,11 +22,11 @@ class hdfMap_digitizers(dict):
     digitizers in the HDF5 data group.  The dictionary keys are the
     discovered digitizer names.
 
-    For example,
+    For example,::
 
         >>> dmaps = hdfMap_digitizers(data_group)
         >>> dmaps['SIS 3301']
-        OUT: <bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301>
+        <bapsflib.lapdhdf.map_digitizers.sis3301.hdfMap_digi_sis3301>
     """
     _defined_digitizer_mappings = {
         'SIS 3301': hdfMap_digi_sis3301,

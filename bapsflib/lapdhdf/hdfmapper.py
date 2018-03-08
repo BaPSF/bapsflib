@@ -251,17 +251,19 @@ class hdfMap(object):
                 self.__unknowns.append(self.__hdf_obj[item].name)
 
         # scan through MSI group
-        for item in self.__hdf_obj[self._MSI_GNAME]:
-            if item not in self.msi:
-                self.__unknowns.append(
-                    self.__hdf_obj[self._MSI_GNAME][item].name)
+        if self.has_msi_group:
+            for item in self.__hdf_obj[self._MSI_GNAME]:
+                if item not in self.msi:
+                    self.__unknowns.append(
+                        self.__hdf_obj[self._MSI_GNAME][item].name)
 
         # scan through data group
-        dknowns = list(self.digitizers) + list(self.controls)
-        for item in self.__hdf_obj[self._DATA_GNAME]:
-            if item not in dknowns:
-                self.__unknowns.append(
-                    self.__hdf_obj[self._DATA_GNAME][item].name)
+        if self.has_data_group:
+            dknowns = list(self.digitizers) + list(self.controls)
+            for item in self.__hdf_obj[self._DATA_GNAME]:
+                if item not in dknowns:
+                    self.__unknowns.append(
+                        self.__hdf_obj[self._DATA_GNAME][item].name)
 
     @property
     def unknowns(self):

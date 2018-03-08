@@ -10,14 +10,14 @@ HOWTOs and Explainers
 Opening a file
 --------------
 
-.. include:: openfile.rst
+.. include:: openfile.inc.rst
 
 .. _read_data:
 
 Extracting (Digitizer) Data
 ---------------------------
 
-.. include:: readdata.rst
+.. include:: readdata.inc.rst
 
 .. _read_controls:
 
@@ -34,11 +34,3 @@ Handling Extracted Data
 .. note:: To be written
 
 .. .. include:: handledata.rst
-
-.. _file_mappings:
-
-Mapping Object for a LaPD HDF5 File
------------------------------------
-
-.. include:: mapping.rst
-

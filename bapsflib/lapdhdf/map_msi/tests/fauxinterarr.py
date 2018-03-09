@@ -55,7 +55,7 @@ class FauxInterferometerArray(h5py.Group):
         h5py.Group.__init__(self, gid)
 
         # define key values
-        # - (1 <= n_interferomeers <= 7)
+        # - (1 <= n_interferometers <= 7)
         #
         if isinstance(n_interferometers, int) \
                 and 1 <= n_interferometers <= 7:

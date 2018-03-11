@@ -109,6 +109,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         n_inter = 0
         sn_size = 0
         sig_size = 0
+        warn_why = ''
         for name in self.group:
             if isinstance(self.group[name], h5py.Group) \
                     and 'Interferometer' in name:
@@ -132,7 +133,8 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     if self.group[dset_name].ndim == 1:
                         sn_size = self.group[dset_name].shape[0]
                     else:
-                        # TODO: ADD WARNING
+                        warn_why = "'/Interferometer summary list' " \
+                                   "does not match expected shape"
                         self._build_successful = False
                         break
 
@@ -143,11 +145,15 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                         if shape[0] == sn_size:
                             sig_size = shape[1]
                         else:
-                            # TODO: ADD WARNING
+                            warn_why = "'/Interferometer trace' shot" \
+                                       " number axis size is not" \
+                                       " consistent with " \
+                                       "'/Interferometer summary list"
                             self._build_successful = False
                             break
                     else:
-                        # TODO: ADD WARNING
+                        warn_why = "'/Interferometer race' does not" \
+                                   " match expected shape"
                         self._build_successful = False
                         break
 
@@ -167,7 +173,9 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     if self.group[dset_name].shape \
                             != (sn_size, sig_size):
                         # shape is not consistent among all datasets
-                        # TODO: ADD WARNING
+                        warn_why = "'/Interferometer trace' shape is" \
+                                   "not consistent across all " \
+                                   "interferometers"
                         self._build_successful = False
                         break
 
@@ -233,5 +241,10 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         # diagnostics 'Interferometer count'
         #
         if n_inter != self.configs['n interferometer']:
-            # TODO: ADD WARNING
             self._build_successful = False
+
+        # warn that build was unsuccessful
+        if not self._build_successful:
+            warn(
+                "Mapping for MSI Diagnostic 'Interferometer array' was"
+                " unsuccessful (" + warn_why + ")")

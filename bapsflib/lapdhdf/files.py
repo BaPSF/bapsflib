@@ -13,6 +13,7 @@ import h5py
 from .hdfchecks import hdfCheck
 from .hdfreaddata import hdfReadData
 from .hdfreadcontrol import hdfReadControl
+from .hdfreadmsi import hdfReadMSI
 
 
 class File(h5py.File):
@@ -232,6 +233,35 @@ class File(h5py.File):
                               intersection_set=intersection_set,
                               silent=silent,
                               **kwargs)
+
+    def read_msi(self, msi_diag):
+        """
+        Reads data out for a MSI Diagnostic.  See
+        :class:`~bapsflib.lapdhdf.hdfreadmsi.hdfReadMSI` for more
+        detail.
+
+        :param str msi_diag: name of MSI diagnostic
+        :return: data for MSI diagnostic
+        :rtype: :class:`~bapsflib.lapdhdf.hdfreadmsi.hdfReadMSI`
+
+        :Example:
+
+            >>> import numpy as np
+            >>>
+            >>> # open HDF5 file
+            >>> f = File('sample.hdf5')
+            >>>
+            >>> # list msi diagnostics
+            >>> f.list_msi
+            ['Interferometer array', 'Magnetic field']
+            >>>
+            >>> # read 'Interferometer array'
+            >>> mdata = f.read_msi('Interferometer array')
+            >>> isinstance(mdata, np.recarray)
+            True
+
+        """
+        return hdfReadMSI(self, msi_diag)
 
     def save_report(self, sname):
         """

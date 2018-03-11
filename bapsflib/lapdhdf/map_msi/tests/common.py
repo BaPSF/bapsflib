@@ -20,6 +20,7 @@ class MSIDiagnosticTestCase(ut.TestCase):
         self.assertTrue(hasattr(dmap, 'info'))
         self.assertTrue(hasattr(dmap, 'configs'))
         self.assertTrue(hasattr(dmap, 'group'))
+        self.assertTrue(hasattr(dmap, 'build_successful'))
 
         # test type and keys for map.info
         self.assertIsInstance(dmap.info, dict)
@@ -29,7 +30,85 @@ class MSIDiagnosticTestCase(ut.TestCase):
         # assert attribute 'group' type
         self.assertIsInstance(dmap.group, h5py.Group)
 
-        # test map.configs
+        # ------ test map.configs                                 ------
         # - must be a dict
         # TODO: write once format is pinned down
         self.assertIsInstance(dmap.configs, dict)
+        self.assertIn('shape', dmap.configs)
+        self.assertIn('shotnum', dmap.configs)
+        self.assertIn('signals', dmap.configs)
+        self.assertIn('meta', dmap.configs)
+
+        # examine 'shotnum' key
+        self.assertIsInstance(dmap.configs['shotnum'], dict)
+        self.assertIn('dset paths', dmap.configs['shotnum'])
+        self.assertIn('dset field', dmap.configs['shotnum'])
+        self.assertIn('shape', dmap.configs['shotnum'])
+        self.assertIn('dtype', dmap.configs['shotnum'])
+        self.assertIsInstance(
+            dmap.configs['shotnum']['dset paths'], list)
+        self.assertTrue(
+            all([isinstance(path, str)
+                 for path in dmap.configs['shotnum']['dset paths']]))
+        self.assertIsInstance(
+            dmap.configs['shotnum']['shape'], list)
+        self.assertTrue(
+            all([isinstance(shape, tuple)
+                 for shape in dmap.configs['shotnum']['shape']]))
+
+        # examine 'signals' key
+        self.assertIsInstance(dmap.configs['signals'], dict)
+        for field in dmap.configs['signals']:
+            self.assertIsInstance(dmap.configs['signals'][field], dict)
+            self.assertIn('dset paths', dmap.configs['signals'][field])
+            self.assertIn('dset field', dmap.configs['signals'][field])
+            self.assertIn('shape', dmap.configs['signals'][field])
+            self.assertIn('dtype', dmap.configs['signals'][field])
+
+            # 'dset paths'
+            self.assertIsInstance(
+                dmap.configs['signals'][field]['dset paths'], list)
+            self.assertTrue(
+                all([isinstance(path, str)
+                     for path in
+                     dmap.configs['signals'][field]['dset paths']]))
+
+            # 'shape'
+            self.assertIsInstance(
+                dmap.configs['signals'][field]['shape'], list)
+            self.assertTrue(all(
+                [isinstance(shape, tuple)
+                 for shape in dmap.configs['signals'][field]['shape']]
+            ))
+
+        # examine 'meta' key
+        self.assertIsInstance(dmap.configs['meta'], dict)
+        self.assertIn('shape', dmap.configs['meta'])
+        for field in dmap.configs['meta']:
+            if field == 'shape':
+                # key 'shape' will not be a numpy field, skip below
+                # assertions
+                continue
+
+            # examine each sub-field in 'meta'
+            self.assertIsInstance(dmap.configs['meta'][field], dict)
+            self.assertIn('dset paths', dmap.configs['meta'][field])
+            self.assertIn('dset field', dmap.configs['meta'][field])
+            self.assertIn('shape', dmap.configs['meta'][field])
+            self.assertIn('dtype', dmap.configs['meta'][field])
+
+            # 'dset paths'
+            self.assertIsInstance(
+                dmap.configs['meta'][field]['dset paths'], list)
+            self.assertTrue(
+                all([isinstance(path, str)
+                     for path in
+                     dmap.configs['meta'][field]['dset paths']]))
+
+            # 'shape'
+            self.assertIsInstance(
+                dmap.configs['meta'][field]['shape'], list)
+            self.assertTrue(all(
+                [isinstance(shape, tuple)
+                 for shape in dmap.configs['meta'][field]['shape']]
+            ))

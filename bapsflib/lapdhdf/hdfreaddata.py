@@ -22,7 +22,7 @@ from warnings import warn
 # noinspection PyInitNewSignature
 class hdfReadData(np.recarray):
     """
-    Reads digitizer (and controld device) data form the HDF5 file.
+    Reads digitizer (and control device) data from the HDF5 file.
     """
     # Extracting Data:
     #  dset = h5py.get() returns a view of the dataset (dset)

@@ -191,13 +191,14 @@ class hdfCheck(object):
 
         # scan if diag_group_name is among the sub-groups in the MSI
         # group
-        if diag_group_name in self.__hdf_map.msi.found_diagnostics:
+        if diag_group_name in self.__hdf_map.msi.msi_group_subgnames:
             diag_detected = True
 
         # check if the diag_group_name is known in the pre-defined
         # mapping context
-        diag_in_context = \
-            self.__hdf_map.msi.is_diagnostic_in_context(diag_group_name)
+        diag_in_context = True \
+            if diag_group_name in self.__hdf_map.msi \
+            else False
 
         item = diag_group_name + ' '
         found = 'yes' if diag_detected else 'no'
@@ -221,7 +222,7 @@ class hdfCheck(object):
         """
         try:
             for ii, diag in \
-                    enumerate(self.__hdf_map.msi.found_diagnostics):
+                    enumerate(self.__hdf_map.msi):
                 self.exist_msi_diagnostic(diag, silent=silent)
         except TypeError:
             pass

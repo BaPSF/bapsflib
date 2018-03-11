@@ -60,6 +60,9 @@ class hdfMap_msi_template(ABC):
         # initialize self.configs
         self.configs = {}
 
+        # initialize build success
+        self._build_successful = False
+
     @property
     def diagnostic_name(self):
         """Name of MSI diagnostic"""
@@ -69,6 +72,11 @@ class hdfMap_msi_template(ABC):
     def group(self):
         """MSI diagnostic group"""
         return self.__diag_group
+
+    @property
+    def build_successful(self):
+        """Indicates if the map was successful or not."""
+        return self._build_successful
 
     @abstractmethod
     def _build_configs(self):

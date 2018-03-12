@@ -9,3 +9,4 @@
 #   license terms and contributor agreement.
 #
 from .fauxinterarr import FauxInterferometerArray
+from .fauxmagneticfield import FauxMagneticField

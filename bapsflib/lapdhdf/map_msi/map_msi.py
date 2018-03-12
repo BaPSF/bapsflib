@@ -12,6 +12,7 @@
 import h5py
 
 from .interferometerarray import hdfMap_msi_interarr
+from .magneticfield import hdfMap_msi_magneticfield
 
 
 class hdfMap_msi(dict):
@@ -22,6 +23,7 @@ class hdfMap_msi(dict):
     """
     _defined_diagnostic_mappings = {
         'Interferometer array': hdfMap_msi_interarr,
+        'Magnetic field': hdfMap_msi_magneticfield
     }
     """
     Dictionary containing references to the defined (known) MSI

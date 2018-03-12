@@ -38,8 +38,14 @@ class hdfReadMSI(np.recarray):
         # allow for alias names of MSI diagnostics
         if msi_diag in ['interferometer',
                         'Interferometer',
-                        'interferometer array']:
+                        'interferometer array',
+                        'Interferometer array']:
             msi_diag = 'Interferometer array'
+        elif msi_diag in ['b', 'B', 'bfield',
+                          'magnetic field',
+                          'Magnetic field'
+                          'Magnetic Field']:
+            msi_diag = 'Magnetic field'
 
         # get diagnostic map
         try:
@@ -153,12 +159,23 @@ class hdfReadMSI(np.recarray):
         # TODO: ADD CASE FOR 'DSET FIELD' IS NOT NONE
         sig_config = diag_map.configs['signals']
         for field in sig_config:
-            for ii, path in enumerate(sig_config[field]['dset paths']):
+            if len(sig_config[field]['dset paths']) == 1:
                 # get dataset
+                path = sig_config[field]['dset paths'][0]
                 dset = hdf_file[path]
 
                 # fill array
-                data[field][:, ii, ...] = dset
+                data[field] = dset
+            else:
+                # there are multiple rows in the dataset
+                # (e.g. interferometer)
+                for ii, path in \
+                        enumerate(sig_config[field]['dset paths']):
+                    # get dataset
+                    dset = hdf_file[path]
+
+                    # fill array
+                    data[field][:, ii, ...] = dset
 
         # fill 'meta'
         # TODO: ADD CASE FOR 'DSET FIELD' IS NONE
@@ -168,14 +185,26 @@ class hdfReadMSI(np.recarray):
             if field == 'shape':
                 continue
 
-            # scan thru all datsets
-            for ii, path in enumerate(meta_config[field]['dset paths']):
+            # scan thru all datasets
+            if len(meta_config[field]['dset paths']) == 1:
                 # get dataset
+                path = meta_config[field]['dset paths'][0]
                 dset = hdf_file[path]
 
                 # fill array
-                data['meta'][field][:, ii, ...] = \
+                data['meta'][field] = \
                     dset[meta_config[field]['dset field']]
+            else:
+                # there are multiple rows in the dataset
+                # (e.g. interferometer)
+                for ii, path in \
+                        enumerate(meta_config[field]['dset paths']):
+                    # get dataset
+                    dset = hdf_file[path]
+
+                    # fill array
+                    data['meta'][field][:, ii, ...] = \
+                        dset[meta_config[field]['dset field']]
 
         # ---- Define `obj` ----
         obj = data.view(cls)

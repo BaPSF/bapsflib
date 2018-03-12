@@ -22,7 +22,7 @@ class FauxInterferometerArray(h5py.Group):
     # noinspection PyProtectedMember
     class _knobs(object):
         """
-        A class that conttains all the controls (knobs) for specifying
+        A class that contains all the controls (knobs) for specifying
         the MSI diagnostic group structure.
         """
         def __init__(self, val):

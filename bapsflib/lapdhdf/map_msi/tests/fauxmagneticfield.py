@@ -44,8 +44,7 @@ class FauxMagneticField(h5py.Group):
     @property
     def knobs(self):
         """
-        Knobs for controlling structure of the MSI diagnostic
-        group
+        Knobs for controlling structure of the MSI diagnostic group
         """
         return self._knobs(self)
 

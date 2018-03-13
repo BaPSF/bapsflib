@@ -22,7 +22,7 @@ class hdfReadMSI(np.recarray):
     def __new__(cls, hdf_file, msi_diag, **kwargs):
         # ---- Condition `hdf_file` ----
         # grab file_map
-        # - also ensurse hdf_file is a lapdhdf.file object
+        # - also ensure hdf_file is a lapdhdf.file object
         #
         try:
             file_map = hdf_file.file_map
@@ -46,6 +46,8 @@ class hdfReadMSI(np.recarray):
                           'Magnetic field'
                           'Magnetic Field']:
             msi_diag = 'Magnetic field'
+        elif msi_diag in ['Discharge', 'discharge']:
+            msi_diag = 'Discharge'
 
         # get diagnostic map
         try:

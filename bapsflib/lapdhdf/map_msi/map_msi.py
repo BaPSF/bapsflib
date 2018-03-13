@@ -11,6 +11,7 @@
 #
 import h5py
 
+from .discharge import hdfMap_msi_discharge
 from .interferometerarray import hdfMap_msi_interarr
 from .magneticfield import hdfMap_msi_magneticfield
 
@@ -22,6 +23,7 @@ class hdfMap_msi(dict):
     discovered MSI diagnostic names.
     """
     _defined_diagnostic_mappings = {
+        'Discharge': hdfMap_msi_discharge,
         'Interferometer array': hdfMap_msi_interarr,
         'Magnetic field': hdfMap_msi_magneticfield
     }

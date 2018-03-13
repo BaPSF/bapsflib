@@ -13,7 +13,8 @@ import tempfile
 import os
 import inspect
 
-from ..map_msi.tests import (FauxInterferometerArray,
+from ..map_msi.tests import (FauxDischarge,
+                             FauxInterferometerArray,
                              FauxMagneticField)
 from ..map_controls.tests import FauxWaveform
 from ..map_controls.tests import FauxSixK
@@ -25,6 +26,7 @@ class FauxHDFBuilder(h5py.File):
     Builds a Faux HDF5 file that simulates a HDF5 build by the LaPD.
     """
     _KNOWN_MSI = {
+        'Discharge': FauxDischarge,
         'Interferometer array': FauxInterferometerArray,
         'Magnetic field': FauxMagneticField
     }

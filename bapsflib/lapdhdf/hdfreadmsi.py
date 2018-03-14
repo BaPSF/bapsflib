@@ -48,6 +48,10 @@ class hdfReadMSI(np.recarray):
             msi_diag = 'Magnetic field'
         elif msi_diag in ['Discharge', 'discharge']:
             msi_diag = 'Discharge'
+        elif msi_diag.lower() in ['gas pressure', 'pressure',
+                                  'pressures', 'partial pressure',
+                                  'partial pressures']:
+            msi_diag = 'Gas pressure'
 
         # get diagnostic map
         try:

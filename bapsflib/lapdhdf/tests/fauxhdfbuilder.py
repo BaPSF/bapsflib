@@ -14,6 +14,7 @@ import os
 import inspect
 
 from ..map_msi.tests import (FauxDischarge,
+                             FauxGasPressure,
                              FauxInterferometerArray,
                              FauxMagneticField)
 from ..map_controls.tests import FauxWaveform
@@ -27,6 +28,7 @@ class FauxHDFBuilder(h5py.File):
     """
     _KNOWN_MSI = {
         'Discharge': FauxDischarge,
+        'Gas pressure': FauxGasPressure,
         'Interferometer array': FauxInterferometerArray,
         'Magnetic field': FauxMagneticField
     }

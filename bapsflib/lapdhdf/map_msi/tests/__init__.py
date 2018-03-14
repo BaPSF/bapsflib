@@ -9,5 +9,6 @@
 #   license terms and contributor agreement.
 #
 from .fauxdischarge import FauxDischarge
+from .fauxgaspressure import FauxGasPressure
 from .fauxinterarr import FauxInterferometerArray
 from .fauxmagneticfield import FauxMagneticField

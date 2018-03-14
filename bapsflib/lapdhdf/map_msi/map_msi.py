@@ -12,6 +12,7 @@
 import h5py
 
 from .discharge import hdfMap_msi_discharge
+from .gaspressure import hdfMap_msi_gaspressure
 from .interferometerarray import hdfMap_msi_interarr
 from .magneticfield import hdfMap_msi_magneticfield
 
@@ -24,6 +25,7 @@ class hdfMap_msi(dict):
     """
     _defined_diagnostic_mappings = {
         'Discharge': hdfMap_msi_discharge,
+        'Gas pressure': hdfMap_msi_gaspressure,
         'Interferometer array': hdfMap_msi_interarr,
         'Magnetic field': hdfMap_msi_magneticfield
     }

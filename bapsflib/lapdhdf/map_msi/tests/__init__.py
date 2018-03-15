@@ -10,5 +10,6 @@
 #
 from .fauxdischarge import FauxDischarge
 from .fauxgaspressure import FauxGasPressure
+from .fauxheater import FauxHeater
 from .fauxinterarr import FauxInterferometerArray
 from .fauxmagneticfield import FauxMagneticField

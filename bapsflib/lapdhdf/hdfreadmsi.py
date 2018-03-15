@@ -52,6 +52,8 @@ class hdfReadMSI(np.recarray):
                                   'pressures', 'partial pressure',
                                   'partial pressures']:
             msi_diag = 'Gas pressure'
+        elif msi_diag.lower() in ['heater']:
+            msi_diag = 'Heater'
 
         # get diagnostic map
         try:

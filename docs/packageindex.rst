@@ -10,7 +10,7 @@ Modules
 -------
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 3
 
    src/bapsflib.lapdhdf
    src/bapsflib.lapdtoolbox

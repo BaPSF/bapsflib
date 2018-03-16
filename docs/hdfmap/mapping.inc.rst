@@ -2,10 +2,10 @@ Architecture
 ------------
 
 :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` takes a modular approach to
-mapping a HDF5 file.  It contains a set of known modules with known
-layouts.  If one or more of these layouts are discovered inside the
-HDF5 file, then the associated mappings are added to the mapping object.
-There are five module catagories:
+mapping a HDF5 file.  It contains a dictionary of known modules with
+known layouts.  If one or more of these layouts are discovered inside
+the HDF5 file, then the associated mappings are added to the mapping
+object.  There are five module categories:
 
 **msi diagnostic**
     This is any sub-group of the :code:`'/MSI/'` group that represents
@@ -21,17 +21,18 @@ There are five module catagories:
     This is any group inside the :code:`'/Raw data + config/'` group
     that is associated with a device that controls a plasma probe.  The
     recorded data is state data for the plasma probe; for example, probe
-    position, bias, etc.
+    position, bias, driving frequency, etc.
 
 **data run sequence**
     This is the :code:`/Raw data + config/Data run sequence/'` group
-    that records the run sequence (operation sequence) of the LaPD DAQ
+    which records the run sequence (operation sequence) of the LaPD DAQ
     controller.
 
 **unknown**
     This is any group or dataset in :code:`'/'`, :code:`'/MSI/'`, or
     :code:`'/Raw data + config/'` groups that is not known by
-    :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap`.
+    :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` or is unsuccessfully
+    mapped.
 
 Basic Usage
 -----------

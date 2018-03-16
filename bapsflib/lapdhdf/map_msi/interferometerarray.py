@@ -20,6 +20,24 @@ from .msi_template import hdfMap_msi_template
 class hdfMap_msi_interarr(hdfMap_msi_template):
     """
     Mapping class for the 'Interferometer array' MSI diagnostic.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- Interferometer array
+        |   +-- Interferometer [0]
+        |   |   +-- Interferometer summary list
+        |   |   +-- Interferometer trace
+        |   +-- Interferometer [1]
+        |   |   +-- Interferometer summary list
+        |   |   +-- Interferometer trace
+        .
+        .
+        .
+        |   +-- Interferometer [6]
+        |   |   +-- Interferometer summary list
+        |   |   +-- Interferometer trace
     """
     def __init__(self, diag_group):
         """
@@ -33,6 +51,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         self._build_configs()
 
     def _build_configs(self):
+        """Builds the :attr:`configs` dictionary."""
         # What should be in configs
         # 1. num. of interferometers
         # 2. start times for each interferometers
@@ -54,16 +73,16 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         self._build_successful = True
 
         # initialize general info values
-        self.configs['n interferometer'] = \
+        self._configs['n interferometer'] = \
             self.group.attrs['Interferometer count']
-        self.configs['t0'] = []
-        self.configs['dt'] = []
-        self.configs['n_bar_L'] = []
-        self.configs['z'] = []
-        self.configs['shape'] = ()
+        self._configs['t0'] = []
+        self._configs['dt'] = []
+        self._configs['n_bar_L'] = []
+        self._configs['z'] = []
+        self._configs['shape'] = ()
 
         # initialize 'shotnum'
-        self.configs['shotnum'] = {
+        self._configs['shotnum'] = {
             'dset paths': [],
             'dset field': 'Shot number',
             'shape': [],
@@ -72,7 +91,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
 
         # initialize 'signals'
         # - there is only one signal field named 'signal'
-        self.configs['signals'] = {'signal': {
+        self._configs['signals'] = {'signal': {
             'dset paths': [],
             'dset field': None,
             'shape': [],
@@ -80,8 +99,8 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         }}
 
         # initialize 'meta'
-        self.configs['meta'] = {
-            'shape': (self.configs['n interferometer'], ),
+        self._configs['meta'] = {
+            'shape': (self._configs['n interferometer'],),
             'timestamp': {
                 'dset paths': [],
                 'dset field': 'Timestamp',
@@ -158,7 +177,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                         break
 
                     # define 'shape'
-                    self.configs['shape'] = (sn_size, )
+                    self._configs['shape'] = (sn_size,)
                 else:
                     # check 'summary list' size
                     dset_name = name + '/Interferometer summary list'
@@ -180,45 +199,45 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                         break
 
                 # populate general info values
-                self.configs['t0'].append(
+                self._configs['t0'].append(
                     self.group[name].attrs['Start time'])
-                self.configs['dt'].append(
+                self._configs['dt'].append(
                     self.group[name].attrs['Timestep'])
-                self.configs['n_bar_L'].append(
+                self._configs['n_bar_L'].append(
                     self.group[name].attrs['n_bar_L'])
-                self.configs['z'].append(
+                self._configs['z'].append(
                     self.group[name].attrs['z location'])
 
                 # populate 'shotnum' values
                 dset_name = name + '/Interferometer summary list'
                 path = self.group[dset_name].name
-                self.configs['shotnum']['dset paths'].append(path)
-                self.configs['shotnum']['shape'].append(())
+                self._configs['shotnum']['dset paths'].append(path)
+                self._configs['shotnum']['shape'].append(())
 
                 # populate 'meta'
                 # - uses same dset as 'shotnum'
                 #
                 # 'timestamp'
-                self.configs['meta']['timestamp']['dset paths'].append(
+                self._configs['meta']['timestamp']['dset paths'].append(
                     path
                 )
-                self.configs['meta']['timestamp']['shape'].append(
+                self._configs['meta']['timestamp']['shape'].append(
                     self.group[path].dtype['Timestamp'].shape
                 )
                 #
                 # 'data valid'
-                self.configs['meta']['data valid']['dset paths'].append(
+                self._configs['meta']['data valid']['dset paths'].append(
                     path
                 )
-                self.configs['meta']['data valid']['shape'].append(
+                self._configs['meta']['data valid']['shape'].append(
                     self.group[path].dtype['Data valid'].shape
                 )
                 #
                 # 'peak density'
-                self.configs['meta']['peak density']['dset paths'].append(
+                self._configs['meta']['peak density']['dset paths'].append(
                     path
                 )
-                self.configs['meta']['peak density']['shape'].append(
+                self._configs['meta']['peak density']['shape'].append(
                     self.group[path].dtype['Peak density'].shape
                 )
 
@@ -230,17 +249,17 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 #   ~ 'dtype' = np.float32
                 dset_name = name + '/Interferometer trace'
                 path = self.group[dset_name].name
-                shape = (self.configs['n interferometer'],
+                shape = (self._configs['n interferometer'],
                          self.group[dset_name].shape[1])
-                self.configs['signals']['signal']['dset paths'].append(
+                self._configs['signals']['signal']['dset paths'].append(
                     path
                 )
-                self.configs['signals']['signal']['shape'].append(shape)
+                self._configs['signals']['signal']['shape'].append(shape)
 
         # ensure the number of found interferometers is equal to the
         # diagnostics 'Interferometer count'
         #
-        if n_inter != self.configs['n interferometer']:
+        if n_inter != self._configs['n interferometer']:
             self._build_successful = False
 
         # warn that build was unsuccessful

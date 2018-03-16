@@ -23,6 +23,10 @@ class hdfMap_msi(dict):
     A dictionary that contains mapping objects for all the discovered
     MSI diagnostics in the HDF5 MSI group.  The dictionary keys are the
     discovered MSI diagnostic names.
+
+    The constructed dictionary is added to
+    :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` as the
+    :attr:`~bapsflib.lapdhdf.hdfmapper.hdfMap.msi` attribute.
     """
     _defined_diagnostic_mappings = {
         'Discharge': hdfMap_msi_discharge,
@@ -35,15 +39,12 @@ class hdfMap_msi(dict):
     Dictionary containing references to the defined (known) MSI
     diagnostic mapping classes.
     """
-    # __defined_diagnostic_mappings = {
-    #     'Discharge': 'discharge map',
-    #     'Gas pressure': 'gas pressure map',
-    #     'Heater': 'heater map',
-    #     'Interferometer array': 'inter map',
-    #     'Magnetic field': 'magnetic field map'}
 
     def __init__(self, msi_group):
-
+        """
+        :param msi_group: the MSI HDF5 group object
+        :type msi_group: :class:`h5py.Group`
+        """
         # condition msi_group arg
         if not isinstance(msi_group, h5py.Group):
             raise TypeError('msi_group is not of type h5py.Group')
@@ -65,8 +66,7 @@ class hdfMap_msi(dict):
     @property
     def predefined_diagnostic_groups(self):
         """
-        :return: list of the pre-defined MSI diagnostic group names
-        :rtype: list(str)
+        list of the pre-defined MSI diagnostic group names
         """
         return list(self._defined_diagnostic_mappings.keys())
 

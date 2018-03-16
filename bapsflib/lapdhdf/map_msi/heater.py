@@ -18,7 +18,15 @@ from .msi_template import hdfMap_msi_template
 
 class hdfMap_msi_heater(hdfMap_msi_template):
     """
-    Mapping class for the 'Discharge' MSI diagnostic.
+    Mapping class for the 'Heater' MSI diagnostic.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- Heater
+        |   +-- Heater summary
+
     """
     def __init__(self, diag_group):
         """
@@ -32,6 +40,7 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         self._build_configs()
 
     def _build_configs(self):
+        """Builds the :attr:`configs` dictionary."""
         # assume build is successful
         # - alter if build fails
         #
@@ -46,10 +55,10 @@ class hdfMap_msi_heater(hdfMap_msi_template):
                 return
 
         # initialize general info values
-        self.configs['shape'] = ()
+        self._configs['shape'] = ()
 
         # initialize 'shotnum'
-        self.configs['shotnum'] = {
+        self._configs['shotnum'] = {
             'dset paths': [],
             'dset field': 'Shot number',
             'shape': [],
@@ -59,10 +68,10 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         # initialize 'signals'
         # - there are NO signal fields
         #
-        self.configs['signals'] = {}
+        self._configs['signals'] = {}
 
         # initialize 'meta'
-        self.configs['meta'] = {
+        self._configs['meta'] = {
             'shape': (),
             'timestamp': {
                 'dset paths': [],
@@ -107,7 +116,7 @@ class hdfMap_msi_heater(hdfMap_msi_template):
 
         # define 'shape'
         if dset.ndim == 1:
-            self.configs['shape'] = dset.shape
+            self._configs['shape'] = dset.shape
         else:
             warn_why = "'/Heater summary' does not match " \
                        "expected shape"
@@ -117,36 +126,36 @@ class hdfMap_msi_heater(hdfMap_msi_template):
             return
 
         # update 'shotnum'
-        self.configs['shotnum']['dset paths'].append(dset.name)
-        self.configs['shotnum']['shape'].append(
+        self._configs['shotnum']['dset paths'].append(dset.name)
+        self._configs['shotnum']['shape'].append(
             dset.dtype['Shot number'].shape)
 
         # update 'meta/timestamp'
-        self.configs['meta']['timestamp']['dset paths'].append(
+        self._configs['meta']['timestamp']['dset paths'].append(
             dset.name)
-        self.configs['meta']['timestamp']['shape'].append(
+        self._configs['meta']['timestamp']['shape'].append(
             dset.dtype['Timestamp'].shape)
 
         # update 'meta/data valid'
-        self.configs['meta']['data valid']['dset paths'].append(
+        self._configs['meta']['data valid']['dset paths'].append(
             dset.name)
-        self.configs['meta']['data valid']['shape'].append(
+        self._configs['meta']['data valid']['shape'].append(
             dset.dtype['Data valid'].shape)
 
         # update 'meta/current'
-        self.configs['meta']['current']['dset paths'].append(
+        self._configs['meta']['current']['dset paths'].append(
             dset.name)
-        self.configs['meta']['current']['shape'].append(
+        self._configs['meta']['current']['shape'].append(
             dset.dtype['Heater current'].shape)
 
         # update 'meta/voltage'
-        self.configs['meta']['voltage']['dset paths'].append(
+        self._configs['meta']['voltage']['dset paths'].append(
             dset.name)
-        self.configs['meta']['voltage']['shape'].append(
+        self._configs['meta']['voltage']['shape'].append(
             dset.dtype['Heater voltage'].shape)
 
         # update 'meta/current'
-        self.configs['meta']['temperature']['dset paths'].append(
+        self._configs['meta']['temperature']['dset paths'].append(
             dset.name)
-        self.configs['meta']['temperature']['shape'].append(
+        self._configs['meta']['temperature']['shape'].append(
             dset.dtype['Heater temperature'].shape)

@@ -19,6 +19,16 @@ from .msi_template import hdfMap_msi_template
 class hdfMap_msi_discharge(hdfMap_msi_template):
     """
     Mapping class for the 'Discharge' MSI diagnostic.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- Discharge
+        |   +-- Cathode-anode voltage
+        |   +-- Discharge current
+        |   +-- Discharge summary
+
     """
     def __init__(self, diag_group):
         """
@@ -32,6 +42,7 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         self._build_configs()
 
     def _build_configs(self):
+        """Builds the :attr:`configs` dictionary."""
         # assume build is successful
         # - alter if build fails
         #
@@ -48,16 +59,16 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
                 return
 
         # initialize general info values
-        self.configs['current conversion factor'] = \
+        self._configs['current conversion factor'] = \
             [self.group.attrs['Current conversion factor']]
-        self.configs['voltage conversion factor'] = \
+        self._configs['voltage conversion factor'] = \
             [self.group.attrs['Voltage conversion factor']]
-        self.configs['t0'] = [self.group.attrs['Start time']]
-        self.configs['dt'] = [self.group.attrs['Timestep']]
-        self.configs['shape'] = ()
+        self._configs['t0'] = [self.group.attrs['Start time']]
+        self._configs['dt'] = [self.group.attrs['Timestep']]
+        self._configs['shape'] = ()
 
         # initialize 'shotnum'
-        self.configs['shotnum'] = {
+        self._configs['shotnum'] = {
             'dset paths': [],
             'dset field': 'Shot number',
             'shape': [],
@@ -69,7 +80,7 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         #   1. 'voltage'
         #   2. 'current'
         #
-        self.configs['signals'] = {
+        self._configs['signals'] = {
             'voltage': {
                 'dset paths': [],
                 'dset field': None,
@@ -85,7 +96,7 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         }
 
         # initialize 'meta'
-        self.configs['meta'] = {
+        self._configs['meta'] = {
             'shape': (),
             'timestamp': {
                 'dset paths': [],
@@ -129,7 +140,7 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
 
         # define 'shape'
         if dset.ndim == 1:
-            self.configs['shape'] = dset.shape
+            self._configs['shape'] = dset.shape
         else:
             warn_why = "'/Discharge summary' does not match " \
                        "expected shape"
@@ -139,38 +150,38 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
             return
 
         # update 'shotnum'
-        self.configs['shotnum']['dset paths'].append(dset.name)
-        self.configs['shotnum']['shape'].append(
+        self._configs['shotnum']['dset paths'].append(dset.name)
+        self._configs['shotnum']['shape'].append(
             dset.dtype['Shot number'].shape)
 
         # update 'meta/timestamp'
-        self.configs['meta']['timestamp']['dset paths'].append(
+        self._configs['meta']['timestamp']['dset paths'].append(
             dset.name)
-        self.configs['meta']['timestamp']['shape'].append(
+        self._configs['meta']['timestamp']['shape'].append(
             dset.dtype['Timestamp'].shape)
 
         # update 'meta/data valid'
-        self.configs['meta']['data valid']['dset paths'].append(
+        self._configs['meta']['data valid']['dset paths'].append(
             dset.name)
-        self.configs['meta']['data valid']['shape'].append(
+        self._configs['meta']['data valid']['shape'].append(
             dset.dtype['Data valid'].shape)
 
         # update 'meta/pulse length'
-        self.configs['meta']['pulse length']['dset paths'].append(
+        self._configs['meta']['pulse length']['dset paths'].append(
             dset.name)
-        self.configs['meta']['pulse length']['shape'].append(
+        self._configs['meta']['pulse length']['shape'].append(
             dset.dtype['Pulse length'].shape)
 
         # update 'meta/peak current'
-        self.configs['meta']['peak current']['dset paths'].append(
+        self._configs['meta']['peak current']['dset paths'].append(
             dset.name)
-        self.configs['meta']['peak current']['shape'].append(
+        self._configs['meta']['peak current']['shape'].append(
             dset.dtype['Peak current'].shape)
 
         # update 'meta/bank voltage'
-        self.configs['meta']['bank voltage']['dset paths'].append(
+        self._configs['meta']['bank voltage']['dset paths'].append(
             dset.name)
-        self.configs['meta']['bank voltage']['shape'].append(
+        self._configs['meta']['bank voltage']['shape'].append(
             dset.dtype['Bank voltage'].shape)
 
         # ---- update configs related to 'Cathode-anode voltage'   ----
@@ -179,13 +190,13 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         #
         dset_name = 'Cathode-anode voltage'
         dset = self.group[dset_name]
-        self.configs['signals']['voltage']['dset paths'].append(
+        self._configs['signals']['voltage']['dset paths'].append(
             dset.name)
 
         # check 'shape'
         if dset.ndim == 2:
-            if dset.shape[0] == self.configs['shape'][0]:
-                self.configs['signals']['voltage']['shape'].append(
+            if dset.shape[0] == self._configs['shape'][0]:
+                self._configs['signals']['voltage']['shape'].append(
                     (dset.shape[1],))
             else:
                 self._build_successful = False
@@ -204,13 +215,13 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         #
         dset_name = 'Discharge current'
         dset = self.group[dset_name]
-        self.configs['signals']['current']['dset paths'].append(
+        self._configs['signals']['current']['dset paths'].append(
             dset.name)
 
         # check 'shape'
         if dset.ndim == 2:
-            if dset.shape[0] == self.configs['shape'][0]:
-                self.configs['signals']['current']['shape'].append(
+            if dset.shape[0] == self._configs['shape'][0]:
+                self._configs['signals']['current']['shape'].append(
                     (dset.shape[1],))
             else:
                 self._build_successful = False

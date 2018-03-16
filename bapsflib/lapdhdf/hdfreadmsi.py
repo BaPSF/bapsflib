@@ -18,8 +18,70 @@ from warnings import  warn
 class hdfReadMSI(np.recarray):
     """
     Reads MSI diagnostic data from the HDF5 file.
+
+    This class constructs and returns a structured numpy array.  The
+    data in the array is grouped in three categories:
+
+    1. shot numbers which are contained in the :code:`'shotnum'` field
+    2. metadata data that is both shot number and diagnostic specific
+       which is stored in the sub-fields of the :code:`'meta'` field
+    3. recorded data arrays which get unique fields based on their
+       mapping :attr:`configs` attribute
+
+    Data that is not shot number specific is stored in the :attr:`info`
+    attribute.
+
+    :Example: Here the :code:`'Discharge'` MSI diagnostic is used as an
+        example:: python
+
+        >>> # open HDF5 file
+        >>> f = lapdhdf.File('test.hdf5')
+        >>>
+        >>> # read MSI data
+        >>> mdata = f.read_msi('Discharge')
+        >>> mdata.dtype
+        dtype([('shotnum', '<i4'),
+               ('voltage', '<f4', (2048,)),
+               ('current', '<f4', (2048,)),
+               ('meta', [('timestamp', '<f8'),
+                         ('data valid', 'i1'),
+                         ('pulse length', '<f4'),
+                         ('peak current', '<f4'),
+                         ('bank voltage', '<f4')])])
+        >>> # display shot numbers
+        >>> mdata['shotnum']
+        array([    0, 19251], dtype=int32)
+        >>>
+        >>> # data arrays correspond to fields 'voltage' and 'current'
+        >>> # - display first 3 elements of shot number 0 for 'voltage'
+        >>> mdata['voltage'][0,0:3:]
+        array([-46.99707 , -46.844482, -46.99707], dtype=float32)
+        >>>
+        >>> # display peak current for shot number 0
+        >>> mdata['meta']['peak current'][0]
+        6127.1323
+        >>>
+        >>> # the `info` attribute has diagnostic specific data
+        >>> mdata.info
+        {'current conversion factor': [0.0],
+         'diagnostic name': 'Discharge',
+         'diagnostic path': '/MSI/Discharge',
+         'dt': [4.88e-05],
+         'hdf file': 'p21plane.hdf5',
+         't0': [-0.0249856],
+         'voltage conversion factor': [0.0]}
+        >>>
+        >>> # get time step for the data arrays
+        >>> mdata.info['dt'][0]
+        4.88e-05
+
     """
     def __new__(cls, hdf_file, msi_diag, **kwargs):
+        """
+        :param hdf_file: HDF5 file object
+        :type hdf_file: :class:`bapsflib.lapdhdf.files.File`
+        :param str msi_diag: name of desired MSI diagnostic
+        """
         # ---- Condition `hdf_file` ----
         # grab file_map
         # - also ensure hdf_file is a lapdhdf.file object
@@ -243,6 +305,7 @@ class hdfReadMSI(np.recarray):
 
     @property
     def info(self):
+        """A dictionary of metadata for the MSI diagnostic."""
         return self._info.copy()
 
 

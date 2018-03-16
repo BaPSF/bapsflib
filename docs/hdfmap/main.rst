@@ -20,3 +20,4 @@ Thus, the file mappings for :file:`test.hdf5` can be accessed like::
     <bapsflib.lapdhdf.hdfmapper.hdfMap>
 
 .. include:: mapping.inc.rst
+.. include:: add_map_module.inc.rst

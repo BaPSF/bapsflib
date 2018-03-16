@@ -213,6 +213,9 @@ def setup(app):
     #    """
     app.connect('autodoc-process-docstring', between('^.*IGNORE.*$',
                                                      exclude=True))
+
+    # prevent horizontal scrolling in readthedoc themed tables
+    app.add_stylesheet('rtd_theme_overrides.css')
     return app
 
 

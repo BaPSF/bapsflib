@@ -32,7 +32,7 @@ class hdfReadMSI(np.recarray):
     attribute.
 
     :Example: Here the :code:`'Discharge'` MSI diagnostic is used as an
-        example:: python
+        example:
 
         >>> # open HDF5 file
         >>> f = lapdhdf.File('test.hdf5')

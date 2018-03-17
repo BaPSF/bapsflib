@@ -67,7 +67,7 @@ class hdfReadMSI(np.recarray):
          'diagnostic name': 'Discharge',
          'diagnostic path': '/MSI/Discharge',
          'dt': [4.88e-05],
-         'hdf file': 'p21plane.hdf5',
+         'hdf file': 'test.hdf5',
          't0': [-0.0249856],
          'voltage conversion factor': [0.0]}
         >>>

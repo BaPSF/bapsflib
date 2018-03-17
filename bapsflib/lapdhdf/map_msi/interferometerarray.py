@@ -75,6 +75,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         # initialize general info values
         self._configs['n interferometer'] = \
             self.group.attrs['Interferometer count']
+        self._configs['interferometer name'] = []
         self._configs['t0'] = []
         self._configs['dt'] = []
         self._configs['n_bar_L'] = []
@@ -199,6 +200,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                         break
 
                 # populate general info values
+                self._configs['interferometer name'].append(name)
                 self._configs['t0'].append(
                     self.group[name].attrs['Start time'])
                 self._configs['dt'].append(

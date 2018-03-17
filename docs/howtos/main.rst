@@ -5,6 +5,13 @@ HOWTOs and Explainers
     :depth: 3
     :local:
 
+.. _lapd_file_overview:
+
+Overview of a LaPD Generated HDF5 File
+--------------------------------------
+
+.. note:: needs to be written
+
 .. _file_open:
 
 Opening a file
@@ -14,19 +21,12 @@ Opening a file
 
 .. _read_data:
 
-Extracting (Digitizer) Data
----------------------------
+Reading Data from a HDF5 File
+-----------------------------
 
 .. include:: readdata.inc.rst
 
-.. _read_controls:
-
-Extracting Control Data
------------------------
-
-.. note:: To be written
-
- .. _handle_data:
+.. _handle_data:
 
 Handling Extracted Data
 -----------------------

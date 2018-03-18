@@ -38,7 +38,8 @@ class hdfReadMSI(np.recarray):
         >>> f = lapdhdf.File('test.hdf5')
         >>>
         >>> # read MSI data
-        >>> mdata = f.read_msi('Discharge')
+        >>> # - this is equivalent to f.read_msi('Discharge')
+        >>> mdata = hdfReadMSI(f, 'Discharge')
         >>> mdata.dtype
         dtype([('shotnum', '<i4'),
                ('voltage', '<f4', (2048,)),

@@ -21,7 +21,7 @@ which is equivalent to
     <HDF5 file "test.hdf5" (mode r)>
 
 Upon opening a file, :py:class:`~bapsflib.lapdhdf.files.File` generates
-an instance of :py:class:`~bapsflib.lapdhdf.hdfchecks.hdfCheck` that
+an instance of :py:class:`~bapsflib.lapdhdf.hdfoverview.hdfOverview` that
 calls :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` and reports the
 results of the file mapping generated.
 :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` maps the file by comparing

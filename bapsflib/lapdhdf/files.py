@@ -11,7 +11,7 @@
 import h5py
 import os
 
-from .hdfchecks import hdfCheck
+from .hdfoverview import hdfOverview
 from .hdfmapper import hdfMap
 from .hdfreaddata import hdfReadData
 from .hdfreadcontrol import hdfReadControl
@@ -36,7 +36,8 @@ class File(h5py.File):
     :param kwargs: Driver specific keywords
     """
     def __init__(self, name, mode='r', driver=None, libver=None,
-                 userblock_size=None, swmr=False, **kwargs):
+                 userblock_size=None, swmr=False, overview=False,
+                 **kwargs):
         # TODO: re-work the argument pass through to h5py.File
         # TODO: add keyword save_report
         # - this will save the hdfChecks report to a text file alongside
@@ -54,18 +55,14 @@ class File(h5py.File):
         # initialize _info attribute
         self._build_info()
 
-        #print('Begin HDF5 Quick Report:')
-        #self.__file_checks = hdfCheck(self)
+        # print file overview
+        if overview is not False:
+            self.overview(save_it=overview)
 
     @property
     def info(self):
         """General info on the file and the run."""
         return self._info.copy()
-
-    def run_description(self):
-        """Description of experimental run (from the HDF5 file)"""
-        for line in self._info['run description'].splitlines():
-            print(line)
 
     @property
     def file_map(self):
@@ -105,6 +102,10 @@ class File(h5py.File):
         list of all mapped control devices
         """
         return list(self.file_map.controls)
+
+    def overview(self, save_it=False):
+        """Prints a brief overview of the HDF5 file."""
+        hdfOverview(self, save_it=save_it)
 
     def read_data(self, board, channel,
                   index=slice(None), shotnum=slice(None),
@@ -270,6 +271,11 @@ class File(h5py.File):
 
         """
         return hdfReadMSI(self, msi_diag)
+
+    def run_description(self):
+        """Description of experimental run (from the HDF5 file)"""
+        for line in self._info['run description'].splitlines():
+            print(line)
 
     def _build_info(self):
         """Builds the general info dictionary for the file"""

@@ -9,8 +9,10 @@
 #   license terms and contributor agreement.
 #
 import h5py
+import os
 
 from .hdfchecks import hdfCheck
+from .hdfmapper import hdfMap
 from .hdfreaddata import hdfReadData
 from .hdfreadcontrol import hdfReadControl
 from .hdfreadmsi import hdfReadMSI
@@ -46,18 +48,24 @@ class File(h5py.File):
         h5py.File.__init__(self, name, mode, driver, libver,
                            userblock_size, swmr, **kwargs)
 
-        print('Begin HDF5 Quick Report:')
-        self.__file_checks = hdfCheck(self)
+        # perform mapping
+        self.__file_map = hdfMap(self)
+
+        # initialize _info attribute
+        self._build_info()
+
+        #print('Begin HDF5 Quick Report:')
+        #self.__file_checks = hdfCheck(self)
 
     @property
-    def exp_descr(self):
-        """Experimental description (from the HDF5 file)"""
-        try:
-            edescr = self['Raw data + config'].attrs['Description']
-            edescr = edescr.decode('utf-8').splitlines()
-        except KeyError:
-            edescr = ''
-        return edescr
+    def info(self):
+        """General info on the file and the run."""
+        return self._info.copy()
+
+    def run_description(self):
+        """Description of experimental run (from the HDF5 file)"""
+        for line in self._info['run description'].splitlines():
+            print(line)
 
     @property
     def file_map(self):
@@ -65,7 +73,7 @@ class File(h5py.File):
         HDF5 file mappings
         (:class:`bapsflib.lapdhdf.hdfmapper.hdfMap`)
         """
-        return self.__file_checks.get_hdf_mapping()
+        return self.__file_map
 
     @property
     def list_file_items(self):
@@ -263,15 +271,17 @@ class File(h5py.File):
         """
         return hdfReadMSI(self, msi_diag)
 
-    def save_report(self, sname):
-        """
-        Save a HDF5 file report based on the HDF5 mappings.
+    def _build_info(self):
+        """Builds the general info dictionary for the file"""
+        # define file keys
+        self._info = {
+            'filename': os.path.split(self.filename)[-1],
+            'absolute file path': os.path.abspath(self.filename),
+            'lapd version': self.file_map.hdf_version
+        }
 
-        :param sname: save file name
+        # add run info
+        self._info.update(self.file_map.run_info)
 
-        .. Warning::
-
-            Not implemented yet.
-        """
-        # TODO: implement this save report
-        raise NotImplementedError
+        # add exp info
+        self._info.update(self.file_map.exp_info)

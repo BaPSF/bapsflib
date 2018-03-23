@@ -70,6 +70,8 @@ class DigitizerTestCase(ut.TestCase):
                     # TODO: detail test on each key
                     self.assertIn('bit', item[2])
                     self.assertIn('sample rate', item[2])
+                    self.assertIn('nshotnum', item[2])
+                    self.assertIn('nt', item[2])
                     self.assertIn('shot average (software)', item[2])
                     self.assertIn('sample average (hardware)', item[2])
 

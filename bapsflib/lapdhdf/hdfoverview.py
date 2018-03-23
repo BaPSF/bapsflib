@@ -331,8 +331,8 @@ class hdfOverview(object):
                         line += '{0} {1}'.format(
                             adc_stats['sample rate'][0],
                             adc_stats['sample rate'][1]).ljust(13)
-                        line += ''.ljust(10) # nshotnum
-                        line += ''.ljust(10) # nt
+                        line += str(adc_stats['nshotnum']).ljust(10)
+                        line += str(adc_stats['nt']).ljust(10)
                         line += str(
                             adc_stats['shot average (software)']
                         ).ljust(11)

@@ -48,6 +48,8 @@ import h5py
 import os
 import sys
 
+import pprint as pp
+
 from .. import lapdhdf
 from .hdfmapper import hdfMap
 from .hdferrors import NotHDFFileError, NotLaPDHDFError, NoMSIError
@@ -144,10 +146,19 @@ class hdfOverview(object):
         # print data
         self.print_data_discovery()
 
-        # ------ Print Full Digitizer Report                      ------
+        # ------ Print Detailed Reports                           ------
+        # print header
+        print('\n\nDetailed Reports')
+        print('-----------------')
+
+        # digitizer report
         self.report_digitizers()
 
-        # ------ Print Full Control Device Report                 ------
+        # control devices report
+        self.report_controls()
+
+        # msi report
+        self.report_msi()
 
     def save(self, filename):
         """Saves the HDF5 overview to a text file."""
@@ -233,6 +244,42 @@ class hdfOverview(object):
         for unknown in self.__hdf_map.unknowns:
             status_print(unknown, '', '', indent=2)
 
+    def report_msi(self):
+        """
+        Prints to screen a report of all detected MSI diagnostics and
+        their configurations.
+        """
+        # print heading
+        print('\n\nMSI Diagnostic Report')
+        print('^^^^^^^^^^^^^^^^^^^^^\n')
+
+        # print msi diagnostic config
+        for diag in self.__hdf_map.msi.values():
+            # print msi diag name
+            status_print(diag.diagnostic_name, '', '')
+
+            # print path to diagnostic
+            item = 'path:  ' + diag.info['group path']
+            status_print(item, '', '', indent=1)
+
+            # print the configs dict
+            self.report_msi_configs(diag)
+
+    @staticmethod
+    def report_msi_configs(mmap):
+        """
+        Report the configs for MSI diagnostic with mmap.
+
+        :param mmap: map of MSI diagnostic
+        """
+        # print configs title
+        status_print('configs', '', '', indent=1)
+
+        # pretty print the configs dict
+        ppconfig = pp.pformat(mmap.configs)
+        for line in ppconfig.splitlines():
+            status_print(line, '', '', indent=2)
+
     def report_digitizers(self):
         """
         Prints to screen a report of all detected digitizers and their
@@ -240,7 +287,7 @@ class hdfOverview(object):
         """
         # print heading
         print('\n\nDigitizer Report')
-        print('----------------\n')
+        print('^^^^^^^^^^^^^^^^\n')
 
         # print digitizer config
         for key in self.__hdf_map.digitizers:
@@ -248,9 +295,10 @@ class hdfOverview(object):
             item = key
             if key in self.__hdf_map.main_digitizer.info['group name']:
                 item += ' (main)'
-            status_print(item, '', '', item_found_pad=' ')
+            status_print(item, '', '')
 
             # print adc's
+            # noinspection PyProtectedMember
             item = "adc's:  "\
                    + str(self.__hdf_map.digitizers[key]._predefined_adc)
             status_print(item, '', '', indent=1)
@@ -341,7 +389,59 @@ class hdfOverview(object):
                         print(line)
         else:
             status_print('Configurations Detected (0)', '', '',
-                         indent=1, item_found_pad=' ')
+                         indent=1)
+
+    def report_controls(self):
+        """
+        Prints to screen a report of all control devices and their
+        configurations.
+        """
+        # print heading
+        print('\n\nControl Device Report')
+        print('^^^^^^^^^^^^^^^^^^^^^\n')
+
+        # print control config
+        for control in self.__hdf_map.controls.values():
+            # print control name
+            status_print(control.name, '', '')
+
+            # print path to control
+            item = 'path:     ' + control.info['group path']
+            status_print(item, '', '', indent=1)
+
+            # print path to contype
+            item = 'contype:  ' + control.contype
+            status_print(item, '', '', indent=1)
+
+            # print configurations
+            self.report_control_configs(control)
+
+    @staticmethod
+    def report_control_configs(cmap):
+        """
+        Report the configs for control associated with cmap.
+
+        :param cmap: map of control device
+        """
+        if len(cmap.configs) != 0:
+            # display number of configurations
+            item = 'Configurations Detected ({})'.format(
+                len(cmap.configs))
+            status_print(item, '', '', indent=1)
+
+            # display config values
+            for config_name, config in cmap.configs.items():
+                # print config_name
+                status_print(config_name, '', '', indent=2)
+
+                # get pretty print string
+                ppconfig = pp.pformat(config)
+                for line in ppconfig.splitlines():
+                    status_print(line, '', '', indent=3)
+
+        else:
+            item = 'Configurations Detected (0)'
+            status_print(item, '', '', indent=1)
 
 
 def status_print(item, found, note, indent=0,

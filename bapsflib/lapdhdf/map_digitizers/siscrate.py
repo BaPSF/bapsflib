@@ -90,6 +90,22 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     self.configs[config_name][adc] = \
                         self._adc_info(adc, self.group[name])
 
+                # update adc info with 'nshotnum' and 'nt'
+                for adc in self.configs[config_name]['adc']:
+                    for conn in self.configs[config_name][adc]:
+                        if self.configs[config_name]['active']:
+                            nshotnum, nt = self._get_dset_shape(
+                                config_name, adc, conn)
+                            conn[2].update({
+                                'nshotnum': nshotnum,
+                                'nt': nt
+                            })
+                        else:
+                            conn[2].update({
+                                'nshotnum': None,
+                                'nt': None
+                            })
+
     @staticmethod
     def _parse_config_name(name):
         """
@@ -183,6 +199,39 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                               'sample average (hardware)': None}))
 
         return adc_info
+
+    def _get_dset_shape(self, config_name, adc, conn_tuple):
+        conn = conn_tuple
+
+        # gather all dataset shapes
+        brd = conn[0]
+        dset_shapes = []
+        for ch in conn[1]:
+            dset_name = self.construct_dataset_name(
+                brd, ch,
+                config_name=config_name,
+                adc=adc,
+                silent=True
+            )
+            dset_shapes.append(self.group[dset_name].shape)
+
+        # check all datasets have the same shape
+        if all(shape == dset_shapes[0] for shape in dset_shapes):
+            # all shapes are consistent
+            if len(dset_shapes[0]) == 1:
+                nshotnum = 1
+                nt = dset_shapes[0][0]
+            else:
+                nshotnum = dset_shapes[0][0]
+                nt = dset_shapes[0][1]
+        else:
+            raise ValueError(
+                'Dataset shapes on board {} are not'.format(
+                    brd)
+                + ' consistent adc ({})'.format(adc))
+
+        # return
+        return nshotnum, nt
 
     @staticmethod
     def _find_config_adc(config_group):

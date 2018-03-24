@@ -20,11 +20,14 @@ class hdfMap_controls(dict):
     control devices in the HDF5 data group.  The dictionary keys are
     the names of the discovered control devices.
 
-    For example,
+    :example:
+
+    .. code-block:: python
 
         >>> cmaps = hdfMap_controls(data_group)
         >>> cmaps['6K Compumotor']
-        Out: <bapsflib.lapdhdf.map_controls.sixk.hdfMap_control_6k>
+        <bapsflib.lapdhdf.map_controls.sixk.hdfMap_control_6k>
+
     """
     _defined_control_mappings = {
         '6K Compumotor': hdfMap_control_6k,
@@ -65,15 +68,6 @@ class hdfMap_controls(dict):
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
 
-    # @property
-    # def data_group(self):
-    #    """
-    #    :return: instance of the HDF5 data group containing the
-    #        digitizers
-    #    :rtype: :mod:`h5py.Group`
-    #    """
-    #    return self.__data_group
-
     @property
     def predefined_control_groups(self):
         """
@@ -95,7 +89,12 @@ class hdfMap_controls(dict):
         control_dict = {}
         for sg_name in self.data_group_subgnames:
             if sg_name in self._defined_control_mappings:
-                control_dict[sg_name] = \
+                # only add mapping that succeeded
+                con_map = \
                     self._defined_control_mappings[sg_name](
                         self.__data_group[sg_name])
+                if con_map.build_successful:
+                    control_dict[sg_name] = con_map
+
+        # return dictionary
         return control_dict

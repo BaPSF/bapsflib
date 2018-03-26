@@ -50,12 +50,12 @@ import sys
 
 import pprint as pp
 
-from .. import lapdhdf
 from .hdfmapper import hdfMap
 from .hdferrors import NotHDFFileError, NotLaPDHDFError, NoMSIError
 
 from contextlib import contextmanager
 from datetime import datetime
+from bapsflib import lapdhdf
 
 
 class hdfOverview(object):

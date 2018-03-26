@@ -25,6 +25,8 @@ class hdfReadControl(np.recarray):
           intent of being matched to digitizer data.
         * Only one control for each :const:`contype` can be specified
           at a time.
+        * It is assumed that there is only ONE dataset associated with
+          each control device.
     """
     #
     # Extracting Data:
@@ -219,20 +221,15 @@ class hdfReadControl(np.recarray):
 
             # gather control datasets and shotnumkey's
             cmap = file_map.controls[cname]
-            cdset_name = cmap.construct_dataset_name(cspec)
-            cdset_path = cmap.info['group path'] + '/' + cdset_name
+            cdset_path = cmap.configs[cspec]['dset paths']
             cdset_dict[cname] = hdf_file.get(cdset_path)
-            shotnumkey = ''
-            for item in \
-                    cmap.configs[cspec]['dset field to numpy field']:
-                if item[1][0] == 'shotnum':
-                    shotnumkey = item[0]
-                    break
-            if shotnumkey == '':
+            try:
+                shotnumkey = \
+                    cmap.configs[cspec]['shotnum']['dset field']
+                shotnumkey_dict[cname] = shotnumkey
+            except KeyError:
                 raise ValueError(
                     'no shot number field defined for control device')
-            else:
-                shotnumkey_dict[cname] = shotnumkey
 
         # Catch shotnum if a slice object or int
         # - For either case, convert shotnum to a list
@@ -337,39 +334,23 @@ class hdfReadControl(np.recarray):
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Build obj ----
-        # Determine fields for numpy array
-        # npfields - dictionary of structured array field names
-        #            npfields['field name'] = [type, shape]
-        #
-        npfields = {}
+        # Define dtype and shape for numpy array
+        shape = shotnum.shape
+        dtype = [('shotnum', '<u4', 1)]
         for control in controls:
             # control name and unique specifier
             cname = control[0]
             cspec = control[1]
 
-            # gather fields
-            cmap = file_map.controls[cname]
-            for df_name, nf_name, npi \
-                    in cmap.configs[cspec]['dset field to numpy field']:
-                # df_name - control dataset field name
-                # nf_name - numpy structured array field name and dtype
-                # npi     - numpy index df_name will be inserted into
-                #
-                if nf_name[0] == 'shotnum':
-                    # already in dtype
-                    pass
-                elif nf_name[0] in npfields:
-                    # field will be an array, increment size
-                    npfields[nf_name[0]][1] += 1
-                else:
-                    # initialize
-                    npfields[nf_name[0]] = [nf_name[1], 1]
-
-        # Define dtype and shape for numpy array
-        dtype = [('shotnum', '<u4', 1)]
-        for key in npfields:
-            dtype.append((key, npfields[key][0], npfields[key][1]))
-        shape = shotnum.shape
+            # add fields
+            cconfig = file_map.controls[cname].configs[cspec]
+            for field_name, fconfig in \
+                    cconfig['probe state values'].items():
+                dtype.append((
+                    field_name,
+                    fconfig['dtype'],
+                    fconfig['shape']
+                ))
 
         # print execution timing
         if timeit:
@@ -395,152 +376,99 @@ class hdfReadControl(np.recarray):
 
             # get control dataset
             cmap = file_map.controls[cname]
+            cconfig = cmap.configs[cspec]
             cdset = cdset_dict[cname]
-            # shotnumkey = shotnumkey_dict[cname]
             sni = sni_dict[cname]
             index = index_dict[cname]
             if type(index) is np.ndarray:
                 index = index.tolist()
 
             # populate control data array
-            if intersection_set:
-                # assign values for each field
-                # df_name - device dataset field name
-                # nf_name - corresponding numpy field name and dtype
-                # npi     - numpy index that dataset will be assigned to
-                #
-                for df_name, nf_name, npi \
-                        in cmap.configs[cspec][
-                            'dset field to numpy field']:
-                    # skip iteration if field is 'shotnum'
-                    if nf_name[0] == 'shotnum':
-                        continue
-
+            # 1. scan over numpy fields
+            # 2. scan over the dset fields that will fill the numpy
+            #    fields
+            # 3. split between a command list fill or a direct fill
+            # 4. NaN fill if intersection_set = False
+            #
+            for nf_name, fconfig \
+                    in cconfig['probe state values'].items():
+                # nf_name
+                #   the numpy field name
+                # fconfig
+                #   the mapping dictionary for nf_name
+                for npi, df_name in enumerate(fconfig['dset field']):
+                    # df_name
+                    #   the dset field name that will fill the numpy
+                    #   field
+                    # npi
+                    #   the index of the numpy array corresponding to
+                    #   nf_name that df_name will fill
+                    #
                     # assign data
-                    # TODO: need to confirm this works for all cl setups
                     if cmap.has_command_list:
+                        # command list fill
                         # get command list
-                        cl = cmap.configs[cspec]['command list']
+                        cl = fconfig['command list']
 
-                        # retrieve array of command indices
-                        ci_arr = cdset[index, df_name].view()
+                        # retrieve the array of command indices
+                        ci_arr = cdset[index, df_name]
 
                         # assign command values to data
                         for ci, command in enumerate(cl):
-                            ii = np.where(ci_arr == ci, True, False)
-                            data[nf_name[0]][ii] = command
-                    else:
-                        # control does NOT use command list
-                        if data.dtype[nf_name[0]].shape != ():
-                            # for fields that contain arrays
-                            # (e.g. 'xyz')
-                            data[nf_name[0]][:, npi] = \
-                                cdset[index, df_name].view()
-                        else:
-                            # for fields that contain a constant
-                            data[nf_name[0]] = \
-                                cdset[index, df_name].view()
-            else:
-                # assign values
-                # df_name - device dataset field name
-                # nf_name - corresponding numpy field name and dtype
-                # npi     - numpy index that dataset will be assigned to
-                #
-                for df_name, nf_name, npi \
-                        in cmap.configs[cspec][
-                            'dset field to numpy field']:
-                    # skip iteration if field is 'shotnum'
-                    if nf_name[0] == 'shotnum':
-                        continue
-
-                    # assign data
-                    if cmap.has_command_list:
-                        # get command list
-                        cl = cmap.configs[cspec]['command list']
-
-                        # retrieve array of command indices
-                        ci_arr = cdset[index, df_name].view()
-
-                        # NaN fill data
-                        # TODO: this will need to be modified for dtype
-                        data[nf_name[0]].fill('')
-
-                        # assign command values to data
-                        # 1. find where command index (ci) is in the
-                        #    command index array (ci_arr)
-                        # 2. ci_arr.size == index.size
-                        # 3. ii.size == ci_arr.size
-                        # 4. sni.size != index.size
-                        # 5. np.where(sni)[0].size == index.size
-                        #
-                        for ci, command in enumerate(cl):
-                            # find command index (ci) locations in
-                            # command index array (ci_arr)
-                            # - ii is a boolean mask
-                            # - ii.size == ci_arr.size == index.size
+                            # Order of operations
+                            # 1. find where command index (ci) is in the
+                            #    command index array (ci_arr)
+                            # 2. construct a new sni for ci
+                            # 3. fill data
                             #
+                            # find where ci is in ci_arr
                             ii = np.where(ci_arr == ci, True, False)
 
-                            # need a re-filtered sni for this specific
-                            # ci
-                            #
+                            # construct new sni
                             sni_for_ci = np.zeros(sni.shape, dtype=bool)
                             sni_for_ci[np.where(sni)[0][ii]] = True
 
-                            # assign value
-                            data[nf_name[0]][sni_for_ci] = command
+                            # assign values
+                            data[nf_name][sni_for_ci] = command
                     else:
-                        # control does NOT use command list
-                        # overhead for NaN filling
-                        sni_not = np.logical_not(sni)
-                        fname = nf_name[0]
-
-                        # begin data assignment
-                        if data.dtype[fname].shape != ():
-                            # for fields that contain arrays
-                            # (e.g. 'xyz')
-                            data[fname][sni, npi] = \
+                        # direct fill (NO command list)
+                        if data.dtype[nf_name].shape != ():
+                            # field contains an array (e.g. 'xyz')
+                            data[nf_name][sni, npi] = \
                                 cdset[index, df_name].view()
-
-                            # NaN fill
-                            dtype = data.dtype[fname].base
-                            if np.issubdtype(dtype, np.integer):
-                                # any integer, signed or not
-                                data[fname][sni_not, npi] = -99999
-                            elif np.issubdtype(dtype, np.floating):
-                                # any float type
-                                data[fname][sni_not, npi] = np.nan
-                            elif np.issubdtype(dtype, np.flexible):
-                                # string, unicode, void
-                                data[fname][sni_not, npi] = ''
-                            else:
-                                # no real NaN concept exists
-                                # - this shouldn't happen though
-                                warn('dtype ({}) of '.format(dtype)
-                                     + '{} has no Nan '.format(fname)
-                                     + 'concept...no NaN fill done')
                         else:
-                            # for fields that contain a constant
-                            data[fname][sni] = \
+                            # field is a constant
+                            data[nf_name][sni] = \
                                 cdset[index, df_name].view()
 
-                            # NaN fill
-                            dtype = data.dtype[fname].base
-                            if np.issubdtype(dtype, np.integer):
-                                # any integer, signed or not
-                                data[fname][sni_not] = -99999
-                            elif np.issubdtype(dtype, np.floating):
-                                # any float type
-                                data[fname][sni_not] = np.nan
-                            elif np.issubdtype(dtype, np.flexible):
-                                # string, unicode, void
-                                data[fname][sni_not] = ''
-                            else:
-                                # no real NaN concept exists
-                                # - this shouldn't happen though
-                                warn('dtype ({}) of '.format(dtype)
-                                     + '{} has no Nan '.format(fname)
-                                     + 'concept...no NaN fill done')
+                    # handle NaN fill
+                    if not intersection_set:
+                        # overhead
+                        sni_not = np.logical_not(sni)
+                        dtype = data.dtype[nf_name].base
+
+                        #
+                        if data.dtype[nf_name].shape != ():
+                            ii = np.s_[sni_not, npi]
+                        else:
+                            ii = np.s_[sni_not]
+
+                        # NaN fill
+                        if np.issubdtype(dtype, np.integer):
+                            # any integer, signed or not
+                            data[nf_name][ii] = -99999
+                        elif np.issubdtype(dtype, np.floating):
+                            # any float type
+                            data[nf_name][ii] = np.nan
+                        elif np.issubdtype(dtype, np.flexible):
+                            # string, unicode, void
+                            data[nf_name][ii] = ''
+                        else:
+                            # no real NaN concept exists
+                            # - this shouldn't happen though
+                            warn('dtype ({}) of '.format(dtype)
+                                 + '{} has no Nan '.format(nf_name)
+                                 + 'concept...no NaN fill done')
 
             # print execution timing
             if timeit:
@@ -709,91 +637,6 @@ def condition_controls(hdf_file, controls, **kwargs):
 
     # return conditioned list
     return controls
-
-
-'''
-def gather_shotnums(hdf_file, controls, method='union',
-                    assume_controls_conditioned=False):
-
-    # condition controls
-    if not assume_controls_conditioned:
-        controls = condition_controls(hdf_file, controls)
-
-    # condition 'method' keyword
-    if method not in ['union', 'intersection', 'first']:
-        raise TypeError("Keyword 'method' can only be one of "
-                        "{}".format(['union',
-                                     'intersection',
-                                     'first']))
-
-    # build array of shot numbers
-    shotnumarr = None
-    for device in controls:
-        # control name and unique specifier
-        try:
-            if type(device) is str:
-                raise TypeError('controls NOT conditioned')
-
-            # get device name (cname) and unique specifier (cspec)
-            cname = device[0]
-            cspec = device[1]
-        except IndexError:
-            raise TypeError('controls NOT conditioned')
-
-        # get control dataset
-        conmap = hdf_file.file_map.controls[cname]
-        cdset_name = conmap.construct_dataset_name(cspec)
-        cdset_path = conmap.info['group path'] + '/' + cdset_name
-        cdset = hdf_file.get(cdset_path)
-        shotnumkey = cdset.dtype.names[0]
-
-        # get filter indices for cspec of cname
-        # - a control device that utilizes a 'command list' saves all of
-        #   its data for all of its configurations in one dataset
-        # - in this case, the dataset needs to be filtered for data only
-        #   corresponding to the cspec configuration
-        #
-        if len(conmap.dataset_names) == 1 and len(conmap.configs) != 1:
-            # multiple configs but one dataset
-
-            # get configuration field
-            cfield = None
-            for field in conmap.configs['dataset fields']:
-                if 'configuration' in field[0].casefold():
-                    cfield = field[0]
-                    break
-
-            # get indices for data corresponding to cspec
-            try:
-                cfi = np.where(cdset[cfield] == cspec)
-            except ValueError:
-                raise ValueError(
-                    'control device dataset has NO identifiable '
-                    'configuration field')
-        else:
-            cfi = np.ones(cdset.shape, dtype=bool)
-
-        # Define shotnumarr
-        if shotnumarr is None:
-            # first assignment
-            shotnumarr = cdset[cfi, shotnumkey].view()
-
-            # break if only want shot numbers for first dataset
-            if method == 'first':
-                break
-        elif method == 'intersection':
-            # build set of intersecting shot numbers
-            shotnumarr = np.intersect1d(shotnumarr,
-                                        cdset[cfi, shotnumkey].view(),
-                                        assume_unique=True)
-        else:
-            # method == 'union'
-            shotnumarr = np.union1d(shotnumarr,
-                                    cdset[cfi, shotnumkey].view())
-
-    # return numpy array of intersecting shot numbers
-    return shotnumarr
-'''
 
 
 # rename to condition_shotnum
@@ -1013,9 +856,9 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
     #   the associated configuration name
     #
     configkey = ''
-    for df in cmap.configs[cspec]['dataset fields']:
-        if 'configuration' in df[0].casefold():
-            configkey = df[0]
+    for df in cdset.dtype.names:
+        if 'configuration' in df.casefold():
+            configkey = df
             break
     if configkey == '':
         raise ValueError(

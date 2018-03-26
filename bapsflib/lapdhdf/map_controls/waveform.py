@@ -27,18 +27,16 @@ class hdfMap_control_waveform(hdfMap_control_template):
         hdfMap_control_template.__init__(self, control_group)
 
         # define control type
-        self.info['contype'] = 'waveform'
+        self._info['contype'] = 'waveform'
 
         # populate self.configs
         self._build_configs()
-
-        # verify self.info and self.configs
-        # self._verify_map()
 
     def _build_configs(self):
         # build configuration dictionaries
         # - assume all subgroups are control device configuration groups
         #   and their names correspond to the configuration name
+        # - assume all configurations are active (i.e. used)
         #
         for name in self.sgroup_names:
             # get configuration group
@@ -62,47 +60,66 @@ class hdfMap_control_waveform(hdfMap_control_template):
             #
             cl = cgroup.attrs['Waveform command list']
             cl = cl.decode('utf-8').splitlines()
-            cl = [cls.strip() for cls in cl]
+            cl = tuple([cls.strip() for cls in cl])
             # pattern = re.compile('(FREQ\s)(\d+\.\d+)')
             # cl_float = []
             # for val in cl:
             #     cl_re = re.search(pattern, val)
             #     cl_float.append(float(cl_re.group(2)))
 
-            # assign values
-            # 'command list': tuple(cl_float)
-            self.configs[name] = {
+            # get dataset
+            dset = self.group[self.construct_dataset_name()]
+
+            # ---- start assigning values to _configs               ----
+            # assign non-critical values
+            self._configs[name] = {
                 'IP address': ip,
                 'device name': gdevice,
-                'command list': cl,
-                'cl pattern': None
             }
 
-            # define 'dataset fields'
-            self.configs[name]['dataset fields'] = [
-                ('Shot number', '<u4'),
-                ('Configuration name', 'U'),
-                ('Command index', '<u4')
-            ]
+            # assign 'command list'
+            self._configs[name]['command list'] = cl
 
-            # define 'dset field to numpy field'
-            self.configs[name]['dset field to numpy field'] = [
-                ('Shot number', ('shotnum', '<u4'), 0),
-                ('Command index',
-                 ('command', np.array(cl).dtype.str), 0)
-            ]
+            # assign 'cl pattern'
+            self._configs[name]['cl pattern'] = None
 
-            # Define 'dset name'
-            self.configs[name]['dset name'] = \
-                self.construct_dataset_name(name)
+            # assign 'dset paths'
+            self._configs[name]['dset paths'] = dset.name
+
+            # ---- define 'shotnum'                                 ----
+            # initialize
+            self._configs[name]['shotnum'] = {
+                'dset paths': self._configs[name]['dset paths'],
+                'dset field': 'Shot number',
+                'shape': dset.dtype['Shot number'].shape,
+                'dtype': np.int32
+            }
+
+            # ---- define 'probe state values'                      ----
+            # initialize
+            self._configs[name]['probe state values'] = \
+                self.__default_command_state(name)
+
+
+        # indicate build was successful
+        self._build_successful = True
+
+    def __default_command_state(self, config_name):
+        # define default dict
+        default_dict = {
+            'command': {
+                'dset paths': self._configs[config_name]['dset paths'],
+                'dset field': ('Command index',),
+                'command list': np.array(
+                    self._configs[config_name]['command list']),
+                'shape': (),
+            }
+        }
+        default_dict['command']['dtype'] = \
+            default_dict['command']['command list'].dtype
+
+        # return
+        return default_dict
 
     def construct_dataset_name(self, *args):
         return 'Run time list'
-
-    # @property
-    # def name(self):
-    #     """
-    #     :return: name of control device
-    #     :rtype: str
-    #     """
-    #     return 'Waveform'

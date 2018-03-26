@@ -11,6 +11,7 @@
 # TODO: add 'dset name' to configs dict
 #
 import h5py
+import numpy as np
 
 from .control_template import hdfMap_control_template
 
@@ -20,13 +21,10 @@ class hdfMap_control_6k(hdfMap_control_template):
         hdfMap_control_template.__init__(self, control_group)
 
         # define control type
-        self.info['contype'] = 'motion'
+        self._info['contype'] = 'motion'
 
         # populate self.configs
         self._build_configs()
-
-        # remove self.info and self.configs items that
-        #  self._verify_map()
 
     def _build_configs(self):
         # build order:
@@ -52,39 +50,63 @@ class hdfMap_control_6k(hdfMap_control_template):
 
         # build configuration dictionaries
         # - the receptacle number is the config_name
+        # - each probe is one-to-one with receptacle number
         #
         for pname in probe_lists:
+            # define configuration name
             config_name = probe_lists[pname]['receptacle']
-            self.configs[config_name] = {
+
+            # ---- start assigning values to _configs               ----
+            #  assign non-critical values
+            self._configs[config_name] = {
                 'probe name': pname,
                 'port': probe_lists[pname]['port'],
                 'receptacle': probe_lists[pname]['receptacle'],
                 'motion lists': {}
             }
 
-            # Define 'dataset fields'
-            self.configs[config_name]['dataset fields'] = [
-                ('Shot number', '<u4'),
-                ('x', '<f8'),
-                ('y', '<f8'),
-                ('z', '<f8'),
-                ('theta', '<f8'),
-                ('phi', '<f8')
-            ]
+            # get dataset
+            dset = self.group[self.construct_dataset_name(config_name)]
 
-            # Define 'dset field to numpy field'
-            self.configs[config_name]['dset field to numpy field'] = [
-                ('Shot number', ('shotnum', '<u4'), 0),
-                ('x', ('xyz', '<f8'), 0),
-                ('y', ('xyz', '<f8'), 1),
-                ('z', ('xyz', '<f8'), 2),
-                ('theta', ('ptip_rot_theta', '<f8'), 0),
-                ('phi', ('ptip_rot_phi', '<f8'), 0)
-            ]
+            # assign 'dset paths'
+            self._configs[config_name]['dset paths'] = dset.name
 
-            # Define 'dset name'
-            self.configs[config_name]['dset name'] = \
-                self.construct_dataset_name(config_name)
+            # ---- define 'shotnum'                                 ----
+            # initialize
+            self._configs[config_name]['shotnum'] = {
+                'dset paths': self._configs[config_name]['dset paths'],
+                'dset field': 'Shot number',
+                'shape': dset.dtype['Shot number'].shape,
+                'dtype': np.int32
+            }
+
+            # ---- define 'probe state values'                      ----
+            self._configs[config_name]['probe state values'] = {
+                'xyz': {
+                    'dset paths':
+                        self._configs[config_name]['dset paths'],
+                    'dset field': ('x', 'y', 'z'),
+                    'shape': (3,),
+                    'dtype': np.float64
+                },
+                'ptip_rot_theta': {
+                    'dset paths':
+                        self._configs[config_name]['dset paths'],
+                    'dset field': ('theta',),
+                    'shape': (),
+                    'dtype': np.float64
+                },
+                'ptip_rot_phi': {
+                    'dset paths':
+                        self._configs[config_name]['dset paths'],
+                    'dset field': ('phi',),
+                    'shape': (),
+                    'dtype': np.float64
+                },
+            }
+
+        # indicate build was successful
+        self._build_successful = True
 
     def construct_dataset_name(self, *args):
         # The first arg passed is assumed to be the receptacle number.
@@ -120,7 +142,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         #   is why dataset name is constructed based on receptacle and
         #   not probe name
         #
-        pname = self.configs[receptacle]['probe name']
+        pname = self._configs[receptacle]['probe name']
 
         # Construct dataset name
         dname = 'XY[{0}]: {1}'.format(receptacle, pname)
@@ -133,24 +155,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         :return: list of probe drive receptacle numbers
         :rtype: [int, ]
         """
-        return list(self.configs)
-
-    # @property
-    # def name(self):
-    #     """
-    #     :return: name of control device
-    #     :rtype: str
-    #     """
-    #     return '6K Compumotor'
-
-    # @property
-    # def unique_specifiers(self):
-    #     """
-    #     :return: list of control device unique specifiers. Here the
-    #         unique specifier is the probe drive receptacle number.
-    #     :rtype: [int, ]
-    #     """
-    #     return self.list_receptacles
+        return list(self._configs)
 
     def _parse_motionlist(self, ml_gname):
         # A motion list group follows the naming scheme of:

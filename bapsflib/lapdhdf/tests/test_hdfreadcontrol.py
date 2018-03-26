@@ -1275,10 +1275,7 @@ class TestHDFReadControl(ut.TestCase):
 
             # gather fields that should be in cdata for this control
             # device
-            field_map = cmap.configs[config][
-                'dset field to numpy field']
-            fields = [item[1][0] for item in field_map]
-            fields = list(set(fields))
+            fields = list(cmap.configs[config]['probe state values'])
 
             # check that all fields are in cdata
             for field in fields:

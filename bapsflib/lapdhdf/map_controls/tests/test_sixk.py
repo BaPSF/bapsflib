@@ -25,7 +25,7 @@ class TestSixK(ControlTestCase):
     def setUp(self):
         self.f = FauxHDFBuilder(
             add_modules={'6K Compumotor': {'n_configs': 1}})
-        self.controls = self.f.modules['6K Compumotor']
+        self.mod = self.f.modules['6K Compumotor']
 
     def tearDown(self):
         self.f.cleanup()
@@ -49,28 +49,28 @@ class TestSixK(ControlTestCase):
 
     def test_one_config_one_ml(self):
         # reset to one config and one motion list
-        if self.controls.n_configs != 1:
-            self.controls.n_configs = 1
-        if self.controls.n_motionlists != 1:
-            self.n_motionlists = 1
+        if self.mod.knobs.n_configs != 1:
+            self.mod.knobs.n_configs = 1
+        if self.mod.knobs.n_motionlists != 1:
+            self.mod.knobs.n_motionlists = 1
 
         # assert details
         self.assertSixKDetails()
 
     def test_one_config_three_ml(self):
         # reset to one config and one motion list
-        if self.controls.n_configs != 1:
-            self.controls.n_configs = 1
-        if self.controls.n_motionlists != 3:
-            self.n_motionlists = 3
+        if self.mod.knobs.n_configs != 1:
+            self.mod.knobs.n_configs = 1
+        if self.mod.knobs.n_motionlists != 3:
+            self.mod.knobs.n_motionlists = 3
 
         # assert details
         self.assertSixKDetails()
 
     def test_three_config(self):
         # reset to one config and one motion list
-        if self.controls.n_configs != 3:
-            self.controls.n_configs = 3
+        if self.mod.knobs.n_configs != 3:
+            self.mod.knobs.n_configs = 3
 
         # assert details
         self.assertSixKDetails()
@@ -98,13 +98,14 @@ class TestSixK(ControlTestCase):
         self.assertConfigs()
 
     def assertConfigs(self):
-        self.assertEqual(len(self.map.configs), self.controls.n_configs)
+        self.assertEqual(len(self.map.configs),
+                         self.mod.knobs.n_configs)
 
         for config in self.map.configs:
             # keys 'dataset fields' and 'dset to numpy field' tested in
             # assertControlMapBasic
             #
-            self.assertIn(config, self.controls.config_names)
+            self.assertIn(config, self.mod.config_names)
             self.assertIn('probe name', self.map.configs[config])
             self.assertIn('port', self.map.configs[config])
             self.assertIn('receptacle', self.map.configs[config])

@@ -26,8 +26,7 @@ class TestWaveform(ControlTestCase):
     def setUp(self):
         self.f = FauxHDFBuilder(
             add_modules={'Waveform': {'n_configs': 1}})
-        self.controls = self.f.modules['Waveform']
-        # self.cgroup = self.f['Raw data + config/Waveform']
+        self.mod = self.f.modules['Waveform']
 
     def tearDown(self):
         self.f.cleanup()
@@ -51,16 +50,16 @@ class TestWaveform(ControlTestCase):
 
     def test_one_config(self):
         # reset to one config
-        if self.controls.n_configs != 1:
-            self.controls.n_configs = 1
+        if self.mod.knobs.n_configs != 1:
+            self.mod.knobs.n_configs = 1
 
         # assert details
         self.assertWaveformDetails()
 
     def test_three_configs(self):
         # reset to 3 configs
-        if self.controls.n_configs != 3:
-            self.controls.n_configs = 3
+        if self.mod.knobs.n_configs != 3:
+            self.mod.knobs.n_configs = 3
 
         # assert details
         self.assertWaveformDetails()
@@ -82,7 +81,7 @@ class TestWaveform(ControlTestCase):
         self.assertTrue(self.map.has_command_list)
 
         # test attribute 'one_config_per_dataset'
-        if self.controls.n_configs == 1:
+        if self.mod.knobs.n_configs == 1:
             self.assertTrue(self.map.one_config_per_dset)
         else:
             self.assertFalse(self.map.one_config_per_dset)
@@ -91,13 +90,14 @@ class TestWaveform(ControlTestCase):
         self.assertConfigs()
 
     def assertConfigs(self):
-        self.assertEqual(len(self.map.configs), self.controls.n_configs)
+        self.assertEqual(len(self.map.configs),
+                         self.mod.knobs.n_configs)
 
         for config in self.map.configs:
             # keys 'dataset fields' and 'dset to numpy field' tested in
             # assertControlMapBasic
             #
-            self.assertIn(config, self.controls.config_names)
+            self.assertIn(config, self.mod.config_names)
             self.assertIn('IP address', self.map.configs[config])
             self.assertIn('device name', self.map.configs[config])
             self.assertIn('command list', self.map.configs[config])

@@ -116,35 +116,6 @@ class FauxSixK(h5py.Group):
         """Knobs for controlling structure of control device group"""
         return self._knobs(self)
 
-    # @property
-    # def n_configs(self):
-    #     """Number of waveform configurations"""
-    #     return self._n_configs
-
-    # @n_configs.setter
-    # def n_configs(self, val: int):
-    #     """Set number of waveform configurations"""
-    #     if val != self._n_configs and 1 <= val <= self._MAX_CONFIGS:
-    #         self._n_configs = val
-    #         self._n_probes = self._n_configs
-    #         if val > 1:
-    #             self._n_motionlists = 1
-    #         self._update()
-
-    # @property
-    # def n_motionlists(self):
-    #     """
-    #     Number of motion lists used. If :code:`n_configs == 1`
-    #     """
-    #     return self._n_motionlists
-
-    # @n_motionlists.setter
-    # def n_motionlists(self, val: int):
-    #     """Setter for n_motionlists"""
-    #     if val != self._n_motionlists and self.n_configs == 1:
-    #         self._n_motionlists = val
-    #         self._update()
-
     @property
     def n_probes(self):
         """Number of probes drives used"""
@@ -154,18 +125,6 @@ class FauxSixK(h5py.Group):
     def config_names(self):
         """list of configuration names"""
         return list(self._configs)
-
-    # @property
-    # def sn_size(self):
-    #     """Number of shot numbers in dataset"""
-    #     return self._sn_size
-
-    # @sn_size.setter
-    # def sn_size(self, val):
-    #     """Set the number of shot numbers in the dataset"""
-    #     if val != self._sn_size:
-    #         self._sn_size = val
-    #         self._update()
 
     def _update(self):
         """

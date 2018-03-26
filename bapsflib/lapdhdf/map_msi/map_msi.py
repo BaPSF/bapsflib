@@ -82,18 +82,14 @@ class hdfMap_msi(dict):
         """
         # do not attach item if mapping is not known
         msi_dict = {}
-        try:
-            for name in self.msi_group_subgnames:
-                if name in self._defined_diagnostic_mappings:
-                    # only add mapping that succeeded
-                    diag_map = \
-                        self._defined_diagnostic_mappings[name](
-                            self.__msi_group[name])
-                    if diag_map.build_successful:
-                        msi_dict[name] = diag_map
-
-        except TypeError:
-            pass
+        for name in self.msi_group_subgnames:
+            if name in self._defined_diagnostic_mappings:
+                # only add mapping that succeeded
+                diag_map = \
+                    self._defined_diagnostic_mappings[name](
+                        self.__msi_group[name])
+                if diag_map.build_successful:
+                    msi_dict[name] = diag_map
 
         # return dictionary
         return msi_dict

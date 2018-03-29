@@ -14,20 +14,29 @@ import h5py
 import numpy as np
 import re
 
-from .control_template import hdfMap_control_template
+from warnings import warn
+
+from .control_template import hdfMap_control_cl_template
+from .clparse import CLParse
 
 
-class hdfMap_control_waveform(hdfMap_control_template):
+class hdfMap_control_waveform(hdfMap_control_cl_template):
     """
     .. Warning::
 
         In development
     """
     def __init__(self, control_group):
-        hdfMap_control_template.__init__(self, control_group)
+        hdfMap_control_cl_template.__init__(self, control_group)
 
         # define control type
         self._info['contype'] = 'waveform'
+
+        # define known command list RE patterns
+        self._cl_re_patterns.extend([
+            r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
+            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
+        ])
 
         # populate self.configs
         self._build_configs()
@@ -49,7 +58,7 @@ class hdfMap_control_waveform(hdfMap_control_template):
             ip = ip.decode('utf-8')
 
             # get device (generator) name
-            # - gdevice get returned as a np.bytes_ string
+            # - gdevice is returned as a np.bytes_ string
             #
             gdevice = cgroup.attrs['Generator type']
             gdevice = gdevice.decode('utf-8')
@@ -81,7 +90,7 @@ class hdfMap_control_waveform(hdfMap_control_template):
             self._configs[name]['command list'] = cl
 
             # assign 'cl pattern'
-            self._configs[name]['cl pattern'] = None
+            # self._configs[name]['cl pattern'] = None
 
             # assign 'dset paths'
             self._configs[name]['dset paths'] = dset.name
@@ -97,19 +106,22 @@ class hdfMap_control_waveform(hdfMap_control_template):
 
             # ---- define 'probe state values'                      ----
             # initialize
-            self._configs[name]['probe state values'] = \
-                self.__default_command_state(name)
-
+            pstate = self._construct_probe_state_dict(
+                name, self._cl_re_patterns)
+            self._configs[name]['probe state values'] = pstate \
+                if pstate is not None \
+                else self._default_probe_state_config(name)
 
         # indicate build was successful
         self._build_successful = True
 
-    def __default_command_state(self, config_name):
+    def _default_probe_state_config(self, config_name):
         # define default dict
         default_dict = {
             'command': {
                 'dset paths': self._configs[config_name]['dset paths'],
                 'dset field': ('Command index',),
+                'cl pattern': None,
                 'command list': np.array(
                     self._configs[config_name]['command list']),
                 'shape': (),
@@ -122,4 +134,5 @@ class hdfMap_control_waveform(hdfMap_control_template):
         return default_dict
 
     def construct_dataset_name(self, *args):
+        """Constructs name of dataset containing probe state data."""
         return 'Run time list'

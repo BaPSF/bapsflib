@@ -10,7 +10,12 @@
 #
 import h5py
 
-from abc import ABC, abstractmethod
+import numpy as np
+
+from abc import (ABC, abstractmethod)
+from warnings import warn
+
+from .clparse import CLParse
 
 
 class hdfMap_control_template(ABC):
@@ -34,14 +39,6 @@ class hdfMap_control_template(ABC):
             #
             self._build_configs()
 
-            # verify key class attributes and methods
-            # - _verify_map() is a template method that ensures
-            #   self.info and self.configs are properly constructed so
-            #   that the rest of bapsflib.lapdhdf can utilized the
-            #   mapping.
-            #
-            self._verify_map()
-
     .. note::
 
         Any method that raises a :exc:`NotImplementedError` is intended
@@ -52,7 +49,6 @@ class hdfMap_control_template(ABC):
         :param control_group: the control HDF5 group
         :type control_group: :class:`h5py.Group`
         """
-
         # condition control_group arg
         if type(control_group) is h5py.Group:
             self.__control_group = control_group
@@ -492,3 +488,207 @@ class hdfMap_control_template(ABC):
             #     errstr = "self.configs['command list'] must be " \
             #              "defined"
             #     raise NotImplementedError(errstr)
+
+
+class hdfMap_control_cl_template(hdfMap_control_template):
+    """
+    A modified :class:`hdfMap_control_template` template class for
+    mapping control devices that record around the concept of a
+    **command list**.
+
+    Any inheriting class should define :code:`__init__` as::
+
+        def __init__(self, control_group):
+            # initialize
+            hdfMap_control_cl_template.__init__(self, control_group)
+
+            # define control type
+            # - control types can be 'motion', 'power', 'waveform'
+            #
+            self.info['contype'] = 'waveform'
+
+            # define known command list RE patterns
+            self._cl_re_patterns.exten([
+                r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
+            ])
+
+            # populate self.configs
+            # - the method _build_configs contains the code to build
+            #   the self.configs dictionary
+            #
+            self._build_configs()
+
+    .. note::
+
+        Any method that raises a :exc:`NotImplementedError` is intended
+        to be overwritten by the inheriting class.
+    """
+    def __init__(self, control_group):
+        """
+        :param control_group: the control HDF5 group
+        :type control_group: :class:`h5py.Group`
+        """
+        hdfMap_control_template.__init__(self, control_group)
+
+        # initialize internal 'command list' regular expression (RE)
+        # patterns
+        self._cl_re_patterns = []
+        """List of common RE patterns."""
+
+    def _default_probe_state_config(self, config_name):
+        """
+        Returns the default :code:`'probe state values'` dictionary for
+        configuration *config_name*.
+
+        .. code-block:: python
+            :caption: Example of declaration
+
+            # define default dict
+            default_dict = {
+                'command': {
+                    'dset paths':
+                        self._configs[config_name]['dese paths'],
+                    'dset field': ('Command index', ),
+                    'cl pattern': None,
+                    'command list': np.array(
+                        self._configs[config_name]['command list']),
+                    'shape': (),
+                }
+            }
+            default_dict['command']['dtype'] = \\
+                default_dict['command']['command list'].dtype
+
+            # return
+            return default_dict
+
+        """
+        raise NotImplementedError
+
+    def _construct_probe_state_dict(self, config_name, patterns):
+        """
+        Returns a dictionary for
+        :code:`configs[config_name]['probe state values]` based on the
+        supplied RE patterns. :code:`None` is returned if the
+        construction failed.
+
+        :param str config_name: configuration name
+        :param patterns: list of RE pattern strings
+        :type patterns: list(str)
+        """
+        # apply RE patterns to 'command list'
+        success, pstate_dict = \
+            self.clparse(config_name).apply_patterns(patterns)
+
+        # regex was unsuccessful, return alt_dict
+        if not success:
+            return
+
+        # condition pstate_dict before return
+        # 1. convert 'command list' and 'cl str' to tuples
+        # 2. add 'dset paths'
+        # 3. add 'dset field'
+        # 4. add 'shape'
+        # 5. add 'dtype'
+        #
+        for state in pstate_dict:
+            # convert 'command list' and 'cl str' to tuples
+            pstate_dict[state]['command list'] = \
+                tuple(pstate_dict[state]['command list'])
+            pstate_dict[state]['cl str'] = \
+                tuple(pstate_dict[state]['cl str'])
+
+            # add additional keys
+            pstate_dict[state]['dset paths'] = \
+                self._configs[config_name]['dset paths']
+            pstate_dict[state]['dset field'] = ('Command index',)
+            pstate_dict[state]['shape'] = ()
+
+            # determine 'dtype'
+            if isinstance(pstate_dict[state]['command list'][0], float):
+                pstate_dict[state]['dtype'] = np.float32
+            elif isinstance(pstate_dict[state]['command list'][0], int):
+                pstate_dict[state]['dtype'] = np.int32
+            else:
+                # assume string
+                #
+                # determine max length of strings
+                mlen = max(len(command) for command
+                           in pstate_dict[state]['command list'])
+                pstate_dict[state]['dtype'] = \
+                    np.dtype((np.unicode, mlen))
+
+        # return
+        return pstate_dict
+
+    def clparse(self, config_name):
+        """
+        Return instance of
+        :class:`~bapsflib.lapdhdf.map_controls.clparse.CLParse`
+        for `config_name`.
+
+        :param str config_name: configuration name
+        """
+        # retrieve command list
+        cl = self._configs[config_name]['command list']
+
+        # define clparse and return
+        return CLParse(cl)
+
+    def reset_probe_state_config(self, config_name,
+                                 apply_patterns=False):
+        """
+        Reset the :code:`configs[config_name]['probe state values']`
+        dictionary.
+
+        :param str config_name: configuration name
+        :param bool apply_patterns: Set :code:`False` (DEFAULT) to
+            reset to :code:`_default_probe_state_config(config_name)`.
+            Set :code:`True` to rebuild dict using
+            :attr:`_cl_re_patterns`.
+        """
+        if apply_patterns:
+            # get pstate dict
+            pstate = self._construct_probe_state_dict(
+                config_name, self._cl_re_patterns)
+            if pstate is None:
+                pstate = self._default_probe_state_config(config_name)
+        else:
+            # get default dict
+            pstate = self._default_probe_state_config(config_name)
+
+        # reset config
+        self._configs[config_name]['probe state values'] = pstate
+
+    def set_probe_state_config(self, config_name, patterns):
+        """
+        Rebuild and set
+        :code:`configs[config_name]['probe state values']` based on the
+        supplied RE *patterns*.
+
+        :param str config_name: configuration name
+        """
+        # condition patterns
+        if isinstance(patterns, str):
+            patterns = [patterns]
+        elif isinstance(patterns, list):
+            if not all(isinstance(pattern, str) for pattern in patterns):
+                warn('Valid list of regex patterns not passed, doing '
+                     'nothing')
+                return
+        else:
+            warn('Valid list of regex patterns not passed, doing '
+                 'nothing')
+            return
+
+        # construct dict for 'probe state values' dict
+        pstate = self._construct_probe_state_dict(config_name,
+                                                  patterns)
+
+        # update 'probe state values' dict
+        if pstate is None:
+            # do nothing since default parsing was unsuccessful
+            warn("RE parsing of 'command list' was unsuccessful, "
+                 "doing nothing")
+            return
+        else:
+            self._configs[config_name]['probe state values'] = pstate

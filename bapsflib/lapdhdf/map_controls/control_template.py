@@ -63,12 +63,6 @@ class hdfMap_control_template(ABC):
         # initialize configuration dictionary
         # TODO: format of configs needs to be solidified
         #
-        # 'motion list': NotImplemented,
-        # 'probe list': NotImplemented,
-        # 'config names': NotImplemented,
-        # 'nControlled': NotImplemented,
-        # 'dataset fields': NotImplemented,
-        # 'dset field to numpy field': NotImplemented
         self._configs = {}
         """
         Configuration dictionary of HDF5 control device. This dictionary

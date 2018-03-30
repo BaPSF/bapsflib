@@ -100,8 +100,6 @@ class TestWaveform(ControlTestCase):
             self.assertIn(config, self.mod.config_names)
             self.assertIn('IP address', self.map.configs[config])
             self.assertIn('device name', self.map.configs[config])
-            self.assertIn('command list', self.map.configs[config])
-            self.assertIn('cl pattern', self.map.configs[config])
 
 
 if __name__ == '__main__':

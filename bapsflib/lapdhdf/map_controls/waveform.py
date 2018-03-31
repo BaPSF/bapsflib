@@ -8,16 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: add 'dset name' to configs dict
-#
-import h5py
 import numpy as np
-import re
-
-from warnings import warn
 
 from .control_template import hdfMap_control_cl_template
-from .clparse import CLParse
 
 
 class hdfMap_control_waveform(hdfMap_control_cl_template):

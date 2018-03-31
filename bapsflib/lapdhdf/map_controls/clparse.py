@@ -23,6 +23,22 @@ class CLParse(object):
         # initialize new cl dict
         cls_dict = {}
 
+        # condition patterns
+        if isinstance(patterns, str):
+            # convert string to list
+            patterns = [patterns]
+        elif isinstance(patterns, (list, tuple)):
+            # ensure all entries are strings
+            if not all(isinstance(pat, str) for pat in patterns):
+                raise ValueError("first argument must be a string of "
+                                 "list of strings")
+
+            # ensure all entries are unique
+            patterns = list(set(patterns))
+        else:
+            raise ValueError(
+                "first argument must be a string of list of strings")
+
         # compile all patterns
         for pattern in patterns:
             rpat = re.compile(pattern)
@@ -42,6 +58,12 @@ class CLParse(object):
                 sym_groups = list(rpat.groupindex)
                 name = sym_groups[0] if sym_groups.index('VAL') == 1 \
                     else sym_groups[1]
+
+                # check symbolic group is not already defined
+                if name in cls_dict:
+                    raise ValueError(
+                        "Symbolic group ({}) defined".format(name)
+                        + " in multiple RE patterns")
 
                 # initialize cls dict entry
                 cls_dict[name] = {
@@ -107,7 +129,7 @@ class CLParse(object):
                 cls_dict['remainder']['cl str'] = \
                     cls_dict['remainder']['command list']
 
-        # remove trivial command lists
+        # remove trivial command lists and convert lists to tuples
         names = list(cls_dict)
         for name in names:
             if name == 'remainder':
@@ -126,19 +148,21 @@ class CLParse(object):
                     + "some or all of the 'command list' has None "
                     + "values")
             elif not all(isinstance(
-                         val, type(cls_dict[name]['command list'][0]))
-                         for val in cls_dict[name]['command list']):
-                # ensure all command list elements have the same type
+                    val, type(cls_dict[name]['command list'][0]))
+                    for val in cls_dict[name]['command list']):
+                # ensure all command list elements have the same
+                # type
                 del cls_dict[name]
 
                 # issue warning
                 warn(
-                    "Symbolic group ({}) removed since ".format(name)
-                    + "all entries in 'command list' do NOT have the"
-                    + "same type")
-            elif isinstance(cls_dict[name]['command list'], str):
-                if all(command.stip() == ''
-                       for command in cls_dict[name]['command list']):
+                    "Symbolic group ({}) removed ".format(name)
+                    + "since all entries in 'command list' do NOT "
+                    + "have the same type")
+            elif isinstance(cls_dict[name]['command list'][0], str):
+                if all(command.strip() == ''
+                       for command
+                       in cls_dict[name]['command list']):
                     # string command list is nonsensical
                     del cls_dict[name]
 
@@ -148,23 +172,30 @@ class CLParse(object):
                         + "since all entries in 'command list' are "
                         + "null strings")
 
+            # convert lists to tuples
+            # - first check dict `name` has not been deleted
+            if name in cls_dict:
+                cls_dict[name]['command list'] = \
+                    tuple(cls_dict[name]['command list'])
+                cls_dict[name]['cl str'] = \
+                    tuple(cls_dict[name]['cl str'])
+
         # determine if parse was successful
         success = True
         if len(cls_dict) == 0:
             # dictionary is empty
             success = False
+            cls_dict = None
         elif len(cls_dict) == 1 and 'remainder' in cls_dict:
             # only 'remainder' is in dictionary
             success = False
+            cls_dict = None
 
         # return
         return success, cls_dict
 
     def try_patterns(self, patterns):
-        # turn string into list
-        if isinstance(patterns, str):
-            patterns = [patterns]
-
+        # build dictionary
         success, cls_dict = self.apply_patterns(patterns)
 
         # print results

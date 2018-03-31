@@ -13,7 +13,9 @@ import h5py
 
 
 class ControlTestCase(ut.TestCase):
-
+    """
+    TestCase for control devices.
+    """
     def assertControlMapBasics(self, cmap, cgroup):
         # assert attribute existence
         self.assertTrue(hasattr(cmap, 'info'))

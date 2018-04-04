@@ -103,9 +103,9 @@ class File(h5py.File):
         """
         return list(self.file_map.controls)
 
-    def overview(self, save_it=False):
-        """Prints a brief overview of the HDF5 file."""
-        hdfOverview(self, save_it=save_it)
+    @property
+    def overview(self):
+        return hdfOverview(self)
 
     def read_data(self, board, channel,
                   index=slice(None), shotnum=slice(None),

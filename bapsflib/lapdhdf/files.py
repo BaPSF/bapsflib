@@ -36,8 +36,7 @@ class File(h5py.File):
     :param kwargs: Driver specific keywords
     """
     def __init__(self, name, mode='r', driver=None, libver=None,
-                 userblock_size=None, swmr=False, overview=False,
-                 **kwargs):
+                 userblock_size=None, swmr=False, **kwargs):
         # TODO: re-work the argument pass through to h5py.File
         # TODO: add keyword save_report
         # - this will save the hdfChecks report to a text file alongside
@@ -55,13 +54,12 @@ class File(h5py.File):
         # initialize _info attribute
         self._build_info()
 
-        # print file overview
-        if overview is not False:
-            self.overview(save_it=overview)
-
     @property
     def info(self):
-        """General info on the file and the run."""
+        """
+        Dictionary of general info on the HDF5 file and experimental
+        run.
+        """
         return self._info.copy()
 
     @property
@@ -105,6 +103,10 @@ class File(h5py.File):
 
     @property
     def overview(self):
+        """
+        HDF5 file overview. (Instance of
+        :class:`~bapsflib.lapdhdf.hdfoverview.hdfOverview`)
+        """
         return hdfOverview(self)
 
     def read_data(self, board, channel,

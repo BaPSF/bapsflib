@@ -374,17 +374,29 @@ class hdfOverview(object):
             status_print('Configurations Detected (0)', '', '',
                          indent=1)
 
-    def report_controls(self):
+    def report_controls(self, name=None):
         """
         Prints to screen a report of all control devices and their
         configurations.
         """
+        # gather configs to print
+        if name is None:
+            configs = self.__hdf_map.controls.values()
+        elif name in self.__hdf_map.controls:
+            configs = [self.__hdf_map.controls[name]]
+        else:
+            name = None
+            configs = self.__hdf_map.controls.values()
+
         # print heading
-        print('\n\nControl Device Report')
-        print('^^^^^^^^^^^^^^^^^^^^^\n')
+        title = 'Control Device Report'
+        if name is not None:
+            title += ' ({} ONLY)'.format(name)
+        print('\n\n' + title)
+        print('^' * len(title) + '\n')
 
         # print control config
-        for control in self.__hdf_map.controls.values():
+        for control in configs:
             # print control name
             status_print(control.name, '', '')
 

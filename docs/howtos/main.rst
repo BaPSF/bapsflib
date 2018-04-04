@@ -19,6 +19,13 @@ Opening a file
 
 .. include:: openfile.inc.rst
 
+.. _file_hdfoverview:
+
+Getting, Printing, and Saving a File Overview
+---------------------------------------------
+
+.. include:: file_overview.inc.rst
+
 .. _read_data:
 
 Reading Data from a HDF5 File

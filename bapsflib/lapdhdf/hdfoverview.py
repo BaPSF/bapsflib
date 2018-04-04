@@ -251,17 +251,29 @@ class hdfOverview(object):
         for line in ppconfig.splitlines():
             status_print(line, '', '', indent=2)
 
-    def report_digitizers(self):
+    def report_digitizers(self, name=None):
         """
         Prints to screen a report of all detected digitizers and their
         configurations.
         """
+        # gather configs to print
+        if name is None:
+            configs = self.__hdf_map.digitizers
+        elif name in self.__hdf_map.digitizers:
+            configs = [name]
+        else:
+            name = None
+            configs = self.__hdf_map.digitizers
+
         # print heading
-        print('\n\nDigitizer Report')
-        print('^^^^^^^^^^^^^^^^\n')
+        title = 'Digitizer Report'
+        if name is not None:
+            title += ' ({} ONLY)'.format(name)
+        print('\n\n' + title)
+        print('^' * len(title) + '\n')
 
         # print digitizer config
-        for key in self.__hdf_map.digitizers:
+        for key in configs:
             # print digitizer name
             item = key
             if key in self.__hdf_map.main_digitizer.info['group name']:

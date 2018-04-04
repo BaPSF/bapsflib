@@ -31,14 +31,6 @@ bapsflib\.lapdhdf\.files
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfchecks
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: bapsflib.lapdhdf.hdfchecks
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 bapsflib\.lapdhdf\.hdferrors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -51,6 +43,14 @@ bapsflib\.lapdhdf\.hdfmapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: bapsflib.lapdhdf.hdfmapper
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+bapsflib\.lapdhdf\.hdfoverview
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: bapsflib.lapdhdf.hdfoverview
     :members:
     :undoc-members:
     :show-inheritance:

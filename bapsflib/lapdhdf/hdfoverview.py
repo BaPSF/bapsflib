@@ -208,13 +208,13 @@ class hdfOverview(object):
             status_print(control, '', '', indent=2)
 
         # ---- Unknowns                                             ----
-        item = 'unknowns ({})'.format(len(self.__hdf_map.unknowns))
+        item = 'Unknowns ({})'.format(len(self.__hdf_map.unknowns))
         note = 'aka unmapped'
-        status_print(item, note, '', indent=1)
+        status_print(item, note, '', indent=0)
 
         # list unknowns
         for unknown in self.__hdf_map.unknowns:
-            status_print(unknown, '', '', indent=2)
+            status_print(unknown, '', '', indent=1)
 
     def report_msi(self, name=None):
         """

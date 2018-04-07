@@ -80,8 +80,8 @@ class hdfMap_control_6k(hdfMap_control_template):
                 'dtype': np.int32
             }
 
-            # ---- define 'probe state values'                      ----
-            self._configs[config_name]['probe state values'] = {
+            # ---- define 'state values'                            ----
+            self._configs[config_name]['state values'] = {
                 'xyz': {
                     'dset paths':
                         self._configs[config_name]['dset paths'],

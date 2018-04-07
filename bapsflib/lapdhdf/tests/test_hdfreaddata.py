@@ -1447,7 +1447,7 @@ class TestHDFReadData(ut.TestCase):
 
             # gather fields that should be in data for this control
             # device
-            fields = list(cmap.configs[config]['probe state values'])
+            fields = list(cmap.configs[config]['state values'])
 
             # check that all fields are in cdata
             for field in fields:

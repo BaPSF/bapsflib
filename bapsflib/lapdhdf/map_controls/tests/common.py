@@ -55,7 +55,7 @@ class ControlTestCase(ut.TestCase):
             self.assertIsInstance(cmap.configs[config], dict)
             self.assertIn('dset paths', cmap.configs[config])
             self.assertIn('shotnum', cmap.configs[config])
-            self.assertIn('probe state values', cmap.configs[config])
+            self.assertIn('state values', cmap.configs[config])
             if cmap.has_command_list:
                 self.assertIn('command list', cmap.configs[config])
 
@@ -66,11 +66,11 @@ class ControlTestCase(ut.TestCase):
             self.assertIn('shape', cmap.configs[config]['shotnum'])
             self.assertIn('dtype', cmap.configs[config]['shotnum'])
 
-            # 'probe state values' features
+            # 'state values' features
             self.assertIsInstance(
-                cmap.configs[config]['probe state values'], dict)
+                cmap.configs[config]['state values'], dict)
             for pstate_dict in \
-                    cmap.configs[config]['probe state values'].values():
+                    cmap.configs[config]['state values'].values():
                 self.assertIsInstance(pstate_dict, dict)
                 self.assertIn('dset paths', pstate_dict)
                 self.assertIn('dset field', pstate_dict)

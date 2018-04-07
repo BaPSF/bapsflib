@@ -364,7 +364,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
 
     def _default_probe_state_config(self, config_name):
         """
-        Returns the default :code:`'probe state values'` dictionary for
+        Returns the default :code:`'state values'` dictionary for
         configuration *config_name*.
 
         :param str config_name: configuration name
@@ -397,7 +397,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
     def _construct_probe_state_dict(self, config_name, patterns):
         """
         Returns a dictionary for
-        :code:`configs[config_name]['probe state values]` based on the
+        :code:`configs[config_name]['state values]` based on the
         supplied RE patterns. :code:`None` is returned if the
         construction failed.
 
@@ -467,7 +467,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
     def reset_probe_state_config(self, config_name,
                                  apply_patterns=False):
         """
-        Reset the :code:`configs[config_name]['probe state values']`
+        Reset the :code:`configs[config_name]['state values']`
         dictionary.
 
         :param str config_name: configuration name
@@ -487,12 +487,12 @@ class hdfMap_control_cl_template(hdfMap_control_template):
             pstate = self._default_probe_state_config(config_name)
 
         # reset config
-        self._configs[config_name]['probe state values'] = pstate
+        self._configs[config_name]['state values'] = pstate
 
     def set_probe_state_config(self, config_name, patterns):
         """
         Rebuild and set
-        :code:`configs[config_name]['probe state values']` based on the
+        :code:`configs[config_name]['state values']` based on the
         supplied RE *patterns*.
 
         :param str config_name: configuration name
@@ -510,15 +510,15 @@ class hdfMap_control_cl_template(hdfMap_control_template):
                  'nothing')
             return
 
-        # construct dict for 'probe state values' dict
+        # construct dict for 'state values' dict
         pstate = self._construct_probe_state_dict(config_name,
                                                   patterns)
 
-        # update 'probe state values' dict
+        # update 'state values' dict
         if pstate is None:
             # do nothing since default parsing was unsuccessful
             warn("RE parsing of 'command list' was unsuccessful, "
                  "doing nothing")
             return
         else:
-            self._configs[config_name]['probe state values'] = pstate
+            self._configs[config_name]['state values'] = pstate

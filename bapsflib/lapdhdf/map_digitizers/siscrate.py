@@ -153,7 +153,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         # adc_info = ( int, # board
         #              [int, ], # channels
         #              {'bit': int, # bit resolution
-        #               'sample rate': (float, 'unit'),
+        #               'clock rate': (float, 'unit'),
         #               'shot average (software)': int,
         #               'sample average (hardware)': int})
         adc_info = []
@@ -164,9 +164,9 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             conns = self._find_adc_connections('SIS 3302',
                                                config_group)
             for conn in conns:
-                # define 'bit' and 'sample rate'
+                # define 'bit' and 'clock rate'
                 conn[2]['bit'] = 16
-                conn[2]['sample rate'] = (100.0, 'MHz')
+                conn[2]['clock rate'] = (100.0, 'MHz')
 
                 # keys 'shot average (software)' and
                 # 'sample average (hardware)' are added in
@@ -175,14 +175,14 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 # append info
                 adc_info.append(conn)
         elif adc_name == 'SIS 3305':
-            # note: sample rate for 'SIS 3305' depends on how
+            # note: clock rate for 'SIS 3305' depends on how
             # diagnostics are connected to the DAQ. Thus, assignment is
             # left to method self.__find_crate_connections.
             conns = self._find_adc_connections('SIS 3305',
                                                config_group)
             for conn in conns:
-                # define 'bit' and 'sample rate'
-                # - sample rate is defined in __find_adc_connections
+                # define 'bit' and 'clock rate'
+                # - clock rate is defined in __find_adc_connections
                 conn[2]['bit'] = 10
 
                 # keys 'shot average (software)' and
@@ -194,7 +194,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         else:
             adc_info.append((None, [None],
                              {'bit': None,
-                              'sample rate': (None, 'MHz'),
+                              'clock rate': (None, 'MHz'),
                               'shot average (software)': None,
                               'sample average (hardware)': None}))
 
@@ -341,7 +341,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 # and acquisition parameters
                 subconn = (brd, chs,
                            {'bit': None,
-                            'sample rate': (None, 'MHz'),
+                            'clock rate': (None, 'MHz'),
                             'shot average (software)': shtave,
                             'sample average (hardware)': splave})
                 if brd is not None:
@@ -411,7 +411,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                 # and acquisition parameters
                 subconn = (brd, chs,
                            {'bit': None,
-                            'sample rate': cmode,
+                            'clock rate': cmode,
                             'shot average (software)': shtave,
                             'sample average (hardware)': splave})
                 if brd is not None:

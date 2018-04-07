@@ -361,7 +361,7 @@ class hdfOverview(object):
                     line = line_indent + '(brd, [ch, ...])'
                     line = line.ljust(51)
                     line += 'bit'.ljust(5)
-                    line += 'sample rate'.ljust(13)
+                    line += 'clock rate'.ljust(13)
                     line += 'nshotnum'.ljust(10)
                     line += 'nt'.ljust(10)
                     line += 'shot ave.'.ljust(11)
@@ -379,8 +379,8 @@ class hdfOverview(object):
                         line = line.ljust(51)
                         line += str(adc_stats['bit']).ljust(5)
                         line += '{0} {1}'.format(
-                            adc_stats['sample rate'][0],
-                            adc_stats['sample rate'][1]).ljust(13)
+                            adc_stats['clock rate'][0],
+                            adc_stats['clock rate'][1]).ljust(13)
                         line += str(adc_stats['nshotnum']).ljust(10)
                         line += str(adc_stats['nt']).ljust(10)
                         line += str(

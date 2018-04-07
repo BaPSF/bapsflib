@@ -492,7 +492,7 @@ class hdfReadData(np.recarray):
             'configuration name': d_info['configuration name'],
             'adc': d_info['adc'],
             'bit': d_info['bit'],
-            'sample rate': d_info['sample rate'],
+            'clock rate': d_info['clock rate'],
             'sample average': d_info['sample average (hardware)'],
             'shot average': d_info['shot average (software)'],
             'board': board,
@@ -570,7 +570,7 @@ class hdfReadData(np.recarray):
             'configuration name': None,
             'adc': None,
             'bit': None,
-            'sample rate': (None, 'MHz'),
+            'clock rate': (None, 'MHz'),
             'sample average': None,
             'shot average': None,
             'board': None,
@@ -640,10 +640,10 @@ class hdfReadData(np.recarray):
             * - :const:`bit`
               - `int`
               - bit resolution for the adc
-            * - :const:`sample rate`
+            * - :const:`clock rate`
               - (`int`, `float`)
-              - tuple containing sample rate, e.g. (100.0, 'MHz')
-            * - :const:`sample rate`
+              - tuple containing clock rate, e.g. (100.0, 'MHz')
+            * - :const:`clock rate`
               - `int`
               - (hardware sampling) number of data sample average
                 together
@@ -688,15 +688,15 @@ class hdfReadData(np.recarray):
     def dt(self):
         """
         :return: time-step size (in sec) calculated from the
-            'sample rate' item in :attr:`info`.
+            'clock rate' item in :attr:`info`.
         :rtype: float
         """
         # define unit conversions
         units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
 
         # calc base dt
-        dt = 1.0 / (self.info['sample rate'][0] *
-                    units[self.info['sample rate'][1]])
+        dt = 1.0 / (self.info['clock rate'][0] *
+                    units[self.info['clock rate'][1]])
 
         # adjust for hardware averaging
         if self.info['sample average'] is not None:

@@ -84,7 +84,7 @@ class hdfMap_digi_template(ABC):
                 int,     # board number of active boards
                 [int, ], # channel numbers of active channels
                 {'bit': int, # adc bit resolution
-                 'sample rate': (float, 'unit'), # adc sample rate
+                 'clock rate': (float, 'unit'), # adc clock rate
                  'shot average (software)': int, # adc shot averaging
                  'sample average (hardware)': int # adc sample averaging
             }), ]
@@ -206,7 +206,7 @@ class hdfMap_digi_template(ABC):
                 board,
                 channels,
                 {'bit': int,
-                 'sample rate': (float, str),
+                 'clock rate': (float, str),
                  'sample average (hardware)': int,
                  'shot average (software)': int}
             ), ]
@@ -217,7 +217,7 @@ class hdfMap_digi_template(ABC):
         * :code:`channels` (`list(int)`) = list of active channels on
           :code:`board`
         * :code:`'bit'` = bit resolution of adc
-        * :code:`'sample rate'` = 2-element tuple defining the sample
+        * :code:`'clock rate'` = 2-element tuple defining the sample
           rate of the adc. First element is value and second is its
           unit (e.g. :code:`'MHz'`, :code:`'GHz'`, etc.).
         * :code:`'sample average (hardware)'` = `int` for the number of
@@ -271,7 +271,7 @@ class hdfMap_digi_template(ABC):
           :code:`board`
         * :code:`extras` (`dict`) = dictionary of "extra" information,
           can include the dictionary keys :code:`'bit'`,
-          :code:`'sample rate'`, etc.
+          :code:`'clock rate'`, etc.
 
         :raise: :exc:`NotImplementedError`
         """
@@ -298,7 +298,7 @@ class hdfMap_digi_template(ABC):
 
             adc_dict = {
                 'bit': int,
-                'sample rate': (float, str),
+                'clock rate': (float, str),
                 'sample average (hardware)': int,
                 'shot average (software)': int,
                 'adc': str,
@@ -319,7 +319,7 @@ class hdfMap_digi_template(ABC):
             * If only one adc is active, then that adc is assumed and
               :data:`adc` does not need to be specified.
             * If multiple adc's are active, then the adc with the
-              slowest sample rate is assumed.  To direct to any other
+              slowest clock rate is assumed.  To direct to any other
               adc, then :data:`adc` needs to be specified.
 
         :raise: :exc:`NotImplementedError`

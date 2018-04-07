@@ -69,7 +69,7 @@ class DigitizerTestCase(ut.TestCase):
                     # item extras
                     # TODO: detail test on each key
                     self.assertIn('bit', item[2])
-                    self.assertIn('sample rate', item[2])
+                    self.assertIn('clock rate', item[2])
                     self.assertIn('nshotnum', item[2])
                     self.assertIn('nt', item[2])
                     self.assertIn('shot average (software)', item[2])
@@ -124,7 +124,7 @@ class DigitizerTestCase(ut.TestCase):
         self.assertIsInstance(dname[0], str)
         self.assertIsInstance(dname[1], dict)
         self.assertIn('bit', dname[1])
-        self.assertIn('sample rate', dname[1])
+        self.assertIn('clock rate', dname[1])
         self.assertIn('shot average (software)', dname[1])
         self.assertIn('sample average (hardware)', dname[1])
         self.assertIn('adc', dname[1])

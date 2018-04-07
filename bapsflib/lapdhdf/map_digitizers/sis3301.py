@@ -155,7 +155,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # adc_info = ( int, # board
         #              [int, ], # channels
         #              {'bit': 14, # bit resolution
-        #               'sample rate': (100.0, 'MHz'),
+        #               'clock rate': (100.0, 'MHz'),
         #               'shot average (software)': int,
         #               'sample average (hardware)': int})
         adc_info = []
@@ -165,9 +165,9 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         conns = self._find_adc_connections(adc_name, config_group)
 
         for conn in conns:
-            # define 'bit' and 'sample rate'
+            # define 'bit' and 'clock rate'
             conn[2]['bit'] = 14
-            conn[2]['sample rate'] = (100.0, 'MHz')
+            conn[2]['clock rate'] = (100.0, 'MHz')
 
             # add shot average to dict
             if 'Shots to average' in config_group.attrs:
@@ -274,7 +274,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
             # build subconn tuple with connected board, channels, and
             # acquisition parameters
             subconn = (brd, chs,
-                       {'bit': None, 'sample rate': (None, 'MHz')})
+                       {'bit': None, 'clock rate': (None, 'MHz')})
             conn.append(subconn)
 
         return conn

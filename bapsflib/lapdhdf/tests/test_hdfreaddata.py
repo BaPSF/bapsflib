@@ -912,7 +912,7 @@ class TestHDFReadData(ut.TestCase):
         #    a. digitizer w/ ONE adc
         #       - defaults to the one
         #    b. digitizer w/ MULTIPLE adc's
-        #       - defaults to the one w/ the slowest sample rate
+        #       - defaults to the one w/ the slowest clock rate
         # 2. specified
         #    a. digitizer w/ ONE adc
         #       i. `adc` is valid
@@ -1321,7 +1321,7 @@ class TestHDFReadData(ut.TestCase):
         self.assertIn('configuration name', data.info)
         self.assertIn('adc', data.info)
         self.assertIn('bit', data.info)
-        self.assertIn('sample rate', data.info)
+        self.assertIn('clock rate', data.info)
         self.assertIn('sample average', data.info)
         self.assertIn('shot average', data.info)
         self.assertIn('board', data.info)

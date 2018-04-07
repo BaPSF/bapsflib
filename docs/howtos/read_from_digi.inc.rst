@@ -217,8 +217,8 @@ extract data from :code:`'SIS crate'` one would use the
 Digitizer :code:`'SIS crate'` can have multiple active
 adc's, :code:`'SIS 3302'` and :code:`'SIS 3305'`.  By default, if only
 one adc is active then that adc is assumed; however, if multiple adc's
-are active, then the adc with the slower sample rate is assumed.
-:code:`'SIS 3302'` has the slower sample rate in this case.  To extract
+are active, then the adc with the slower clock rate is assumed.
+:code:`'SIS 3302'` has the slower clock rate in this case.  To extract
 data from :code:`'SIS 3305'` one would use the :data:`adc` keyword as
 follows::
 

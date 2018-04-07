@@ -345,7 +345,7 @@ class hdfReadControl(np.recarray):
             # add fields
             cconfig = file_map.controls[cname].configs[cspec]
             for field_name, fconfig in \
-                    cconfig['probe state values'].items():
+                    cconfig['state values'].items():
                 dtype.append((
                     field_name,
                     fconfig['dtype'],
@@ -391,7 +391,7 @@ class hdfReadControl(np.recarray):
             # 4. NaN fill if intersection_set = False
             #
             for nf_name, fconfig \
-                    in cconfig['probe state values'].items():
+                    in cconfig['state values'].items():
                 # nf_name
                 #   the numpy field name
                 # fconfig

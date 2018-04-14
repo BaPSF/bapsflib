@@ -1,0 +1,21 @@
+==========
+Background
+==========
+
+
+What is HDF5?
+=============
+
+HDF5 is a technology developed by the
+`HDF Group <https://portal.hdfgroup.org/display/support>`_ that is
+designed to manage large and complex collections of data.  Advanced
+relationships between data and user metadata can be structured through
+grouping and linking mechanisms.  For HDF5 support visit HDF Group's
+`HDF5 support site <https://support.hdfgroup.org/HDF5/>`_.
+
+.. _lapd_file_overview:
+
+Structure of a LaPD Generated HDF5 File
+=======================================
+
+.. include:: lapd_hdf5_structure.inc.rst

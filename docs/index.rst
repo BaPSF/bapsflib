@@ -12,6 +12,7 @@ Welcome to bapsflib's documentation!
 
     about
     installation
+    ./background/main
     ./howtos/main
     ./hdfmap/main
     packageindex

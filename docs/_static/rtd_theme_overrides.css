@@ -10,4 +10,9 @@
     .wy-table-responsive {
         overflow: visible !important;
     }
+
+
+/* Override RTD theme bottom margin for line blocks */
+.rst-content .line-block {
+    margin-bottom: 0px
 }

@@ -21,7 +21,7 @@
 import os
 import sys
 from sphinx.ext.autodoc import between
-#from unittest.mock import MagicMock
+# from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -200,6 +200,12 @@ modindex_common_prefix = ['bapsflib.']
 exclude_patterns.extend([
     '**.inc.rst'
 ])
+
+# add a pycode role for inline markup e.g. :pycode:`'mycode'`
+rst_prolog = """
+.. role:: pycode(code)
+   :language: python3
+"""
 
 
 def setup(app):

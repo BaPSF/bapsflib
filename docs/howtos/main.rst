@@ -5,13 +5,6 @@ HOWTOs and Explainers
     :depth: 3
     :local:
 
-.. _lapd_file_overview:
-
-Overview of a LaPD Generated HDF5 File
---------------------------------------
-
-.. note:: needs to be written
-
 .. _file_open:
 
 Opening a File
@@ -19,10 +12,22 @@ Opening a File
 
 .. include:: openfile.inc.rst
 
+After Opening a File
+--------------------
+
+.. include:: afteropen.inc.rst
+
+.. _file_info:
+
+File Info: Metadata You Want
+----------------------------
+
+.. include:: file_info.inc.rst
+
 .. _file_hdfoverview:
 
-Getting, Printing, and Saving a File Overview
----------------------------------------------
+File Overview: Getting, Printing, and Saving
+--------------------------------------------
 
 .. include:: file_overview.inc.rst
 

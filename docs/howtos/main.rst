@@ -14,7 +14,7 @@ Overview of a LaPD Generated HDF5 File
 
 .. _file_open:
 
-Opening a file
+Opening a File
 --------------
 
 .. include:: openfile.inc.rst

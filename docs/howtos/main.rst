@@ -40,9 +40,9 @@ Reading Data from a HDF5 File
 
 .. _handle_data:
 
-Handling Extracted Data
------------------------
+.. Handling Extracted Data
+   -----------------------
 
-.. note:: To be written
+.. .. note:: To be written
 
 .. .. include:: handledata.rst

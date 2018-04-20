@@ -19,3 +19,18 @@ Structure of a LaPD Generated HDF5 File
 =======================================
 
 .. include:: lapd_hdf5_structure.inc.rst
+
+.. _digi_overview:
+
+What is a digitizer?
+====================
+
+.. note:: Need to write.
+
+------
+
+.. note:: **Things to add**
+
+    * explain the what the global HDF5 shot number is
+    * describe the components of a digitizer, layout the front panel for
+      past LaPD digitizers

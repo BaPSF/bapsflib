@@ -1,22 +1,39 @@
-There are three classes of data data saved in a HDF5 file, **digitizer**
-data, **control device** data, and **MSI diagnostic** data (see
-:ref:`lapd_file_overview`).  Each class of data is given its own read
-method on :class:`bapsflib.lapdhdf.File`:
+.. There are three classes of data data saved in a HDF5 file, **digitizer**
+   data, **control device** data, and **MSI diagnostic** data (see
+   :ref:`lapd_file_overview`).  Each class of data is given its own read
+   method on :class:`bapsflib.lapdhdf.File`:
 
-.. csv-table::
-    :header: "Method", "What it does"
-    :widths: 10, 40
+Three classes :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`,
+:class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`, and
+:class:`~bapsflib.lapdhdf.hdfreadmsi.hdfReadMSI` are given to read data
+for **digitizers**, **control devices**, and **MSI diagnostics**,
+respectively.  Each of these read classes are bound to
+:class:`~bapsflib.lapdhdf.files.File`, see :numref:`f_read_methods`,
+and will return a structured :mod:`numpy` array with the requested data.
 
-    :meth:`~bapsflib.lapdhdf.files.File.read_data`, "Designed to extract
-    **digitizer** data from a HDF5 file with the option of mating
-    **control device** data at the time of extraction. (see
-    :ref:`read_digi`)
+.. _f_read_methods:
+
+.. csv-table:: Read classes/methods for extracting data from a HDF5 file
+    :header: "Read Class", "
+        Bound Method on :class:`~bapsflib.lapdhdf.files.File`", "
+        What it does"
+    :widths: 10, 15, 40
+
+    :mod:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`, "
+    :meth:`~bapsflib.lapdhdf.files.File.read_data`","
+    Designed to extract **digitizer** data from a HDF5 file with the
+    option of mating **control device** data at the time of extraction.
+    (see reading :ref:`read_digi`)
     "
-    :meth:`~bapsflib.lapdhdf.files.File.read_controls`, "Designed to
-    extract **control device** data. (see :ref:`read_controls`)
+    :mod:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`, "
+    :meth:`~bapsflib.lapdhdf.files.File.read_controls`", "
+    Designed to extract **control device** data. (see reading
+    :ref:`read_controls`)
     "
-    :meth:`~bapsflib.lapdhdf.files.File.read_msi`, "Designed to extract
-    **MSI diagnostic** data. (see :ref:`read_msi`)
+    :mod:`~bapsflib.lapdhdf.hdfreadmsi.hdfReadMSI`, "
+    :meth:`~bapsflib.lapdhdf.files.File.read_msi`", "
+    Designed to extract **MSI diagnostic** data. (see reading
+    :ref:`read_msi`)
     "
 
 .. _read_digi:

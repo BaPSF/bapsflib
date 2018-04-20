@@ -1,55 +1,52 @@
-.. Extracting data from an HDF5 file is done with either the
-    :meth:`~bapsflib.lapdhdf.files.File.read_data` method or the
-    :meth:`~bapsflib.lapdhdf.files.File.read_controls` method.  The
-    :meth:`~bapsflib.lapdhdf.files.File.read_controls` method is designed to
-    extract data from probe control devices (e.g. the **6K Compumotor**, the
-    **Waveform** generator, etc.), where as, the
-    :meth:`~bapsflib.lapdhdf.files.File.read_data` method is designed to
-    extract digitizer data and mate any specified control data.  Details on
-    using the :meth:`~bapsflib.lapdhdf.files.File.read_controls` method can
-    be read in the :ref:`read_controls` section.  This section will focus on
-    the functionality of :meth:`~bapsflib.lapdhdf.files.File.read_data`.
-
 Digitizer data is read using the
 :meth:`~bapsflib.lapdhdf.files.File.read_data` method on
 :class:`bapsflib.lapdhdf.files.File`.  The method also has the option
 of mating control device data at the time of declaration (see section
-:ref:`read_digi_adding_controls`) [1]_.
+:ref:`read_digi_adding_controls`) [#]_.
 
 At a minimum the :meth:`~bapsflib.lapdhdf.files.File.read_data` method
-only needs a board number and channel number to extract data, but there
-are several additional keyword options:
+only needs a board number and channel number to extract data [#]_, but
+there are several additional keyword options:
 
-.. csv-table::
+.. csv-table:: Optional keywords for
+               :meth:`~bapsflib.lapdhdf.files.File.read_data`
     :header: "Keyword", "Default", "Description"
-    :widths: 15, 10, 40
+    :widths: 10, 5, 40
 
     :data:`index`, :code:`slice(None)`, "row index of the HDF5 dataset
+    (see :ref:`read_digi_subset`)
     "
     ":data:`shotnum`", ":code:`slice(None)`", "global HDF5 file shot
-    number
+    number (see :ref:`read_digi_subset`)
     "
-    :data:`digitizer`, :code:`None`, "name of the digitizer for which
-    :code:`board` and :code:`channel` belong to
+    :data:`digitizer`, :code:`None`, "
+    | name of the digitizer for which :code:`board` and :code:`channel`
+      belong to
+    | (see :ref:`read_digi_digi`)
     "
-    :data:`adc`, :code:`None` , "name of the digitizer's
-    analog-digital-converter (adc) for which :code:`board` and
-    :code:`channel` belong to
+    :data:`adc`, :code:`None` , "
+    | name of the digitizer's analog-digital-converter (adc) for which
+      :code:`board` and :code:`channel` belong to
+    | (see :ref:`read_digi_digi`)
     "
-    :data:`config_name`, :code:`None`, "name of the digitizer
-    configuration
+    :data:`config_name`, :code:`None`, "
+    | name of the digitizer configuration
+    | (see :ref:`read_digi_digi`)
     "
     :data:`keep_bits`, :code:`False`, "Set :code:`True` to return the
     digitizer data in bit values. By default the digitizer data is
     converted to voltage.
     "
-    :data:`add_controls`, :code:`None`, "list of control devices whose
-    data will be matched and added to the requested digitizer data
+    :data:`add_controls`, :code:`None`, "
+    | list of control devices whose data will be matched and added to
+      the requested digitizer data
+    | (see :ref:`read_digi_adding_controls`
     "
-    :data:`intersection_set`, :code:`True`, "Ensures that the returned
-    data array only contains shot numbers that are inclusive in
-    :code:`shotnum`, the digitizer dataset, and  all control device
-    datasets.
+    :data:`intersection_set`, :code:`True`, "
+    | Ensures that the returned data array only contains shot numbers
+      that are inclusive in :code:`shotnum`, the digitizer dataset, and
+      all control device datasets.
+    | (see :ref:`read_digi_subset`)
     "
     :data:`silent`, :code:`False`, "set :code:`True` to suppress command
     line printout of soft-warnings
@@ -98,6 +95,8 @@ is initialized with :const:`numpy.nan` values, but will be populated if
 a control device of :code:`contype = 'motion'` is added (see
 :ref:`read_digi_adding_controls`).
 
+------
+
 For details on handling and manipulating :data:`data` see
 :ref:`handle_data`.
 
@@ -105,11 +104,14 @@ For details on handling and manipulating :data:`data` see
 
     Since :class:`bapsflib.lapdhdf` leverages the :class:`h5py` package,
     the data in :file:`test.hdf5` resides on disk until one of the read
-    methods, :meth:`~bapsflib.lapdhdf.files.File.read_data` or
-    :meth:`~bapsflib.lapdhdf.files.File.read_data`, is called.  In
+    methods, :meth:`~bapsflib.lapdhdf.files.File.read_data`,
+    :meth:`~bapsflib.lapdhdf.files.File.read_msi`, or
+    :meth:`~bapsflib.lapdhdf.files.File.read_controls` is called.  In
     calling on of these methods, the requested data is brought into
     memory as a :class:`numpy.ndarray` and a :class:`numpy.view` onto
     that :data:`ndarray` is returned to the user.
+
+------
 
 .. _read_digi_subset:
 
@@ -278,7 +280,7 @@ provide the configuration name to direct the extraction.  This is done
 with a 2-element tuple entry for :data:`add_controls`, where the first
 element is the control device name and the second element is the
 configuration name.  For the :code:`'6K Compumotor'` the configuration
-name is the receptacle number of the probe drive [2]_.  Suppose the
+name is the receptacle number of the probe drive [#]_.  Suppose the
 :code:`'6K Compumotor'` is utilizing three probe drives with the
 receptacles 2, 3, and 4.  To mate control device data from receptacle 3,
 the call would look something like::
@@ -315,12 +317,14 @@ structured array according to the fields specified in its mapping
 constructor.  See :ref:`read_controls` for details on these added
 fields.
 
-.. [1] Control device data can also be independently read using
+.. [#] Control device data can also be independently read using
     :meth:`~bapsflib.lapdhdf.files.File.read_controls`.
     (see :ref:`read_controls` for usage)
-.. [2] Each control device has its own concept of what constitutes a
+.. [#] Review section :ref:`digi_overview` for how a digitizer is
+    organized and configured.
+.. [#] Each control device has its own concept of what constitutes a
     configuration. The configuration has be unique to a block of
-    recorded data.  For the :code:`'6K Compumotor'` the receptical
+    recorded data.  For the :code:`'6K Compumotor'` the receptacle
     number is used as the configuration name, whereas, for the
     :code:`'Waveform'` control the confiugration name is the name of the
     configuration group inside the :code:`'Waveform` group.  Since the

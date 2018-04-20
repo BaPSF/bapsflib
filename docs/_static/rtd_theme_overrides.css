@@ -11,8 +11,23 @@
         overflow: visible !important;
     }
 
+/* Add coloring for red text */
+.red {
+    color:red;
+}
 
-/* Override RTD theme bottom margin for line blocks */
-.rst-content .line-block {
+/* Override RTD theme bottom margin for line blocks in a table */
+.rst-content table.docutils td .line-block {
     margin-bottom: 0px
 }
+
+/* Override RTD theme bottom margin for code highlights in a table */
+.rst-content table.docutils td div[class^='highlight'] {
+    margin-bottom: 0px
+}
+
+/*
+.rst-content table td > ul {
+    margin-bottom: 0px;
+}
+*/

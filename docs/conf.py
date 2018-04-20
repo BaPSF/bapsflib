@@ -205,6 +205,8 @@ exclude_patterns.extend([
 rst_prolog = """
 .. role:: pycode(code)
    :language: python3
+
+.. role:: red
 """
 
 

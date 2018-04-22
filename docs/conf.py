@@ -20,7 +20,6 @@
 #
 import os
 import sys
-import sphinx_rtd_theme
 from sphinx.ext.autodoc import between
 # from unittest.mock import MagicMock
 
@@ -103,6 +102,7 @@ todo_include_todos = False
 #else:
 #    html_theme = 'sphinx_rtd_theme'
 html_theme = 'sphinx_rtd_theme'
+html_theme_path = ['_themes']
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see
@@ -121,8 +121,8 @@ html_theme_options = {
 # - see issue #1776 on rtfd/readthedocs.org
 #   (https://github.com/rtfd/readthedocs.org/issues/1776)
 #
-# html_static_path = ['_static']
-html_static_path = []
+html_static_path = ['_static']
+# html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document
 # names to template names.

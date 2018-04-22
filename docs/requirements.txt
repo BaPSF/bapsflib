@@ -11,4 +11,4 @@
 #
 # Sphinx/Documentation Requirements
 sphinx >= 1.7.2
-sphinx-rtd-theme >= 0.3.0
+# sphinx-rtd-theme >= 0.3.0

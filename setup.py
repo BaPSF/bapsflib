@@ -33,7 +33,10 @@ setup(
     author='Erik T. Everson',
     author_email='eteveson@gmail.com',
     packages=find_packages(),
-    install_requires=['h5py>=2.6', 'numpy>=1.7'],
+    install_requires=['h5py>=2.6',
+                      'numpy>=1.7',
+                      'scipy >= 1.0.0'
+                      'sphinx-rtd-theme>=0.3.0'],
     python_requires='>=3.5',
     zip_safe=False,
     include_package_data=True

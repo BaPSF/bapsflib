@@ -26,6 +26,17 @@
     margin-bottom: 0px
 }
 
+/* Override RTD theme margin-left indent
+   - the RTD theme behaves correctly locally but not on the RTD site
+   - this override is to fix behavior of the RTD side
+*/
+.line-block {
+    margin-left: 0px
+}
+.line-block .line-block {
+    margin-left: $base-line-height
+}
+
 /*
 .rst-content table td > ul {
     margin-bottom: 0px;

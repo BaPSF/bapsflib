@@ -30,10 +30,10 @@
    - the RTD theme behaves correctly locally but not on the RTD site
    - this override is to fix behavior of the RTD side
 */
-.line-block {
+.rst-content .line-block {
     margin-left: 0px
 }
-.line-block .line-block {
+.rst-content .line-block .line-block {
     margin-left: $base-line-height
 }
 

@@ -20,6 +20,7 @@
 #
 import os
 import sys
+import sphinx_rtd_theme
 from sphinx.ext.autodoc import between
 # from unittest.mock import MagicMock
 
@@ -57,7 +58,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'bapsflib'
-copyright = '2017, Erik T. Everson'
+copyright = '2017-2018, Erik T. Everson'
 author = 'Erik T. Everson'
 
 # The version info for the project you're documenting, acts as
@@ -96,11 +97,12 @@ todo_include_todos = False
 #
 #html_theme = 'alabaster'
 #html_theme = 'default'
-on_rtd = os.environ.get('READTHEDOCS') == 'True'
-if on_rtd:
-    html_theme = 'default'
-else:
-    html_theme = 'sphinx_rtd_theme'
+#on_rtd = os.environ.get('READTHEDOCS') == 'True'
+#if on_rtd:
+#    html_theme = 'default'
+#else:
+#    html_theme = 'sphinx_rtd_theme'
+html_theme = 'sphinx_rtd_theme'
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see
@@ -114,7 +116,13 @@ html_theme_options = {
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static']
+# - attempt to solve RTD from throwing a WARNING: html_static_theme
+#   entry ... does not exist
+# - see issue #1776 on rtfd/readthedocs.org
+#   (https://github.com/rtfd/readthedocs.org/issues/1776)
+#
+# html_static_path = ['_static']
+html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document
 # names to template names.

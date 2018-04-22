@@ -35,7 +35,8 @@ setup(
     packages=find_packages(),
     install_requires=['h5py>=2.6',
                       'numpy>=1.7',
-                      'scipy >= 1.0.0'
+                      'scipy>=1.0.0'
+                      'sphinx>=1.7.2'
                       'sphinx-rtd-theme>=0.3.0'],
     python_requires='>=3.5',
     zip_safe=False,

@@ -39,7 +39,8 @@ autoclass_content = "both"
 # ones.
 # 'sphinx.ext.imgmath'
 # 'sphinx.ext.mathjax'
-extensions = ['sphinx.ext.autodoc', 'sphinx.ext.githubpages',
+extensions = ['sphinx.ext.autodoc',
+              'sphinx.ext.githubpages',
               'sphinx.ext.mathjax']
 numfig = True  # enable figure and table numbering
 

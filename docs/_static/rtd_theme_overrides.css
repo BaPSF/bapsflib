@@ -38,6 +38,6 @@
 }
 
 /* Override RTD .highlight background color */
-.highlight {
+div[class^="highlight"] {
     background: #eeffcc
 }

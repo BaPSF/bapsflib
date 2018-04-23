@@ -26,10 +26,10 @@
     margin-bottom: 0px
 }
 
-/* Override RTD theme margin-left indent
-   - the RTD theme behaves correctly locally but not on the RTD site
-   - this override is to fix behavior of the RTD side
+/* --- RTD theme fixes since readthedocs.org theme does not match    ---
+   --- the sphinx_rtd_theme                                          ---
 */
+/* Override RTD theme margin-left indent */
 .rst-content .line-block {
     margin-left: 0px
 }
@@ -37,8 +37,7 @@
     margin-left: $base-line-height
 }
 
-/*
-.rst-content table td > ul {
-    margin-bottom: 0px;
+/* Override RTD .highlight background color */
+.rst-content .highlight {
+    background: #eeffcc
 }
-*/

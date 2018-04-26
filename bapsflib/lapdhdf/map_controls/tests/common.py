@@ -32,7 +32,7 @@ class ControlTestCase(ut.TestCase):
         if cmap.has_command_list:
             self.assertTrue(hasattr(cmap, '_cl_re_patterns'))
             self.assertTrue(hasattr(cmap,
-                                    '_default_probe_state_config'))
+                                    '_default_state_values_dict'))
             self.assertTrue(hasattr(cmap,
                                     '_construct_probe_state_dict'))
             self.assertTrue(hasattr(cmap, 'clparse'))

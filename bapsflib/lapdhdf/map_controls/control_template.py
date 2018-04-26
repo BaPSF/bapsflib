@@ -362,7 +362,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         self._cl_re_patterns = []
         """List of common RE patterns."""
 
-    def _default_probe_state_config(self, config_name):
+    def _default_state_values_dict(self, config_name):
         """
         Returns the default :code:`'state values'` dictionary for
         configuration *config_name*.
@@ -472,7 +472,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
 
         :param str config_name: configuration name
         :param bool apply_patterns: Set :code:`False` (DEFAULT) to
-            reset to :code:`_default_probe_state_config(config_name)`.
+            reset to :code:`_default_state_values_dict(config_name)`.
             Set :code:`True` to rebuild dict using
             :attr:`_cl_re_patterns`.
         """
@@ -481,10 +481,10 @@ class hdfMap_control_cl_template(hdfMap_control_template):
             pstate = self._construct_probe_state_dict(
                 config_name, self._cl_re_patterns)
             if pstate is None:
-                pstate = self._default_probe_state_config(config_name)
+                pstate = self._default_state_values_dict(config_name)
         else:
             # get default dict
-            pstate = self._default_probe_state_config(config_name)
+            pstate = self._default_state_values_dict(config_name)
 
         # reset config
         self._configs[config_name]['state values'] = pstate

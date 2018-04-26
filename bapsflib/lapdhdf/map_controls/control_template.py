@@ -464,8 +464,8 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         # define clparse and return
         return CLParse(cl)
 
-    def reset_probe_state_config(self, config_name,
-                                 apply_patterns=False):
+    def reset_state_values_config(self, config_name,
+                                  apply_patterns=False):
         """
         Reset the :code:`configs[config_name]['state values']`
         dictionary.
@@ -489,7 +489,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         # reset config
         self._configs[config_name]['state values'] = pstate
 
-    def set_probe_state_config(self, config_name, patterns):
+    def set_state_values_config(self, config_name, patterns):
         """
         Rebuild and set
         :code:`configs[config_name]['state values']` based on the

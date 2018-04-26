@@ -18,8 +18,9 @@ from ..map_msi.tests import (FauxDischarge,
                              FauxHeater,
                              FauxInterferometerArray,
                              FauxMagneticField)
-from ..map_controls.tests import FauxWaveform
-from ..map_controls.tests import FauxSixK
+from ..map_controls.tests import (FauxWaveform,
+                                  FauxSixK,
+                                  FauxN5700PS)
 from ..map_digitizers.tests import FauxSIS3301
 
 
@@ -39,7 +40,8 @@ class FauxHDFBuilder(h5py.File):
     }
     _KNOWN_CONTROLS = {
         'Waveform': FauxWaveform,
-        '6K Compumotor': FauxSixK
+        '6K Compumotor': FauxSixK,
+        'N5700_PS': FauxN5700PS,
     }
     _KNOWN_MODULES = _KNOWN_CONTROLS.copy()
     _KNOWN_MODULES.update(_KNOWN_MSI)

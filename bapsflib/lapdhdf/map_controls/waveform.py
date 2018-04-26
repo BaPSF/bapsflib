@@ -127,5 +127,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
         return default_dict
 
     def construct_dataset_name(self, *args):
-        """Constructs name of dataset containing probe state data."""
+        """
+        Constructs name of dataset containing control state value data.
+        """
         return 'Run time list'

@@ -13,6 +13,8 @@ import h5py
 
 from .sixk import hdfMap_control_6k
 from .waveform import hdfMap_control_waveform
+from .n5700ps import hdfMap_control_n5700ps
+
 
 class hdfMap_controls(dict):
     """
@@ -31,7 +33,9 @@ class hdfMap_controls(dict):
     """
     _defined_control_mappings = {
         '6K Compumotor': hdfMap_control_6k,
-        'Waveform': hdfMap_control_waveform}
+        'Waveform': hdfMap_control_waveform,
+        'N5700_PS': hdfMap_control_n5700ps,
+    }
     """
     Dictionary containing references to the defined (known) control
     device mapping classes.

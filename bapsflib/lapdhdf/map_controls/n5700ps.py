@@ -27,6 +27,8 @@ class hdfMap_control_n5700ps(hdfMap_control_cl_template):
 
         # define known command list RE patterns
         self._cl_re_patterns.extend([
+            r'(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)'
+            + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
         ])
 
         # populate self.configs

@@ -31,6 +31,7 @@ from .map_controls import hdfMap_controls
 
 from warnings import warn
 
+
 class hdfMap(object):
     """
     Constructs a complete file mapping of :obj:`hdf_obj` that is

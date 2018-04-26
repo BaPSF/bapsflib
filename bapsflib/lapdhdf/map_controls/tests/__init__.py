@@ -10,3 +10,4 @@
 #
 from .fauxwaveform import FauxWaveform
 from .fauxsixk import FauxSixK
+from .fauxn5700ps import FauxN5700PS

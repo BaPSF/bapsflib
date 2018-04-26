@@ -103,12 +103,12 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
                 name, self._cl_re_patterns)
             self._configs[name]['state values'] = pstate \
                 if pstate is not None \
-                else self._default_probe_state_config(name)
+                else self._default_state_values_dict(name)
 
         # indicate build was successful
         self._build_successful = True
 
-    def _default_probe_state_config(self, config_name):
+    def _default_state_values_dict(self, config_name):
         # define default dict
         default_dict = {
             'command': {

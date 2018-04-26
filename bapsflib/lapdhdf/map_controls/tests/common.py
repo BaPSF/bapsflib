@@ -34,7 +34,7 @@ class ControlTestCase(ut.TestCase):
             self.assertTrue(hasattr(cmap,
                                     '_default_state_values_dict'))
             self.assertTrue(hasattr(cmap,
-                                    '_construct_probe_state_dict'))
+                                    '_construct_state_values_dict'))
             self.assertTrue(hasattr(cmap, 'clparse'))
             self.assertTrue(hasattr(cmap, 'reset_probe_state_config'))
             self.assertTrue(hasattr(cmap, 'set_probe_state_config'))

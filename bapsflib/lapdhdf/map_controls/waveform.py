@@ -99,7 +99,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
 
             # ---- define 'state values'                            ----
             # initialize
-            pstate = self._construct_probe_state_dict(
+            pstate = self._construct_state_values_dict(
                 name, self._cl_re_patterns)
             self._configs[name]['state values'] = pstate \
                 if pstate is not None \

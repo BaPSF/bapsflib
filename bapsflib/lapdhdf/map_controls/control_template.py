@@ -394,7 +394,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         """
         raise NotImplementedError
 
-    def _construct_probe_state_dict(self, config_name, patterns):
+    def _construct_state_values_dict(self, config_name, patterns):
         """
         Returns a dictionary for
         :code:`configs[config_name]['state values]` based on the
@@ -478,7 +478,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         """
         if apply_patterns:
             # get pstate dict
-            pstate = self._construct_probe_state_dict(
+            pstate = self._construct_state_values_dict(
                 config_name, self._cl_re_patterns)
             if pstate is None:
                 pstate = self._default_state_values_dict(config_name)
@@ -511,8 +511,8 @@ class hdfMap_control_cl_template(hdfMap_control_template):
             return
 
         # construct dict for 'state values' dict
-        pstate = self._construct_probe_state_dict(config_name,
-                                                  patterns)
+        pstate = self._construct_state_values_dict(config_name,
+                                                   patterns)
 
         # update 'state values' dict
         if pstate is None:

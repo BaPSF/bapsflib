@@ -8,15 +8,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: add 'dset name' to configs dict
-#
-import h5py
 import numpy as np
 
 from .control_template import hdfMap_control_template
 
 
 class hdfMap_control_6k(hdfMap_control_template):
+    """
+    Mapping module for control device '6K Compumotor'.
+    """
     def __init__(self, control_group):
         hdfMap_control_template.__init__(self, control_group)
 

@@ -15,9 +15,7 @@ from .control_template import hdfMap_control_cl_template
 
 class hdfMap_control_n5700ps(hdfMap_control_cl_template):
     """
-    .. Warning::
-
-        In development
+    Mapping module for control device 'N5700_PS'.
     """
     def __init__(self, control_group):
         hdfMap_control_cl_template.__init__(self, control_group)

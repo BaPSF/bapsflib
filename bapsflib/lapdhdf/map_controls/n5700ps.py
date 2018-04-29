@@ -8,6 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import warnings
+
 import numpy as np
 
 from .control_template import hdfMap_control_cl_template
@@ -93,9 +95,13 @@ class hdfMap_control_n5700ps(hdfMap_control_cl_template):
             }
 
             # ---- define 'state values'                            ----
+            # catch and suppress warnings only for initialization
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                pstate = self._construct_state_values_dict(
+                    name, self._cl_re_patterns)
+
             # initialize
-            pstate = self._construct_state_values_dict(
-                name, self._cl_re_patterns)
             self._configs[name]['state values'] = pstate \
                 if pstate is not None \
                 else self._default_state_values_dict(name)

@@ -42,7 +42,6 @@ class hdfOverview(object):
         """
         Print full Overview Report.
         """
-        # TODO: add a self.report_msi
         # TODO: add a self.report_data_run_sequence
         # TODO: add a self.report_motion_lists
         #

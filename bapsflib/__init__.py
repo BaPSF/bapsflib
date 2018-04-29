@@ -5,7 +5,8 @@
 #
 # Copyright 2017-2018 Erik T. Everson and contributors
 #
-# License:
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 """
 This is the bapsflib package, a Python toolkit designed for the Basic
@@ -26,3 +27,6 @@ from . import lapdtoolbox
 from . import plasma
 
 # from .viewers import HDFViewer
+
+# --- Define version ---------------------------------------------------
+__version__ = '0.1.3.dev5'

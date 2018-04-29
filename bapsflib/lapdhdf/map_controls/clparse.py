@@ -13,13 +13,50 @@ from warnings import warn
 
 
 class CLParse(object):
+    """
+    Class for parsing RE from a command list. (A command list is a list
+    of strings where each string is a set of commands sent to a control
+    device to define that control device's state.)
+    """
     def __init__(self, command_list):
+        """
+        :param command_list: the command list for a control device
+        :type command_list: list of strings
+        """
         super().__init__()
 
         # set command list
         self._cl = command_list
 
     def apply_patterns(self, patterns):
+        """
+        Applies a the REs defined in `patterns` to parse the command
+        list.
+
+        :param patterns: list or raw stings defining REs for parsing
+            the command list
+        :type patterns: str or list of strings
+        :return: (bool, dict)
+
+        :Example:
+
+            >>> # define a command list
+            >>> cl = ['VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0']
+            >>>
+            >>> # define clparse object
+            >>> clparse = CLParse(cl)
+            >>>
+            >>> # apply patterns
+            >>> patterns = r'(?P<FREQ>(\bFREQ\s)'
+            >>>            + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
+            >>> results = clparse.apply_patterns(patterns)
+            >>> resutls[0]
+            True
+            >>> results[1]
+            {'VOLT': {'cl str': ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0'),
+                      'command list': (20.0, 25.0, 30.0),
+                      're pattern': re.compile(pattern, re.UNICODE)}}
+        """
         # initialize new cl dict
         cls_dict = {}
 
@@ -195,6 +232,16 @@ class CLParse(object):
         return success, cls_dict
 
     def try_patterns(self, patterns):
+        """
+        Prints to the results of applying the REs in patterns to the
+        command list.  Pretty print of :meth:`apply_patterns`.
+
+        :param patterns: list or raw stings defining REs for parsing
+            the command list
+        :type patterns: str or list of strings
+        """
+        # TODO: clean method and format print better
+        #
         # build dictionary
         success, cls_dict = self.apply_patterns(patterns)
 

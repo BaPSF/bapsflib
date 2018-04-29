@@ -8,6 +8,15 @@ Modules
     :depth: 2
     :local:
 
+bapsflib\.lapdhdf\.map\_controls\.clparse
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: bapsflib.lapdhdf.map_controls.clparse
+    :members:
+    :undoc-members:
+    :private-members:
+    :show-inheritance:
+
 bapsflib\.lapdhdf\.map\_controls\.control\_template
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
@@ -28,18 +37,29 @@ bapsflib\.lapdhdf\.map\_controls\.map\_controls
     :private-members:
     :show-inheritance:
 
+bapsflib\.lapdhdf\.map\_controls\.n5700ps
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. automodule:: bapsflib.lapdhdf.map_controls.n5700ps
+    :show-inheritance:
+    :members:
+    :undoc-members:
+    :inherited-members:
+
 bapsflib\.lapdhdf\.map\_controls\.sixk
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: bapsflib.lapdhdf.map_controls.sixk
+    :show-inheritance:
     :members:
     :undoc-members:
-    :show-inheritance:
+    :inherited-members:
 
 bapsflib\.lapdhdf\.map\_controls\.waveform
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: bapsflib.lapdhdf.map_controls.waveform
+    :show-inheritance:
     :members:
     :undoc-members:
-    :show-inheritance:
+    :inherited-members:

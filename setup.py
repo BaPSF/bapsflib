@@ -49,7 +49,7 @@ Topic :: Software Development :: Libraries :: Python Modules
 #
 def read(*parts):
     with codecs.open(os.path.join(here, *parts), 'r') as fp:
-        return fp
+        return fp.read()
 
 
 def find_version(*file_paths):
@@ -64,7 +64,7 @@ def find_version(*file_paths):
 # ---- Perform setup                                                ----
 setup(
     name='bapsflib',
-    version=find_version('bapsflib', '__init__.py'),
+    version=find_version("bapsflib", "__init__.py"),
     description='A toolkit for handling data collected at BaPSF.',
     license='BSD',
     classifiers=CLASSIFIERS,

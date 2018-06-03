@@ -46,7 +46,6 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         # - alter if build fails
         #
         self._build_successful = True
-        warn_why = ''
         for dset_name in ['Gas pressure summary',
                           'RGA partial pressures']:
             if dset_name not in self.group:

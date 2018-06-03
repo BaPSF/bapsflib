@@ -45,7 +45,6 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         # - alter if build fails
         #
         self._build_successful = True
-        warn_why = ''
         for dset_name in ['Heater summary']:
             if dset_name not in self.group:
                 warn_why = 'dataset (' + dset_name + ') not found'

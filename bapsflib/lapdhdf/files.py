@@ -36,7 +36,8 @@ class File(h5py.File):
     :param kwargs: Driver specific keywords
     """
     def __init__(self, name, mode='r', driver=None, libver=None,
-                 userblock_size=None, swmr=False, **kwargs):
+                 userblock_size=None, swmr=False, silent=False,
+                 **kwargs):
         # TODO: re-work the argument pass through to h5py.File
         # TODO: add keyword save_report
         # - this will save the hdfChecks report to a text file alongside
@@ -46,7 +47,7 @@ class File(h5py.File):
                            userblock_size, swmr, **kwargs)
 
         # perform mapping
-        self.__file_map = hdfMap(self)
+        self.__file_map = hdfMap(self, silent=silent)
 
         # initialize _info attribute
         self._build_info()

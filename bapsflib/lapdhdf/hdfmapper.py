@@ -25,11 +25,13 @@
 #     channel   -- the actual hook-up location on the adc
 #
 import h5py
+import warnings
+
+from warnings import warn
+
 from .map_msi import hdfMap_msi
 from .map_digitizers import hdfMap_digitizers
 from .map_controls import hdfMap_controls
-
-from warnings import warn
 
 
 class hdfMap(object):
@@ -52,7 +54,7 @@ class hdfMap(object):
     _DATA_GNAME = 'Raw data + config'
     """Name of the DATA HDF5 group"""
 
-    def __init__(self, hdf_obj):
+    def __init__(self, hdf_obj, silent=False):
         """
         :param hdf_obj: the HDF5 file object
         :type hdf_obj: :class:`h5py.File`
@@ -96,10 +98,13 @@ class hdfMap(object):
                         val.decode('utf-8')
 
         # attach the mapping dictionaries
-        self.__attach_msi()
-        self.__attach_digitizers()
-        self.__attach_controls()
-        self.__attach_unknowns()
+        warn_filter = "ignore" if silent else "default"
+        with warnings.catch_warnings():
+            warnings.simplefilter(warn_filter)
+            self.__attach_msi()
+            self.__attach_digitizers()
+            self.__attach_controls()
+            self.__attach_unknowns()
 
     @property
     def attrs(self):

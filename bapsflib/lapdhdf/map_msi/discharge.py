@@ -47,7 +47,6 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         # - alter if build fails
         #
         self._build_successful = True
-        warn_why = ''
         for dset_name in ['Cathode-anode voltage',
                           'Discharge current',
                           'Discharge summary']:

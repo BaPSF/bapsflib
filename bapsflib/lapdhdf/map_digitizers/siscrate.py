@@ -10,6 +10,8 @@
 #
 import h5py
 
+from warnings import warn
+
 from .digi_template import hdfMap_digi_template
 
 
@@ -451,12 +453,9 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     found += 1
 
             if found == 1:
-                warn_str = ('** Warning: config_name not specified, '
+                warn_str = ('\nconfig_name not specified, '
                             'assuming ' + config_name + '.')
             elif found >= 1:
-                # raise Exception("Too many active digitizer "
-                #                 "configurations detected. Currently "
-                #                 "do not know how to handle.")
                 raise ValueError("There are multiple active digitizer"
                                  "configurations. User must specify"
                                  "config_name keyword.")
@@ -477,8 +476,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         #   '3302' is not active then the list will only contain '3305'.
         if adc is None:
             adc = self.configs[config_name]['adc'][0]
-            warn_str += ('\n** Warning: No adc specified, so assuming '
-                         + adc + '.')
+            warn_str += '\nNo adc specified, so assuming ' + adc + '.'
         elif adc not in self.configs[config_name]['adc']:
             raise ValueError(
                 'Specified adc ({}) is not in specified '.format(adc)
@@ -524,9 +522,10 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                              + '({}) is not known.'.format(adc))
 
         # print warnings
-        if not silent:
-            print(warn_str)
+        if not silent and warn_str != '':
+            warn(warn_str)
 
+        # return
         if return_info is True:
             return dataset_name, d_info
         else:

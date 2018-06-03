@@ -10,6 +10,8 @@
 #
 import h5py
 
+from warnings import warn
+
 from .digi_template import hdfMap_digi_template
 
 
@@ -292,7 +294,6 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         :meth:`~.digi_template.hdfMap_digi_template.construct_dataset_name`
         of the base class for details)
         """
-        # TODO: Replace Warnings with proper error handling
 
         # initiate warning string
         warn_str = ''
@@ -308,12 +309,9 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                     found += 1
 
             if found == 1:
-                warn_str += ('\n** Warning: config_name not specified, '
+                warn_str += ('\nconfig_name not specified, '
                              'assuming ' + config_name + '.')
-            elif found >= 1:
-                # raise Exception("Too many active digitizer "
-                #                 "configurations detected. Currently "
-                #                 "do not know how to handle,")
+            elif found > 1:
                 raise ValueError("There are multiple active digitizer"
                                  "configurations. User must specify"
                                  "config_name keyword.")
@@ -329,13 +327,8 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
 
         # Condition adc keyword
         if adc != 'SIS 3301':
-            # warn_str = ('** Warning: passed adc ({}) is '.format(adc)
-            #             + 'not valid for this digitizer. Forcing '
-            #             "adc = 'SIS 3301'")
-            # adc = 'SIS 3301'
             raise ValueError(
-                'Specified adc ({}) is not in specified '.format(
-                    adc)
+                'Specified adc ({}) is not in specified '.format(adc)
                 + 'configuration ({}).'.format(config_name))
 
         # search if (board, channel) combo is connected
@@ -362,9 +355,10 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
                                               channel)
 
         # print warnings
-        if not silent:
-            print(warn_str)
+        if not silent and warn_str != '':
+            warn(warn_str)
 
+        # return
         if return_info is True:
             return dataset_name, d_info
         else:
@@ -375,7 +369,7 @@ class hdfMap_digi_sis3301(hdfMap_digi_template):
         # ensure return_info kwarg is always False
         kwargs['return_info'] = False
 
-        # get dataset naem
+        # get dataset name
         dset_name = self.construct_dataset_name(board, channel,
                                                 **kwargs)
         # build and return header name

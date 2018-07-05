@@ -68,7 +68,7 @@ setup(
     description='A toolkit for handling data collected at BaPSF.',
     license='BSD',
     classifiers=CLASSIFIERS,
-    url='https://github.com/rocco8773/bapsflib.git',
+    url='https://github.com/BaPSF/bapsflib.git',
     author='Erik T. Everson',
     author_email='eteveson@gmail.com',
     packages=find_packages(),

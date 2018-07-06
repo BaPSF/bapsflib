@@ -5,6 +5,7 @@
 
 [![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/?version=0.1.3.dev5)](https://bapsflib.readthedocs.io/en/0.1.3.dev5/?badge=0.1.3.dev5)
 [![Build Status](https://travis-ci.org/BaPSF/bapsflib.svg?branch=0.1.3.dev5)](https://travis-ci.org/BaPSF/bapsflib)
+[![codecov](https://codecov.io/gh/BaPSF/bapsflib/branch/0.1.3.dev5/graph/badge.svg)](https://codecov.io/gh/BaPSF/bapsflib/branch/0.1.3.dev5)
 
 The **bapsflib** package is developed on Python 3.6+ and is intend to 
 be a toolkit for reading, manipulating, and analyzing data collected at 

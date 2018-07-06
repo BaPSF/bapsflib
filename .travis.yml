@@ -8,7 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-
+#
+# Configuration for Travis CI
+#
 # languages
 language: python
 python:
@@ -21,4 +23,8 @@ install:
 
 # define test script to run
 script:
-  - python -m unittest discover
+  - coverage run -m unittest discover
+
+# assess coverage
+after_success:
+  - codecov

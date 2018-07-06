@@ -1,7 +1,7 @@
 # bapsflib
 
 [![GitHub package version](https://img.shields.io/badge/version-v0.1.3.dev5-blue.svg)](./bapsflib/__init__.py)
-[![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](./LICENSES/LICENSE.txt)
+[![License](https://img.shields.io/badge/License-BSD-blue.svg)](./LICENSES/LICENSE.txt)
 
 [![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/?version=0.1.3.dev5)](https://bapsflib.readthedocs.io/en/0.1.3.dev5/?badge=0.1.3.dev5)
 

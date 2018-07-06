@@ -1,6 +1,6 @@
 # bapsflib
 
-[![Documentation Status](//readthedocs.org/projects/bapsflib/badge/?version=0.1.3.dev5)](https://bapsflib.readthedocs.io/en/0.1.3.dev5/?badge=0.1.3.dev5)
+[![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/?version=0.1.3.dev5)](https://bapsflib.readthedocs.io/en/0.1.3.dev5/?badge=0.1.3.dev5)
 
 The **bapsflib** package is intend to be a toolkit for reading, 
 manipulating, and analyzing data collected at the Basic Plasma Science 

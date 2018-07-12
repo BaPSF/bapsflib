@@ -26,6 +26,10 @@ class FauxDischarge(h5py.Group):
             super().__init__()
             self._faux = val
 
+        def reset(self):
+            """Reset 'Discharge' group to defaults."""
+            self._faux._update()
+
     def __init__(self, id, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):

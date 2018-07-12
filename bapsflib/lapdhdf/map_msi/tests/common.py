@@ -30,6 +30,11 @@ class MSIDiagnosticTestCase(ut.TestCase):
         # assert attribute 'group' type
         self.assertIsInstance(dmap.group, h5py.Group)
 
+        # build must be successful
+        # - all assertions below will only pass is build was successful
+        self.assertIsInstance(dmap.build_successful, bool)
+        self.assertTrue(dmap.build_successful)
+
         # ------ test map.configs                                 ------
         # - must be a dict
         # TODO: write once format is pinned down

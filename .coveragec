@@ -1,0 +1,12 @@
+# .coveragec to control coverage.py
+[run]
+branch = true
+omit =
+    # omit all test files
+    */tests/*
+    # omit documentaiton files
+    docs/
+    # omit license files
+    LICENSES/
+    # omit .idea director
+    .idea/*

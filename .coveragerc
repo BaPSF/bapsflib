@@ -10,3 +10,9 @@ omit =
     LICENSES/
     # omit .idea director
     .idea/*
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    raise NotImplementedError
+    if __name__ = .__main__.:

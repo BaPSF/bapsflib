@@ -138,7 +138,12 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         dset = self.group[dset_name]
 
         # define 'shape'
-        if dset.ndim == 1:
+        expected_fields = ['Shot number', 'Timestamp', 'Data valid',
+                           'Pulse length', 'Peak current',
+                           'Bank voltage']
+        if dset.ndim == 1 and \
+                all(field in dset.dtype.names
+                    for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
             warn_why = "'/Discharge summary' does not match " \
@@ -193,7 +198,10 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
             dset.name)
 
         # check 'shape'
-        if dset.ndim == 2:
+        if dset.dtype.names is not None:
+            # dataset has fields (it should not have fields)
+            self._build_successful = False
+        elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['voltage']['shape'].append(
                     (dset.shape[1],))
@@ -218,7 +226,10 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
             dset.name)
 
         # check 'shape'
-        if dset.ndim == 2:
+        if dset.dtype.names is not None:
+            # dataset has fields (it should not have fields)
+            self._build_successful = False
+        elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['current']['shape'].append(
                     (dset.shape[1],))

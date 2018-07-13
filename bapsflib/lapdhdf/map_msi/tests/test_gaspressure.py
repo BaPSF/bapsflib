@@ -22,7 +22,6 @@ import unittest as ut
 
 class TestGasPressure(MSIDiagnosticTestCase):
     """Test class for hdfMap_msi_gaspressure"""
-    # TODO: ADD A WARN TEST IF BUILD UNSUCCESSFUL
 
     def setUp(self):
         self.f = FauxHDFBuilder(

@@ -144,8 +144,9 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
 
         # ---- update configs related to 'Discharge summary'        ----
         # - dependent configs are:
-        #   1. 'shotnum'
-        #   2. all of 'meta'
+        #   1. 'shape'
+        #   2. 'shotnum'
+        #   3. all of 'meta'
         #
         dset_name = 'Discharge summary'
         dset = self.group[dset_name]

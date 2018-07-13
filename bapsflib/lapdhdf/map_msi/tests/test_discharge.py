@@ -22,7 +22,6 @@ import unittest as ut
 
 class TestDischarge(MSIDiagnosticTestCase):
     """Test class for hdfMap_msi_discharge"""
-    # TODO: ADD A WARN TEST IF BUILD UNSUCCESSFUL
 
     def setUp(self):
         self.f = FauxHDFBuilder(
@@ -73,7 +72,7 @@ class TestDischarge(MSIDiagnosticTestCase):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
-        # 'Discharge summary' is not a structured array
+        # 'Discharge summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
         del self.mod['Discharge summary']
         self.mod.create_dataset('Discharge summary', data=data)
@@ -146,21 +145,25 @@ class TestDischarge(MSIDiagnosticTestCase):
         Test behavior for the general, polymorphic elements of the
         `configs` mapping dictionary.
         """
-        # ensure general items are present and have expected values
+        # ensure general items are present
         self.assertIn('current conversion factor', self.map.configs)
         self.assertIn('voltage conversion factor', self.map.configs)
         self.assertIn('t0', self.map.configs)
         self.assertIn('dt', self.map.configs)
 
         # ensure general items have expected values
-        self.assertEqual(self.dgroup.attrs['Current conversion factor'],
-                         self.map.configs['current conversion factor'])
-        self.assertEqual(self.dgroup.attrs['Voltage conversion factor'],
-                         self.map.configs['voltage conversion factor'])
-        self.assertEqual(self.dgroup.attrs['Start time'],
-                         self.map.configs['t0'])
-        self.assertEqual(self.dgroup.attrs['Timestep'],
-                         self.map.configs['dt'])
+        self.assertEqual(
+            [self.dgroup.attrs['Current conversion factor']],
+            self.map.configs['current conversion factor'])
+        self.assertEqual(
+            [self.dgroup.attrs['Voltage conversion factor']],
+            self.map.configs['voltage conversion factor'])
+        self.assertEqual(
+            [self.dgroup.attrs['Start time']],
+            self.map.configs['t0'])
+        self.assertEqual(
+            [self.dgroup.attrs['Timestep']],
+            self.map.configs['dt'])
 
         # check warning if an item is missing
         # - a warning is thrown, but mapping continues
@@ -169,6 +172,7 @@ class TestDischarge(MSIDiagnosticTestCase):
         with self.assertWarns(UserWarning):
             self.assertIn('dt', self.map.configs)
             self.assertEqual(self.map.configs['dt'], [])
+        self.mod.knobs.reset()
 
 
 if __name__ == '__main__':

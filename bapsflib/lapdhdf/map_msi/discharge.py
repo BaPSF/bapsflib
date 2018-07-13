@@ -58,12 +58,25 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
                 return
 
         # initialize general info values
-        self._configs['current conversion factor'] = \
-            [self.group.attrs['Current conversion factor']]
-        self._configs['voltage conversion factor'] = \
-            [self.group.attrs['Voltage conversion factor']]
-        self._configs['t0'] = [self.group.attrs['Start time']]
-        self._configs['dt'] = [self.group.attrs['Timestep']]
+        pairs = [('current conversion factor',
+                  'Current conversion factor'),
+                 ('voltage conversion factor',
+                  'Voltage conversion factor'),
+                 ('t0', 'Start time'),
+                 ('dt', 'Timestep')]
+        for pair in pairs:
+            try:
+                self._configs[pair[0]] = [self.group.attrs[pair[1]]]
+            except KeyError as err:
+                self._configs[pair[0]] = []
+                print(err)
+                warn("Attribute '" + pair[1]
+                     + "' not found for MSI diagnostic '"
+                     + self.diagnostic_name
+                     + "', continuing with mapping")
+
+        # initialize 'shape'
+        # - this is used by hdfReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'

@@ -18,9 +18,14 @@ class MSIDiagnosticTestCase(ut.TestCase):
     def assertMSIDiagMapBasics(self, dmap, dgroup):
         # assert attribute existence
         self.assertTrue(hasattr(dmap, 'info'))
+        self.assertTrue(hasattr(dmap, 'diagnostic_name'))
         self.assertTrue(hasattr(dmap, 'configs'))
         self.assertTrue(hasattr(dmap, 'group'))
         self.assertTrue(hasattr(dmap, 'build_successful'))
+
+        # test 'diagnostic name'
+        self.assertEqual(dmap.diagnostic_name,
+                         dgroup.name.split('/')[-1])
 
         # test type and keys for map.info
         self.assertIsInstance(dmap.info, dict)
@@ -39,10 +44,15 @@ class MSIDiagnosticTestCase(ut.TestCase):
         # - must be a dict
         # TODO: write once format is pinned down
         self.assertIsInstance(dmap.configs, dict)
+
+        # look for required keys
         self.assertIn('shape', dmap.configs)
         self.assertIn('shotnum', dmap.configs)
         self.assertIn('signals', dmap.configs)
         self.assertIn('meta', dmap.configs)
+
+        # inspect non-required keys
+        # TODO: IS INSPECTION OF NON-REQUIRED KEYS NEEDED
 
         # examine 'shotnum' key
         self.assertIsInstance(dmap.configs['shotnum'], dict)

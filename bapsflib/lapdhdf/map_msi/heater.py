@@ -54,6 +54,22 @@ class hdfMap_msi_heater(hdfMap_msi_template):
                 return
 
         # initialize general info values
+        pairs = [('calib tag',
+                  'Calibration tag')]
+        for pair in pairs:
+            try:
+                self._configs[pair[0]] = [
+                    self.group.attrs[pair[1]]]
+            except KeyError as err:
+                self._configs[pair[0]] = []
+                print(err)
+                warn("Attribute '" + pair[1]
+                     + "' not found for MSI diagnostic '"
+                     + self.diagnostic_name
+                     + "', continuing with mapping")
+
+        # initialize 'shape'
+        # - this is used by hdfReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'
@@ -114,7 +130,12 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         dset = self.group[dset_name]
 
         # define 'shape'
-        if dset.ndim == 1:
+        expected_fields = ['Shot number', 'Timestamp', 'Data valid',
+                           'Heater current', 'Heater voltage',
+                           'Heater temperature']
+        if dset.ndim == 1 and \
+                all(field in dset.dtype.names
+                    for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
             warn_why = "'/Heater summary' does not match " \

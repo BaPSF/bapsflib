@@ -141,6 +141,35 @@ class TestDischarge(MSIDiagnosticTestCase):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
+    def test_configs_general_items(self):
+        """
+        Test behavior for the general, polymorphic elements of the
+        `configs` mapping dictionary.
+        """
+        # ensure general items are present and have expected values
+        self.assertIn('current conversion factor', self.map.configs)
+        self.assertIn('voltage conversion factor', self.map.configs)
+        self.assertIn('t0', self.map.configs)
+        self.assertIn('dt', self.map.configs)
+
+        # ensure general items have expected values
+        self.assertEqual(self.dgroup.attrs['Current conversion factor'],
+                         self.map.configs['current conversion factor'])
+        self.assertEqual(self.dgroup.attrs['Voltage conversion factor'],
+                         self.map.configs['voltage conversion factor'])
+        self.assertEqual(self.dgroup.attrs['Start time'],
+                         self.map.configs['t0'])
+        self.assertEqual(self.dgroup.attrs['Timestep'],
+                         self.map.configs['dt'])
+
+        # check warning if an item is missing
+        # - a warning is thrown, but mapping continues
+        # - remove attribute 'Timestep'
+        del self.dgroup.attrs['Timestep']
+        with self.assertWarns(UserWarning):
+            self.assertIn('dt', self.map.configs)
+            self.assertEqual(self.map.configs['dt'], [])
+
 
 if __name__ == '__main__':
     ut.main()

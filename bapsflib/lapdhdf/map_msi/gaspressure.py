@@ -56,7 +56,22 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
                 return
 
         # initialize general info values
-        self._configs['RGA AMUs'] = [self.group.attrs['RGA AMUs']]
+        pairs = [('RGA AMUs', 'RGA AMUs'),
+                 ('ion gauge calib tag', 'Ion gauge calibration tag'),
+                 ('RGA calib tag', 'RGA calibration tag')]
+        for pair in pairs:
+            try:
+                self._configs[pair[0]] = [self.group.attrs[pair[1]]]
+            except KeyError as err:
+                self._configs[pair[0]] = []
+                print(err)
+                warn("Attribute '" + pair[1]
+                     + "' not found for MSI diagnostic '"
+                     + self.diagnostic_name
+                     + "', continuing with mapping")
+
+        # initialize 'shape'
+        # - this is used by hdfReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'
@@ -125,7 +140,12 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         dset = self.group[dset_name]
 
         # define 'shape'
-        if dset.ndim == 1:
+        expected_fields = ['Shot number', 'Timestamp',
+                           'Ion gauge data valid', 'RGA data valid',
+                           'Fill pressure', 'Peak AMU']
+        if dset.ndim == 1 and \
+                all(field in dset.dtype.names
+                    for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
             warn_why = "'/Gas pressure summary' does not match " \
@@ -176,11 +196,14 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         #
         dset_name = 'RGA partial pressures'
         dset = self.group[dset_name]
-        self._configs['signals']['partial pressures']['dset paths'].append(
-            dset.name)
+        self._configs['signals']['partial pressures'][
+            'dset paths'].append(dset.name)
 
         # check 'shape'
-        if dset.ndim == 2:
+        if dset.dtype.names is not None:
+            # dataset has fields (it should not have fields)
+            self._build_successful = False
+        elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['partial pressures'][
                     'shape'].append((dset.shape[1],))

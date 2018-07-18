@@ -44,6 +44,11 @@ class FauxInterferometerArray(h5py.Group):
             else:
                 warn('`val` not valid, no update performed')
 
+        def reset(self):
+            """Reset 'Interferometer array' group to defaults."""
+            self._faux._n_interferometers = 7
+            self._faux._update()
+
     def __init__(self, id, n_interferometers=7, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):

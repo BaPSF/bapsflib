@@ -26,6 +26,10 @@ class FauxMagneticField(h5py.Group):
             super().__init__()
             self._faux = val
 
+        def reset(self):
+            """Reset 'Magnetic field' group to defaults."""
+            self._faux._update()
+
     def __init__(self, id, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
@@ -98,5 +102,5 @@ class FauxMagneticField(h5py.Group):
         # assign attributes
         self.attrs.update({
             'Calibration tag': b'08/27/2013',
-            'Profile z locations': zlocs.tolist()
+            'Profile z locations': zlocs
         })

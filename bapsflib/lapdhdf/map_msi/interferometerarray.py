@@ -73,13 +73,58 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         self._build_successful = True
 
         # initialize general info values
-        self._configs['n interferometer'] = \
-            self.group.attrs['Interferometer count']
+        # - pairs[0:2] are found in the main group's attributes
+        # - pairs[2] corresponds to the sub-group names
+        # - pairs[3:] are found in the main group's attributes (as an
+        #     array) and in the sub-group attributes (elements of the
+        #     main group's array)...I'm choosing to populate via the
+        #     sub-group attributes to ensure one-to-one correspondence
+        #     when extracting data with the hdfReadMSI class
+        #
+        pairs = [('n interferometer', 'Interferometer count'),
+                 ('calib tag', 'Calibration tag'),
+                 ('interferometer name', None),
+                 ('t0', 'Start time'),
+                 ('dt', 'Timestep'),
+                 ('n_bar_L', 'n_bar_L'),
+                 ('z', 'z location')]
         self._configs['interferometer name'] = []
         self._configs['t0'] = []
         self._configs['dt'] = []
         self._configs['n_bar_L'] = []
         self._configs['z'] = []
+        for pair in pairs[0:2]:
+            try:
+                val = self.group.attrs[pair[1]]
+                if isinstance(val, (list, tuple, np.ndarray)):
+                    self._configs[pair[0]] = val
+                else:
+                    self._configs[pair[0]] = [val]
+            except KeyError as err:
+                self._configs[pair[0]] = []
+                # print(err)
+                warn("Attribute '" + pair[1]
+                     + "' not found for MSI diagnostic '"
+                     + self.diagnostic_name
+                     + "', continuing with mapping")
+
+        # more handling of general info value 'n interferometer'
+        pair = pairs[0]
+        check_n_inter = True
+        if len(self._configs[pair[0]]) != 1:
+            check_n_inter = False
+            warn("Attribute '" + pair[1] + "' for MSI diagnostic '"
+                 + self.diagnostic_name
+                 + "' not an integer, continuing with mapping")
+        elif not isinstance(self._configs['n interferometer'][0],
+                            (int, np.integer)):
+            check_n_inter = False
+            warn("Attribute '" + pair[1] + "' for MSI diagnostic '"
+                 + self.diagnostic_name +
+                 "' not an integer, continuing with mapping")
+
+        # initialize 'shape'
+        # - this is used by hdfReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'
@@ -136,7 +181,33 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 # count the number of interferometers
                 n_inter += 1
 
-                # ensure dataset sizes are consistent
+                # ensure required datasets are present
+                for dset_name in ['Interferometer summary list',
+                                  'Interferometer trace']:
+                    if dset_name not in self.group[name]:
+                        warn_why = 'dataset (' + dset_name \
+                                   + ') not found'
+                        warn("Mapping for MSI Diagnostic "
+                             "'Interferometer/" + name + "' was "
+                             "unsuccessful (" + warn_why + ")")
+                        self._build_successful = False
+                        return
+
+                # populate general info values
+                self._configs['interferometer name'].append(name)
+                for pair in pairs[3::]:
+                    try:
+                        self._configs[pair[0]].append(
+                            self.group[name].attrs[pair[1]])
+                    except KeyError as err:
+                        self._configs[pair[0]].append(None)
+                        # print(err)
+                        warn("Attribute '" + pair[1]
+                             + "' not found for MSI diagnostic '"
+                             + self.diagnostic_name + '/' + name
+                             + "', continuing with mapping")
+
+                # define values to ensure dataset sizes are consistent
                 # sn_size  = number of shot numbers
                 # sig_size = number of samples in interferometer trace
                 #            - the way the np.array will be constructed
@@ -147,10 +218,14 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 # - define sig_size and ensure it's consistent among all
                 #   datasets
                 #
+                # - Enforcement of the these dimensions is done when
+                #   mapping each dataset below
+                #
                 if n_inter == 1:
                     # define sn_size
                     dset_name = name + '/Interferometer summary list'
-                    if self.group[dset_name].ndim == 1:
+                    dset = self.group[dset_name]
+                    if dset.ndim == 1:
                         sn_size = self.group[dset_name].shape[0]
                     else:
                         warn_why = "'/Interferometer summary list' " \
@@ -160,9 +235,13 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
 
                     # define sig_size
                     dset_name = name + '/Interferometer trace'
+                    dset = self.group[dset_name]
                     shape = self.group[dset_name].shape
-                    if len(shape) == 2:
-                        if shape[0] == sn_size:
+                    if dset.dtype.names is not None:
+                        # dataset has fields (it should not have fields)
+                        self._build_successful = False
+                    elif dset.ndim == 2:
+                        if dset.shape[0] == sn_size:
                             sig_size = shape[1]
                         else:
                             warn_why = "'/Interferometer trace' shot" \
@@ -179,90 +258,96 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
 
                     # define 'shape'
                     self._configs['shape'] = (sn_size,)
-                else:
-                    # check 'summary list' size
-                    dset_name = name + '/Interferometer summary list'
-                    if self.group[dset_name].shape != (sn_size,):
-                        # shape is not consistent among all datasets
-                        # TODO: ADD WARNING
-                        self._build_successful = False
-                        break
 
-                    # check 'trace' size
-                    dset_name = name + '/Interferometer trace'
-                    if self.group[dset_name].shape \
-                            != (sn_size, sig_size):
-                        # shape is not consistent among all datasets
-                        warn_why = "'/Interferometer trace' shape is" \
-                                   "not consistent across all " \
-                                   "interferometers"
-                        self._build_successful = False
-                        break
-
-                # populate general info values
-                self._configs['interferometer name'].append(name)
-                self._configs['t0'].append(
-                    self.group[name].attrs['Start time'])
-                self._configs['dt'].append(
-                    self.group[name].attrs['Timestep'])
-                self._configs['n_bar_L'].append(
-                    self.group[name].attrs['n_bar_L'])
-                self._configs['z'].append(
-                    self.group[name].attrs['z location'])
-
-                # populate 'shotnum' values
+                # -- update configs related to                      ----
+                # -- 'Interferometer summary list'                  ----
+                # - dependent configs are:
+                #   1. 'shotnum'
+                #   2. all of 'meta'
+                #
                 dset_name = name + '/Interferometer summary list'
-                path = self.group[dset_name].name
+                dset = self.group[dset_name]
+                path = dset.name
+
+                # check 'shape'
+                expected_fields = ['Shot number', 'Timestamp',
+                                   'Data valid', 'Peak density']
+                if dset.shape != (sn_size,):
+                    # shape is not consistent among all datasets
+                    warn_why = "'/Interferometer summary list' shape " \
+                               "is not consistent across all " \
+                               "interferometers"
+                    self._build_successful = False
+                    break
+                elif not all(field in dset.dtype.names
+                             for field in expected_fields):
+                    # required fields are not present
+                    warn_why = "'/Interferometer summary list' does " \
+                               "NOT have required fields"
+                    self._build_successful = False
+                    break
+
+                # update 'shotnum'
                 self._configs['shotnum']['dset paths'].append(path)
-                self._configs['shotnum']['shape'].append(())
+                self._configs['shotnum']['shape'].append(
+                    dset.dtype['Shot number'].shape)
 
-                # populate 'meta'
-                # - uses same dset as 'shotnum'
-                #
-                # 'timestamp'
-                self._configs['meta']['timestamp']['dset paths'].append(
-                    path
-                )
-                self._configs['meta']['timestamp']['shape'].append(
-                    self.group[path].dtype['Timestamp'].shape
-                )
-                #
-                # 'data valid'
-                self._configs['meta']['data valid']['dset paths'].append(
-                    path
-                )
-                self._configs['meta']['data valid']['shape'].append(
-                    self.group[path].dtype['Data valid'].shape
-                )
-                #
-                # 'peak density'
-                self._configs['meta']['peak density']['dset paths'].append(
-                    path
-                )
-                self._configs['meta']['peak density']['shape'].append(
-                    self.group[path].dtype['Peak density'].shape
-                )
+                # update 'meta/timestamp'
+                self._configs['meta']['timestamp'][
+                    'dset paths'].append(dset.name)
+                self._configs['meta']['timestamp'][
+                    'shape'].append(dset.dtype['Timestamp'].shape)
 
-                # populate 'signals' values
-                # - only 'signal' field is in 'signals'
-                #   ~ 'dset paths' = []
-                #   ~ 'dset field' = None
-                #   ~ 'shape' = []
-                #   ~ 'dtype' = np.float32
+                # update 'meta/data valid'
+                self._configs['meta']['data valid'][
+                    'dset paths'].append(dset.name)
+                self._configs['meta']['data valid'][
+                    'shape'].append(dset.dtype['Data valid'].shape)
+
+                # update 'meta/peak density'
+                self._configs['meta']['peak density'][
+                    'dset paths'].append(dset.name)
+                self._configs['meta']['peak density'][
+                    'shape'].append(dset.dtype['Peak density'].shape)
+
+                # -- update configs related to                      ----
+                # -- 'Interferometer trace'                         ----
+                # - dependent configs are:
+                #   1. 'signals/signal'
+                #
                 dset_name = name + '/Interferometer trace'
-                path = self.group[dset_name].name
-                shape = (self._configs['n interferometer'],
-                         self.group[dset_name].shape[1])
-                self._configs['signals']['signal']['dset paths'].append(
-                    path
-                )
-                self._configs['signals']['signal']['shape'].append(shape)
+                dset = self.group[dset_name]
+
+                # check 'shape'
+                if dset.shape != (sn_size, sig_size):
+                    # shape is not consistent among all datasets
+                    warn_why = "'/Interferometer trace' shape is" \
+                               "not consistent across all " \
+                               "interferometers"
+                    self._build_successful = False
+                    break
+                elif dset.dtype.names is not None:
+                    # dataset has fields (it should not have fields)
+                    warn_why = "'/Interferometer trace' shape does" \
+                               "not match expected shape "
+                    self._build_successful = False
+                    break
+
+                # update 'signals/signal' values
+                shape = (self._configs['n interferometer'], sig_size)
+                self._configs['signals']['signal'][
+                    'dset paths'].append(dset.name)
+                self._configs['signals']['signal'][
+                    'shape'].append(shape)
 
         # ensure the number of found interferometers is equal to the
         # diagnostics 'Interferometer count'
         #
-        if n_inter != self._configs['n interferometer']:
-            self._build_successful = False
+        if check_n_inter and self._build_successful:
+            if n_inter != self._configs['n interferometer'][0]:
+                warn_why = 'num. of found interferometers did not ' \
+                           'match the expected num. of interferometers'
+                self._build_successful = False
 
         # warn that build was unsuccessful
         if not self._build_successful:

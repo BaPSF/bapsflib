@@ -57,7 +57,25 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
                 return
 
         # initialize general info values
-        self._configs['z'] = self.group.attrs['Profile z locations']
+        pairs = [('calib tag', 'Calibration tag'),
+                 ('z', 'Profile z locations')]
+        for pair in pairs:
+            try:
+                val = self.group.attrs[pair[1]]
+                if isinstance(val, (list, tuple, np.ndarray)):
+                    self._configs[pair[0]] = val
+                else:
+                    self._configs[pair[0]] = [val]
+            except KeyError as err:
+                self._configs[pair[0]] = []
+                # print(err)
+                warn("Attribute '" + pair[1]
+                     + "' not found for MSI diagnostic '"
+                     + self.diagnostic_name
+                     + "', continuing with mapping")
+
+        # initialize 'shape'
+        # - this is used by hdfReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'
@@ -120,7 +138,11 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         dset = self.group[dset_name]
 
         # define 'shape'
-        if dset.ndim == 1:
+        expected_fields = ['Shot number', 'Timestamp', 'Data valid',
+                           'Peak magnetic field']
+        if dset.ndim == 1 and \
+                all(field in dset.dtype.names
+                    for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
             warn_why = "'/Magnetic field summary' does not match " \
@@ -148,10 +170,10 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
             dset.dtype['Data valid'].shape)
 
         # update 'meta/peak magnetic field'
-        self._configs['meta']['peak magnetic field']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['peak magnetic field']['shape'].append(
-            dset.dtype['Peak magnetic field'].shape)
+        self._configs['meta']['peak magnetic field'][
+            'dset paths'].append(dset.name)
+        self._configs['meta']['peak magnetic field'][
+            'shape'].append(dset.dtype['Peak magnetic field'].shape)
 
         # update configs related to 'Magnet power supply currents'  ----
         # - dependent configs are:
@@ -163,7 +185,10 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
             'dset paths'].append(dset.name)
 
         # check 'shape'
-        if dset.ndim == 2:
+        if dset.dtype.names is not None:
+            # dataset has fields (it should not have fields)
+            self._build_successful = False
+        elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['magnet ps current'][
                     'shape'].append((dset.shape[1],))
@@ -178,7 +203,7 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
                  " unsuccessful (" + warn_why + ")")
             return
 
-        # ---- update configs related to 'Magnetic field profile'   ----
+        # update configs related to 'Magnetic field profile'        ----
         # - dependent configs are:
         #   1. 'signals/magnetic field'
         #
@@ -188,7 +213,10 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
             'dset paths'].append(dset.name)
 
         # check 'shape'
-        if dset.ndim == 2:
+        if dset.dtype.names is not None:
+            # dataset has fields (it should not have fields)
+            self._build_successful = False
+        elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['magnetic field'][
                     'shape'].append((dset.shape[1],))

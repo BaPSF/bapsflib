@@ -47,7 +47,7 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         self._build_successful = True
         for dset_name in ['Heater summary']:
             if dset_name not in self.group:
-                warn_why = 'dataset (' + dset_name + ') not found'
+                warn_why = "dataset '" + dset_name + "' not found"
                 warn("Mapping for MSI Diagnostic 'Heater' was"
                      " unsuccessful (" + warn_why + ")")
                 self._build_successful = False
@@ -60,9 +60,8 @@ class hdfMap_msi_heater(hdfMap_msi_template):
             try:
                 self._configs[pair[0]] = [
                     self.group.attrs[pair[1]]]
-            except KeyError as err:
+            except KeyError:
                 self._configs[pair[0]] = []
-                print(err)
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
                      + self.diagnostic_name

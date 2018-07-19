@@ -35,11 +35,18 @@ class TestMagneticField(MSIDiagnosticTestCase):
 
     @property
     def map(self):
-        return hdfMap_msi_magneticfield(self.dgroup)
+        """Map object of diagnostic"""
+        return self.map_diagnostic(self.dgroup)
 
     @property
     def dgroup(self):
+        """Diagnostic group"""
         return self.f['MSI/Magnetic field']
+
+    @staticmethod
+    def map_diagnostic(group):
+        """Mapping function"""
+        return hdfMap_msi_magneticfield(group)
 
     def test_map_basics(self):
         """Test all required basic map features."""

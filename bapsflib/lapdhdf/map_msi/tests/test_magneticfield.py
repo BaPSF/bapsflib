@@ -52,6 +52,11 @@ class TestMagneticField(MSIDiagnosticTestCase):
         """Test all required basic map features."""
         self.assertMSIDiagMapBasics(self.map, self.dgroup)
 
+    def test_not_h5py_group(self):
+        """Test error if object to map is not h5py.Group"""
+        with self.assertRaises(TypeError):
+            self.map_diagnostic(None)
+
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
         # any failed build must throw a UserWarning

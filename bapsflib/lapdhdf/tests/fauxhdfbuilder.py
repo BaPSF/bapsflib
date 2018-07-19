@@ -210,6 +210,26 @@ class FauxHDFBuilder(h5py.File):
             self._modules[mod_name] = \
                 self._KNOWN_MODULES[mod_name](**mod_args)
 
+    def clear_control_modules(self):
+        """Remove all control device modules"""
+        data_mod_names = list(self['Raw data + config'].keys())
+        for mod_name in data_mod_names:
+            if mod_name in self._KNOWN_CONTROLS:
+                self.remove_module(mod_name)
+
+    def clear_digi_modules(self):
+        """Remove all digitizer modules"""
+        data_mod_names = list(self['Raw data + config'].keys())
+        for mod_name in data_mod_names:
+            if mod_name in self._KNOWN_DIGITIZERS:
+                self.remove_module(mod_name)
+
+    def clear_msi_modules(self):
+        """Remove all MSI modules"""
+        msi_mod_names = list(self['MSI'].keys())
+        for mod_name in msi_mod_names:
+            self.remove_module(mod_name)
+
     def remove_module(self, mod_name):
         """Remove requested module"""
         if mod_name in self._modules:
@@ -219,6 +239,6 @@ class FauxHDFBuilder(h5py.File):
 
     def remove_all_modules(self):
         """Remove all modules"""
-        modules = self._modules
+        modules = list(self._modules.keys())
         for mod in modules:
             self.remove_module(mod)

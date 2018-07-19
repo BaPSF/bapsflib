@@ -5,9 +5,8 @@
 #
 # Copyright 2017-2018 Erik T. Everson and contributors
 #
-# License:
-#
-# TODO: determine a default structure for all diagnostic msi classes
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
 #
 import h5py
 
@@ -66,9 +65,9 @@ class hdfMap_msi(dict):
     @property
     def predefined_diagnostic_groups(self):
         """
-        list of the pre-defined MSI diagnostic group names
+        tuple of the pre-defined MSI diagnostic group names
         """
-        return list(self._defined_diagnostic_mappings.keys())
+        return tuple(self._defined_diagnostic_mappings.keys())
 
     @property
     def __build_dict(self):

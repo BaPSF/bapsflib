@@ -75,33 +75,35 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         # -- 'Interferometer summary list' does NOT match           ----
         # -- expected format                                        ----
         #
+        # define dataset name
+        dset_name = 'Interferometer [0]/Interferometer summary list'
+
         # 'Interferometer summary list' is missing a required field
-        name = 'Interferometer [0]/Interferometer summary list'
-        data = self.mod[name][:]
+        data = self.mod[dset_name][:]
         fields = list(data.dtype.names)
         fields.remove('Peak density')
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data[fields])
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data[fields])
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # 'Interferometer summary list' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # 'Interferometer summary list' does NOT have consistent shape
         # for all interferometers
-        name = 'Interferometer [3]/Interferometer summary list'
-        dtype = self.mod[name].dtype
-        shape = (self.mod[name].shape[0] + 1, )
+        dset_name = 'Interferometer [3]/Interferometer summary list'
+        dtype = self.mod[dset_name].dtype
+        shape = (self.mod[dset_name].shape[0] + 1, )
         data = np.empty(shape, dtype=dtype)
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
@@ -109,43 +111,43 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         # 'Interferometer trace' does NOT match expected format     ----
         #
         # dataset has fields
-        name = 'Interferometer [0]/Interferometer trace'
+        dset_name = 'Interferometer [0]/Interferometer trace'
         data = np.empty((2,), dtype=np.dtype([('field1', np.float64),
                                               ('field2', np.float64)]))
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with
         # 'Interferometer summary list'
-        dtype = self.mod[name].dtype
-        shape = (self.mod[name].shape[0] + 1,
-                 self.mod[name].shape[1])
+        dtype = self.mod[dset_name].dtype
+        shape = (self.mod[dset_name].shape[0] + 1,
+                 self.mod[dset_name].shape[1])
         data = np.empty(shape, dtype=dtype)
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # A later 'Interferometer trace' has correct shape, but also
         # has fields
-        name = 'Interferometer [3]/Interferometer trace'
-        shape = self.mod[name].shape
+        dset_name = 'Interferometer [3]/Interferometer trace'
+        shape = self.mod[dset_name].shape
         data = np.empty(shape, dtype=np.dtype([('field1', np.float64),
                                                ('field2', np.float64)]))
-        del self.mod[name]
-        self.mod.create_dataset(name, data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()

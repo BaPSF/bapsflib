@@ -72,20 +72,23 @@ class TestHeater(MSIDiagnosticTestCase):
 
         # 'Heater summary' does NOT match expected format           ----
         #
+        # define dataset name
+        dset_name = 'Heater summary'
+
         # 'Heater summary' is missing a required field
-        data = self.mod['Heater summary'][:]
+        data = self.mod[dset_name][:]
         fields = list(data.dtype.names)
         fields.remove('Heater current')
-        del self.mod['Heater summary']
-        self.mod.create_dataset('Heater summary', data=data[fields])
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data[fields])
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
-        # 'Discharge summary' is not a structured numpy array
+        # 'Heater summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
-        del self.mod['Heater summary']
-        self.mod.create_dataset('Heater summary', data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
@@ -95,21 +98,25 @@ class TestHeater(MSIDiagnosticTestCase):
         Test behavior for the general, polymorphic elements of the
         `configs` mapping dictionary.
         """
+        # get map instance
+        _map = self.map
+
         # ensure general items are present
-        self.assertIn('calib tag', self.map.configs)
+        self.assertIn('calib tag', _map.configs)
 
         # ensure general items have expected values
         self.assertEqual(
             [self.dgroup.attrs['Calibration tag']],
-            self.map.configs['calib tag'])
+            _map.configs['calib tag'])
 
         # check warning if an item is missing
         # - a warning is thrown, but mapping continues
         # - remove attribute 'Calibration tag'
         del self.dgroup.attrs['Calibration tag']
         with self.assertWarns(UserWarning):
-            self.assertIn('calib tag', self.map.configs)
-            self.assertEqual(self.map.configs['calib tag'], [])
+            _map = self.map
+            self.assertIn('calib tag', _map.configs)
+            self.assertEqual(_map.configs['calib tag'], [])
         self.mod.knobs.reset()
 
 

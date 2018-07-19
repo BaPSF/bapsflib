@@ -50,7 +50,7 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
                           'Magnetic field profile',
                           'Magnetic field summary']:
             if dset_name not in self.group:
-                warn_why = 'dataset (' + dset_name + ') not found'
+                warn_why = "dataset '" + dset_name + "' not found"
                 warn("Mapping for MSI Diagnostic 'Magnetic field' was"
                      " unsuccessful (" + warn_why + ")")
                 self._build_successful = False
@@ -66,9 +66,8 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
                     self._configs[pair[0]] = val
                 else:
                     self._configs[pair[0]] = [val]
-            except KeyError as err:
+            except KeyError:
                 self._configs[pair[0]] = []
-                # print(err)
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
                      + self.diagnostic_name

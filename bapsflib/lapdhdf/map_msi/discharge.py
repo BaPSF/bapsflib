@@ -51,7 +51,7 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
                           'Discharge current',
                           'Discharge summary']:
             if dset_name not in self.group:
-                warn_why = 'dataset (' + dset_name + ') not found'
+                warn_why = "dataset '" + dset_name + "' not found"
                 warn("Mapping for MSI Diagnostic 'Discharge' was"
                      " unsuccessful (" + warn_why + ")")
                 self._build_successful = False
@@ -67,9 +67,8 @@ class hdfMap_msi_discharge(hdfMap_msi_template):
         for pair in pairs:
             try:
                 self._configs[pair[0]] = [self.group.attrs[pair[1]]]
-            except KeyError as err:
+            except KeyError:
                 self._configs[pair[0]] = []
-                print(err)
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
                      + self.diagnostic_name

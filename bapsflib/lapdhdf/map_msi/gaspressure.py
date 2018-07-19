@@ -49,7 +49,7 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         for dset_name in ['Gas pressure summary',
                           'RGA partial pressures']:
             if dset_name not in self.group:
-                warn_why = 'dataset (' + dset_name + ') not found'
+                warn_why = "dataset '" + dset_name + "' not found"
                 warn("Mapping for MSI Diagnostic 'Gas pressure' was"
                      " unsuccessful (" + warn_why + ")")
                 self._build_successful = False
@@ -61,10 +61,13 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
                  ('RGA calib tag', 'RGA calibration tag')]
         for pair in pairs:
             try:
-                self._configs[pair[0]] = [self.group.attrs[pair[1]]]
-            except KeyError as err:
+                val = self.group.attrs[pair[1]]
+                if isinstance(val, (list, tuple, np.ndarray)):
+                    self._configs[pair[0]] = val
+                else:
+                    self._configs[pair[0]] = [val]
+            except KeyError:
                 self._configs[pair[0]] = []
-                print(err)
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
                      + self.diagnostic_name

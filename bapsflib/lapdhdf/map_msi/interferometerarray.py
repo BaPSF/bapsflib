@@ -100,9 +100,8 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     self._configs[pair[0]] = val
                 else:
                     self._configs[pair[0]] = [val]
-            except KeyError as err:
+            except KeyError:
                 self._configs[pair[0]] = []
-                # print(err)
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
                      + self.diagnostic_name
@@ -199,9 +198,8 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     try:
                         self._configs[pair[0]].append(
                             self.group[name].attrs[pair[1]])
-                    except KeyError as err:
+                    except KeyError:
                         self._configs[pair[0]].append(None)
-                        # print(err)
                         warn("Attribute '" + pair[1]
                              + "' not found for MSI diagnostic '"
                              + self.diagnostic_name + '/' + name

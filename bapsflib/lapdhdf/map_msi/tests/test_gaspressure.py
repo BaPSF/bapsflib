@@ -73,50 +73,56 @@ class TestGasPressure(MSIDiagnosticTestCase):
 
         # 'Gas pressure summary' does NOT match expected format     ----
         #
+        # define dataset name
+        dset_name = 'Gas pressure summary'
+
         # 'Gas pressure summary' is missing a required field
-        data = self.mod['Gas pressure summary'][:]
+        data = self.mod[dset_name][:]
         fields = list(data.dtype.names)
         fields.remove('Fill pressure')
-        del self.mod['Gas pressure summary']
-        self.mod.create_dataset('Gas pressure summary', data=data[fields])
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data[fields])
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # 'Gas pressure summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
-        del self.mod['Gas pressure summary']
-        self.mod.create_dataset('Gas pressure summary', data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # 'RGA partial pressures' does NOT match expected format    ----
         #
+        # define dataset name
+        dset_name = 'RGA partial pressures'
+
         # dataset has fields
         data = np.empty((2,), dtype=np.dtype([('field1', np.float64),
                                               ('field2', np.float64)]))
-        del self.mod['RGA partial pressures']
-        self.mod.create_dataset('RGA partial pressures', data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
-        del self.mod['RGA partial pressures']
-        self.mod.create_dataset('RGA partial pressures', data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with 'Discharge summary'
-        dtype = self.mod['RGA partial pressures'].dtype
-        shape = (self.mod['RGA partial pressures'].shape[0] + 1,
-                 self.mod['RGA partial pressures'].shape[1])
+        dtype = self.mod[dset_name].dtype
+        shape = (self.mod[dset_name].shape[0] + 1,
+                 self.mod[dset_name].shape[1])
         data = np.empty(shape, dtype=dtype)
-        del self.mod['RGA partial pressures']
-        self.mod.create_dataset('RGA partial pressures', data=data)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
@@ -126,29 +132,33 @@ class TestGasPressure(MSIDiagnosticTestCase):
         Test behavior for the general, polymorphic elements of the
         `configs` mapping dictionary.
         """
+        # get map instance
+        _map = self.map
+
         # ensure general items are present
-        self.assertIn('RGA AMUs', self.map.configs)
-        self.assertIn('ion gauge calib tag', self.map.configs)
-        self.assertIn('RGA calib tag', self.map.configs)
+        self.assertIn('RGA AMUs', _map.configs)
+        self.assertIn('ion gauge calib tag', _map.configs)
+        self.assertIn('RGA calib tag', _map.configs)
 
         # ensure general items have expected values
         self.assertTrue(np.array_equal(
-            [self.dgroup.attrs['RGA AMUs']],
-            self.map.configs['RGA AMUs']))
+            self.dgroup.attrs['RGA AMUs'],
+            _map.configs['RGA AMUs']))
         self.assertEqual(
             [self.dgroup.attrs['Ion gauge calibration tag']],
-            self.map.configs['ion gauge calib tag'])
+            _map.configs['ion gauge calib tag'])
         self.assertEqual(
             [self.dgroup.attrs['RGA calibration tag']],
-            self.map.configs['RGA calib tag'])
+            _map.configs['RGA calib tag'])
 
         # check warning if an item is missing
         # - a warning is thrown, but mapping continues
         # - remove attribute 'RGA AMUs'
         del self.dgroup.attrs['RGA AMUs']
         with self.assertWarns(UserWarning):
-            self.assertIn('RGA AMUs', self.map.configs)
-            self.assertEqual(self.map.configs['RGA AMUs'], [])
+            _map = self.map
+            self.assertIn('RGA AMUs', _map.configs)
+            self.assertEqual(_map.configs['RGA AMUs'], [])
         self.mod.knobs.reset()
 
 

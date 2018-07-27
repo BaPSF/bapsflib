@@ -35,7 +35,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
     def __init__(self, control_group):
         """
         :param control_group: the HDF5 control device group
-        :type diag_group: :class:`h5py.Group`
+        :type control_group: :class:`h5py.Group`
         """
         # initialize
         hdfMap_control_cl_template.__init__(self, control_group)
@@ -97,19 +97,19 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
                     val = cong.attrs[pair[1]]
 
                     # condition value
-                    if pair[0] in ('IP address',
-                                   'generator device',
-                                   'initial state'):
-                        # - val is a np.bytes_ string
-                        #
-                        val = val.decode('utf-8')
-                    elif pair[0] == 'command list':
+                    if pair[0] == 'command list':
                         # - val gets returned as a np.bytes_ string
                         # - split line returns
                         # - remove trailing/leading whitespace
                         #
                         val = val.decode('utf-8').splitlines()
                         val = tuple([cls.strip() for cls in val])
+                    elif pair[0] in ('IP address',
+                                     'generator device',
+                                     'initial state'):
+                        # - val is a np.bytes_ string
+                        #
+                        val = val.decode('utf-8')
                     else:
                         # no conditioning is needed
                         # 'GPIB address' val is np.uint32

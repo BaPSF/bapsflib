@@ -24,6 +24,7 @@
 #     board     -- refers to a cluster of channels on an adc
 #     channel   -- the actual hook-up location on the adc
 #
+import os
 import h5py
 import warnings
 
@@ -105,6 +106,15 @@ class hdfMap(object):
             self.__attach_digitizers()
             self.__attach_controls()
             self.__attach_unknowns()
+
+    def __repr__(self):
+        filename = self.__hdf_obj.filename
+        if isinstance(filename, bytes):
+            filename = filename.decode('utf-8')
+        filename = os.path.basename(filename)
+        rstr = ("<" + self.__class__.__name__
+                + " of HDF5 file '" + filename + "'>")
+        return rstr
 
     @property
     def attrs(self):

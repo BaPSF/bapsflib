@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import os
 import h5py
 
 import numpy as np
@@ -50,15 +51,17 @@ class hdfMap_control_template(ABC):
         :type control_group: :class:`h5py.Group`
         """
         # condition control_group arg
-        if type(control_group) is h5py.Group:
+        if isinstance(control_group, h5py.Group):
             self.__control_group = control_group
         else:
             raise TypeError('arg digi_group is not of type h5py.Group')
 
         # define _info attribute
-        self._info = {'group name': control_group.name.split('/')[-1],
-                      'group path': control_group.name,
-                      'contype': NotImplemented}
+        self._info = {
+            'group name': os.path.basename(control_group.name),
+            'group path': control_group.name,
+            'contype': NotImplemented
+        }
 
         # initialize configuration dictionary
         # TODO: format of configs needs to be solidified
@@ -220,7 +223,7 @@ class hdfMap_control_template(ABC):
         """
         dnames = [name
                   for name in self.group
-                  if type(self.group[name]) is h5py.Dataset]
+                  if isinstance(self.group[name], h5py.Dataset)]
         return dnames
 
     @property
@@ -276,16 +279,13 @@ class hdfMap_control_template(ABC):
         """
         sgroup_names = [name
                         for name in self.group
-                        if type(self.group[name]) is h5py.Group]
+                        if isinstance(self.group[name], h5py.Group)]
         return sgroup_names
 
     @property
     def name(self):
-        """
-        :return: name of control device
-        :rtype: str
-        """
-        return self.group.name.split('/')[-1]
+        """Name of Control Device"""
+        return self._info['group name']
 
     @abstractmethod
     def construct_dataset_name(self, *args):
@@ -298,14 +298,6 @@ class hdfMap_control_template(ABC):
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
-
-    @property
-    def unique_specifiers(self):
-        """
-        :return: list of unique specifiers (keys in :attr:`configs`) for
-            the control device.
-        """
-        return list(self._configs)
 
     @abstractmethod
     def _build_configs(self):

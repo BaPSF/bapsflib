@@ -50,7 +50,7 @@ class CLParse(object):
             >>> patterns = r'(?P<FREQ>(\bFREQ\s)'
             >>>            + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
             >>> results = clparse.apply_patterns(patterns)
-            >>> resutls[0]
+            >>> results[0]
             True
             >>> results[1]
             {'VOLT': {'cl str': ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0'),

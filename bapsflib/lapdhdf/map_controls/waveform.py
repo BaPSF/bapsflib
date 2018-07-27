@@ -12,14 +12,32 @@ import warnings
 
 import numpy as np
 
+from warnings import warn
+
 from .control_template import hdfMap_control_cl_template
 
 
 class hdfMap_control_waveform(hdfMap_control_cl_template):
     """
-    Mapping module for control device 'Waveform'.
+    Mapping module for the 'Waveform' control device.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- Waveform
+        |   +-- Run time list
+        |   +-- waveform_<descr>
+        |   |   +--
+
     """
+
     def __init__(self, control_group):
+        """
+        :param control_group: the HDF5 control device group
+        :type diag_group: :class:`h5py.Group`
+        """
+        # initialize
         hdfMap_control_cl_template.__init__(self, control_group)
 
         # define control type
@@ -35,64 +53,92 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
         self._build_configs()
 
     def _build_configs(self):
+        """Builds the :attr:`configs` dictionary."""
+        # assume build is successful
+        # - alter if build fails
+        #
+        self._build_successful = True
+
         # build configuration dictionaries
-        # - assume all subgroups are control device configuration groups
-        #   and their names correspond to the configuration name
+        # - assume every sub-group represents a unique configuration
+        #   to the control device
+        # - the name of each sub-group is used as the configuration
+        #   name
         # - assume all configurations are active (i.e. used)
         #
         for name in self.sgroup_names:
             # get configuration group
-            cgroup = self.group[name]
-
-            # get IP address
-            # - ip gets returned as a np.bytes_ string
-            #
-            ip = cgroup.attrs['IP address']
-            ip = ip.decode('utf-8')
-
-            # get device (generator) name
-            # - gdevice is returned as a np.bytes_ string
-            #
-            gdevice = cgroup.attrs['Generator type']
-            gdevice = gdevice.decode('utf-8')
-
-            # get command list
-            # - cl gets returned as a np.bytes_ string
-            # - remove trailing/leading whitespace
-            #
-            cl = cgroup.attrs['Waveform command list']
-            cl = cl.decode('utf-8').splitlines()
-            cl = tuple([cls.strip() for cls in cl])
-            # pattern = re.compile('(FREQ\s)(\d+\.\d+)')
-            # cl_float = []
-            # for val in cl:
-            #     cl_re = re.search(pattern, val)
-            #     cl_float.append(float(cl_re.group(2)))
+            cong = self.group[name]
 
             # get dataset
-            dset = self.group[self.construct_dataset_name()]
+            try:
+                dset = self.group[self.construct_dataset_name()]
+            except KeyError:
+                warn_str = ("Dataset '" + self.construct_dataset_name()
+                            + "' not found for control device '"
+                            + self.name + "' configuration group '"
+                            + name + "'")
+                warn(warn_str)
+                self._build_successful = False
+                return
 
-            # ---- start assigning values to _configs               ----
-            # assign non-critical values
-            self._configs[name] = {
-                'IP address': ip,
-                'device name': gdevice,
-            }
+            # initialize _configs
+            self._configs[name] = {}
 
-            # assign 'command list'
-            self._configs[name]['command list'] = cl
+            # ---- define general info values                       ----
+            pairs = [('IP address', 'IP address'),
+                     ('generator device', 'Generator type'),
+                     ('GPIB address', 'GPIB address'),
+                     ('initial state', 'Initial state'),
+                     ('command list', 'Waveform command list')]
+            for pair in pairs:
+                try:
+                    # get attribute value
+                    val = cong.attrs[pair[1]]
 
-            # assign 'cl pattern'
-            # self._configs[name]['cl pattern'] = None
+                    # condition value
+                    if pair[0] in ('IP address',
+                                   'generator device',
+                                   'initial state'):
+                        # - val is a np.bytes_ string
+                        #
+                        val = val.decode('utf-8')
+                    elif pair[0] == 'command list':
+                        # - val gets returned as a np.bytes_ string
+                        # - split line returns
+                        # - remove trailing/leading whitespace
+                        #
+                        val = val.decode('utf-8').splitlines()
+                        val = tuple([cls.strip() for cls in val])
+                    else:
+                        # no conditioning is needed
+                        # 'GPIB address' val is np.uint32
+                        pass
 
-            # assign 'dset paths'
+                    # assign val to _configs
+                    self._configs[name][pair[0]] = val
+                except KeyError:
+                    self._configs[name][pair[0]] = None
+                    warn_str = ("Attribute '" + pair[1]
+                                + "' not found in control device '"
+                                + self.name + "' configuration group '"
+                                + name + "'")
+                    if pair[0] != 'command list':
+                        warn_str += ", continuing with mapping"
+                        warn(warn_str)
+                    else:
+                        warn(warn_str)
+                        self._build_successful = False
+                        return
+
+            # ---- define 'dset paths'                              ----
             self._configs[name]['dset paths'] = dset.name
 
             # ---- define 'shotnum'                                 ----
             # initialize
             self._configs[name]['shotnum'] = {
                 'dset paths': self._configs[name]['dset paths'],
-                'dset field': 'Shot number',
+                'dset field': ('Shot number',),
                 'shape': dset.dtype['Shot number'].shape,
                 'dtype': np.int32
             }
@@ -109,23 +155,22 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
                 if pstate is not None \
                 else self._default_state_values_dict(name)
 
-        # indicate build was successful
-        self._build_successful = True
-
     def _default_state_values_dict(self, config_name):
         # define default dict
         default_dict = {
             'command': {
                 'dset paths': self._configs[config_name]['dset paths'],
                 'dset field': ('Command index',),
-                'cl pattern': None,
-                'command list': np.array(
-                    self._configs[config_name]['command list']),
+                're pattern': None,
+                'command list':
+                    self._configs[config_name]['command list'],
+                'cl str':
+                    self._configs[config_name]['command list'],
                 'shape': (),
             }
         }
         default_dict['command']['dtype'] = \
-            default_dict['command']['command list'].dtype
+            np.array(default_dict['command']['command list']).dtype
 
         # return
         return default_dict

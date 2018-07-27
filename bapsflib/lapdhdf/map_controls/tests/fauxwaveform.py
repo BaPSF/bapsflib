@@ -58,6 +58,12 @@ class FauxWaveform(h5py.Group):
             else:
                 warn('`val` not valid, no update performed')
 
+        def reset(self):
+            """Reset 'Waveform' group to defaults."""
+            self._faux._n_configs = 1
+            self._faux._sn_size = 100
+            self._faux._update()
+
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
@@ -81,34 +87,10 @@ class FauxWaveform(h5py.Group):
         """Knobs for controlling structure of control device group"""
         return self._knobs(self)
 
-    # @property
-    # def n_configs(self):
-    #     """Number of waveform configurations"""
-    #     return self._n_configs
-
-    # @n_configs.setter
-    # def n_configs(self, val: int):
-    #     """Set number of waveform configurations"""
-    #     if val != self._n_configs and val >= 1:
-    #         self._n_configs = val
-    #         self._update()
-
     @property
     def config_names(self):
         """list of configuration names"""
         return list(self._configs)
-
-    # @property
-    # def sn_size(self):
-    #     """Number of shot numbers in dataset"""
-    #     return self._sn_size
-
-    # @sn_size.setter
-    # def sn_size(self, val):
-    #     """Set the number of shot numbers in the dataset"""
-    #     if val != self._sn_size:
-    #         self._sn_size = val
-    #         self._update()
 
     def _update(self):
         """
@@ -159,11 +141,22 @@ class FauxWaveform(h5py.Group):
         Sets attributes for the control group and its sub-members
         """
         self[config_name].attrs.update({
-            'IP address': '192.168.1.{}'.format(config_number).encode(),
-            'Generator type': b'Agilent 33220A - LAN',
-            'Waveform command list': b'FREQ 40000.000000 \n'
-                                     b'FREQ 80000.000000 \n'
-                                     b'FREQ 120000.000000 \n'
+            'GPIB address': np.uint32(0),
+            'Generator type': np.bytes_('Agilent 33220A - LAN'),
+            'IP address': np.bytes_(
+                '192.168.1.{}'.format(config_number)),
+            'Initial state': np.bytes_(
+                '*RST;'
+                ':FUNC:SQU:DCYC +5.0000000000000E+01;'
+                ':FUNC SQU;:FUNC:USER EXP_RISE;'
+                ':DISP:TEXT "";'
+                ':DISP 1;'
+                '*ESE +0;'
+                '*PSC 1;'
+                '*SRE +0\n'),
+            'Waveform command list': np.bytes_('FREQ 40000.000000 \n'
+                                               'FREQ 80000.000000 \n'
+                                               'FREQ 120000.000000 \n')
         })
 
         # add command list to _configs

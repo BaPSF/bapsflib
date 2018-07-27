@@ -87,13 +87,14 @@ class TestWaveform(ControlTestCase):
         # make a default/clean 'Waveform' module
         self.mod.knobs.reset()
 
-        # no RE match so _defaulte_state_values_dict() is used for
+        # no RE match so _default_state_values_dict() is used for
         # 'command list'
         #
         config_name = self.mod.config_names[0]
         cl = np.bytes_('AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n')
         self.mod[config_name].attrs['Waveform command list'] = cl
         self.assertControlMapBasics(self.map, self.cgroup)
+        self.mod.knobs.reset()
 
         # check warning if a general item is missing from group
         # - a warning is thrown, but mapping continues
@@ -167,10 +168,7 @@ class TestWaveform(ControlTestCase):
                          self.mod.knobs.n_configs)
 
         for cname, config in cmap.configs.items():
-            # keys 'dataset fields' and 'dset to numpy field' tested in
-            # assertControlMapBasic
-            #
-            # - Note: 'command list' is not included since it is
+            # Note: 'command list' is not included since it is
             #         covered by assertControlMapBasics()
             #
             self.assertIn(cname, self.mod.config_names)

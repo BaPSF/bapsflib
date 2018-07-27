@@ -8,14 +8,20 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import unittest as ut
-import numpy as np
+from ..msi_template import hdfMap_msi_template
+
+import os
 import h5py
+
+import unittest as ut
 
 
 class MSIDiagnosticTestCase(ut.TestCase):
 
     def assertMSIDiagMapBasics(self, dmap, dgroup):
+        # check mapping instance
+        self.assertIsInstance(dmap, hdfMap_msi_template)
+
         # assert attribute existence
         self.assertTrue(hasattr(dmap, 'info'))
         self.assertTrue(hasattr(dmap, 'diagnostic_name'))
@@ -23,24 +29,32 @@ class MSIDiagnosticTestCase(ut.TestCase):
         self.assertTrue(hasattr(dmap, 'group'))
         self.assertTrue(hasattr(dmap, 'build_successful'))
 
-        # test 'diagnostic name'
-        self.assertEqual(dmap.diagnostic_name,
-                         dgroup.name.split('/')[-1])
-
-        # test type and keys for map.info
+        # ---- test map.info                                        ----
+        # test 'info' type
         self.assertIsInstance(dmap.info, dict)
+
+        # check 'info' keys
         self.assertIn('group name', dmap.info)
         self.assertIn('group path', dmap.info)
 
-        # assert attribute 'group' type
+        # check 'info' values
+        self.assertEqual(dmap.info['group name'],
+                         os.path.basename(dgroup.name))
+        self.assertEqual(dmap.info['group path'], dgroup.name)
+
+        # ---- test map.diagnostic_name                             ----
+        self.assertEqual(dmap.diagnostic_name, dmap.info['group name'])
+
+        # ---- test map.group                                       ----
+        # check 'group' type
         self.assertIsInstance(dmap.group, h5py.Group)
 
-        # build must be successful
-        # - all assertions below will only pass is build was successful
+        # ---- test map.build_successful                            ----
+        # - all assertions below will only pass if build was successful
         self.assertIsInstance(dmap.build_successful, bool)
         self.assertTrue(dmap.build_successful)
 
-        # ------ test map.configs                                 ------
+        # ---- test map.configs                                     ----
         # - must be a dict
         # TODO: write once format is pinned down
         self.assertIsInstance(dmap.configs, dict)

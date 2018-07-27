@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import os
 import h5py
 
 from abc import ABC, abstractmethod
@@ -50,7 +51,7 @@ class hdfMap_msi_template(ABC):
 
         # define info attribute
         self._info = {
-            'group name': diag_group.name.split('/')[-1],
+            'group name': os.path.basename(diag_group.name),
             'group path': diag_group.name
         }
 

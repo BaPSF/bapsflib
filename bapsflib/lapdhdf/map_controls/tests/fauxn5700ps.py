@@ -58,6 +58,12 @@ class FauxN5700PS(h5py.Group):
             else:
                 warn('`val` not valid, no update performed')
 
+        def reset(self):
+            """Reset 'N5700_PS' group to defaults."""
+            self._faux._n_configs = 1
+            self._faux._sn_size = 100
+            self._faux._update()
+
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
@@ -140,21 +146,21 @@ class FauxN5700PS(h5py.Group):
         Set attributes for control group
         """
         self.attrs.update({
-            'Created date': b'12/3/2008 10:47:20 AM',
-            'Description':
-                b'Agilent Technologies\n'
-                b'System DC power supply\n'
-                b'Series N5700\n\n' 
-                b'Programmable Power Supply over Ethernet\n\n' 
-                b'Most-recent hardware manual is available online at\n' 
-                b'http://www.agilent.com/find/N5700\n\n'
-                b'Original module development for DAQ system by Steve '
-                b'Vincena, November 2008\n' 
-                b'using model N5751A, 300V, 2.5A supply.',
-            'Device name': b'N5700_PS',
-            'Module IP address': b'192.168.7.3',
-            'Module VI path': b'Modules/N5700_PS/N5700_PS.vi',
-            'Type': b'Experiment control'
+            'Created date': np.bytes_('12/3/2008 10:47:20 AM'),
+            'Description': np.bytes_(
+                'Agilent Technologies\n'
+                'System DC power supply\n'
+                'Series N5700\n\n' 
+                'Programmable Power Supply over Ethernet\n\n' 
+                'Most-recent hardware manual is available online at\n' 
+                'http://www.agilent.com/find/N5700\n\n'
+                'Original module development for DAQ system by Steve '
+                'Vincena, November 2008\n' 
+                'using model N5751A, 300V, 2.5A supply.'),
+            'Device name': np.bytes_('N5700_PS'),
+            'Module IP address': np.bytes_('192.168.7.3'),
+            'Module VI path': np.bytes_('Modules/N5700_PS/N5700_PS.vi'),
+            'Type': np.bytes_('Experiment control')
         })
 
     def _set_subgroup_attrs(self, config_name, config_number):
@@ -162,15 +168,16 @@ class FauxN5700PS(h5py.Group):
         Sets attributes for the control sub-groups
         """
         self[config_name].attrs.update({
-            'IP address': '192.168.7.{}'.format(config_number).encode(),
-            'Initialization commands':
-                b'*RST;*WAI;OUTPUT ON;VOLTAGE 0.0;CURRENT 1.0',
-            'Model Number': b'N5751A',
-            'N5700 power supply command list':
-                b'SOURCE:VOLTAGE:LEVEL 20.0000000 \n'
-                b'SOURCE:VOLTAGE:LEVEL 30.0000000 \n'
-                b'SOURCE:VOLTAGE:LEVEL 40.0000000 \n'
-                b'SOURCE:VOLTAGE:LEVEL 5.0000000 \n'
+            'IP address':
+                np.bytes_('192.168.7.{}'.format(config_number)),
+            'Initialization commands': np.bytes_(
+                '*RST;*WAI;OUTPUT ON;VOLTAGE 0.0;CURRENT 1.0'),
+            'Model Number': np.bytes_('N5751A'),
+            'N5700 power supply command list': np.bytes_(
+                'SOURCE:VOLTAGE:LEVEL 20.0000000 \n'
+                'SOURCE:VOLTAGE:LEVEL 30.0000000 \n'
+                'SOURCE:VOLTAGE:LEVEL 40.0000000 \n'
+                'SOURCE:VOLTAGE:LEVEL 5.0000000 \n')
         })
 
         # add command list to _configs

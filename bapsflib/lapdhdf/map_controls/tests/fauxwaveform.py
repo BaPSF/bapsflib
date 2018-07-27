@@ -19,6 +19,8 @@ class FauxWaveform(h5py.Group):
     """
     Creates a Faux 'Waveform' Group in a HDF5 file
     """
+    # TODO: NEED TO ADD ATTRIBUTES TO MAIN GROUP 'WAVEFORM'
+    # - look to faux5700ps.py
     class _knobs(object):
         """
         A class that contains all the controls for specifying the

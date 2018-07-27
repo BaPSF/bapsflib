@@ -16,6 +16,7 @@ from .common import ControlTestCase
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
+import numpy as np
 import unittest as ut
 
 
@@ -48,11 +49,65 @@ class TestN5700PS(ControlTestCase):
     def test_map_basics(self):
         self.assertControlMapBasics(self.map, self.cgroup)
 
-    def test_info(self):
-        self.assertEqual(self.map.info['group name'], 'N5700_PS')
-        self.assertEqual(self.map.info['group path'],
-                         '/Raw data + config/N5700_PS')
+    def test_contype(self):
         self.assertEqual(self.map.info['contype'], 'power')
+
+    def test_not_h5py_group(self):
+        """Test error if object to map is not h5py.Group"""
+        with self.assertRaises(TypeError):
+            self.map_control(None)
+
+    def test_map_failures(self):
+        """Test conditions that result in unsuccessful mappings."""
+        # any failed build must throw a UserWarning
+        #
+        # make a default/clean 'N5700_PS' module
+        self.mod.knobs.reset()
+
+        # expected dataset does not exist
+        # - rename 'Run time list' dataset
+        self.mod.move('Run time list', 'N5700 data')
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+        self.mod.move('N5700 data', 'Run time list')
+
+        # 'N5700 power supply command list' attribute does not exist
+        #
+        config_name = self.mod.config_names[0]
+        cl = self.mod[config_name].attrs[
+            'N5700 power supply command list']
+        self.mod[config_name].attrs['Wrong command list'] = cl
+        del self.mod[config_name].attrs[
+            'N5700 power supply command list']
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+        self.mod[config_name].attrs[
+            'N5700 power supply command list'] = cl
+        del self.mod[config_name].attrs['Wrong command list']
+
+    def test_misc(self):
+        """Test Miscellaneous features."""
+        # make a default/clean 'Waveform' module
+        self.mod.knobs.reset()
+
+        # no RE match so _default_state_values_dict() is used for
+        # 'command list'
+        #
+        config_name = self.mod.config_names[0]
+        cl = np.bytes_('AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n')
+        self.mod[config_name].attrs[
+            'N5700 power supply command list'] = cl
+        self.assertControlMapBasics(self.map, self.cgroup)
+        self.mod.knobs.reset()
+
+        # check warning if a general item is missing from group
+        # - a warning is thrown, but mapping continues
+        # - remove attribute 'IP address'
+        config_name = self.mod.config_names[0]
+        del self.mod[config_name].attrs['IP address']
+        with self.assertWarns(UserWarning):
+            self.assertTrue(self.map.build_successful)
+        self.mod.knobs.reset()
 
     def test_one_config(self):
         """

@@ -47,15 +47,14 @@ class hdfMap_controls(dict):
             device groups
         :type data_group: :class:`h5py.Group`
         """
-
         # condition data_group arg
-        if type(data_group) is not h5py.Group:
+        if not isinstance(data_group, h5py.Group):
             raise TypeError('data_group is not of type h5py.Group')
 
         # store HDF5 data group instance
         self.__data_group = data_group
 
-        # all data_group subgroups
+        # Gather data_group subgroups
         # - each of these subgroups can fall into one of four 'LaPD
         #   data types'
         #   1. data sequence
@@ -63,11 +62,10 @@ class hdfMap_controls(dict):
         #   3. controls (known)
         #   4. unknown
         #
-        #: list of all group names in the HDF5 data group
         self.data_group_subgnames = []
-        for item in data_group:
-            if type(data_group[item]) is h5py.Group:
-                self.data_group_subgnames.append(item)
+        for gname in data_group:
+            if isinstance(data_group[gname], h5py.Group):
+                self.data_group_subgnames.append(gname)
 
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
@@ -76,9 +74,9 @@ class hdfMap_controls(dict):
     def predefined_control_groups(self):
         """
         :return: list of the predefined control device group names
-        :rtype: list(str)
+        :rtype: tuple(str)
         """
-        return list(self._defined_control_mappings.keys())
+        return tuple(self._defined_control_mappings.keys())
 
     @property
     def __build_dict(self):

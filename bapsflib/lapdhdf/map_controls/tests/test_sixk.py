@@ -55,6 +55,278 @@ class TestSixK(ControlTestCase):
     def test_contype(self):
         self.assertEqual(self.map.info['contype'], 'motion')
 
+    def test_not_h5py_group(self):
+        """Test error if object to map is not h5py.Group"""
+        with self.assertRaises(TypeError):
+            self.map_control(None)
+
+    def test_map_failures(self):
+        """Test conditions that result in unsuccessful mappings."""
+        # any failed build must throw a UserWarning and set
+        # build_successful False
+        #
+        # make a default/clean '6K Compumotor' module
+        self.mod.knobs.reset()
+
+        # -- no PL items (config groups) found                      ----
+        # remove PL group instance
+        rnum = self.mod.config_names[0]
+        name = 'Probe: XY[{}]: probe01'.format(rnum)
+        del self.cgroup[name]
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+
+        # reset module
+        self.mod.knobs.reset()
+
+        # -- dataset name missing in HDF5 file                      ----
+        # rename dataset
+        rnum = self.mod.config_names[0]
+        name = 'XY[{}]: probe01'.format(rnum)
+        self.cgroup.move(name, 'Wrong name')
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+
+        # reset module
+        self.mod.knobs.reset()
+
+        # -- dataset name construction fails                        ----
+        # - mock hdfMap_control_6k.construct_dataset_name to throw a
+        #   ValueError
+        #
+        with mock.patch.object(hdfMap_control_6k,
+                               'construct_dataset_name') as cdn_mock:
+            cdn_mock.side_effect = ValueError
+            with self.assertWarns(UserWarning):
+                self.assertFalse(self.map.build_successful)
+
+    def test_misc(self):
+        """Test Miscellaneous features."""
+        # make a default/clean module
+        self.mod.knobs.reset()
+
+        # an extra group that does not match PL or ML group formats
+        self.cgroup.create_group('Random group')
+        self.assertSixKDetails()
+        del self.cgroup['Random group']
+
+    def test_construct_dataset_name(self):
+        """Test operation of `construct_dataset_name` method."""
+        # make a default/clean module
+        self.mod.knobs.reset()
+
+        # ---- NO argument passed                                   ----
+        # 6K has one config
+        self.mod.knobs.n_configs = 1
+        dset_name = self.map.construct_dataset_name()
+        self.assertEqual(
+            dset_name,
+            "XY[{}]: probe01".format(self.mod.config_names[0]))
+
+        # 6K has >1 config
+        self.mod.knobs.n_configs = 3
+        with self.assertRaises(ValueError):
+            self.map.construct_dataset_name()
+
+        # --- ONE argument passed                                   ----
+        # - construct_dataset_name() only uses the 1st argument
+        #
+        # args[0] is a configuration
+        self.mod.knobs.n_configs = 3
+        dset_name = self.map.construct_dataset_name(2)
+        self.assertEqual(dset_name, "XY[2]: probe02")
+
+        # args[0] is NOT a configuration
+        with self.assertRaises(ValueError):
+            self.map.construct_dataset_name(None)
+            self.map.construct_dataset_name(['Hello'])
+
+    def test_analyze_motionlist(self):
+        """Test operation of `_analyze_motionlist` method."""
+        # make a default/clean module
+        self.mod.knobs.reset()
+
+        # check method existence
+        self.assertTrue(hasattr(self.map, '_analyze_motionlist'))
+
+        # get ML group instance
+        mlg = self.cgroup['Motion list: ml-0001']
+
+        # -- RE does NOT match against `gname`                      ----
+        # - None is returned
+        self.assertIsNone(self.map._analyze_motionlist('Not a ML'))
+
+        # -- operation on default ML group                          ----
+        ml_stuff = self.map._analyze_motionlist(
+            os.path.basename(mlg.name))
+        self.assertIsInstance(ml_stuff, dict)
+        self.assertEqual(ml_stuff['name'], 'ml-0001')
+        self.assertIsInstance(ml_stuff['config'], dict)
+        self.assertMLConfigDict(ml_stuff['config'])
+
+        # -- group attribute 'Motion list'                          ----
+        default = mlg.attrs['Motion list']
+
+        # 'Motion list' value does NOT match discovered ML name
+        mlg.attrs['Motion list'] = 'wrong name'
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_motionlist(
+                os.path.basename(mlg.name))
+            self.assertEqual(ml_stuff['name'], 'ml-0001')
+
+        # 'Motion list' attribute does NOT exist
+        del mlg.attrs['Motion list']
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_motionlist(
+                os.path.basename(mlg.name))
+            self.assertEqual(ml_stuff['name'], 'ml-0001')
+
+        # return to default
+        mlg.attrs['Motion list'] = default
+
+        # -- check simple attributes                                ----
+        default = mlg.attrs['Motion count']
+
+        # attribute is missing
+        del mlg.attrs['Motion count']
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_motionlist(
+                os.path.basename(mlg.name))
+            self.assertIsNone(ml_stuff['config']['motion count'])
+
+        # return to default
+        mlg.attrs['Motion count'] = default
+
+        # -- check 'Delta' attributes                               ----
+        # - dependent on 'Delta x' and 'Delta y' keys
+        default = mlg.attrs['Delta x']
+
+        # attribute is missing
+        del mlg.attrs['Delta x']
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_motionlist(
+                os.path.basename(mlg.name))
+            self.assertTrue(np.array_equal(
+                ml_stuff['config']['delta'],
+                np.array([None, None, None])
+            ))
+
+        # return to default
+        mlg.attrs['Delta x'] = default
+
+        # -- check 'Grid center' attributes                         ----
+        # - dependent on 'Grid center x' and 'Grid center y' keys
+        default = mlg.attrs['Grid center x']
+
+        # attribute is missing
+        del mlg.attrs['Grid center x']
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_motionlist(
+                os.path.basename(mlg.name))
+            self.assertTrue(np.array_equal(
+                ml_stuff['config']['center'],
+                np.array([None, None, None])
+            ))
+
+        # return to default
+        mlg.attrs['Grid center x'] = default
+
+        # -- check 'N' attributes                                   ----
+        # - dependent on 'Grid center x' and 'Grid center y' keys
+        default = mlg.attrs['Nx']
+
+        # attribute is missing
+        del mlg.attrs['Nx']
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_motionlist(
+                os.path.basename(mlg.name))
+            self.assertTrue(np.array_equal(
+                ml_stuff['config']['npoints'],
+                np.array([None, None, None])
+            ))
+
+        # return to default
+        mlg.attrs['Nx'] = default
+
+    def test_analyze_probelist(self):
+        """Test operation of `_analyze_probelist` method."""
+        # make a default/clean module
+        self.mod.knobs.reset()
+
+        # check method existence
+        self.assertTrue(hasattr(self.map, '_analyze_probelist'))
+
+        # get PL group instance
+        rnum = self.mod.config_names[0]
+        name = 'Probe: XY[{}]: probe01'.format(rnum)
+        plg = self.cgroup[name]
+
+        # -- RE does NOT match against `gname`                      ----
+        # - None is returned
+        self.assertIsNone(self.map._analyze_probelist('Not a PL'))
+
+        # -- operation on default PL group                          ----
+        pl_stuff = self.map._analyze_probelist(
+            os.path.basename(plg.name))
+        self.assertIsInstance(pl_stuff, dict)
+        self.assertEqual(pl_stuff['name'], 'probe01')
+        self.assertIsInstance(pl_stuff['config'], dict)
+        self.assertProbeConfigDict(pl_stuff['config'])
+
+        # -- group attribute 'Probe'                                ----
+        default = plg.attrs['Probe']
+
+        # 'Probe' value does NOT match discovered PL name
+        plg.attrs['Probe'] = 'wrong name'
+        with self.assertWarns(UserWarning):
+            pl_stuff = self.map._analyze_probelist(
+                os.path.basename(plg.name))
+            self.assertEqual(pl_stuff['name'], 'probe01')
+
+        # 'Probe' attribute does NOT exist
+        del plg.attrs['Probe']
+        with self.assertWarns(UserWarning):
+            pl_stuff = self.map._analyze_probelist(
+                os.path.basename(plg.name))
+            self.assertEqual(pl_stuff['name'], 'probe01')
+
+        # return to default
+        plg.attrs['Probe'] = default
+
+        # -- group attribute 'Receptacle'                           ----
+        default = plg.attrs['Receptacle']
+
+        # 'Receptacle' value does NOT match discovered recepetacle
+        # number
+        plg.attrs['Receptacle'] = 10
+        with self.assertWarns(UserWarning):
+            pl_stuff = self.map._analyze_probelist(
+                os.path.basename(plg.name))
+            self.assertEqual(pl_stuff['config']['receptacle'], rnum)
+
+        # 'Probe' attribute does NOT exist
+        del plg.attrs['Receptacle']
+        with self.assertWarns(UserWarning):
+            pl_stuff = self.map._analyze_probelist(
+                os.path.basename(plg.name))
+            self.assertEqual(pl_stuff['config']['receptacle'], rnum)
+
+        # return to default
+        plg.attrs['Receptacle'] = default
+
+        # -- check simple attributes                                ----
+        default = plg.attrs['Port']
+
+        # attribute is missing
+        del plg.attrs['Port']
+        with self.assertWarns(UserWarning):
+            ml_stuff = self.map._analyze_probelist(
+                os.path.basename(plg.name))
+            self.assertIsNone(ml_stuff['config']['port'])
+
+        # return to default
+        plg.attrs['Port'] = default
+
     def test_one_config_one_ml(self):
         # reset to one config and one motion list
         if self.mod.knobs.n_configs != 1:

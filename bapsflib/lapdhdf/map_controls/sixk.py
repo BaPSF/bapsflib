@@ -8,7 +8,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import re
+
 import numpy as np
+
+from warnings import warn
 
 from .control_template import hdfMap_control_template
 
@@ -16,8 +20,27 @@ from .control_template import hdfMap_control_template
 class hdfMap_control_6k(hdfMap_control_template):
     """
     Mapping module for control device '6K Compumotor'.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- 6K Compumotor
+        |   +-- Motion list: <name>
+        |   |   +--
+        |   +-- Probe: XY[<receptacle #>]: <probe name>
+        |   |   +-- Axes[0]
+        |   |   |   +--
+        |   |   +-- Axes[1]
+        |   |   |   +--
+        |   +-- XY[<receptacle #>]: <probe name>
+
     """
     def __init__(self, control_group):
+        """
+        :param control_group: the HDF5 control device group
+        :type control_group: :class:`h5py.Group`
+        """
         hdfMap_control_template.__init__(self, control_group)
 
         # define control type
@@ -27,55 +50,99 @@ class hdfMap_control_6k(hdfMap_control_template):
         self._build_configs()
 
     def _build_configs(self):
+        """Builds the :attr:`configs` dictionary."""
+        # assume build is successful
+        # - alter if build fails
+        #
+        self._build_successful = True
+
         # build order:
-        #  1. build a private motion list dictionary
-        #  2. build local probe list dictionary
+        #  1. build a local motion list dictionary
+        #  2. build a local probe list dictionary
         #  3. build configs dict
         #
         # TODO: HOW TO ADD MOTION LIST TO DICT
+        # - right now, the dataset has to be read which has the
+        #   potential for creating long mapping times
+        # - this is probably best left to hdfReadControl
+        #
 
         # build 'motion list' and 'probe list'
-        self._motion_lists = {}
-        probe_lists = {}
+        _motion_lists = {}
+        _probe_lists = {}
         for name in self.sgroup_names:
-            is_ml, ml_name, ml_config = self._parse_motionlist(name)
-            if is_ml:
+            ml_stuff = self._analyze_motionlist(name)
+            if ml_stuff is not None:
                 # build 'motion list'
-                self._motion_lists[ml_name] = ml_config
+                _motion_lists[ml_stuff['name']] = \
+                    ml_stuff['config']
             else:
-                is_p, p_name, p_config = self._parse_probelist(name)
-                if is_p:
+                pl_stuff = self._analyze_probelist(name)
+                if pl_stuff is not None:
                     # build 'probe list'
-                    probe_lists[p_name] = p_config
+                    _probe_lists[pl_stuff['name']] = pl_stuff['config']
+
+        # ensure a PL item (config group) is found
+        if len(_probe_lists) == 0:
+            warn_str = (self.name
+                        + ": no configurations (Probe List groups) "
+                        + "found")
+            warn(warn_str)
+            self._build_successful = False
+            return
 
         # build configuration dictionaries
         # - the receptacle number is the config_name
         # - each probe is one-to-one with receptacle number
         #
-        for pname in probe_lists:
+        for pname in _probe_lists:
             # define configuration name
-            config_name = probe_lists[pname]['receptacle']
+            config_name = _probe_lists[pname]['receptacle']
 
-            # ---- start assigning values to _configs               ----
-            #  assign non-critical values
-            self._configs[config_name] = {
-                'probe name': pname,
-                'port': probe_lists[pname]['port'],
-                'receptacle': probe_lists[pname]['receptacle'],
-                'motion lists': {}
-            }
+            # initialize _configs
+            self._configs[config_name] = {}
 
-            # get dataset
-            dset = self.group[self.construct_dataset_name(config_name)]
+            # ---- define general info values                       ----
+            # - this has to be done before getting the dataset since
+            #   the _configs dist is used by construct_dataset_name()
+            #
+            # add motion list info
+            self._configs[config_name]['motion lists'] = \
+                _motion_lists
 
-            # assign 'dset paths'
+            # add probe info
+            self._configs[config_name]['probe'] = _probe_lists[pname]
+
+            # add 'receptacle'
+            self._configs[config_name]['receptacle'] = \
+                self._configs[config_name]['probe']['receptacle']
+
+            # ---- get configuration dataset                        ----
+            try:
+                dset_name = self.construct_dataset_name(config_name)
+                dset = self.group[dset_name]
+            except (KeyError, ValueError):
+                # KeyError: the dataset was not found
+                # ValueError: the dataset name was not properly
+                #             constructed
+                #
+                warn_str = (
+                        self.name + ": Dataset for configuration "
+                        + "'{}'".format(pname)
+                        + "  could not be determined or found"
+                )
+                warn(warn_str)
+                self._build_successful = False
+                return
+
+            # ---- define 'dset paths'                              ----
             self._configs[config_name]['dset paths'] = dset.name
 
             # ---- define 'shotnum'                                 ----
             # initialize
             self._configs[config_name]['shotnum'] = {
                 'dset paths': self._configs[config_name]['dset paths'],
-                'dset field': 'Shot number',
+                'dset field': ('Shot number',),
                 'shape': dset.dtype['Shot number'].shape,
                 'dtype': np.int32
             }
@@ -105,101 +172,292 @@ class hdfMap_control_6k(hdfMap_control_template):
                 },
             }
 
-        # indicate build was successful
-        self._build_successful = True
-
-    def construct_dataset_name(self, *args):
+    def construct_dataset_name(self, *args) -> str:
         # The first arg passed is assumed to be the receptacle number.
         # If none are passed and there is only one receptacle deployed,
         # then the deployed receptacle is assumed.
 
-        # Set receptacle value
-        err = False
+        # get list of configurations
+        # - configuration names are receptacle numbers
+        #
+        _receptacles = list(self.configs)
+
+        # get receptacle number
+        err = True
+        rnum = -1
         if len(args) == 0:
-            if len(self.list_receptacles) == 1:
-                # assume only receptacle
-                receptacle = self.list_receptacles[0]
-            else:
-                err = True
-        elif len(args) >= 1:
+            if len(_receptacles) == 1:
+                # assume the sole receptacle number
+                rnum = _receptacles[0]
+                err = False
+        else:  # len(args) >= 1:
             receptacle = args[0]
-            if receptacle is None:
-                if len(self.list_receptacles) == 1:
-                    # assume only receptacle
-                    receptacle = self.list_receptacles[0]
-                else:
-                    err = True
-            elif receptacle not in self.list_receptacles:
-                err = True
-        else:
-            err = True
+            if receptacle in _receptacles:
+                rnum = receptacle
+                err = False
         if err:
             raise ValueError('A valid receptacle number needs to be '
-                             'passed: {}'.format(self.list_receptacles))
+                             'passed: {}'.format(_receptacles))
 
         # Find matching probe to receptacle
         # - note that probe naming in the HDF5 are not consistent, this
         #   is why dataset name is constructed based on receptacle and
         #   not probe name
         #
-        pname = self._configs[receptacle]['probe name']
+        pname = self._configs[rnum]['probe']['probe name']
 
         # Construct dataset name
-        dname = 'XY[{0}]: {1}'.format(receptacle, pname)
+        dname = 'XY[{0}]: {1}'.format(rnum, pname)
 
+        # return
         return dname
 
-    @property
-    def list_receptacles(self):
+    def _analyze_motionlist(self, gname: str) -> dict:
         """
-        :return: list of probe drive receptacle numbers
-        :rtype: [int, ]
+        Determines if `gname` matches the RE for a motion list group
+        name.  It yes, then it gathers the motion list info.
+
+        :param str gname: name of potential motion list group
+        :return: dictionary with `'name'` and `'config'` keys
         """
-        return list(self._configs)
-
-    def _parse_motionlist(self, ml_gname):
-        # A motion list group follows the naming scheme of:
-        #    'Motion list: ml_name'
+        # Define RE pattern
+        # - A motion list group follows the naming scheme of:
         #
-        # initialize return values
-        is_ml = False
-        ml_name = None
-        ml_config = None
-
-        # Determine if ml_group is a motion list
-        if 'Motion list' == ml_gname.split(': ')[0]:
-            is_ml = True
-            ml_name = ml_gname.split(': ')[-1]
-
-            ml_group = self.group[ml_gname]
-            ml_config = {'delta': (ml_group.attrs['Delta x'],
-                                   ml_group.attrs['Delta y'],
-                                   0.0),
-                         'center': (ml_group.attrs['Grid center x'],
-                                    ml_group.attrs['Grid center y'],
-                                    0.0),
-                         'npoints': (ml_group.attrs['Nx'],
-                                     ml_group.attrs['Ny'],
-                                     1)}
-
-        return is_ml, ml_name, ml_config
-
-    def _parse_probelist(self, p_gname):
-        # A probe list group follows the naming scheme of:
-        #    'Probe: XY[#]: p_name'
+        #     'Motion list: <NAME>'
         #
-        # initialize return values
-        is_p = False
-        p_name = None
-        p_config = None
+        #   where <NAME> is the motion list name
+        #
+        _pattern = r'(\bMotion list:\s)(?P<NAME>.+\b)'
 
-        # Determine if p_group is a probe config
-        if 'Probe' == p_gname.split(': ')[0]:
-            is_p = True
-            p_name = p_gname.split(': ')[-1]
+        # match _pattern against gname
+        _match = re.fullmatch(_pattern, gname)
 
-            p_group = self.group[p_gname]
-            p_config = {'receptacle': p_group.attrs['Receptacle'],
-                        'port': p_group.attrs['Port']}
+        # gather ml info
+        # - Note: a missing HDF5 attribute will not cause the mapping to
+        #         fail, the associated mapping item will be given an
+        #         appropriate None vale
+        #
+        if _match is not None:
+            # define motion list dict
+            ml = {'name': _match['NAME'],
+                  'config': {}}
 
-        return is_p, p_name, p_config
+            # get ml group
+            mlg = self.group[gname]
+
+            # gather motion list info
+            # -- define 'group name' and 'group path' --
+            ml['config']['group name'] = gname
+            ml['config']['group path'] = mlg.name
+
+            # -- check ML name --
+            try:
+                ml_name = mlg.attrs['Motion list']
+                if np.issubdtype(type(ml_name), np.bytes_):
+                    # decode to 'utf-8'
+                    ml_name = ml_name.decode('utf-8')
+
+                if ml['name'] != ml_name:
+                    warn_str = ("Discovered motion list name '"
+                                + ml['name'] + "' does not match the "
+                                + "name defined in attributes '"
+                                + str(ml_name) 
+                                + "', using discovered name")
+                    warn(warn_str)
+            except KeyError:
+                warn_str = ("Motion list attribute 'Motion list' "
+                            + "not found for ML '"
+                            + ml['config']['group name'] + "'")
+                warn(warn_str)
+
+            # -- check simple pairs --
+            pairs = [('created date', 'Created date'),
+                     ('data motion count', 'Data motion count'),
+                     ('motion count', 'Motion count'), ]
+            for pair in pairs:
+                try:
+                    # get attribute value
+                    val = mlg.attrs[pair[1]]
+
+                    # condition value
+                    if np.issubdtype(type(val), np.bytes_):
+                        # - val is a np.bytes_ string
+                        val = val.decode('utf-8')
+
+                    # assign val
+                    ml['config'][pair[0]] = val
+                except KeyError:
+                    ml['config'][pair[0]] = None
+                    warn_str = ("Motion list attribute '" + pair[1]
+                                + "' not found for ML '" + ml['name']
+                                + "'")
+                    warn(warn_str)
+
+            # -- check 'delta' --
+            try:
+                val = np.array([mlg.attrs['Delta x'],
+                                mlg.attrs['Delta y'],
+                                0.0])
+                ml['config']['delta'] = val
+            except KeyError:
+                ml['config']['delta'] = np.array([None, None, None])
+                warn_str = ("Motion list attributes 'Delta x' and/or "
+                            "'Delta y' not found for ML '"
+                            + ml['name'] + "'")
+                warn(warn_str)
+
+            # -- check 'center' --
+            try:
+                val = np.array([mlg.attrs['Grid center x'],
+                                mlg.attrs['Grid center y'],
+                                0.0])
+                ml['config']['center'] = val
+            except KeyError:
+                ml['config']['center'] = np.array([None, None, None])
+                warn_str = (
+                            "Motion list attributes 'Grid center x' "
+                            "and/or 'Grid center y' not found for ML '"
+                            + ml['name'] + "'")
+                warn(warn_str)
+
+            # -- check 'npoints' --
+            try:
+                val = np.array([mlg.attrs['Nx'],
+                                mlg.attrs['Ny'],
+                                1])
+                ml['config']['npoints'] = val
+            except KeyError:
+                ml['config']['npoints'] = np.array(
+                    [None, None, None])
+                warn_str = (
+                        "Motion list attributes 'Nx' and/or 'Ny' not "
+                        "found for ML '" + ml['name'] + "'")
+                warn(warn_str)
+
+            # return
+            return ml
+        else:
+            # not a motion list
+            return
+
+    def _analyze_probelist(self, gname: str) -> dict:
+        """
+        Determines if `gname` matches the RE for a probe list group
+        name.  If yes, then it gathers the probe info.
+
+        :param str gname: name of potential probe list group
+        :return: dictionary with `'name'` and `'config'` keys
+        """
+        # Define RE pattern
+        # - A probe list group follows the naming scheme of:
+        #
+        #     'Probe: XY[<RNUM>]: <NAME>'
+        #
+        #   where <RNUM> is the receptacle number and <NAME> is the
+        #   probe name
+        #
+        _pattern = \
+            r'(\bProbe:\sXY\[)(?P<RNUM>\b\d+\b)(\]:\s)(?P<NAME>.+\b)'
+
+        # match _pattern against gname
+        _match = re.fullmatch(_pattern, gname)
+
+        # gather pl info
+        # - Note: a missing HDF5 attribute will not cause the mapping to
+        #         fail, the associated mapping item will be given an
+        #         appropriate None vale
+        #
+        if _match is not None:
+            # define probe list dict
+            pl = {'name': _match['NAME'],
+                  'config': {}}
+
+            # get pl group
+            plg = self.group[gname]
+
+            # gather pl info
+            # -- define 'group name', 'group path', and 'probe name' --
+            pl['config']['group name'] = gname
+            pl['config']['group path'] = plg.name
+            pl['config']['probe name'] = pl['name']
+
+            # -- check PL name --
+            try:
+                # get value
+                pl_name = plg.attrs['Probe']
+                if np. issubdtype(type(pl_name), np.bytes_):
+                    # decode to 'utf-8'
+                    pl_name = pl_name.decode('utf-8')
+
+                # check against discovered probe name
+                if pl['name'] != pl_name:
+                    warn_str = (pl['config']['group name']
+                                + "Discovered probe list name '"
+                                + pl['name'] + "' does not match the "
+                                + "name defined in attributes '"
+                                + str(pl_name)
+                                + "', using discovered name")
+                    warn(warn_str)
+            except KeyError:
+                warn_str = (pl['config']['group name']
+                            + ": Probe list attribute 'Probe' "
+                            + "not found")
+                warn(warn_str)
+
+            # -- check receptacle number --
+            try:
+                # define receptacle number
+                pl['config']['receptacle'] = int(_match['RNUM'])
+
+                # get value
+                rnum = plg.attrs['Receptacle']
+
+                # check against discovered receptacle number
+                if pl['config']['receptacle'] != rnum:
+                    warn_str = (pl['config']['group name']
+                                + ": Discovered receptacle number "
+                                + "'{}' ".format(
+                                    pl['config']['receptacle'])
+                                + "does not match the number defined in"
+                                + " attributes '{}'".format(rnum)
+                                + "', using discovered name")
+                    warn(warn_str)
+            except KeyError:
+                warn_str = (pl['config']['group name']
+                            + ": Probe list attribute 'Receptacle' "
+                            + "not found")
+                warn(warn_str)
+
+            # -- check pairs --
+            pairs = [('calib', 'Calibration'),
+                     ('level sy (cm)', 'Level sy (cm)'),
+                     ('port', 'Port'),
+                     ('probe channels', 'Probe channels'),
+                     ('probe type', 'Probe type'),
+                     ('unnamed', 'Unnamed'),
+                     ('sx at end (cm)', 'sx at end (cm)'),
+                     ('z', 'z')]
+            for pair in pairs:
+                try:
+                    # get value
+                    val = plg.attrs[pair[1]]
+
+                    # condition value
+                    if np.issubdtype(type(val), np.bytes_):
+                        # - val is a np.bytes_ string
+                        val = val.decode('utf-8')
+
+                    # assign val
+                    pl['config'][pair[0]] = val
+                except KeyError:
+                    pl['config'][pair[0]] = None
+                    warn_str = (pl['config']['group name']
+                                + ": attribute '" + pair[1]
+                                + "' not found")
+                    warn(warn_str)
+
+            # return
+            return pl
+        else:
+            # not a probe list
+            return

@@ -87,6 +87,14 @@ class FauxSixK(h5py.Group):
             else:
                 warn('`val` not valid, no update performed')
 
+        def reset(self):
+            """Reset '6K Compumotor' group to defaults."""
+            self._faux._n_configs = 1
+            self._faux._n_probes = 1
+            self._faux._n_motionlists = 1
+            self._faux._sn_size = 100
+            self._faux._update()
+
     def __init__(self, id, n_configs=1, n_motionlists=1,
                  sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
@@ -124,7 +132,7 @@ class FauxSixK(h5py.Group):
     @property
     def config_names(self):
         """list of configuration names"""
-        return list(self._configs)
+        return tuple(self._configs)
 
     def _update(self):
         """
@@ -152,14 +160,16 @@ class FauxSixK(h5py.Group):
     def _set_6K_attrs(self):
         """Sets the '6K Compumotor' group attributes"""
         self.attrs.update({
-            'Created date': b'5/21/2004 4:09:05 PM',
-            'Description': b'Controls XY probe drives using the 6K '
-                           b'Compumotor motor controller.',
-            'Device name': b'6K Compumotor',
-            'Module IP address': b'192.168.7.6',
-            'Module BI path': b'C:\\ACQ II home\\Modules\\XY probe '
-                              b'drive\\XY probe drive.vi',
-            'Type': b'Motion'
+            'Created date': np.bytes_('5/21/2004 4:09:05 PM'),
+            'Description': np.bytes_(
+                'Controls XY probe drives using the 6K '
+                'Compumotor motor controller.'),
+            'Device name': np.bytes_('6K Compumotor'),
+            'Module IP address': np.bytes_('192.168.7.6'),
+            'Module VI path': np.bytes_(
+                'C:\\ACQ II home\\Modules\\XY probe '
+                'drive\\XY probe drive.vi'),
+            'Type': np.bytes_('Motion')
         })
 
     def _add_probe_groups(self):
@@ -180,9 +190,6 @@ class FauxSixK(h5py.Group):
             else:
                 receptacle = i + 1
 
-            # gather configuration names
-            # self._config_names.append(receptacle)
-
             # create probe group
             probe_gname = 'Probe: XY[{}]: '.format(receptacle) + pname
             self.create_group(probe_gname)
@@ -191,10 +198,31 @@ class FauxSixK(h5py.Group):
 
             # set probe group attributes
             self[probe_gname].attrs.update({
-                'Port': -99999,
-                'Probe': pname.encode(),
-                'Probe type': b'LaPD probe',
-                'Receptacle': receptacle
+                'Calibration': np.bytes_(
+                    '2004-06-04 0.375 inch calibration'),
+                'Level sy (cm)': np.float64(70.46),
+                'Port': np.uint8(27),
+                'Probe': np.bytes_(pname),
+                'Probe channels': np.bytes_(''),
+                'Probe type': np.bytes_('LaPD probe'),
+                'Receptacle': np.int8(receptacle),
+                'Unnamed': np.bytes_('lower East'),
+                'sx at end (cm)': np.float64(112.01),
+                'z': np.float64(830.699999)
+            })
+
+            # add attributes to Axes[0] group
+            self[probe_gname + '/Axes[0]'].attrs.update({
+                '6K #': np.uint8(1),
+                'Axis': np.uint8((2 * (receptacle - 1)) + 1),
+                'Id': np.uint8(receptacle)
+            })
+
+            # add attributes to Axes[1] group
+            self[probe_gname + '/Axes[1]'].attrs.update({
+                '6K #': np.uint8(1),
+                'Axis': np.uint8((2 * (receptacle - 1)) + 2),
+                'Id': np.uint8(receptacle)
             })
 
             # fill configs dict
@@ -265,16 +293,16 @@ class FauxSixK(h5py.Group):
             # set motionlist attributes
             timestamp = dt.now().strftime('%-m/%-d/%Y %-I:%M:%S %p')
             self[ml_gname].attrs.update({
-                'Created date': timestamp.encode(),
-                'Grid center x': 0.0,
-                'Grid center y': 0.0,
-                'Delta x': 1.0,
-                'Delta y': 1.0,
-                'Nx': NN[i][0],
-                'Ny': NN[i][1],
-                'Motion list': ml_name.encode(),
-                'Data motion count': sn_size_for_ml[i],
-                'Motion count': -99999
+                'Created date': np.bytes_(timestamp),
+                'Data motion count': np.uint32(sn_size_for_ml[i]),
+                'Delta x': np.float64(1.0),
+                'Delta y': np.float64(1.0),
+                'Grid center x': np.float64(0.0),
+                'Grid center y': np.float64(0.0),
+                'Motion count': np.uint32(sn_size_for_ml[i] + NN[i][1]),
+                'Motion list': np.bytes_(ml_name),
+                'Nx': np.uint32(NN[i][0]),
+                'Ny': np.uint32(NN[i][1]),
             })
 
         # fill configs dict
@@ -346,4 +374,4 @@ class FauxSixK(h5py.Group):
             data['phi'].fill(0.0)
 
             # create dataset
-            self.create_dataset(dset_name, data=data.copy())
+            self.create_dataset(dset_name, data=data)

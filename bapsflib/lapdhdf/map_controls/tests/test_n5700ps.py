@@ -119,7 +119,7 @@ class TestN5700PS(ControlTestCase):
             self.mod.knobs.n_configs = 1
 
         # assert details
-        self.assertWaveformDetails()
+        self.assertN5700PSDetails()
 
     def test_three_configs(self):
         """
@@ -130,9 +130,9 @@ class TestN5700PS(ControlTestCase):
             self.mod.knobs.n_configs = 3
 
         # assert details
-        self.assertWaveformDetails()
+        self.assertN5700PSDetails()
 
-    def assertWaveformDetails(self):
+    def assertN5700PSDetails(self):
         """
         Test details of a 'N5700_PS' mapping, i.e. the basic tests for
         a control device plus the unique features for the 'N5700_PS'
@@ -155,9 +155,9 @@ class TestN5700PS(ControlTestCase):
 
         # test attribute 'one_config_per_dataset'
         if self.mod.knobs.n_configs == 1:
-            self.assertTrue(self.map.one_config_per_dset)
+            self.assertTrue(_map.one_config_per_dset)
         else:
-            self.assertFalse(self.map.one_config_per_dset)
+            self.assertFalse(_map.one_config_per_dset)
 
         # test that 'configs' attribute is setup correctly
         self.assertConfigsGeneralItems(_map)

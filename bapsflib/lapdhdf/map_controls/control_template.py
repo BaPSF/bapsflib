@@ -15,6 +15,7 @@ import numpy as np
 
 from abc import (ABC, abstractmethod)
 from warnings import warn
+from typing import List
 
 from .clparse import CLParse
 
@@ -45,7 +46,7 @@ class hdfMap_control_template(ABC):
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
     """
-    def __init__(self, control_group):
+    def __init__(self, control_group: h5py.Group):
         """
         :param control_group: the control HDF5 group
         :type control_group: :class:`h5py.Group`
@@ -354,7 +355,8 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         self._cl_re_patterns = []
         """List of common RE patterns."""
 
-    def _default_state_values_dict(self, config_name):
+    @abstractmethod
+    def _default_state_values_dict(self, config_name: str) -> dict:
         """
         Returns the default :code:`'state values'` dictionary for
         configuration *config_name*.
@@ -386,7 +388,9 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         """
         raise NotImplementedError
 
-    def _construct_state_values_dict(self, config_name, patterns):
+    def _construct_state_values_dict(self,
+                                     config_name: str,
+                                     patterns: List[str]) -> dict:
         """
         Returns a dictionary for
         :code:`configs[config_name]['state values]` based on the

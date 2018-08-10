@@ -147,12 +147,15 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
             # catch and suppress warnings only for initialization
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                pstate = self._construct_state_values_dict(
-                    name, self._cl_re_patterns)
+                try:
+                    sv_state = self._construct_state_values_dict(
+                        name, self._cl_re_patterns)
+                except KeyError:
+                    sv_state = {}
 
             # initialize
-            self._configs[name]['state values'] = pstate \
-                if pstate is not None \
+            self._configs[name]['state values'] = sv_state \
+                if not bool(sv_state) \
                 else self._default_state_values_dict(name)
 
     def _default_state_values_dict(self, config_name):

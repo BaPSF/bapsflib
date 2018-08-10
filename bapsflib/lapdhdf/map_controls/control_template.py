@@ -485,7 +485,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         self._configs[config_name]['state values'] = sv_dict
 
     def set_state_values_config(self, config_name: str,
-                                patterns: List[str]) -> dict:
+                                patterns: List[str]):
         """
         Rebuild and set
         :code:`configs[config_name]['state values']` based on the
@@ -494,29 +494,15 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         :param str config_name: configuration name
         :param patterns: list of RE strings
         """
-        # condition patterns
-        if isinstance(patterns, str):
-            patterns = [patterns]
-        elif isinstance(patterns, list):
-            if not all(isinstance(pattern, str)
-                       for pattern in patterns):
-                warn('Valid list of regex patterns not passed, doing '
-                     'nothing')
-                return {}
-        else:
-            warn('Valid list of regex patterns not passed, doing '
-                 'nothing')
-            return {}
 
         # construct dict for 'state values' dict
-        pstate = self._construct_state_values_dict(config_name,
-                                                   patterns)
+        sv_dict = self._construct_state_values_dict(config_name,
+                                                    patterns)
 
         # update 'state values' dict
-        if pstate is None:
+        if not bool(sv_dict):
             # do nothing since default parsing was unsuccessful
             warn("RE parsing of 'command list' was unsuccessful, "
                  "doing nothing")
-            return {}
         else:
-            self._configs[config_name]['state values'] = pstate
+            self._configs[config_name]['state values'] = sv_dict

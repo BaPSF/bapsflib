@@ -284,6 +284,73 @@ class TestControlTemplates(ut.TestCase):
                         [pattern])
                     self.assertFalse(bool(sv_dict))
 
+        # -- check 'reset_state_values_config'                      ----
+        cl = ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0',)
+        pattern = \
+            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
+        config_name = 'config1'
+        configs_dict = {
+            config_name: {'command list': cl,
+                          'dset paths': '/MSI/d1',
+                          'shotnum': {},
+                          'state values': {}}
+        }
+        dsv_dict = {
+            'command': {
+                'command list': cl,
+                'cl str': cl,
+                're pattern': None,
+                'dset paths': configs_dict[config_name]['dset paths'],
+                'dset field': ('Command index',),
+                'shape': (),
+                'dtype': np.dtype((np.unicode, 10))}
+        }
+        sv_dict = {
+            'VOLT': {
+                'command list': (20.0, 25.0, 30.0),
+                'cl str': cl,
+                're pattern': re.compile(pattern),
+                'dset paths': configs_dict[config_name]['dset paths'],
+                'dset field': ('Command index',),
+                'shape': (),
+                'dtype': np.float64}
+        }
+
+        # mock _map._configs
+        # mock the '_default_state_values_dict' method
+        with mock.patch.dict(_map._configs, configs_dict), \
+             mock.patch.object(_map, '_default_state_values_dict') \
+                as mock_dsvdict:
+            mock_dsvdict.return_value = dsv_dict
+
+            # kwarg apply_patterns=False (default behavior)
+            _map.reset_state_values_config(config_name,
+                                           apply_patterns=False)
+            self.assertEqual(_map._configs[config_name]['state values'],
+                             dsv_dict)
+
+            # kwarg apply_patterns=True
+            # mock '_construct_state_values_dict'
+            with mock.patch.object(
+                    _map, '_construct_state_values_dict') as mock_csvd:
+                # '_construct_state_values_dict' returns {}
+                mock_csvd.return_value = {}
+                _map._configs[config_name]['state values'] = {}
+                _map.reset_state_values_config(config_name,
+                                               apply_patterns=True)
+                self.assertEqual(
+                    _map._configs[config_name]['state values'],
+                    dsv_dict)
+
+                # '_construct_state_values_dict' returns sv_dict
+                mock_csvd.return_value = sv_dict
+                _map._configs[config_name]['state values'] = {}
+                _map.reset_state_values_config(config_name,
+                                               apply_patterns=True)
+                self.assertEqual(
+                    _map._configs[config_name]['state values'],
+                    sv_dict)
+
 
 
         # -- check abstract methods                                 ----

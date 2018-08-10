@@ -401,50 +401,49 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         :param patterns: list of RE pattern strings
         :type patterns: list(str)
         """
-        # apply RE patterns to 'command list'
-        success, pstate_dict = \
+        # -- check requirements exist before continuing             ----
+        # get dataset
+        dset_path = self._configs[config_name]['dset paths']
+        dset = self.group.get(dset_path)
+
+        # ensure 'Command index' is a field
+        if 'Command index' not in dset.dtype.names:
+            warn("Dataset '{}' does NOT have ".format(dset_path)
+                 + "'Command index' field")
+            return {}
+
+        # ensure 'Command index' is a field of scalars
+        if dset.dtype['Command index'].shape != () or \
+                not np.issubdtype(dset.dtype['Command index'].type,
+                                  np.integer):
+            warn("Dataset '{}' 'Command index' ".format(dset_path)
+                 + "field is NOT a column of integers")
+            return {}
+
+        # -- apply RE patterns to 'command list'                    ----
+        success, sv_dict = \
             self.clparse(config_name).apply_patterns(patterns)
 
         # regex was unsuccessful, return alt_dict
         if not success:
-            return
+            return {}
 
-        # condition pstate_dict before return
-        # 1. convert 'command list' and 'cl str' to tuples
+        # -- complete `sv_dict` before return                       ----
+        # 1. 'command list' and 'cl str' are tuples from clparse
         # 2. add 'dset paths'
         # 3. add 'dset field'
         # 4. add 'shape'
-        # 5. add 'dtype'
+        # 5. 'dtype' defined by clparse.apply_patterns
         #
-        for state in pstate_dict:
-            # convert 'command list' and 'cl str' to tuples
-            pstate_dict[state]['command list'] = \
-                tuple(pstate_dict[state]['command list'])
-            pstate_dict[state]['cl str'] = \
-                tuple(pstate_dict[state]['cl str'])
-
+        for state in sv_dict:
             # add additional keys
-            pstate_dict[state]['dset paths'] = \
+            sv_dict[state]['dset paths'] = \
                 self._configs[config_name]['dset paths']
-            pstate_dict[state]['dset field'] = ('Command index',)
-            pstate_dict[state]['shape'] = ()
-
-            # determine 'dtype'
-            if isinstance(pstate_dict[state]['command list'][0], float):
-                pstate_dict[state]['dtype'] = np.float32
-            elif isinstance(pstate_dict[state]['command list'][0], int):
-                pstate_dict[state]['dtype'] = np.int32
-            else:
-                # assume string
-                #
-                # determine max length of strings
-                mlen = max(len(command) for command
-                           in pstate_dict[state]['command list'])
-                pstate_dict[state]['dtype'] = \
-                    np.dtype((np.unicode, mlen))
+            sv_dict[state]['dset field'] = ('Command index',)
+            sv_dict[state]['shape'] = ()
 
         # return
-        return pstate_dict
+        return sv_dict
 
     def clparse(self, config_name):
         """

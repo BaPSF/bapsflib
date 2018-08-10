@@ -25,6 +25,8 @@ from .common import ControlTestCase
 class TestN5700PS(ControlTestCase):
     """Test class for hdfMap_control_n5700ps"""
 
+    MAP_CLASS = hdfMap_control_n5700ps
+
     def setUp(self):
         self.f = FauxHDFBuilder(
             add_modules={'N5700_PS': {'n_configs': 1}})
@@ -43,10 +45,9 @@ class TestN5700PS(ControlTestCase):
         """Control device group"""
         return self.f['Raw data + config/N5700_PS']
 
-    @staticmethod
-    def map_control(group):
+    def map_control(self, group):
         """Mapping function"""
-        return hdfMap_control_n5700ps(group)
+        return self.MAP_CLASS(group)
 
     def test_map_basics(self):
         self.assertControlMapBasics(self.map, self.cgroup)
@@ -116,7 +117,7 @@ class TestN5700PS(ControlTestCase):
         # - default dict is used for state values
         #
         with mock.patch.object(
-                hdfMap_control_n5700ps,
+                self.MAP_CLASS,
                 '_construct_state_values_dict',
                 side_effect=KeyError):
             _map = self.map

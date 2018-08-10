@@ -16,15 +16,17 @@ import os
 import numpy as np
 import unittest as ut
 
-from ..sixk import hdfMap_control_6k
-from .common import ControlTestCase
-
 from unittest import mock
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
+
+from ..sixk import hdfMap_control_6k
+from .common import ControlTestCase
 
 
 class TestSixK(ControlTestCase):
     """Test class for hdfMap_control_sixk"""
+
+    MAP_CLASS = hdfMap_control_6k
 
     def setUp(self):
         self.f = FauxHDFBuilder(
@@ -44,10 +46,9 @@ class TestSixK(ControlTestCase):
         """Control device group"""
         return self.f['Raw data + config/6K Compumotor']
 
-    @staticmethod
-    def map_control(group):
+    def map_control(self, group):
         """Mapping function"""
-        return hdfMap_control_6k(group)
+        return self.MAP_CLASS(group)
 
     def test_map_basics(self):
         self.assertControlMapBasics(self.map, self.cgroup)

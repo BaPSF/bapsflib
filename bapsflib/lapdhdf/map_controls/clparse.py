@@ -78,7 +78,7 @@ class CLParse(object):
             patterns = list(set(patterns))
         else:
             raise ValueError(
-                "first argument must be a string of list of strings")
+                "`patterns` must be a string or list of strings")
 
         # compile all patterns
         for pattern in patterns:

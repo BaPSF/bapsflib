@@ -145,14 +145,14 @@ class hdfMap_control_n5700ps(hdfMap_control_cl_template):
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 try:
-                    sv_state = self._construct_state_values_dict(
+                    sv_dict = self._construct_state_values_dict(
                         name, self._cl_re_patterns)
                 except KeyError:
-                    sv_state = {}
+                    sv_dict = {}
 
             # initialize
-            self._configs[name]['state values'] = sv_state \
-                if not bool(sv_state) \
+            self._configs[name]['state values'] = sv_dict \
+                if bool(sv_dict) \
                 else self._default_state_values_dict(name)
 
     def _default_state_values_dict(self, config_name):

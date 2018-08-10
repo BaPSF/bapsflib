@@ -9,6 +9,9 @@
 #   license terms and contributor agreement.
 #
 import re
+
+import numpy as np
+
 from warnings import warn
 
 
@@ -47,18 +50,19 @@ class CLParse(object):
             >>> clparse = CLParse(cl)
             >>>
             >>> # apply patterns
-            >>> patterns = r'(?P<FREQ>(\bFREQ\s)'
-            >>>            + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
+            >>> patterns = (r'(?P<FREQ>(\bFREQ\s)'
+            >>>             + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))')
             >>> results = clparse.apply_patterns(patterns)
             >>> results[0]
             True
             >>> results[1]
             {'VOLT': {'cl str': ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0'),
                       'command list': (20.0, 25.0, 30.0),
-                      're pattern': re.compile(pattern, re.UNICODE)}}
+                      're pattern': re.compile(pattern, re.UNICODE),
+                      'dtype': numpy.float64}}
         """
         # initialize new cl dict
-        cls_dict = {}
+        cls_dict = {}  # type: dict
 
         # condition patterns
         if isinstance(patterns, str):
@@ -122,7 +126,7 @@ class CLParse(object):
         cls_dict['remainder']['cl str'] = \
             cls_dict['remainder']['command list']
 
-        # scan through probe states (ie re patterns)
+        # scan through state values (ie re patterns)
         for name in cls_dict:
             # skip the 'remainder' entry
             if name == 'remainder':
@@ -139,7 +143,10 @@ class CLParse(object):
                     try:
                         value = float(results.group('VAL'))
                     except ValueError:
-                        value = results.group('VAL')
+                        value = results.group('VAL')  # type: str
+                        value = value.strip()
+                        if value == '':
+                            value = None
 
                     # add to command list
                     cls_dict[name]['command list'].append(value)
@@ -170,11 +177,18 @@ class CLParse(object):
         names = list(cls_dict)
         for name in names:
             if name == 'remainder':
-                # remove remainder if it's empty
+                # finish 'remainder' entry
                 if all(val.strip() == ''
                        for val in
                        cls_dict['remainder']['command list']):
+                    # remove remainder if it's empty
                     del cls_dict['remainder']
+                else:
+                    # define 'dtype'
+                    mlen = len(max(cls_dict[name]['command list'],
+                                   key=lambda x: len(x)))
+                    cls_dict[name]['dtype'] = np.dtype((np.unicode,
+                                                        mlen))
             elif None in cls_dict[name]['command list']:
                 # command list is trivial
                 del cls_dict[name]
@@ -196,18 +210,17 @@ class CLParse(object):
                     "Symbolic group ({}) removed ".format(name)
                     + "since all entries in 'command list' do NOT "
                     + "have the same type")
-            elif isinstance(cls_dict[name]['command list'][0], str):
-                if all(command.strip() == ''
-                       for command
-                       in cls_dict[name]['command list']):
-                    # string command list is nonsensical
-                    del cls_dict[name]
-
-                    # issue warning
-                    warn(
-                        "Symbolic group ({}) removed ".format(name)
-                        + "since all entries in 'command list' are "
-                        + "null strings")
+            else:
+                # condition 'command list' value and determine 'dtype'
+                if isinstance(cls_dict[name]['command list'][0], float):
+                    # 'command list' is a float
+                    cls_dict[name]['dtype'] = np.float64
+                else:
+                    # 'command list' is a string
+                    mlen = len(max(cls_dict[name]['command list'],
+                                   key=lambda x: len(x)))
+                    cls_dict[name]['dtype'] = np.dtype((np.unicode,
+                                                        mlen))
 
             # convert lists to tuples
             # - first check dict `name` has not been deleted
@@ -222,11 +235,11 @@ class CLParse(object):
         if len(cls_dict) == 0:
             # dictionary is empty
             success = False
-            cls_dict = None
+            cls_dict = {}
         elif len(cls_dict) == 1 and 'remainder' in cls_dict:
             # only 'remainder' is in dictionary
             success = False
-            cls_dict = None
+            cls_dict = {}
 
         # return
         return success, cls_dict

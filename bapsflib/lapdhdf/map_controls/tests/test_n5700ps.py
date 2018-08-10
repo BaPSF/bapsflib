@@ -11,13 +11,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..n5700ps import hdfMap_control_n5700ps
-from .common import ControlTestCase
+import unittest as ut
+import numpy as np
+
+from unittest import mock
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
-import numpy as np
-import unittest as ut
+from ..n5700ps import hdfMap_control_n5700ps
+from .common import ControlTestCase
 
 
 class TestN5700PS(ControlTestCase):
@@ -108,6 +110,20 @@ class TestN5700PS(ControlTestCase):
         with self.assertWarns(UserWarning):
             self.assertTrue(self.map.build_successful)
         self.mod.knobs.reset()
+
+        # '_construct_state_values_dict' throws KeyError when executing
+        # '_build_configs'
+        # - default dict is used for state values
+        #
+        with mock.patch.object(
+                hdfMap_control_n5700ps,
+                '_construct_state_values_dict',
+                side_effect=KeyError):
+            _map = self.map
+            for cname, config in _map.configs.items():
+                self.assertEqual(
+                    config['state values'],
+                    _map._default_state_values_dict(cname))
 
     def test_one_config(self):
         """

@@ -11,17 +11,21 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..waveform import hdfMap_control_waveform
-from .common import ControlTestCase
+import unittest as ut
+import numpy as np
+
+from unittest import mock
 
 from bapsflib.lapdhdf.tests import FauxHDFBuilder
 
-import numpy as np
-import unittest as ut
+from ..waveform import hdfMap_control_waveform
+from .common import ControlTestCase
 
 
 class TestWaveform(ControlTestCase):
     """Test class for hdfMap_control_waveform"""
+
+    MAP_CLASS = hdfMap_control_waveform
 
     def setUp(self):
         self.f = FauxHDFBuilder(
@@ -41,10 +45,9 @@ class TestWaveform(ControlTestCase):
         """Control device group"""
         return self.f['Raw data + config/Waveform']
 
-    @staticmethod
-    def map_control(group):
+    def map_control(self, group):
         """Mapping function"""
-        return hdfMap_control_waveform(group)
+        return self.MAP_CLASS(group)
 
     def test_map_basics(self):
         self.assertControlMapBasics(self.map, self.cgroup)

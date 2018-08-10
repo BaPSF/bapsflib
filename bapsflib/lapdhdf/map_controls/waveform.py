@@ -155,7 +155,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
 
             # initialize
             self._configs[name]['state values'] = sv_state \
-                if not bool(sv_state) \
+                if bool(sv_state) \
                 else self._default_state_values_dict(name)
 
     def _default_state_values_dict(self, config_name):

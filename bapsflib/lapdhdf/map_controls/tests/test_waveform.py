@@ -108,6 +108,20 @@ class TestWaveform(ControlTestCase):
             self.assertTrue(self.map.build_successful)
         self.mod.knobs.reset()
 
+        # '_construct_state_values_dict' throws KeyError when executing
+        # '_build_configs'
+        # - default dict is used for state values
+        #
+        with mock.patch.object(
+                self.MAP_CLASS,
+                '_construct_state_values_dict',
+                side_effect=KeyError):
+            _map = self.map
+            for cname, config in _map.configs.items():
+                self.assertEqual(
+                    config['state values'],
+                    _map._default_state_values_dict(cname))
+
     def test_one_config(self):
         """
         Test mapping of the 'Waveform' group with only one

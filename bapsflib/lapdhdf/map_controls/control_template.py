@@ -459,7 +459,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         # define clparse and return
         return CLParse(cl)
 
-    def reset_state_values_config(self, config_name,
+    def reset_state_values_config(self, config_name: str,
                                   apply_patterns=False):
         """
         Reset the :code:`configs[config_name]['state values']`
@@ -472,38 +472,41 @@ class hdfMap_control_cl_template(hdfMap_control_template):
             :attr:`_cl_re_patterns`.
         """
         if apply_patterns:
-            # get pstate dict
-            pstate = self._construct_state_values_dict(
+            # get sv_dict dict
+            sv_dict = self._construct_state_values_dict(
                 config_name, self._cl_re_patterns)
-            if pstate is None:
-                pstate = self._default_state_values_dict(config_name)
+            if not bool(sv_dict):
+                sv_dict = self._default_state_values_dict(config_name)
         else:
             # get default dict
-            pstate = self._default_state_values_dict(config_name)
+            sv_dict = self._default_state_values_dict(config_name)
 
         # reset config
-        self._configs[config_name]['state values'] = pstate
+        self._configs[config_name]['state values'] = sv_dict
 
-    def set_state_values_config(self, config_name, patterns):
+    def set_state_values_config(self, config_name: str,
+                                patterns: List[str]) -> dict:
         """
         Rebuild and set
         :code:`configs[config_name]['state values']` based on the
         supplied RE *patterns*.
 
         :param str config_name: configuration name
+        :param patterns: list of RE strings
         """
         # condition patterns
         if isinstance(patterns, str):
             patterns = [patterns]
         elif isinstance(patterns, list):
-            if not all(isinstance(pattern, str) for pattern in patterns):
+            if not all(isinstance(pattern, str)
+                       for pattern in patterns):
                 warn('Valid list of regex patterns not passed, doing '
                      'nothing')
-                return
+                return {}
         else:
             warn('Valid list of regex patterns not passed, doing '
                  'nothing')
-            return
+            return {}
 
         # construct dict for 'state values' dict
         pstate = self._construct_state_values_dict(config_name,
@@ -514,6 +517,6 @@ class hdfMap_control_cl_template(hdfMap_control_template):
             # do nothing since default parsing was unsuccessful
             warn("RE parsing of 'command list' was unsuccessful, "
                  "doing nothing")
-            return
+            return {}
         else:
             self._configs[config_name]['state values'] = pstate

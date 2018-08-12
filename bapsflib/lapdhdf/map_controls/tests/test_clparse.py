@@ -164,7 +164,10 @@ class TestCLParse(ut.TestCase):
         self.assertEqual(output[1]['VOLT']['command list'],
                          (20.0, 25.0, 30.0))
 
-    def assertApplyPatternOutput(self, output):
+    def assertApplyPatternOutput(self, output: Tuple[bool, dict]):
+        # output[0] - success of applying patterns
+        # output[1] - state values dictionary
+        #
         self.assertIsInstance(output, tuple)
         self.assertEqual(len(output), 2)
         self.assertIsInstance(output[0], bool)

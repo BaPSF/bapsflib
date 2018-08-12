@@ -445,7 +445,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         # return
         return sv_dict
 
-    def clparse(self, config_name):
+    def clparse(self, config_name: str) -> CLParse:
         """
         Return instance of
         :class:`~bapsflib.lapdhdf.map_controls.clparse.CLParse`

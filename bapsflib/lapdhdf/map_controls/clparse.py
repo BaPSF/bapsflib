@@ -21,7 +21,7 @@ class CLParse(object):
     of strings where each string is a set of commands sent to a control
     device to define that control device's state.)
     """
-    def __init__(self, command_list):
+    def __init__(self, command_list: Union[str, List[str]]):
         """
         :param command_list: the command list for a control device
         :type command_list: list of strings

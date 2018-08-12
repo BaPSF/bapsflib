@@ -187,7 +187,7 @@ class CLParse(object):
                     # define 'dtype'
                     mlen = len(max(cls_dict[name]['command list'],
                                    key=lambda x: len(x)))
-                    cls_dict[name]['dtype'] = np.dtype((np.unicode,
+                    cls_dict[name]['dtype'] = np.dtype((np.unicode_,
                                                         mlen))
             elif None in cls_dict[name]['command list']:
                 # command list is trivial
@@ -219,7 +219,7 @@ class CLParse(object):
                     # 'command list' is a string
                     mlen = len(max(cls_dict[name]['command list'],
                                    key=lambda x: len(x)))
-                    cls_dict[name]['dtype'] = np.dtype((np.unicode,
+                    cls_dict[name]['dtype'] = np.dtype((np.unicode_,
                                                         mlen))
 
             # convert lists to tuples

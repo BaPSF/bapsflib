@@ -303,7 +303,7 @@ class TestControlTemplates(ut.TestCase):
                 'dset paths': configs_dict[config_name]['dset paths'],
                 'dset field': ('Command index',),
                 'shape': (),
-                'dtype': np.dtype((np.unicode, 10))}
+                'dtype': np.dtype((np.unicode_, 10))}
         }
         sv_dict = {
             'VOLT': {
@@ -370,7 +370,7 @@ class TestControlTemplates(ut.TestCase):
                 'dset paths': configs_dict[config_name]['dset paths'],
                 'dset field': ('Command index',),
                 'shape': (),
-                'dtype': np.dtype((np.unicode, 10))}
+                'dtype': np.dtype((np.unicode_, 10))}
         }
         sv_dict = {
             'VOLT': {

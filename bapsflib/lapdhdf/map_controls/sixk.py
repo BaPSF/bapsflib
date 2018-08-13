@@ -239,7 +239,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         #
         if _match is not None:
             # define motion list dict
-            ml = {'name': _match['NAME'],
+            ml = {'name': _match.group('NAME'),
                   'config': {}}
 
             # get ml group
@@ -369,7 +369,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         #
         if _match is not None:
             # define probe list dict
-            pl = {'name': _match['NAME'],
+            pl = {'name': _match.group('NAME'),
                   'config': {}}
 
             # get pl group
@@ -407,7 +407,7 @@ class hdfMap_control_6k(hdfMap_control_template):
             # -- check receptacle number --
             try:
                 # define receptacle number
-                pl['config']['receptacle'] = int(_match['RNUM'])
+                pl['config']['receptacle'] = int(_match.group('RNUM'))
 
                 # get value
                 rnum = plg.attrs['Receptacle']

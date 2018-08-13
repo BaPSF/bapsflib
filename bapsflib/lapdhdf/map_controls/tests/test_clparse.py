@@ -11,11 +11,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..clparse import CLParse
+import re
 
+import numpy as np
 import unittest as ut
 
-import re
+from typing import Tuple
+
+from ..clparse import CLParse
 
 
 class TestCLParse(ut.TestCase):
@@ -23,6 +26,20 @@ class TestCLParse(ut.TestCase):
     # `try_patterns` method just prints results of `apply_patters` so
     # not testing the method
     #
+    def test_input_arg(self):
+        """Test handling of input arg `command_list`"""
+        # `command list` is a string
+        self.assertEqual(CLParse('one')._cl, ['one'])
+
+        # `command list` is a list, but not all strings
+        with self.assertRaises(ValueError):
+            CLParse(['one', 2])
+
+        # `command list` is NOT a str or List[str]
+        with self.assertRaises(ValueError):
+            # noinspection PyTypeChecker
+            CLParse(None)
+
     def test_attributes(self):
         """Test fore basic attributes of object."""
         clparse = CLParse(['one', 'two'])
@@ -73,6 +90,7 @@ class TestCLParse(ut.TestCase):
         # - ONLY defines symbolic group <NAME>
         # - Defines symbolic group <NAME> multiple times w/ differing
         #   patterns
+        # - Defines symbolic group <NAME> as 'remainder
         #
         # <NAME> is the name of probe state value, e.g. <NAME> = 'FREQ'
         inputs = [
@@ -82,7 +100,8 @@ class TestCLParse(ut.TestCase):
             r'((\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
             r'(?P<FREQ>(\bFREQ\s)(?P<value>(\d+\.\d*|\.\d+|\d+\b)))',
             [r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
-             r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\w+\.\d*|\.\d+|\d+\b)))']
+             r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\w+\.\d*|\.\d+|\d+\b)))'],
+            r'(?P<Remainder>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
         ]
         for patterns in inputs:
             self.assertRaises(ValueError,
@@ -163,6 +182,16 @@ class TestCLParse(ut.TestCase):
                          (50.0, 60.0, 70.0))
         self.assertEqual(output[1]['VOLT']['command list'],
                          (20.0, 25.0, 30.0))
+
+        # --- A NULL command list                                 ------
+        cl = ['', '', '']
+        clparse = CLParse(cl)
+        pattern = [
+            r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
+        ]
+        output = clparse.apply_patterns(pattern)
+        self.assertFalse(output[0])
+        self.assertEqual(output[1], {})
 
     def assertApplyPatternOutput(self, output: Tuple[bool, dict]):
         # output[0] - success of applying patterns

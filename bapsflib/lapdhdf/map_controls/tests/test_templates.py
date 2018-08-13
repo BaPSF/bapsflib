@@ -362,16 +362,6 @@ class TestControlTemplates(ut.TestCase):
                           'shotnum': {},
                           'state values': {}}
         }
-        dsv_dict = {
-            'command': {
-                'command list': cl,
-                'cl str': cl,
-                're pattern': None,
-                'dset paths': configs_dict[config_name]['dset paths'],
-                'dset field': ('Command index',),
-                'shape': (),
-                'dtype': np.dtype((np.unicode_, 10))}
-        }
         sv_dict = {
             'VOLT': {
                 'command list': (20.0, 25.0, 30.0),
@@ -402,9 +392,6 @@ class TestControlTemplates(ut.TestCase):
             self.assertEqual(
                 _map._configs[config_name]['state values'],
                 sv_dict)
-
-
-
 
         # -- check abstract methods                                 ----
         # Note: `self.dummy_map` overrides all abstract methods to

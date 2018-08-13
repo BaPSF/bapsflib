@@ -96,14 +96,15 @@ class hdfReadControl(np.recarray):
         #   2. a '6K Compumotor' with multiple configurations and a
         #      'Waveform' with one configuration
         #
-        #       contorls = ['Waveform, ('6K Compumotor', 1)]
+        #       controls = ['Waveform, ('6K Compumotor', 1)]
         #
 
         # initialize timing
+        tt = []
         if 'timeit' in kwargs:
             timeit = kwargs['timeit']
             if timeit:
-                tt = [time.time()]
+                tt.append(time.time())
             else:
                 timeit = False
         else:
@@ -225,7 +226,7 @@ class hdfReadControl(np.recarray):
             cdset_dict[cname] = hdf_file.get(cdset_path)
             try:
                 shotnumkey = \
-                    cmap.configs[cspec]['shotnum']['dset field']
+                    cmap.configs[cspec]['shotnum']['dset field'][0]
                 shotnumkey_dict[cname] = shotnumkey
             except KeyError:
                 raise ValueError(
@@ -234,7 +235,7 @@ class hdfReadControl(np.recarray):
         # Catch shotnum if a slice object or int
         # - For either case, convert shotnum to a list
         #
-        if type(shotnum) is slice:
+        if isinstance(shotnum, slice):
             # Here convert slice to list
             #
             # determine largest possible shot number
@@ -271,10 +272,10 @@ class hdfReadControl(np.recarray):
 
             # re-define shotnum as a list
             shotnum = np.arange(start, stop, step).tolist()
-        elif type(shotnum) is int:
+        elif isinstance(shotnum, int):
             # Here convert int to list
             shotnum = [shotnum]
-        elif type(shotnum) is not list:
+        elif not isinstance(shotnum, list):
             raise ValueError('Valid shotnum not passed')
         else:
             # shotnum is a list
@@ -380,7 +381,7 @@ class hdfReadControl(np.recarray):
             cdset = cdset_dict[cname]
             sni = sni_dict[cname]
             index = index_dict[cname]
-            if type(index) is np.ndarray:
+            if isinstance(index, np.ndarray):
                 index = index.tolist()
 
             # populate control data array
@@ -570,7 +571,7 @@ def condition_controls(hdf_file, controls, **kwargs):
     #   3. there are not duplicate devices in controls
     #   4. proper unique specifiers are defined
     #
-    if type(controls) is list:
+    if isinstance(controls, list):
         # catch an empty list
         if len(controls) == 0:
             raise ValueError('controls argument empty')
@@ -583,7 +584,7 @@ def condition_controls(hdf_file, controls, **kwargs):
         # condition controls
         new_controls = []
         for device in controls:
-            if type(device) is str:
+            if isinstance(device, str):
                 # ensure proper device and unique specifier are defined
                 if device in new_controls:
                     raise TypeError(
@@ -603,7 +604,7 @@ def condition_controls(hdf_file, controls, **kwargs):
                     raise TypeError(
                         'Control device ({})'.format(device)
                         + ' not in HDF5 file')
-            elif type(device) is tuple:
+            elif isinstance(device, tuple):
                 if device[0] in new_controls:
                     raise TypeError(
                         'Control device ({})'.format(device[0])

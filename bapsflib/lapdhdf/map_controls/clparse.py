@@ -12,6 +12,7 @@ import re
 
 import numpy as np
 
+from typing import (Union, List)
 from warnings import warn
 
 
@@ -27,6 +28,19 @@ class CLParse(object):
         :type command_list: list of strings
         """
         super().__init__()
+
+        # condition `command list`
+        try:
+            if isinstance(command_list, str):
+                command_list = [command_list]
+            elif isinstance(command_list, (list, tuple)):
+                if not all(isinstance(val, str)
+                           for val in command_list):
+                    raise ValueError
+            else:
+                raise ValueError
+        except ValueError:
+            raise ValueError("`command_list` must be a list of strings")
 
         # set command list
         self._cl = command_list
@@ -105,6 +119,10 @@ class CLParse(object):
                     raise ValueError(
                         "Symbolic group ({}) defined".format(name)
                         + " in multiple RE patterns")
+                elif name.lower() == 'remainder':
+                    raise ValueError(
+                        "Can NOT use {} as a ".format(name)
+                        + "symbolic group name")
 
                 # initialize cls dict entry
                 cls_dict[name] = {
@@ -127,10 +145,22 @@ class CLParse(object):
             cls_dict['remainder']['command list']
 
         # scan through state values (ie re patterns)
-        for name in cls_dict:
-            # skip the 'remainder' entry
+        # - iterate 'remainder' first
+        #
+        names = list(cls_dict.keys())
+        names.remove('remainder')
+        names = ['remainder'] + names
+        for name in names:
+            # check 'remainder' entry for NULL strings
+            # - then skip or break
             if name == 'remainder':
-                continue
+                if '' in cls_dict['remainder']['command list']:
+                    del cls_dict['remainder']
+                    break
+
+                # this is not covered due to CPython's peephole
+                # optimizer (see coverage.py issue 198)
+                continue  # pragma: no cover
 
             # search for pattern
             r_cl = []
@@ -154,16 +184,19 @@ class CLParse(object):
                         results.group(name))
 
                     # make a new remainder command list
-                    stripped_cl = command.replace(
+                    stripped_cmd = command.replace(
                         results.group(name), '').strip()
-                    r_cl.append(stripped_cl)
+                    if stripped_cmd == '':
+                        stripped_cmd = None
+                    r_cl.append(stripped_cmd)
                 else:
                     cls_dict[name]['command list'].append(None)
                     cls_dict[name]['cl str'].append(None)
 
             # update remainder command list
-            # - only if the above command list build was not trivial
-            #   and all elements of 'command list' have the same type
+            # - only if the above 'command list' build does NOT produce
+            #   trivial (None) elements and all elements of 'command
+            #   list' have the same type
             #
             if None not in cls_dict[name]['command list'] \
                     and all(isinstance(
@@ -173,23 +206,18 @@ class CLParse(object):
                 cls_dict['remainder']['cl str'] = \
                     cls_dict['remainder']['command list']
 
-        # remove trivial command lists and convert lists to tuples
-        names = list(cls_dict)
-        for name in names:
-            if name == 'remainder':
-                # finish 'remainder' entry
-                if all(val.strip() == ''
-                       for val in
-                       cls_dict['remainder']['command list']):
-                    # remove remainder if it's empty
+                # delete and break if 'remainder' as trivial elements
+                # - i.e. RE can NOT be matched anymore
+                #
+                if None in cls_dict['remainder']['command list']:
                     del cls_dict['remainder']
-                else:
-                    # define 'dtype'
-                    mlen = len(max(cls_dict[name]['command list'],
-                                   key=lambda x: len(x)))
-                    cls_dict[name]['dtype'] = np.dtype((np.unicode_,
-                                                        mlen))
-            elif None in cls_dict[name]['command list']:
+                    break
+
+        # remove trivial command lists and convert lists to tuples
+        names = list(cls_dict.keys())
+        for name in names:
+            if None in cls_dict[name]['command list'] \
+                    or not bool(cls_dict[name]['command list']):
                 # command list is trivial
                 del cls_dict[name]
 

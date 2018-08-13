@@ -16,3 +16,6 @@
 # macOS Files
 .DS_Store
 
+# venv
+/venv/
+

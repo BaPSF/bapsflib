@@ -200,45 +200,49 @@ class TestCLParse(ut.TestCase):
         self.assertIsInstance(output, tuple)
         self.assertEqual(len(output), 2)
         self.assertIsInstance(output[0], bool)
+        self.assertIsInstance(output[1], dict)
         if output[0]:
-            # should be a dict
-            self.assertIsInstance(output[1], dict)
-
             # if dict is len 1, then 'remainder' should NOT be the key
             if len(output[1].keys()) == 1:
                 self.assertNotIn('remainder', output[1])
 
             # check for required fields
-            for name in output[1]:
-                self.assertIn('re pattern', output[1][name])
-                self.assertIn('command list', output[1][name])
-                self.assertIn('cl str', output[1][name])
+            for name, config in output[1].items():
+                # check for required keys
+                self.assertIn('re pattern', config)
+                self.assertIn('command list', config)
+                self.assertIn('cl str', config)
+                self.assertIn('dtype', config)
 
-                # check types
+                # check 're pattern'
                 if name == 'remainder':
-                    self.assertIsNone(output[1][name]['re pattern'])
+                    self.assertIsNone(config['re pattern'])
                 else:
-                    self.assertIsInstance(output[1][name]['re pattern'],
+                    self.assertIsInstance(config['re pattern'],
                                           type(re.compile(r'')))
-                self.assertIsInstance(output[1][name]['command list'],
-                                      tuple)
-                self.assertIsInstance(output[1][name]['cl str'],
-                                      tuple)
 
-                # check 'command list'
+                # check 'command list' and 'cl str'
+                self.assertIsInstance(config['command list'], tuple)
+                self.assertIsInstance(config['command list'][0],
+                                      (float, str))
+                self.assertIsInstance(config['cl str'], tuple)
                 self.assertTrue(all(
-                    isinstance(command,
-                               type(output[1][name]['command list'][0]))
-                    for command in output[1][name]['command list']))
-                self.assertEqual(len(output[1][name]['command list']),
-                                 len(output[1][name]['cl str']))
+                    isinstance(cmd, type(config['command list'][0]))
+                    for cmd in config['command list']))
+                self.assertTrue(all(
+                    isinstance(cmd, str)
+                    for cmd in config['cl str']))
+                self.assertEqual(len(config['command list']),
+                                 len(config['cl str']))
 
-                # check 'cl str'
-                self.assertTrue(all(
-                    isinstance(command, str)
-                    for command in output[1][name]['cl str']))
+                # check 'dtype'
+                if isinstance(config['command list'][0], float):
+                    self.assertEqual(config['dtype'], np.float64)
+                else:
+                    # 'command list' is a list of strings
+                    self.assertEqual(config['dtype'].type, np.unicode_)
         else:
-            self.assertIsNone(output[1])
+            self.assertEqual(output[1], {})
 
 
 if __name__ == '__main__':

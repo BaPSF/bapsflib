@@ -22,9 +22,9 @@ https://github.com/rocco8773/bapsflib
 
 # --- Public API -------------------------------------------------------
 
-from . import lapdhdf
-from . import lapdtoolbox
-from . import plasma
+from . import lapd
+#from . import lapdtoolbox
+#from . import plasma
 
 # from .viewers import HDFViewer
 

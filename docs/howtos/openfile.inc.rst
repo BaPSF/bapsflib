@@ -12,6 +12,20 @@ To open a LaPD generated HDF5 file do
 
 .. code-block:: python3
 
+    >>> from bapsflib import lapd
+    >>> f = lapdhdf.File('test.hdf5')
+    >>> f
+    <HDF5 file "test.hdf5" (mode r)>
+
+which opens the file as 'read-only' by default and is equivalent to
+
+    >>> from bapsflib import lapd
+    >>> f = lapdhdf.File('test.hdf5')
+    >>> f
+    <HDF5 file "test.hdf5" (mode r)>
+
+which opens the file as 'read-only' by default and is equivalent to
+
     >>> from bapsflib import lapdhdf
     >>> f = lapdhdf.File('test.hdf5')
     >>> f

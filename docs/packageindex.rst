@@ -12,6 +12,6 @@ Modules
 .. toctree::
    :maxdepth: 3
 
-   src/bapsflib.lapdhdf
+   src/bapsflib.lapd
    src/bapsflib.lapdtoolbox
    src/bapsflib.plasma

@@ -1,4 +1,4 @@
-bapsflib\.lapdhdf\.map\_msi
+bapsflib\.lapd\.map\_msi
 ===========================
 
 Modules
@@ -8,18 +8,18 @@ Modules
     :depth: 2
     :local:
 
-bapsflib\.lapdhdf\.map\_msi\.map\_msi
+bapsflib\.lapd\.map\_msi\.map\_msi
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.map_msi.map_msi
+.. automodule:: bapsflib.lapd.map_msi.map_msi
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.map\_msi\.msi\_template
+bapsflib\.lapd\.map\_msi\.msi\_template
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.map_msi.msi_template
+.. automodule:: bapsflib.lapd.map_msi.msi_template
     :members:
     :undoc-members:
     :private-members:
@@ -27,10 +27,10 @@ bapsflib\.lapdhdf\.map\_msi\.msi\_template
         _abc_negative_cache_version, _abc_registry
     :show-inheritance:
 
-bapsflib\.lapdhdf\.map\_msi\.discharge
+bapsflib\.lapd\.map\_msi\.discharge
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: bapsflib.lapdhdf.map_msi.discharge.hdfMap_msi_discharge
+.. autoclass:: bapsflib.lapd.map_msi.discharge.hdfMap_msi_discharge
     :members:
     :undoc-members:
     :show-inheritance:
@@ -41,14 +41,14 @@ bapsflib\.lapdhdf\.map\_msi\.discharge
 
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
-        :mod:`bapsflib.lapdhdf` module.  For more detail see
-        :attr:`bapsflib.lapdhdf.map_msi.msi_template.hdfMap_msi_template.configs`
+        :mod:`bapsflib.lapd` module.  For more detail see
+        :attr:`bapsflib.lapd.map_msi.msi_template.hdfMap_msi_template.configs`
         and :ref:`add_msi_mod`.
 
-bapsflib\.lapdhdf\.map\_msi\.gaspressure
+bapsflib\.lapd\.map\_msi\.gaspressure
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: bapsflib.lapdhdf.map_msi.gaspressure.hdfMap_msi_gaspressure
+.. autoclass:: bapsflib.lapd.map_msi.gaspressure.hdfMap_msi_gaspressure
     :members:
     :undoc-members:
     :show-inheritance:
@@ -59,14 +59,14 @@ bapsflib\.lapdhdf\.map\_msi\.gaspressure
 
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
-        :mod:`bapsflib.lapdhdf` module.  For more detail see
-        :attr:`bapsflib.lapdhdf.map_msi.msi_template.hdfMap_msi_template.configs`
+        :mod:`bapsflib.lapd` module.  For more detail see
+        :attr:`bapsflib.lapd.map_msi.msi_template.hdfMap_msi_template.configs`
         and :ref:`add_msi_mod`.
 
-bapsflib\.lapdhdf\.map\_msi\.heater
+bapsflib\.lapd\.map\_msi\.heater
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: bapsflib.lapdhdf.map_msi.heater.hdfMap_msi_heater
+.. autoclass:: bapsflib.lapd.map_msi.heater.hdfMap_msi_heater
     :members:
     :undoc-members:
     :show-inheritance:
@@ -77,14 +77,14 @@ bapsflib\.lapdhdf\.map\_msi\.heater
 
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
-        :mod:`bapsflib.lapdhdf` module.  For more detail see
-        :attr:`bapsflib.lapdhdf.map_msi.msi_template.hdfMap_msi_template.configs`
+        :mod:`bapsflib.lapd` module.  For more detail see
+        :attr:`bapsflib.lapd.map_msi.msi_template.hdfMap_msi_template.configs`
         and :ref:`add_msi_mod`.
 
-bapsflib\.lapdhdf\.map\_msi\.interferometerarray
+bapsflib\.lapd\.map\_msi\.interferometerarray
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: bapsflib.lapdhdf.map_msi.interferometerarray.hdfMap_msi_interarr
+.. autoclass:: bapsflib.lapd.map_msi.interferometerarray.hdfMap_msi_interarr
     :members:
     :undoc-members:
     :show-inheritance:
@@ -95,14 +95,14 @@ bapsflib\.lapdhdf\.map\_msi\.interferometerarray
 
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
-        :mod:`bapsflib.lapdhdf` module.  For more detail see
-        :attr:`bapsflib.lapdhdf.map_msi.msi_template.hdfMap_msi_template.configs`
+        :mod:`bapsflib.lapd` module.  For more detail see
+        :attr:`bapsflib.lapd.map_msi.msi_template.hdfMap_msi_template.configs`
         and :ref:`add_msi_mod`.
 
-bapsflib\.lapdhdf\.map\_msi\.magneticfield
+bapsflib\.lapd\.map\_msi\.magneticfield
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. autoclass:: bapsflib.lapdhdf.map_msi.magneticfield.hdfMap_msi_magneticfield
+.. autoclass:: bapsflib.lapd.map_msi.magneticfield.hdfMap_msi_magneticfield
     :members:
     :undoc-members:
     :show-inheritance:
@@ -113,6 +113,6 @@ bapsflib\.lapdhdf\.map\_msi\.magneticfield
 
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
-        :mod:`bapsflib.lapdhdf` module.  For more detail see
-        :attr:`bapsflib.lapdhdf.map_msi.msi_template.hdfMap_msi_template.configs`
+        :mod:`bapsflib.lapd` module.  For more detail see
+        :attr:`bapsflib.lapd.map_msi.msi_template.hdfMap_msi_template.configs`
         and :ref:`add_msi_mod`.

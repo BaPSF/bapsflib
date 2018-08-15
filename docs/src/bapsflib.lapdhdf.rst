@@ -1,7 +1,7 @@
-bapsflib\.lapdhdf
+bapsflib\.lapd
 =================
 
-.. automodule:: bapsflib.lapdhdf
+.. automodule:: bapsflib.lapd
     :members:
     :undoc-members:
     :show-inheritance:
@@ -12,9 +12,9 @@ Subpackages
 .. toctree::
     :maxdepth: 1
 
-    bapsflib.lapdhdf.map_controls
-    bapsflib.lapdhdf.map_digitizers
-    bapsflib.lapdhdf.map_msi
+    bapsflib.lapd.map_controls
+    bapsflib.lapd.map_digitizers
+    bapsflib.lapd.map_msi
 
 Modules
 -------
@@ -23,58 +23,58 @@ Modules
     :depth: 2
     :local:
 
-bapsflib\.lapdhdf\.files
+bapsflib\.lapd\.files
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.files
+.. automodule:: bapsflib.lapd.files
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdferrors
+bapsflib\.lapd\.hdferrors
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdferrors
+.. automodule:: bapsflib.lapd.hdferrors
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfmapper
+bapsflib\.lapd\.hdfmapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdfmapper
+.. automodule:: bapsflib.lapd.hdfmapper
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfoverview
+bapsflib\.lapd\.hdfoverview
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdfoverview
+.. automodule:: bapsflib.lapd.hdfoverview
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfreadcontrol
+bapsflib\.lapd\.hdfreadcontrol
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdfreadcontrol
+.. automodule:: bapsflib.lapd.hdfreadcontrol
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfreaddata
+bapsflib\.lapd\.hdfreaddata
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdfreaddata
+.. automodule:: bapsflib.lapd.hdfreaddata
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapdhdf\.hdfreadmsi
+bapsflib\.lapd\.hdfreadmsi
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: bapsflib.lapdhdf.hdfreadmsi
+.. automodule:: bapsflib.lapd.hdfreadmsi
     :members:
     :undoc-members:
     :show-inheritance:

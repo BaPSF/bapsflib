@@ -17,7 +17,7 @@ import numpy as np
 import unittest as ut
 
 from unittest import mock
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..sixk import hdfMap_control_6k
 from .common import ControlTestCase

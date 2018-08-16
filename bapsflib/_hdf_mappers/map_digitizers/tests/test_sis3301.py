@@ -18,7 +18,7 @@
 from ..sis3301 import hdfMap_digi_sis3301
 from .common import DigitizerTestCase
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 import unittest as ut
 

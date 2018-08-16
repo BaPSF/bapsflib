@@ -14,7 +14,7 @@
 from ..interferometerarray import hdfMap_msi_interarr
 from .common import MSIDiagnosticTestCase
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 import numpy as np
 import unittest as ut

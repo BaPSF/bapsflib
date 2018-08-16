@@ -9,19 +9,24 @@
 #   license terms and contributor agreement.
 #
 import h5py
-import tempfile
-import os
 import inspect
+import os
+import tempfile
 
-from ..map_msi.tests import (FauxDischarge,
-                             FauxGasPressure,
-                             FauxHeater,
-                             FauxInterferometerArray,
-                             FauxMagneticField)
-from ..map_controls.tests import (FauxWaveform,
-                                  FauxSixK,
-                                  FauxN5700PS)
-from ..map_digitizers.tests import FauxSIS3301
+
+from bapsflib._hdf_mappers.map_msi.tests import (
+    FauxDischarge,
+    FauxGasPressure,
+    FauxHeater,
+    FauxInterferometerArray,
+    FauxMagneticField
+)
+from bapsflib._hdf_mappers.map_controls.tests import (
+    FauxWaveform,
+    FauxSixK,
+    FauxN5700PS
+)
+from bapsflib._hdf_mappers.map_digitizers.tests import FauxSIS3301
 
 
 class FauxHDFBuilder(h5py.File):

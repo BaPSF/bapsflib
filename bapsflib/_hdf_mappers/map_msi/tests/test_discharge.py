@@ -11,23 +11,23 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..gaspressure import hdfMap_msi_gaspressure
+from ..discharge import hdfMap_msi_discharge
 from .common import MSIDiagnosticTestCase
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 import numpy as np
 import unittest as ut
 
 
-class TestGasPressure(MSIDiagnosticTestCase):
-    """Test class for hdfMap_msi_gaspressure"""
+class TestDischarge(MSIDiagnosticTestCase):
+    """Test class for hdfMap_msi_discharge"""
 
     def setUp(self):
         self.f = FauxHDFBuilder(
-            add_modules={'Gas pressure': {}}
+            add_modules={'Discharge': {}}
         )
-        self.mod = self.f.modules['Gas pressure']
+        self.mod = self.f.modules['Discharge']
 
     def tearDown(self):
         self.f.cleanup()
@@ -40,12 +40,12 @@ class TestGasPressure(MSIDiagnosticTestCase):
     @property
     def dgroup(self):
         """Diagnostic group"""
-        return self.f['MSI/Gas pressure']
+        return self.f['MSI/Discharge']
 
     @staticmethod
     def map_diagnostic(group):
         """Mapping function"""
-        return hdfMap_msi_gaspressure(group)
+        return hdfMap_msi_discharge(group)
 
     def test_map_basics(self):
         """Test all required basic map features."""
@@ -62,31 +62,32 @@ class TestGasPressure(MSIDiagnosticTestCase):
         #
         # not all required datasets are found                       ----
         # - Datasets should be:
-        #   ~ 'Gas pressure summary'
-        #   ~ 'RGA partial pressures'
-        # - removed 'Gas pressure summary' from faux HDF file
+        #   ~ 'Discharge summary'
+        #   ~ 'Cathode-anode voltage'
+        #   ~ 'Discharge current'
+        # - removed 'Discharge summary' from faux HDF file
         #
-        del self.mod['Gas pressure summary']
+        del self.mod['Discharge summary']
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
-        # 'Gas pressure summary' does NOT match expected format     ----
+        # 'Discharge summary' does NOT match expected format        ----
         #
         # define dataset name
-        dset_name = 'Gas pressure summary'
+        dset_name = 'Discharge summary'
 
-        # 'Gas pressure summary' is missing a required field
+        # 'Discharge summary' is missing a required field
         data = self.mod[dset_name][:]
         fields = list(data.dtype.names)
-        fields.remove('Fill pressure')
+        fields.remove('Pulse length')
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data[fields])
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
-        # 'Gas pressure summary' is not a structured numpy array
+        # 'Discharge summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
@@ -94,10 +95,43 @@ class TestGasPressure(MSIDiagnosticTestCase):
             self.assertFalse(self.map.build_successful)
         self.mod.knobs.reset()
 
-        # 'RGA partial pressures' does NOT match expected format    ----
+        # 'Cathode-anode voltage' does NOT match expected format    ----
         #
         # define dataset name
-        dset_name = 'RGA partial pressures'
+        dset_name = 'Cathode-anode voltage'
+
+        # dataset has fields
+        data = np.empty((2,), dtype=np.dtype([('field1', np.float64),
+                                              ('field2', np.float64)]))
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+        self.mod.knobs.reset()
+
+        # shape is not 2 dimensional
+        data = np.empty((2, 5, 100), dtype=np.float64)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+        self.mod.knobs.reset()
+
+        # number of rows is NOT consistent with 'Discharge summary'
+        dtype = self.mod[dset_name].dtype
+        shape = (self.mod[dset_name].shape[0] + 1,
+                 self.mod[dset_name].shape[1])
+        data = np.empty(shape, dtype=dtype)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+        self.mod.knobs.reset()
+
+        # 'Discharge current' does NOT match expected format        ----
+        #
+        # define dataset name
+        dset_name = 'Discharge current'
 
         # dataset has fields
         data = np.empty((2,), dtype=np.dtype([('field1', np.float64),
@@ -136,29 +170,33 @@ class TestGasPressure(MSIDiagnosticTestCase):
         _map = self.map
 
         # ensure general items are present
-        self.assertIn('RGA AMUs', _map.configs)
-        self.assertIn('ion gauge calib tag', _map.configs)
-        self.assertIn('RGA calib tag', _map.configs)
+        self.assertIn('current conversion factor', _map.configs)
+        self.assertIn('voltage conversion factor', _map.configs)
+        self.assertIn('t0', _map.configs)
+        self.assertIn('dt', _map.configs)
 
         # ensure general items have expected values
-        self.assertTrue(np.array_equal(
-            self.dgroup.attrs['RGA AMUs'],
-            _map.configs['RGA AMUs']))
         self.assertEqual(
-            [self.dgroup.attrs['Ion gauge calibration tag']],
-            _map.configs['ion gauge calib tag'])
+            [self.dgroup.attrs['Current conversion factor']],
+            _map.configs['current conversion factor'])
         self.assertEqual(
-            [self.dgroup.attrs['RGA calibration tag']],
-            _map.configs['RGA calib tag'])
+            [self.dgroup.attrs['Voltage conversion factor']],
+            _map.configs['voltage conversion factor'])
+        self.assertEqual(
+            [self.dgroup.attrs['Start time']],
+            _map.configs['t0'])
+        self.assertEqual(
+            [self.dgroup.attrs['Timestep']],
+            _map.configs['dt'])
 
         # check warning if an item is missing
         # - a warning is thrown, but mapping continues
-        # - remove attribute 'RGA AMUs'
-        del self.dgroup.attrs['RGA AMUs']
+        # - remove attribute 'Timestep'
+        del self.dgroup.attrs['Timestep']
         with self.assertWarns(UserWarning):
             _map = self.map
-            self.assertIn('RGA AMUs', _map.configs)
-            self.assertEqual(_map.configs['RGA AMUs'], [])
+            self.assertIn('dt', _map.configs)
+            self.assertEqual(_map.configs['dt'], [])
         self.mod.knobs.reset()
 
 

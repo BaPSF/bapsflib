@@ -14,14 +14,15 @@
 import numpy as np
 import unittest as ut
 
-from ..map_controls.waveform import hdfMap_control_waveform
+from bapsflib._hdf_mappers.map_controls.waveform import \
+    hdfMap_control_waveform
 from ..files import File
 from ..hdfreadcontrol import (condition_shotnum_list,
                               do_shotnum_intersection,
                               condition_controls,
                               hdfReadControl)
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
 class TestConditionShotnumList(ut.TestCase):

@@ -10,11 +10,12 @@
 #
 #
 # Required Packages w/ version
+astropy >= 2.0
+codecov >= 2.0.15
+coverage >= 4.5.1
 h5py >= 2.6
 numpy >= 1.7
 scipy >= 1.0.0
-coverage >= 4.5.1
-codecov >= 2.0.15
 #
 # Add Sphinx/Documentation requirements
 -r docs/requirements.txt

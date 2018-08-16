@@ -14,7 +14,7 @@
 from ..map_msi import hdfMap_msi
 from ..msi_template import hdfMap_msi_template
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 import numpy as np
 import unittest as ut

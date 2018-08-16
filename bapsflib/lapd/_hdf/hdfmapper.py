@@ -30,9 +30,9 @@ import warnings
 
 from warnings import warn
 
-from .map_msi import hdfMap_msi
-from .map_digitizers import hdfMap_digitizers
-from .map_controls import hdfMap_controls
+from bapsflib._hdf_mappers.map_msi import hdfMap_msi
+from bapsflib._hdf_mappers.map_digitizers import hdfMap_digitizers
+from bapsflib._hdf_mappers.map_controls import hdfMap_controls
 
 
 class hdfMap(object):

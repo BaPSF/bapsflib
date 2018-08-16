@@ -17,7 +17,7 @@ import unittest as ut
 from ..files import File
 from ..hdfreaddata import (hdfReadData, condition_shotnum)
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
 class TestConditionShotnum(ut.TestCase):

@@ -21,7 +21,7 @@ import numpy as np
 from enum import Enum
 from unittest import mock
 
-from bapsflib.lapd.tests import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..clparse import CLParse
 from ..control_template import (hdfMap_control_template,

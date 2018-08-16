@@ -1,3 +1,6 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -19,14 +22,11 @@ http://plasma.physics.ucla.edu/
 bapsflib Repository:
 https://github.com/rocco8773/bapsflib
 """
-
 # --- Public API -------------------------------------------------------
 
 from . import lapd
-#from . import lapdtoolbox
-#from . import plasma
-
-# from .viewers import HDFViewer
+from . import lapdhdf
+from . import plasma
 
 # --- Define version ---------------------------------------------------
 __version__ = '0.1.3.dev5'

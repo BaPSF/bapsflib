@@ -157,10 +157,10 @@ class CLParse(object):
                 if '' in cls_dict['remainder']['command list']:
                     del cls_dict['remainder']
                     break
-
-                # this is not covered due to CPython's peephole
-                # optimizer (see coverage.py issue 198)
-                continue  # pragma: no cover
+                else:  # pragma: no cover
+                    # this is not covered due to CPython's peephole
+                    # optimizer (see coverage.py issue 198)
+                    continue
 
             # search for pattern
             r_cl = []

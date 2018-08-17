@@ -59,6 +59,12 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
         #
         self._build_successful = True
 
+        # check there are configurations to map
+        if len(self.sgroup_names) == 0:
+            warn(self.name + ": has no mappable configurations")
+            self._build_successful = False
+            return
+
         # build configuration dictionaries
         # - assume every sub-group represents a unique configuration
         #   to the control device

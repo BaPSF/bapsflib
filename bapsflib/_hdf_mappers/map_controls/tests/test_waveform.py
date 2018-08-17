@@ -85,6 +85,12 @@ class TestWaveform(ControlTestCase):
         self.mod[config_name].attrs['Waveform command list'] = cl
         del self.mod[config_name].attrs['Wrong command list']
 
+        # there are no configuration groups to map
+        del self.f['Raw data + config/Waveform/config01']
+        with self.assertWarns(UserWarning):
+            self.assertFalse(self.map.build_successful)
+        self.mod.knobs.reset()
+
     def test_misc(self):
         """Test Miscellaneous features."""
         # make a default/clean 'Waveform' module

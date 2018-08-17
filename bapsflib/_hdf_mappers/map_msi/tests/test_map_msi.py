@@ -11,13 +11,13 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..map_msi import hdfMap_msi
-from ..msi_template import hdfMap_msi_template
+import numpy as np
+import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-import numpy as np
-import unittest as ut
+from ..map_msi import hdfMap_msi
+from ..msi_template import hdfMap_msi_template
 
 
 class TestHDFMapMSI(ut.TestCase):

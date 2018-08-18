@@ -453,8 +453,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
                     found += 1
 
             if found == 1:
-                warn_str = ('\nconfig_name not specified, '
-                            'assuming ' + config_name + '.')
+                warn_str += ('\n** Warning: config_name not specified,'
+                             ' assuming ' + config_name + '.')
             elif found >= 1:
                 raise ValueError("There are multiple active digitizer"
                                  "configurations. User must specify"
@@ -476,7 +476,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         #   '3302' is not active then the list will only contain '3305'.
         if adc is None:
             adc = self.configs[config_name]['adc'][0]
-            warn_str += '\nNo adc specified, so assuming ' + adc + '.'
+            warn_str += '\n** Warning: no adc specified, so assuming ' \
+                + adc + '.'
         elif adc not in self.configs[config_name]['adc']:
             raise ValueError(
                 'Specified adc ({}) is not in specified '.format(adc)

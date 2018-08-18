@@ -105,11 +105,11 @@ class hdfReadData(np.recarray):
 
         # Condition digitizer keyword
         if digitizer is None:
-            warn_str = "** Warning: Digitizer not specified so " \
+            warn_str += '\n** Warning: digitizer not specified so ' \
                 + "assuming the 'main_digitizer' ({})".format(
                     file_map.main_digitizer.info[
                         'group name']) \
-                + " defined in the mappings."
+                + ' defined in the mappings.'
             digi_map = file_map.main_digitizer
         else:
             try:
@@ -132,8 +132,8 @@ class hdfReadData(np.recarray):
 
             # check controls is not empty
             if not controls:
-                warn_str = '\n** Warning: no valid controls passed, ' \
-                           'none added to array'
+                warn_str += '\n** Warning: no valid controls passed, ' \
+                           + 'none added to array'
                 controls = []
         else:
             controls = []
@@ -263,7 +263,8 @@ class hdfReadData(np.recarray):
 
         # Determine if indexing w.r.t. `index` or `shotnum`
         index_with = 'shotnum' \
-            if shotnum != slice(None) and index == slice(None)\
+            if (isinstance(shotnum, np.ndarray) or
+                shotnum != slice(None)) and index == slice(None) \
             else 'index'
 
         # Condition `index` and `shotnum` keywords
@@ -340,6 +341,19 @@ class hdfReadData(np.recarray):
                 # ensure all elements are int
                 if not all(isinstance(sn, int) for sn in shotnum):
                     raise ValueError('Valid `shotnum` not passed')
+            elif isinstance(shotnum, np.ndarray):
+                # ensure array is 1d
+                if shotnum.ndim != 1:
+                    shotnum = shotnum.flatten()
+                    warn_str += '\n** Warning: array is not one ' \
+                        + 'dimensional. Flattening array. '
+                # ensure all elements are int
+                if shotnum.dtype != int:
+                    shotnum = shotnum.astype(int)
+                    warn_str += '\n** Warning: array is not of type ' \
+                        + 'int. Flooring values. '
+                # convert to list
+                shotnum = shotnum.tolist()
             else:
                 raise ValueError('Valid `shotnum` not passed')
 
@@ -536,7 +550,7 @@ class hdfReadData(np.recarray):
 
         # print warnings
         if not silent and warn_str != '':
-            print(warn_str)
+            warn(warn_str)
 
         # print execution timing
         if timeit:

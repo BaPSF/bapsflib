@@ -105,7 +105,7 @@ class hdfReadData(np.recarray):
 
         # Condition digitizer keyword
         if digitizer is None:
-            warn_str += '\n** Warning: digitizer not specified so ' \
+            warn_str += '\nDigitizer not specified so ' \
                 + "assuming the 'main_digitizer' ({})".format(
                     file_map.main_digitizer.info[
                         'group name']) \
@@ -132,7 +132,7 @@ class hdfReadData(np.recarray):
 
             # check controls is not empty
             if not controls:
-                warn_str += '\n** Warning: no valid controls passed, ' \
+                warn_str += '\nNo valid controls passed, ' \
                            + 'none added to array'
                 controls = []
         else:
@@ -345,12 +345,12 @@ class hdfReadData(np.recarray):
                 # ensure array is 1d
                 if shotnum.ndim != 1:
                     shotnum = shotnum.flatten()
-                    warn_str += '\n** Warning: array is not one ' \
+                    warn_str += '\nArray is not one ' \
                         + 'dimensional. Flattening array. '
                 # ensure all elements are int
                 if shotnum.dtype != int:
                     shotnum = shotnum.astype(int)
-                    warn_str += '\n** Warning: array is not of type ' \
+                    warn_str += '\nArray is not of type ' \
                         + 'int. Flooring values. '
                 # convert to list
                 shotnum = shotnum.tolist()

@@ -1,12 +1,12 @@
 MSI diagnostic data is read using the
-:meth:`~bapsflib.lapdhdf.files.File.read_msi` method on
-:class:`bapsflib.lapdhdf.files.File`.  Only the MSI diagnostic name
+:meth:`~bapsflib.lapd.File.read_msi` method on
+:class:`~bapsflib.lapd.File`.  Only the MSI diagnostic name
 needs to be supplied to read the associated data::
 
-    >>> from bapsflib import lapdhdf
+    >>> from bapsflib import lapd
     >>>
     >>> # open file
-    >>> f = lapdhdf.File('test.hdf5')
+    >>> f = lapd.File('test.hdf5')
     >>>
     >>> # list mapped MSI diagnostics
     >>> f.list_msi

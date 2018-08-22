@@ -1,15 +1,15 @@
 Digitizer data is read using the
-:meth:`~bapsflib.lapdhdf.files.File.read_data` method on
-:class:`bapsflib.lapdhdf.files.File`.  The method also has the option
+:meth:`~bapsflib.lapd.File.read_data` method on
+:class:`~bapsflib.lapd.File`.  The method also has the option
 of mating control device data at the time of declaration (see section
 :ref:`read_digi_adding_controls`) [#]_.
 
-At a minimum the :meth:`~bapsflib.lapdhdf.files.File.read_data` method
+At a minimum the :meth:`~bapsflib.lapd.File.read_data` method
 only needs a board number and channel number to extract data [#]_, but
 there are several additional keyword options:
 
 .. csv-table:: Optional keywords for
-               :meth:`~bapsflib.lapdhdf.files.File.read_data`
+               :meth:`~bapsflib.lapd.File.read_data`
     :header: "Keyword", "Default", "Description"
     :widths: 10, 5, 40
 
@@ -60,20 +60,20 @@ adc and one configuration, then the entire dataset collected from the
 signal attached to :code:`board = 1` and :code:`channel = 0` can be
 extracted as follows::
 
-    >>> from bapsflib import lapdhdf
-    >>> f = lapdhdf.File('test.hdf5')
+    >>> from bapsflib import lapd
+    >>> f = lapd.File('test.hdf5')
     >>> board, channel = 1, 0
     >>> data = f.read_data(board, channel)
 
 where :obj:`data` is an instance of
-:class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`.  The
-:class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` class acts as a
+:class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData`.  The
+:class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData` class acts as a
 wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
 a :class:`numpy.recarray` object, but will have additional methods and
 attributes that describe the data's origin and parameters (e.g.
-:attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.info`,
-:attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.dt`,
-:attr:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData.dv`, etc.).
+:attr:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData.info`,
+:attr:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData.dt`,
+:attr:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData.dv`, etc.).
 
 By default, :obj:`data` is a structured :mod:`numpy` array with the
 following :data:`dtype`::
@@ -90,7 +90,7 @@ the digitized signal is automatically converted into voltage before
 being added to the array and :code:`12288` is the size of the signal's
 time-array.  To keep the digitizer :code:`'signal` in bit values, then
 set :code:`keep_bits=True` at execution of
-:meth:`~bapsflib.lapdhdf.files.File.read_data`.  The field :code:`'xyz'`
+:meth:`~bapsflib.lapd.File.read_data`.  The field :code:`'xyz'`
 is initialized with :const:`numpy.nan` values, but will be populated if
 a control device of :code:`contype = 'motion'` is added (see
 :ref:`read_digi_adding_controls`).
@@ -102,11 +102,11 @@ For details on handling and manipulating :data:`data` see
 
 .. note::
 
-    Since :class:`bapsflib.lapdhdf` leverages the :class:`h5py` package,
+    Since :class:`bapsflib.lapd` leverages the :class:`h5py` package,
     the data in :file:`test.hdf5` resides on disk until one of the read
-    methods, :meth:`~bapsflib.lapdhdf.files.File.read_data`,
-    :meth:`~bapsflib.lapdhdf.files.File.read_msi`, or
-    :meth:`~bapsflib.lapdhdf.files.File.read_controls` is called.  In
+    methods, :meth:`~bapsflib.lapd.File.read_data`,
+    :meth:`~bapsflib.lapd.File.read_msi`, or
+    :meth:`~bapsflib.lapd.File.read_controls` is called.  In
     calling on of these methods, the requested data is brought into
     memory as a :class:`numpy.ndarray` and a :class:`numpy.view` onto
     that :data:`ndarray` is returned to the user.
@@ -169,7 +169,7 @@ Sub-setting with :data:`shotnum` looks like::
     array([10, 15], dtype=uint32)
 
 :data:`intersection_set` modifies what shot numbers are returned by
-:meth:`~bapsflib.lapdhdf.files.File.read_data`.  By default
+:meth:`~bapsflib.lapd.File.read_data`.  By default
 :code:`intersection_set=True` and forces the returned data to only
 correspond to shot numbers that exist in the digitizer dataset, any
 specified control device datasets, and those shot numbers represented by
@@ -180,7 +180,7 @@ will be filled with a "NaN" value (:code:`np.nan` for floats,
 :code:`-99999` for integers, and :code:`''` for strings).
 
 .. :data:`intersection_set` modifies what shot numbers are returned by
-   :meth:`~bapsflib.lapdhdf.files.File.read_data`.  If :data:`index` is
+   :meth:`~bapsflib.lapd.File.read_data`.  If :data:`index` is
    used and no control device datasets are being mated to the digitizer
    dataset, then :data:`intersection_set` has no affect on the returned
    data array.  If :data:`shotnum` is used, then
@@ -199,16 +199,16 @@ Specifying :code:`digitizer`, :code:`adc`, and :code:`config_name`
 It is possible for a LaPD generated HDF5 file to contain multiple
 digitizers, each of which can have multiple analog-digital-converters
 (adc) and multiple configuration settings.  For such a case,
-:meth:`~bapsflib.lapdhdf.files.File.read_data` has the keywords
+:meth:`~bapsflib.lapd.File.read_data` has the keywords
 :data:`digitizer`, :data:`adc`, and :data:`config_name` to direct the
 data extraction accordingly.
 
 If :data:`digitizer` is not specified, then it is assumed that the
 desired digitizer is the one defined in
-:attr:`~bapsflib.lapdhdf.hdfmapper.hdfMap.main_digitizer`.  Suppose
+:attr:`~bapsflib.lapd._hdf.hdfmapper.hdfMap.main_digitizer`.  Suppose
 the :file:`test.hdf5` has two digitizers, :code:`'SIS 3301'` and
 :code:`'SIS crate'`.  In this case :code:`'SIS 3301'` would be assumed
-as the :attr:`~bapsflib.lapdhdf.hdfmapper.hdfMap.main_digitizer`.  To
+as the :attr:`~bapsflib.lapd._hdf.hdfmapper.hdfMap.main_digitizer`.  To
 extract data from :code:`'SIS crate'` one would use the
 :data:`digitizer` keyword as follows::
 
@@ -254,10 +254,10 @@ Adding Control Device Data
 Adding control device data to a digitizer dataset is done with the
 keyword :data:`add_controls`.  Specifying :data:`add_controls` will
 trigger a call to the
-:class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl` class and
+:class:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl` class and
 extract the desired control device data.
-:class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData` then compares and
-mates that control device data with the digitizer data accoding to the
+:class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData` then compares and
+mates that control device data with the digitizer data according to the
 global HDF5 shot number.
 
 :data:`add_controls` must be a list of strings and/or 2-element tuples
@@ -318,7 +318,7 @@ constructor.  See :ref:`read_controls` for details on these added
 fields.
 
 .. [#] Control device data can also be independently read using
-    :meth:`~bapsflib.lapdhdf.files.File.read_controls`.
+    :meth:`~bapsflib.lapd.File.read_controls`.
     (see :ref:`read_controls` for usage)
 .. [#] Review section :ref:`digi_overview` for how a digitizer is
     organized and configured.

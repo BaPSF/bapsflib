@@ -29,18 +29,30 @@ def portnum_to_z(portnum):
     return const.port_spacing * (const.ref_port - portnum)
 
 
-def z_to_portnum(z, unit='cm', rount_to_nearest=False):
+def z_to_portnum(z, unit='cm', round_to_nearest=False):
     """
     Converts LaPD axial z location to port number.
 
-    Port 53 defines z = 0 cm and is the most Northern port.  The +z
-    axis points south towards the main cathode.
-
     :param z: axial z location
     :param unit: string or :class:`astropy.units` specifying unit type
-    """
-    # TODO: add functionality to round to nearest port number
-    if not isinstance(z, u.Quantity):
-        z =u.Quantity(z, unit=unit)
+    :param bool round_to_nearest: :code:`False` (DEFAULT), :code:`True`
+        will round the port number to the nearest full integer
 
-    return const.ref_port - (z / const.port_spacing)
+    .. note::
+
+        Port 53 defines z = 0 cm and is the most Northern port.  The +z
+        axis points South towards the main cathode.
+    """
+    # convert to astropy.units.Quantity
+    if not isinstance(z, u.Quantity):
+        z = u.Quantity(z, unit=unit)
+
+    # calc port number
+    portnum = const.ref_port - (z / const.port_spacing)
+
+    # convert to nearest port number
+    if round_to_nearest:
+        portnum = np.round(portnum).astype(np.int8)
+
+    # return
+    return portnum

@@ -1,20 +1,20 @@
-The :class:`~bapsflib.lapdhdf.hdfoverview.hdfOverview` class provides a
+The :class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview` class provides a
 set of tools (see :numref:`f_overview_methods`) to report the results of
-the HDF5 file mapping by :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap`.
-An instance of :class:`~bapsflib.lapdhdf.hdfoverview.hdfOverview` is
-bound to :class:`~bapsflib.lapdhdf.files.File` as the
-:attr:`~bapsflib.lapdhdf.files.File.overview` attribute and will report
+the HDF5 file mapping by :class:`~bapsflib.lapd._hdf.hdfmapper.hdfMap`.
+An instance of :class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview` is
+bound to :class:`~bapsflib.lapd.File` as the
+:attr:`~bapsflib.lapd.File.overview` attribute and will report
 the current status of the mapping object.
 
 .. code-block:: python3
 
-    >>> f = lapdhdf.File('test.hdf5')
+    >>> f = lapd.File('test.hdf5')
     >>> f.overview
-    <bapsflib.lapdhdf.hdfoverview.hdfOverview>
+    <bapsflib.lapd._hdf.hdfoverview.hdfOverview>
 
 Thus, if any changes
 are made to the mapping object
-(:attr:`~bapsflib.lapdhdf.files.File.file_map`), which could happen for
+(:attr:`~bapsflib.lapd.File.file_map`), which could happen for
 certain control devices [*]_, then those changes will be reflected in the
 overview report.
 
@@ -31,7 +31,7 @@ The overview report is divided into three blocks:
 
     #. Discovery Report
         * This block gives a brief report on what devices the
-          :class:`~bapsflib.lapdhdf.hdfmapper.hdfMap` class discovered
+          :class:`~bapsflib.lapd._hdf.hdfmapper.hdfMap` class discovered
           in the the file.
         * There are no details about each discovered device, just what
           was discovered.
@@ -51,7 +51,7 @@ The overview report is divided into three blocks:
 
 
 The methods provided by
-:class:`~bapsflib.lapdhdf.hdfoverview.hdfOverview` (see
+:class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview` (see
 :numref:`f_overview_methods`) allow for printing and saving of the
 complete overview, as well as, printing the individual blocks or
 sections of the blocks.
@@ -59,17 +59,17 @@ sections of the blocks.
 .. _f_overview_methods:
 
 .. csv-table:: "Methods provided by
-               :class:`~bapsflib.lapdhdf.hdfoverview.hdfOverview`
+               :class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview`
                for reporting a HDF5 file overview"
     :header: "Method", "Description and Call"
     :widths: 15, 60
 
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.print`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.print`, "
     Print to screen the entire overview.
 
     >>> f.overview.print()
     "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.save`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.save`, "
     Save the report to a file given by ``filename``.
 
     >>> f.overview.save(filename)
@@ -81,34 +81,22 @@ sections of the blocks.
 
     >>> f.overview.save(True)
     "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.report_general`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.report_general`, "
     Print the general info block.
 
     >>> f.overview.report_general()
     "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.report_discovery`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.report_discovery`, "
     Print the discovery report block.
 
     >>> f.overview.report_discovery()
     "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.report_details`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.report_details`, "
     Print the detail report block.
 
     >>> f.overview.report_details()
     "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.report_msi`, "
-    Print the detail report block for all MSI diagnostics.
-
-    >>> f.overview.report_msi()
-
-    |
-
-    Print the detail report block for a specific MSI diagnostic
-    (e.g. **Discharge**).
-
-    >>> f.overview.report_msi(name='Discharge')
-    "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.report_controls`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.report_controls`, "
     Print the detail report block for all control devices.
 
     >>> f.overview.report_controls()
@@ -120,7 +108,7 @@ sections of the blocks.
 
     >>> f.overview.report_controls(name='Waveform')
     "
-    :meth:`~bapsflib.lapdhdf.hdfoverview.hdfOverview.report_digitizers`, "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.report_digitizers`, "
     Print the detail report block for all digitizers.
 
     >>> f.overview.report_digitizers()
@@ -131,6 +119,18 @@ sections of the blocks.
     (e.g. **SIS 3301**).
 
     >>> f.overview.report_digtitizers(name='SIS 3301')
+    "
+    :meth:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview.report_msi`, "
+    Print the detail report block for all MSI diagnostics.
+
+    >>> f.overview.report_msi()
+
+    |
+
+    Print the detail report block for a specific MSI diagnostic
+    (e.g. **Discharge**).
+
+    >>> f.overview.report_msi(name='Discharge')
     "
 
 .. [*] the mapping configuration for command list focused control

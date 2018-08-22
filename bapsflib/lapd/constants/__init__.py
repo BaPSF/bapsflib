@@ -11,4 +11,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+This :mod:`~bapsflib.lapd.constants` package contains constants relevant
+to the setup and configuration of the LaPD.
+"""
 from .constants import (port_spacing, ref_port, MainCathode)
+
+__all__ = ['MainCathode', 'port_spacing', 'ref_port']

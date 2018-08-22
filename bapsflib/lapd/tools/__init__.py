@@ -11,4 +11,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+This package contains a variety of tools (functions, classes, etc.)
+relevant to the LaPD and its configuration.
+"""
 from .tools import (portnum_to_z, z_to_portnum)
+
+__all__ = ['portnum_to_z', 'z_to_portnum']

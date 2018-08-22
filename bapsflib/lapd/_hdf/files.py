@@ -281,7 +281,7 @@ class File(h5py.File):
         """Builds the general info dictionary for the file"""
         # define file keys
         self._info = {
-            'filename': os.path.split(self.filename)[-1],
+            'filename': os.path.basename(self.filename),
             'absolute file path': os.path.abspath(self.filename),
             'lapd version': self.file_map.hdf_version
         }

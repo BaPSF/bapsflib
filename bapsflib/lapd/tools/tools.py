@@ -12,6 +12,7 @@
 #   license terms and contributor agreement.
 #
 import astropy.units as u
+import numpy as np
 
 from .. import constants as const
 
@@ -20,8 +21,10 @@ def portnum_to_z(portnum):
     """
     Converts LaPD port number to axial z location.
 
-    Port 53 defines z = 0 cm and is the most Northern port.  The +z
-    axis points south towards the main cathode.
+    .. note::
+
+        Port 53 defines z = 0 cm and is the most Northern port.  The +z
+        axis points South towards the main cathode.
     """
     return const.port_spacing * (const.ref_port - portnum)
 

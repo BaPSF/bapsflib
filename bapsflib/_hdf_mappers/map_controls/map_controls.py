@@ -8,7 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-
 import h5py
 
 from .sixk import hdfMap_control_6k

@@ -8,3 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+This package contains an assortment of mapping classes used to inspect
+and map the various HDF5 files generated during experiments at the
+Basic Plasma Science Facility.  Sub-package
+:mod:`~bapsflib._hdf_mappers.map_controls` contains routines for mapping
+`Control Device` HDF5 groups,
+:mod:`~bapsflib._hdf_mappers.map_digitizers` contains routines for
+mapping `Digitizer` HDF5 groups, and
+:mod:`~bapsflib._hdf_mappers.map_msi` contains routines for mapping
+`MSI Diagnostic` HDF5 groups.
+"""

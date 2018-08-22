@@ -63,7 +63,7 @@ the :py:mod:`bapsflib`
 **clone or download** button, choose **Download ZIP**, save to location
 of choice, and unpack.  To install the package, navigate to the
 :py:mod:`bapsflib` package main directory when the :file:`setup.py` file
-is located.  In the terminal excuate the following command:
+is located.  In the terminal execute the following command:
 
 .. code-block:: bash
 

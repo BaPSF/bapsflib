@@ -15,13 +15,24 @@ Welcome to bapsflib's documentation!
     ./background/main
     ./howtos/main
     ./hdfmap/main
-    packageindex
+
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Developer Documentation:
+
+    changelog
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Package Navigation:
+
+    ./src/bapsflib
+    genindex
+    py-modindex
+
+.. toctree::
+    :maxdepth: 1
+    :caption: Appendix:
+
     glossary
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

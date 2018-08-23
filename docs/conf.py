@@ -220,6 +220,9 @@ rst_prolog = """
    :language: python3
 
 .. role:: red
+
+.. role:: ibf
+    :class: ibf
 """
 
 

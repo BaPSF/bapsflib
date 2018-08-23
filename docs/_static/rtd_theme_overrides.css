@@ -9,11 +9,17 @@
 
     .wy-table-responsive {
         overflow: visible !important;
-    }
+    }}
 
 /* Add coloring for red text */
 .red {
     color:red;
+}
+
+/* Add italic bold face role*/
+.ibf {
+    font-weight: bold;
+    font-style: italic;
 }
 
 /* Override RTD theme bottom margin for line blocks in a table */
@@ -33,10 +39,11 @@
 .rst-content .line-block {
     margin-left: 0px
 }
+/*
 .rst-content .line-block .line-block {
     margin-left: $base-line-height
 }
-
+*/
 /* Override RTD .highlight background color */
 div[class^="highlight"] {
     background: #eeffcc

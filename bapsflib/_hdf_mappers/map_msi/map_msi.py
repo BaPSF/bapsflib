@@ -67,7 +67,7 @@ class hdfMap_msi(dict):
         dict.__init__(self, self.__build_dict)
 
     @property
-    def predefined_diagnostic_groups(self):
+    def mappable_devices(self) -> tuple:
         """
         tuple of the mappable MSI diagnostics (i.e. their HDF5 group
         names)
@@ -75,7 +75,7 @@ class hdfMap_msi(dict):
         return tuple(self._defined_mapping_classes.keys())
 
     @property
-    def __build_dict(self):
+    def __build_dict(self) -> dict:
         """
         Discovers the HDF5 MSI diagnostics and builds the dictionary
         containing the diagnostic mapping objects.  This is the

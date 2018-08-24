@@ -27,7 +27,7 @@ class TestHDFMapMSI(ut.TestCase):
     # X  2. if input is not h5py.Group instance, then TypeError is
     #       raised
     # X  3. existence of:
-    #       a. predefined_diagnostic_groups
+    #       a. mappable_devices
     #          - check it's a tuple
     # X  4. MSI group has no sub-groups
     #       - dict is empty
@@ -160,10 +160,10 @@ class TestHDFMapMSI(ut.TestCase):
 
         # look for map attributes
         self.assertTrue(
-            hasattr(msi_map, 'predefined_diagnostic_groups'))
+            hasattr(msi_map, 'mappable_devices'))
 
         # check attribute types
-        self.assertIsInstance(msi_map.predefined_diagnostic_groups,
+        self.assertIsInstance(msi_map.mappable_devices,
                               tuple)
 
 

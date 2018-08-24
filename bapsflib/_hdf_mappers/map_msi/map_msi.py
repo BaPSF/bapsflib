@@ -32,7 +32,7 @@ class hdfMap_msi(dict):
         ... # MSI diagnostic groups
         ... msi_map = hdfMap_msi(f['MSI'])
     """
-    _defined_diagnostic_mappings = {
+    _defined_mapping_classes = {
         'Discharge': hdfMap_msi_discharge,
         'Gas pressure': hdfMap_msi_gaspressure,
         'Heater': hdfMap_msi_heater,
@@ -72,7 +72,7 @@ class hdfMap_msi(dict):
         tuple of the mappable MSI diagnostics (i.e. their HDF5 group
         names)
         """
-        return tuple(self._defined_diagnostic_mappings.keys())
+        return tuple(self._defined_mapping_classes.keys())
 
     @property
     def __build_dict(self):
@@ -87,10 +87,10 @@ class hdfMap_msi(dict):
         # do not attach item if mapping is not known
         msi_dict = {}
         for name in self.msi_group_subgnames:
-            if name in self._defined_diagnostic_mappings:
+            if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
                 diag_map = \
-                    self._defined_diagnostic_mappings[name](
+                    self._defined_mapping_classes[name](
                         self.__msi_group[name])
                 if diag_map.build_successful:
                     msi_dict[name] = diag_map

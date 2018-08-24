@@ -29,13 +29,13 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         |   +-- RGA partial pressures
 
     """
-    def __init__(self, diag_group):
+    def __init__(self, group):
         """
-        :param diag_group: the HDF5 MSI diagnostic group
-        :type diag_group: :class:`h5py.Group`
+        :param group: the HDF5 MSI diagnostic group
+        :type group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_msi_template.__init__(self, diag_group)
+        hdfMap_msi_template.__init__(self, group)
 
         # populate self.configs
         self._build_configs()

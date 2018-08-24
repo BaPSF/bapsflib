@@ -11,7 +11,7 @@
 import os
 import h5py
 
-from abc import ABC, abstractmethod
+from abc import (ABC, abstractmethod)
 
 
 class hdfMap_msi_template(ABC):
@@ -22,12 +22,12 @@ class hdfMap_msi_template(ABC):
 
     Any inheriting class should define :code:`__init__` as::
 
-        def __init__(self, diag_group):
+        def __init__(self, group: h5py.Group):
             """
             :param group: HDF5 group object
             """
             # initialize
-            hdfMap_msi_template.__init__(self, diag_group)
+            hdfMap_msi_template.__init__(self, group)
 
             # populate self.configs
             self._build_configs()
@@ -60,97 +60,101 @@ class hdfMap_msi_template(ABC):
         self._build_successful = False
 
     @property
-    def configs(self):
+    def configs(self) -> dict:
         """
         Dictionary containing all the relevant mapping information to
-        translate the HDF5 data locations for the
-        :mod:`bapsflib.lapd` module.
+        translate the HDF5 data into a numpy array.  The actually numpy
+        array construction is done by
+        :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI`.
 
-        The required structure follows (with example values)::
+        **-- Constructing** :code:`configs` **--**
 
-            import numpy as np
+        The :code:`configs` dict is broken into a set of required keys
+        (:code:`'shape'`, :code:`'shotnum'`, :code:`'signals'`, and
+        :code:`'meta'`) and optional keys.  Any option key is considered
+        as meta-data for the device and is added to the
+        :attr:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI.info`
+        dictionary when the numpy array is constructed.  The required
+        keys constitute the mapping for the device.
 
-            # outline of `configs` dict
-            # - any additional key added beyond these four will be
-            #   added to the `info` attribute of the data array
-            #   constructed by hdfReadMSI
-            configs = {
-                'shape': (), # numpy shape to be used by hdfReadMSI
-                             # - typically (2,)
-                'shotnum': {}, # mapping for the 'shotnum'`field used by
-                               # hdfReadMSI
-                'signals': {}, # mapping for the signal fields used by
-                               # hdfReadMSI
-                               # - this is semi-polymorphic
-                'meta': {} # mapping for the 'meta' field used by
-                           # hdfReadMSI
-                           # - this is semi-polymorphic
-            }
+        .. csv-table::
+            :header: "key", "Description"
+            :widths: 20, 60
 
-            # 'shotnum' key and its value
-            configs['shotnum'] = {
-                'dset path': [str], # list of HDF% dataset paths where
-                                    # shot number values are store
-                                    # - typically one element, but the
-                                    #   'Interferometer array' will have
-                                    #   and entry for each
-                                    #   interferometer
-                'dset field': 'Shot number', # field name in the dataset
-                                             # that corresponds to shot
-                                             # number values
-                'shape': [(), ], # list of numpy shapes for each dataset
-                                 # - length is equal to length of the
-                                 #   'dset path' list
-                                 # - typically [(),]
-                'dtype': np.int32 # numpy dtype value to be used by
-                                  # hdfReadMSI
-            }
+            "::
 
-            # 'signals' key and its values
-            # - 'signals' keys become the fields become the fields in
-            #   the numpy array constructed by hdfReadMSI
-            # - data associated with 'signals' are consider to be
-            #   recorded or plot-able data arrays and typically have
-            #   their own dataset in the HDF5 file
-            # - the example below would tell hdfReadMSI to make a
-            #   'magnetic field' field in the numpy array
-            #
-            configs['signals'] = {
-                'magnetic field': {
-                    'dset paths': [str], # path to dataset
-                    'dset field': None,  # dataset has no field
-                                         # the dataset is a 2D array
-                                         # all the data corresponds to
-                                         # magnetic field values
-                    'shape': [(100,)],   # each magnetic field array for
-                                         # each shot number is 100
-                                         # samples long
-                    'dtype': np.float32  # values have type np.float32
-                },
-            }
+                configs['shape']
+            ", "
+            This is used as the :data:`shape` for the
+            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI`
+            constructed numpy array and typically looks like::
 
-            # 'meta' keys the their values
-            # - 'meta' keys become the sub-field names under the 'meta'
-            #   field of the numpy array constructed by hdfReadMSI
-            # - values in 'meta' should be quantities that relate to
-            #   both shot numbers and diagnostics
-            #    ~ these types of quantites are general stored in the
-            #      'summary' datasets
-            # - the  example below would tell hdfReadMSI to make a
-            #   'peak magnetic field' field in the 'meta' field of the
-            #   numpy array
-            #
-            configs['meta'] = {
-                'peak magnetic field': {
-                    'dset paths': [str], # path to dataset
-                    'dset field': 'Peak magnetic field',
-                        # field name in the dataset
-                    'shape': [()],  # list of numpy shapes for each
-                                    # dataset
-                                    # - typically [(),]
-                    'dtype': np.float32 # values have type np.float32
-                },
-            }
+                configs['shape'] = (nsn, )
+
+            where :code:`nsn` is the number of shot numbers saved to
+            the diagnostic's datasets.
+            "
+            "::
+
+                configs['shotnum']
+            ", "
+            Specifies the dataset(s) containing the recorded HDF5 shot
+            numbers.  This maps to the :code:`'shotnum'` field the
+            numpy array constructed by
+            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI`.  Should
+            look like::
+
+                configs = {
+                    'dset paths': ['/foo/bar/d1',],
+                    'dset field': ('Shot number',),
+                    'shape': [(),],
+                    'dtype': numpy.int32,
+                }
+
+            where :code:`'dset paths'` is the internal HDF5 path to the
+            dataset(s), :code:`'dset field'` is the field name of the
+            dataset containing shot numbers, :code:`'shape'` of the shot
+            number data, and :code:`'dtype'` is the numpy :code:`dtype`
+            that the :code:`'shotnum'` field of the constructed numpy
+            array will be.
+            "
+            "::
+
+                configs['signals']
+            ", "
+            This is another dictionary where each key will map to a
+            a field in the
+            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI` numpy
+            array.  For example,::
+
+                configs['signals'] = { 'current': {
+                    'dset paths': ['/foo/bar/dset',],
+                    'dset field': (None,),
+                    'shape': [(100,),],
+                    'dtype': numpy.float32,
+                }}
+
+            would created a :code:`'current'` field in the constructed
+            numpy array.  Any field specified in this key is considered
+            to be your plot-able, primary diagnostic data.
+            "
+            "::
+
+                configs['meta']
+            ", "
+            This is another dictionary specifying meta-data that is both
+            diagnostic and shot number specific.  For example,::
+
+                configs['signals'] = { 'max current': {
+                    'dset paths': ['/foo/bar/dset',],
+                    'dset field': ('Max current',),
+                    'shape': [(),],
+                    'dtype': numpy.float32,
+                }}
+
+            would create a :code:`'max current'` field in the
+            :code:`'meta'` field of the constructed numpy array.
+            "
 
         .. note::
 
@@ -159,13 +163,13 @@ class hdfMap_msi_template(ABC):
         return self._configs
 
     @property
-    def info(self):
+    def info(self) -> dict:
         """
-        Information dict for the MSI diagnostic::
+        MSI diagnostic dictionary of meta-info::
 
             info = {
-                'group name': str, # name of diagnostic group
-                'group path': str  # full path to diagnostic group
+                'group name': 'Diagnostic',
+                'group path': '/foo/bar/Diagnostic',
             }
         """
         return self._info
@@ -176,25 +180,27 @@ class hdfMap_msi_template(ABC):
         return self._info['group name']
 
     @property
-    def group(self):
-        """Instance of MSI diagnostic group (:class:`h5py.Group`)"""
-        return self.__diag_group
+    def group(self) -> h5py.Group:
+        """Instance of MSI diagnostic group"""
+        return self._diag_group
 
     @property
-    def build_successful(self):
-        """Indicates if the map construction was successful or not."""
+    def build_successful(self) -> bool:
+        """Indicates if the mapping was successful or not."""
         return self._build_successful
 
     @abstractmethod
     def _build_configs(self):
         """
-        Gathers the necessary mapping data and fills :attr:`configs`
+        Gathers the necessary mapping data and constructs the
+        :attr:`configs` dictionary.
 
         :raises: :exc:`NotImplementedError`
 
         .. note::
 
             Examine :meth:`_build_configs` in existing modules for ideas
-            on how to construct method.  Also read :ref:`add_msi_mod`.
+            on how to override this method.  Also read
+            :ref:`add_msi_mod`.
         """
         raise NotImplementedError

@@ -19,13 +19,18 @@ from .magneticfield import hdfMap_msi_magneticfield
 
 class hdfMap_msi(dict):
     """
-    A dictionary that contains mapping objects for all the discovered
-    MSI diagnostics in the HDF5 MSI group.  The dictionary keys are the
-    discovered MSI diagnostic names.
+    A dictionary containing mapping objects for all the discovered
+    MSI diagnostic HDF5 groups.  The dictionary keys are the MSI
+    diagnostic names.
 
-    The constructed dictionary is added to
-    :class:`~bapsflib.lapd.hdfmapper.hdfMap` as the
-    :attr:`~bapsflib.lapd.hdfmapper.hdfMap.msi` attribute.
+    :Example:
+
+        >>> from bapsflib import lapd
+        >>> from bapsflib._hdf_mappers import hdfMap_msi
+        >>> f = lapd.File('sample.hdf5')
+        >>> # 'MSI' is the LaPD HDF5 group name for the group housing
+        ... # MSI diagnostic groups
+        ... msi_map = hdfMap_msi(f['MSI'])
     """
     _defined_diagnostic_mappings = {
         'Discharge': hdfMap_msi_discharge,
@@ -39,10 +44,9 @@ class hdfMap_msi(dict):
     diagnostic mapping classes.
     """
 
-    def __init__(self, msi_group):
+    def __init__(self, msi_group: h5py.Group):
         """
-        :param msi_group: the MSI HDF5 group object
-        :type msi_group: :class:`h5py.Group`
+        :param msi_group: HDF5 group object
         """
         # condition msi_group arg
         if not isinstance(msi_group, h5py.Group):
@@ -65,7 +69,8 @@ class hdfMap_msi(dict):
     @property
     def predefined_diagnostic_groups(self):
         """
-        tuple of the pre-defined MSI diagnostic group names
+        tuple of the mappable MSI diagnostics (i.e. their HDF5 group
+        names)
         """
         return tuple(self._defined_diagnostic_mappings.keys())
 

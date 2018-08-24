@@ -24,8 +24,7 @@ class hdfMap_msi_template(ABC):
 
         def __init__(self, diag_group):
             """
-            :param diag_group: the HDF5 MSI diagnostic group
-            :type diag_group: :class:`h5py.Group`
+            :param group: HDF5 group object
             """
             # initialize
             hdfMap_msi_template.__init__(self, diag_group)
@@ -38,21 +37,20 @@ class hdfMap_msi_template(ABC):
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
     '''
-    def __init__(self, diag_group):
+    def __init__(self, group: h5py.Group):
         """
-        :param diag_group: the MSI diagnostic HDF5 group
-        :type diag_group: :class:`h5py.Group`
+        :param group: the MSI diagnostic HDF5 group
         """
-        # condition diag_group arg
-        if isinstance(diag_group, h5py.Group):
-            self.__diag_group = diag_group
+        # condition group arg
+        if isinstance(group, h5py.Group):
+            self._diag_group = group
         else:
-            raise TypeError('arg diag_group is not of type h5py.Group')
+            raise TypeError('arg group is not of type h5py.Group')
 
         # define info attribute
         self._info = {
-            'group name': os.path.basename(diag_group.name),
-            'group path': diag_group.name
+            'group name': os.path.basename(group.name),
+            'group path': group.name
         }
 
         # initialize self.configs

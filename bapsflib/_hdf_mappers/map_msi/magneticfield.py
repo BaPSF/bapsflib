@@ -29,13 +29,13 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         |   +-- Magnetic field profile
         |   +-- Magnetic field summary
     """
-    def __init__(self, diag_group):
+    def __init__(self, group):
         """
-        :param diag_group: the HDF5 MSI diagnostic group
-        :type diag_group: :class:`h5py.Group`
+        :param group: the HDF5 MSI diagnostic group
+        :type group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_msi_template.__init__(self, diag_group)
+        hdfMap_msi_template.__init__(self, group)
 
         # populate self.configs
         self._build_configs()

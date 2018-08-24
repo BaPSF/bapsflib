@@ -28,8 +28,8 @@
 }
 
 /* Override RTD theme bottom margin for code highlights in a table */
-.rst-content table.docutils td div[class^='highlight'] {
-    margin-bottom: 0px
+.rst-content table.docutils td div[class^='highlight-default'] {
+    margin-bottom: 12px;
 }
 
 /* --- RTD theme fixes since readthedocs.org theme does not match    ---

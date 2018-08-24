@@ -64,7 +64,7 @@ class hdfMap_msi_heater(hdfMap_msi_template):
                 self._configs[pair[0]] = []
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
-                     + self.diagnostic_name
+                     + self.device_name
                      + "', continuing with mapping")
 
         # initialize 'shape'

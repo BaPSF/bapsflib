@@ -241,7 +241,7 @@ class hdfOverview(object):
         # print msi diagnostic config
         for diag in configs:
             # print msi diag name
-            status_print(diag.diagnostic_name, '', '')
+            status_print(diag.device_name, '', '')
 
             # print path to diagnostic
             item = 'path:  ' + diag.info['group path']

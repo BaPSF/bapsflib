@@ -24,7 +24,7 @@ class MSIDiagnosticTestCase(ut.TestCase):
 
         # assert attribute existence
         self.assertTrue(hasattr(dmap, 'info'))
-        self.assertTrue(hasattr(dmap, 'diagnostic_name'))
+        self.assertTrue(hasattr(dmap, 'device_name'))
         self.assertTrue(hasattr(dmap, 'configs'))
         self.assertTrue(hasattr(dmap, 'group'))
         self.assertTrue(hasattr(dmap, 'build_successful'))
@@ -42,8 +42,8 @@ class MSIDiagnosticTestCase(ut.TestCase):
                          os.path.basename(dgroup.name))
         self.assertEqual(dmap.info['group path'], dgroup.name)
 
-        # ---- test map.diagnostic_name                             ----
-        self.assertEqual(dmap.diagnostic_name, dmap.info['group name'])
+        # ---- test map.device_name                             ----
+        self.assertEqual(dmap.device_name, dmap.info['group name'])
 
         # ---- test map.group                                       ----
         # check 'group' type

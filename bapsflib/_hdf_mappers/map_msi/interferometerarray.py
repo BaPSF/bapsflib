@@ -104,7 +104,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 self._configs[pair[0]] = []
                 warn("Attribute '" + pair[1]
                      + "' not found for MSI diagnostic '"
-                     + self.diagnostic_name
+                     + self.device_name
                      + "', continuing with mapping")
 
         # more handling of general info value 'n interferometer'
@@ -113,13 +113,13 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         if len(self._configs[pair[0]]) != 1:
             check_n_inter = False
             warn("Attribute '" + pair[1] + "' for MSI diagnostic '"
-                 + self.diagnostic_name
+                 + self.device_name
                  + "' not an integer, continuing with mapping")
         elif not isinstance(self._configs['n interferometer'][0],
                             (int, np.integer)):
             check_n_inter = False
             warn("Attribute '" + pair[1] + "' for MSI diagnostic '"
-                 + self.diagnostic_name +
+                 + self.device_name +
                  "' not an integer, continuing with mapping")
 
         # initialize 'shape'
@@ -202,7 +202,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                         self._configs[pair[0]].append(None)
                         warn("Attribute '" + pair[1]
                              + "' not found for MSI diagnostic '"
-                             + self.diagnostic_name + '/' + name
+                             + self.device_name + '/' + name
                              + "', continuing with mapping")
 
                 # define values to ensure dataset sizes are consistent

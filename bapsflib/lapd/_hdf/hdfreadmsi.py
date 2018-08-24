@@ -283,7 +283,7 @@ class hdfReadMSI(np.recarray):
         # ---- Define `info` attribute ----
         obj._info = {
             'hdf file': hdf_file.filename.split('/')[-1],
-            'diagnostic name': diag_map.diagnostic_name,
+            'diagnostic name': diag_map.device_name,
             'diagnostic path': diag_map.info['group path']
         }
         for key, val in diag_map.configs.items():

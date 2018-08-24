@@ -173,8 +173,8 @@ class hdfMap_msi_template(ABC):
         return self._info
 
     @property
-    def diagnostic_name(self):
-        """Name of MSI diagnostic"""
+    def device_name(self):
+        """Name of MSI diagnostic (device)"""
         return self._info['group name']
 
     @property

@@ -13,4 +13,5 @@ bapsflib
 
     ./bapsflib._hdf_mappers
     ./bapsflib.lapd
-    .. ./bapsflib.plasma
+
+.. ./bapsflib.plasma

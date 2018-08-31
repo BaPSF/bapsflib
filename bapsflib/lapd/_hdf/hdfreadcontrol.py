@@ -39,6 +39,11 @@ class hdfReadControl(np.recarray):
     #     the control has one config then that config will be assumed,
     #     otherwise, a TypeError will be raised
     #
+    warn("attribute access to numpy array fields will be deprecated "
+         "by Oct., access fields like data['shotnum'] NOT like "
+         "data.shotnum",
+         FutureWarning)
+
     def __new__(cls, hdf_file, controls,
                 shotnum=slice(None), intersection_set=True,
                 silent=False, **kwargs):

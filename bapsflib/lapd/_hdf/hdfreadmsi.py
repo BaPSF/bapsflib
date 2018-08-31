@@ -17,7 +17,7 @@ import os
 from warnings import warn
 
 
-class HDFReadMSI(np.ndarray):
+class HDFReadMSI(np.recarray):
     """
     Reads MSI diagnostic data from the HDF5 file.
 

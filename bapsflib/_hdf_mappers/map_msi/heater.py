@@ -68,7 +68,7 @@ class hdfMap_msi_heater(hdfMap_msi_template):
                      + "', continuing with mapping")
 
         # initialize 'shape'
-        # - this is used by hdfReadMSI
+        # - this is used by HDFReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'

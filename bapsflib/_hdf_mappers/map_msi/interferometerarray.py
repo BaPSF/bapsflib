@@ -79,7 +79,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         #     array) and in the sub-group attributes (elements of the
         #     main group's array)...I'm choosing to populate via the
         #     sub-group attributes to ensure one-to-one correspondence
-        #     when extracting data with the hdfReadMSI class
+        #     when extracting data with the HDFReadMSI class
         #
         pairs = [('n interferometer', 'Interferometer count'),
                  ('calib tag', 'Calibration tag'),

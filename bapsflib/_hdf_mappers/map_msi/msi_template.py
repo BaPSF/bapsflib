@@ -65,7 +65,7 @@ class hdfMap_msi_template(ABC):
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data into a numpy array.  The actually numpy
         array construction is done by
-        :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI`.
+        :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`.
 
         **-- Constructing** :code:`configs` **--**
 
@@ -73,7 +73,7 @@ class hdfMap_msi_template(ABC):
         (:code:`'shape'`, :code:`'shotnum'`, :code:`'signals'`, and
         :code:`'meta'`) and optional keys.  Any option key is considered
         as meta-data for the device and is added to the
-        :attr:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI.info`
+        :attr:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI.info`
         dictionary when the numpy array is constructed.  The required
         keys constitute the mapping for the device.
 
@@ -86,7 +86,7 @@ class hdfMap_msi_template(ABC):
                 configs['shape']
             ", "
             This is used as the :data:`shape` for the
-            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI`
+            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`
             constructed numpy array and typically looks like::
 
                 configs['shape'] = (nsn, )
@@ -101,7 +101,7 @@ class hdfMap_msi_template(ABC):
             Specifies the dataset(s) containing the recorded HDF5 shot
             numbers.  This maps to the :code:`'shotnum'` field the
             numpy array constructed by
-            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI`.  Should
+            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`.  Should
             look like::
 
                 configs = {
@@ -124,7 +124,7 @@ class hdfMap_msi_template(ABC):
             ", "
             This is another dictionary where each key will map to a
             a field in the
-            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.hdfReadMSI` numpy
+            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI` numpy
             array.  For example,::
 
                 configs['signals'] = { 'current': {

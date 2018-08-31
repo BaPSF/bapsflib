@@ -12,7 +12,7 @@
 import copy
 import numpy as np
 
-from warnings import  warn
+from warnings import warn
 
 
 class hdfReadMSI(np.recarray):
@@ -77,7 +77,13 @@ class hdfReadMSI(np.recarray):
         4.88e-05
 
     """
-    def __new__(cls, hdf_file, msi_diag, **kwargs):
+    warn("attribute access to numpy array fields will be deprecated "
+         "by Oct., access fields like data['shotnum'] NOT like "
+         "data.shotnum",
+         FutureWarning)
+
+    def __new__(cls, hdf_file: bapsflib.lapd.File, dname: str,
+                **kwargs):
         """
         :param hdf_file: HDF5 file object
         :type hdf_file: :class:`bapsflib.lapd.files.File`

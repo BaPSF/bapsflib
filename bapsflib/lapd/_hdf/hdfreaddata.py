@@ -32,6 +32,11 @@ class hdfReadData(np.recarray):
     #  To extract data, fancy indexing [::] can be used directly on
     #    dset or dset.values.
     #
+    warn("attribute access to numpy array fields will be deprecated "
+         "by Oct., access fields like data['shotnum'] NOT like "
+         "data.shotnum",
+         FutureWarning)
+
     def __new__(cls, hdf_file, board, channel,
                 index=slice(None), shotnum=slice(None),
                 digitizer=None, adc=None,

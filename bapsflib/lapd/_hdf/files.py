@@ -10,12 +10,13 @@
 #
 import h5py
 import os
+import sys
 
 from .hdfoverview import hdfOverview
 from .hdfmapper import hdfMap
-from .hdfreaddata import hdfReadData
-from .hdfreadcontrol import hdfReadControl
-from .hdfreadmsi import hdfReadMSI
+# from .hdfreaddata import hdfReadData
+# from .hdfreadcontrol import hdfReadControl
+# from .hdfreadmsi import HDFReadMSI
 
 
 class File(h5py.File):
@@ -169,6 +170,7 @@ class File(h5py.File):
         #
         # TODO: write docstrings
         #
+        from .hdfreaddata import hdfReadData
         return hdfReadData(self, board, channel,
                            index=index,
                            shotnum=shotnum,
@@ -237,6 +239,7 @@ class File(h5py.File):
             >>> cdata = f.read_controls(controls)
 
         """
+        from .hdfreadcontrol import hdfReadControl
         return hdfReadControl(self, controls,
                               shotnum=shotnum,
                               intersection_set=intersection_set,
@@ -246,12 +249,12 @@ class File(h5py.File):
     def read_msi(self, msi_diag):
         """
         Reads data out for a MSI Diagnostic.  See
-        :class:`~bapsflib.lapd.hdfreadmsi.hdfReadMSI` for more
+        :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI` for more
         detail.
 
         :param str msi_diag: name of MSI diagnostic
         :return: data for MSI diagnostic
-        :rtype: :class:`~bapsflib.lapd.hdfreadmsi.hdfReadMSI`
+        :rtype: :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI`
 
         :Example:
 
@@ -270,7 +273,8 @@ class File(h5py.File):
             True
 
         """
-        return hdfReadMSI(self, msi_diag)
+        from .hdfreadmsi import HDFReadMSI
+        return HDFReadMSI(self, msi_diag)
 
     def run_description(self):
         """Description of experimental run (from the HDF5 file)"""

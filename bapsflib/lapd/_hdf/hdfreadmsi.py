@@ -9,8 +9,10 @@
 #   license terms and contributor agreement.
 #
 #
+import bapsflib
 import copy
 import numpy as np
+import os
 
 from warnings import warn
 
@@ -35,7 +37,7 @@ class HDFReadMSI(np.ndarray):
         example:
 
         >>> # open HDF5 file
-        >>> f = lapd.File('test.hdf5')
+        >>> f = bapsflib.lapd.File('test.hdf5')
         >>>
         >>> # read MSI data
         >>> # - this is equivalent to f.read_msi('Discharge')
@@ -86,47 +88,44 @@ class HDFReadMSI(np.ndarray):
                 **kwargs):
         """
         :param hdf_file: HDF5 file object
-        :type hdf_file: :class:`bapsflib.lapd.files.File`
-        :param str msi_diag: name of desired MSI diagnostic
+        :param str dname: name of desired MSI diagnostic
         """
         # ---- Condition `hdf_file` ----
         # grab file_map
         # - also ensure hdf_file is a lapd.file object
         #
-        try:
-            file_map = hdf_file.file_map
-        except AttributeError:
-            raise AttributeError(
-                'hdf_file needs to be of type lapd.File')
+        if not isinstance(hdf_file, bapsflib.lapd.File):
+            raise TypeError(
+                '`hdf_file` needs to be of type `lapd.File`')
 
-        # ---- Condition `msi_diag` ----
-        # ensure msi_diag is a string
-        if not isinstance(msi_diag, str):
-            raise TypeError('arg `msi_diag` needs to be a str')
+        # ---- Condition `dname` ----
+        # ensure dname is a string
+        if not isinstance(dname, str):
+            raise TypeError('arg `dname` needs to be a str')
 
         # allow for alias names of MSI diagnostics
-        if msi_diag in ['interferometer',
-                        'Interferometer',
-                        'interferometer array',
-                        'Interferometer array']:
-            msi_diag = 'Interferometer array'
-        elif msi_diag in ['b', 'B', 'bfield',
-                          'magnetic field',
-                          'Magnetic field'
-                          'Magnetic Field']:
-            msi_diag = 'Magnetic field'
-        elif msi_diag in ['Discharge', 'discharge']:
-            msi_diag = 'Discharge'
-        elif msi_diag.lower() in ['gas pressure', 'pressure',
-                                  'pressures', 'partial pressure',
-                                  'partial pressures']:
-            msi_diag = 'Gas pressure'
-        elif msi_diag.lower() in ['heater']:
-            msi_diag = 'Heater'
+        aliases = [
+            ('Discharge', ['discharge']),
+            ('Gas pressure', ['gas pressure',
+                              'pressure',
+                              'partial pressure'
+                              'partial pressures']),
+            ('Heater', ['heater']),
+            ('Interferometer array', ['interferometer array',
+                                      'interferometer',
+                                      'interarr']),
+            ('Magnetic field', ['magnetic field',
+                                'b',
+                                'bfield']),
+        ]
+        for name, alias in aliases:
+            if dname.lower() in alias:
+                dname = name
+                break
 
         # get diagnostic map
         try:
-            diag_map = hdf_file.file_map.msi[msi_diag]
+            diag_map = hdf_file.file_map.msi[dname]
         except KeyError:
             raise ValueError(
                 'Specified MSI Diagnostic is not among known'
@@ -134,11 +133,12 @@ class HDFReadMSI(np.ndarray):
 
         # ---- Construct shape and dtype for np.array ----
         shape = diag_map.configs['shape']
-        dtype_list = []
 
+        # initialize dtype_list
         # add 'shotnum' field
-        dtype_list.append(('shotnum',
-                           diag_map.configs['shotnum']['dtype']))
+        dtype_list = [
+            ('shotnum', diag_map.configs['shotnum']['dtype']),
+        ]
 
         # add signal fields
         sig_shape = None
@@ -288,9 +288,9 @@ class HDFReadMSI(np.ndarray):
 
         # ---- Define `info` attribute ----
         obj._info = {
-            'hdf file': hdf_file.filename.split('/')[-1],
-            'diagnostic name': diag_map.device_name,
-            'diagnostic path': diag_map.info['group path']
+            'source file': os.path.abspath(hdf_file.filename),
+            'device name': diag_map.info['group name'],
+            'device group path': diag_map.info['group path']
         }
         for key, val in diag_map.configs.items():
             if key not in ['shape', 'shotnum', 'signals', 'meta']:
@@ -300,20 +300,20 @@ class HDFReadMSI(np.ndarray):
         return obj
 
     def __array_finalize__(self, obj):
-        if obj is None:
+        # This should only be True during explicit construction
+        # if obj is None:
+        if obj is None or obj.__class__ is np.ndarray:
             return
 
         # Define _info attribute
+        # (for view casting and new from template)
         self._info = getattr(obj, '_info', {
-            'hdf file': None,
-            'diagnostic name': None,
-            'diagnostic path': None
+            'source file': None,
+            'device name': None,
+            'device group path': None,
         })
 
     @property
     def info(self):
         """A dictionary of metadata for the MSI diagnostic."""
-        return self._info.copy()
-
-
-
+        return self._info

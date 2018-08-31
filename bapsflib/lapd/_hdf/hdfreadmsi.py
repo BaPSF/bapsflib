@@ -15,7 +15,7 @@ import numpy as np
 from warnings import warn
 
 
-class hdfReadMSI(np.recarray):
+class HDFReadMSI(np.ndarray):
     """
     Reads MSI diagnostic data from the HDF5 file.
 
@@ -39,7 +39,7 @@ class hdfReadMSI(np.recarray):
         >>>
         >>> # read MSI data
         >>> # - this is equivalent to f.read_msi('Discharge')
-        >>> mdata = hdfReadMSI(f, 'Discharge')
+        >>> mdata = HDFReadMSI(f, 'Discharge')
         >>> mdata.dtype
         dtype([('shotnum', '<i4'),
                ('voltage', '<f4', (2048,)),

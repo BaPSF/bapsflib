@@ -16,11 +16,11 @@ Basic Plasma Science Facility.  Sub-package
 :ibf:`Control Device` HDF5 groups,
 :mod:`~bapsflib._hdf_mappers.map_digitizers` contains routines for
 mapping :ibf:`Digitizer` HDF5 groups, and
-:mod:`~bapsflib._hdf_mappers.map_msi` contains routines for mapping
+:mod:`~bapsflib._hdf_mappers.msi` contains routines for mapping
 :ibf:`MSI Diagnostic` HDF5 groups.
 """
 from .map_controls import hdfMap_controls
 from .map_digitizers import hdfMap_digitizers
-from .map_msi import hdfMap_msi
+from .msi import hdfMap_msi
 
 __all__ = ['hdfMap_controls', 'hdfMap_digitizers', 'hdfMap_msi']

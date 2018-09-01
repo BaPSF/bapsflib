@@ -30,7 +30,7 @@ import warnings
 
 from warnings import warn
 
-from bapsflib._hdf_mappers.map_msi import hdfMap_msi
+from bapsflib._hdf_mappers.msi import hdfMap_msi
 from bapsflib._hdf_mappers.map_digitizers import hdfMap_digitizers
 from bapsflib._hdf_mappers.map_controls import hdfMap_controls
 
@@ -45,7 +45,7 @@ class hdfMap(object):
 
     * :class:`~.map_controls.map_controls.hdfMap_controls`.
     * :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
-    * :class:`~.map_msi.map_msi.hdfMap_msi`.
+    * :class:`~.msi.map_msi.hdfMap_msi`.
     """
     # MSI stuff
     _MSI_GNAME = 'MSI'
@@ -221,7 +221,7 @@ class hdfMap(object):
         """
         Attaches a dictionary (:attr:`__msi`) containing all MSI
         diagnostic mapping objects constructed by
-        :class:`~.map_msi.map_msi.hdfMap_msi`.
+        :class:`~.msi.map_msi.hdfMap_msi`.
         """
         if self.has_msi_group:
             self.__msi = hdfMap_msi(self.__hdf_obj[self._MSI_GNAME])

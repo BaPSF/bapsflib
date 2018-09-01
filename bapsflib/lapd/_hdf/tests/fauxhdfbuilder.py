@@ -13,8 +13,8 @@ import inspect
 import os
 import tempfile
 
-
-from bapsflib._hdf_mappers.map_msi.tests import (
+from typing import (Dict, Any)
+from bapsflib._hdf_mappers.msi.tests import (
     FauxDischarge,
     FauxGasPressure,
     FauxHeater,

@@ -13,20 +13,21 @@ import numpy as np
 
 from warnings import warn
 
-from .msi_template import hdfMap_msi_template
+from .templates import hdfMap_msi_template
 
 
-class hdfMap_msi_gaspressure(hdfMap_msi_template):
+class hdfMap_msi_discharge(hdfMap_msi_template):
     """
-    Mapping class for the 'Gas pressure' MSI diagnostic.
+    Mapping class for the 'Discharge' MSI diagnostic.
 
     Simple group structure looks like:
 
     .. code-block:: none
 
-        +-- Gas pressure
-        |   +-- Gas pressure summary
-        |   +-- RGA partial pressures
+        +-- Discharge
+        |   +-- Cathode-anode voltage
+        |   +-- Discharge current
+        |   +-- Discharge summary
 
     """
     def __init__(self, group):
@@ -46,26 +47,26 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         # - alter if build fails
         #
         self._build_successful = True
-        for dset_name in ['Gas pressure summary',
-                          'RGA partial pressures']:
+        for dset_name in ['Cathode-anode voltage',
+                          'Discharge current',
+                          'Discharge summary']:
             if dset_name not in self.group:
                 warn_why = "dataset '" + dset_name + "' not found"
-                warn("Mapping for MSI Diagnostic 'Gas pressure' was"
+                warn("Mapping for MSI Diagnostic 'Discharge' was"
                      " unsuccessful (" + warn_why + ")")
                 self._build_successful = False
                 return
 
         # initialize general info values
-        pairs = [('RGA AMUs', 'RGA AMUs'),
-                 ('ion gauge calib tag', 'Ion gauge calibration tag'),
-                 ('RGA calib tag', 'RGA calibration tag')]
+        pairs = [('current conversion factor',
+                  'Current conversion factor'),
+                 ('voltage conversion factor',
+                  'Voltage conversion factor'),
+                 ('t0', 'Start time'),
+                 ('dt', 'Timestep')]
         for pair in pairs:
             try:
-                val = self.group.attrs[pair[1]]
-                if isinstance(val, (list, tuple, np.ndarray)):
-                    self._configs[pair[0]] = val
-                else:
-                    self._configs[pair[0]] = [val]
+                self._configs[pair[0]] = [self.group.attrs[pair[1]]]
             except KeyError:
                 self._configs[pair[0]] = []
                 warn("Attribute '" + pair[1]
@@ -86,16 +87,23 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         }
 
         # initialize 'signals'
-        # - there is only one signal fields
-        #   1. 'partial pressures'
+        # - there are two signal fields
+        #   1. 'voltage'
+        #   2. 'current'
         #
         self._configs['signals'] = {
-            'partial pressures': {
+            'voltage': {
                 'dset paths': [],
                 'dset field': None,
                 'shape': [],
                 'dtype': np.float32
             },
+            'current': {
+                'dset paths': [],
+                'dset field': None,
+                'shape': [],
+                'dtype': np.float32
+            }
         }
 
         # initialize 'meta'
@@ -107,53 +115,53 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
                 'shape': [],
                 'dtype': np.float64
             },
-            'data valid - ion gauge': {
+            'data valid': {
                 'dset paths': [],
-                'dset field': 'Ion gauge data valid',
+                'dset field': 'Data valid',
                 'shape': [],
                 'dtype': np.int8
             },
-            'data valid - RGA': {
+            'pulse length': {
                 'dset paths': [],
-                'dset field': 'RGA data valid',
-                'shape': [],
-                'dtype': np.int8
-            },
-            'fill pressure': {
-                'dset paths': [],
-                'dset field': 'Fill pressure',
+                'dset field': 'Pulse length',
                 'shape': [],
                 'dtype': np.float32
             },
-            'peak AMU': {
+            'peak current': {
                 'dset paths': [],
-                'dset field': 'Peak AMU',
+                'dset field': 'Peak current',
+                'shape': [],
+                'dtype': np.float32
+            },
+            'bank voltage': {
+                'dset paths': [],
+                'dset field': 'Bank voltage',
                 'shape': [],
                 'dtype': np.float32
             },
         }
 
-        # ---- update configs related to 'Gas pressure summary'     ----
+        # ---- update configs related to 'Discharge summary'        ----
         # - dependent configs are:
         #   1. 'shape'
         #   2. 'shotnum'
         #   3. all of 'meta'
         #
-        dset_name = 'Gas pressure summary'
+        dset_name = 'Discharge summary'
         dset = self.group[dset_name]
 
         # define 'shape'
-        expected_fields = ['Shot number', 'Timestamp',
-                           'Ion gauge data valid', 'RGA data valid',
-                           'Fill pressure', 'Peak AMU']
+        expected_fields = ['Shot number', 'Timestamp', 'Data valid',
+                           'Pulse length', 'Peak current',
+                           'Bank voltage']
         if dset.ndim == 1 and \
                 all(field in dset.dtype.names
                     for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
-            warn_why = "'/Gas pressure summary' does not match " \
+            warn_why = "'/Discharge summary' does not match " \
                        "expected shape"
-            warn("Mapping for MSI Diagnostic 'Gas pressure' was"
+            warn("Mapping for MSI Diagnostic 'Discharge' was"
                  " unsuccessful (" + warn_why + ")")
             self._build_successful = False
             return
@@ -169,38 +177,38 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
         self._configs['meta']['timestamp']['shape'].append(
             dset.dtype['Timestamp'].shape)
 
-        # update 'meta/data valid - ion gauge'
-        self._configs['meta']['data valid - ion gauge'][
-            'dset paths'].append(dset.name)
-        self._configs['meta']['data valid - ion gauge']['shape'].append(
-            dset.dtype['Ion gauge data valid'].shape)
-
-        # update 'meta/data valid - RGA'
-        self._configs['meta']['data valid - RGA'][
-            'dset paths'].append(dset.name)
-        self._configs['meta']['data valid - RGA']['shape'].append(
-            dset.dtype['RGA data valid'].shape)
-
-        # update 'meta/fill pressure'
-        self._configs['meta']['fill pressure']['dset paths'].append(
+        # update 'meta/data valid'
+        self._configs['meta']['data valid']['dset paths'].append(
             dset.name)
-        self._configs['meta']['fill pressure']['shape'].append(
-            dset.dtype['Fill pressure'].shape)
+        self._configs['meta']['data valid']['shape'].append(
+            dset.dtype['Data valid'].shape)
 
-        # update 'meta/peak AMU'
-        self._configs['meta']['peak AMU']['dset paths'].append(
+        # update 'meta/pulse length'
+        self._configs['meta']['pulse length']['dset paths'].append(
             dset.name)
-        self._configs['meta']['peak AMU']['shape'].append(
-            dset.dtype['Peak AMU'].shape)
+        self._configs['meta']['pulse length']['shape'].append(
+            dset.dtype['Pulse length'].shape)
 
-        # ---- update configs related to 'RGA partial pressures'   ----
+        # update 'meta/peak current'
+        self._configs['meta']['peak current']['dset paths'].append(
+            dset.name)
+        self._configs['meta']['peak current']['shape'].append(
+            dset.dtype['Peak current'].shape)
+
+        # update 'meta/bank voltage'
+        self._configs['meta']['bank voltage']['dset paths'].append(
+            dset.name)
+        self._configs['meta']['bank voltage']['shape'].append(
+            dset.dtype['Bank voltage'].shape)
+
+        # ---- update configs related to 'Cathode-anode voltage'   ----
         # - dependent configs are:
-        #   1. 'signals/partial pressures'
+        #   1. 'signals/voltage'
         #
-        dset_name = 'RGA partial pressures'
+        dset_name = 'Cathode-anode voltage'
         dset = self.group[dset_name]
-        self._configs['signals']['partial pressures'][
-            'dset paths'].append(dset.name)
+        self._configs['signals']['voltage']['dset paths'].append(
+            dset.name)
 
         # check 'shape'
         if dset.dtype.names is not None:
@@ -208,15 +216,43 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
             self._build_successful = False
         elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
-                self._configs['signals']['partial pressures'][
-                    'shape'].append((dset.shape[1],))
+                self._configs['signals']['voltage']['shape'].append(
+                    (dset.shape[1],))
             else:
                 self._build_successful = False
         else:
             self._build_successful = False
         if not self._build_successful:
-            warn_why = "'/RGA partial pressures' does not " \
+            warn_why = "'/Cathode-anode voltage' does not " \
                        "match expected shape"
-            warn("Mapping for MSI Diagnostic 'Gas pressure' was"
+            warn("Mapping for MSI Diagnostic 'Discharge' was"
+                 " unsuccessful (" + warn_why + ")")
+            return
+
+        # update configs related to 'Discharge current'             ----
+        # - dependent configs are:
+        #   1. 'signals/current'
+        #
+        dset_name = 'Discharge current'
+        dset = self.group[dset_name]
+        self._configs['signals']['current']['dset paths'].append(
+            dset.name)
+
+        # check 'shape'
+        if dset.dtype.names is not None:
+            # dataset has fields (it should not have fields)
+            self._build_successful = False
+        elif dset.ndim == 2:
+            if dset.shape[0] == self._configs['shape'][0]:
+                self._configs['signals']['current']['shape'].append(
+                    (dset.shape[1],))
+            else:
+                self._build_successful = False
+        else:
+            self._build_successful = False
+        if not self._build_successful:
+            warn_why = "'/Discharge current' does not " \
+                       "match expected shape"
+            warn("Mapping for MSI Diagnostic 'Discharge' was"
                  " unsuccessful (" + warn_why + ")")
             return

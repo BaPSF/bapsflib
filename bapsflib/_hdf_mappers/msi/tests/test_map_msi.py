@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..map_msi import hdfMap_msi
-from ..msi_template import hdfMap_msi_template
+from ..templates import hdfMap_msi_template
 
 
 class TestHDFMapMSI(ut.TestCase):

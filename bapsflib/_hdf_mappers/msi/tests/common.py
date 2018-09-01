@@ -8,7 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..msi_template import hdfMap_msi_template
+from ..templates import hdfMap_msi_template
 
 import os
 import h5py

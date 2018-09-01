@@ -13,7 +13,7 @@ import numpy as np
 
 from warnings import warn
 
-from .msi_template import hdfMap_msi_template
+from .templates import hdfMap_msi_template
 
 
 class hdfMap_msi_heater(hdfMap_msi_template):

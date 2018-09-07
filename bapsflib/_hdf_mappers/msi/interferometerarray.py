@@ -11,6 +11,7 @@
 import h5py
 import numpy as np
 
+from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
 from .templates import hdfMap_msi_template
@@ -67,10 +68,6 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         #      the np.array
         # 8. 'meta' field
         #
-        # assume build is successful
-        # - alter if build fails
-        #
-        self._build_successful = True
 
         # initialize general info values
         # - pairs[0:2] are found in the main group's attributes
@@ -173,7 +170,6 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         n_inter = 0
         sn_size = 0
         sig_size = 0
-        warn_why = ''
         for name in self.group:
             if isinstance(self.group[name], h5py.Group) \
                     and 'Interferometer' in name:
@@ -184,13 +180,10 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 for dset_name in ['Interferometer summary list',
                                   'Interferometer trace']:
                     if dset_name not in self.group[name]:
-                        warn_why = 'dataset (' + dset_name \
-                                   + ') not found'
-                        warn("Mapping for MSI Diagnostic "
-                             "'Interferometer/" + name + "' was "
-                             "unsuccessful (" + warn_why + ")")
-                        self._build_successful = False
-                        return
+                        why = ("dataset '" + dset_name + "' not found "
+                               + "for 'Interferometer/" + name + "'")
+                        raise HDFMappingError(self.info['group path'],
+                                              why=why)
 
                 # populate general info values
                 self._configs['interferometer name'].append(name)
@@ -226,10 +219,10 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     if dset.ndim == 1:
                         sn_size = self.group[dset_name].shape[0]
                     else:
-                        warn_why = "'/Interferometer summary list' " \
-                                   "does not match expected shape"
-                        self._build_successful = False
-                        break
+                        why = "'/Interferometer summary list' " \
+                              "does not match expected shape"
+                        raise HDFMappingError(self.info['group path'],
+                                              why=why)
 
                     # define sig_size
                     dset_name = name + '/Interferometer trace'
@@ -237,22 +230,26 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     shape = self.group[dset_name].shape
                     if dset.dtype.names is not None:
                         # dataset has fields (it should not have fields)
-                        self._build_successful = False
+                        why = "can not handle a 'signal' dataset" \
+                              + "(" + dset_name + ") with fields"
+                        raise HDFMappingError(self.info['group path'],
+                                              why=why)
                     elif dset.ndim == 2:
                         if dset.shape[0] == sn_size:
                             sig_size = shape[1]
                         else:
-                            warn_why = "'/Interferometer trace' shot" \
-                                       " number axis size is not" \
-                                       " consistent with " \
-                                       "'/Interferometer summary list"
-                            self._build_successful = False
-                            break
+                            why = "'Interferometer trace' and " \
+                                  "'Interferometer summary list' do " \
+                                  "not have same number of rows " \
+                                  "(shot numbers)"
+                            raise HDFMappingError(
+                                self.info['group path'],
+                                why=why)
                     else:
-                        warn_why = "'/Interferometer race' does not" \
-                                   " match expected shape"
-                        self._build_successful = False
-                        break
+                        why = "'/Interferometer race' does not" \
+                              " match expected shape"
+                        raise HDFMappingError(self.info['group path'],
+                                              why=why)
 
                     # define 'shape'
                     self._configs['shape'] = (sn_size,)
@@ -272,18 +269,18 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                                    'Data valid', 'Peak density']
                 if dset.shape != (sn_size,):
                     # shape is not consistent among all datasets
-                    warn_why = "'/Interferometer summary list' shape " \
-                               "is not consistent across all " \
-                               "interferometers"
-                    self._build_successful = False
-                    break
+                    why = "'/Interferometer summary list' shape " \
+                          "is not consistent across all " \
+                          "interferometers"
+                    raise HDFMappingError(self.info['group path'],
+                                          why=why)
                 elif not all(field in dset.dtype.names
                              for field in expected_fields):
                     # required fields are not present
-                    warn_why = "'/Interferometer summary list' does " \
-                               "NOT have required fields"
-                    self._build_successful = False
-                    break
+                    why = "'/Interferometer summary list' does " \
+                          "NOT have required fields"
+                    raise HDFMappingError(self.info['group path'],
+                                          why=why)
 
                 # update 'shotnum'
                 self._configs['shotnum']['dset paths'].append(path)
@@ -319,17 +316,17 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 # check 'shape'
                 if dset.shape != (sn_size, sig_size):
                     # shape is not consistent among all datasets
-                    warn_why = "'/Interferometer trace' shape is" \
-                               "not consistent across all " \
-                               "interferometers"
-                    self._build_successful = False
-                    break
+                    why = "'/Interferometer trace' shape is" \
+                          "not consistent across all " \
+                          "interferometers"
+                    raise HDFMappingError(self.info['group path'],
+                                          why=why)
                 elif dset.dtype.names is not None:
                     # dataset has fields (it should not have fields)
-                    warn_why = "'/Interferometer trace' shape does" \
-                               "not match expected shape "
-                    self._build_successful = False
-                    break
+                    why = "'/Interferometer trace' shape does" \
+                          "not match expected shape "
+                    raise HDFMappingError(self.info['group path'],
+                                          why=why)
 
                 # update 'signals/signal' values
                 shape = (self._configs['n interferometer'], sig_size)
@@ -341,14 +338,9 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         # ensure the number of found interferometers is equal to the
         # diagnostics 'Interferometer count'
         #
-        if check_n_inter and self._build_successful:
+        if check_n_inter:
             if n_inter != self._configs['n interferometer'][0]:
-                warn_why = 'num. of found interferometers did not ' \
-                           'match the expected num. of interferometers'
-                self._build_successful = False
-
-        # warn that build was unsuccessful
-        if not self._build_successful:
-            warn(
-                "Mapping for MSI Diagnostic 'Interferometer array' was"
-                " unsuccessful (" + warn_why + ")")
+                why = 'num. of found interferometers did not ' \
+                      'match the expected num. of interferometers'
+                raise HDFMappingError(self.info['group path'],
+                                      why=why)

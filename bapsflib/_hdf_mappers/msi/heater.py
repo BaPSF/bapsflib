@@ -11,6 +11,7 @@
 import h5py
 import numpy as np
 
+from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
 from .templates import hdfMap_msi_template
@@ -41,17 +42,11 @@ class hdfMap_msi_heater(hdfMap_msi_template):
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""
-        # assume build is successful
-        # - alter if build fails
-        #
-        self._build_successful = True
+        # look for required datasets
         for dset_name in ['Heater summary']:
             if dset_name not in self.group:
-                warn_why = "dataset '" + dset_name + "' not found"
-                warn("Mapping for MSI Diagnostic 'Heater' was"
-                     " unsuccessful (" + warn_why + ")")
-                self._build_successful = False
-                return
+                why = "dataset '" + dset_name + "' not found"
+                raise HDFMappingError(self.info['group path'], why=why)
 
         # initialize general info values
         pairs = [('calib tag',
@@ -137,12 +132,8 @@ class hdfMap_msi_heater(hdfMap_msi_template):
                     for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
-            warn_why = "'/Heater summary' does not match " \
-                       "expected shape"
-            warn("Mapping for MSI Diagnostic 'Heater' was"
-                 " unsuccessful (" + warn_why + ")")
-            self._build_successful = False
-            return
+            why = "'/Heater summary' does not match expected shape"
+            raise HDFMappingError(self.info['group path'], why=why)
 
         # update 'shotnum'
         self._configs['shotnum']['dset paths'].append(dset.name)

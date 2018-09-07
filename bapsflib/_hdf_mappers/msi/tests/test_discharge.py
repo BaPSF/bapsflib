@@ -45,8 +45,8 @@ class TestDischarge(MSIDiagnosticTestCase):
         # - removed 'Discharge summary' from faux HDF file
         #
         del self.mod['Discharge summary']
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Discharge summary' does NOT match expected format        ----
@@ -60,16 +60,16 @@ class TestDischarge(MSIDiagnosticTestCase):
         fields.remove('Pulse length')
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data[fields])
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Discharge summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Cathode-anode voltage' does NOT match expected format    ----
@@ -82,16 +82,16 @@ class TestDischarge(MSIDiagnosticTestCase):
                                               ('field2', np.float64)]))
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with 'Discharge summary'
@@ -101,8 +101,8 @@ class TestDischarge(MSIDiagnosticTestCase):
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Discharge current' does NOT match expected format        ----
@@ -115,16 +115,16 @@ class TestDischarge(MSIDiagnosticTestCase):
                                               ('field2', np.float64)]))
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with 'Discharge summary'
@@ -134,8 +134,8 @@ class TestDischarge(MSIDiagnosticTestCase):
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
     def test_configs_general_items(self):

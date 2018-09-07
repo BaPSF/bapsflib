@@ -120,44 +120,46 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                  "' not an integer, continuing with mapping")
 
         # initialize 'shape'
-        # - this is used by hdfReadMSI
+        # - this is used by HDFReadMSI
         self._configs['shape'] = ()
 
         # initialize 'shotnum'
         self._configs['shotnum'] = {
             'dset paths': [],
-            'dset field': 'Shot number',
+            'dset field': ('Shot number',),
             'shape': [],
-            'dtype': np.int32
+            'dtype': np.int32,
         }
 
         # initialize 'signals'
         # - there is only one signal field named 'signal'
-        self._configs['signals'] = {'signal': {
-            'dset paths': [],
-            'dset field': None,
-            'shape': [],
-            'dtype': np.float32
-        }}
+        self._configs['signals'] = {
+            'signal': {
+                'dset paths': [],
+                'dset field': (),
+                'shape': [],
+                'dtype': np.float32,
+            }
+        }
 
         # initialize 'meta'
         self._configs['meta'] = {
             'shape': (self._configs['n interferometer'],),
             'timestamp': {
                 'dset paths': [],
-                'dset field': 'Timestamp',
+                'dset field': ('Timestamp',),
                 'shape': [],
                 'dtype': np.float64
             },
             'data valid': {
                 'dset paths': [],
-                'dset field': 'Data valid',
+                'dset field': ('Data valid',),
                 'shape': [],
                 'dtype': np.int8
             },
             'peak density': {
                 'dset paths': [],
-                'dset field': 'Peak density',
+                'dset field': ('Peak density',),
                 'shape': [],
                 'dtype': np.float32
             },
@@ -334,6 +336,29 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                     'dset paths'].append(dset.name)
                 self._configs['signals']['signal'][
                     'shape'].append(shape)
+
+        # -- Post Populate Checks                                   ----
+        # check 'shotnum'
+        # 1. convert 'dset paths' from list to tuple
+        # 2. convert 'shape' to a single tuple of shape
+        self._configs['shotnum']['dset paths'] = \
+            tuple(self._configs['shotnum']['dset paths'])
+        sn_shapes = self._configs['shotnum']['shape']
+        self._configs['shotnum']['shape'] = sn_shapes[0]
+
+        # check 'signals' and 'meta'
+        # 1. convert 'dset paths' from list to tuple
+        # 2. every dataset has the same 'shape'
+        for subfield in ('signals', 'meta'):
+            subconfigs = self._configs[subfield]
+            for field, config in subconfigs.items():
+                if field == 'shape':
+                    continue
+
+                self._configs[subfield][field]['dset paths'] = \
+                    tuple(config['dset paths'])
+                self._configs[subfield][field]['shape'] = \
+                    config['shape'][0]
 
         # ensure the number of found interferometers is equal to the
         # diagnostics 'Interferometer count'

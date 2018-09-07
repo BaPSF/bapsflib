@@ -68,9 +68,9 @@ class hdfMap_msi_heater(hdfMap_msi_template):
 
         # initialize 'shotnum'
         self._configs['shotnum'] = {
-            'dset paths': [],
-            'dset field': 'Shot number',
-            'shape': [],
+            'dset paths': (),
+            'dset field': ('Shot number',),
+            'shape': (),
             'dtype': np.int32
         }
 
@@ -83,34 +83,34 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         self._configs['meta'] = {
             'shape': (),
             'timestamp': {
-                'dset paths': [],
-                'dset field': 'Timestamp',
-                'shape': [],
-                'dtype': np.float64
+                'dset paths': (),
+                'dset field': ('Timestamp',),
+                'shape': (),
+                'dtype': np.float64,
             },
             'data valid': {
-                'dset paths': [],
-                'dset field': 'Data valid',
-                'shape': [],
-                'dtype': np.int8
+                'dset paths': (),
+                'dset field': ('Data valid',),
+                'shape': (),
+                'dtype': np.int8,
             },
             'current': {
-                'dset paths': [],
-                'dset field': 'Heater current',
-                'shape': [],
-                'dtype': np.float32
+                'dset paths': (),
+                'dset field': ('Heater current',),
+                'shape': (),
+                'dtype': np.float32,
             },
             'voltage': {
-                'dset paths': [],
-                'dset field': 'Heater voltage',
-                'shape': [],
-                'dtype': np.float32
+                'dset paths': (),
+                'dset field': ('Heater voltage',),
+                'shape': (),
+                'dtype': np.float32,
             },
             'temperature': {
-                'dset paths': [],
-                'dset field': 'Heater temperature',
-                'shape': [],
-                'dtype': np.float32
+                'dset paths': (),
+                'dset field': ('Heater temperature',),
+                'shape': (),
+                'dtype': np.float32,
             },
         }
 
@@ -136,36 +136,32 @@ class hdfMap_msi_heater(hdfMap_msi_template):
             raise HDFMappingError(self.info['group path'], why=why)
 
         # update 'shotnum'
-        self._configs['shotnum']['dset paths'].append(dset.name)
-        self._configs['shotnum']['shape'].append(
-            dset.dtype['Shot number'].shape)
+        self._configs['shotnum']['dset paths'] = (dset.name,)
+        self._configs['shotnum']['shape'] = \
+            dset.dtype['Shot number'].shape
 
         # update 'meta/timestamp'
-        self._configs['meta']['timestamp']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['timestamp']['shape'].append(
-            dset.dtype['Timestamp'].shape)
+        self._configs['meta']['timestamp']['dset paths'] = (dset.name,)
+        self._configs['meta']['timestamp']['shape'] = \
+            dset.dtype['Timestamp'].shape
 
         # update 'meta/data valid'
-        self._configs['meta']['data valid']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['data valid']['shape'].append(
-            dset.dtype['Data valid'].shape)
+        self._configs['meta']['data valid']['dset paths'] = (dset.name,)
+        self._configs['meta']['data valid']['shape'] = \
+            dset.dtype['Data valid'].shape
 
         # update 'meta/current'
-        self._configs['meta']['current']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['current']['shape'].append(
-            dset.dtype['Heater current'].shape)
+        self._configs['meta']['current']['dset paths'] = (dset.name,)
+        self._configs['meta']['current']['shape'] = \
+            dset.dtype['Heater current'].shape
 
         # update 'meta/voltage'
-        self._configs['meta']['voltage']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['voltage']['shape'].append(
-            dset.dtype['Heater voltage'].shape)
+        self._configs['meta']['voltage']['dset paths'] = (dset.name,)
+        self._configs['meta']['voltage']['shape'] = \
+            dset.dtype['Heater voltage'].shape
 
         # update 'meta/current'
-        self._configs['meta']['temperature']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['temperature']['shape'].append(
-            dset.dtype['Heater temperature'].shape)
+        self._configs['meta']['temperature']['dset paths'] = \
+            (dset.name,)
+        self._configs['meta']['temperature']['shape'] = \
+            dset.dtype['Heater temperature'].shape

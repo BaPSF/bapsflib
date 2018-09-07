@@ -74,10 +74,10 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
 
         # initialize 'shotnum'
         self._configs['shotnum'] = {
-            'dset paths': [],
-            'dset field': 'Shot number',
-            'shape': [],
-            'dtype': np.int32
+            'dset paths': (),
+            'dset field': ('Shot number',),
+            'shape': (),
+            'dtype': np.int32,
         }
 
         # initialize 'signals'
@@ -87,16 +87,16 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         #
         self._configs['signals'] = {
             'magnet ps current': {
-                'dset paths': [],
-                'dset field': None,
-                'shape': [],
-                'dtype': np.float32
+                'dset paths': (),
+                'dset field': (),
+                'shape': (),
+                'dtype': np.float32,
             },
             'magnetic field': {
-                'dset paths': [],
-                'dset field': None,
-                'shape': [],
-                'dtype': np.float32
+                'dset paths': (),
+                'dset field': (),
+                'shape': (),
+                'dtype': np.float32,
             }
         }
 
@@ -104,22 +104,22 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         self._configs['meta'] = {
             'shape': (),
             'timestamp': {
-                'dset paths': [],
-                'dset field': 'Timestamp',
-                'shape': [],
-                'dtype': np.float64
+                'dset paths': (),
+                'dset field': ('Timestamp',),
+                'shape': (),
+                'dtype': np.float64,
             },
             'data valid': {
-                'dset paths': [],
-                'dset field': 'Data valid',
-                'shape': [],
-                'dtype': np.int8
+                'dset paths': (),
+                'dset field': ('Data valid',),
+                'shape': (),
+                'dtype': np.int8,
             },
             'peak magnetic field': {
-                'dset paths': [],
-                'dset field': 'Peak magnetic field',
-                'shape': [],
-                'dtype': np.float32
+                'dset paths': (),
+                'dset field': ('Peak magnetic field',),
+                'shape': (),
+                'dtype': np.float32,
             },
         }
 
@@ -144,27 +144,25 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
             raise HDFMappingError(self.info['group path'], why=why)
 
         # update 'shotnum'
-        self._configs['shotnum']['dset paths'].append(dset.name)
-        self._configs['shotnum']['shape'].append(
-            dset.dtype['Shot number'].shape)
+        self._configs['shotnum']['dset paths'] = (dset.name,)
+        self._configs['shotnum']['shape'] = \
+            dset.dtype['Shot number'].shape
 
         # update 'meta/timestamp'
-        self._configs['meta']['timestamp']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['timestamp']['shape'].append(
-            dset.dtype['Timestamp'].shape)
+        self._configs['meta']['timestamp']['dset paths'] = (dset.name,)
+        self._configs['meta']['timestamp']['shape'] = \
+            dset.dtype['Timestamp'].shape
 
         # update 'meta/data valid'
-        self._configs['meta']['data valid']['dset paths'].append(
-            dset.name)
-        self._configs['meta']['data valid']['shape'].append(
-            dset.dtype['Data valid'].shape)
+        self._configs['meta']['data valid']['dset paths'] = (dset.name,)
+        self._configs['meta']['data valid']['shape'] = \
+            dset.dtype['Data valid'].shape
 
         # update 'meta/peak magnetic field'
-        self._configs['meta']['peak magnetic field'][
-            'dset paths'].append(dset.name)
-        self._configs['meta']['peak magnetic field'][
-            'shape'].append(dset.dtype['Peak magnetic field'].shape)
+        self._configs['meta']['peak magnetic field']['dset paths'] = \
+            (dset.name,)
+        self._configs['meta']['peak magnetic field']['shape'] = \
+            dset.dtype['Peak magnetic field'].shape
 
         # update configs related to 'Magnet power supply currents'  ----
         # - dependent configs are:
@@ -172,8 +170,8 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         #
         dset_name = 'Magnet power supply currents'
         dset = self.group[dset_name]
-        self._configs['signals']['magnet ps current'][
-            'dset paths'].append(dset.name)
+        self._configs['signals']['magnet ps current']['dset paths'] = \
+            (dset.name,)
 
         # check 'shape'
         _build_success = True
@@ -183,7 +181,7 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['magnet ps current'][
-                    'shape'].append((dset.shape[1],))
+                    'shape'] = (dset.shape[1],)
             else:
                 _build_success = False
         else:
@@ -199,8 +197,8 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         #
         dset_name = 'Magnetic field profile'
         dset = self.group[dset_name]
-        self._configs['signals']['magnetic field'][
-            'dset paths'].append(dset.name)
+        self._configs['signals']['magnetic field']['dset paths'] = \
+            (dset.name,)
 
         # check 'shape'
         _build_success = True
@@ -210,7 +208,7 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['magnetic field'][
-                    'shape'].append((dset.shape[1],))
+                    'shape'] = (dset.shape[1],)
             else:
                 _build_success = False
         else:

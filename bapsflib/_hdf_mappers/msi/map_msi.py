@@ -91,13 +91,6 @@ class hdfMap_msi(dict):
         for name in self.msi_group_subgnames:
             if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
-                '''
-                diag_map = \
-                    self._defined_mapping_classes[name](
-                        self.__msi_group[name])
-                if diag_map.build_successful:
-                    msi_dict[name] = diag_map
-                '''
                 try:
                     diag_map = self._defined_mapping_classes[name](
                         self.__msi_group[name])

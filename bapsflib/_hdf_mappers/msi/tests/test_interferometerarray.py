@@ -117,6 +117,18 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
             _map = self.map
         self.mod.knobs.reset()
 
+        # 'Interferometer trace' temporal axis not consistent
+        dset_name = 'Interferometer [3]/Interferometer trace'
+        dtype = self.mod[dset_name].dtype
+        shape = (self.mod[dset_name].shape[0],
+                 self.mod[dset_name].shape[1] + 1)
+        data = np.empty(shape, dtype=dtype)
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
+        self.mod.knobs.reset()
+
         # A later 'Interferometer trace' has correct shape, but also
         # has fields
         dset_name = 'Interferometer [3]/Interferometer trace'

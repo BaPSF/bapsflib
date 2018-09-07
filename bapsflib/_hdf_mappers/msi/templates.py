@@ -45,7 +45,7 @@ class hdfMap_msi_template(ABC):
         if isinstance(group, h5py.Group):
             self._diag_group = group
         else:
-            raise TypeError('arg group is not of type h5py.Group')
+            raise TypeError('arg `group` is not of type h5py.Group')
 
         # define info attribute
         self._info = {
@@ -55,9 +55,6 @@ class hdfMap_msi_template(ABC):
 
         # initialize self.configs
         self._configs = {}
-
-        # initialize build success
-        self._build_successful = False
 
     @property
     def configs(self) -> dict:
@@ -104,7 +101,7 @@ class hdfMap_msi_template(ABC):
             :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`.  Should
             look like::
 
-                configs = {
+                configs['shotnum'] = {
                     'dset paths': ['/foo/bar/d1',],
                     'dset field': ('Shot number',),
                     'shape': [(),],
@@ -127,7 +124,7 @@ class hdfMap_msi_template(ABC):
             :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI` numpy
             array.  For example,::
 
-                configs['signals'] = { 'current': {
+                configs['signals'] = {'current': {
                     'dset paths': ['/foo/bar/dset',],
                     'dset field': (None,),
                     'shape': [(100,),],
@@ -145,12 +142,14 @@ class hdfMap_msi_template(ABC):
             This is another dictionary specifying meta-data that is both
             diagnostic and shot number specific.  For example,::
 
-                configs['signals'] = { 'max current': {
-                    'dset paths': ['/foo/bar/dset',],
-                    'dset field': ('Max current',),
-                    'shape': [(),],
-                    'dtype': numpy.float32,
-                }}
+                configs['meta'] = {
+                    'shape': (),
+                    'max current': {
+                        'dset paths': ['/foo/bar/dset',],
+                        'dset field': ('Max current',),
+                        'shape': [(),],
+                        'dtype': numpy.float32}
+                }
 
             would create a :code:`'max current'` field in the
             :code:`'meta'` field of the constructed numpy array.
@@ -183,11 +182,6 @@ class hdfMap_msi_template(ABC):
     def group(self) -> h5py.Group:
         """Instance of MSI diagnostic group"""
         return self._diag_group
-
-    @property
-    def build_successful(self) -> bool:
-        """Indicates if the mapping was successful or not."""
-        return self._build_successful
 
     @abstractmethod
     def _build_configs(self):

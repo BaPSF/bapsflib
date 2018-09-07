@@ -85,6 +85,22 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
             _map = self.map
         self.mod.knobs.reset()
 
+        # A 'Interferometer summary list' field does NOT have
+        # consistent shape for all interferometers
+        dset_name = 'Interferometer [3]/Interferometer summary list'
+        dtype = self.mod[dset_name].dtype
+        new_dtype = []
+        for name in dtype.names:
+            shape = dtype[name].shape if name != 'Peak density' \
+                else (2,)
+            new_dtype.append((name, dtype[name].type, shape))
+        data = np.empty(shape, dtype=np.dtype(new_dtype))
+        del self.mod[dset_name]
+        self.mod.create_dataset(dset_name, data=data)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
+        self.mod.knobs.reset()
+
         # 'Interferometer trace' does NOT match expected format     ----
         #
         # dataset has fields

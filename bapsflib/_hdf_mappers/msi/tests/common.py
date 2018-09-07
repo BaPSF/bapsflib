@@ -200,6 +200,8 @@ class MSIDiagnosticTestCase(ut.TestCase):
 
             # ['shape']
             self.assertIsInstance(config['shape'], tuple)
+            self.assertTrue(all(isinstance(val, int)
+                                for val in config['shape']))
 
             # ['dtype']
             self.assertTrue(
@@ -241,6 +243,8 @@ class MSIDiagnosticTestCase(ut.TestCase):
             # ['shape']
             self.assertIsInstance(
                 _map.configs['meta'][field]['shape'], tuple)
+            self.assertTrue(all(isinstance(val, int)
+                                for val in config['shape']))
 
             # ['dtype']
             self.assertTrue(

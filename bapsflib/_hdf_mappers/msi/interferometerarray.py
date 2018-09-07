@@ -112,7 +112,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
             warn("Attribute '" + pair[1] + "' for MSI diagnostic '"
                  + self.device_name
                  + "' not an integer, continuing with mapping")
-        elif not isinstance(self._configs['n interferometer'][0],
+        elif not isinstance(self._configs[pair[0]][0],
                             (int, np.integer)):
             check_n_inter = False
             warn("Attribute '" + pair[1] + "' for MSI diagnostic '"
@@ -144,7 +144,6 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
 
         # initialize 'meta'
         self._configs['meta'] = {
-            'shape': (self._configs['n interferometer'],),
             'timestamp': {
                 'dset paths': [],
                 'dset field': ('Timestamp',),
@@ -164,19 +163,21 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 'dtype': np.float32
             },
         }
+        self._configs['meta']['shape'] = () if not check_n_inter \
+            else (int(self._configs['n interferometer'][0]),)
 
         # populate self.configs from each interferometer group
         # - all the population is done in this for-loop to ensure all
         #   lists are one-to-one
         #
-        n_inter = 0
+        n_inter_count = 0
         sn_size = 0
         sig_size = 0
         for name in self.group:
             if isinstance(self.group[name], h5py.Group) \
                     and 'Interferometer' in name:
                 # count the number of interferometers
-                n_inter += 1
+                n_inter_count += 1
 
                 # ensure required datasets are present
                 for dset_name in ['Interferometer summary list',
@@ -214,7 +215,7 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                 # - Enforcement of the these dimensions is done when
                 #   mapping each dataset below
                 #
-                if n_inter == 1:
+                if n_inter_count == 1:
                     # define sn_size
                     dset_name = name + '/Interferometer summary list'
                     dset = self.group[dset_name]
@@ -331,11 +332,8 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
                                           why=why)
 
                 # update 'signals/signal' values
-                shape = (self._configs['n interferometer'], sig_size)
                 self._configs['signals']['signal'][
                     'dset paths'].append(dset.name)
-                self._configs['signals']['signal'][
-                    'shape'].append(shape)
 
         # -- Post Populate Checks                                   ----
         # check 'shotnum'
@@ -352,19 +350,44 @@ class hdfMap_msi_interarr(hdfMap_msi_template):
         for subfield in ('signals', 'meta'):
             subconfigs = self._configs[subfield]
             for field, config in subconfigs.items():
-                if field == 'shape':
+                # define shape
+                if check_n_inter:
+                    # 'n interferometer' was found in the HDF5 file
+                    shape = (int(self._configs['n interferometer'][0]),
+                             sig_size)
+                else:
+                    # 'n interferometer' was NOT found, rely on count
+                    shape = (n_inter_count, sig_size)
+
+                # update ['meta']['shape']
+                if field == 'shape' and subfield == 'meta':
+                    self._configs[subfield][field] = (shape[0],)
                     continue
 
+                # convert ['dset paths'] to tuple
                 self._configs[subfield][field]['dset paths'] = \
                     tuple(config['dset paths'])
-                self._configs[subfield][field]['shape'] = \
-                    config['shape'][0]
+
+                # ensure all fields have the same shape
+                if subfield == 'signals':
+                    self._configs[subfield][field]['shape'] = shape
+                else:
+                    shapes = self._configs[subfield][field]['shape']
+                    if all(shape == shapes[0] for shape in shapes):
+                        self._configs[subfield][field]['shape'] = \
+                            shapes[0]
+                    else:
+                        why = ("dataset shape for field '" + field
+                               + "' is not consistent for all "
+                               + "interferometers")
+                        raise HDFMappingError(self.info['group path'],
+                                              why=why)
 
         # ensure the number of found interferometers is equal to the
         # diagnostics 'Interferometer count'
         #
         if check_n_inter:
-            if n_inter != self._configs['n interferometer'][0]:
+            if n_inter_count != self._configs['n interferometer'][0]:
                 why = 'num. of found interferometers did not ' \
                       'match the expected num. of interferometers'
                 raise HDFMappingError(self.info['group path'],

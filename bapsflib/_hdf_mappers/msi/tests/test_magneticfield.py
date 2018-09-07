@@ -11,50 +11,27 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..magneticfield import hdfMap_msi_magneticfield
-from .common import MSIDiagnosticTestCase
-
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
-
 import numpy as np
 import unittest as ut
+
+from bapsflib.utils.errors import HDFMappingError
+
+from ..magneticfield import hdfMap_msi_magneticfield
+from .common import MSIDiagnosticTestCase
 
 
 class TestMagneticField(MSIDiagnosticTestCase):
     """Test class for hdfMap_msi_magneticfield"""
+    # define setup variables
+    DEVICE_NAME = 'Magnetic field'
+    DEVICE_PATH = '/MSI/Magnetic field'
+    MAP_CLASS = hdfMap_msi_magneticfield
 
     def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'Magnetic field': {}}
-        )
-        self.mod = self.f.modules['Magnetic field']
+        super().setUp()
 
     def tearDown(self):
-        self.f.cleanup()
-
-    @property
-    def map(self):
-        """Map object of diagnostic"""
-        return self.map_diagnostic(self.dgroup)
-
-    @property
-    def dgroup(self):
-        """Diagnostic group"""
-        return self.f['MSI/Magnetic field']
-
-    @staticmethod
-    def map_diagnostic(group):
-        """Mapping function"""
-        return hdfMap_msi_magneticfield(group)
-
-    def test_map_basics(self):
-        """Test all required basic map features."""
-        self.assertMSIDiagMapBasics(self.map, self.dgroup)
-
-    def test_not_h5py_group(self):
-        """Test error if object to map is not h5py.Group"""
-        with self.assertRaises(TypeError):
-            self.map_diagnostic(None)
+        super().tearDown()
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

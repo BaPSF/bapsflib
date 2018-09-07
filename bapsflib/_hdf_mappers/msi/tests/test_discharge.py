@@ -11,50 +11,27 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..discharge import hdfMap_msi_discharge
-from .common import MSIDiagnosticTestCase
-
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
-
 import numpy as np
 import unittest as ut
+
+from bapsflib.utils.errors import HDFMappingError
+
+from ..discharge import hdfMap_msi_discharge
+from .common import MSIDiagnosticTestCase
 
 
 class TestDischarge(MSIDiagnosticTestCase):
     """Test class for hdfMap_msi_discharge"""
+    # define setup variables
+    DEVICE_NAME = 'Discharge'
+    DEVICE_PATH = '/MSI/Discharge'
+    MAP_CLASS = hdfMap_msi_discharge
 
     def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'Discharge': {}}
-        )
-        self.mod = self.f.modules['Discharge']
+        super().setUp()
 
     def tearDown(self):
-        self.f.cleanup()
-
-    @property
-    def map(self):
-        """Map object of diagnostic"""
-        return self.map_diagnostic(self.dgroup)
-
-    @property
-    def dgroup(self):
-        """Diagnostic group"""
-        return self.f['MSI/Discharge']
-
-    @staticmethod
-    def map_diagnostic(group):
-        """Mapping function"""
-        return hdfMap_msi_discharge(group)
-
-    def test_map_basics(self):
-        """Test all required basic map features."""
-        self.assertMSIDiagMapBasics(self.map, self.dgroup)
-
-    def test_not_h5py_group(self):
-        """Test error if object to map is not h5py.Group"""
-        with self.assertRaises(TypeError):
-            self.map_diagnostic(None)
+        super().tearDown()
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

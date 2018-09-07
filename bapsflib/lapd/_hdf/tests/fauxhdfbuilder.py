@@ -48,7 +48,7 @@ class FauxHDFBuilder(h5py.File):
         '6K Compumotor': FauxSixK,
         'N5700_PS': FauxN5700PS,
     }
-    _KNOWN_MODULES = _KNOWN_CONTROLS.copy()
+    _KNOWN_MODULES = _KNOWN_CONTROLS.copy()  # type: Dict[Any]
     _KNOWN_MODULES.update(_KNOWN_MSI)
     _KNOWN_MODULES.update(_KNOWN_DIGITIZERS)
 

@@ -11,6 +11,7 @@
 import h5py
 import numpy as np
 
+from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
 from .templates import hdfMap_msi_template
@@ -42,18 +43,13 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""
-        # assume build is successful
-        # - alter if build fails
-        #
-        self._build_successful = True
+        # look for required datasets
         for dset_name in ['Gas pressure summary',
                           'RGA partial pressures']:
             if dset_name not in self.group:
-                warn_why = "dataset '" + dset_name + "' not found"
-                warn("Mapping for MSI Diagnostic 'Gas pressure' was"
-                     " unsuccessful (" + warn_why + ")")
-                self._build_successful = False
-                return
+                why = "dataset '" + dset_name + "' not found"
+                raise HDFMappingError(self.info['group path'],
+                                      why=why)
 
         # initialize general info values
         pairs = [('RGA AMUs', 'RGA AMUs'),
@@ -151,12 +147,10 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
                     for field in expected_fields):
             self._configs['shape'] = dset.shape
         else:
-            warn_why = "'/Gas pressure summary' does not match " \
-                       "expected shape"
-            warn("Mapping for MSI Diagnostic 'Gas pressure' was"
-                 " unsuccessful (" + warn_why + ")")
-            self._build_successful = False
-            return
+            why = "'/Gas pressure summary' does not match expected " \
+                  "shape"
+            raise HDFMappingError(self.info['group path'],
+                                  why=why)
 
         # update 'shotnum'
         self._configs['shotnum']['dset paths'].append(dset.name)
@@ -203,20 +197,19 @@ class hdfMap_msi_gaspressure(hdfMap_msi_template):
             'dset paths'].append(dset.name)
 
         # check 'shape'
+        _build_success = True
         if dset.dtype.names is not None:
             # dataset has fields (it should not have fields)
-            self._build_successful = False
+            _build_success = False
         elif dset.ndim == 2:
             if dset.shape[0] == self._configs['shape'][0]:
                 self._configs['signals']['partial pressures'][
                     'shape'].append((dset.shape[1],))
             else:
-                self._build_successful = False
+                _build_success = False
         else:
-            self._build_successful = False
-        if not self._build_successful:
-            warn_why = "'/RGA partial pressures' does not " \
-                       "match expected shape"
-            warn("Mapping for MSI Diagnostic 'Gas pressure' was"
-                 " unsuccessful (" + warn_why + ")")
-            return
+            _build_success = False
+        if not _build_success:
+            why = "'/RGA partial pressures' does not match expected " \
+                  "shape"
+            raise HDFMappingError(self.info['group path'], why=why)

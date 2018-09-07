@@ -10,6 +10,8 @@
 #
 import h5py
 
+from bapsflib.utils.errors import HDFMappingError
+
 from .discharge import hdfMap_msi_discharge
 from .gaspressure import hdfMap_msi_gaspressure
 from .heater import hdfMap_msi_heater
@@ -89,11 +91,20 @@ class hdfMap_msi(dict):
         for name in self.msi_group_subgnames:
             if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
+                '''
                 diag_map = \
                     self._defined_mapping_classes[name](
                         self.__msi_group[name])
                 if diag_map.build_successful:
                     msi_dict[name] = diag_map
+                '''
+                try:
+                    diag_map = self._defined_mapping_classes[name](
+                        self.__msi_group[name])
+                    msi_dict[name] = diag_map
+                except HDFMappingError:
+                    # mapping failed
+                    pass
 
         # return dictionary
         return msi_dict

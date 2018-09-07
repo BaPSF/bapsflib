@@ -63,16 +63,25 @@ class FauxDischarge(h5py.Group):
         # set root attributes
         self._set_attrs()
 
+        # define a time array for dataset population
+        tarr = np.linspace(0, 2048 * self.attrs['Timestep'],
+                           num=2048, endpoint=False,
+                           dtype=np.float32)
+
         # ------ build 'Cathode-anode voltage' dataset             -----
         dset_name = 'Cathode-anode voltage'
         shape = (2, 2048)
-        data = np.zeros(shape, dtype=np.float32)
+        data = np.empty(shape, dtype=np.float32)
+        data[0] = np.sin(2. * np.pi * tarr)
+        data[1] = data[0] - (0.2 * np.pi)
         self.create_dataset(dset_name, data=data)
 
         # ------ build 'Discharge current' dataset                 -----
         dset_name = 'Discharge current'
         shape = (2, 2048)
-        data = np.zeros(shape, dtype=np.float32)
+        data = np.empty(shape, dtype=np.float32)
+        data[0] = np.cos(2. * np.pi * tarr)
+        data[1] = data[0] - (0.2 * np.pi)
         self.create_dataset(dset_name, data=data)
 
         # ------ build 'Discharge summary' dataset                 -----
@@ -100,7 +109,7 @@ class FauxDischarge(h5py.Group):
         """Set the 'Discharge' group attributes"""
         # assign attributes
         self.attrs.update({
-            'Calibration tag': b'',
+            'Calibration tag': np.bytes_(''),
             'Current conversion factor': np.float32(0.0),
             'Start time': np.float32(-0.0249856),
             'Timestep': np.float32(4.88E-5),

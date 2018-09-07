@@ -45,8 +45,8 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         #
         self.mod.knobs.n_interferometers = 1
         del self.mod['Interferometer [0]/Interferometer summary list']
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # -- 'Interferometer summary list' does NOT match           ----
@@ -61,16 +61,16 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         fields.remove('Peak density')
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data[fields])
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Interferometer summary list' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Interferometer summary list' does NOT have consistent shape
@@ -81,8 +81,8 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Interferometer trace' does NOT match expected format     ----
@@ -93,16 +93,16 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
                                               ('field2', np.float64)]))
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with
@@ -113,8 +113,8 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # A later 'Interferometer trace' has correct shape, but also
@@ -125,8 +125,8 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
                                                ('field2', np.float64)]))
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # Num. of discovered interferometers does not match the     ----
@@ -134,8 +134,8 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         source = 'Interferometer [3]'
         dest = 'Wrong inter name'
         self.mod.move(source, dest)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
     def test_configs_general_items(self):

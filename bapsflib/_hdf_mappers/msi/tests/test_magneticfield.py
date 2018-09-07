@@ -35,9 +35,9 @@ class TestMagneticField(MSIDiagnosticTestCase):
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
-        # any failed build must throw a UserWarning
+        # any failed build must throw a HDFMappingError
         #
-        # not all required datasets are found                       ----
+        # not all required datasets are found                   ----
         # - Datasets should be:
         #   ~ 'Magnetic field summary'
         #   ~ 'Magnetic field profile'
@@ -45,8 +45,8 @@ class TestMagneticField(MSIDiagnosticTestCase):
         # - removed 'Discharge summary' from faux HDF file
         #
         del self.mod['Magnetic field summary']
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Magnetic field summary' does NOT match expected format   ----
@@ -60,16 +60,16 @@ class TestMagneticField(MSIDiagnosticTestCase):
         fields.remove('Peak magnetic field')
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data[fields])
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Magnetic field summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Magnetic field profile' does NOT match expected format   ----
@@ -82,16 +82,16 @@ class TestMagneticField(MSIDiagnosticTestCase):
                                               ('field2', np.float64)]))
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with 'Magnetic field summary'
@@ -101,8 +101,8 @@ class TestMagneticField(MSIDiagnosticTestCase):
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Magnet power supply currents' does NOT match             ----
@@ -116,16 +116,16 @@ class TestMagneticField(MSIDiagnosticTestCase):
                                               ('field2', np.float64)]))
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # shape is not 2 dimensional
         data = np.empty((2, 5, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # number of rows is NOT consistent with 'Magnetic field summary'
@@ -135,8 +135,8 @@ class TestMagneticField(MSIDiagnosticTestCase):
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
     def test_configs_general_items(self):

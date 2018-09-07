@@ -42,8 +42,8 @@ class TestHeater(MSIDiagnosticTestCase):
         # - removed 'Heater summary' from faux HDF file
         #
         del self.mod['Heater summary']
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Heater summary' does NOT match expected format           ----
@@ -57,16 +57,16 @@ class TestHeater(MSIDiagnosticTestCase):
         fields.remove('Heater current')
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data[fields])
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
         # 'Heater summary' is not a structured numpy array
         data = np.empty((2, 100), dtype=np.float64)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
     def test_configs_general_items(self):

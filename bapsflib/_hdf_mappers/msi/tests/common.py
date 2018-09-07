@@ -8,26 +8,99 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..templates import hdfMap_msi_template
-
-import os
 import h5py
-
+import numpy as np
+import os
 import unittest as ut
+
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+
+from ..templates import hdfMap_msi_template
 
 
 class MSIDiagnosticTestCase(ut.TestCase):
+    # TODO: test all datasets define in a 'signals' item have the same shape
+    # TODO: test all datasets define in a 'meta' item have the same shape
+    # TODO: every 'dset path' of 'signals' and 'meta' should have the same length
+    # TODO: add a 'test_map_failures' method
+    # - this method is intended to be overwritten by inheriting test
+    #   case
+    # - by default, it will set self.fail() but print instruction on
+    #   what mapping failures should be written into the mapping class
+    #
+
+    f = NotImplemented
+    DEVICE_NAME = NotImplemented
+    DEVICE_PATH = NotImplemented
+    MAP_CLASS = NotImplemented
+
+    @classmethod
+    def setUpClass(cls):
+        print('setUpClass')
+        if cls is MSIDiagnosticTestCase:
+            raise ut.SkipTest("In MSIDiagnosticTestCase, "
+                              "skipping base tests")
+
+        cls.f = FauxHDFBuilder()
+        super().setUpClass()
+
+    def setUp(self):
+        # setup HDF5 file
+        if not (self.DEVICE_NAME in self.f.modules
+                and len(self.f.modules) == 1):
+            # clear HDF5 file and add module
+            self.f.remove_all_modules()
+            self.f.add_module(self.DEVICE_NAME)
+
+        # define `mod` attribute
+        self.mod = self.f.modules[self.DEVICE_NAME]
+
+    def tearDown(self):
+        # reset module
+        self.mod.knobs.reset()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()
+
+    @property
+    def map(self):
+        """Map object of device"""
+        return self.map_device(self.dgroup)
+
+    @property
+    def dgroup(self):
+        """Device HDF5 group"""
+        return self.f[self.DEVICE_PATH]
+
+    def map_device(self, group):
+        """Mapping function"""
+        return self.MAP_CLASS(group)
+
+    def test_map_basics(self):
+        """Test all required basic map features."""
+        self.assertMSIDiagMapBasics(self.map, self.dgroup)
+
+    def test_not_h5py_group(self):
+        """Test error if object to map is not h5py.Group"""
+        with self.assertRaises(TypeError):
+            self.map_device(None)
 
     def assertMSIDiagMapBasics(self, _map, _group):
+        # This assertion checks that the constructed mapping object
+        # meets the expected format such that bapsflib's high-level
+        # interface objects can utilized the mapping.
+        #
         # check mapping instance
         self.assertIsInstance(_map, hdfMap_msi_template)
 
         # assert attribute existence
         self.assertTrue(hasattr(_map, 'info'))
         self.assertTrue(hasattr(_map, 'device_name'))
-        self.assertTrue(hasattr(_map, 'configs'))
         self.assertTrue(hasattr(_map, 'group'))
-        self.assertTrue(hasattr(_map, 'build_successful'))
+        self.assertTrue(hasattr(_map, 'configs'))
 
         # ---- test map.info                                        ----
         # test 'info' type
@@ -42,21 +115,18 @@ class MSIDiagnosticTestCase(ut.TestCase):
                          os.path.basename(_group.name))
         self.assertEqual(_map.info['group path'], _group.name)
 
-        # ---- test map.device_name                             ----
+        # ---- test map.device_name                                 ----
         self.assertEqual(_map.device_name, _map.info['group name'])
 
         # ---- test map.group                                       ----
         # check 'group' type
         self.assertIsInstance(_map.group, h5py.Group)
 
-        # ---- test map.build_successful                            ----
-        # - all assertions below will only pass if build was successful
-        self.assertIsInstance(_map.build_successful, bool)
-        self.assertTrue(_map.build_successful)
-
         # ---- test map.configs                                     ----
+        # - will not examine non-required keys since the the bapsflib=
+        #   HDF5 interface does NOT depend on them
+        #
         # - must be a dict
-        # TODO: write once format is pinned down
         self.assertIsInstance(_map.configs, dict)
 
         # look for required keys
@@ -65,79 +135,138 @@ class MSIDiagnosticTestCase(ut.TestCase):
         self.assertIn('signals', _map.configs)
         self.assertIn('meta', _map.configs)
 
-        # inspect non-required keys
-        # TODO: IS INSPECTION OF NON-REQUIRED KEYS NEEDED
+        # -- examine 'shape' key --
+        self.assertIsInstance(_map.configs['shape'], tuple)
+        self.assertEqual(len(_map.configs['shape']), 1)
+        self.assertIsInstance(_map.configs['shape'][0], int)
 
-        # examine 'shotnum' key
+        # -- examine 'shotnum' key --
         self.assertIsInstance(_map.configs['shotnum'], dict)
         self.assertIn('dset paths', _map.configs['shotnum'])
         self.assertIn('dset field', _map.configs['shotnum'])
         self.assertIn('shape', _map.configs['shotnum'])
         self.assertIn('dtype', _map.configs['shotnum'])
+
+        # ['shotnum']['dset path']
+        # - is a tuple of strings
+        # - each dataset must have the same number of rows defined
+        #   by configs['shape']
         self.assertIsInstance(
-            _map.configs['shotnum']['dset paths'], list)
+            _map.configs['shotnum']['dset paths'], tuple)
         self.assertTrue(
             all([isinstance(path, str)
                  for path in _map.configs['shotnum']['dset paths']]))
+
+        # ['shotnum']['dset field']
+        # - is a tuple of stings
+        # - length 1 or length of 'dset paths'
         self.assertIsInstance(
-            _map.configs['shotnum']['shape'], list)
+            _map.configs['shotnum']['dset field'], tuple)
         self.assertTrue(
-            all([isinstance(shape, tuple)
-                 for shape in _map.configs['shotnum']['shape']]))
+            all([isinstance(field, str)
+                 for field in _map.configs['shotnum']['dset field']]))
+        self.assertTrue(len(_map.configs['shotnum']['dset field']) in
+                        (1, len(_map.configs['shotnum']['dset paths'])))
 
-        # examine 'signals' key
+        # ['shotnum']['shape']
+        # - must be empty tuple
+        self.assertEqual(_map.configs['shotnum']['shape'], ())
+
+        # ['shotnum']['dtype']
+        self.assertTrue(np.issubdtype(_map.configs['shotnum']['dtype'],
+                                      np.integer))
+
+        # -- examine 'signals' key --
         self.assertIsInstance(_map.configs['signals'], dict)
-        for field in _map.configs['signals']:
-            self.assertIsInstance(_map.configs['signals'][field], dict)
-            self.assertIn('dset paths', _map.configs['signals'][field])
-            self.assertIn('dset field', _map.configs['signals'][field])
-            self.assertIn('shape', _map.configs['signals'][field])
-            self.assertIn('dtype', _map.configs['signals'][field])
+        for field, config in _map.configs['signals'].items():
+            # must be a dict
+            self.assertIsInstance(config, dict)
 
-            # 'dset paths'
-            self.assertIsInstance(
-                _map.configs['signals'][field]['dset paths'], list)
+            # look for required keys
+            self.assertIn('dset paths', config)
+            self.assertIn('dset field', config)
+            self.assertIn('shape', config)
+            self.assertIn('dtype', config)
+
+            # ['dset paths']
+            self.assertIsInstance(config['dset paths'], tuple)
             self.assertTrue(
                 all([isinstance(path, str)
-                     for path in
-                     _map.configs['signals'][field]['dset paths']]))
+                     for path in config['dset paths']]))
 
-            # 'shape'
-            self.assertIsInstance(
-                _map.configs['signals'][field]['shape'], list)
-            self.assertTrue(all(
-                [isinstance(shape, tuple)
-                 for shape in _map.configs['signals'][field]['shape']]
-            ))
+            # ['dset field']
+            # - 'signals' do not correlate to datasets with fields
+            self.assertFalse(bool(config['dset field']))
 
-        # examine 'meta' key
+            # ['shape']
+            self.assertIsInstance(config['shape'], tuple)
+
+            # ['dtype']
+            self.assertTrue(
+                np.issubdtype(config['dtype'], np.integer)
+                or np.issubdtype(config['dtype'], np.floating))
+
+        # -- examine 'meta' key --
+        # TODO: remove 'shape' key
         self.assertIsInstance(_map.configs['meta'], dict)
         self.assertIn('shape', _map.configs['meta'])
-        for field in _map.configs['meta']:
+        for field, config in _map.configs['meta'].items():
             if field == 'shape':
                 # key 'shape' will not be a numpy field, skip below
                 # assertions
                 continue
 
-            # examine each sub-field in 'meta'
-            self.assertIsInstance(_map.configs['meta'][field], dict)
+            # must be a dict
+            self.assertIsInstance(config, dict)
+
+            # look for required keys
             self.assertIn('dset paths', _map.configs['meta'][field])
             self.assertIn('dset field', _map.configs['meta'][field])
             self.assertIn('shape', _map.configs['meta'][field])
             self.assertIn('dtype', _map.configs['meta'][field])
 
-            # 'dset paths'
-            self.assertIsInstance(
-                _map.configs['meta'][field]['dset paths'], list)
+            # ['dset paths']
+            self.assertIsInstance(config['dset paths'], tuple)
             self.assertTrue(
                 all([isinstance(path, str)
-                     for path in
-                     _map.configs['meta'][field]['dset paths']]))
+                     for path in config['dset paths']]))
 
-            # 'shape'
+            # ['dset field']
+            # - 'meta' fields do correlate to datasets with fields
+            self.assertIsInstance(config['dset field'], tuple)
+            self.assertTrue(
+                all([isinstance(path, str)
+                     for path in config['dset paths']]))
+
+            # ['shape']
             self.assertIsInstance(
-                _map.configs['meta'][field]['shape'], list)
-            self.assertTrue(all(
-                [isinstance(shape, tuple)
-                 for shape in _map.configs['meta'][field]['shape']]
-            ))
+                _map.configs['meta'][field]['shape'], tuple)
+
+            # ['dtype']
+            self.assertTrue(
+                np.issubdtype(config['dtype'], np.integer)
+                or np.issubdtype(config['dtype'], np.floating))
+
+        # --- All datasets must have the same number of rows        ----
+        # - rows corresponds the the number of shot number recordings
+        #
+        # collect data set paths
+        dset_paths = list(_map.configs['shotnum']['dset paths'])
+        for subfield  in ('signals', 'meta'):
+            for field, config in _map.configs[subfield].items():
+                # TODO: delete this when shape is removed
+                if field == 'shape':
+                    continue
+                val = list(config['dset paths'])
+                dset_paths.extend(val)
+        dset_paths = list(set(dset_paths))
+
+        # check all has same num. of rows
+        for path in dset_paths:
+            dset = _group.get(path)
+            if dset.shape[0] != _map.configs['shape'][0]:
+                self.fail("Not all all datasets have the same number "
+                          "of rows, this should have raised a "
+                          "`HDFMappingError`")
+
+        # ---         ----

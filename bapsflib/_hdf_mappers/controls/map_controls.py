@@ -27,7 +27,7 @@ class hdfMap_controls(dict):
 
         >>> cmaps = hdfMap_controls(data_group)
         >>> cmaps['6K Compumotor']
-        <bapsflib.lapd.map_controls.sixk.hdfMap_control_6k>
+        <bapsflib.lapd.controls.sixk.hdfMap_control_6k>
 
     """
     _defined_control_mappings = {

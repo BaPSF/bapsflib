@@ -1,0 +1,237 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+#
+# This file is part of the bapsflib package, a Python toolkit for the
+# BaPSF group at UCLA.
+#
+# http://plasma.physics.ucla.edu/
+#
+# Copyright 2017-2018 Erik T. Everson and contributors
+#
+# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
+#   license terms and contributor agreement.
+#
+import numpy as np
+import os
+import unittest as ut
+
+from bapsflib.lapd import File
+from bapsflib.lapd._hdf.hdfreadmsi import HDFReadMSI
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+
+
+class TestHDFReadMSI(ut.TestCase):
+    """Test Case for the HDFReadMSI class."""
+    # What to test:
+    #   1. Diagnostic aliases
+    #   2. Input arguments
+    #   3. Designed Failures
+
+    f = NotImplemented
+
+    @classmethod
+    def setUpClass(cls):
+        # create HDF5 file
+        cls.f = FauxHDFBuilder()
+
+    def setUp(self):
+        # Leaving HDF5 file setup to each test method
+        pass
+
+    def tearDown(self):
+        # remove modules form HDF5 file
+        if len(self.f.modules) != 0:
+            self.f.remove_all_modules()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        cls.f.cleanup()
+
+    @property
+    def lapdf(self):
+        return File(self.f.filename)
+
+    @staticmethod
+    def read(hdf_obj: File, name: str) -> HDFReadMSI:
+        """Read MSI diagnostic data"""
+        return HDFReadMSI(hdf_obj, name)
+
+    def test_raise_errors(self):
+        """Test designed raise exceptions"""
+        # 1.`hdf_file` not a lapd.File object
+        # 2. `dname` not valid
+        #    * not a string
+        #    * not a mapped MSI diagnostic
+        # 3. not all datasets have matching shot numbers for `dname`
+        #    device
+        #
+        # -- `hdf_file` not a lapd.File object                      ----
+        with self.assertRaises(TypeError):
+            self.read(None, '')
+
+        # -- `dname` not valid                                      ----
+        # `dname` is not a string
+        with self.assertRaises(TypeError):
+            self.read(self.lapdf, None)
+
+        # `dname` not a mapped MSI diagnostic
+        with self.assertRaises(ValueError):
+            self.read(self.lapdf, 'Not Diagnostic')
+
+        # -- Not all datasets for `dname` have matching             ----
+        # -- shot numbers                                           ----
+        # Using 'Interferometer array' as a test case
+        self.f.add_module('Interferometer array',
+                          mod_args={'n interferometers': 4, })
+        dset_path = '/MSI/Interferometer array/Interferometer [1]/' \
+                    'Interferometer summary list'
+        dset = self.f[dset_path]
+        data = dset[:]
+        data['Shot number'][1] += 1
+        del self.f[dset_path]
+        self.f.create_dataset(dset_path, data=data)
+        with self.assertRaises(ValueError):
+            self.read(self.lapdf, 'Interferometer array')
+        # self.fail("Not all datasets have matching shot numbers")
+
+    def test_read_simple(self):
+        """
+        Test reading data from a simple device. (i.e. a device with
+        one sequence of data per shot number)
+        """
+        # Using 'Discharge' as a test case
+        self.f.add_module('Discharge')
+        _lapdf = self.lapdf
+        _map = _lapdf.file_map.msi['Discharge']
+        self.assertDataObj(self.read(_lapdf, 'Discharge'), _lapdf, _map)
+
+    def test_read_complex(self):
+        """
+        Test reading data from a complex device. (i.e. a device with
+        more than one sequence of data per shot number)
+        """
+        # Using 'Interferometer array' as a test case
+        self.f.add_module('Interferometer array',
+                          mod_args={'n interferometers': 4, })
+        _lapdf = self.lapdf
+        _map = _lapdf.file_map.msi['Interferometer array']
+        self.assertDataObj(self.read(_lapdf, 'Interferometer array'),
+                           _lapdf, _map)
+
+    def assertDataObj(self, _data: HDFReadMSI, _lapdf, _map):
+        # data is a structured numpy array
+        self.assertIsInstance(_data, np.ndarray)
+
+        # look for expected fields
+        # 'shotnum' and 'meta'
+        self.assertTrue(all(x in _data.dtype.fields
+                            for x in ['shotnum', 'meta']))
+
+        # check 'shape'
+        self.assertEqual(_data.shape, _map.configs['shape'])
+
+        # -- check 'shotnum'                                        ----
+        self.assertEqual(_data['shotnum'].dtype.shape, ())
+        self.assertTrue(np.issubdtype(_data['shotnum'].dtype,
+                                      np.integer))
+
+        # check equality of read arrays
+        sn_config = _map.configs['shotnum']
+        for ii, path in enumerate(sn_config['dset paths']):
+            # determine field
+            field = sn_config['dset field'][0] \
+                if len(sn_config['dset field']) == 1 \
+                else sn_config['dset field'][ii]
+
+            # grab dataset
+            dset = _lapdf.get(path)
+            sn_arr = dset[field]
+
+            # examine
+            self.assertTrue(np.array_equal(sn_arr, _data['shotnum']))
+
+        # -- check 'meta'                                           ----
+        # examine each expected 'meta' field
+        for field, config in _map.configs['meta'].items():
+            # skip 'shape'
+            if field == 'shape':
+                continue
+
+            # all expected fields are in the numpy array
+            self.assertIn(field, _data['meta'].dtype.fields)
+
+            # compare values
+            for ii, path in enumerate(config['dset paths']):
+                # determine dset_field
+                dset_field = config['dset field'][0] \
+                    if len(config['dset field']) == 1 \
+                    else config['dset field'][ii]
+
+                # grab dataset
+                dset = _lapdf.get(path)
+
+                # examine
+                if len(config['dset paths']) == 1:
+                    self.assertTrue(
+                        np.array_equal(dset[dset_field],
+                                       _data['meta'][field])
+                    )
+                else:
+                    self.assertTrue(
+                        np.array_equal(dset[dset_field],
+                                       _data['meta'][field][:, ii, ...])
+                    )
+
+        # -- check signal fields                                    ----
+        # examine each expected 'signals' field
+        for field, config in _map.configs['signals'].items():
+            # all expected fields are in the numpy array
+            self.assertIn(field, _data.dtype.fields)
+
+            # compare values
+            for ii, path in enumerate(config['dset paths']):
+                # grab dataset
+                dset = _lapdf.get(path)
+
+                # examine
+                if len(config['dset paths']) == 1:
+                    self.assertTrue(np.array_equal(dset, _data[field]))
+                else:
+                    self.assertTrue(
+                        np.array_equal(dset, _data[field][:, ii, ...])
+                    )
+
+        # check 'info' attribute                                    ----
+        # check existence and type
+        self.assertTrue(hasattr(_data, 'info'))
+        self.assertIsInstance(_data.info, dict)
+
+        # examine each key
+        infokeys = list(_map.configs.keys())
+        infokeys.remove('shape')
+        infokeys.remove('shotnum')
+        infokeys.remove('signals')
+        infokeys.remove('meta')
+        infokeys = (['source file', 'device name', 'device group path']
+                    + infokeys)
+        for key in infokeys:
+            # existence
+            self.assertIn(key, _data.info)
+
+            # value
+            if key == 'source file':
+                self.assertEqual(_data.info[key],
+                                 os.path.abspath(_lapdf.filename))
+            elif key == 'device name':
+                self.assertEqual(_data.info[key],
+                                 _map.info['group name'])
+            elif key == 'device group path':
+                self.assertEqual(_data.info[key],
+                                 _map.info['group path'])
+            else:
+                self.assertEqual(_data.info[key], _map.configs[key])
+
+
+if __name__ == '__main__':
+    ut.main()

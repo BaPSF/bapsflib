@@ -14,4 +14,4 @@ bapsflib\.\_hdf\_mappers\.msi
     bapsflib._hdf_mappers.msi.interferometerarray
     bapsflib._hdf_mappers.msi.magneticfield
     bapsflib._hdf_mappers.msi.map_msi
-    bapsflib._hdf_mappers.msi.msi_template
+    bapsflib._hdf_mappers.msi.templates

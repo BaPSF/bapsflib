@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.msi\.msi\_template
-============================================
+bapsflib\.\_hdf\_mappers\.msi\.templates
+========================================
 
-.. automodule:: bapsflib._hdf_mappers.msi.msi_template
+.. automodule:: bapsflib._hdf_mappers.msi.templates
     :members:
     :undoc-members:
     :private-members:

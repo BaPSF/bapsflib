@@ -14,10 +14,8 @@ import copy
 import numpy as np
 import os
 
-from warnings import warn
 
-
-class HDFReadMSI(np.recarray):
+class HDFReadMSI(np.ndarray):
     """
     Reads MSI diagnostic data from the HDF5 file.
 
@@ -77,12 +75,7 @@ class HDFReadMSI(np.recarray):
         >>> # get time step for the data arrays
         >>> mdata.info['dt'][0]
         4.88e-05
-
     """
-    warn("attribute access to numpy array fields will be deprecated "
-         "by Oct., access fields like data['shotnum'] NOT like "
-         "data.shotnum",
-         FutureWarning)
 
     def __new__(cls, hdf_file: bapsflib.lapd.File, dname: str,
                 **kwargs):

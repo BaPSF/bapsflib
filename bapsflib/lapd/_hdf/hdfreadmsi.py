@@ -65,10 +65,10 @@ class HDFReadMSI(np.ndarray):
         >>> # the `info` attribute has diagnostic specific data
         >>> mdata.info
         {'current conversion factor': [0.0],
-         'diagnostic name': 'Discharge',
-         'diagnostic path': '/MSI/Discharge',
+         'device name': 'Discharge',
+         'device group path': '/MSI/Discharge',
          'dt': [4.88e-05],
-         'hdf file': 'test.hdf5',
+         'source file': '/foo/bar/test.hdf5',
          't0': [-0.0249856],
          'voltage conversion factor': [0.0]}
         >>>
@@ -83,7 +83,7 @@ class HDFReadMSI(np.ndarray):
         :param hdf_file: HDF5 file object
         :param str dname: name of desired MSI diagnostic
         """
-        # ---- Condition `hdf_file` ----
+        # ---- Condition `hdf_file`                                 ----
         # grab file_map
         # - also ensure hdf_file is a lapd.file object
         #
@@ -91,8 +91,8 @@ class HDFReadMSI(np.ndarray):
             raise TypeError(
                 '`hdf_file` needs to be of type `lapd.File`')
 
-        # ---- Condition `dname` ----
-        # ensure dname is a string
+        # ---- Condition `dname`                                    ----
+        # ensure `dname` is a string
         if not isinstance(dname, str):
             raise TypeError('arg `dname` needs to be a str')
 
@@ -117,117 +117,100 @@ class HDFReadMSI(np.ndarray):
                 break
 
         # get diagnostic map
+        # - assume if a map is successful, then it is formatted to
+        #   work without errors (i.e. no conditioning needed)
+        #
         try:
-            diag_map = hdf_file.file_map.msi[dname]
+            _map = hdf_file.file_map.msi[dname]
         except KeyError:
             raise ValueError(
                 'Specified MSI Diagnostic is not among known'
                 'diagnostics')
 
-        # ---- Construct shape and dtype for np.array ----
-        shape = diag_map.configs['shape']
-
+        # ---- Construct shape and dtype for np.ndarray             ----
+        #
         # initialize dtype_list
+        # - this will be converted into dtype for np.ndarray
+        # - should look like:
+        #   dtype_list = [
+        #       ('shotnum', np.int32, ()),
+        #       ('signal', np.int32, (2, 100)),
+        #       ('meta',
+        #        [('f1', np.float32, ()), ('f2', np.int32, ())],
+        #        (2,)),
+        #   ]
+        #
         # add 'shotnum' field
         dtype_list = [
-            ('shotnum', diag_map.configs['shotnum']['dtype']),
+            ('shotnum',
+             _map.configs['shotnum']['dtype'],
+             _map.configs['shotnum']['shape']),
         ]
 
         # add signal fields
-        sig_shape = None
-        for field in diag_map.configs['signals']:
-            shape_list = diag_map.configs['signals'][field]['shape']
-            if len(shape_list) != 1:
-                # need to ensure all datasets have the same dimensions
-                # - currently no handling datasets with differing dims
-                if shape_list.count(shape_list[0]) != len(shape_list):
-                    raise ValueError(
-                        "Can not handle grouping of datasets with "
-                        "differing shapes")
-
-            # ensure all signal fields have the same number of rows
-            # - if ndims = 1, then assuming one row
-            if sig_shape is None:
-                sig_shape = shape_list[0]
-            else:
-                if len(sig_shape) != len(shape_list[0]):
-                    raise ValueError(
-                        "all signal fields must have the same number"
-                        "of rows")
-                elif len(sig_shape) != 1:
-                    if sig_shape[0] != shape_list[0][0]:
-                        raise ValueError(
-                            "all signal fields must have the same "
-                            "number of rows")
-
-            # add
-            dtype_list.append((
-                field,
-                diag_map.configs['signals'][field]['dtype'],
-                shape_list[0]
-            ))
+        for field in _map.configs['signals']:
+            dtype_list.append(
+                (field,
+                 _map.configs['signals'][field]['dtype'],
+                 _map.configs['signals'][field]['shape']),
+            )
 
         # add 'meta' fields
         # - all 'meta' fields needs to have the same number of rows as
         #   the signal fields
-        # TODO: NEED TO ADD MORE CONDITIONING OF CONSISTENT SHAPE VALUES
-        meta_shape = diag_map.configs['meta']['shape']
+        #
         meta_dtype_list = []
-        for field in diag_map.configs['meta']:
+        for field in _map.configs['meta']:
             # skip the 'shape' field
             if field == 'shape':
                 continue
 
-            # ensure every entry has the same shape
-            shape_list = diag_map.configs['meta'][field]['shape']
-            if len(shape_list) != 1:
-                # need to ensure all datasets have the same dimensions
-                # - currently no handling datasets with differing dims
-                if shape_list.count(shape_list[0]) != len(shape_list):
-                    raise ValueError(
-                        "Can not handle grouping of datasets with "
-                        "differing shapes")
-
             # add to meta_dtype_list
-            meta_dtype_list.append((
-                field,
-                diag_map.configs['meta'][field]['dtype'],
-                shape_list[0]
-            ))
+            meta_dtype_list.append(
+                (field,
+                 _map.configs['meta'][field]['dtype'],
+                 _map.configs['meta'][field]['shape']),
+            )
 
         # add 'meta' to dtype_list
-        dtype_list.append((
-            'meta',
-            meta_dtype_list,
-            meta_shape
-        ))
+        dtype_list.append(
+            ('meta',
+             meta_dtype_list,
+             _map.configs['meta']['shape']),
+        )
 
         # define dtype
         dtype = np.dtype(dtype_list)
 
-        # ---- Define and Populate Numpy Array ----
-        data = np.empty(shape, dtype=dtype)
+        # ---- Define and Populate Numpy Array                      ----
+        # create empty array
+        data = np.empty(_map.configs['shape'], dtype=dtype)
 
         # fill 'shotnum'
-        # TODO: ADD CASE FOR 'DSET FIELD' IS NONE
-        sn_config = diag_map.configs['shotnum']
+        sn_config = _map.configs['shotnum']
         for ii, path in enumerate(sn_config['dset paths']):
             # get dataset
             dset = hdf_file[path]
 
+            # get field
+            field = sn_config['dset field'][0] \
+                if len(sn_config['dset field']) == 1 \
+                else sn_config['dset field'][ii]
+
             # fill array
             if ii == 0:
-                data['shotnum'] = dset[:, sn_config['dset field']]
+                data['shotnum'] = dset[:, field]
             else:
-                if not np.array_equal(data['shotnum'],
-                                      dset[sn_config['dset field']]):
+                # ensure every data set has matching shot numbers
+                if not np.array_equal(data['shotnum'], dset[field]):
                     raise ValueError(
                         'Datasets do NOT have the same shot number '
                         'values, do NOT know how to handle')
 
         # fill 'signals'
-        # TODO: ADD CASE FOR 'DSET FIELD' IS NOT NONE
-        sig_config = diag_map.configs['signals']
+        # TODO: ADD ABILITY TO READ FROM A STRUCTURED DATASET
+        # - i.e. 'dset field' is not empty
+        sig_config = _map.configs['signals']
         for field in sig_config:
             if len(sig_config[field]['dset paths']) == 1:
                 # get dataset
@@ -239,6 +222,9 @@ class HDFReadMSI(np.ndarray):
             else:
                 # there are multiple rows in the dataset
                 # (e.g. interferometer)
+                # - indices look like
+                #   [shot number, device number, time series]
+                #
                 for ii, path in \
                         enumerate(sig_config[field]['dset paths']):
                     # get dataset
@@ -248,48 +234,49 @@ class HDFReadMSI(np.ndarray):
                     data[field][:, ii, ...] = dset
 
         # fill 'meta'
-        # TODO: ADD CASE FOR 'DSET FIELD' IS NONE
-        meta_config = diag_map.configs['meta']
+        # TODO: ADD ABILITY TO READ FROM A REGULAR DATASET
+        # - i.e. 'dset field' is empty
+        meta_config = _map.configs['meta']
         for field in meta_config:
             # skip 'shape' key
             if field == 'shape':
                 continue
 
             # scan thru all datasets
-            if len(meta_config[field]['dset paths']) == 1:
+            for ii, path in enumerate(meta_config[field]['dset paths']):
                 # get dataset
-                path = meta_config[field]['dset paths'][0]
                 dset = hdf_file[path]
 
+                # get dset_field
+                dset_field = meta_config[field]['dset field'][0] \
+                    if len(meta_config[field]['dset field']) == 1 \
+                    else meta_config[field]['dset field'][ii]
+
                 # fill array
-                data['meta'][field] = \
-                    dset[meta_config[field]['dset field']]
-            else:
-                # there are multiple rows in the dataset
-                # (e.g. interferometer)
-                for ii, path in \
-                        enumerate(meta_config[field]['dset paths']):
-                    # get dataset
-                    dset = hdf_file[path]
+                if len(meta_config[field]['dset paths']) == 1:
+                    data['meta'][field] = dset[dset_field]
+                else:
+                    # there are multiple rows in the dataset
+                    # (e.g. interferometer)
+                    # - indices look like
+                    #   [shot number, device number, time series]
+                    #
+                    data['meta'][field][:, ii, ...] = dset[dset_field]
 
-                    # fill array
-                    data['meta'][field][:, ii, ...] = \
-                        dset[meta_config[field]['dset field']]
-
-        # ---- Define `obj` ----
+        # ---- Define `obj`                                         ----
         obj = data.view(cls)
 
-        # ---- Define `info` attribute ----
+        # ---- Define `_info` attribute                             ----
         obj._info = {
             'source file': os.path.abspath(hdf_file.filename),
-            'device name': diag_map.info['group name'],
-            'device group path': diag_map.info['group path']
+            'device name': _map.info['group name'],
+            'device group path': _map.info['group path']
         }
-        for key, val in diag_map.configs.items():
+        for key, val in _map.configs.items():
             if key not in ['shape', 'shotnum', 'signals', 'meta']:
                 obj._info[key] = copy.deepcopy(val)
 
-        # ---- Return `obj` ----
+        # ---- Return `obj`                                         ----
         return obj
 
     def __array_finalize__(self, obj):

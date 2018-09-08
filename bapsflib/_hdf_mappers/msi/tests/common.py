@@ -36,13 +36,14 @@ class MSIDiagnosticTestCase(ut.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        print('setUpClass')
+        # skip tests if in MSIDiagnosticTestCase
         if cls is MSIDiagnosticTestCase:
             raise ut.SkipTest("In MSIDiagnosticTestCase, "
                               "skipping base tests")
-
-        cls.f = FauxHDFBuilder()
         super().setUpClass()
+
+        # create HDF5 file
+        cls.f = FauxHDFBuilder()
 
     def setUp(self):
         # setup HDF5 file

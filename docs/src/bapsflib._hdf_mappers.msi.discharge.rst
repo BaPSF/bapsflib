@@ -1,14 +1,14 @@
-bapsflib\._hdf_mappers\.map\_msi\.interferometerarray
-=====================================================
+bapsflib\._hdf_mappers\.msi\.discharge
+======================================
 
-.. automodule:: bapsflib._hdf_mappers.map_msi.interferometerarray
+.. automodule:: bapsflib._hdf_mappers.msi.discharge
     :show-inheritance:
     :members:
     :undoc-members:
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.interferometerarray.hdfMap_msi_interarr
+.. .. autoclass:: bapsflib.lapd.map_msi.discharge.hdfMap_msi_discharge
     :members:
     :undoc-members:
     :show-inheritance:

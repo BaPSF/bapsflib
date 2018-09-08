@@ -1,14 +1,14 @@
-bapsflib\._hdf_mappers\.map\_msi\.discharge
-===========================================
+bapsflib\.\_hdf\_mappers\.msi\.heater
+=========================================
 
-.. automodule:: bapsflib._hdf_mappers.map_msi.discharge
+.. automodule:: bapsflib._hdf_mappers.msi.heater
     :show-inheritance:
     :members:
     :undoc-members:
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.discharge.hdfMap_msi_discharge
+.. .. autoclass:: bapsflib.lapd.map_msi.heater.hdfMap_msi_heater
     :members:
     :undoc-members:
     :show-inheritance:

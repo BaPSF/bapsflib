@@ -1,14 +1,14 @@
-bapsflib\.\_hdf\_mappers\.map\_msi\.heater
-==========================================
+bapsflib\._hdf_mappers\.msi\.interferometerarray
+================================================
 
-.. automodule:: bapsflib._hdf_mappers.map_msi.heater
+.. automodule:: bapsflib._hdf_mappers.msi.interferometerarray
     :show-inheritance:
     :members:
     :undoc-members:
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.heater.hdfMap_msi_heater
+.. .. autoclass:: bapsflib.lapd.map_msi.interferometerarray.hdfMap_msi_interarr
     :members:
     :undoc-members:
     :show-inheritance:

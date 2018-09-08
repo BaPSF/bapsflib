@@ -14,7 +14,7 @@ import numpy as np
 
 from warnings import warn
 
-from .control_template import hdfMap_control_cl_template
+from .templates import hdfMap_control_cl_template
 
 
 class hdfMap_control_n5700ps(hdfMap_control_cl_template):

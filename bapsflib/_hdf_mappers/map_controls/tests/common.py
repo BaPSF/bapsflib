@@ -8,8 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..control_template import (hdfMap_control_template,
-                                hdfMap_control_cl_template)
+from ..templates import (hdfMap_control_template,
+                         hdfMap_control_cl_template)
 
 import os
 import re

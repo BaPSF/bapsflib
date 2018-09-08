@@ -8,95 +8,157 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from ..templates import (hdfMap_control_template,
-                         hdfMap_control_cl_template)
-
+import h5py
+import numpy as np
 import os
 import re
-import h5py
-
-import numpy as np
 import unittest as ut
+
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+
+from ..templates import (hdfMap_control_template,
+                         hdfMap_control_cl_template)
 
 
 class ControlTestCase(ut.TestCase):
     """
     TestCase for control devices.
     """
-    def assertControlMapBasics(self, cmap, cgroup):
+
+    f = NotImplemented
+    DEVICE_NAME = NotImplemented
+    DEVICE_PATH = NotImplemented
+    MAP_CLASS = NotImplemented
+
+    @classmethod
+    def setUpClass(cls):
+        # skip tests if in MSIDiagnosticTestCase
+        if cls is ControlTestCase:
+            raise ut.SkipTest("In MSIDiagnosticTestCase, "
+                              "skipping base tests")
+        super().setUpClass()
+
+        # create HDF5 file
+        cls.f = FauxHDFBuilder()
+
+    def setUp(self):
+        # setup HDF5 file
+        if not (self.DEVICE_NAME in self.f.modules
+                and len(self.f.modules) == 1):
+            # clear HDF5 file and add module
+            self.f.remove_all_modules()
+            self.f.add_module(self.DEVICE_NAME)
+
+        # define `mod` attribute
+        self.mod = self.f.modules[self.DEVICE_NAME]
+
+    def tearDown(self):
+        # reset module
+        self.mod.knobs.reset()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()
+
+    @property
+    def map(self):
+        """Map object of device"""
+        return self.map_device(self.dgroup)
+
+    @property
+    def dgroup(self):
+        """Device HDF5 group"""
+        return self.f[self.DEVICE_PATH]
+
+    def map_device(self, group):
+        """Mapping function"""
+        return self.MAP_CLASS(group)
+
+    def test_map_basics(self):
+        """Test all required basic map features."""
+        self.assertControlMapBasics(self.map, self.dgroup)
+
+    def test_not_h5py_group(self):
+        """Test error if object to map is not h5py.Group"""
+        with self.assertRaises(TypeError):
+            self.map_device(None)
+
+    def assertControlMapBasics(self, _map, _group):
         # check mapping instance
-        self.assertIsInstance(cmap, hdfMap_control_template)
+        self.assertIsInstance(_map, hdfMap_control_template)
 
         # assert attribute existence
-        self.assertTrue(hasattr(cmap, 'info'))
-        self.assertTrue(hasattr(cmap, 'configs'))
-        self.assertTrue(hasattr(cmap, 'contype'))
-        self.assertTrue(hasattr(cmap, 'name'))
-        self.assertTrue(hasattr(cmap, 'group'))
-        self.assertTrue(hasattr(cmap, 'sgroup_names'))
-        self.assertTrue(hasattr(cmap, 'dataset_names'))
-        self.assertTrue(hasattr(cmap, 'has_command_list'))
-        self.assertTrue(hasattr(cmap, 'one_config_per_dset'))
-        self.assertTrue(hasattr(cmap, 'construct_dataset_name'))
-        self.assertTrue(hasattr(cmap, 'build_successful'))
+        self.assertTrue(hasattr(_map, 'info'))
+        self.assertTrue(hasattr(_map, 'configs'))
+        self.assertTrue(hasattr(_map, 'contype'))
+        self.assertTrue(hasattr(_map, 'name'))
+        self.assertTrue(hasattr(_map, 'group'))
+        self.assertTrue(hasattr(_map, 'sgroup_names'))
+        self.assertTrue(hasattr(_map, 'dataset_names'))
+        self.assertTrue(hasattr(_map, 'has_command_list'))
+        self.assertTrue(hasattr(_map, 'one_config_per_dset'))
+        self.assertTrue(hasattr(_map, 'construct_dataset_name'))
+        self.assertTrue(hasattr(_map, 'build_successful'))
 
         # extra attributes for a command list (CL) focused device
-        self.assertIsInstance(cmap.has_command_list, bool)
-        if cmap.has_command_list:
+        self.assertIsInstance(_map.has_command_list, bool)
+        if _map.has_command_list:
             # check inherited form proper template
-            self.assertIsInstance(cmap, hdfMap_control_cl_template)
+            self.assertIsInstance(_map, hdfMap_control_cl_template)
 
             # assert CL attributes
-            self.assertTrue(hasattr(cmap, '_cl_re_patterns'))
-            self.assertTrue(hasattr(cmap,
+            self.assertTrue(hasattr(_map, '_cl_re_patterns'))
+            self.assertTrue(hasattr(_map,
                                     '_default_state_values_dict'))
-            self.assertTrue(hasattr(cmap,
+            self.assertTrue(hasattr(_map,
                                     '_construct_state_values_dict'))
-            self.assertTrue(hasattr(cmap, 'clparse'))
-            self.assertTrue(hasattr(cmap, 'reset_state_values_config'))
-            self.assertTrue(hasattr(cmap, 'set_state_values_config'))
+            self.assertTrue(hasattr(_map, 'clparse'))
+            self.assertTrue(hasattr(_map, 'reset_state_values_config'))
+            self.assertTrue(hasattr(_map, 'set_state_values_config'))
 
         # ---- test map.info                                        ----
         # test 'info' type
-        self.assertIsInstance(cmap.info, dict)
+        self.assertIsInstance(_map.info, dict)
 
         # check 'info' keys
-        self.assertIn('group name', cmap.info)
-        self.assertIn('group path', cmap.info)
-        self.assertIn('contype', cmap.info)
+        self.assertIn('group name', _map.info)
+        self.assertIn('group path', _map.info)
+        self.assertIn('contype', _map.info)
 
         # check 'info' values
-        self.assertEqual(cmap.info['group name'],
-                         os.path.basename(cgroup.name))
-        self.assertEqual(cmap.info['group path'], cgroup.name)
-        self.assertIn(cmap.info['contype'],
+        self.assertEqual(_map.info['group name'],
+                         os.path.basename(_group.name))
+        self.assertEqual(_map.info['group path'], _group.name)
+        self.assertIn(_map.info['contype'],
                       ['motion', 'waveform', 'power', 'timing',
                        'generic'])
 
         # ---- test general attributes                              ----
         # check 'contype'
-        self.assertEqual(cmap.info['contype'], cmap.contype)
+        self.assertEqual(_map.info['contype'], _map.contype)
 
         # check 'name'
-        self.assertEqual(cmap.name, cmap.info['group name'])
+        self.assertEqual(_map.name, _map.info['group name'])
 
         # check 'group'
-        self.assertIsInstance(cmap.group, h5py.Group)
-        self.assertEqual(cmap.group, cgroup)
+        self.assertIsInstance(_map.group, h5py.Group)
+        self.assertEqual(_map.group, _group)
 
         # check 'sgroup_names' (sub-group names)
-        self.assertSubgroupNames(cmap, cgroup)
+        self.assertSubgroupNames(_map, _group)
 
         # check 'dataset_names'
-        self.assertDatasetNames(cmap, cgroup)
+        self.assertDatasetNames(_map, _group)
 
         # check 'one_config_per_dset'
-        self.assertIsInstance(cmap.one_config_per_dset, bool)
+        self.assertIsInstance(_map.one_config_per_dset, bool)
 
         # check 'build_successful'
         # - all assertions below will only pass if build was successful
-        self.assertIsInstance(cmap.build_successful, bool)
-        self.assertTrue(cmap.build_successful)
+        self.assertIsInstance(_map.build_successful, bool)
+        self.assertTrue(_map.build_successful)
 
         # ---- test map.configs                                     ----
         #
@@ -135,8 +197,8 @@ class ControlTestCase(ut.TestCase):
         #        constructed by hdfReadControl
         #
         # TODO: add assertion of sub-dict value format
-        self.assertIsInstance(cmap.configs, dict)
-        for config_name, config in cmap.configs.items():
+        self.assertIsInstance(_map.configs, dict)
+        for config_name, config in _map.configs.items():
             # assert required keys
             # - any other key is considered meta-info and is not used
             #   in the data translation
@@ -145,7 +207,7 @@ class ControlTestCase(ut.TestCase):
             self.assertIn('dset paths', config)
             self.assertIn('shotnum', config)
             self.assertIn('state values', config)
-            if cmap.has_command_list:
+            if _map.has_command_list:
                 self.assertIn('command list', config)
 
                 # check 'command list'
@@ -221,7 +283,7 @@ class ControlTestCase(ut.TestCase):
 
                 # for command list control devices
                 # TODO: ADD MORE DETAIL TO TESTS
-                if cmap.has_command_list:
+                if _map.has_command_list:
                     self.assertIn('command list', pstate_dict)
                     self.assertIn('cl str', pstate_dict)
                     self.assertIn('re pattern', pstate_dict)
@@ -254,14 +316,14 @@ class ControlTestCase(ut.TestCase):
                         pstate_dict['re pattern'],
                         (type(None), type(re.compile(r''))))
 
-    def assertSubgroupNames(self, cmap, cgroup):
+    def assertSubgroupNames(self, _map, _group):
         sgroup_names = [name
-                        for name in cgroup
-                        if isinstance(cgroup[name], h5py.Group)]
-        self.assertEqual(cmap.sgroup_names, sgroup_names)
+                        for name in _group
+                        if isinstance(_group[name], h5py.Group)]
+        self.assertEqual(_map.sgroup_names, sgroup_names)
 
-    def assertDatasetNames(self, cmap, cgroup):
+    def assertDatasetNames(self, _map, _group):
         dset_names = [name
-                      for name in cgroup
-                      if isinstance(cgroup[name], h5py.Dataset)]
-        self.assertEqual(cmap.dataset_names, dset_names)
+                      for name in _group
+                      if isinstance(_group[name], h5py.Dataset)]
+        self.assertEqual(_map.dataset_names, dset_names)

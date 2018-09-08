@@ -69,6 +69,10 @@ class File(h5py.File):
         """
         return self.__file_map
 
+    def get_map(self, name: str):
+        # TODO: hl access to mapping objects
+        pass
+
     @property
     def list_file_items(self):
         """
@@ -275,6 +279,10 @@ class File(h5py.File):
         """
         from .hdfreadmsi import HDFReadMSI
         return HDFReadMSI(self, msi_diag)
+
+    def remap(self):
+        # TODO: initiate a re-mapping of the HDF5 file
+        pass
 
     def run_description(self):
         """Description of experimental run (from the HDF5 file)"""

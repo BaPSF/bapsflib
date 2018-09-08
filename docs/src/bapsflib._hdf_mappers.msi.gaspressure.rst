@@ -1,14 +1,14 @@
-bapsflib\.\_hdf\_mappers\.map\_msi\.magneticfield
-=================================================
+bapsflib\.\_hdf\_mappers\.msi\.gaspressure
+==========================================
 
-.. automodule:: bapsflib._hdf_mappers.map_msi.magneticfield
+.. automodule:: bapsflib._hdf_mappers.msi.gaspressure
     :show-inheritance:
     :members:
     :undoc-members:
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.magneticfield.hdfMap_msi_magneticfield
+.. .. autoclass:: bapsflib.lapd.map_msi.gaspressure.hdfMap_msi_gaspressure
     :members:
     :undoc-members:
     :show-inheritance:

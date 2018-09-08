@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.map\_controls\.control\_template
-==========================================================
+bapsflib\.\_hdf\_mappers\.controls\.templates
+=============================================
 
-.. automodule:: bapsflib._hdf_mappers.map_controls.control_template
+.. automodule:: bapsflib._hdf_mappers.controls.templates
     :members:
     :undoc-members:
     :private-members:

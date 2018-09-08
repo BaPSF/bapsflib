@@ -21,7 +21,7 @@ from bapsflib._hdf_mappers.msi.tests import (
     FauxInterferometerArray,
     FauxMagneticField
 )
-from bapsflib._hdf_mappers.map_controls.tests import (
+from bapsflib._hdf_mappers.controls.tests import (
     FauxWaveform,
     FauxSixK,
     FauxN5700PS

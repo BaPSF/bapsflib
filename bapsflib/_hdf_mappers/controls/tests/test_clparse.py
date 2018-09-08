@@ -50,7 +50,7 @@ class TestCLParse(ut.TestCase):
     def test_apply_patterns(self):
         """
         Test functionality of
-        :meth:`bapsflib.lapd.map_controls.clparse.CLParse.apply_patterns`
+        :meth:`bapsflib.lapd.controls.clparse.CLParse.apply_patterns`
         """
         # What to test:
         # 1. output is always a (bool, dict)

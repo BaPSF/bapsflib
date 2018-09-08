@@ -14,7 +14,7 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib._hdf_mappers.map_controls.waveform import \
+from bapsflib._hdf_mappers.controls.waveform import \
     hdfMap_control_waveform
 from ..files import File
 from ..hdfreadcontrol import (condition_shotnum_list,

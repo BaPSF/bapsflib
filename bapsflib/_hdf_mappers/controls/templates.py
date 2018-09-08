@@ -448,7 +448,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
     def clparse(self, config_name: str) -> CLParse:
         """
         Return instance of
-        :class:`~bapsflib.lapd.map_controls.clparse.CLParse`
+        :class:`~bapsflib.lapd.controls.clparse.CLParse`
         for `config_name`.
 
         :param str config_name: configuration name

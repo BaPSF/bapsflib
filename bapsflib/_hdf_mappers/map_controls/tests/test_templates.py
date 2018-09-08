@@ -24,8 +24,8 @@ from unittest import mock
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..clparse import CLParse
-from ..control_template import (hdfMap_control_template,
-                                hdfMap_control_cl_template)
+from ..templates import (hdfMap_control_template,
+                         hdfMap_control_cl_template)
 
 
 class DummyTemplates(Enum):

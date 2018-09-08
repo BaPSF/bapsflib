@@ -17,8 +17,8 @@ import unittest as ut
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..map_controls import  hdfMap_controls
-from ..control_template import (hdfMap_control_template,
-                                hdfMap_control_cl_template)
+from ..templates import (hdfMap_control_template,
+                         hdfMap_control_cl_template)
 
 
 class TestHDFMapControls(ut.TestCase):

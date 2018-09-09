@@ -11,17 +11,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import h5py
+import numpy as np
 import os
 import re
-import h5py
-
 import unittest as ut
-import numpy as np
-
-from enum import Enum
-from unittest import mock
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from enum import Enum
+from unittest import mock
 
 from ..clparse import CLParse
 from ..templates import (hdfMap_control_template,
@@ -121,10 +119,10 @@ class TestControlTemplates(ut.TestCase):
         self.assertIsInstance(_map, hdfMap_control_template)
 
         # check attribute existence
-        attrs = ('info', 'configs', 'build_successful', 'contype',
-                 'dataset_names', 'group', 'has_command_list',
-                 'one_config_per_dset', 'sgroup_names', 'name',
-                 'construct_dataset_name', '_build_configs')
+        attrs = ('info', 'configs', 'contype', 'dataset_names',
+                 'group', 'has_command_list', 'one_config_per_dset',
+                 'sgroup_names', 'name', 'construct_dataset_name',
+                 '_build_configs')
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
 
@@ -174,7 +172,6 @@ class TestControlTemplates(ut.TestCase):
             self.assertTrue(_map.has_command_list)
 
         # -- check other attributes                                 ----
-        self.assertFalse(_map.build_successful)
         self.assertEqual(_map.contype, _map.info['contype'])
         self.assertEqual(_map.group, _group)
         self.assertEqual(_map.name, _map.info['group name'])

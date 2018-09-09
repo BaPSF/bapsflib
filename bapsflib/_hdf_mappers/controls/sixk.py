@@ -8,10 +8,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import numpy as np
 import re
 
-import numpy as np
-
+from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
 from .templates import hdfMap_control_template
@@ -51,11 +51,6 @@ class hdfMap_control_6k(hdfMap_control_template):
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""
-        # assume build is successful
-        # - alter if build fails
-        #
-        self._build_successful = True
-
         # build order:
         #  1. build a local motion list dictionary
         #  2. build a local probe list dictionary
@@ -84,12 +79,8 @@ class hdfMap_control_6k(hdfMap_control_template):
 
         # ensure a PL item (config group) is found
         if len(_probe_lists) == 0:
-            warn_str = (self.name
-                        + ": no configurations (Probe List groups) "
-                        + "found")
-            warn(warn_str)
-            self._build_successful = False
-            return
+            why = 'has no mappable configurations (Probe List groups)'
+            raise HDFMappingError(self._info['group path'], why=why)
 
         # build configuration dictionaries
         # - the receptacle number is the config_name
@@ -126,14 +117,10 @@ class hdfMap_control_6k(hdfMap_control_template):
                 # ValueError: the dataset name was not properly
                 #             constructed
                 #
-                warn_str = (
-                        self.name + ": Dataset for configuration "
-                        + "'{}'".format(pname)
-                        + "  could not be determined or found"
-                )
-                warn(warn_str)
-                self._build_successful = False
-                return
+                why = ("Dataset for configuration "
+                       + "'{}'".format(pname)
+                       + "  could not be determined or found")
+                raise HDFMappingError(self._info['group path'], why=why)
 
             # ---- define 'dset paths'                              ----
             self._configs[config_name]['dset paths'] = dset.name

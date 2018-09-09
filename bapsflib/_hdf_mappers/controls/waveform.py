@@ -8,10 +8,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import numpy as np
 import warnings
 
-import numpy as np
-
+from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
 from .templates import hdfMap_control_cl_template
@@ -54,16 +54,10 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""
-        # assume build is successful
-        # - alter if build fails
-        #
-        self._build_successful = True
-
         # check there are configurations to map
         if len(self.sgroup_names) == 0:
-            warn(self.name + ": has no mappable configurations")
-            self._build_successful = False
-            return
+            why = 'has no mappable configurations'
+            raise HDFMappingError(self._info['group path'], why=why)
 
         # build configuration dictionaries
         # - assume every sub-group represents a unique configuration
@@ -80,13 +74,10 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
             try:
                 dset = self.group[self.construct_dataset_name()]
             except KeyError:
-                warn_str = ("Dataset '" + self.construct_dataset_name()
-                            + "' not found for control device '"
-                            + self.name + "' configuration group '"
-                            + name + "'")
-                warn(warn_str)
-                self._build_successful = False
-                return
+                why = ("Dataset '" + self.construct_dataset_name()
+                       + "' not found for configuration group '"
+                       + name + "'")
+                raise HDFMappingError(self._info['group path'], why=why)
 
             # initialize _configs
             self._configs[name] = {}
@@ -133,9 +124,11 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
                         warn_str += ", continuing with mapping"
                         warn(warn_str)
                     else:
-                        warn(warn_str)
-                        self._build_successful = False
-                        return
+                        why = ("Attribute '" + pair[1]
+                               + "' not found for configuration group '"
+                               + name + "'")
+                        raise HDFMappingError(self._info['group path'],
+                                              why=why)
 
             # ---- define 'dset paths'                              ----
             self._configs[name]['dset paths'] = dset.name

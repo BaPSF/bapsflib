@@ -15,7 +15,7 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib.utils.errors import HDFMappingError
 from unittest import mock
 
 from .common import ControlTestCase
@@ -41,8 +41,7 @@ class TestSixK(ControlTestCase):
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
-        # any failed build must throw a UserWarning and set
-        # build_successful False
+        # any failed build must throw a HDFMappingError
         #
         # make a default/clean '6K Compumotor' module
         self.mod.knobs.reset()
@@ -52,8 +51,8 @@ class TestSixK(ControlTestCase):
         rnum = self.mod.config_names[0]
         name = 'Probe: XY[{}]: probe01'.format(rnum)
         del self.dgroup[name]
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
 
         # reset module
         self.mod.knobs.reset()
@@ -63,8 +62,8 @@ class TestSixK(ControlTestCase):
         rnum = self.mod.config_names[0]
         name = 'XY[{}]: probe01'.format(rnum)
         self.dgroup.move(name, 'Wrong name')
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
 
         # reset module
         self.mod.knobs.reset()
@@ -76,8 +75,8 @@ class TestSixK(ControlTestCase):
         with mock.patch.object(hdfMap_control_6k,
                                'construct_dataset_name') as cdn_mock:
             cdn_mock.side_effect = ValueError
-            with self.assertWarns(UserWarning):
-                self.assertFalse(self.map.build_successful)
+            with self.assertRaises(HDFMappingError):
+                _map = self.map
 
     def test_misc(self):
         """Test Miscellaneous features."""

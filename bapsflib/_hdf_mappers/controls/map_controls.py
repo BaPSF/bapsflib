@@ -10,9 +10,11 @@
 #
 import h5py
 
+from bapsflib.utils.errors import HDFMappingError
+
+from .n5700ps import hdfMap_control_n5700ps
 from .sixk import hdfMap_control_6k
 from .waveform import hdfMap_control_waveform
-from .n5700ps import hdfMap_control_n5700ps
 
 
 class hdfMap_controls(dict):
@@ -88,14 +90,16 @@ class hdfMap_controls(dict):
         :rtype: dict
         """
         control_dict = {}
-        for sg_name in self.data_group_subgnames:
-            if sg_name in self._defined_mapping_classes:
+        for name in self.data_group_subgnames:
+            if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
-                con_map = \
-                    self._defined_mapping_classes[sg_name](
-                        self.__data_group[sg_name])
-                if con_map.build_successful:
-                    control_dict[sg_name] = con_map
+                try:
+                    _map = self._defined_mapping_classes[name](
+                        self.__data_group[name])
+                    control_dict[name] = _map
+                except HDFMappingError:
+                    # mapping failed
+                    pass
 
         # return dictionary
         return control_dict

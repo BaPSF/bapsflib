@@ -11,55 +11,33 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import os
-
 import numpy as np
+import os
 import unittest as ut
 
-from unittest import mock
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from unittest import mock
 
-from ..sixk import hdfMap_control_6k
 from .common import ControlTestCase
+from ..sixk import hdfMap_control_6k
 
 
 class TestSixK(ControlTestCase):
     """Test class for hdfMap_control_sixk"""
 
+    # define setup variables
+    DEVICE_NAME = '6K Compumotor'
+    DEVICE_PATH = 'Raw data + config/6K Compumotor'
     MAP_CLASS = hdfMap_control_6k
 
     def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'6K Compumotor': {'n_configs': 1}})
-        self.mod = self.f.modules['6K Compumotor']
+        super().setUp()
 
     def tearDown(self):
-        self.f.cleanup()
-
-    @property
-    def map(self):
-        """Map object of control device"""
-        return self.map_control(self.cgroup)
-
-    @property
-    def cgroup(self):
-        """Control device group"""
-        return self.f['Raw data + config/6K Compumotor']
-
-    def map_control(self, group):
-        """Mapping function"""
-        return self.MAP_CLASS(group)
-
-    def test_map_basics(self):
-        self.assertControlMapBasics(self.map, self.cgroup)
+        super().tearDown()
 
     def test_contype(self):
         self.assertEqual(self.map.info['contype'], 'motion')
-
-    def test_not_h5py_group(self):
-        """Test error if object to map is not h5py.Group"""
-        with self.assertRaises(TypeError):
-            self.map_control(None)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
@@ -73,7 +51,7 @@ class TestSixK(ControlTestCase):
         # remove PL group instance
         rnum = self.mod.config_names[0]
         name = 'Probe: XY[{}]: probe01'.format(rnum)
-        del self.cgroup[name]
+        del self.dgroup[name]
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
 
@@ -84,7 +62,7 @@ class TestSixK(ControlTestCase):
         # rename dataset
         rnum = self.mod.config_names[0]
         name = 'XY[{}]: probe01'.format(rnum)
-        self.cgroup.move(name, 'Wrong name')
+        self.dgroup.move(name, 'Wrong name')
         with self.assertWarns(UserWarning):
             self.assertFalse(self.map.build_successful)
 
@@ -107,9 +85,9 @@ class TestSixK(ControlTestCase):
         self.mod.knobs.reset()
 
         # an extra group that does not match PL or ML group formats
-        self.cgroup.create_group('Random group')
+        self.dgroup.create_group('Random group')
         self.assertSixKDetails()
-        del self.cgroup['Random group']
+        del self.dgroup['Random group']
 
     def test_construct_dataset_name(self):
         """Test operation of `construct_dataset_name` method."""
@@ -151,7 +129,7 @@ class TestSixK(ControlTestCase):
         self.assertTrue(hasattr(self.map, '_analyze_motionlist'))
 
         # get ML group instance
-        mlg = self.cgroup['Motion list: ml-0001']
+        mlg = self.dgroup['Motion list: ml-0001']
 
         # -- RE does NOT match against `gname`                      ----
         # - None is returned
@@ -260,7 +238,7 @@ class TestSixK(ControlTestCase):
         # get PL group instance
         rnum = self.mod.config_names[0]
         name = 'Probe: XY[{}]: probe01'.format(rnum)
-        plg = self.cgroup[name]
+        plg = self.dgroup[name]
 
         # -- RE does NOT match against `gname`                      ----
         # - None is returned
@@ -366,7 +344,7 @@ class TestSixK(ControlTestCase):
         _map = self.map
 
         # re-assert Mapping Basics
-        self.assertControlMapBasics(_map, self.cgroup)
+        self.assertControlMapBasics(_map, self.dgroup)
 
         # test dataset names
         # TODO: test dataset names
@@ -383,15 +361,15 @@ class TestSixK(ControlTestCase):
         # test that 'configs' attribute is setup correctly
         self.assertConfigsGeneralItems(_map)
 
-    def assertConfigsGeneralItems(self, cmap):
+    def assertConfigsGeneralItems(self, _map):
         """
         Test structure of the general, polymorphic elements of the
         `configs` mapping dictionary.
         """
-        self.assertEqual(len(cmap.configs),
+        self.assertEqual(len(_map.configs),
                          self.mod.knobs.n_configs)
 
-        for cname, config in cmap.configs.items():
+        for cname, config in _map.configs.items():
             # look for '6K Compumotor' specific keys
             #
             self.assertIn(cname, self.mod.config_names)

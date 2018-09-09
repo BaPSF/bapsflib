@@ -11,54 +11,31 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import unittest as ut
 import numpy as np
+import unittest as ut
 
 from unittest import mock
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
-
-from ..n5700ps import hdfMap_control_n5700ps
 from .common import ControlTestCase
+from ..n5700ps import hdfMap_control_n5700ps
 
 
 class TestN5700PS(ControlTestCase):
     """Test class for hdfMap_control_n5700ps"""
 
+    # define setup variables
+    DEVICE_NAME = 'N5700_PS'
+    DEVICE_PATH = 'Raw data + config/N5700_PS'
     MAP_CLASS = hdfMap_control_n5700ps
 
     def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'N5700_PS': {'n_configs': 1}})
-        self.mod = self.f.modules['N5700_PS']
+        super().setUp()
 
     def tearDown(self):
-        self.f.cleanup()
-
-    @property
-    def map(self):
-        """Map object of control device"""
-        return self.map_control(self.cgroup)
-
-    @property
-    def cgroup(self):
-        """Control device group"""
-        return self.f['Raw data + config/N5700_PS']
-
-    def map_control(self, group):
-        """Mapping function"""
-        return self.MAP_CLASS(group)
-
-    def test_map_basics(self):
-        self.assertControlMapBasics(self.map, self.cgroup)
+        super().tearDown()
 
     def test_contype(self):
         self.assertEqual(self.map.info['contype'], 'power')
-
-    def test_not_h5py_group(self):
-        """Test error if object to map is not h5py.Group"""
-        with self.assertRaises(TypeError):
-            self.map_control(None)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
@@ -106,7 +83,7 @@ class TestN5700PS(ControlTestCase):
         cl = np.bytes_('AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n')
         self.mod[config_name].attrs[
             'N5700 power supply command list'] = cl
-        self.assertControlMapBasics(self.map, self.cgroup)
+        self.assertControlMapBasics(self.map, self.dgroup)
         self.mod.knobs.reset()
 
         # check warning if a general item is missing from group
@@ -165,7 +142,7 @@ class TestN5700PS(ControlTestCase):
         _map = self.map
 
         # re-assert Mapping Basics
-        self.assertControlMapBasics(_map, self.cgroup)
+        self.assertControlMapBasics(_map, self.dgroup)
 
         # test dataset names
         self.assertEqual(_map.dataset_names, ['Run time list'])
@@ -185,16 +162,16 @@ class TestN5700PS(ControlTestCase):
         # test that 'configs' attribute is setup correctly
         self.assertConfigsGeneralItems(_map)
 
-    def assertConfigsGeneralItems(self, cmap):
+    def assertConfigsGeneralItems(self, _map):
         """
         Test structure of the general, polymorphic elements of the
         `configs` mapping dictionary.
         """
         # only asserts 'N5700_PS' specific attributes
-        self.assertEqual(len(cmap.configs),
+        self.assertEqual(len(_map.configs),
                          self.mod.knobs.n_configs)
 
-        for cname, config in cmap.configs.items():
+        for cname, config in _map.configs.items():
             # Note: 'command list' is not included since it is
             #         covered by assertControlMapBasics()
             #

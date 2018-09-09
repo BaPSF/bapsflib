@@ -19,8 +19,8 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 :mod:`~bapsflib._hdf_mappers.msi` contains routines for mapping
 :ibf:`MSI Diagnostic` HDF5 groups.
 """
-from .controls import hdfMap_controls
+from .controls import HDFMapControls
 from .map_digitizers import hdfMap_digitizers
 from .msi import hdfMap_msi
 
-__all__ = ['hdfMap_controls', 'hdfMap_digitizers', 'hdfMap_msi']
+__all__ = ['HDFMapControls', 'hdfMap_digitizers', 'hdfMap_msi']

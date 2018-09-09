@@ -30,7 +30,7 @@ class hdfMap_controls(dict):
         <bapsflib.lapd.controls.sixk.hdfMap_control_6k>
 
     """
-    _defined_control_mappings = {
+    _defined_mapping_classes = {
         '6K Compumotor': hdfMap_control_6k,
         'Waveform': hdfMap_control_waveform,
         'N5700_PS': hdfMap_control_n5700ps,
@@ -75,7 +75,7 @@ class hdfMap_controls(dict):
         :return: list of the predefined control device group names
         :rtype: tuple(str)
         """
-        return tuple(self._defined_control_mappings.keys())
+        return tuple(self._defined_mapping_classes.keys())
 
     @property
     def __build_dict(self):
@@ -89,10 +89,10 @@ class hdfMap_controls(dict):
         """
         control_dict = {}
         for sg_name in self.data_group_subgnames:
-            if sg_name in self._defined_control_mappings:
+            if sg_name in self._defined_mapping_classes:
                 # only add mapping that succeeded
                 con_map = \
-                    self._defined_control_mappings[sg_name](
+                    self._defined_mapping_classes[sg_name](
                         self.__data_group[sg_name])
                 if con_map.build_successful:
                     control_dict[sg_name] = con_map

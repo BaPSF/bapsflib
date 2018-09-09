@@ -17,7 +17,7 @@ from .sixk import hdfMap_control_6k
 from .waveform import hdfMap_control_waveform
 
 
-class hdfMap_controls(dict):
+class HDFMapControls(dict):
     """
     A dictionary that contains mapping objects for all the discovered
     control devices in the HDF5 data group.  The dictionary keys are
@@ -26,11 +26,11 @@ class hdfMap_controls(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf_mappers import hdfMap_controls
+        >>> from bapsflib._hdf_mappers import HDFMapControls
         >>> f = lapd.File('sample.hdf5')
         >>> # 'Raw data + config' is the LaPD HDF5 group name for the
         ... # group housing digitizer and control devices
-        ... control_map = hdfMap_controls(f['Raw data + config'])
+        ... control_map = HDFMapControls(f['Raw data + config'])
         >>> control_map['6K Compumotor']
         <bapsflib._hdf_mappers.controls.sixk.hdfMap_control_6k>
     """
@@ -80,7 +80,7 @@ class hdfMap_controls(dict):
         return tuple(self._defined_mapping_classes.keys())
 
     @property
-    def __build_dict(self):
+    def __build_dict(self) -> dict:
         """
         Discovers the HDF5 control devices and builds the dictionary
         containing the control device mapping objects.  This is the

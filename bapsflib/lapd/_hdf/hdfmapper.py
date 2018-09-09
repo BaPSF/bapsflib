@@ -32,7 +32,7 @@ from warnings import warn
 
 from bapsflib._hdf_mappers.msi import hdfMap_msi
 from bapsflib._hdf_mappers.map_digitizers import hdfMap_digitizers
-from bapsflib._hdf_mappers.controls import hdfMap_controls
+from bapsflib._hdf_mappers.controls import HDFMapControls
 
 
 class hdfMap(object):
@@ -43,7 +43,7 @@ class hdfMap(object):
 
     The following classes are leveraged to construct the mappings:
 
-    * :class:`~.controls.map_controls.hdfMap_controls`.
+    * :class:`~.controls.map_controls.HDFMapControls`.
     * :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
     * :class:`~.msi.map_msi.hdfMap_msi`.
     """
@@ -273,10 +273,10 @@ class hdfMap(object):
         """
         Attaches a dictionary (:attr:`__controls`) containing all
         control device mapping objects constructed by
-        :class:`~.controls.map_controls.hdfMap_controls`.
+        :class:`~.controls.map_controls.HDFMapControls`.
         """
         if self.has_data_group:
-            self.__controls = hdfMap_controls(
+            self.__controls = HDFMapControls(
                 self.__hdf_obj[self._DATA_GNAME])
         else:
             self.__controls = {}

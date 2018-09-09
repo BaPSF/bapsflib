@@ -16,13 +16,13 @@ import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-from ..map_controls import hdfMap_controls
+from ..map_controls import HDFMapControls
 from ..templates import (hdfMap_control_template,
                          hdfMap_control_cl_template)
 
 
 class TestHDFMapControls(ut.TestCase):
-    """Test class for hdfMap_controls"""
+    """Test class for HDFMapControls"""
     # What to test?
     # X  1. returned object is a dictionary
     # X  2. if input is not h5py.Group instance, then TypeError is
@@ -60,7 +60,7 @@ class TestHDFMapControls(ut.TestCase):
     @staticmethod
     def map_control(group):
         """Mapping function"""
-        return hdfMap_controls(group)
+        return HDFMapControls(group)
 
     def test_not_h5py_group(self):
         """Test error if object to map is not h5py.Group"""
@@ -144,7 +144,7 @@ class TestHDFMapControls(ut.TestCase):
         self.assertIn('6K Compumotor', _map)
         self.assertNotIn('Waveform', _map)
 
-    def assertBasics(self, _map: hdfMap_controls):
+    def assertBasics(self, _map: HDFMapControls):
         # mapped object is a dictionary
         self.assertIsInstance(_map, dict)
 

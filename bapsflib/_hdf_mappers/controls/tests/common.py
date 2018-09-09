@@ -100,7 +100,6 @@ class ControlTestCase(ut.TestCase):
         self.assertTrue(hasattr(_map, 'has_command_list'))
         self.assertTrue(hasattr(_map, 'one_config_per_dset'))
         self.assertTrue(hasattr(_map, 'construct_dataset_name'))
-        self.assertTrue(hasattr(_map, 'build_successful'))
 
         # extra attributes for a command list (CL) focused device
         self.assertIsInstance(_map.has_command_list, bool)
@@ -154,11 +153,6 @@ class ControlTestCase(ut.TestCase):
 
         # check 'one_config_per_dset'
         self.assertIsInstance(_map.one_config_per_dset, bool)
-
-        # check 'build_successful'
-        # - all assertions below will only pass if build was successful
-        self.assertIsInstance(_map.build_successful, bool)
-        self.assertTrue(_map.build_successful)
 
         # ---- test map.configs                                     ----
         #

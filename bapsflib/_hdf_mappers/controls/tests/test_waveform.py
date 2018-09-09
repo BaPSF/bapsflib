@@ -14,6 +14,7 @@
 import numpy as np
 import unittest as ut
 
+from bapsflib.utils.errors import HDFMappingError
 from unittest import mock
 
 from .common import ControlTestCase
@@ -39,7 +40,7 @@ class TestWaveform(ControlTestCase):
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
-        # any failed build must throw a UserWarning
+        # any failed build must throw a HDFMappingError
         #
         # make a default/clean 'Waveform' module
         self.mod.knobs.reset()
@@ -47,8 +48,8 @@ class TestWaveform(ControlTestCase):
         # expected dataset does not exist
         # - rename 'Run time list' dataset
         self.mod.move('Run time list', 'Waveform data')
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.move('Waveform data', 'Run time list')
 
         # 'Waveform command list' attribute does not exist
@@ -57,15 +58,15 @@ class TestWaveform(ControlTestCase):
         cl = self.mod[config_name].attrs['Waveform command list']
         self.mod[config_name].attrs['Wrong command list'] = cl
         del self.mod[config_name].attrs['Waveform command list']
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod[config_name].attrs['Waveform command list'] = cl
         del self.mod[config_name].attrs['Wrong command list']
 
         # there are no configuration groups to map
         del self.f['Raw data + config/Waveform/config01']
-        with self.assertWarns(UserWarning):
-            self.assertFalse(self.map.build_successful)
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
         self.mod.knobs.reset()
 
     def test_misc(self):
@@ -88,7 +89,7 @@ class TestWaveform(ControlTestCase):
         config_name = self.mod.config_names[0]
         del self.mod[config_name].attrs['IP address']
         with self.assertWarns(UserWarning):
-            self.assertTrue(self.map.build_successful)
+            _map = self.map
         self.mod.knobs.reset()
 
         # '_construct_state_values_dict' throws KeyError when executing

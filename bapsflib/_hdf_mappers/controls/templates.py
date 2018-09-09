@@ -181,16 +181,6 @@ class hdfMap_control_template(ABC):
                 }
         """
 
-        # initialize build success
-        self._build_successful = False
-
-    @property
-    def build_successful(self):
-        """
-        Indicates if the map construction was successful.
-        """
-        return self._build_successful
-
     @property
     def configs(self):
         """

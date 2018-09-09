@@ -28,7 +28,7 @@ class TestHDFMapControls(ut.TestCase):
     # X  2. if input is not h5py.Group instance, then TypeError is
     #       raised
     # X  3. existence of:
-    #       a. predefined_control_groups
+    #       a. mappable_devices
     #          - check it's a tuple
     # X  4. data group has no sub-groups
     #       - dict is empty
@@ -155,10 +155,10 @@ class TestHDFMapControls(ut.TestCase):
 
         # look for map attributes
         self.assertTrue(
-            hasattr(_map, 'predefined_control_groups'))
+            hasattr(_map, 'mappable_devices'))
 
         # check attribute types
-        self.assertIsInstance(_map.predefined_control_groups,
+        self.assertIsInstance(_map.mappable_devices,
                               tuple)
 
 

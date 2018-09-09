@@ -70,7 +70,7 @@ class hdfMap_controls(dict):
         dict.__init__(self, self.__build_dict)
 
     @property
-    def predefined_control_groups(self):
+    def mappable_devices(self) -> tuple:
         """
         :return: list of the predefined control device group names
         :rtype: tuple(str)

@@ -21,14 +21,16 @@ class hdfMap_controls(dict):
     control devices in the HDF5 data group.  The dictionary keys are
     the names of the discovered control devices.
 
-    :example:
+    :Example:
 
-    .. code-block:: python
-
-        >>> cmaps = hdfMap_controls(data_group)
-        >>> cmaps['6K Compumotor']
-        <bapsflib.lapd.controls.sixk.hdfMap_control_6k>
-
+        >>> from bapsflib import lapd
+        >>> from bapsflib._hdf_mappers import hdfMap_controls
+        >>> f = lapd.File('sample.hdf5')
+        >>> # 'Raw data + config' is the LaPD HDF5 group name for the
+        ... # group housing digitizer and control devices
+        ... control_map = hdfMap_controls(f['Raw data + config'])
+        >>> control_map['6K Compumotor']
+        <bapsflib._hdf_mappers.controls.sixk.hdfMap_control_6k>
     """
     _defined_mapping_classes = {
         '6K Compumotor': hdfMap_control_6k,
@@ -40,17 +42,15 @@ class hdfMap_controls(dict):
     device mapping classes.
     """
 
-    def __init__(self, data_group):
+    def __init__(self, data_group: h5py.Group):
         """
-        :param data_group: HDF5 (data) group that contains the control
-            device groups
-        :type data_group: :class:`h5py.Group`
+        :param data_group: HDF5 group object
         """
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
             raise TypeError('data_group is not of type h5py.Group')
 
-        # store HDF5 data group instance
+        # store HDF5 data group
         self.__data_group = data_group
 
         # Gather data_group subgroups
@@ -72,8 +72,8 @@ class hdfMap_controls(dict):
     @property
     def mappable_devices(self) -> tuple:
         """
-        :return: list of the predefined control device group names
-        :rtype: tuple(str)
+        tuple of the mappable control devices (i.e. their HDF5 group
+        names)
         """
         return tuple(self._defined_mapping_classes.keys())
 

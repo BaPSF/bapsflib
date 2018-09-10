@@ -14,10 +14,10 @@ import warnings
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from .templates import hdfMap_control_cl_template
+from .templates import HDFMapControlCLTemplate
 
 
-class hdfMap_control_n5700ps(hdfMap_control_cl_template):
+class hdfMap_control_n5700ps(HDFMapControlCLTemplate):
     """
     Mapping module for control device 'N5700_PS'.
 
@@ -37,7 +37,7 @@ class hdfMap_control_n5700ps(hdfMap_control_cl_template):
         :type group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_control_cl_template.__init__(self, group)
+        HDFMapControlCLTemplate.__init__(self, group)
 
         # define control type
         self._info['contype'] = 'power'

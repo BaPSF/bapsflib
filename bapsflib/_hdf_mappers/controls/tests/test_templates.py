@@ -23,18 +23,18 @@ from unittest import mock
 
 from ..clparse import CLParse
 from ..templates import (HDFMapControlTemplate,
-                         hdfMap_control_cl_template)
+                         HDFMapControlCLTemplate)
 
 
 class DummyTemplates(Enum):
     default = HDFMapControlTemplate
-    cl = hdfMap_control_cl_template
+    cl = HDFMapControlCLTemplate
 
 
 class TestControlTemplates(ut.TestCase):
     """
     Test class for HDFMapControlTemplate and
-    hdfMap_control_cl_template.
+    HDFMapControlCLTemplate.
     """
 
     def setUp(self):
@@ -109,7 +109,7 @@ class TestControlTemplates(ut.TestCase):
             self.dummy_map('default', self.group()),
             self.group())
 
-        # test hdfMap_control_cl_template
+        # test HDFMapControlCLTemplate
         self.assertControlCLTemplate(
             self.dummy_map('cl', self.group()),
             self.group())
@@ -189,7 +189,7 @@ class TestControlTemplates(ut.TestCase):
 
     def assertControlCLTemplate(self, _map, _group: h5py.Group):
         # check instance
-        self.assertIsInstance(_map, hdfMap_control_cl_template)
+        self.assertIsInstance(_map, HDFMapControlCLTemplate)
 
         # re-assert HDFMapControlTemplate structure
         self.assertControlTemplate(_map, _group)

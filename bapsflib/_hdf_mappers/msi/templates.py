@@ -50,7 +50,7 @@ class hdfMap_msi_template(ABC):
         # define info attribute
         self._info = {
             'group name': os.path.basename(group.name),
-            'group path': group.name
+            'group path': group.name,
         }
 
         # initialize self.configs
@@ -96,15 +96,15 @@ class hdfMap_msi_template(ABC):
                 configs['shotnum']
             ", "
             Specifies the dataset(s) containing the recorded HDF5 shot
-            numbers.  This maps to the :code:`'shotnum'` field the
+            numbers.  This maps to the :code:`'shotnum'` field of the
             numpy array constructed by
             :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`.  Should
             look like::
 
                 configs['shotnum'] = {
-                    'dset paths': ['/foo/bar/d1',],
+                    'dset paths': ('/foo/bar/d1',),
                     'dset field': ('Shot number',),
-                    'shape': [(),],
+                    'shape': (),
                     'dtype': numpy.int32,
                 }
 
@@ -120,35 +120,36 @@ class hdfMap_msi_template(ABC):
                 configs['signals']
             ", "
             This is another dictionary where each key will map to a
-            a field in the
+            field in the
             :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI` numpy
-            array.  For example,::
+            array.  For example, ::
 
-                configs['signals'] = {'current': {
-                    'dset paths': ['/foo/bar/dset',],
-                    'dset field': (None,),
-                    'shape': [(100,),],
-                    'dtype': numpy.float32,
-                }}
+                configs['signals'] = {
+                    'current': {
+                        'dset paths': ('/foo/bar/dset',),
+                        'dset field': (),
+                        'shape': (100,),
+                        'dtype': numpy.float32},
+                }
 
             would created a :code:`'current'` field in the constructed
             numpy array.  Any field specified in this key is considered
-            to be your plot-able, primary diagnostic data.
+            to be your plot-able, or ""primary"", diagnostic data.
             "
             "::
 
                 configs['meta']
             ", "
             This is another dictionary specifying meta-data that is both
-            diagnostic and shot number specific.  For example,::
+            diagnostic and shot number specific.  For example, ::
 
                 configs['meta'] = {
                     'shape': (),
                     'max current': {
-                        'dset paths': ['/foo/bar/dset',],
+                        'dset paths': ('/foo/bar/dset',),
                         'dset field': ('Max current',),
-                        'shape': [(),],
-                        'dtype': numpy.float32}
+                        'shape': (),
+                        'dtype': numpy.float32},
                 }
 
             would create a :code:`'max current'` field in the
@@ -164,7 +165,7 @@ class hdfMap_msi_template(ABC):
     @property
     def info(self) -> dict:
         """
-        MSI diagnostic dictionary of meta-info::
+        MSI diagnostic dictionary of meta-info. For example, ::
 
             info = {
                 'group name': 'Diagnostic',

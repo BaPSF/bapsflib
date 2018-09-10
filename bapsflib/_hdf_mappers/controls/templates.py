@@ -261,7 +261,7 @@ class hdfMap_control_template(ABC):
         return sgroup_names
 
     @property
-    def name(self) -> str:
+    def device_name(self) -> str:
         """Name of Control device"""
         return self._info['group name']
 

@@ -118,7 +118,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
                     self._configs[name][pair[0]] = None
                     warn_str = ("Attribute '" + pair[1]
                                 + "' not found in control device '"
-                                + self.name + "' configuration group '"
+                                + self.device_name + "' configuration group '"
                                 + name + "'")
                     if pair[0] != 'command list':
                         warn_str += ", continuing with mapping"

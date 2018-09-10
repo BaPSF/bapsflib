@@ -48,7 +48,7 @@ class HDFMapControlTemplate(ABC):
           intended to be overwritten by the inheriting class.
         * If a control device is structured around a
           :ibf:`command list`, then its mapping class should subclass
-          :mod:`~bapsflib._hdf_mappers.controls.templates.hdfMap_control_cl_template`.
+          :mod:`~bapsflib._hdf_mappers.controls.templates.HDFMapControlCLTemplate`.
           Which is a subclass of
           :mod:`~bapsflib._hdf_mappers.controls.templates.HDFMapControlTemplate`,
           but adds methods for parsing/handling a command list.
@@ -259,7 +259,7 @@ class HDFMapControlTemplate(ABC):
         raise NotImplementedError
 
 
-class hdfMap_control_cl_template(HDFMapControlTemplate):
+class HDFMapControlCLTemplate(HDFMapControlTemplate):
     # noinspection PySingleQuotedDocstring
     '''
     A modified :class:`HDFMapControlTemplate` template class for
@@ -273,7 +273,7 @@ class hdfMap_control_cl_template(HDFMapControlTemplate):
             :param group: HDF5 group object
             """
             # initialize
-            hdfMap_control_cl_template.__init__(self, control_group)
+            HDFMapControlCLTemplate.__init__(self, control_group)
 
             # define control type
             # - control types can be 'motion', 'power', 'waveform', or

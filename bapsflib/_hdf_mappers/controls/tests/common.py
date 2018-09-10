@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..templates import (HDFMapControlTemplate,
-                         hdfMap_control_cl_template)
+                         HDFMapControlCLTemplate)
 
 
 class ControlTestCase(ut.TestCase):
@@ -105,7 +105,7 @@ class ControlTestCase(ut.TestCase):
         self.assertIsInstance(_map.has_command_list, bool)
         if _map.has_command_list:
             # check inherited form proper template
-            self.assertIsInstance(_map, hdfMap_control_cl_template)
+            self.assertIsInstance(_map, HDFMapControlCLTemplate)
 
             # assert CL attributes
             self.assertTrue(hasattr(_map, '_cl_re_patterns'))

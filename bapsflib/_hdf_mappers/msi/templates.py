@@ -69,13 +69,13 @@ class hdfMap_msi_template(ABC):
         The :code:`configs` dict is broken into a set of required keys
         (:code:`'shape'`, :code:`'shotnum'`, :code:`'signals'`, and
         :code:`'meta'`) and optional keys.  Any option key is considered
-        as meta-data for the device and is added to the
+        as meta-info for the device and is added to the
         :attr:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI.info`
         dictionary when the numpy array is constructed.  The required
-        keys constitute the mapping for the device.
+        keys constitute the mapping for constructing the numpy array.
 
         .. csv-table::
-            :header: "key", "Description"
+            :header: "Key", "Description"
             :widths: 20, 60
 
             "::

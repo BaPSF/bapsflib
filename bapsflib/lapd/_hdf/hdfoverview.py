@@ -418,7 +418,7 @@ class hdfOverview(object):
         # print control config
         for control in configs:
             # print control name
-            status_print(control.name, '', '')
+            status_print(control.device_name, '', '')
 
             # print path to control
             item = 'path:     ' + control.info['group path']

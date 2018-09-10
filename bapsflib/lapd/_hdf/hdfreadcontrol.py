@@ -869,7 +869,7 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
     if configkey == '':
         raise ValueError(
             'Can NOT find configuration field in the control'
-            + ' ({}) dataset'.format(cmap.name))
+            + ' ({}) dataset'.format(cmap.device_name))
 
     # find index
     if cdset.shape[0] == n_configs:

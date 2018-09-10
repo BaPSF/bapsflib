@@ -121,7 +121,7 @@ class TestControlTemplates(ut.TestCase):
         # check attribute existence
         attrs = ('info', 'configs', 'contype', 'dataset_names',
                  'group', 'has_command_list', 'one_config_per_dset',
-                 'subgroup_names', 'name', 'construct_dataset_name',
+                 'subgroup_names', 'device_name', 'construct_dataset_name',
                  '_build_configs')
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
@@ -174,7 +174,7 @@ class TestControlTemplates(ut.TestCase):
         # -- check other attributes                                 ----
         self.assertEqual(_map.contype, _map.info['contype'])
         self.assertEqual(_map.group, _group)
-        self.assertEqual(_map.name, _map.info['group name'])
+        self.assertEqual(_map.device_name, _map.info['group name'])
         self.assertEqual(sorted(_map.dataset_names),
                          sorted(['d1', 'd2', 'd3']))
         self.assertEqual(sorted(_map.subgroup_names),

@@ -93,7 +93,7 @@ class ControlTestCase(ut.TestCase):
         self.assertTrue(hasattr(_map, 'info'))
         self.assertTrue(hasattr(_map, 'configs'))
         self.assertTrue(hasattr(_map, 'contype'))
-        self.assertTrue(hasattr(_map, 'name'))
+        self.assertTrue(hasattr(_map, 'device_name'))
         self.assertTrue(hasattr(_map, 'group'))
         self.assertTrue(hasattr(_map, 'subgroup_names'))
         self.assertTrue(hasattr(_map, 'dataset_names'))
@@ -138,8 +138,8 @@ class ControlTestCase(ut.TestCase):
         # check 'contype'
         self.assertEqual(_map.info['contype'], _map.contype)
 
-        # check 'name'
-        self.assertEqual(_map.name, _map.info['group name'])
+        # check 'device_name'
+        self.assertEqual(_map.device_name, _map.info['group name'])
 
         # check 'group'
         self.assertIsInstance(_map.group, h5py.Group)

@@ -260,19 +260,24 @@ class HDFMapControlTemplate(ABC):
 
 
 class hdfMap_control_cl_template(HDFMapControlTemplate):
-    """
+    # noinspection PySingleQuotedDocstring
+    '''
     A modified :class:`HDFMapControlTemplate` template class for
     mapping control devices that record around the concept of a
-    **command list**.
+    :ibf:`command list`.
 
     Any inheriting class should define :code:`__init__` as::
 
-        def __init__(self, control_group):
+        def __init__(self, group: h5py.Group):
+            """
+            :param group: HDF5 group object
+            """
             # initialize
             hdfMap_control_cl_template.__init__(self, control_group)
 
             # define control type
-            # - control types can be 'motion', 'power', 'waveform'
+            # - control types can be 'motion', 'power', 'waveform', or
+            #   'timing'
             #
             self.info['contype'] = 'waveform'
 
@@ -282,20 +287,16 @@ class hdfMap_control_cl_template(HDFMapControlTemplate):
             ])
 
             # populate self.configs
-            # - the method _build_configs contains the code to build
-            #   the self.configs dictionary
-            #
             self._build_configs()
 
     .. note::
 
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
-    """
-    def __init__(self, group):
+    '''
+    def __init__(self, group: h5py.Group):
         """
-        :param group: the control HDF5 group
-        :type group: :class:`h5py.Group`
+        :param group: the control device HDF5 group object
         """
         HDFMapControlTemplate.__init__(self, group)
 
@@ -346,9 +347,8 @@ class hdfMap_control_cl_template(HDFMapControlTemplate):
         supplied RE patterns. :code:`None` is returned if the
         construction failed.
 
-        :param str config_name: configuration name
+        :param config_name: configuration name
         :param patterns: list of RE pattern strings
-        :type patterns: list(str)
         """
         # -- check requirements exist before continuing             ----
         # get dataset
@@ -414,7 +414,7 @@ class hdfMap_control_cl_template(HDFMapControlTemplate):
         Reset the :code:`configs[config_name]['state values']`
         dictionary.
 
-        :param str config_name: configuration name
+        :param config_name: configuration name
         :param bool apply_patterns: Set :code:`False` (DEFAULT) to
             reset to :code:`_default_state_values_dict(config_name)`.
             Set :code:`True` to rebuild dict using
@@ -440,7 +440,7 @@ class hdfMap_control_cl_template(HDFMapControlTemplate):
         :code:`configs[config_name]['state values']` based on the
         supplied RE *patterns*.
 
-        :param str config_name: configuration name
+        :param config_name: configuration name
         :param patterns: list of RE strings
         """
 

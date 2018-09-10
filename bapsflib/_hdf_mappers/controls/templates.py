@@ -44,8 +44,14 @@ class hdfMap_control_template(ABC):
 
     .. note::
 
-        Any method that raises a :exc:`NotImplementedError` is intended
-        to be overwritten by the inheriting class.
+        * Any method that raises a :exc:`NotImplementedError` is
+          intended to be overwritten by the inheriting class.
+        * If a control device is structured around a
+          :ibf:`command list`, then its mapping class should subclass
+          :mod:`~bapsflib._hdf_mappers.controls.templates.hdfMap_control_cl_template`.
+          Which is a subclass of
+          :mod:`~bapsflib._hdf_mappers.controls.templates.hdfMap_control_template`,
+          but adds methods for parsing/handling a command list.
     '''
     def __init__(self, group: h5py.Group):
         """
@@ -66,134 +72,100 @@ class hdfMap_control_template(ABC):
 
         # initialize configuration dictionary
         self._configs = {}
-        """
-        Configuration dictionary of HDF5 control device. This dictionary
-        is slightly polymorphic depending on the control type.  That is,
-        there are some core items that exist for all control types and
-        some that are control type dependent.
-        
-        The core items for :code:`configs`::
-        
-            configs = {
-                'config names': [str, ], # list of configuration names
-                'nControlled': int, # number of controlled probes and/or
-                                    # utilized control setups
-                                'dataset fields':
-                    [(str,              # name of dataset field
-                      dtype), ],        # numpy dtype of field
-                'dset field to numpy field':
-                    [(str,      # name of dataset field
-                                # ~ if a tuple like (str, int) then this
-                                #   indicates that the dataset field is
-                                #   linked to a command list 
-                      str,      # name of numpy field that will be used
-                                # by hdfReadControl
-                      int), ]   # numpy array index for which the
-                                # dataset entry will be mapped into
-            }
-        
-        For :code:`info['contype'] == 'motion'`:
-        
-        .. code-block:: python
-            
-            # core config items
-            configs = {
-                'motion list': [str, ], # list of motion list names
-                'probe list': [str, ],  # list of probe names
-                'nControlled': int,     # number of controlled probes
-                'dataset fields':
-                    [(str,              # name of dataset field
-                      dtype), ],        # numpy dtype of field
-                'dset field to numpy field':
-                    [(str,      # name of dataset field
-                                # ~ if a tuple like (str, int) then this
-                                #   indicates that the dataset field is
-                                #   linked to a command list 
-                      str,      # name of numpy field that will be used
-                                # by hdfReadControl
-                      int), ]   # numpy array index for which the
-                                # dataset entry will be mapped into
-            }
-            
-            # specific motion config items
-            for name in configs['motion list']:
-                configs[name] = motion_dict
-            
-            # motion_dict format
-            motion_dict = {
-                'delta': (dx, dy, dz),  # step-size in xyz
-                'center': (x0, y0, z0), # origin
-                'npoints': (nx, ny, nz) # number of positions in xyz
-            }
-            
-            # specific probe config items
-            for name in configs['probe list']:
-                configs[name] = probe_dict
-            
-            # probe_dict format
-            probe_dict = {
-                'receptacle': int, # probe drive receptacle number
-                                   # - used as unique specifier
-                'port': int        # LaPD port the probe drive was
-                                   # connected to
-            }
-            
-        
-        For :code:`info['contype'] in ['waveform', 'power']`:
-        
-        .. code-block:: python
-        
-            # core config items
-            configs = {
-                'config names': [str, ], # list of control device 
-                                         # config names
-                'nControlled': int,      # number of controlled probes
-                'dataset fields':
-                    [(str,               # name of dataset field
-                      dtype), ],         # numpy dtype of field
-                'dset field to numpy field':
-                    [(str,      # name of dataset field
-                                # ~ if a tuple like (str) or (str, int)
-                                #   then this indicates that the dataset
-                                #   field is linked to a command list 
-                      str,      # name of numpy field that will be used
-                                # by hdfReadControl
-                      int), ]   # numpy array index for which the
-                                # dataset entry will be mapped into
-            }
-            
-            # configuration specific items
-            for name in configs['config names']:
-                configs[name] = {
-                    'IP address': str, # control device IP address
-                    'command list': [] # typically a list of floating
-                                       # point variables whose values
-                                       # correspond to the property
-                                       # controlled by the device
-                                       # - the list index corresponds to
-                                       #   the command list value in the
-                                       #   control device dataset
-                                       # - the list can be polymorphic
-                                       #   to the property type
-                                       #   controlled
-                }
-        """
 
     @property
     def configs(self) -> dict:
         """
         Dictionary containing all the relevant mapping information to
-        translate the HDF5 data locations for the
-        :mod:`bapsflib.lapd` module.
+        translate the HDF5 data into a numpy array by
+        :mod:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl`.
+
+        **-- Constructing** :code:`configs` **--**
+
+        The :code:`configs` dict is a nested dictionary where the first
+        level of keys represents the control device configuration names.
+        Each configuration corresponds to one dataset in the HDF5
+        control group and represents a grouping of state values
+        associated with an probe or instrument used during an
+        experiment.
+
+        Each configuration is a dictionary consisting of a set of
+        required keys (:code:`'dset paths'`, :code:`'shotnum'`, and
+        :code:`'state values'`) and optional keys.  Any option key is
+        considered as meta-info for the device and is added to the
+        :attr:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl.info`
+        dictionary when the numpy array is constructed.  The required
+        keys constitute the mapping for constructing the numpy array.
+
+        .. csv-table:: Dictionary breakdown for
+                       :code:`config = configs['config name']`
+            :header: "Key", "Description"
+            :widths: 20, 60
+
+            "::
+
+                config['dset paths']
+            ", "
+            Internal HDF5 path to the dataset associated with the
+            control device configuration. For example, ::
+
+                config['dset paths'] = ('/foo/bar/Control/d1', )
+
+            "
+            "::
+
+                config['shotnum']
+            ", "
+            Defines how the run shot numbers are stored in the HDF5
+            file, which are mapped to the :code:`'shotnum` field of the
+            constructed numpy array.  Should look like, ::
+
+                config['shotnum'] = {
+                    'dset paths': config['dset paths'],
+                    'dset field': ('Shot number',),
+                    'shape': (),
+                    'dtype': numpy.int32,
+                }
+
+            where :code:`'dset paths'` is the internal HDF5 path to the
+            dataset, :code:`'dset field'` is the field name of the
+            dataset containing shot numbers, :code:`'shape'` is the
+            numpy shape of the shot number data, and :code:`'dtype'`
+            is the numpy :code:`dtype` of the data.  This all defines
+            the numpy :code:`dtype` of the :code:`'shotnum'` field in
+            the
+            :mod:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl`
+            constructed numpy array.
+            "
+            "::
+
+                config['state values']
+            ", "
+            This is another dictionary defining :code:`'state values`.
+            For example, ::
+
+                config['shotnum'] = {
+                    'xyz': {
+                        'dset paths': config['dset paths'],
+                        'dset field': ('x', 'y', 'z'),
+                        'shape': (3,),
+                        'dtype': numpy.float32}
+                }
+
+            will tell
+            :mod:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl`
+            to construct a numpy array with a the :code:`'xyz'` field.
+            This field would be a 3-element array of
+            :code:`numpy.float32`, where the :code:`'x'` field of the
+            HDF5 dataset is mapped to the 1st index, :code:`'y'` is
+            mapped to the 2nd index, and :code:`'z'` is mapped to the
+            3rd index.
+            "
 
         .. note::
 
-            While this dictionary has some required structure to it,
-            the dictionary is also semi-polymorphic depending on the
-            control device it is mapping.
+            for further details, look to :ref:`add_control_mod`.
         """
-        # TODO: fill out docstring for attribute `configs`
-        # TODO: format of configs needs to be solidified
         return self._configs
 
     @property
@@ -202,6 +174,7 @@ class hdfMap_control_template(ABC):
         control device type (:code:`'motion'`, :code:`'power'`,
         :code:`'timing'`, or :code:`'waveform'` )
         """
+        # TODO: make a enum class to make this more easily expandable
         return self._info['contype']
 
     @property

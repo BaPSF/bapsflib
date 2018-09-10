@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..map_controls import HDFMapControls
-from ..templates import (hdfMap_control_template,
+from ..templates import (HDFMapControlTemplate,
                          hdfMap_control_cl_template)
 
 
@@ -150,7 +150,7 @@ class TestHDFMapControls(ut.TestCase):
 
         # all dict items are a mapping class
         for val in _map.values():
-            self.assertIsInstance(val, (hdfMap_control_template,
+            self.assertIsInstance(val, (HDFMapControlTemplate,
                                         hdfMap_control_cl_template))
 
         # look for map attributes

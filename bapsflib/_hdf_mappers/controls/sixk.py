@@ -14,10 +14,10 @@ import re
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from .templates import hdfMap_control_template
+from .templates import HDFMapControlTemplate
 
 
-class hdfMap_control_6k(hdfMap_control_template):
+class hdfMap_control_6k(HDFMapControlTemplate):
     """
     Mapping module for control device '6K Compumotor'.
 
@@ -41,7 +41,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         :param group: the HDF5 control device group
         :type group: :class:`h5py.Group`
         """
-        hdfMap_control_template.__init__(self, group)
+        HDFMapControlTemplate.__init__(self, group)
 
         # define control type
         self._info['contype'] = 'motion'

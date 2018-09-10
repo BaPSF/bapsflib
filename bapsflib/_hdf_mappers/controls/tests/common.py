@@ -16,7 +16,7 @@ import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-from ..templates import (hdfMap_control_template,
+from ..templates import (HDFMapControlTemplate,
                          hdfMap_control_cl_template)
 
 
@@ -87,7 +87,7 @@ class ControlTestCase(ut.TestCase):
 
     def assertControlMapBasics(self, _map, _group):
         # check mapping instance
-        self.assertIsInstance(_map, hdfMap_control_template)
+        self.assertIsInstance(_map, HDFMapControlTemplate)
 
         # assert attribute existence
         self.assertTrue(hasattr(_map, 'info'))

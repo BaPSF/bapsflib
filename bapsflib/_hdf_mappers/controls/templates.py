@@ -21,7 +21,8 @@ from .clparse import CLParse
 
 
 class hdfMap_control_template(ABC):
-    """
+    # noinspection PySingleQuotedDocstring
+    '''
     Template class for all control mapping classes to inherit from.
 
     Any inheriting class should define :code:`__init__` as::
@@ -45,23 +46,22 @@ class hdfMap_control_template(ABC):
 
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
-    """
-    def __init__(self, control_group: h5py.Group):
+    '''
+    def __init__(self, group: h5py.Group):
         """
-        :param control_group: the control HDF5 group
-        :type control_group: :class:`h5py.Group`
+        :param group: the control device HDF5 group object
         """
-        # condition control_group arg
-        if isinstance(control_group, h5py.Group):
-            self.__control_group = control_group
+        # condition group arg
+        if isinstance(group, h5py.Group):
+            self._control_group = group
         else:
-            raise TypeError('arg digi_group is not of type h5py.Group')
+            raise TypeError('arg `group` is not of type h5py.Group')
 
         # define _info attribute
         self._info = {
-            'group name': os.path.basename(control_group.name),
-            'group path': control_group.name,
-            'contype': NotImplemented
+            'group name': os.path.basename(group.name),
+            'group path': group.name,
+            'contype': NotImplemented,
         }
 
         # initialize configuration dictionary
@@ -330,12 +330,12 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
     """
-    def __init__(self, control_group):
+    def __init__(self, group):
         """
-        :param control_group: the control HDF5 group
-        :type control_group: :class:`h5py.Group`
+        :param group: the control HDF5 group
+        :type group: :class:`h5py.Group`
         """
-        hdfMap_control_template.__init__(self, control_group)
+        hdfMap_control_template.__init__(self, group)
 
         # initialize internal 'command list' regular expression (RE)
         # patterns

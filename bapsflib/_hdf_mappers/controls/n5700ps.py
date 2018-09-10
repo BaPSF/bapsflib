@@ -31,13 +31,13 @@ class hdfMap_control_n5700ps(hdfMap_control_cl_template):
         |   |   +--
 
     """
-    def __init__(self, control_group):
+    def __init__(self, group):
         """
-        :param control_group: the HDF5 control device group
-        :type control_group: :class:`h5py.Group`
+        :param group: the HDF5 control device group
+        :type group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_control_cl_template.__init__(self, control_group)
+        hdfMap_control_cl_template.__init__(self, group)
 
         # define control type
         self._info['contype'] = 'power'

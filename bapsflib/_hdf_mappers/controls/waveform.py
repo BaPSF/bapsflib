@@ -55,7 +55,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""
         # check there are configurations to map
-        if len(self.sgroup_names) == 0:
+        if len(self.subgroup_names) == 0:
             why = 'has no mappable configurations'
             raise HDFMappingError(self._info['group path'], why=why)
 
@@ -66,7 +66,7 @@ class hdfMap_control_waveform(hdfMap_control_cl_template):
         #   name
         # - assume all configurations are active (i.e. used)
         #
-        for name in self.sgroup_names:
+        for name in self.subgroup_names:
             # get configuration group
             cong = self.group[name]
 

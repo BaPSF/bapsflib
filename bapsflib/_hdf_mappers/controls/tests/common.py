@@ -95,7 +95,7 @@ class ControlTestCase(ut.TestCase):
         self.assertTrue(hasattr(_map, 'contype'))
         self.assertTrue(hasattr(_map, 'name'))
         self.assertTrue(hasattr(_map, 'group'))
-        self.assertTrue(hasattr(_map, 'sgroup_names'))
+        self.assertTrue(hasattr(_map, 'subgroup_names'))
         self.assertTrue(hasattr(_map, 'dataset_names'))
         self.assertTrue(hasattr(_map, 'has_command_list'))
         self.assertTrue(hasattr(_map, 'one_config_per_dset'))
@@ -145,7 +145,7 @@ class ControlTestCase(ut.TestCase):
         self.assertIsInstance(_map.group, h5py.Group)
         self.assertEqual(_map.group, _group)
 
-        # check 'sgroup_names' (sub-group names)
+        # check 'subgroup_names' (sub-group names)
         self.assertSubgroupNames(_map, _group)
 
         # check 'dataset_names'
@@ -314,7 +314,7 @@ class ControlTestCase(ut.TestCase):
         sgroup_names = [name
                         for name in _group
                         if isinstance(_group[name], h5py.Group)]
-        self.assertEqual(_map.sgroup_names, sgroup_names)
+        self.assertEqual(_map.subgroup_names, sgroup_names)
 
     def assertDatasetNames(self, _map, _group):
         dset_names = [name

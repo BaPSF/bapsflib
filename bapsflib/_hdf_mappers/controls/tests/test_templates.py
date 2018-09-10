@@ -121,7 +121,7 @@ class TestControlTemplates(ut.TestCase):
         # check attribute existence
         attrs = ('info', 'configs', 'contype', 'dataset_names',
                  'group', 'has_command_list', 'one_config_per_dset',
-                 'sgroup_names', 'name', 'construct_dataset_name',
+                 'subgroup_names', 'name', 'construct_dataset_name',
                  '_build_configs')
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
@@ -177,7 +177,7 @@ class TestControlTemplates(ut.TestCase):
         self.assertEqual(_map.name, _map.info['group name'])
         self.assertEqual(sorted(_map.dataset_names),
                          sorted(['d1', 'd2', 'd3']))
-        self.assertEqual(sorted(_map.sgroup_names),
+        self.assertEqual(sorted(_map.subgroup_names),
                          sorted(['g1', 'g2']))
 
         # -- check abstract methods                                 ----

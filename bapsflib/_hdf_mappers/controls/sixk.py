@@ -65,7 +65,7 @@ class hdfMap_control_6k(hdfMap_control_template):
         # build 'motion list' and 'probe list'
         _motion_lists = {}
         _probe_lists = {}
-        for name in self.sgroup_names:
+        for name in self.subgroup_names:
             ml_stuff = self._analyze_motionlist(name)
             if ml_stuff is not None:
                 # build 'motion list'

@@ -263,11 +263,8 @@ class hdfMap_control_template(ABC):
         return True if n_dset == n_configs else False
 
     @property
-    def sgroup_names(self):
-        """
-        :return: list of names of the HDF5 groups in the control group
-        :rtype: [str, ]
-        """
+    def subgroup_names(self) -> List[str]:
+        """list of names of the HDF5 sub-groups in the control group"""
         sgroup_names = [name
                         for name in self.group
                         if isinstance(self.group[name], h5py.Group)]

@@ -8,14 +8,13 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import os
 import h5py
-
 import numpy as np
+import os
 
 from abc import (ABC, abstractmethod)
-from warnings import warn
 from typing import List
+from warnings import warn
 
 from .clparse import CLParse
 
@@ -27,19 +26,20 @@ class hdfMap_control_template(ABC):
 
     Any inheriting class should define :code:`__init__` as::
 
-        def __init__(self, control_group):
+        def __init__(self, group: h5py.Group):
+            """
+            :param group: HDF5 group object
+            """
             # initialize
             hdfMap_control_template.__init__(self, control_group)
 
             # define control type
-            # - control types can be 'motion', 'power', 'waveform'
+            # - control types can be 'motion', 'power', 'waveform', or
+            #   'timing'
             #
             self.info['contype'] = 'motion'
 
             # populate self.configs
-            # - the method _build_configs contains the code to build
-            #   the self.configs dictionary
-            #
             self._build_configs()
 
     .. note::
@@ -65,8 +65,6 @@ class hdfMap_control_template(ABC):
         }
 
         # initialize configuration dictionary
-        # TODO: format of configs needs to be solidified
-        #
         self._configs = {}
         """
         Configuration dictionary of HDF5 control device. This dictionary
@@ -182,7 +180,7 @@ class hdfMap_control_template(ABC):
         """
 
     @property
-    def configs(self):
+    def configs(self) -> dict:
         """
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
@@ -195,42 +193,36 @@ class hdfMap_control_template(ABC):
             control device it is mapping.
         """
         # TODO: fill out docstring for attribute `configs`
+        # TODO: format of configs needs to be solidified
         return self._configs
 
     @property
-    def contype(self):
+    def contype(self) -> str:
         """
-        :return: Type of control device (:code:`'motion'`,
-            :code:`'waveform'`, or :code:`'power'`)
-        :rtype: str
+        control device type (:code:`'motion'`, :code:`'power'`,
+        :code:`'timing'`, or :code:`'waveform'` )
         """
         return self._info['contype']
 
     @property
-    def dataset_names(self):
-        """
-        :return: list of names of the HDF5 datasets in the control group
-        :rtype: [str, ]
-        """
+    def dataset_names(self) -> List[str]:
+        """list of names of the HDF5 datasets in the control group"""
         dnames = [name
                   for name in self.group
                   if isinstance(self.group[name], h5py.Dataset)]
         return dnames
 
     @property
-    def group(self):
-        """
-        :return: HDF5 control device group
-        :rtype: :class:`h5py.Group`
-        """
-        return self.__control_group
+    def group(self) -> h5py.Group:
+        """Instance of the HDF5 Control Device group"""
+        return self._control_group
 
     @property
-    def has_command_list(self):
+    def has_command_list(self) -> bool:
         """
         :return: :code:`True` if dataset utilizes a command list
-        :rtype: bool
         """
+        # TODO: do this based on inheriting template and enforce with tests
         has_cl = False
         for config_name in self._configs:
             if 'command list' in self._configs[config_name]:
@@ -239,24 +231,22 @@ class hdfMap_control_template(ABC):
         return has_cl
 
     @property
-    def info(self):
+    def info(self) -> dict:
         """
-        Information dict for the control device::
+        Control device dictionary of meta-info. For example, ::
 
             info = {
-                'group name': str, # name of control device group
-                'group path': str, # full path of control device group
-                'contype': str     # control device type
+                'group name': 'Control',
+                'group path': '/foo/bar/Control',
+                'contype': 'motion',
             }
         """
         return self._info
 
     @property
-    def one_config_per_dset(self):
+    def one_config_per_dset(self) -> bool:
         """
-        :return: :code:'True' if each control configuration has its
-            own dataset
-        :type: bool
+        :code:'True' if each control configuration has itsown dataset
         """
         n_dset = len(self.dataset_names)
         n_configs = len(self._configs)
@@ -271,18 +261,17 @@ class hdfMap_control_template(ABC):
         return sgroup_names
 
     @property
-    def name(self):
-        """Name of Control Device"""
+    def name(self) -> str:
+        """Name of Control device"""
         return self._info['group name']
 
     @abstractmethod
-    def construct_dataset_name(self, *args):
+    def construct_dataset_name(self, *args) -> str:
         """
         Constructs the dataset name corresponding to the input
         arguments.
 
         :return: name of dataset
-        :rtype: str
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError

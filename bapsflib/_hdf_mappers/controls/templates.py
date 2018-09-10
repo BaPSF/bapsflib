@@ -19,7 +19,7 @@ from warnings import warn
 from .clparse import CLParse
 
 
-class hdfMap_control_template(ABC):
+class HDFMapControlTemplate(ABC):
     # noinspection PySingleQuotedDocstring
     '''
     Template class for all control mapping classes to inherit from.
@@ -31,7 +31,7 @@ class hdfMap_control_template(ABC):
             :param group: HDF5 group object
             """
             # initialize
-            hdfMap_control_template.__init__(self, control_group)
+            HDFMapControlTemplate.__init__(self, group)
 
             # define control type
             # - control types can be 'motion', 'power', 'waveform', or
@@ -50,7 +50,7 @@ class hdfMap_control_template(ABC):
           :ibf:`command list`, then its mapping class should subclass
           :mod:`~bapsflib._hdf_mappers.controls.templates.hdfMap_control_cl_template`.
           Which is a subclass of
-          :mod:`~bapsflib._hdf_mappers.controls.templates.hdfMap_control_template`,
+          :mod:`~bapsflib._hdf_mappers.controls.templates.HDFMapControlTemplate`,
           but adds methods for parsing/handling a command list.
     '''
     def __init__(self, group: h5py.Group):
@@ -259,9 +259,9 @@ class hdfMap_control_template(ABC):
         raise NotImplementedError
 
 
-class hdfMap_control_cl_template(hdfMap_control_template):
+class hdfMap_control_cl_template(HDFMapControlTemplate):
     """
-    A modified :class:`hdfMap_control_template` template class for
+    A modified :class:`HDFMapControlTemplate` template class for
     mapping control devices that record around the concept of a
     **command list**.
 
@@ -297,7 +297,7 @@ class hdfMap_control_cl_template(hdfMap_control_template):
         :param group: the control HDF5 group
         :type group: :class:`h5py.Group`
         """
-        hdfMap_control_template.__init__(self, group)
+        HDFMapControlTemplate.__init__(self, group)
 
         # initialize internal 'command list' regular expression (RE)
         # patterns

@@ -91,11 +91,12 @@ class HDFMapControlTemplate(ABC):
 
         Each configuration is a dictionary consisting of a set of
         required keys (:code:`'dset paths'`, :code:`'shotnum'`, and
-        :code:`'state values'`) and optional keys.  Any option key is
+        :code:`'state values'`) and optional keys.  Any optional key is
         considered as meta-info for the device and is added to the
         :attr:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl.info`
         dictionary when the numpy array is constructed.  The required
-        keys constitute the mapping for constructing the numpy array.
+        keys constitute the mapping for constructing the numpy array
+        and are explained in the table below.
 
         .. csv-table:: Dictionary breakdown for
                        :code:`config = configs['config name']`
@@ -144,7 +145,7 @@ class HDFMapControlTemplate(ABC):
             This is another dictionary defining :code:`'state values`.
             For example, ::
 
-                config['shotnum'] = {
+                config['state values'] = {
                     'xyz': {
                         'dset paths': config['dset paths'],
                         'dset field': ('x', 'y', 'z'),
@@ -160,6 +161,57 @@ class HDFMapControlTemplate(ABC):
             HDF5 dataset is mapped to the 1st index, :code:`'y'` is
             mapped to the 2nd index, and :code:`'z'` is mapped to the
             3rd index.
+            "
+
+        If a control device saves data around the concept of a
+        :ibf:`command list`, then :code:`configs` has a few additional
+        required keys, see table below.
+
+        .. csv-table:: Additional required keys for
+                       :code:`config = configs['config name']` when
+                       the control device saves data around the concept
+                       of a :ibf:`command list`.
+            :header: "Key", "Description"
+            :widths: 20, 60
+
+            "::
+
+                config['command list']
+            ", "
+            A tuple representing the original **command list**.
+            For example, ::
+
+                config['command list'] = ('VOLT: 20.0',
+                                          'VOLT 25.0',
+                                          'VOLT 30.0')
+
+            "
+            "::
+
+                config['state values']
+            ", "
+            Has all the same keys as before, plus the addition of
+            :code:`'command list'`, :code:`'cl str`,
+            and :code:`'re pattern'`.
+            For example, ::
+
+                config['state values'] = {
+                    'command': {
+                        'dset paths': config['dset paths'],
+                        'dset field': ('Command index',),
+                        'shape': (),
+                        'dtype': numpy.float32,
+                        'command list': (20.0, 25.0, 30.0),
+                        'cl str': ('VOLT: 20.0', 'VOLT 25.0',
+                                   'VOLT 30.0'),
+                        're pattern': re.compile(r'some RE pattern')}
+                }
+
+            where :code:`'re pattern'` is the compiled RE pattern used
+            to parse the original **command list**, :code:`'cl str'` is
+            the matched string segment of the **command list**, and
+            :code:`'command list'` is the set of values that will
+            populate the constructed numpy array.
             "
 
         .. note::
@@ -195,7 +247,6 @@ class HDFMapControlTemplate(ABC):
         """
         :return: :code:`True` if dataset utilizes a command list
         """
-        # TODO: do this based on inheriting template and enforce with tests
         has_cl = False
         for config_name in self._configs:
             if 'command list' in self._configs[config_name]:
@@ -219,7 +270,7 @@ class HDFMapControlTemplate(ABC):
     @property
     def one_config_per_dset(self) -> bool:
         """
-        :code:'True' if each control configuration has itsown dataset
+        :code:'True' if each control configuration has its own dataset
         """
         n_dset = len(self.dataset_names)
         n_configs = len(self._configs)
@@ -282,7 +333,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             self.info['contype'] = 'waveform'
 
             # define known command list RE patterns
-            self._cl_re_patterns.exten([
+            self._cl_re_patterns.extend([
                 r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
             ])
 
@@ -343,7 +394,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
                                      patterns: List[str]) -> dict:
         """
         Returns a dictionary for
-        :code:`configs[config_name]['state values]` based on the
+        :code:`configs[config_name]['state values']` based on the
         supplied RE patterns. :code:`None` is returned if the
         construction failed.
 

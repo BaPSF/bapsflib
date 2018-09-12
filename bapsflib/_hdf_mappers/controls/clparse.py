@@ -8,11 +8,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import numpy as np
 import re
 
-import numpy as np
-
-from typing import (Union, List)
+from typing import (Iterable, Union)
 from warnings import warn
 
 
@@ -22,7 +21,7 @@ class CLParse(object):
     of strings where each string is a set of commands sent to a control
     device to define that control device's state.)
     """
-    def __init__(self, command_list: Union[str, List[str]]):
+    def __init__(self, command_list: Union[str, Iterable[str, ...]]):
         """
         :param command_list: the command list for a control device
         :type command_list: list of strings
@@ -33,19 +32,20 @@ class CLParse(object):
         try:
             if isinstance(command_list, str):
                 command_list = [command_list]
-            elif isinstance(command_list, (list, tuple)):
+            elif isinstance(command_list, Iterable):
                 if not all(isinstance(val, str)
                            for val in command_list):
                     raise ValueError
             else:
                 raise ValueError
         except ValueError:
-            raise ValueError("`command_list` must be a list of strings")
+            raise ValueError("`command_list` must be a str or an "
+                             "Iterable of strings")
 
         # set command list
         self._cl = command_list
 
-    def apply_patterns(self, patterns):
+    def apply_patterns(self, patterns: Union[str, Iterable[str, ...]]):
         """
         Applies a the REs defined in `patterns` to parse the command
         list.
@@ -82,11 +82,11 @@ class CLParse(object):
         if isinstance(patterns, str):
             # convert string to list
             patterns = [patterns]
-        elif isinstance(patterns, (list, tuple)):
+        elif isinstance(patterns, Iterable):
             # ensure all entries are strings
             if not all(isinstance(pat, str) for pat in patterns):
-                raise ValueError("first argument must be a string of "
-                                 "list of strings")
+                raise ValueError("`patterns` must be a str or "
+                                 "Iterable of strings")
 
             # ensure all entries are unique
             patterns = list(set(patterns))
@@ -272,7 +272,7 @@ class CLParse(object):
         # return
         return success, cls_dict
 
-    def try_patterns(self, patterns):
+    def try_patterns(self, patterns: Union[str, Iterable[str, ...]]):
         """
         Prints to the results of applying the REs in patterns to the
         command list.  Pretty print of :meth:`apply_patterns`.

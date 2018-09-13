@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import h5py
 import numpy as np
 import warnings
 
@@ -32,10 +33,9 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
         |   |   +--
 
     """
-    def __init__(self, group):
+    def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 control device group
-        :type group: :class:`h5py.Group`
         """
         # initialize
         HDFMapControlCLTemplate.__init__(self, group)
@@ -114,10 +114,12 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                     self._configs[name][pair[0]] = val
                 except KeyError:
                     self._configs[name][pair[0]] = None
-                    warn_str = ("Attribute '" + pair[1]
-                                + "' not found in control device '"
-                                + self.device_name + "' configuration group '"
-                                + name + "'")
+                    warn_str = (
+                        "Attribute '" + pair[1]
+                        + "' not found in control device '"
+                        + self.device_name + "' configuration group '"
+                        + name + "'"
+                    )
                     if pair[0] != 'command list':
                         warn_str += ", continuing with mapping"
                         warn(warn_str)
@@ -155,7 +157,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                 if bool(sv_dict) \
                 else self._default_state_values_dict(name)
 
-    def _default_state_values_dict(self, config_name):
+    def _default_state_values_dict(self, config_name: str) -> dict:
         # define default dict
         default_dict = {
             'command': {
@@ -175,7 +177,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
         # return
         return default_dict
 
-    def construct_dataset_name(self, *args):
+    def construct_dataset_name(self, *args) -> str:
         """
         Constructs name of dataset containing control state value data.
         """

@@ -33,6 +33,9 @@ class ControlTestCase(ut.TestCase):
     """
     TestCase for control devices.
     """
+    # TODO: DESIGN A FAILURES TEST 'test_map_failures'
+    # - These are required scenarios where the mapping class should
+    #   raise a HDFMappingError
 
     f = NotImplemented
     DEVICE_NAME = NotImplemented
@@ -153,6 +156,8 @@ class ControlTestCase(ut.TestCase):
 
         # check 'one_config_per_dset'
         self.assertIsInstance(_map.one_config_per_dset, bool)
+        self.assertFalse(len(_map.dataset_names) == len(_map.configs)
+                         ^ _map.one_config_per_dset)
 
         # ---- test map.configs                                     ----
         #
@@ -190,84 +195,58 @@ class ControlTestCase(ut.TestCase):
         #        attribute that is bound to the numpy array data object
         #        constructed by hdfReadControl
         #
-        # TODO: add assertion of sub-dict value format
         self.assertIsInstance(_map.configs, dict)
         for config_name, config in _map.configs.items():
-            # assert required keys
-            # - any other key is considered meta-info and is not used
-            #   in the data translation
-            #
+            # must be a dict
             self.assertIsInstance(config, dict)
+
+            # look for required keys
+            # - Note: 'command list' is only required for CL controls
+            #         and is covered by assertAdditionalCLRequirements
             self.assertIn('dset paths', config)
             self.assertIn('shotnum', config)
             self.assertIn('state values', config)
 
-            # check 'dset paths' key
-            self.assertIsInstance(config['dset paths'], str)
+            # -- examine 'dset paths' --
+            self.assertIsInstance(config['dset paths'], tuple)
+            self.assertTrue(len(config['dset paths']), 1)
+            self.assertIsInstance(config['dset paths'][0], str)
 
-            # check 'shotnum' features
-            # ~ required keys ~
+            # -- examine 'shotnum' key --
+            # required keys
             self.assertIsInstance(config['shotnum'], dict)
             self.assertIn('dset paths', config['shotnum'])
             self.assertIn('dset field', config['shotnum'])
             self.assertIn('shape', config['shotnum'])
             self.assertIn('dtype', config['shotnum'])
 
-            # ~ 'dset paths' key ~
+            # ['shotnum']['dset paths']
             self.assertEqual(config['shotnum']['dset paths'],
                              config['dset paths'])
 
-            # ~ 'dset field' key ~
+            # ['shotnum']['dset field']
             self.assertIsInstance(
                 config['shotnum']['dset field'], tuple)
             self.assertEqual(len(config['shotnum']['dset field']), 1)
             self.assertIsInstance(
                 config['shotnum']['dset field'][0], str)
 
-            # ~ 'shape' key ~
-            self.assertIsInstance(config['shotnum']['shape'], tuple)
+            # ['shotnum']['shape']
             self.assertEqual(config['shotnum']['shape'], ())
 
-            # ~ 'dtype' key ~
-            self.assertEqual(config['shotnum']['dtype'], np.int32)
+            # ['shotnum']['dtype']
+            self.assertTrue(np.issubdtype(
+                config['shotnum']['dtype'], np.integer))
 
-            # check 'state values' features
+            # -- examine 'state values' key --
             self.assertIsInstance(config['state values'], dict)
-            for pstate_dict in config['state values'].values():
-                # required keys
-                self.assertIsInstance(pstate_dict, dict)
-                self.assertIn('dset paths', pstate_dict)
-                self.assertIn('dset field', pstate_dict)
-                self.assertIn('shape', pstate_dict)
-                self.assertIn('dtype', pstate_dict)
+            for sv_name, sv_config in config['state values'].items():
+                self.assertSVConfig(sv_name, sv_config, config,
+                                    what='default')
 
-                # 'dset paths' key
-                self.assertEqual(pstate_dict['dset paths'],
-                                 config['dset paths'])
-
-                # 'dset field' key
-                self.assertIsInstance(
-                    pstate_dict['dset field'], tuple)
-                self. assertNotEqual(len(pstate_dict['dset field']), 0)
-                self.assertTrue(all(
-                    isinstance(field, str)
-                    for field in pstate_dict['dset field']))
-
-                # 'shape' key
-                self.assertIsInstance(pstate_dict['shape'], tuple)
-                if len(pstate_dict['shape']) == 0:
-                    self.assertEqual(len(pstate_dict['dset field']), 1)
-                else:
-                    self.assertIn(len(pstate_dict['dset field']),
-                                  (1, pstate_dict['shape'][0]))
-
-                # 'dtype' key
-                # - 'dtype' must be convertible by np.dtype
-                # TODO: ?? IS THIS THE CORRECT WAY
-                np.dtype(pstate_dict['dtype'])
-
-        # do assertions for 'command list' (CL) focused devices
+        # do additional checks for 'command list' (CL) focused devices
         if _map.has_command_list:
+            # noinspection PyTypeChecker
             self.assertAdditionalCLRequirements(_map, _group)
 
     def assertAdditionalCLRequirements(self, _map, _group):
@@ -282,6 +261,37 @@ class ControlTestCase(ut.TestCase):
         self.assertTrue(hasattr(_map, 'reset_state_values_config'))
         self.assertTrue(hasattr(_map, 'set_state_values_config'))
 
+        # ---- test general attributes                              ----
+        # examine '_default_re_patterns'
+        self.assertIsInstance(_map._default_re_patterns, tuple)
+        for pattern in _map._default_re_patterns:
+            self.assertIsInstance(pattern, str)
+            pat = re.compile(pattern)
+            self.assertEqual(len(pat.groupindex), 2)
+            self.assertIn('VAL', pat.groupindex.keys())
+
+        # examine '_default_state_values_dict'
+        for config_name in _map.configs:
+            default_sv_dict = \
+                _map._default_state_values_dict(config_name)
+            self.assertIsInstance(default_sv_dict, dict)
+            for sv_name, sv_config in default_sv_dict.items():
+                self.assertSVConfig(sv_name, sv_config,
+                                    _map.configs[config_name],
+                                    what='cl')
+
+        # examine remaining attributes
+        methods = ('_construct_state_values_dict', 'clparse',
+                   'reset_state_values_config',
+                   'set_state_values_config')
+        for method in methods:
+            self.assertFalse(
+                method_overridden(HDFMapControlCLTemplate, _map,
+                                  method),
+                msg="Overriding HDFMapControlCLTemplate method "
+                    "'{}' not allowed".format(method)
+            )
+
         # ---- test map.configs                                     ----
         for config_name, config in _map.configs.items():
             # check for required keys
@@ -293,41 +303,105 @@ class ControlTestCase(ut.TestCase):
             self.assertTrue(all(isinstance(command, str)
                                 for command in config['command list']))
 
-            # check 'state values' features
-            # TODO: ADD MORE DETAIL TO TESTS
-            for pstate_dict in config['state values'].values():
-                # required keys
-                self.assertIn('command list', pstate_dict)
-                self.assertIn('cl str', pstate_dict)
-                self.assertIn('re pattern', pstate_dict)
+            # -- examine 'state values' key --
+            for sv_name, sv_config in config['state values'].items():
+                self.assertSVConfig(sv_name, sv_config, config,
+                                    what='cl only')
 
-                # check 'command list'
-                # - the matched 'command list' value
-                self.assertIsInstance(
-                    pstate_dict['command list'], tuple)
-                self.assertEqual(len(pstate_dict['command list']),
-                                 len(config['command list']))
-                self.assertTrue(all(
-                    isinstance(command,
-                               type(pstate_dict['command list'][0]))
-                    for command in pstate_dict['command list']))
+    def assertSVConfig(self, sv_name, sv_config, config,
+                       what='default'):
+        # 'default' = checks just required elements for a non command
+        #             list control device
+        # 'cl' =      check all required elements for a command list
+        #             device
+        # 'cl only' = check only required elements specific to a
+        #             control device
+        # is a dict
+        self.assertIsInstance(sv_config, dict)
 
-                # check 'cl str'
-                # - the resulting string from the RE
-                self.assertIsInstance(pstate_dict['cl str'],
-                                      tuple)
-                self.assertEqual(len(pstate_dict['cl str']),
-                                 len(config['command list']))
-                self.assertTrue(all(
-                    isinstance(clstr, str)
-                    for clstr in pstate_dict['cl str']))
+        if what not in ('default', 'cl', 'cl only'):
+            raise ValueError("what needs to be defined as 'default', "
+                             "'cl', 'cl only'")
 
-                # check 're pattern'
-                # - the RE pattern used for matching against the
-                #   original command list
-                self.assertIsInstance(
-                    pstate_dict['re pattern'],
-                    (type(None), type(re.compile(r''))))
+        # -- check absolutely required elements                     ----
+        if what in ('default', 'cl'):
+            # required keys
+            # - Note: 'command list', 'cl str', and 're pattern'
+            #         is only required for CL controls and is
+            #         covered by assertAdditionalCLRequirements
+            self.assertIn('dset paths', sv_config)
+            self.assertIn('dset field', sv_config)
+            self.assertIn('shape', sv_config)
+            self.assertIn('dtype', sv_config)
+
+            # ['state values']['']['dset paths']
+            self.assertEqual(sv_config['dset paths'],
+                             config['dset paths'])
+
+            # ['state values']['']['dset field']
+            self.assertIsInstance(
+                sv_config['dset field'], tuple)
+            self.assertNotEqual(len(sv_config['dset field']), 0)
+            self.assertTrue(all(
+                isinstance(field, str)
+                for field in sv_config['dset field']))
+
+            # ['state values]['']['shape']
+            self.assertIsInstance(sv_config['shape'], tuple)
+            self.assertTrue(all(isinstance(val, int)
+                                for val in sv_config['shape']))
+            if len(sv_config['shape']) == 0:
+                self.assertEqual(len(sv_config['dset field']), 1)
+            else:
+                self.assertIn(len(sv_config['dset field']),
+                              (1, sv_config['shape'][0]))
+
+            # ['state values]['']['dtype']
+            # - 'dtype' must be convertible by np.dtype
+            try:
+                np.dtype(sv_config['dtype'])
+            except TypeError as err:
+                self.fail(
+                    '({})'.format(err)
+                    + "\nconfigs['state values']"
+                    + "['']".format(sv_name)
+                    + "['dtype']' needs to be convertible by "
+                    + "numpy.dtype")
+
+        # -- check absolutely required elements                     ----
+        if what in ('cl only', 'cl'):
+            # required keys
+            self.assertIn('command list', sv_config)
+            self.assertIn('cl str', sv_config)
+            self.assertIn('re pattern', sv_config)
+
+            # ['state values']['']['command list']
+            # - the matched 'command list' value
+            self.assertIsInstance(sv_config['command list'], tuple)
+            self.assertEqual(len(sv_config['command list']),
+                             len(config['command list']))
+            self.assertTrue(all(
+                isinstance(command,
+                           type(sv_config['command list'][0]))
+                for command in sv_config['command list']))
+            self.assertIsInstance(sv_config['command list'][0],
+                                  (str, float))
+
+            # ['state values']['']['cl str']
+            # - the resulting string from the RE
+            self.assertIsInstance(sv_config['cl str'], tuple)
+            self.assertEqual(len(sv_config['cl str']),
+                             len(config['command list']))
+            self.assertTrue(all(
+                isinstance(clstr, str)
+                for clstr in sv_config['cl str']))
+
+            # ['state values']['']['re pattern']
+            # - the RE pattern used for matching against the
+            #   original command list
+            self.assertIsInstance(
+                sv_config['re pattern'],
+                (type(None), type(re.compile(r''))))
 
     def assertSubgroupNames(self, _map, _group):
         sgroup_names = [name

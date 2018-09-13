@@ -18,5 +18,5 @@ class ConType(Enum):
     timing = 'timing'
     waveform = 'waveform'
 
-    def __repr__(self):
+    def __repr__(self):  # pragma: no cover
         return 'contype.' + self.name

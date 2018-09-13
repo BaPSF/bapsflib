@@ -21,6 +21,14 @@ from ..templates import (HDFMapControlTemplate,
                          HDFMapControlCLTemplate)
 
 
+def method_overridden(cls, obj, method: str) -> bool:
+    """check is obj's class over-road base class method"""
+    obj_method = method in obj.__class__.__dict__.keys()
+    base_method = method in cls.__dict__.keys()
+    print(obj_method, base_method)
+    return obj_method and base_method
+
+
 class ControlTestCase(ut.TestCase):
     """
     TestCase for control devices.

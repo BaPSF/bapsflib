@@ -14,6 +14,7 @@ import warnings
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
+from . import ConType
 from .templates import HDFMapControlCLTemplate
 
 
@@ -40,7 +41,7 @@ class hdfMap_control_n5700ps(HDFMapControlCLTemplate):
         HDFMapControlCLTemplate.__init__(self, group)
 
         # define control type
-        self._info['contype'] = 'power'
+        self._info['contype'] = ConType.power
 
         # define known command list RE patterns
         self._default_re_patterns = (

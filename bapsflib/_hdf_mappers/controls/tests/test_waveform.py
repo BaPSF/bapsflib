@@ -18,6 +18,7 @@ from bapsflib.utils.errors import HDFMappingError
 from unittest import mock
 
 from .common import ControlTestCase
+from .. import ConType
 from ..waveform import hdfMap_control_waveform
 
 
@@ -36,7 +37,7 @@ class TestWaveform(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info['contype'], 'waveform')
+        self.assertEqual(self.map.info['contype'], ConType.waveform)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

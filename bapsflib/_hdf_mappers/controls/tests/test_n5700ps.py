@@ -18,6 +18,7 @@ from bapsflib.utils.errors import HDFMappingError
 from unittest import mock
 
 from .common import ControlTestCase
+from .. import ConType
 from ..n5700ps import hdfMap_control_n5700ps
 
 
@@ -36,7 +37,7 @@ class TestN5700PS(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info['contype'], 'power')
+        self.assertEqual(self.map.info['contype'], ConType.power)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

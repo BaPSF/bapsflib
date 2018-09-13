@@ -14,6 +14,7 @@ import re
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
+from . import ConType
 from .templates import HDFMapControlTemplate
 
 
@@ -44,7 +45,7 @@ class hdfMap_control_6k(HDFMapControlTemplate):
         HDFMapControlTemplate.__init__(self, group)
 
         # define control type
-        self._info['contype'] = 'motion'
+        self._info['contype'] = ConType.motion
 
         # populate self.configs
         self._build_configs()

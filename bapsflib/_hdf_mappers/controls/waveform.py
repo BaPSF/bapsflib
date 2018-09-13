@@ -14,6 +14,7 @@ import warnings
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
+from . import ConType
 from .templates import HDFMapControlCLTemplate
 
 
@@ -41,7 +42,7 @@ class hdfMap_control_waveform(HDFMapControlCLTemplate):
         HDFMapControlCLTemplate.__init__(self, group)
 
         # define control type
-        self._info['contype'] = 'waveform'
+        self._info['contype'] = ConType.waveform
 
         # define known command list RE patterns
         self._default_re_patterns = (

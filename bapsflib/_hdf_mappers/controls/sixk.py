@@ -68,13 +68,13 @@ class HDFMapControl6K(HDFMapControlTemplate):
         _probe_lists = {}
         for name in self.subgroup_names:
             ml_stuff = self._analyze_motionlist(name)
-            if ml_stuff is not None:
+            if bool(ml_stuff):
                 # build 'motion list'
                 _motion_lists[ml_stuff['name']] = \
                     ml_stuff['config']
             else:
                 pl_stuff = self._analyze_probelist(name)
-                if pl_stuff is not None:
+                if bool(pl_stuff):
                     # build 'probe list'
                     _probe_lists[pl_stuff['name']] = pl_stuff['config']
 
@@ -326,7 +326,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
             return ml
         else:
             # not a motion list
-            return
+            return {}
 
     def _analyze_probelist(self, gname: str) -> dict:
         """
@@ -448,4 +448,4 @@ class HDFMapControl6K(HDFMapControlTemplate):
             return pl
         else:
             # not a probe list
-            return
+            return {}

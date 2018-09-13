@@ -132,8 +132,8 @@ class TestSixK(ControlTestCase):
         mlg = self.dgroup['Motion list: ml-0001']
 
         # -- RE does NOT match against `gname`                      ----
-        # - None is returned
-        self.assertIsNone(self.map._analyze_motionlist('Not a ML'))
+        # - empty dict is returned
+        self.assertEqual(self.map._analyze_motionlist('Not a ML'), {})
 
         # -- operation on default ML group                          ----
         ml_stuff = self.map._analyze_motionlist(
@@ -241,8 +241,8 @@ class TestSixK(ControlTestCase):
         plg = self.dgroup[name]
 
         # -- RE does NOT match against `gname`                      ----
-        # - None is returned
-        self.assertIsNone(self.map._analyze_probelist('Not a PL'))
+        # - empty dict is returned
+        self.assertEqual(self.map._analyze_probelist('Not a PL'), {})
 
         # -- operation on default PL group                          ----
         pl_stuff = self.map._analyze_probelist(

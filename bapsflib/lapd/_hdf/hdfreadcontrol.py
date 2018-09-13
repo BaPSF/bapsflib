@@ -227,7 +227,7 @@ class hdfReadControl(np.recarray):
 
             # gather control datasets and shotnumkey's
             cmap = file_map.controls[cname]
-            cdset_path = cmap.configs[cspec]['dset paths']
+            cdset_path = cmap.configs[cspec]['dset paths'][0]
             cdset_dict[cname] = hdf_file.get(cdset_path)
             try:
                 shotnumkey = \

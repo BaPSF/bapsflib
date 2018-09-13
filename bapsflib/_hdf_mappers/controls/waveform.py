@@ -44,10 +44,10 @@ class hdfMap_control_waveform(HDFMapControlCLTemplate):
         self._info['contype'] = 'waveform'
 
         # define known command list RE patterns
-        self._cl_re_patterns.extend([
+        self._default_re_patterns = (
             r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
-            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
-        ])
+            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
+        )
 
         # populate self.configs
         self._build_configs()
@@ -148,7 +148,7 @@ class hdfMap_control_waveform(HDFMapControlCLTemplate):
                 warnings.simplefilter("ignore")
                 try:
                     sv_state = self._construct_state_values_dict(
-                        name, self._cl_re_patterns)
+                        name, self._default_re_patterns)
                 except KeyError:
                     sv_state = {}
 

@@ -333,9 +333,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             self.info['contype'] = 'waveform'
 
             # define known command list RE patterns
-            self._cl_re_patterns.extend([
-                r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
-            ])
+            self._default_re_patterns = (
+                r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
+            )
 
             # populate self.configs
             self._build_configs()
@@ -353,8 +353,8 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
         # initialize internal 'command list' regular expression (RE)
         # patterns
-        self._cl_re_patterns = []
-        """List of common RE patterns."""
+        self._default_re_patterns = ()
+        """tuple of default RE patterns for the control device"""
 
     @abstractmethod
     def _default_state_values_dict(self, config_name: str) -> dict:
@@ -383,8 +383,8 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             default_dict['command']['dtype'] = \\
                 default_dict['command']['command list'].dtype
 
-            # return
-            return default_dict
+                # return
+                return default_dict
 
         """
         raise NotImplementedError
@@ -469,12 +469,12 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         :param bool apply_patterns: Set :code:`False` (DEFAULT) to
             reset to :code:`_default_state_values_dict(config_name)`.
             Set :code:`True` to rebuild dict using
-            :attr:`_cl_re_patterns`.
+            :attr:`_default_re_patterns`.
         """
         if apply_patterns:
             # get sv_dict dict
             sv_dict = self._construct_state_values_dict(
-                config_name, self._cl_re_patterns)
+                config_name, self._default_re_patterns)
             if not bool(sv_dict):
                 sv_dict = self._default_state_values_dict(config_name)
         else:
@@ -494,7 +494,6 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         :param config_name: configuration name
         :param patterns: list of RE strings
         """
-
         # construct dict for 'state values' dict
         sv_dict = self._construct_state_values_dict(config_name,
                                                     patterns)

@@ -195,7 +195,7 @@ class TestControlTemplates(ut.TestCase):
         self.assertControlTemplate(_map, _group)
 
         # check attribute existence
-        attrs = ('_cl_re_patterns',
+        attrs = ('_default_re_patterns',
                  'clparse',
                  '_construct_state_values_dict',
                  'reset_state_values_config',
@@ -204,9 +204,9 @@ class TestControlTemplates(ut.TestCase):
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
 
-        # -- check '_cl_re_patterns'                                ----
-        self.assertIsInstance(_map._cl_re_patterns, list)
-        self.assertEqual(len(_map._cl_re_patterns), 0)
+        # -- check '_default_re_patterns'                           ----
+        self.assertIsInstance(_map._default_re_patterns, tuple)
+        self.assertEqual(len(_map._default_re_patterns), 0)
 
         # -- check 'clparse'                                        ----
         with mock.patch.dict(

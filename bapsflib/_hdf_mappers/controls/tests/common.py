@@ -101,21 +101,14 @@ class ControlTestCase(ut.TestCase):
         self.assertTrue(hasattr(_map, 'one_config_per_dset'))
         self.assertTrue(hasattr(_map, 'construct_dataset_name'))
 
-        # extra attributes for a command list (CL) focused device
+        # check 'has_command_list'
+        # - `has_command_list` should only be true if the mapping class
+        #   subclassed HDFMapControlCLTemplate
+        #
         self.assertIsInstance(_map.has_command_list, bool)
-        if _map.has_command_list:
-            # check inherited form proper template
-            self.assertIsInstance(_map, HDFMapControlCLTemplate)
-
-            # assert CL attributes
-            self.assertTrue(hasattr(_map, '_cl_re_patterns'))
-            self.assertTrue(hasattr(_map,
-                                    '_default_state_values_dict'))
-            self.assertTrue(hasattr(_map,
-                                    '_construct_state_values_dict'))
-            self.assertTrue(hasattr(_map, 'clparse'))
-            self.assertTrue(hasattr(_map, 'reset_state_values_config'))
-            self.assertTrue(hasattr(_map, 'set_state_values_config'))
+        self.assertFalse(
+            isinstance(_map, HDFMapControlCLTemplate)
+            ^ _map.has_command_list)
 
         # ---- test map.info                                        ----
         # test 'info' type
@@ -201,15 +194,6 @@ class ControlTestCase(ut.TestCase):
             self.assertIn('dset paths', config)
             self.assertIn('shotnum', config)
             self.assertIn('state values', config)
-            if _map.has_command_list:
-                self.assertIn('command list', config)
-
-                # check 'command list'
-                self.assertIsInstance(config['command list'], tuple)
-                self.assertNotEqual(len(config['command list']), 0)
-                self.assertTrue(all(
-                    isinstance(command, str)
-                    for command in config['command list']))
 
             # check 'dset paths' key
             self.assertIsInstance(config['dset paths'], str)
@@ -275,40 +259,68 @@ class ControlTestCase(ut.TestCase):
                 # TODO: ?? IS THIS THE CORRECT WAY
                 np.dtype(pstate_dict['dtype'])
 
-                # for command list control devices
-                # TODO: ADD MORE DETAIL TO TESTS
-                if _map.has_command_list:
-                    self.assertIn('command list', pstate_dict)
-                    self.assertIn('cl str', pstate_dict)
-                    self.assertIn('re pattern', pstate_dict)
+        # do assertions for 'command list' (CL) focused devices
+        if _map.has_command_list:
+            self.assertAdditionalCLRequirements(_map, _group)
 
-                    # check 'command list'
-                    # - the matched 'command list' value
-                    self.assertIsInstance(pstate_dict['command list'],
-                                          tuple)
-                    self.assertEqual(len(pstate_dict['command list']),
-                                     len(config['command list']))
-                    self.assertTrue(all(
-                        isinstance(command,
-                                   type(pstate_dict['command list'][0]))
-                        for command in pstate_dict['command list']))
+    def assertAdditionalCLRequirements(self, _map, _group):
+        # check subclassing from CL template
+        self.assertIsInstance(_map, HDFMapControlCLTemplate)
 
-                    # check 'cl str'
-                    # - the resulting string from the RE
-                    self.assertIsInstance(pstate_dict['cl str'],
-                                          tuple)
-                    self.assertEqual(len(pstate_dict['cl str']),
-                                     len(config['command list']))
-                    self.assertTrue(all(
-                        isinstance(clstr, str)
-                        for clstr in pstate_dict['cl str']))
+        # assert CL attributes
+        self.assertTrue(hasattr(_map, '_default_re_patterns'))
+        self.assertTrue(hasattr(_map, '_default_state_values_dict'))
+        self.assertTrue(hasattr(_map, '_construct_state_values_dict'))
+        self.assertTrue(hasattr(_map, 'clparse'))
+        self.assertTrue(hasattr(_map, 'reset_state_values_config'))
+        self.assertTrue(hasattr(_map, 'set_state_values_config'))
 
-                    # check 're pattern'
-                    # - the RE pattern used for matching against the
-                    #   original command list
-                    self.assertIsInstance(
-                        pstate_dict['re pattern'],
-                        (type(None), type(re.compile(r''))))
+        # ---- test map.configs                                     ----
+        for config_name, config in _map.configs.items():
+            # check for required keys
+            self.assertIn('command list', config)
+
+            # check 'command list'
+            self.assertIsInstance(config['command list'], tuple)
+            self.assertNotEqual(len(config['command list']), 0)
+            self.assertTrue(all(isinstance(command, str)
+                                for command in config['command list']))
+
+            # check 'state values' features
+            # TODO: ADD MORE DETAIL TO TESTS
+            for pstate_dict in config['state values'].values():
+                # required keys
+                self.assertIn('command list', pstate_dict)
+                self.assertIn('cl str', pstate_dict)
+                self.assertIn('re pattern', pstate_dict)
+
+                # check 'command list'
+                # - the matched 'command list' value
+                self.assertIsInstance(
+                    pstate_dict['command list'], tuple)
+                self.assertEqual(len(pstate_dict['command list']),
+                                 len(config['command list']))
+                self.assertTrue(all(
+                    isinstance(command,
+                               type(pstate_dict['command list'][0]))
+                    for command in pstate_dict['command list']))
+
+                # check 'cl str'
+                # - the resulting string from the RE
+                self.assertIsInstance(pstate_dict['cl str'],
+                                      tuple)
+                self.assertEqual(len(pstate_dict['cl str']),
+                                 len(config['command list']))
+                self.assertTrue(all(
+                    isinstance(clstr, str)
+                    for clstr in pstate_dict['cl str']))
+
+                # check 're pattern'
+                # - the RE pattern used for matching against the
+                #   original command list
+                self.assertIsInstance(
+                    pstate_dict['re pattern'],
+                    (type(None), type(re.compile(r''))))
 
     def assertSubgroupNames(self, _map, _group):
         sgroup_names = [name

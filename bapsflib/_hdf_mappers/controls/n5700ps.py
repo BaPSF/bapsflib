@@ -43,10 +43,10 @@ class hdfMap_control_n5700ps(HDFMapControlCLTemplate):
         self._info['contype'] = 'power'
 
         # define known command list RE patterns
-        self._cl_re_patterns.extend([
+        self._default_re_patterns = (
             r'(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)'
             + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
-        ])
+        )
 
         # populate self.configs
         self._build_configs()
@@ -145,7 +145,7 @@ class hdfMap_control_n5700ps(HDFMapControlCLTemplate):
                 warnings.simplefilter("ignore")
                 try:
                     sv_dict = self._construct_state_values_dict(
-                        name, self._cl_re_patterns)
+                        name, self._default_re_patterns)
                 except KeyError:
                     sv_dict = {}
 

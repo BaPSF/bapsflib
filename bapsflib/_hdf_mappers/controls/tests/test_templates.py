@@ -121,8 +121,8 @@ class TestControlTemplates(ut.TestCase):
         # check attribute existence
         attrs = ('info', 'configs', 'contype', 'dataset_names',
                  'group', 'has_command_list', 'one_config_per_dset',
-                 'subgroup_names', 'device_name', 'construct_dataset_name',
-                 '_build_configs')
+                 'subgroup_names', 'device_name',
+                 'construct_dataset_name', '_build_configs')
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
 

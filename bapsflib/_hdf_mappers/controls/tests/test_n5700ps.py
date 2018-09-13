@@ -19,16 +19,16 @@ from unittest import mock
 
 from .common import ControlTestCase
 from .. import ConType
-from ..n5700ps import hdfMap_control_n5700ps
+from ..n5700ps import HDFMapControlN5700PS
 
 
 class TestN5700PS(ControlTestCase):
-    """Test class for hdfMap_control_n5700ps"""
+    """Test class for HDFMapControlN5700PS"""
 
     # define setup variables
     DEVICE_NAME = 'N5700_PS'
     DEVICE_PATH = 'Raw data + config/N5700_PS'
-    MAP_CLASS = hdfMap_control_n5700ps
+    MAP_CLASS = HDFMapControlN5700PS
 
     def setUp(self):
         super().setUp()

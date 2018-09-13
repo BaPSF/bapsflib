@@ -18,7 +18,7 @@ from . import ConType
 from .templates import HDFMapControlCLTemplate
 
 
-class hdfMap_control_n5700ps(HDFMapControlCLTemplate):
+class HDFMapControlN5700PS(HDFMapControlCLTemplate):
     """
     Mapping module for control device 'N5700_PS'.
 

@@ -399,7 +399,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         """
         # -- check requirements exist before continuing             ----
         # get dataset
-        dset_path = self._configs[config_name]['dset paths']
+        dset_path = self._configs[config_name]['dset paths'][0]
         dset = self.group.get(dset_path)
 
         # ensure 'Command index' is a field

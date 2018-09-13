@@ -219,7 +219,7 @@ class TestControlTemplates(ut.TestCase):
         config_name = 'config1'
         configs_dict = {
             config_name: {'command list': cl,
-                          'dset paths': '/MSI/d1', }
+                          'dset paths': ('/MSI/d1',)}
         }
         clparse_dict = {'VOLT': {'command list': (20.0, 25.0, 30.0),
                                  'cl str': cl,
@@ -265,7 +265,7 @@ class TestControlTemplates(ut.TestCase):
                     clparse_dict['VOLT']['cl str'])
 
                 # the 'dset_paths' dataset does NOT have 'Command index'
-                configs_dict[config_name]['dset paths'] = '/MSI/d2'
+                configs_dict[config_name]['dset paths'] = ('/MSI/d2',)
                 with self.assertWarns(UserWarning):
                     sv_dict = _map._construct_state_values_dict(
                         config_name,
@@ -274,7 +274,7 @@ class TestControlTemplates(ut.TestCase):
 
                 # the 'dset_paths' dataset 'Command index' field does
                 # NOT have correct shape or dtype
-                configs_dict[config_name]['dset paths'] = '/MSI/d3'
+                configs_dict[config_name]['dset paths'] = ('/MSI/d3',)
                 with self.assertWarns(UserWarning):
                     sv_dict = _map._construct_state_values_dict(
                         config_name,
@@ -288,7 +288,7 @@ class TestControlTemplates(ut.TestCase):
         config_name = 'config1'
         configs_dict = {
             config_name: {'command list': cl,
-                          'dset paths': '/MSI/d1',
+                          'dset paths': ('/MSI/d1',),
                           'shotnum': {},
                           'state values': {}}
         }
@@ -355,7 +355,7 @@ class TestControlTemplates(ut.TestCase):
         config_name = 'config1'
         configs_dict = {
             config_name: {'command list': cl,
-                          'dset paths': '/MSI/d1',
+                          'dset paths': ('/MSI/d1',),
                           'shotnum': {},
                           'state values': {}}
         }

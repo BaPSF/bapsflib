@@ -18,7 +18,7 @@ from . import ConType
 from .templates import HDFMapControlTemplate
 
 
-class hdfMap_control_6k(HDFMapControlTemplate):
+class HDFMapControl6K(HDFMapControlTemplate):
     """
     Mapping module for control device '6K Compumotor'.
 

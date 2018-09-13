@@ -13,7 +13,7 @@ import h5py
 from bapsflib.utils.errors import HDFMappingError
 
 from .n5700ps import HDFMapControlN5700PS
-from .sixk import hdfMap_control_6k
+from .sixk import HDFMapControl6K
 from .waveform import hdfMap_control_waveform
 
 
@@ -32,10 +32,10 @@ class HDFMapControls(dict):
         ... # group housing digitizer and control devices
         ... control_map = HDFMapControls(f['Raw data + config'])
         >>> control_map['6K Compumotor']
-        <bapsflib._hdf_mappers.controls.sixk.hdfMap_control_6k>
+        <bapsflib._hdf_mappers.controls.sixk.HDFMapControl6K>
     """
     _defined_mapping_classes = {
-        '6K Compumotor': hdfMap_control_6k,
+        '6K Compumotor': HDFMapControl6K,
         'Waveform': hdfMap_control_waveform,
         'N5700_PS': HDFMapControlN5700PS,
     }

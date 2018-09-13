@@ -21,7 +21,7 @@ class CLParse(object):
     of strings where each string is a set of commands sent to a control
     device to define that control device's state.)
     """
-    def __init__(self, command_list: Union[str, Iterable[str, ...]]):
+    def __init__(self, command_list: Union[str, Iterable[str]]):
         """
         :param command_list: the command list for a control device
         :type command_list: list of strings
@@ -45,7 +45,7 @@ class CLParse(object):
         # set command list
         self._cl = command_list
 
-    def apply_patterns(self, patterns: Union[str, Iterable[str, ...]]):
+    def apply_patterns(self, patterns: Union[str, Iterable[str]]):
         """
         Applies a the REs defined in `patterns` to parse the command
         list.
@@ -272,7 +272,7 @@ class CLParse(object):
         # return
         return success, cls_dict
 
-    def try_patterns(self, patterns: Union[str, Iterable[str, ...]]):
+    def try_patterns(self, patterns: Union[str, Iterable[str]]):
         """
         Prints to the results of applying the REs in patterns to the
         command list.  Pretty print of :meth:`apply_patterns`.

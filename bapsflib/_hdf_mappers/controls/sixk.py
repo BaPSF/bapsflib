@@ -124,7 +124,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 raise HDFMappingError(self._info['group path'], why=why)
 
             # ---- define 'dset paths'                              ----
-            self._configs[config_name]['dset paths'] = dset.name
+            self._configs[config_name]['dset paths'] = (dset.name,)
 
             # ---- define 'shotnum'                                 ----
             # initialize

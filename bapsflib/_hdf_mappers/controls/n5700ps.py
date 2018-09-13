@@ -131,7 +131,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                                               why=why)
 
             # ---- define 'dset paths'                              ----
-            self._configs[name]['dset paths'] = dset.name
+            self._configs[name]['dset paths'] = (dset.name,)
 
             # ---- define 'shotnum'                                 ----
             # initialize

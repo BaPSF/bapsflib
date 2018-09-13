@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import h5py
 import numpy as np
 import re
 
@@ -37,10 +38,9 @@ class HDFMapControl6K(HDFMapControlTemplate):
         |   +-- XY[<receptacle #>]: <probe name>
 
     """
-    def __init__(self, group):
+    def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 control device group
-        :type group: :class:`h5py.Group`
         """
         HDFMapControlTemplate.__init__(self, group)
 

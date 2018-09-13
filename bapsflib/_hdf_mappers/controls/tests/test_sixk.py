@@ -20,7 +20,7 @@ from unittest import mock
 
 from .common import ControlTestCase
 from .. import ConType
-from ..sixk import hdfMap_control_6k
+from ..sixk import HDFMapControl6K
 
 
 class TestSixK(ControlTestCase):
@@ -29,7 +29,7 @@ class TestSixK(ControlTestCase):
     # define setup variables
     DEVICE_NAME = '6K Compumotor'
     DEVICE_PATH = 'Raw data + config/6K Compumotor'
-    MAP_CLASS = hdfMap_control_6k
+    MAP_CLASS = HDFMapControl6K
 
     def setUp(self):
         super().setUp()
@@ -70,10 +70,10 @@ class TestSixK(ControlTestCase):
         self.mod.knobs.reset()
 
         # -- dataset name construction fails                        ----
-        # - mock hdfMap_control_6k.construct_dataset_name to throw a
+        # - mock HDFMapControl6K.construct_dataset_name to throw a
         #   ValueError
         #
-        with mock.patch.object(hdfMap_control_6k,
+        with mock.patch.object(HDFMapControl6K,
                                'construct_dataset_name') as cdn_mock:
             cdn_mock.side_effect = ValueError
             with self.assertRaises(HDFMappingError):

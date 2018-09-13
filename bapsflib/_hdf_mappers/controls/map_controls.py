@@ -14,7 +14,7 @@ from bapsflib.utils.errors import HDFMappingError
 
 from .n5700ps import HDFMapControlN5700PS
 from .sixk import HDFMapControl6K
-from .waveform import hdfMap_control_waveform
+from .waveform import HDFMapControlWaveform
 
 
 class HDFMapControls(dict):
@@ -36,7 +36,7 @@ class HDFMapControls(dict):
     """
     _defined_mapping_classes = {
         '6K Compumotor': HDFMapControl6K,
-        'Waveform': hdfMap_control_waveform,
+        'Waveform': HDFMapControlWaveform,
         'N5700_PS': HDFMapControlN5700PS,
     }
     """

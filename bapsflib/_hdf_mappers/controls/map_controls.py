@@ -12,7 +12,7 @@ import h5py
 
 from bapsflib.utils.errors import HDFMappingError
 
-from .n5700ps import hdfMap_control_n5700ps
+from .n5700ps import HDFMapControlN5700PS
 from .sixk import hdfMap_control_6k
 from .waveform import hdfMap_control_waveform
 
@@ -37,7 +37,7 @@ class HDFMapControls(dict):
     _defined_mapping_classes = {
         '6K Compumotor': hdfMap_control_6k,
         'Waveform': hdfMap_control_waveform,
-        'N5700_PS': hdfMap_control_n5700ps,
+        'N5700_PS': HDFMapControlN5700PS,
     }
     """
     Dictionary containing references to the defined (known) control

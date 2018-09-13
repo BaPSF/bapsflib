@@ -8,5 +8,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from .contype import ConType
-from .map_controls import HDFMapControls
+from enum import Enum
+
+
+class ConType(Enum):
+    """Enum of Control Device Types"""
+    motion = 'motion'
+    power = 'power'
+    timing = 'timing'
+    waveform = 'waveform'
+
+    def __repr__(self):
+        return 'contype.' + self.name

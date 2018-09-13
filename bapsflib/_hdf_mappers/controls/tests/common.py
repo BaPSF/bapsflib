@@ -16,6 +16,7 @@ import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
+from .. import ConType
 from ..templates import (HDFMapControlTemplate,
                          HDFMapControlCLTemplate)
 
@@ -123,9 +124,7 @@ class ControlTestCase(ut.TestCase):
         self.assertEqual(_map.info['group name'],
                          os.path.basename(_group.name))
         self.assertEqual(_map.info['group path'], _group.name)
-        self.assertIn(_map.info['contype'],
-                      ['motion', 'waveform', 'power', 'timing',
-                       'generic'])
+        self.assertIsInstance(_map.info['contype'], ConType)
 
         # ---- test general attributes                              ----
         # check 'contype'

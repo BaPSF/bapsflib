@@ -19,6 +19,7 @@ from bapsflib.utils.errors import HDFMappingError
 from unittest import mock
 
 from .common import ControlTestCase
+from .. import ConType
 from ..sixk import hdfMap_control_6k
 
 
@@ -37,7 +38,7 @@ class TestSixK(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info['contype'], 'motion')
+        self.assertEqual(self.map.info['contype'], ConType.motion)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

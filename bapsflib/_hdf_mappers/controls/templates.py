@@ -13,10 +13,10 @@ import numpy as np
 import os
 
 from abc import (ABC, abstractmethod)
-from enum import Enum
 from typing import (Iterable, List, Union)
 from warnings import warn
 
+from . import ConType
 from .clparse import CLParse
 
 
@@ -35,10 +35,7 @@ class HDFMapControlTemplate(ABC):
             HDFMapControlTemplate.__init__(self, group)
 
             # define control type
-            # - control types can be 'motion', 'power', 'waveform', or
-            #   'timing'
-            #
-            self.info['contype'] = 'motion'
+            self.info['contype'] = ConType.motion
 
             # populate self.configs
             self._build_configs()
@@ -47,6 +44,7 @@ class HDFMapControlTemplate(ABC):
 
         * Any method that raises a :exc:`NotImplementedError` is
           intended to be overwritten by the inheriting class.
+        * :code:`from bapsflib._hdf_mappers.controls import ConType`
         * If a control device is structured around a
           :ibf:`command list`, then its mapping class should subclass
           :mod:`~bapsflib._hdf_mappers.controls.templates.HDFMapControlCLTemplate`.
@@ -222,12 +220,8 @@ class HDFMapControlTemplate(ABC):
         return self._configs
 
     @property
-    def contype(self) -> str:
-        """
-        control device type (:code:`'motion'`, :code:`'power'`,
-        :code:`'timing'`, or :code:`'waveform'` )
-        """
-        # TODO: make a enum class to make this more easily expandable
+    def contype(self) -> ConType:
+        """control device type"""
         return self._info['contype']
 
     @property
@@ -328,10 +322,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             HDFMapControlCLTemplate.__init__(self, control_group)
 
             # define control type
-            # - control types can be 'motion', 'power', 'waveform', or
-            #   'timing'
-            #
-            self.info['contype'] = 'waveform'
+            self.info['contype'] = ConType.waveform
 
             # define known command list RE patterns
             self._default_re_patterns = (
@@ -343,8 +334,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
     .. note::
 
-        Any method that raises a :exc:`NotImplementedError` is intended
-        to be overwritten by the inheriting class.
+        * Any method that raises a :exc:`NotImplementedError` is
+          intended to be overwritten by the inheriting class.
+        * :code:`from bapsflib._hdf_mappers.controls import ConType`
     '''
     def __init__(self, group: h5py.Group):
         """

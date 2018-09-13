@@ -13,7 +13,8 @@ import numpy as np
 import os
 
 from abc import (ABC, abstractmethod)
-from typing import List
+from enum import Enum
+from typing import (Iterable, List, Union)
 from warnings import warn
 
 from .clparse import CLParse
@@ -365,23 +366,26 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         :param str config_name: configuration name
         :raise: :exc:`NotImplementedError`
 
-        .. code-block:: python
-            :caption: Example of declaration
+        :Example:
 
-            # define default dict
-            default_dict = {
-                'command': {
-                    'dset paths':
-                        self._configs[config_name]['dese paths'],
-                    'dset field': ('Command index', ),
-                    'cl pattern': None,
-                    'command list': np.array(
-                        self._configs[config_name]['command list']),
-                    'shape': (),
+            .. code-block:: python
+
+                # define default dict
+                default_dict = {
+                    'command': {
+                        'dset paths':
+                            self._configs[config_name]['dese paths'],
+                        'dset field': ('Command index', ),
+                        're pattern': None,
+                        'command list':
+                            self._configs[config_name]['command list'],
+                        'cl str':
+                            self._configs[config_name]['command list'],
+                        'shape': (),
+                    }
                 }
-            }
-            default_dict['command']['dtype'] = \\
-                default_dict['command']['command list'].dtype
+                default_dict['command']['dtype'] = \\
+                    default_dict['command']['command list'].dtype
 
                 # return
                 return default_dict
@@ -389,9 +393,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         """
         raise NotImplementedError
 
-    def _construct_state_values_dict(self,
-                                     config_name: str,
-                                     patterns: List[str]) -> dict:
+    def _construct_state_values_dict(
+            self, config_name: str,
+            patterns: Union[str, Iterable[str]]) -> dict:
         """
         Returns a dictionary for
         :code:`configs[config_name]['state values']` based on the
@@ -484,8 +488,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         # reset config
         self._configs[config_name]['state values'] = sv_dict
 
-    def set_state_values_config(self, config_name: str,
-                                patterns: List[str]):
+    def set_state_values_config(
+            self, config_name: str,
+            patterns: Union[str, Iterable[str]]):
         """
         Rebuild and set
         :code:`configs[config_name]['state values']` based on the

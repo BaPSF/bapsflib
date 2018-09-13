@@ -15,7 +15,7 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf_mappers.controls.waveform import \
-    hdfMap_control_waveform
+    HDFMapControlWaveform
 from ..files import File
 from ..hdfreadcontrol import (condition_shotnum_list,
                               do_shotnum_intersection,
@@ -42,7 +42,7 @@ class TestConditionShotnumList(ut.TestCase):
 
     @property
     def map(self):
-        return hdfMap_control_waveform(self.cgroup)
+        return HDFMapControlWaveform(self.cgroup)
 
     def test_simple_dataset(self):
         """

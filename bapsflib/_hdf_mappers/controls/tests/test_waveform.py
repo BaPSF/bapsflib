@@ -19,16 +19,16 @@ from unittest import mock
 
 from .common import ControlTestCase
 from .. import ConType
-from ..waveform import hdfMap_control_waveform
+from ..waveform import HDFMapControlWaveform
 
 
 class TestWaveform(ControlTestCase):
-    """Test class for hdfMap_control_waveform"""
+    """Test class for HDFMapControlWaveform"""
 
     # define setup variables
     DEVICE_NAME = 'Waveform'
     DEVICE_PATH = 'Raw data + config/Waveform'
-    MAP_CLASS = hdfMap_control_waveform
+    MAP_CLASS = HDFMapControlWaveform
 
     def setUp(self):
         super().setUp()

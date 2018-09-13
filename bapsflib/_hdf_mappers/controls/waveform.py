@@ -18,7 +18,7 @@ from . import ConType
 from .templates import HDFMapControlCLTemplate
 
 
-class hdfMap_control_waveform(HDFMapControlCLTemplate):
+class HDFMapControlWaveform(HDFMapControlCLTemplate):
     """
     Mapping module for the 'Waveform' control device.
 

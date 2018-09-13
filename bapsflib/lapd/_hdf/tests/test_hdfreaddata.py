@@ -18,6 +18,7 @@ from ..files import File
 from ..hdfreaddata import (hdfReadData, condition_shotnum)
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib._hdf_mappers.controls import ConType
 
 
 class TestConditionShotnum(ut.TestCase):
@@ -1421,7 +1422,7 @@ class TestHDFReadData(ut.TestCase):
             # Possible motion control added
             for con, config in controls:
                 if self.lapdf.file_map.controls[con].contype \
-                        == 'motion':
+                        == ConType.motion:
                     # a motion control was added
                     motion_added = True
                     break

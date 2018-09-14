@@ -15,6 +15,6 @@
 This :mod:`~bapsflib.lapd.constants` package contains constants relevant
 to the setup and configuration of the LaPD.
 """
-from .constants import (port_spacing, ref_port, MainCathode)
+from .constants import (port_spacing, ref_port, SouthCathode)
 
-__all__ = ['MainCathode', 'port_spacing', 'ref_port']
+__all__ = ['SouthCathode', 'port_spacing', 'ref_port']

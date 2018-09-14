@@ -6,3 +6,8 @@ bapsflib\.\_hdf_mappers\.controls\.clparse
     :undoc-members:
     :private-members:
     :show-inheritance:
+
+    .. rubric:: Classes
+
+    .. autosummary:: CLParse
+        :nosignatures:

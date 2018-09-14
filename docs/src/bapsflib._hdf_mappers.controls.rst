@@ -1,6 +1,8 @@
 bapsflib\.\_hdf\_mappers\.controls
 ==================================
 
+.. py:currentmodule:: bapsflib._hdf_mappers.controls
+
 .. automodule:: bapsflib._hdf_mappers.controls
 
 .. toctree::
@@ -15,3 +17,22 @@ bapsflib\.\_hdf\_mappers\.controls
     bapsflib._hdf_mappers.controls.sixk
     bapsflib._hdf_mappers.controls.templates
     bapsflib._hdf_mappers.controls.waveform
+
+
+.. rubric:: Classes
+
+.. autosummary::
+    :nosignatures:
+
+    ConType
+    HDFMapControls
+
+.. autoclass:: ConType
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+.. autoclass:: HDFMapControls
+    :members:
+    :undoc-members:
+    :show-inheritance:

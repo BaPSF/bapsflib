@@ -15,7 +15,7 @@ import sys
 from .hdfoverview import hdfOverview
 from .hdfmapper import hdfMap
 # from .hdfreaddata import hdfReadData
-# from .hdfreadcontrol import hdfReadControl
+# from .hdfreadcontrol import HDFReadControl
 # from .hdfreadmsi import HDFReadMSI
 
 
@@ -192,12 +192,12 @@ class File(h5py.File):
                       silent=False, **kwargs):
         """
         Reads data out of control device datasets.  See
-        :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl` for
+        :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl` for
         more detail.
 
         :param controls: a list of strings and/or 2-element tuples
             indicating the control device(s). (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl`
+            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
             for details)
         :type controls: [str, (str, val), ]
         :param shotnum: HDF5 file shot number(s) indicating data
@@ -208,12 +208,12 @@ class File(h5py.File):
             :data:`shotnum` and the shot numbers contained in each
             control device dataset. :code:`False` will return the union
             instead of the intersection  (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl`
+            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
             for details)
         :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
             to suppress command line printout of soft-warnings
         :return: extracted data from control device(s)
-        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl`
+        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
 
         :Example:
 
@@ -243,8 +243,8 @@ class File(h5py.File):
             >>> cdata = f.read_controls(controls)
 
         """
-        from .hdfreadcontrol import hdfReadControl
-        return hdfReadControl(self, controls,
+        from .hdfreadcontrol import HDFReadControl
+        return HDFReadControl(self, controls,
                               shotnum=shotnum,
                               intersection_set=intersection_set,
                               silent=silent,

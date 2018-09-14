@@ -1145,9 +1145,9 @@ class TestHDFReadData(ut.TestCase):
         #   `add_controls` is not tested here.
         # - Only behavior in adding control device data to `data` is
         #   done here
-        # - the call to hdfReadControl is always done using a shot
+        # - the call to HDFReadControl is always done using a shot
         #   number list. Thus, testing with hdfReadData with `index` or
-        #   `shotnum` accesses hdfReadControl in the same way
+        #   `shotnum` accesses HDFReadControl in the same way
         #
         # setup HDF5
         # - add 'SIS 3301', 'Waveform', and '6K Compumotor'
@@ -1410,7 +1410,7 @@ class TestHDFReadData(ut.TestCase):
         #       - some entries will be np.nan and some won't
         #
         # Note:
-        # - hdfReadControl handles the construction of 'xyz' when a
+        # - HDFReadControl handles the construction of 'xyz' when a
         #   control device is added (#2 above).  Thus, I assume the
         #   behavior is correct by the time it gets to hdfReadData
         # - Thus, here only #1 from above is tested

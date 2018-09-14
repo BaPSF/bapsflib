@@ -4,7 +4,7 @@
    method on :class:`bapsflib.lapdhdf.File`:
 
 Three classes :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`,
-:class:`~bapsflib.lapdhdf.hdfreadcontrol.hdfReadControl`, and
+:class:`~bapsflib.lapdhdf.hdfreadcontrol.HDFReadControl`, and
 :class:`~bapsflib.lapdhdf.hdfreadmsi.HDFReadMSI` are given to read data
 for **digitizers**, **control devices**, and **MSI diagnostics**,
 respectively.  Each of these read classes are bound to
@@ -25,7 +25,7 @@ and will return a structured :mod:`numpy` array with the requested data.
     option of mating **control device** data at the time of extraction.
     (see reading :ref:`read_digi`)
     "
-    :mod:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl`, "
+    :mod:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`, "
     :meth:`~bapsflib.lapd.File.read_controls`", "
     Designed to extract **control device** data. (see reading
     :ref:`read_controls`)

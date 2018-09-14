@@ -8,5 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Package of control device mapping classes and their constructor."""
 from .contype import ConType
 from .map_controls import HDFMapControls

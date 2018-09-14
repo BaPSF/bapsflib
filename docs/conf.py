@@ -41,8 +41,10 @@ autoclass_content = "both"
 # 'sphinx.ext.mathjax'
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
-              'sphinx.ext.mathjax']
+              'sphinx.ext.mathjax',
+              'sphinx.ext.autosummary']
 numfig = True  # enable figure and table numbering
+autosummary_generate = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

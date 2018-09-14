@@ -106,7 +106,7 @@ class HDFReadControl(np.recarray):
 
         # initialize timing
         tt = []
-        if 'timeit' in kwargs:
+        if 'timeit' in kwargs:  # pragma: no cover
             timeit = kwargs['timeit']
             if timeit:
                 tt.append(time.time())
@@ -132,7 +132,7 @@ class HDFReadControl(np.recarray):
                 'There are no control devices in the HDF5 file.')
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - hdf_file conditioning: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -156,7 +156,7 @@ class HDFReadControl(np.recarray):
             raise ValueError("improper 'controls' arg passed")
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - condition controls: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -334,7 +334,7 @@ class HDFReadControl(np.recarray):
                                         index_dict)
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - condition shotnum: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -359,7 +359,7 @@ class HDFReadControl(np.recarray):
                 ))
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - define dtype: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -369,7 +369,7 @@ class HDFReadControl(np.recarray):
         data['shotnum'] = shotnum.view()
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - initialize data np.ndarray: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -477,14 +477,14 @@ class HDFReadControl(np.recarray):
                                  + 'concept...no NaN fill done')
 
             # print execution timing
-            if timeit:
+            if timeit:  # pragma: no cover
                 tt.append(time.time())
                 print('tt - fill data - '
                       + '{}: '.format(cname)
                       + '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             n_controls = len(controls)
             tt.append(time.time())
             print('tt - fill data array: '
@@ -516,7 +516,7 @@ class HDFReadControl(np.recarray):
             print(warn_str)
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - total execution time: '
                   '{} ms'.format((tt[-1] - tt[0]) * 1.E3))

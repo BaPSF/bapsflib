@@ -254,7 +254,7 @@ Adding Control Device Data
 Adding control device data to a digitizer dataset is done with the
 keyword :data:`add_controls`.  Specifying :data:`add_controls` will
 trigger a call to the
-:class:`~bapsflib.lapd._hdf.hdfreadcontrol.hdfReadControl` class and
+:class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl` class and
 extract the desired control device data.
 :class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData` then compares and
 mates that control device data with the digitizer data according to the

@@ -15,7 +15,7 @@ from functools import reduce
 from warnings import warn
 
 
-class hdfReadControl(np.recarray):
+class HDFReadControl(np.recarray):
     """
     Reads control device data from the HDF5 file.
 

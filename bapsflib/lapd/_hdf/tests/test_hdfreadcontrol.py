@@ -20,7 +20,7 @@ from ..files import File
 from ..hdfreadcontrol import (condition_shotnum_list,
                               do_shotnum_intersection,
                               condition_controls,
-                              hdfReadControl)
+                              HDFReadControl)
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
@@ -616,12 +616,12 @@ class TestConditionControls(ut.TestCase):
 
 
 class TestHDFReadControl(ut.TestCase):
-    """Test Case for hdfReadControls class."""
+    """Test Case for HDFReadControl class."""
     # Note:
-    # - TestConditionShotnumList tests hdfReadControl's ability to
+    # - TestConditionShotnumList tests HDFReadControl's ability to
     #   properly identify the dataset indices corresponding to the
     #   desired shot numbers (it checks against the original dataset)
-    # - TestDoIntersection tests hdfReadControl's ability to intersect
+    # - TestDoIntersection tests HDFReadControl's ability to intersect
     #   all shot numbers between the datasets and shotnum
     # - Thus, testing here should focus on the construction and
     #   basic population of cdata and not so much ensuring the exact
@@ -664,16 +664,16 @@ class TestHDFReadControl(ut.TestCase):
         #   TestConditionControls class
         #
         # not a lapdfhdf.File object but a h5py.File object
-        self.assertRaises(AttributeError, hdfReadControl, self.f, [])
+        self.assertRaises(AttributeError, HDFReadControl, self.f, [])
 
         # a lapd.File object with no control devices
-        self.assertRaises(ValueError, hdfReadControl, self.lapdf, [])
+        self.assertRaises(ValueError, HDFReadControl, self.lapdf, [])
 
         # improper (empty) controls argument
         self.f.add_module('Waveform')
-        self.assertRaises(ValueError, hdfReadControl, self.lapdf, [])
+        self.assertRaises(ValueError, HDFReadControl, self.lapdf, [])
         self.assertRaises(ValueError,
-                          hdfReadControl, self.lapdf, [],
+                          HDFReadControl, self.lapdf, [],
                           assume_controls_conditioned=True)
 
     def test_output_obj_format(self):
@@ -684,7 +684,7 @@ class TestHDFReadControl(ut.TestCase):
         # remove all modules
         self.f.remove_all_modules()
         self.f.add_module('Waveform')
-        cdata = hdfReadControl(self.lapdf, ['Waveform'], shotnum=1)
+        cdata = HDFReadControl(self.lapdf, ['Waveform'], shotnum=1)
 
         # subclass of cdata is a np.recarray
         self.assertIsInstance(cdata, np.recarray)
@@ -706,15 +706,15 @@ class TestHDFReadControl(ut.TestCase):
 
         # shotnum is a list, but not all elements are ints
         self.assertRaises(ValueError,
-                          hdfReadControl,
+                          HDFReadControl,
                           self.lapdf, ['Waveform'], shotnum=[1, 'blah'])
 
         # shotnum is not int, list, or slice
         self.assertRaises(ValueError,
-                          hdfReadControl,
+                          HDFReadControl,
                           self.lapdf, ['Waveform'], shotnum=None)
         self.assertRaises(ValueError,
-                          hdfReadControl,
+                          HDFReadControl,
                           self.lapdf, ['Waveform'], shotnum='blah')
 
     def test_single_control(self):
@@ -777,7 +777,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataFormat(cdata, control_plus, sn_c)
@@ -814,7 +814,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control,
+            cdata = HDFReadControl(self.lapdf, control,
                                    shotnum=sn_r,
                                    intersection_set=False)
             # assert cdata format
@@ -830,11 +830,11 @@ class TestHDFReadControl(ut.TestCase):
         control_plus[0][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = hdfReadControl(self.lapdf, control)
+        cdata = HDFReadControl(self.lapdf, control)
         self.assertCDataFormat(cdata, control_plus, sn_c)
 
         # grab & test data for intersection_set=False
-        cdata = hdfReadControl(self.lapdf, control,
+        cdata = HDFReadControl(self.lapdf, control,
                                intersection_set=False)
         self.assertCDataFormat(cdata, control_plus, sn_c,
                                intersection_set=False)
@@ -874,7 +874,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataFormat(cdata, control_plus, sn_c)
@@ -911,7 +911,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control,
+            cdata = HDFReadControl(self.lapdf, control,
                                    shotnum=sn_r,
                                    intersection_set=False)
 
@@ -928,13 +928,13 @@ class TestHDFReadControl(ut.TestCase):
         control_plus[0][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = hdfReadControl(self.lapdf, control)
+        cdata = HDFReadControl(self.lapdf, control)
         self.assertCDataFormat(cdata, control_plus, sn_c)
 
         # grab & test data for intersection_set=False
         sn_c = np.arange(1, 61, 1).tolist()
         control_plus[0][2]['sn_correct'] = sn_c
-        cdata = hdfReadControl(self.lapdf, control,
+        cdata = HDFReadControl(self.lapdf, control,
                                intersection_set=False)
         self.assertCDataFormat(cdata, control_plus, sn_c,
                                intersection_set=False)
@@ -1013,7 +1013,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataFormat(cdata, control_plus, sn_c)
@@ -1058,7 +1058,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r,
+            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
@@ -1081,11 +1081,11 @@ class TestHDFReadControl(ut.TestCase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = hdfReadControl(self.lapdf, control)
+        cdata = HDFReadControl(self.lapdf, control)
         self.assertCDataFormat(cdata, control_plus, sn_c)
 
         # grab & test data for intersection_set=False
-        cdata = hdfReadControl(self.lapdf, control,
+        cdata = HDFReadControl(self.lapdf, control,
                                intersection_set=False)
         self.assertCDataFormat(cdata, control_plus, sn_c,
                                intersection_set=False)
@@ -1146,7 +1146,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataFormat(cdata, control_plus, sn_c)
@@ -1197,7 +1197,7 @@ class TestHDFReadControl(ut.TestCase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = hdfReadControl(self.lapdf, control, shotnum=sn_r,
+            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
@@ -1220,7 +1220,7 @@ class TestHDFReadControl(ut.TestCase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = hdfReadControl(self.lapdf, control)
+        cdata = HDFReadControl(self.lapdf, control)
         self.assertCDataFormat(cdata, control_plus, sn_c)
 
         # grab & test data for intersection_set=False
@@ -1231,7 +1231,7 @@ class TestHDFReadControl(ut.TestCase):
         control_plus[1][2]['sn_correct'] = sn_c
         control_plus[1][2]['sn_valid'] = \
             np.intersect1d(sn_c, sn_sixk).tolist()
-        cdata = hdfReadControl(self.lapdf, control,
+        cdata = HDFReadControl(self.lapdf, control,
                                intersection_set=False)
         self.assertCDataFormat(cdata, control_plus, sn_c,
                                intersection_set=False)
@@ -1249,7 +1249,7 @@ class TestHDFReadControl(ut.TestCase):
     def assertCDataFormat(self, cdata, control_plus, sn_correct,
                           intersection_set=True):
         """Assertion for detailed format of returned data object."""
-        # cdata            - returned data object of hdfReadControl()
+        # cdata            - returned data object of HDFReadControl()
         # control_plus     - control name, control configureation, and
         #                    expected shot numbers ('sn_valid')
         # sn_correct       - the correct shot numbers

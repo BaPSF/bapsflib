@@ -22,37 +22,38 @@ from typing import Tuple
 
 
 class BAPSFCONSTANT(Constant):
-    """BaPSF Constants Class"""
+    """BaPSF Constant"""
     default_reference = 'Basic Plasma Science Facility'
     _registry = {}
     _has_incompatible_units = set()
 
 
-#: distance between LaPD ports
+# nominal port spacing
 port_spacing = BAPSFCONSTANT('port_spacing', 'LaPD port spacing',
                              31.95, 'cm', 1.0, system='cgs')
+port_spacing.__doc__ += ': nominal distance between LaPD ports'
 
+# z = 0 port number
 ref_port = BAPSFCONSTANT('ref_port', 'LaPD reference port number', 53,
                          u.dimensionless_unscaled, 0, system='cgs')
-"""
-LaPD :math:`z = 0` reference port (most Northern port and :math:`+z` 
-points South towards main cathode)
-"""
+ref_port.__doc__ += (": LaPD :math:`z = 0` reference port (most "
+                     "Northern port and :math:`+z` points South "
+                     "towards south cathode)")
 
 
-class MainCathode(object):
-    """Constants related to the main LaPD cathode."""
+class SouthCathode(object):
+    """Constants related to the South 'main' LaPD cathode."""
 
     def __init__(self, operation_date=datetime.datetime.now()):
         """
-        :param operation_date: Date the main cathode was operated (i.e.
-            date of the experiment)
+        :param operation_date: Date the south 'main' cathode was
+            operated (i.e. date of the experiment)
         :type operation_date: :class:`datetime.datetime`
 
         :Example:
 
             >>> import datetime
-            >>> MC = MainCathode(datetime.date(2018, 1, 1))
+            >>> MC = SouthCathode(datetime.date(2018, 1, 1))
 
         """
         super().__init__()
@@ -63,13 +64,14 @@ class MainCathode(object):
     @property
     def operation_date(self) -> datetime.datetime:
         """
-        Date the main cathode was operated (i.e. date of the experiment)
+        Date the south 'main' cathode was operated (i.e. date of the
+        experiment)
         """
         return self._operation_date
 
     @operation_date.setter
     def operation_date(self, val: datetime.datetime):
-        # do a date condition when "new" main cathode is installed
+        # do a date condition when "new" south cathode is installed
         self._operation_date = val
 
         with warnings.catch_warnings():
@@ -78,19 +80,19 @@ class MainCathode(object):
             if val.year <= val.year:
                 self._diameter = BAPSFCONSTANT(
                     'diameter',
-                    "Diameter of LaPD's main cathode",
+                    "Diameter of LaPD's south 'main' cathode",
                     60.0, 'cm',
                     1.0, system='cgs'
                 )
                 self._z = BAPSFCONSTANT(
                     'z',
-                    "Axial location of LaPD's main cathode",
+                    "Axial location of LaPD's south 'main' cathode",
                     1700.0, 'cm',
                     1.0, system='cgs'
                 )
                 self._anode_z = BAPSFCONSTANT(
                     'anode_z',
-                    "Axial location of LaPD's main anode",
+                    "Axial location of LaPD's south 'main' anode",
                     1650.0, 'cm',
                     1.0, system='cgs'
                 )
@@ -104,7 +106,7 @@ class MainCathode(object):
 
     @property
     def diameter(self) -> BAPSFCONSTANT:
-        """Diameter of LaPD's main cathode"""
+        """Diameter of LaPD's south 'main' cathode"""
         return self._diameter
 
     @property

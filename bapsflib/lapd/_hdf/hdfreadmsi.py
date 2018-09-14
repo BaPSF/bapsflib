@@ -22,10 +22,10 @@ class HDFReadMSI(np.ndarray):
     This class constructs and returns a structured numpy array.  The
     data in the array is grouped in three categories:
 
-    1. shot numbers which are contained in the :code:`'shotnum'` field
-    2. metadata data that is both shot number and diagnostic specific
+    #. shot numbers which are contained in the :code:`'shotnum'` field
+    #. metadata data that is both shot number and diagnostic specific
        which is stored in the sub-fields of the :code:`'meta'` field
-    3. recorded data arrays which get unique fields based on their
+    #. recorded data arrays which get unique fields based on their
        mapping :attr:`configs` attribute
 
     Data that is not shot number specific is stored in the :attr:`info`
@@ -295,5 +295,5 @@ class HDFReadMSI(np.ndarray):
 
     @property
     def info(self):
-        """A dictionary of metadata for the MSI diagnostic."""
+        """A dictionary of meta-info for the MSI diagnostic."""
         return self._info

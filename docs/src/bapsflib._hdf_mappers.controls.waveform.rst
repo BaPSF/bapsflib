@@ -6,3 +6,8 @@ bapsflib\.\_hdf\_mappers\.controls\.waveform
     :members:
     :undoc-members:
     :inherited-members:
+
+    .. rubric:: Classes
+
+    .. autosummary:: HDFMapControlWaveform
+        :nosignatures:

@@ -6,3 +6,8 @@ bapsflib\.\_hdf\_mappers\.controls\.n5700ps
     :members:
     :undoc-members:
     :inherited-members:
+
+    .. rubric:: Classes
+
+    .. autosummary:: HDFMapControlN5700PS
+        :nosignatures:

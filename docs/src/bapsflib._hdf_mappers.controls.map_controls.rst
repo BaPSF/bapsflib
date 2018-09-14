@@ -6,3 +6,8 @@ bapsflib\._hdf_mappers\.controls\.map\_controls
     :undoc-members:
     :private-members:
     :show-inheritance:
+
+    .. rubric:: Classes
+
+    .. autosummary:: HDFMapControls
+        :nosignatures:

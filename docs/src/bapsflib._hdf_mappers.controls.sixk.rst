@@ -6,3 +6,8 @@ bapsflib\.\_hdf\_mappers\.controls\.sixk
     :members:
     :undoc-members:
     :inherited-members:
+
+    .. rubric:: Classes
+
+    .. autosummary:: HDFMapControl6K
+        :nosignatures:

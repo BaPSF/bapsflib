@@ -84,8 +84,7 @@ class HDFReadMSI(np.ndarray):
         :param str dname: name of desired MSI diagnostic
         """
         # ---- Condition `hdf_file`                                 ----
-        # grab file_map
-        # - also ensure hdf_file is a lapd.file object
+        # - `hdf_file` is a lapd.File object
         #
         if not isinstance(hdf_file, bapsflib.lapd.File):
             raise TypeError(

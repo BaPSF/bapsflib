@@ -349,70 +349,86 @@ class TestConditionControls(ut.TestCase):
     #      d. two control names
     # 5. HDF5 file with multiple controls
     #
+    f = NotImplemented
+
+    @classmethod
+    def setUpClass(cls):
+        # create HDF5 file
+        super().setUpClass()
+        cls.f = FauxHDFBuilder()
+
     def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'Waveform': {'n_configs': 3,
-                                      'sn_size': 100},
-                         '6K Compumotor': {'n_configs': 2,
-                                           'sn_size': 100}})
+        # setup HDF5 file
+        pass
 
     def tearDown(self):
-        self.f.cleanup()
+        self.f.remove_all_modules()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()
 
     @property
     def lapdf(self):
         return File(self.f.filename)
 
-    def test_basic_input_handling(self):
-        """Test input handling of `hdf_file` and `controls`"""
-        # hdf_file = h5py.File (but NOT lapd.File)
-        # controls = None
-        self.assertRaises(AttributeError,
-                          condition_controls, self.f, None)
-
-        # hdf_file = lapd.File
-        # controls = empty list
+    def test_input_failures(self):
+        """Test input failures of `controls`"""
+        # `controls` is Null
         self.assertRaises(ValueError,
                           condition_controls, self.lapdf, [])
 
-        # hdf_file = lapd.File
-        # controls = not a list
+        # `controls` is not a string or Iterable
         self.assertRaises(TypeError,
-                          condition_controls, self.lapdf, None)
+                          condition_controls, self.lapdf, True)
+
+        # 'controls` element is not a str or tuple
+        self.assertRaises(TypeError,
+                          condition_controls,
+                          self.lapdf, ['Waveform', 8])
+
+        # `controls` tuple element has length > 2
+        self.assertRaises(ValueError,
+                          condition_controls,
+                          self.lapdf, [('Waveform', 'c1', 'c2')])
 
     def test_file_w_one_control(self):
         """
         Test `controls` conditioning for file with one control device.
         """
         # set one control device
-        modules = list(self.f.modules.keys())
-        for mod in modules:
-            self.f.remove_module(mod)
-        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 100})
+        self.f.add_module('Waveform',
+                          mod_args={'n_configs': 1, 'sn_size': 100})
+        _lapdf = self.lapdf
 
-        # ------ Waveform w/ one Configuration ------
+        # ---- Waveform w/ one Configuration                        ----
         # conditions that work
         con_list = [
+            'Waveform',
+            ('Waveform', ),
             ['Waveform'],
-            [('Waveform', 'config01')]
+            [('Waveform', 'config01')],
         ]
         for og_con in con_list:
             self.assertEqual(
-                condition_controls(self.lapdf, og_con),
+                condition_controls(_lapdf, og_con),
                 [('Waveform', 'config01')])
 
-        # conditions that raise TypeError
+        # conditions that raise ValueError
         con_list = [
             ['Waveform', 'config01'],
             ['Waveform', ('Waveform', 'config01')],
-            ['Waveform', '6K Compumotor']
+            ['Waveform', '6K Compumotor'],
         ]
         for og_con in con_list:
-            self.assertRaises(TypeError,
-                              condition_controls, self.lapdf, og_con)
+            self.assertRaises(ValueError,
+                              condition_controls, _lapdf, og_con)
 
-        # ------ Waveform w/ three Configurations ------
+        # ---- Waveform w/ three Configurations                     ----
         self.f.modules['Waveform'].knobs.n_configs = 3
+        _lapdf = self.lapdf
 
         # conditions that work
         con_list = [
@@ -421,18 +437,17 @@ class TestConditionControls(ut.TestCase):
         ]
         for og_con in con_list:
             self.assertEqual(
-                condition_controls(self.lapdf, og_con),
+                condition_controls(_lapdf, og_con),
                 og_con)
 
-        # conditions that raise TypeError
+        # conditions that raise ValueError
         con_list = [
             ['Waveform'],
-            ['Waveform', '6K Compumotor'],
             ['6K Compumotor', ('Waveform', 'config01')],
         ]
         for og_con in con_list:
-            self.assertRaises(TypeError,
-                              condition_controls, self.lapdf,
+            self.assertRaises(ValueError,
+                              condition_controls, _lapdf,
                               og_con)
 
     def test_file_w_multiple_controls(self):
@@ -441,18 +456,19 @@ class TestConditionControls(ut.TestCase):
         devices.
         """
         # set modules
-        modules = list(self.f.modules.keys())
-        for mod in modules:
-            self.f.remove_module(mod)
         self.f.add_module('Waveform',
                           {'n_configs': 1, 'sn_size': 100})
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 100})
 
-        # ------ 1 Waveform Config & 1 6K Config ------
-        # conditions that work
+        # ---- 1 Waveform Config & 1 6K Config                      ----
+        _lapdf = self.lapdf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+
+        # conditions that work
         con_list = [
+            ('Waveform',
+             [('Waveform', 'config01')]),
             (['Waveform'],
              [('Waveform', 'config01')]),
             ([('Waveform', 'config01')],
@@ -468,34 +484,44 @@ class TestConditionControls(ut.TestCase):
             ([('Waveform', 'config01'), '6K Compumotor'],
              [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
             ([('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)],
-             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)])
+             [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
         ]
         for og_con, correct_con in con_list:
-            self.assertEqual(
-                condition_controls(self.lapdf, og_con),
-                correct_con)
+            self.assertEqual(condition_controls(_lapdf, og_con),
+                             correct_con)
 
         # conditions that raise TypeError
         con_list = [
-            ['Waveform', 'config01'],
             ['6K Compumotor', sixk_cspec],
-            ['Waveform', ('Waveform', 'config01')],
-            ['6K Compumotor', ('6K Compumotor', sixk_cspec)],
-            [('Waveform', 'config02')]
         ]
         for og_con in con_list:
             self.assertRaises(TypeError,
-                              condition_controls, self.lapdf, og_con)
+                              condition_controls, _lapdf, og_con)
 
-        # ------ 3 Waveform Config & 1 6K Config ------
+        # conditions that raise ValueError
+        con_list = [
+            ['Waveform', 'config01'],
+            ['Waveform', ('Waveform', 'config01')],
+            ['6K Compumotor', ('6K Compumotor', sixk_cspec)],
+            [('Waveform', 'config02')],
+        ]
+        for og_con in con_list:
+            self.assertRaises(ValueError,
+                              condition_controls, _lapdf, og_con)
+
+        # ---- 3 Waveform Config & 1 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        # conditions that work
+        _lapdf = self.lapdf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
+
+        # conditions that work
         con_list = [
             ([('Waveform', 'config01')],
              [('Waveform', 'config01')]),
             ([('Waveform', 'config03')],
              [('Waveform', 'config03')]),
+            ('6K Compumotor',
+             [('6K Compumotor', sixk_cspec)]),
             (['6K Compumotor'],
              [('6K Compumotor', sixk_cspec)]),
             ([('6K Compumotor', sixk_cspec)],
@@ -503,32 +529,41 @@ class TestConditionControls(ut.TestCase):
             ([('Waveform', 'config01'), '6K Compumotor'],
              [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
             ([('Waveform', 'config02'), ('6K Compumotor', sixk_cspec)],
-             [('Waveform', 'config02'), ('6K Compumotor', sixk_cspec)])
+             [('Waveform', 'config02'), ('6K Compumotor', sixk_cspec)]),
         ]
         for og_con, correct_con in con_list:
             self.assertEqual(
-                condition_controls(self.lapdf, og_con),
+                condition_controls(_lapdf, og_con),
                 correct_con)
 
         # conditions that raise TypeError
         con_list = [
+            ['6K Compumotor', sixk_cspec],
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, _lapdf, og_con)
+
+        # conditions that raise ValueError
+        con_list = [
             ['Waveform'],
             ['Waveform', 'config01'],
-            ['6K Compumotor', sixk_cspec],
             ['Waveform', '6K Compumotor'],
             ['Waveform', ('6K Compumotor', sixk_cspec)],
             ['Waveform', ('Waveform', 'config01')],
             ['6K Compumotor', ('6K Compumotor', sixk_cspec)],
-            [('Waveform', 'config05')]
+            [('Waveform', 'config05')],
         ]
         for og_con in con_list:
-            self.assertRaises(TypeError,
-                              condition_controls, self.lapdf, og_con)
+            self.assertRaises(ValueError,
+                              condition_controls, _lapdf, og_con)
 
-        # ------ 1 Waveform Config & 3 6K Config ------
+        # ---- 1 Waveform Config & 3 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 1
         self.f.modules['6K Compumotor'].knobs.n_configs = 3
+        _lapdf = self.lapdf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names
+
         # conditions that work
         con_list = [
             (['Waveform'],
@@ -544,28 +579,36 @@ class TestConditionControls(ut.TestCase):
               ('6K Compumotor', sixk_cspec[1])])
         ]
         for og_con, correct_con in con_list:
-            self.assertEqual(
-                condition_controls(self.lapdf, og_con),
-                correct_con)
+            self.assertEqual(condition_controls(_lapdf, og_con),
+                             correct_con)
 
         # conditions that raise TypeError
         con_list = [
+            ['6K Compumotor', sixk_cspec[0]],
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, _lapdf, og_con)
+
+        # conditions that raise ValueError
+        con_list = [
             ['Waveform', 'config01'],
             ['6K Compumotor'],
-            ['6K Compumotor', sixk_cspec[0]],
             ['Waveform', '6K Compumotor'],
             [('Waveform', 'config01'), '6K Compumotor'],
             ['Waveform', ('Waveform', 'config01')],
             ['6K Compumotor', ('6K Compumotor', sixk_cspec[1])],
-            [('Waveform', 'config02')]
+            [('Waveform', 'config02')],
         ]
         for og_con in con_list:
-            self.assertRaises(TypeError,
-                              condition_controls, self.lapdf, og_con)
+            self.assertRaises(ValueError,
+                              condition_controls, _lapdf, og_con)
 
-        # ------ 3 Waveform Config & 3 6K Config ------
+        # ---- 3 Waveform Config & 3 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 3
+        _lapdf = self.lapdf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names
+
         # conditions that work
         con_list = [
             ([('Waveform', 'config01')],
@@ -582,37 +625,52 @@ class TestConditionControls(ut.TestCase):
               ('6K Compumotor', sixk_cspec[1])])
         ]
         for og_con, correct_con in con_list:
-            self.assertEqual(
-                condition_controls(self.lapdf, og_con),
-                correct_con)
+            self.assertEqual(condition_controls(_lapdf, og_con),
+                             correct_con)
 
         # conditions that raise TypeError
+        con_list = [
+            ['6K Compumotor', sixk_cspec[0]],
+        ]
+        for og_con in con_list:
+            self.assertRaises(TypeError,
+                              condition_controls, _lapdf, og_con)
+
+        # conditions that raise ValueError
         con_list = [
             ['Waveform'],
             ['Waveform', 'config01'],
             ['6K Compumotor'],
-            ['6K Compumotor', sixk_cspec[0]],
             ['Waveform', '6K Compumotor'],
             [('Waveform', 'config01'), '6K Compumotor'],
             ['Waveform', ('Waveform', 'config01')],
             ['6K Compumotor', ('6K Compumotor', sixk_cspec[1])],
         ]
         for og_con in con_list:
-            self.assertRaises(TypeError,
-                              condition_controls, self.lapdf, og_con)
+            self.assertRaises(ValueError,
+                              condition_controls, _lapdf,
+                              og_con)
 
-    def test_file_w_no_controls(self):
+    def test_controls_w_same_contype(self):
         """
-        Test `controls` conditioning for file with no control devices.
+        Test `controls` conditioning for multiple devices with the
+        same contype.
         """
-        # remove all control devices
-        modules = list(self.f.modules.keys())
-        if len(modules) != 0:
-            for mod in modules:
-                self.f.remove_module(mod)
+        # set modules (1 Waveform Config & 1 6K Config)
+        self.f.add_module('Waveform',
+                          {'n_configs': 1, 'sn_size': 100})
+        self.f.add_module('6K Compumotor',
+                          {'n_configs': 1, 'sn_size': 100})
+        _lapdf = self.lapdf
 
-        self.assertRaises(AttributeError,
-                          condition_controls, self.lapdf, [])
+        # fake 6K as contype.waveform
+        _lapdf.file_map.controls['6K Compumotor'].info['contype'] = \
+            _lapdf.file_map.controls['Waveform'].info['contype']
+
+        # test
+        self.assertRaises(TypeError,
+                          condition_controls,
+                          _lapdf, ['Waveform', '6K Compumotor'])
 
 
 class TestHDFReadControl(ut.TestCase):

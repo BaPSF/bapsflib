@@ -722,7 +722,7 @@ class TestHDFReadControl(ut.TestCase):
         #   TestConditionControls class
         #
         # not a lapdfhdf.File object but a h5py.File object
-        self.assertRaises(AttributeError, HDFReadControl, self.f, [])
+        self.assertRaises(TypeError, HDFReadControl, self.f, [])
 
         # a lapd.File object with no control devices
         self.assertRaises(ValueError, HDFReadControl, self.lapdf, [])

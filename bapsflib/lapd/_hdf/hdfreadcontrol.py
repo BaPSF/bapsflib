@@ -118,16 +118,19 @@ class HDFReadControl(np.recarray):
         # initiate warning string
         warn_str = ''
 
-        # ---- Condition hdf_file ----
-        # Check hdf_file is a lapd.File object
-        try:
-            file_map = hdf_file.file_map
-        except AttributeError:
-            raise AttributeError(
-                "hdf_file needs to be of type lapd.File")
+        # ---- Condition `hdf_file`                                 ----
+        # - `hdf_file` is a lapd.file object
+        #
+        if not isinstance(hdf_file, bapsflib.lapd.File):
+            raise TypeError(
+                '`hdf_file` is NOT type `bapsflib.lapd.File`')
+
+        # grab instance of _fmap
+        _fmap = hdf_file.file_map
 
         # Check for non-empty controls
-        if not file_map.controls or file_map.controls is None:
+        # if not _fmap.controls or _fmap.controls is None:
+        if not bool(_fmap.controls):
             raise ValueError(
                 'There are no control devices in the HDF5 file.')
 
@@ -226,7 +229,7 @@ class HDFReadControl(np.recarray):
             cspec = control[1]
 
             # gather control datasets and shotnumkey's
-            cmap = file_map.controls[cname]
+            cmap = _fmap.controls[cname]
             cdset_path = cmap.configs[cspec]['dset paths'][0]
             cdset_dict[cname] = hdf_file.get(cdset_path)
             try:
@@ -311,7 +314,7 @@ class HDFReadControl(np.recarray):
             # control name and unique specifier
             cname = control[0]
             cspec = control[1]
-            cmap = file_map.controls[cname]
+            cmap = _fmap.controls[cname]
 
             # get a conditioned version of index, shotnum, and sni for
             # each control
@@ -349,7 +352,7 @@ class HDFReadControl(np.recarray):
             cspec = control[1]
 
             # add fields
-            cconfig = file_map.controls[cname].configs[cspec]
+            cconfig = _fmap.controls[cname].configs[cspec]
             for field_name, fconfig in \
                     cconfig['state values'].items():
                 dtype.append((
@@ -381,7 +384,7 @@ class HDFReadControl(np.recarray):
             cspec = control[1]
 
             # get control dataset
-            cmap = file_map.controls[cname]
+            cmap = _fmap.controls[cname]
             cconfig = cmap.configs[cspec]
             cdset = cdset_dict[cname]
             sni = sni_dict[cname]

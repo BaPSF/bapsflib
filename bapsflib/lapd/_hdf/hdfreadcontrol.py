@@ -316,9 +316,9 @@ class HDFReadControl(np.recarray):
             # get a conditioned version of index, shotnum, and sni for
             # each control
             index_dict[cname], shotnum_dict[cname], sni_dict[cname] = \
-                condition_shotnum_list(shotnum, cdset_dict[cname],
-                                       shotnumkey_dict[cname],
-                                       cmap, cspec)
+                condition_shotnum(shotnum, cdset_dict[cname],
+                                  shotnumkey_dict[cname],
+                                  cmap, cspec)
 
         # convert shotnum from list to np.array
         shotnum = np.array(shotnum)
@@ -654,8 +654,7 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
     return controls
 
 
-# rename to condition_shotnum
-def condition_shotnum_list(shotnum, cdset, shotnumkey, cmap, cspec):
+def condition_shotnum(shotnum, cdset, shotnumkey, cmap, cspec):
     """
     Conditions **shotnum** (when a `list`) against the control dataset
     **cdset**.  Utilizes functions :func:`condition_shotnum_list_simple`

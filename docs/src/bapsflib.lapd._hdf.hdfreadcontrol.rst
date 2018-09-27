@@ -16,7 +16,7 @@ bapsflib\.lapd\.\_hdf\.hdfreadcontrol
         :nosignatures:
 
         condition_controls
-        condition_shotnum_list
+        condition_shotnum
         condition_shotnum_list_complex
         condition_shotnum_list_simple
         do_shotnum_intersection

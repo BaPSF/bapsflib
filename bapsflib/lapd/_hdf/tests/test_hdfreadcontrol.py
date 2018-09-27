@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib._hdf_mappers.controls.waveform import \
     HDFMapControlWaveform
 from ..files import File
-from ..hdfreadcontrol import (condition_shotnum_list,
+from ..hdfreadcontrol import (condition_shotnum,
                               do_shotnum_intersection,
                               condition_controls,
                               HDFReadControl)
@@ -26,7 +26,7 @@ from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
 class TestConditionShotnumList(ut.TestCase):
-    """Test Case for condition_shotnum_list"""
+    """Test Case for condition_shotnum"""
 
     def setUp(self):
         self.f = FauxHDFBuilder(
@@ -94,7 +94,7 @@ class TestConditionShotnumList(ut.TestCase):
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         for cspec in self.map.configs:
-            self.assertRaises(ValueError, condition_shotnum_list,
+            self.assertRaises(ValueError, condition_shotnum,
                               og_shotnum, cdset, shotnumkey, self.map,
                               cspec)
 
@@ -108,7 +108,7 @@ class TestConditionShotnumList(ut.TestCase):
         shotnumkey = 'Shot number'
         for og_shotnum in shotnum_list:
             for cspec in self.map.configs:
-                self.assertRaises(ValueError, condition_shotnum_list,
+                self.assertRaises(ValueError, condition_shotnum,
                                   og_shotnum, cdset, shotnumkey,
                                   self.map, cspec)
 
@@ -130,9 +130,9 @@ class TestConditionShotnumList(ut.TestCase):
         for og_shotnum in shotnum_list:
             for cspec in self.map.configs:
                 index, shotnum, sni = \
-                    condition_shotnum_list(og_shotnum, cdset,
-                                           shotnumkey,
-                                           self.map, cspec)
+                    condition_shotnum(og_shotnum, cdset,
+                                      shotnumkey,
+                                      self.map, cspec)
                 self.assertSNSuite(og_shotnum,
                                    index, shotnum, sni,
                                    cdset, shotnumkey,
@@ -168,9 +168,9 @@ class TestConditionShotnumList(ut.TestCase):
         for og_shotnum in shotnum_list:
             for cspec in self.map.configs:
                 index, shotnum, sni = \
-                    condition_shotnum_list(og_shotnum, cdset,
-                                           shotnumkey,
-                                           self.map, cspec)
+                    condition_shotnum(og_shotnum, cdset,
+                                      shotnumkey,
+                                      self.map, cspec)
                 self.assertSNSuite(og_shotnum,
                                    index, shotnum, sni,
                                    cdset, shotnumkey,
@@ -215,10 +215,10 @@ class TestConditionShotnumList(ut.TestCase):
             self.assertTrue(np.all(np.isin(shotnum, og_arr[og_i])))
             self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum)))
         else:
-            # condition_shotnum_list should have thrown a ValueError
+            # condition_shotnum should have thrown a ValueError
             # since no valid shot number was originally passed in
             raise RuntimeError(
-                'something went wrong, `condition_shotnum_list` should '
+                'something went wrong, `condition_shotnum` should '
                 'have thrown a ValueError and shotnum should be empty, '
                 'shotnum.size = {}'.format(shotnum.size))
 

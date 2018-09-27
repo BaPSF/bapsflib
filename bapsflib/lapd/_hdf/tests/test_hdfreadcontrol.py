@@ -25,7 +25,7 @@ from ..hdfreadcontrol import (condition_shotnum,
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
-class TestConditionShotnumList(ut.TestCase):
+class TestConditionShotnum(ut.TestCase):
     """Test Case for condition_shotnum"""
 
     def setUp(self):
@@ -676,7 +676,7 @@ class TestConditionControls(ut.TestCase):
 class TestHDFReadControl(ut.TestCase):
     """Test Case for HDFReadControl class."""
     # Note:
-    # - TestConditionShotnumList tests HDFReadControl's ability to
+    # - TestConditionShotnum tests HDFReadControl's ability to
     #   properly identify the dataset indices corresponding to the
     #   desired shot numbers (it checks against the original dataset)
     # - TestDoIntersection tests HDFReadControl's ability to intersect

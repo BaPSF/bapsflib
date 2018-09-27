@@ -224,17 +224,17 @@ class HDFReadControl(np.recarray):
         cdset_dict = {}
         shotnumkey_dict = {}
         for control in controls:
-            # control name and unique specifier
+            # control name (cname) and configuration name (cconfn)
             cname = control[0]
-            cspec = control[1]
+            cconfn = control[1]
 
             # gather control datasets and shotnumkey's
             cmap = _fmap.controls[cname]
-            cdset_path = cmap.configs[cspec]['dset paths'][0]
+            cdset_path = cmap.configs[cconfn]['dset paths'][0]
             cdset_dict[cname] = hdf_file.get(cdset_path)
             try:
                 shotnumkey = \
-                    cmap.configs[cspec]['shotnum']['dset field'][0]
+                    cmap.configs[cconfn]['shotnum']['dset field'][0]
                 shotnumkey_dict[cname] = shotnumkey
             except KeyError:
                 raise ValueError(
@@ -311,9 +311,9 @@ class HDFReadControl(np.recarray):
         shotnum_dict = {}
         sni_dict = {}
         for control in controls:
-            # control name and unique specifier
+            # control name (cname) and configuration name (cconfn)
             cname = control[0]
-            cspec = control[1]
+            cconfn = control[1]
             cmap = _fmap.controls[cname]
 
             # get a conditioned version of index, shotnum, and sni for
@@ -321,7 +321,7 @@ class HDFReadControl(np.recarray):
             index_dict[cname], shotnum_dict[cname], sni_dict[cname] = \
                 condition_shotnum(shotnum, cdset_dict[cname],
                                   shotnumkey_dict[cname],
-                                  cmap, cspec)
+                                  cmap, cconfn)
 
         # convert shotnum from list to np.array
         shotnum = np.array(shotnum)
@@ -347,12 +347,12 @@ class HDFReadControl(np.recarray):
         shape = shotnum.shape
         dtype = [('shotnum', '<u4', 1)]
         for control in controls:
-            # control name and unique specifier
+            # control name (cname) and configuration name (cconfn)
             cname = control[0]
-            cspec = control[1]
+            cconfn = control[1]
 
             # add fields
-            cconfig = _fmap.controls[cname].configs[cspec]
+            cconfig = _fmap.controls[cname].configs[cconfn]
             for field_name, fconfig in \
                     cconfig['state values'].items():
                 dtype.append((
@@ -379,13 +379,13 @@ class HDFReadControl(np.recarray):
 
         # Assign Control Data to Numpy array
         for control in controls:
-            # control name and unique specifier
+            # control name (cname) and configuraiton name (cconfn)
             cname = control[0]
-            cspec = control[1]
+            cconfn = control[1]
 
             # get control dataset
             cmap = _fmap.controls[cname]
-            cconfig = cmap.configs[cspec]
+            cconfig = cmap.configs[cconfn]
             cdset = cdset_dict[cname]
             sni = sni_dict[cname]
             index = index_dict[cname]
@@ -657,7 +657,12 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
     return controls
 
 
-def condition_shotnum(shotnum, cdset, shotnumkey, cmap, cspec):
+def condition_shotnum(
+        shotnum: Any,
+        cdset: h5py.Dataset,
+        shotnumkey: str,
+        cmap: ControlMap,
+        cconfn: Any) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
     Conditions **shotnum** (when a `list`) against the control dataset
     **cdset**.  Utilizes functions :func:`condition_shotnum_list_simple`
@@ -670,8 +675,7 @@ def condition_shotnum(shotnum, cdset, shotnumkey, cmap, cspec):
     :param str shotnumkey: field name in the control device dataset that
         contains the shot numbers
     :param cmap: mapping object for control device
-    :param cspec: unique specifier (configuration name) for the control
-        device
+    :param cconfn: configuration name for the control device
     :return: index, shotnum, sni
 
     .. note::
@@ -688,8 +692,7 @@ def condition_shotnum(shotnum, cdset, shotnumkey, cmap, cspec):
     #                             in cdset
     # cmap                      - file mapping object for the control
     #                             device
-    # cspec                     - unique specifier (aka configuration
-    #                             name) for control device
+    # cconfn                    - configuration for control device
     #
     # Returns:
     # index    np.array(dtype=uint32) - cdset row index for the
@@ -728,7 +731,7 @@ def condition_shotnum(shotnum, cdset, shotnumkey, cmap, cspec):
         # the dataset saves data for multiple configurations
         index, shotnum, sni = \
             condition_shotnum_list_complex(shotnum, cdset, shotnumkey,
-                                           cmap, cspec)
+                                           cmap, cconfn)
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()
@@ -821,7 +824,7 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
 
 # rename to condition_shotnum_w_complex_dset
 def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
-                                   cspec):
+                                   cconfn):
     """
     Conditions **shotnum** (when a `list`) against control dataset
     **cdset** when the control dataset contains recorded data for
@@ -845,8 +848,7 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
     :param str shotnumkey: field name in the control device dataset that
         contains the shot numbers
     :param cmap: mapping object for control device
-    :param cspec: unique specifier (configuration name) for the control
-        device
+    :param cconfn: configuration name for the control device
     :return: index, shotnum, sni
 
     .. note::
@@ -890,7 +892,7 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
         #       name of the configuration.  When reading that into a
         #       numpy array the string becomes a byte string (i.e. b'').
         #       When comparing with np.where() the comparing string
-        #       needs to be encoded (i.e. cspec.encode()).
+        #       needs to be encoded (i.e. cconfn.encode()).
         #
         only_sn = cdset[0, shotnumkey]
         sni = np.where(shotnum == only_sn, True, False)
@@ -901,7 +903,7 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
             index = np.empty(shape=0, dtype=np.uint32)
         else:
             config_name_arr = cdset[0:n_configs, configkey]
-            index = np.where(config_name_arr == cspec.encode())[0]
+            index = np.where(config_name_arr == cconfn.encode())[0]
 
             if index.size != 1:
                 # something went wrong...no configurations are found
@@ -915,7 +917,7 @@ def condition_shotnum_list_complex(shotnum, cdset, shotnumkey, cmap,
         # find sub-group index corresponding to the requested device
         # configuration
         config_name_arr = cdset[0:n_configs, configkey]
-        config_where = np.where(config_name_arr == cspec.encode())[0]
+        config_where = np.where(config_name_arr == cconfn.encode())[0]
         if config_where.size == 1:
             config_subindex = config_where[0]
         else:

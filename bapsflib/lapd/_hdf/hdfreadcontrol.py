@@ -547,97 +547,106 @@ class HDFReadControl(np.recarray):
                              'port': (None, None)})
 
 
-def condition_controls(hdf_file, controls, **kwargs):
+def condition_controls(hdf_file: bapsflib.lapd.File,
+                       controls,
+                       **kwargs) -> List[Tuple[str, Any]]:
+    """
+    Conditions the `controls` argument for :class:`HDFReadControl`.
 
-    # Check hdf_file is a lapd.File object
-    try:
-        file_map = hdf_file.file_map
-    except AttributeError:
-        raise AttributeError(
-            "hdf_file needs to be of type lapd.File")
+    :param hdf_file: HDF5 object instance
+    :param controls: `controls` argument to be conditioned
+    :return: list containing tuple pairs of control control name and
+        desired configuration name
 
-    # Check for non-empty controls
-    if not file_map.controls or file_map.controls is None:
-        raise AttributeError('There are no control devices in the HDF5'
-                             ' file.')
+    :Example:
 
-    # condition elements of 'controls' argument
-    # - controls is a list where elements can be:
-    #   1. a string indicating the name of a control device
-    #   2. a 2-element tuple where the 1st entry is a string
-    #      indicating the name of a control device and the 2nd is
-    #      a unique specifier for that control device
-    #      ~ in 0.1.3.dev3 the unique specifier is the name used in
-    #        configs['config names']
+        >>> from bapsflib import lapd
+        >>> f = lapd.File('sample.hdf5')
+        >>> controls = ['Wavefrom', ('6K Compumotor', 3)]
+        >>> condition = condition_controls(f, controls)
+        >>> condition
+        [('Waveform', 'config01'), ('6K Compumotor', 3)]
+
+    """
+    # grab instance of file mapping
+    _fmap = hdf_file.file_map
+
+    # -- condition 'controls' argument                              ----
+    # - controls is:
+    #   1. a string or Iterable
+    #   2. each element is either a string or tuple
+    #   3. if tuple, then length <= 2
+    #      ('control name',) or ('control_name', config_name)
     #
-    # - ensure
-    #   1. controls is in agreement is defined format above
-    #   2. all control device are in file_map.controls
-    #   3. there are not duplicate devices in controls
-    #   4. proper unique specifiers are defined
-    #
-    if isinstance(controls, list):
-        # catch an empty list
-        if len(controls) == 0:
-            raise ValueError('controls argument empty')
+    # check if NULL
+    if not bool(controls):
+        # catch a null controls
+        raise ValueError('controls argument is NULL')
 
+    # make string a list
+    if isinstance(controls, str):
+        controls = [controls]
+
+    # condition Iterable
+    if isinstance(controls, Iterable):
         # all list items have to be strings or tuples
-        if not all([True if isinstance(con, (str, tuple)) else False
-                    for con in controls]):
-            raise TypeError('controls argument invalid')
+        if not all(isinstance(con, (str, tuple)) for con in controls):
+            raise TypeError('all elements of `controls` must be of '
+                            'type string or tuple')
 
         # condition controls
         new_controls = []
-        for device in controls:
-            if isinstance(device, str):
-                # ensure proper device and unique specifier are defined
-                if device in new_controls:
-                    raise TypeError(
-                        'Control device ({})'.format(device)
-                        + ' can only have one occurrence in controls')
-                elif device in file_map.controls:
-                    if len(file_map.controls[device].configs) == 1:
-                        new_controls.append((
-                            device,
-                            list(file_map.controls[device].configs)[0]
-                        ))
-                    else:
-                        raise TypeError(
-                            'Need to define a unique specifier for '
-                            'control device ({})'.format(device))
-                else:
-                    raise TypeError(
-                        'Control device ({})'.format(device)
-                        + ' not in HDF5 file')
-            elif isinstance(device, tuple):
-                if device[0] in new_controls:
-                    raise TypeError(
-                        'Control device ({})'.format(device[0])
-                        + ' can only have one occurrence in controls')
-                elif device[0] in file_map.controls:
-                    if device[1] in file_map.controls[
-                            device[0]].configs:
-                        new_controls.append((device[0], device[1]))
-                    else:
-                        raise TypeError(
-                            'Unique specifier for control device '
-                            '({}) is NOT valid'.format(device[0]))
-                else:
-                    raise TypeError(
-                        'Control device ({})'.format(device[0])
-                        + ' not in HDF5 file')
-    else:
-        raise TypeError('controls argument not a list')
+        for control in controls:
+            if isinstance(control, str):
+                name = control
+                config_name = None
+            else:
+                # tuple case
+                if len(control) > 2:
+                    raise ValueError(
+                        "a `controls` tuple element must be specified "
+                        "as ('control name') or, "
+                        "('control name', config_name)")
 
-    # enforce one device per contype
+                name = control[0]
+                config_name = None if len(control) == 1 else control[1]
+
+            # ensure proper control and unique specifier are defined
+            if name in [cc[0] for cc in new_controls]:
+                raise ValueError(
+                    'Control device ({})'.format(control)
+                    + ' can only have one occurrence in controls')
+            elif name in _fmap.controls:
+                if config_name in _fmap.controls[name].configs:
+                    # all is good
+                    pass
+                elif len(_fmap.controls[name].configs) == 1 \
+                        and config_name is None:
+                    config_name = list(_fmap.controls[name].configs)[0]
+                else:
+                    raise ValueError(
+                        "'{}' is not a valid ".format(config_name)
+                        + "configuration name for control device "
+                        + "'{}'".format(name))
+            else:
+                raise ValueError('Control device ({})'.format(name)
+                                 + ' not in HDF5 file')
+
+            # add control to new_controls
+            new_controls.append((name, config_name))
+    else:
+        raise TypeError('`controls` argument is not Iterable')
+
+    # enforce one control per contype
     checked = []
     controls = new_controls
-    for device in controls:
-        # device is a tuple, not a string
-        contype = file_map.controls[device[0]].contype
+    for control in controls:
+        # control is a tuple, not a string
+        contype = _fmap.controls[control[0]].contype
 
         if contype in checked:
-            raise TypeError('controls has multiple devices per contype')
+            raise TypeError('`controls` has multiple devices per '
+                            'contype')
         else:
             checked.append(contype)
 

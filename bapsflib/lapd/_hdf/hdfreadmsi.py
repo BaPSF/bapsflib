@@ -26,13 +26,16 @@ class HDFReadMSI(np.ndarray):
     #. metadata data that is both shot number and diagnostic specific
        which is stored in the sub-fields of the :code:`'meta'` field
     #. recorded data arrays which get unique fields based on their
-       mapping :attr:`configs` attribute
+       mapping
+       :attr:`~bapsflib._hdf_mappers.msi.templates.hdfMap_msi_template.configs`
+       attribute
 
     Data that is not shot number specific is stored in the :attr:`info`
     attribute.
-
-    :Example: Here the :code:`'Discharge'` MSI diagnostic is used as an
-        example:
+    """
+    __example_doc__ = """
+    :Example: Here the :code:`'Discharge'` MSI diagnostic is used 
+        as an example:
 
         >>> # open HDF5 file
         >>> f = bapsflib.lapd.File('test.hdf5')
@@ -53,8 +56,8 @@ class HDFReadMSI(np.ndarray):
         >>> mdata['shotnum']
         array([    0, 19251], dtype=int32)
         >>>
-        >>> # data arrays correspond to fields 'voltage' and 'current'
-        >>> # - display first 3 elements of shot number 0 for 'voltage'
+        >>> # fields 'voltage' and 'current' belong to data arrays
+        >>> # - show first 3 elements of 'voltage' for shot number 0
         >>> mdata['voltage'][0,0:3:]
         array([-46.99707 , -46.844482, -46.99707], dtype=float32)
         >>>
@@ -81,6 +84,7 @@ class HDFReadMSI(np.ndarray):
                 **kwargs):
         """
         :param hdf_file: HDF5 file object
+        :type hdf_file: :class:`~bapsflib.lapd.File`
         :param str dname: name of desired MSI diagnostic
         """
         # ---- Condition `hdf_file`                                 ----
@@ -296,3 +300,9 @@ class HDFReadMSI(np.ndarray):
     def info(self):
         """A dictionary of meta-info for the MSI diagnostic."""
         return self._info
+
+
+# add example to __new__ docstring
+HDFReadMSI.__new__.__doc__ += "\n"
+for line in HDFReadMSI.__example_doc__.splitlines():
+    HDFReadMSI.__new__.__doc__ += "    " + line + "\n"

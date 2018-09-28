@@ -684,10 +684,10 @@ class TestHDFReadData(ut.TestCase):
         #       - shotnum = int, list, slice
         #
         # Note:
-        # - TestConditionShotnum tests hdfReadData's ability to properly
+        # - TestBuildShotnumDsetRelation tests hdfReadData's ability to properly
         #   identify the dataset indices corresponding to the desired
         #   shot numbers (it checks against the original dataset)
-        # - TestConditionShotnum also tests hdfReadData's ability to
+        # - TestBuildShotnumDsetRelation also tests hdfReadData's ability to
         #   intersect shot numbers between shotnum and the digi data,
         #   but not the control device data...intersection with control
         #   device data will be done with test_add_controls

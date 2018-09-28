@@ -210,30 +210,32 @@ class HDFReadControl(np.recarray):
             print('tt - condition controls: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # ---- Condition shotnum ----
-        # TODO: REVIEW THIS COMMENT BLOCK
+        # ---- Condition shotnum                                    ----
         # shotnum -- global HDF5 file shot number
-        #            ~ this is the index used to link values between
+        #            ~ this is the parameter used to link values between
         #              datasets
         #
         # Through conditioning the following are (re-)defined:
-        # index   -- row index of control dataset(s)
-        #            ~ if len(controls) = 1, then will be an int or a
-        #              list(int), or list(list(int))
-        #            ~ if len(controls) > 1, then will be a
-        #              list(list(int)) where len(index) = len(controls)
+        # index   -- row index of the control dataset(s)
+        #            ~ numpy.ndarray
+        #            ~ dtype = np.integer
+        #            ~ shape = (len(controls), num_of_indices)
+        #
         # shotnum -- global HDF5 shot number
         #            ~ index at 1
         #            ~ will be a filtered version of input kwarg shotnum
         #              based on intersection_set
-        #            ~ converted to np.ndarray(dtype=uint32,
-        #                                      shape=(sn_size,))
+        #            ~ numpy.ndarray
+        #            ~ dtype = np.uint32
+        #            ~ shape = (sn_size, )
+        #
         # sni     -- bool array for providing a one-to-one mapping
-        #            between shotnum[sni] and index
-        #            ~ np.ndarray(dtype=bool,
-        #                         shape=(nControls, sn_size))
-        #            ~ cdata['shotnum'][sni] = shtonum[sni]
-        #                                    = cdset[index, shotnumkey]
+        #            between shotnum and index
+        #            ~ shotnum[sni] = cdset[index, shotnumkey]
+        #            ~ numpy.ndarray
+        #            ~ dtype = np.bool
+        #            ~ shape = (len(controls), sn_size)
+        #            ~ np.count_nonzer(arr[0,...]) = num_of_indices
         #
         # - Indexing behavior: (depends on intersection_set)
         #
@@ -245,28 +247,12 @@ class HDFReadControl(np.recarray):
         #
         #     * intersection_set = False
         #       > the returned array will contain all shot numbers
-        #         specified by shotnum
+        #         specified by shotnum (>= 1)
         #       > if a dataset does not included a shot number contained
         #         in shotnum, then its entry in the returned array will
-        #         be given a numpy.nan value
+        #         be given a NULL value depending on the dtype
         #
-        # dset_sn - 1D array of shotnum's that will be either the
-        #           intersection of shot numbers of all control device
-        #           datasets specified by controls (for
-        #           intersection_set=True) or the shot numbers of the
-        #           first control device dataset specified in controls
-        #           (for intersection_set=False)
-        # shotnum - regardless of if index or shotnum is specified,
-        #           shotnum will be re-defined to include all shot
-        #           numbers that will be placed into the obj array
-        #
-        # Determine dset_sn and rowlen
-        # method = 'intersection' if intersection_set else 'first'
-        # dset_sn = gather_shotnums(hdf_file, controls, method=method,
-        #                           assume_controls_conditioned=True)
-
-        # Grab control datasets
-        #
+        # Gather control datasets and associated shot number field names
         cdset_dict = {}
         shotnumkey_dict = {}
         for control in controls:
@@ -289,53 +275,9 @@ class HDFReadControl(np.recarray):
         # Catch shotnum if a slice object or int
         # - For either case, convert shotnum to a list
         #
-        if isinstance(shotnum, slice):
-            # Here convert slice to list
-            #
-            # determine largest possible shot number
-            last_sn = [
-                cdset_dict[cname][-1, shotnumkey_dict[cname]] + 1
-                for cname in cdset_dict
-            ]
-            if shotnum.stop is not None:
-                last_sn.append(shotnum.stop)
-            stop_sn = max(last_sn)
-
-            # get the start, stop, and step for the shot number array
-            start, stop, step = shotnum.indices(stop_sn)
-
-            # determine smallest possible shot number
-            # - intersection_set = True
-            #   * start = max of first_sn and shotnum.start
-            # - intersection_set = False
-            #   * start = min of first_sn and shotnum.start
-            first_sn = [cdset_dict[cname][0, shotnumkey_dict[cname]]
-                        for cname in cdset_dict]
-            if shotnum.start is not None:
-                # ensure shot numbers are >= 1
-                if start <= 0:
-                    start = 1
-            else:
-                # start wasn't specified in slice object
-                start = min(first_sn)
-
-            # adjust start for intersection_set
-            if intersection_set:
-                first_sn.append(start)
-                start = max(first_sn)
-
-            # re-define shotnum as a list
-            shotnum = np.arange(start, stop, step).tolist()
-        elif isinstance(shotnum, int):
-            # Here convert int to list
-            shotnum = [shotnum]
-        elif not isinstance(shotnum, list):
-            raise ValueError('Valid shotnum not passed')
-        else:
-            # shotnum is a list
-            # ensure all elements are int
-            if not all(isinstance(sn, int) for sn in shotnum):
-                raise ValueError('Valid shotnum not passed')
+        shotnum = condition_shotnum(shotnum,
+                                    cdset_dict,
+                                    shotnumkey_dict)
 
         # Ensure 'shotnum' is valid
         # - at this point 'shotnum' should be a list
@@ -368,11 +310,6 @@ class HDFReadControl(np.recarray):
                 build_shotnum_dset_relation(shotnum, cdset_dict[cname],
                                             shotnumkey_dict[cname],
                                             cmap, cconfn)
-
-        # convert shotnum from list to np.array
-        shotnum = np.array(shotnum)
-        if len(shotnum.shape) != 1:
-            shotnum = shotnum.squeeze()
 
         # re-filter index, shotnum, sni
         if intersection_set:

@@ -785,7 +785,7 @@ def build_shotnum_dset_relation(
     .. note::
 
         This function leverages the functions
-        :func:`~bapsflib.lapd._hdf.hdfreadcontrol.condition_shotnum_list_simple`
+        :func:`~bapsflib.lapd._hdf.hdfreadcontrol.build_sndr_for_simple_dset`
         and
         :func:`~bapsflib.lapd._hdf.hdfreadcontrol.condition_shotnum_list_complex`
     """

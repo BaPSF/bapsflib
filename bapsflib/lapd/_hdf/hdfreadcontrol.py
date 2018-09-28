@@ -883,31 +883,31 @@ def build_sndr_for_simple_dset(
                 # dset.shape is smaller than the theoretical reads from
                 # either end of the array
                 #
-                cdset_sn = dset[shotnumkey].view()
-                sni = np.isin(shotnum, cdset_sn)
+                dset_sn = dset[shotnumkey].view()
+                sni = np.isin(shotnum, dset_sn)
 
                 # define index
-                index = np.where(np.isin(cdset_sn, shotnum))[0]
+                index = np.where(np.isin(dset_sn, shotnum))[0]
             elif step_front_read <= step_end_read:
                 # extracting from the beginning of the array is the
                 # smallest
-                some_cdset_sn = dset[0:step_front_read + 1, shotnumkey]
-                sni = np.isin(shotnum, some_cdset_sn)
+                some_dset_sn = dset[0:step_front_read + 1, shotnumkey]
+                sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
-                index = np.where(np.isin(some_cdset_sn, shotnum))[0]
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
             else:
                 # extracting from the end of the array is the smallest
                 start, stop, step = slice(-step_end_read - 1,
                                           None,
                                           None).indices(dset.shape[0])
-                some_cdset_sn = dset[start::, shotnumkey]
-                sni = np.isin(shotnum, some_cdset_sn)
+                some_dset_sn = dset[start::, shotnumkey]
+                sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
                 # NOTE: if index is empty (i.e. index.shape[0] == 0)
                 #       then adding an int still returns an empty array
-                index = np.where(np.isin(some_cdset_sn, shotnum))[0]
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
                 index += start
 
     # return calculated arrays

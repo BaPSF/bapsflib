@@ -15,8 +15,9 @@ bapsflib\.lapd\.\_hdf\.hdfreadcontrol
     .. autosummary::
         :nosignatures:
 
-        condition_controls
         build_shotnum_dset_relation
         condition_shotnum_list_complex
         condition_shotnum_list_simple
+        condition_controls
+        condition_shotnum
         do_shotnum_intersection

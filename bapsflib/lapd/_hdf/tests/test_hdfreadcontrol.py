@@ -537,16 +537,27 @@ class TestBuildShotnumDsetRelation(TestBase):
         Tests for a dataset containing recorded data for a single
         configuration.
         """
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertNegativeSN()
-
-        # test in range shot number cases
+        # -- dset with 1 shotnum                                    ----
+        self.mod.knobs.sn_size = 1
         self.assertInRangeSN()
+        self.assertOutRangeSN()
 
-        # test out of range shot number cases
+        # -- typical dset with sequential shot numbers              ----
+        self.mod.knobs.sn_size = 100
+        self.assertInRangeSN()
+        self.assertOutRangeSN()
+
+        # -- dset with non-sequential shot numbers                  ----
+        self.mod.knobs.sn_size = 100
+        dset = self.cgroup['Run time list']
+        data = dset[...]
+        data['Shot number'] = np.append(
+            np.arange(5, 25, dtype=np.uint32),
+            np.append(np.arange(51, 111, dtype=np.uint32),
+                      np.arange(150, 170, dtype=np.uint32)))
+        del self.cgroup['Run time list']
+        self.cgroup.create_dataset('Run time list', data=data)
+        self.assertInRangeSN()
         self.assertOutRangeSN()
 
     def test_complex_dataset(self):
@@ -557,45 +568,11 @@ class TestBuildShotnumDsetRelation(TestBase):
         # define multiple configurations for one dataset
         self.mod.knobs.n_configs = 3
 
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertNegativeSN()
-
         # test in range shot number cases
         self.assertInRangeSN()
 
         # test out of range shot number cases
         self.assertOutRangeSN()
-
-    def test_dataset_w_one_sn(self):
-        # TODO: WRITE TEST FOR DATASET W/ SN_SIZE=1
-        pass
-
-    def assertZeroSN(self):
-        """Assert the zero shot number case."""
-        og_shotnum = [0]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        for cspec in self.map.configs:
-            self.assertRaises(ValueError, build_shotnum_dset_relation,
-                              og_shotnum, cdset, shotnumkey, self.map,
-                              cspec)
-
-    def assertNegativeSN(self):
-        """Assert negative shot number cases."""
-        shotnum_list = [
-            [-1],
-            [-10, -5, 0]
-        ]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
-                self.assertRaises(ValueError, build_shotnum_dset_relation,
-                                  og_shotnum, cdset, shotnumkey,
-                                  self.map, cspec)
 
     def assertInRangeSN(self):
         """
@@ -613,56 +590,57 @@ class TestBuildShotnumDsetRelation(TestBase):
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
         for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
+            if og_shotnum == [1, 1]:
+                continue
+
+            sn_arr = np.array(og_shotnum, dtype=np.uint32)
+            for cconfn in self.map.configs:
                 index, shotnum, sni = \
-                    build_shotnum_dset_relation(og_shotnum, cdset,
-                                                shotnumkey,
-                                                self.map, cspec)
-                self.assertSNSuite(og_shotnum,
-                                   index, shotnum, sni,
+                    build_shotnum_dset_relation(sn_arr, cdset,
+                                                shotnumkey, self.map,
+                                                cconfn)
+
+                self.assertSNSuite(sn_arr, index, shotnum, sni,
                                    cdset, shotnumkey,
-                                   configkey, cspec)
+                                   configkey, cconfn)
 
     def assertOutRangeSN(self):
         """
         Assert shot number cases where some shot numbers are out of
         range of the dataset shotnumbers.
         """
+        # Note: condition_shotnum() will ensure shotnum >= 0 so
+        #       build_shotnum_dset_relation() does not handle this
+        #
         # - one above largest shot number
-        # - out of range above (sn_size+1) and below (-1)
-        # - out of range below (-5, -1, 0) and valid
         # - out of range above (sn_size+1, sn_size+10, sn_size+100)
         #   and valid
-        # - out of range below (-5, -1, 0), above (sn_size+1,
-        #   sn_size+10, sn_size+100), and valid
         #
         shotnum_list = [
             [self.mod.knobs.sn_size + 1],
-            [-1, self.mod.knobs.sn_size + 1],
-            [-5, -1, 0, 10, 15],
+            [self.mod.knobs.sn_size + 1, self.mod.knobs.sn_size + 10],
+            [10, 15, self.mod.knobs.sn_size + 1],
             [10, 15, self.mod.knobs.sn_size + 1,
              self.mod.knobs.sn_size + 10,
              self.mod.knobs.sn_size + 100],
-            [-5, -1, 0, 10, 15, self.mod.knobs.sn_size + 1,
-             self.mod.knobs.sn_size + 10,
-             self.mod.knobs.sn_size + 100]
         ]
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         configkey = 'Configuration name'
         for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
+            sn_arr = np.array(og_shotnum, dtype=np.uint32)
+            for cconfn in self.map.configs:
                 index, shotnum, sni = \
-                    build_shotnum_dset_relation(og_shotnum, cdset,
-                                                shotnumkey,
-                                                self.map, cspec)
-                self.assertSNSuite(og_shotnum,
-                                   index, shotnum, sni,
+                    build_shotnum_dset_relation(sn_arr, cdset,
+                                                shotnumkey, self.map,
+                                                cconfn)
+
+                self.assertSNSuite(sn_arr, index, shotnum, sni,
                                    cdset, shotnumkey,
-                                   configkey, cspec)
+                                   configkey, cconfn)
 
     def assertSNSuite(self, og_shotnum, index, shotnum, sni,
-                      cdset, shotnumkey, configkey, cspec):
+                      cdset, shotnumkey, configkey, cconfn):
         """Suite of assertions for shot number conditioning"""
         # og_shotnum - original requested shot number
         # index      - index of dataset
@@ -673,54 +651,24 @@ class TestBuildShotnumDsetRelation(TestBase):
         # shotnumkey - field in cdset that corresponds to shot numbers
         # configkey  - field in cdset that corresponds to configuration
         #              names
-        # cspec      - unique specifier for control device
-        #              (i.e. configuration name)
-
+        # cconfn     - configuration name for control device
+        #
         # all return variables should be np.ndarray
         self.assertTrue(isinstance(index, np.ndarray))
         self.assertTrue(isinstance(shotnum, np.ndarray))
         self.assertTrue(isinstance(sni, np.ndarray))
 
         # all should be 1D arrays
-        self.assertEqual(index.shape[0], index.size)
-        self.assertEqual(shotnum.shape[0], shotnum.size)
-        self.assertEqual(sni.shape[0], sni.size)
+        self.assertEqual(index.ndim, 1)
+        self.assertEqual(shotnum.ndim, 1)
+        self.assertEqual(sni.ndim, 1)
 
         # equate array sizes
         self.assertEqual(shotnum.size, sni.size)
         self.assertEqual(np.count_nonzero(sni), index.size)
 
-        # all shotnum > 0
-        self.assertTrue(np.all(np.where(shotnum > 0, True, False)))
-
-        # all og_shotnum > 0 in shotnum
-        og_arr = np.array(og_shotnum)
-        og_i = np.where(og_arr > 0)[0]
-        if og_i.size != 0:
-            self.assertTrue(np.all(np.isin(shotnum, og_arr[og_i])))
-            self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum)))
-        else:
-            # build_shotnum_dset_relation should have thrown a ValueError
-            # since no valid shot number was originally passed in
-            raise RuntimeError(
-                'something went wrong, `build_shotnum_dset_relation` should '
-                'have thrown a ValueError and shotnum should be empty, '
-                'shotnum.size = {}'.format(shotnum.size))
-
-        # all 0 < og_shotnum <= sn_size in shotnum[sni]
-        # - this would be incorrect if the dataset has jumps in the
-        #   recorded shot numbers
-        #
-        og_i1 = og_i
-        og_i2 = np.where(og_arr <= self.mod.knobs.sn_size)[0]
-        if og_i1.size != 0 and og_i2.size != 0:
-            og_i = og_i1[np.isin(og_i1, og_i2)]
-            self.assertTrue(np.all(np.isin(shotnum[sni], og_arr[og_i])))
-            self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum[sni])))
-        else:
-            # shotnum[sni].size should be 0
-            # - ie: all elements of sni should be false
-            self.assertTrue(np.all(np.logical_not(sni)))
+        # shotnum is og_shotnum
+        self.assertTrue(np.array_equal(shotnum, og_shotnum))
 
         # shotnum[sni] = cdset[index, shotnumkey]
         if index.size != 0:
@@ -733,7 +681,7 @@ class TestBuildShotnumDsetRelation(TestBase):
         if index.size != 0:
             cname_arr = cdset[index.tolist(), configkey]
             for name in cname_arr:
-                self.assertEqual(name.decode('utf-8'), cspec)
+                self.assertEqual(name.decode('utf-8'), cconfn)
 
 
 class TestDoShotnumIntersection(ut.TestCase):

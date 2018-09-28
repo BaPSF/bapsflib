@@ -13,5 +13,5 @@ bapsflib\.lapd\.\_hdf\.hdfreaddata
 
     .. rubric:: Functions
 
-    .. autosummary:: build_shotnum_dset_relation
+    .. autosummary:: condition_shotnum
         :nosignatures:

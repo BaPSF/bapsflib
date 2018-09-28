@@ -25,16 +25,31 @@ from ..hdfreadcontrol import (build_shotnum_dset_relation,
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
-class TestConditionShotnum(ut.TestCase):
-    """Test Case for condition_shotnum"""
+class TestBuildShotnumDsetRelation(ut.TestCase):
+    """Test Case for build_shotnum_dset_relation"""
+
+    f = NotImplemented
+
+    @classmethod
+    def setUpClass(cls):
+        # create HDF5 file
+        super().setUpClass()
+        cls.f = FauxHDFBuilder()
 
     def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'Waveform': {'n_configs': 1, 'sn_size': 100}})
+        # setup HDF5 file
+        self.f.add_module('Waveform',
+                          mod_args={'n_configs': 1, 'sn_size': 100})
         self.mod = self.f.modules['Waveform']
 
     def tearDown(self):
-        self.f.cleanup()
+        self.f.remove_all_modules()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()
 
     @property
     def cgroup(self):
@@ -49,9 +64,6 @@ class TestConditionShotnum(ut.TestCase):
         Tests for a dataset containing recorded data for a single
         configuration.
         """
-        if self.mod.knobs.n_configs != 1:
-            self.mod.knobs.n_configs = 1
-
         # test zero shot number
         self.assertZeroSN()
 
@@ -69,8 +81,8 @@ class TestConditionShotnum(ut.TestCase):
         Tests for a dataset containing recorded data for a multiple
         configurations.
         """
-        if self.mod.knobs.n_configs != 3:
-            self.mod.knobs.n_configs = 3
+        # define multiple configurations for one dataset
+        self.mod.knobs.n_configs = 3
 
         # test zero shot number
         self.assertZeroSN()
@@ -676,7 +688,7 @@ class TestConditionControls(ut.TestCase):
 class TestHDFReadControl(ut.TestCase):
     """Test Case for HDFReadControl class."""
     # Note:
-    # - TestConditionShotnum tests HDFReadControl's ability to
+    # - TestBuildShotnumDsetRelation tests HDFReadControl's ability to
     #   properly identify the dataset indices corresponding to the
     #   desired shot numbers (it checks against the original dataset)
     # - TestDoIntersection tests HDFReadControl's ability to intersect

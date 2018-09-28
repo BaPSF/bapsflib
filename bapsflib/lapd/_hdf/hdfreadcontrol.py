@@ -715,6 +715,107 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
     return controls
 
 
+def condition_shotnum(shotnum: Any,
+                      dset_dict: dict,
+                      shotnumkey_dict: dict) -> np.ndarray:
+    """
+    Conditions the **shotnum** argument for
+    :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`.
+
+    :param shotnum: desired HDF5 shot numbers
+    :param dset_dict: dictionary of all control dataset instances
+    :param shotnumkey_dict: dictionary of the shot number field name
+        for each control dataset in dset_dict
+    :return: conditioned **shotnum** numpy array
+    """
+    # Acceptable `shotnum` types
+    # 1. int
+    # 2. slice() object
+    # 3. List[int, ...]
+    # 4. np.array (dtype = np.integer and ndim = 1)
+    #
+    # Catch each `shotnum` type and convert to numpy array
+    #
+    if isinstance(shotnum, int):
+        if shotnum <= 0 or isinstance(shotnum, bool):
+            raise ValueError(
+                "Valid `shotnum` ({})".format(shotnum)
+                + " not passed. Resulting array would be NULL.")
+
+        # convert
+        shotnum = np.array([shotnum], dtype=np.uint32)
+
+    elif isinstance(shotnum, list):
+        # ensure all elements are int
+        if not all(isinstance(sn, int) for sn in shotnum):
+            raise ValueError('Valid `shotnum` not passed. All values '
+                             'NOT int.')
+
+        # remove shot numbers <= 0
+        shotnum.sort()
+        shotnum = list(set(shotnum))
+        shotnum.sort()
+        if min(shotnum) <= 0:
+            # remove values less-than or equal to 0
+            new_sn = [sn for sn in shotnum if sn > 0]
+            shotnum = new_sn
+
+        # ensure not NULL
+        if len(shotnum) == 0:
+            raise ValueError('Valid `shotnum` not passed. Resulting '
+                             'array would be NULL')
+
+        # convert
+        shotnum = np.array(shotnum, dtype=np.uint32)
+
+    elif isinstance(shotnum, slice):
+        # determine largest possible shot number
+        last_sn = [
+            dset_dict[cname][-1, shotnumkey_dict[cname]] + 1
+            for cname in dset_dict
+        ]
+        if shotnum.stop is not None:
+            last_sn.append(shotnum.stop)
+        stop_sn = max(last_sn)
+
+        # get the start, stop, and step for the shot number array
+        start, stop, step = shotnum.indices(stop_sn)
+
+        # re-define `shotnum`
+        shotnum = np.arange(start, stop, step, dtype=np.int32)
+
+        # remove shot numbers <= 0
+        shotnum = np.delete(shotnum, np.where(shotnum <= 0)[0])
+        shotnum = shotnum.astype(np.uint32)
+
+        # ensure not NULL
+        if shotnum.size == 0:
+            raise ValueError('Valid `shotnum` not passed. Resulting '
+                             'array would be NULL')
+
+    elif isinstance(shotnum, np.ndarray):
+        shotnum = shotnum.squeeze()
+        if shotnum.ndim != 1 \
+                or not np.issubdtype(shotnum.dtype, np.integer) \
+                or bool(shotnum.dtype.names):
+            raise ValueError('Valid `shotnum` not passed')
+
+        # remove shot numbers <= 0
+        shotnum.sort()
+        shotnum = np.delete(shotnum, np.where(shotnum <= 0)[0])
+        shotnum = shotnum.astype(np.uint32)
+
+        # ensure not NULL
+        if shotnum.size == 0:
+            raise ValueError('Valid `shotnum` not passed. Resulting '
+                             'array would be NULL')
+    else:
+        raise ValueError('Valid `shotnum` not passed')
+
+    # return
+    return shotnum
+
+
 def build_shotnum_dset_relation(
         shotnum: Any,
         cdset: h5py.Dataset,

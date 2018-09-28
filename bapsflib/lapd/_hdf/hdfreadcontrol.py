@@ -192,7 +192,7 @@ class HDFReadControl(np.recarray):
             print('tt - hdf_file conditioning: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # ---- Condition 'controls' Argument ----
+        # ---- Condition 'controls' Argument                        ----
         # - some calling routines (such as, lapd.File.read_data)
         #   already properly condition 'controls', so passing a keyword
         #   'assume_controls_conditioned' allows for a bypass of
@@ -200,15 +200,9 @@ class HDFReadControl(np.recarray):
         #
         try:
             if not kwargs['assume_controls_conditioned']:
-                controls = condition_controls(hdf_file, controls,
-                                              silent=silent)
+                controls = condition_controls(hdf_file, controls)
         except KeyError:
-            controls = condition_controls(hdf_file, controls,
-                                          silent=silent)
-
-        # make sure 'controls' is not empty
-        if not controls:
-            raise ValueError("improper 'controls' arg passed")
+            controls = condition_controls(hdf_file, controls)
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -616,14 +610,13 @@ for line in HDFReadControl.__example_doc__.splitlines():
 
 
 def condition_controls(hdf_file: bapsflib.lapd.File,
-                       controls,
-                       **kwargs) -> List[Tuple[str, Any]]:
+                       controls: Any) -> List[Tuple[str, Any]]:
     """
-    Conditions the `controls` argument for :class:`HDFReadControl`.
+    Conditions the **controls** argument for :class:`HDFReadControl`.
 
     :param hdf_file: HDF5 object instance
     :param controls: `controls` argument to be conditioned
-    :return: list containing tuple pairs of control control name and
+    :return: list containing tuple pairs of control device name and
         desired configuration name
 
     :Example:
@@ -631,8 +624,8 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
         >>> from bapsflib import lapd
         >>> f = lapd.File('sample.hdf5')
         >>> controls = ['Wavefrom', ('6K Compumotor', 3)]
-        >>> condition = condition_controls(f, controls)
-        >>> condition
+        >>> conditioned_controls = condition_controls(f, controls)
+        >>> conditioned_controls
         [('Waveform', 'config01'), ('6K Compumotor', 3)]
 
     """
@@ -679,7 +672,7 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
                 name = control[0]
                 config_name = None if len(control) == 1 else control[1]
 
-            # ensure proper control and unique specifier are defined
+            # ensure proper control and configuration name are defined
             if name in [cc[0] for cc in new_controls]:
                 raise ValueError(
                     'Control device ({})'.format(control)

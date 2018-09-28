@@ -18,15 +18,16 @@ from bapsflib._hdf_mappers.controls.waveform import \
     HDFMapControlWaveform
 from ..files import File
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
-                              do_shotnum_intersection,
                               condition_controls,
+                              condition_shotnum,
+                              do_shotnum_intersection,
                               HDFReadControl)
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
-class TestBuildShotnumDsetRelation(ut.TestCase):
-    """Test Case for build_shotnum_dset_relation"""
+class TestBase(ut.TestCase):
+    """Base test class for all test classes here."""
 
     f = NotImplemented
 
@@ -35,12 +36,6 @@ class TestBuildShotnumDsetRelation(ut.TestCase):
         # create HDF5 file
         super().setUpClass()
         cls.f = FauxHDFBuilder()
-
-    def setUp(self):
-        # setup HDF5 file
-        self.f.add_module('Waveform',
-                          mod_args={'n_configs': 1, 'sn_size': 100})
-        self.mod = self.f.modules['Waveform']
 
     def tearDown(self):
         self.f.remove_all_modules()
@@ -51,300 +46,8 @@ class TestBuildShotnumDsetRelation(ut.TestCase):
         super().tearDownClass()
         cls.f.cleanup()
 
-    @property
-    def cgroup(self):
-        return self.f['Raw data + config/Waveform']
 
-    @property
-    def map(self):
-        return HDFMapControlWaveform(self.cgroup)
-
-    def test_simple_dataset(self):
-        """
-        Tests for a dataset containing recorded data for a single
-        configuration.
-        """
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertNegativeSN()
-
-        # test in range shot number cases
-        self.assertInRangeSN()
-
-        # test out of range shot number cases
-        self.assertOutRangeSN()
-
-    def test_complex_dataset(self):
-        """
-        Tests for a dataset containing recorded data for a multiple
-        configurations.
-        """
-        # define multiple configurations for one dataset
-        self.mod.knobs.n_configs = 3
-
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertNegativeSN()
-
-        # test in range shot number cases
-        self.assertInRangeSN()
-
-        # test out of range shot number cases
-        self.assertOutRangeSN()
-
-    def test_dataset_w_one_sn(self):
-        # TODO: WRITE TEST FOR DATASET W/ SN_SIZE=1
-        pass
-
-    def assertZeroSN(self):
-        """Assert the zero shot number case."""
-        og_shotnum = [0]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        for cspec in self.map.configs:
-            self.assertRaises(ValueError, build_shotnum_dset_relation,
-                              og_shotnum, cdset, shotnumkey, self.map,
-                              cspec)
-
-    def assertNegativeSN(self):
-        """Assert negative shot number cases."""
-        shotnum_list = [
-            [-1],
-            [-10, -5, 0]
-        ]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
-                self.assertRaises(ValueError, build_shotnum_dset_relation,
-                                  og_shotnum, cdset, shotnumkey,
-                                  self.map, cspec)
-
-    def assertInRangeSN(self):
-        """
-        Assert shot numbers cases with in-range of dataset shot numbers.
-        """
-        shotnum_list = [
-            [10],
-            [50, 51],
-            [50, 60],
-            [1, self.mod.knobs.sn_size],
-            [50, 51, 52, 53, 54, 55, 56, 57, 58, 59],
-            [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]
-        ]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
-                index, shotnum, sni = \
-                    build_shotnum_dset_relation(og_shotnum, cdset,
-                                                shotnumkey,
-                                                self.map, cspec)
-                self.assertSNSuite(og_shotnum,
-                                   index, shotnum, sni,
-                                   cdset, shotnumkey,
-                                   configkey, cspec)
-
-    def assertOutRangeSN(self):
-        """
-        Assert shot number cases where some shot numbers are out of
-        range of the dataset shotnumbers.
-        """
-        # - one above largest shot number
-        # - out of range above (sn_size+1) and below (-1)
-        # - out of range below (-5, -1, 0) and valid
-        # - out of range above (sn_size+1, sn_size+10, sn_size+100)
-        #   and valid
-        # - out of range below (-5, -1, 0), above (sn_size+1,
-        #   sn_size+10, sn_size+100), and valid
-        #
-        shotnum_list = [
-            [self.mod.knobs.sn_size + 1],
-            [-1, self.mod.knobs.sn_size + 1],
-            [-5, -1, 0, 10, 15],
-            [10, 15, self.mod.knobs.sn_size + 1,
-             self.mod.knobs.sn_size + 10,
-             self.mod.knobs.sn_size + 100],
-            [-5, -1, 0, 10, 15, self.mod.knobs.sn_size + 1,
-             self.mod.knobs.sn_size + 10,
-             self.mod.knobs.sn_size + 100]
-        ]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
-        for og_shotnum in shotnum_list:
-            for cspec in self.map.configs:
-                index, shotnum, sni = \
-                    build_shotnum_dset_relation(og_shotnum, cdset,
-                                                shotnumkey,
-                                                self.map, cspec)
-                self.assertSNSuite(og_shotnum,
-                                   index, shotnum, sni,
-                                   cdset, shotnumkey,
-                                   configkey, cspec)
-
-    def assertSNSuite(self, og_shotnum, index, shotnum, sni,
-                      cdset, shotnumkey, configkey, cspec):
-        """Suite of assertions for shot number conditioning"""
-        # og_shotnum - original requested shot number
-        # index      - index of dataset
-        # shotnum    - calculate shot number array
-        # sni        - boolean mask for shotnum
-        #               shotnum[sni] = cdset[index, shotnumkey]
-        # cdset      - control devices dataset
-        # shotnumkey - field in cdset that corresponds to shot numbers
-        # configkey  - field in cdset that corresponds to configuration
-        #              names
-        # cspec      - unique specifier for control device
-        #              (i.e. configuration name)
-
-        # all return variables should be np.ndarray
-        self.assertTrue(isinstance(index, np.ndarray))
-        self.assertTrue(isinstance(shotnum, np.ndarray))
-        self.assertTrue(isinstance(sni, np.ndarray))
-
-        # all should be 1D arrays
-        self.assertEqual(index.shape[0], index.size)
-        self.assertEqual(shotnum.shape[0], shotnum.size)
-        self.assertEqual(sni.shape[0], sni.size)
-
-        # equate array sizes
-        self.assertEqual(shotnum.size, sni.size)
-        self.assertEqual(np.count_nonzero(sni), index.size)
-
-        # all shotnum > 0
-        self.assertTrue(np.all(np.where(shotnum > 0, True, False)))
-
-        # all og_shotnum > 0 in shotnum
-        og_arr = np.array(og_shotnum)
-        og_i = np.where(og_arr > 0)[0]
-        if og_i.size != 0:
-            self.assertTrue(np.all(np.isin(shotnum, og_arr[og_i])))
-            self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum)))
-        else:
-            # build_shotnum_dset_relation should have thrown a ValueError
-            # since no valid shot number was originally passed in
-            raise RuntimeError(
-                'something went wrong, `build_shotnum_dset_relation` should '
-                'have thrown a ValueError and shotnum should be empty, '
-                'shotnum.size = {}'.format(shotnum.size))
-
-        # all 0 < og_shotnum <= sn_size in shotnum[sni]
-        # - this would be incorrect if the dataset has jumps in the
-        #   recorded shot numbers
-        #
-        og_i1 = og_i
-        og_i2 = np.where(og_arr <= self.mod.knobs.sn_size)[0]
-        if og_i1.size != 0 and og_i2.size != 0:
-            og_i = og_i1[np.isin(og_i1, og_i2)]
-            self.assertTrue(np.all(np.isin(shotnum[sni], og_arr[og_i])))
-            self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum[sni])))
-        else:
-            # shotnum[sni].size should be 0
-            # - ie: all elements of sni should be false
-            self.assertTrue(np.all(np.logical_not(sni)))
-
-        # shotnum[sni] = cdset[index, shotnumkey]
-        if index.size != 0:
-            self.assertTrue(np.array_equal(
-                shotnum[sni], cdset[index.tolist(), shotnumkey]))
-        else:
-            self.assertEqual(shotnum[sni].size, 0)
-
-        # ensure correct config is grabbed
-        if index.size != 0:
-            cname_arr = cdset[index.tolist(), configkey]
-            for name in cname_arr:
-                self.assertEqual(name.decode('utf-8'), cspec)
-
-
-class TestDoShotnumIntersection(ut.TestCase):
-    """Test Case for do_shotnum_intersection"""
-    def test_one_control(self):
-        """Test intersection behavior with one control device"""
-        # test a case that results in a null result
-        shotnum = np.arange(1, 21, 1)
-        shotnum_dict = {'Waveform': shotnum}
-        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
-        index_dict = {'Waveform': np.array([])}
-        self.assertRaises(ValueError,
-                          do_shotnum_intersection,
-                          shotnum, shotnum_dict, sni_dict, index_dict)
-
-        # test a working case
-        shotnum = np.arange(1, 21, 1)
-        shotnum_dict = {'Waveform': shotnum}
-        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
-        index_dict = {'Waveform': np.array([5, 6, 7])}
-        sni_dict['Waveform'][[5, 6, 7]] = True
-        shotnum, shotnum_dict, sni_dict, index_dict = \
-            do_shotnum_intersection(shotnum,
-                                    shotnum_dict,
-                                    sni_dict,
-                                    index_dict)
-        self.assertTrue(np.array_equal(shotnum, [6, 7, 8]))
-        self.assertTrue(np.array_equal(shotnum,
-                                       shotnum_dict['Waveform']))
-        self.assertTrue(np.array_equal(sni_dict['Waveform'],
-                                       [True] * 3))
-        self.assertTrue(np.array_equal(index_dict['Waveform'],
-                                       [5, 6, 7]))
-
-    def test_two_controls(self):
-        """Test intersection behavior with two control devices"""
-        # test a case that results in a null result
-        shotnum = np.arange(1, 21, 1)
-        shotnum_dict = {
-            'Waveform': shotnum,
-            '6K Compumotor': shotnum
-        }
-        sni_dict = {
-            'Waveform': np.zeros(shotnum.shape, dtype=bool),
-            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
-        }
-        index_dict = {
-            'Waveform': np.array([]),
-            '6K Compumotor': np.array([5, 6, 7])
-        }
-        sni_dict['6K Compumotor'][[6, 7, 8]] = True
-        self.assertRaises(ValueError,
-                          do_shotnum_intersection,
-                          shotnum, shotnum_dict, sni_dict, index_dict)
-
-        # test a working case
-        shotnum = np.arange(1, 21, 1)
-        shotnum_dict = {
-            'Waveform': shotnum,
-            '6K Compumotor': shotnum
-        }
-        sni_dict = {
-            'Waveform': np.zeros(shotnum.shape, dtype=bool),
-            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
-        }
-        index_dict = {
-            'Waveform': np.array([5, 6]),
-            '6K Compumotor': np.array([5, 6, 7])
-        }
-        sni_dict['Waveform'][[5, 6]] = True
-        sni_dict['6K Compumotor'][[5, 6, 7]] = True
-        shotnum, shotnum_dict, sni_dict, index_dict = \
-            do_shotnum_intersection(shotnum,
-                                    shotnum_dict,
-                                    sni_dict,
-                                    index_dict)
-        self.assertTrue(np.array_equal(shotnum, [6, 7]))
-        for key in shotnum_dict:
-            self.assertTrue(np.array_equal(shotnum, shotnum_dict[key]))
-            self.assertTrue(np.array_equal(sni_dict[key], [True] * 2))
-            self.assertTrue(np.array_equal(index_dict[key], [5, 6]))
-
-
-class TestConditionControls(ut.TestCase):
+class TestConditionControls(TestBase):
     """Test Case for condition_controls"""
     # What to test:
     # 1. passing of non lapd.File object
@@ -361,26 +64,13 @@ class TestConditionControls(ut.TestCase):
     #      d. two control names
     # 5. HDF5 file with multiple controls
     #
-    f = NotImplemented
-
-    @classmethod
-    def setUpClass(cls):
-        # create HDF5 file
-        super().setUpClass()
-        cls.f = FauxHDFBuilder()
 
     def setUp(self):
         # setup HDF5 file
-        pass
+        super().setUp()
 
     def tearDown(self):
-        self.f.remove_all_modules()
-
-    @classmethod
-    def tearDownClass(cls):
-        # cleanup and close HDF5 file
-        super().tearDownClass()
-        cls.f.cleanup()
+        super().tearDown()
 
     @property
     def lapdf(self):
@@ -685,7 +375,449 @@ class TestConditionControls(ut.TestCase):
                           _lapdf, ['Waveform', '6K Compumotor'])
 
 
-class TestHDFReadControl(ut.TestCase):
+class TestConditionShotnum(TestBase):
+    """Test Case for condition_shotnum"""
+
+    def test_shotnum_int(self):
+        # shotnum <= 0 (invalid)
+        sn = [-20, 0]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # shotnum > 0 (valid)
+        sn = [1, 100]
+        for shotnum in sn:
+            _sn = condition_shotnum(shotnum, {}, {})
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertEqual(_sn.shape, (1,))
+            self.assertTrue(np.issubdtype(_sn.dtype, np.uint32))
+            self.assertEqual(_sn[0], shotnum)
+
+    def test_shotnum_list(self):
+        # not all list elements are integers
+        sn = [
+            [0, 1, None],
+            [1.5, 2.6],
+        ]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # all shotnum values are <= 0
+        sn = [
+            [0],
+            [-20, -5, -1],
+        ]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # valid shotnum lists
+        sn = [
+            ([0, 1, 5, 8], np.array([1, 5, 8], dtype=np.uint32)),
+            ([-20, -5, 10], np.array([10], dtype=np.uint32)),
+            ([1, 2, 4], np.array([1, 2, 4], dtype=np.uint32)),
+        ]
+        for shotnum, ex_sn in sn:
+            _sn = condition_shotnum(shotnum, {}, {})
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertTrue(np.array_equal(_sn, ex_sn))
+
+    def test_shotnum_slice(self):
+        # create 2 fake datasets (d1 and d1)
+        data = np.array(np.arange(1, 6, dtype=np.uint32),
+                        dtype=[('Shot number', np.uint32)])
+        self.f.create_dataset('d1', data=data)
+        data['Shot number'] = np.arange(3, 8, dtype=np.uint32)
+        self.f.create_dataset('d2', data=data)
+
+        # make fake dicts
+        dset_dict ={
+            'c1': self.f['d1'],
+            'c2': self.f['d2'],
+        }
+        shotnumkey_dict = {
+            'c1': 'Shot number',
+            'c2': 'Shot number',
+        }
+
+        # invalid shotnum slices (creats NULL arrays)
+        with self.assertRaises(ValueError):
+            _sn = condition_shotnum(slice(-1, -4, 1),
+                                    dset_dict, shotnumkey_dict)
+
+        # valid shotnum slices
+        sn = [
+            (slice(None),
+             np.array([1, 2, 3, 4, 5, 6, 7], dtype=np.uint32)),
+            (slice(3),
+             np.array([1, 2], dtype=np.uint32)),
+            (slice(1, 8, 3),
+             np.array([1, 4, 7], dtype=np.uint32)),
+            (slice(5, 10, 1),
+             np.array([5, 6, 7, 8, 9], dtype=np.uint32)),
+            (slice(-2, -1),
+             np.array([6], dtype=np.uint32)),
+        ]
+        for shotnum, ex_sn in sn:
+            _sn = condition_shotnum(shotnum, dset_dict, shotnumkey_dict)
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertTrue(np.array_equal(_sn, ex_sn))
+
+        # remove datasets
+        del self.f['d1']
+        del self.f['d2']
+
+    def test_shotnum_ndarray(self):
+        # shotnum invalid
+        # 1. is not 1 dimentional
+        # 2. has fields
+        # 3. is not np.integer
+        # 4. would result in NULL
+        sn = [
+            np.array([[1, 2], [3, 5]], dtype=np.uint32),
+            np.zeros((5,), dtype=[('f1', np.uint8)]),
+            np.array([True, False], dtype=bool),
+            np.array([5.5, 7], dtype=np.float32),
+            np.array([-20, -1], dtype=np.int32),
+            np.array([0], dtype=np.int32),
+        ]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # shotnum valid
+        sn = [
+            (np.array([-5, 0, 10], np.int32),
+             np.array([10], np.uint32)),
+            (np.array([20, 30], np.int32),
+             np.array([20, 30], np.uint32)),
+        ]
+        for shotnum, ex_sn in sn:
+            _sn = condition_shotnum(shotnum, {}, {})
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertTrue(np.array_equal(_sn, ex_sn))
+
+    def test_shotnum_invalid(self):
+        # shotnum not int, List[int], slice, or ndarray
+        sn = [1.5, None, True, {}]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+
+class TestBuildShotnumDsetRelation(TestBase):
+    """Test Case for build_shotnum_dset_relation"""
+
+    def setUp(self):
+        # setup HDF5 file
+        super().setUpClass()
+        self.f.add_module('Waveform',
+                          mod_args={'n_configs': 1, 'sn_size': 100})
+        self.mod = self.f.modules['Waveform']
+
+    def tearDown(self):
+        super().tearDown()
+
+    @property
+    def cgroup(self):
+        return self.f['Raw data + config/Waveform']
+
+    @property
+    def map(self):
+        return HDFMapControlWaveform(self.cgroup)
+
+    def test_simple_dataset(self):
+        """
+        Tests for a dataset containing recorded data for a single
+        configuration.
+        """
+        # test zero shot number
+        self.assertZeroSN()
+
+        # test negative shot number cases
+        self.assertNegativeSN()
+
+        # test in range shot number cases
+        self.assertInRangeSN()
+
+        # test out of range shot number cases
+        self.assertOutRangeSN()
+
+    def test_complex_dataset(self):
+        """
+        Tests for a dataset containing recorded data for a multiple
+        configurations.
+        """
+        # define multiple configurations for one dataset
+        self.mod.knobs.n_configs = 3
+
+        # test zero shot number
+        self.assertZeroSN()
+
+        # test negative shot number cases
+        self.assertNegativeSN()
+
+        # test in range shot number cases
+        self.assertInRangeSN()
+
+        # test out of range shot number cases
+        self.assertOutRangeSN()
+
+    def test_dataset_w_one_sn(self):
+        # TODO: WRITE TEST FOR DATASET W/ SN_SIZE=1
+        pass
+
+    def assertZeroSN(self):
+        """Assert the zero shot number case."""
+        og_shotnum = [0]
+        cdset = self.cgroup['Run time list']
+        shotnumkey = 'Shot number'
+        for cspec in self.map.configs:
+            self.assertRaises(ValueError, build_shotnum_dset_relation,
+                              og_shotnum, cdset, shotnumkey, self.map,
+                              cspec)
+
+    def assertNegativeSN(self):
+        """Assert negative shot number cases."""
+        shotnum_list = [
+            [-1],
+            [-10, -5, 0]
+        ]
+        cdset = self.cgroup['Run time list']
+        shotnumkey = 'Shot number'
+        for og_shotnum in shotnum_list:
+            for cspec in self.map.configs:
+                self.assertRaises(ValueError, build_shotnum_dset_relation,
+                                  og_shotnum, cdset, shotnumkey,
+                                  self.map, cspec)
+
+    def assertInRangeSN(self):
+        """
+        Assert shot numbers cases with in-range of dataset shot numbers.
+        """
+        shotnum_list = [
+            [10],
+            [50, 51],
+            [50, 60],
+            [1, self.mod.knobs.sn_size],
+            [50, 51, 52, 53, 54, 55, 56, 57, 58, 59],
+            [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]
+        ]
+        cdset = self.cgroup['Run time list']
+        shotnumkey = 'Shot number'
+        configkey = 'Configuration name'
+        for og_shotnum in shotnum_list:
+            for cspec in self.map.configs:
+                index, shotnum, sni = \
+                    build_shotnum_dset_relation(og_shotnum, cdset,
+                                                shotnumkey,
+                                                self.map, cspec)
+                self.assertSNSuite(og_shotnum,
+                                   index, shotnum, sni,
+                                   cdset, shotnumkey,
+                                   configkey, cspec)
+
+    def assertOutRangeSN(self):
+        """
+        Assert shot number cases where some shot numbers are out of
+        range of the dataset shotnumbers.
+        """
+        # - one above largest shot number
+        # - out of range above (sn_size+1) and below (-1)
+        # - out of range below (-5, -1, 0) and valid
+        # - out of range above (sn_size+1, sn_size+10, sn_size+100)
+        #   and valid
+        # - out of range below (-5, -1, 0), above (sn_size+1,
+        #   sn_size+10, sn_size+100), and valid
+        #
+        shotnum_list = [
+            [self.mod.knobs.sn_size + 1],
+            [-1, self.mod.knobs.sn_size + 1],
+            [-5, -1, 0, 10, 15],
+            [10, 15, self.mod.knobs.sn_size + 1,
+             self.mod.knobs.sn_size + 10,
+             self.mod.knobs.sn_size + 100],
+            [-5, -1, 0, 10, 15, self.mod.knobs.sn_size + 1,
+             self.mod.knobs.sn_size + 10,
+             self.mod.knobs.sn_size + 100]
+        ]
+        cdset = self.cgroup['Run time list']
+        shotnumkey = 'Shot number'
+        configkey = 'Configuration name'
+        for og_shotnum in shotnum_list:
+            for cspec in self.map.configs:
+                index, shotnum, sni = \
+                    build_shotnum_dset_relation(og_shotnum, cdset,
+                                                shotnumkey,
+                                                self.map, cspec)
+                self.assertSNSuite(og_shotnum,
+                                   index, shotnum, sni,
+                                   cdset, shotnumkey,
+                                   configkey, cspec)
+
+    def assertSNSuite(self, og_shotnum, index, shotnum, sni,
+                      cdset, shotnumkey, configkey, cspec):
+        """Suite of assertions for shot number conditioning"""
+        # og_shotnum - original requested shot number
+        # index      - index of dataset
+        # shotnum    - calculate shot number array
+        # sni        - boolean mask for shotnum
+        #               shotnum[sni] = cdset[index, shotnumkey]
+        # cdset      - control devices dataset
+        # shotnumkey - field in cdset that corresponds to shot numbers
+        # configkey  - field in cdset that corresponds to configuration
+        #              names
+        # cspec      - unique specifier for control device
+        #              (i.e. configuration name)
+
+        # all return variables should be np.ndarray
+        self.assertTrue(isinstance(index, np.ndarray))
+        self.assertTrue(isinstance(shotnum, np.ndarray))
+        self.assertTrue(isinstance(sni, np.ndarray))
+
+        # all should be 1D arrays
+        self.assertEqual(index.shape[0], index.size)
+        self.assertEqual(shotnum.shape[0], shotnum.size)
+        self.assertEqual(sni.shape[0], sni.size)
+
+        # equate array sizes
+        self.assertEqual(shotnum.size, sni.size)
+        self.assertEqual(np.count_nonzero(sni), index.size)
+
+        # all shotnum > 0
+        self.assertTrue(np.all(np.where(shotnum > 0, True, False)))
+
+        # all og_shotnum > 0 in shotnum
+        og_arr = np.array(og_shotnum)
+        og_i = np.where(og_arr > 0)[0]
+        if og_i.size != 0:
+            self.assertTrue(np.all(np.isin(shotnum, og_arr[og_i])))
+            self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum)))
+        else:
+            # build_shotnum_dset_relation should have thrown a ValueError
+            # since no valid shot number was originally passed in
+            raise RuntimeError(
+                'something went wrong, `build_shotnum_dset_relation` should '
+                'have thrown a ValueError and shotnum should be empty, '
+                'shotnum.size = {}'.format(shotnum.size))
+
+        # all 0 < og_shotnum <= sn_size in shotnum[sni]
+        # - this would be incorrect if the dataset has jumps in the
+        #   recorded shot numbers
+        #
+        og_i1 = og_i
+        og_i2 = np.where(og_arr <= self.mod.knobs.sn_size)[0]
+        if og_i1.size != 0 and og_i2.size != 0:
+            og_i = og_i1[np.isin(og_i1, og_i2)]
+            self.assertTrue(np.all(np.isin(shotnum[sni], og_arr[og_i])))
+            self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum[sni])))
+        else:
+            # shotnum[sni].size should be 0
+            # - ie: all elements of sni should be false
+            self.assertTrue(np.all(np.logical_not(sni)))
+
+        # shotnum[sni] = cdset[index, shotnumkey]
+        if index.size != 0:
+            self.assertTrue(np.array_equal(
+                shotnum[sni], cdset[index.tolist(), shotnumkey]))
+        else:
+            self.assertEqual(shotnum[sni].size, 0)
+
+        # ensure correct config is grabbed
+        if index.size != 0:
+            cname_arr = cdset[index.tolist(), configkey]
+            for name in cname_arr:
+                self.assertEqual(name.decode('utf-8'), cspec)
+
+
+class TestDoShotnumIntersection(ut.TestCase):
+    """Test Case for do_shotnum_intersection"""
+    def test_one_control(self):
+        """Test intersection behavior with one control device"""
+        # test a case that results in a null result
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {'Waveform': shotnum}
+        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
+        index_dict = {'Waveform': np.array([])}
+        self.assertRaises(ValueError,
+                          do_shotnum_intersection,
+                          shotnum, shotnum_dict, sni_dict, index_dict)
+
+        # test a working case
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {'Waveform': shotnum}
+        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
+        index_dict = {'Waveform': np.array([5, 6, 7])}
+        sni_dict['Waveform'][[5, 6, 7]] = True
+        shotnum, shotnum_dict, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum,
+                                    shotnum_dict,
+                                    sni_dict,
+                                    index_dict)
+        self.assertTrue(np.array_equal(shotnum, [6, 7, 8]))
+        self.assertTrue(np.array_equal(shotnum,
+                                       shotnum_dict['Waveform']))
+        self.assertTrue(np.array_equal(sni_dict['Waveform'],
+                                       [True] * 3))
+        self.assertTrue(np.array_equal(index_dict['Waveform'],
+                                       [5, 6, 7]))
+
+    def test_two_controls(self):
+        """Test intersection behavior with two control devices"""
+        # test a case that results in a null result
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {
+            'Waveform': shotnum,
+            '6K Compumotor': shotnum
+        }
+        sni_dict = {
+            'Waveform': np.zeros(shotnum.shape, dtype=bool),
+            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
+        }
+        index_dict = {
+            'Waveform': np.array([]),
+            '6K Compumotor': np.array([5, 6, 7])
+        }
+        sni_dict['6K Compumotor'][[6, 7, 8]] = True
+        self.assertRaises(ValueError,
+                          do_shotnum_intersection,
+                          shotnum, shotnum_dict, sni_dict, index_dict)
+
+        # test a working case
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {
+            'Waveform': shotnum,
+            '6K Compumotor': shotnum
+        }
+        sni_dict = {
+            'Waveform': np.zeros(shotnum.shape, dtype=bool),
+            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
+        }
+        index_dict = {
+            'Waveform': np.array([5, 6]),
+            '6K Compumotor': np.array([5, 6, 7])
+        }
+        sni_dict['Waveform'][[5, 6]] = True
+        sni_dict['6K Compumotor'][[5, 6, 7]] = True
+        shotnum, shotnum_dict, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum,
+                                    shotnum_dict,
+                                    sni_dict,
+                                    index_dict)
+        self.assertTrue(np.array_equal(shotnum, [6, 7]))
+        for key in shotnum_dict:
+            self.assertTrue(np.array_equal(shotnum, shotnum_dict[key]))
+            self.assertTrue(np.array_equal(sni_dict[key], [True] * 2))
+            self.assertTrue(np.array_equal(index_dict[key], [5, 6]))
+
+
+class TestHDFReadControl(TestBase):
     """Test Case for HDFReadControl class."""
     # Note:
     # - TestBuildShotnumDsetRelation tests HDFReadControl's ability to
@@ -717,10 +849,10 @@ class TestHDFReadControl(ut.TestCase):
     #
 
     def setUp(self):
-        self.f = FauxHDFBuilder()
+        super(TestHDFReadControl, self).setUp()
 
     def tearDown(self):
-        self.f.cleanup()
+        super(TestHDFReadControl, self).tearDown()
 
     @property
     def lapdf(self):

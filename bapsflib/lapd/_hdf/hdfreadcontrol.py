@@ -812,7 +812,7 @@ def build_shotnum_dset_relation(
     if configs_per_row == 1:
         # the dataset only saves data for one configuration
         index, shotnum, sni = \
-            condition_shotnum_list_simple(shotnum, dset, shotnumkey)
+            build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
     else:
         # the dataset saves data for multiple configurations
         index, shotnum, sni = \
@@ -823,61 +823,67 @@ def build_shotnum_dset_relation(
     return index.view(), shotnum.view(), sni.view()
 
 
-# rename to condition_shotnum_w_simple_dset
-def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
+def build_sndr_for_simple_dset(
+        shotnum: np.ndarray,
+        dset: h5py.Dataset,
+        shotnumkey: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Conditions **shotnum** (when a `list`) against control dataset
-    **cdset** when the control dataset contains recorded data for
-    ONLY ONE device configuration.
+    Compares the **shotnum** numpy aray to the specified "simple"
+    dataset, **dset**, to determine which indices contain the desired
+    shot number(s).  As a results, three numpy arrays are returned which
+    satisfy the rule::
+
+        shotnum[sni] = dset[index, shotnumkey]
+
+    where **shotnum** is the original shot number array, **sni** is a
+    boolean numpy array masking which shot numbers were determined to
+    be in the dataset, and **index** is an array of indices
+    corresponding to the desired shot number(s).
+
+    A "simple" dataset is a dataset in which the data for only ONE
+    configuration is recorded.
 
     :param shotnum: desired HDF5 shot number
-    :type shotnum: :class:`numpy.ndarray`
-    :param cdset: control device dataset
-    :type cdset: :class:`h5py.Dataset`
+    :param dset: control device dataset
+    :type dset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
         contains the shot numbers
-    :return: index, shotnum, sni
-
-    .. note::
-
-        The returned :class:`numpy.ndarray`'s (:const:`index`,
-        :const:`shotnum`, and :const:`sni`) follow the rule::
-
-            shotnum[sni] = cdset[index, shotnumkey]
+    :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
+        arrays
     """
     # this is for a dataset that only records data for one configuration
     #
     # get corresponding indices for shotnum
     # build associated sni array
     #
-    if cdset.shape[0] == 1:
+    if dset.shape[0] == 1:
         # only one possible shot number
-        only_sn = cdset[0, shotnumkey]
+        only_sn = dset[0, shotnumkey]
         sni = np.where(shotnum == only_sn, True, False)
         index = np.array([0]) \
             if True in sni else np.empty(shape=0, dtype=np.uint32)
     else:
         # get 1st and last shot number
-        first_sn, last_sn = cdset[[-1, 0], shotnumkey]
+        first_sn, last_sn = dset[[-1, 0], shotnumkey]
 
-        if last_sn - first_sn + 1 == cdset.shape[0]:
+        if last_sn - first_sn + 1 == dset.shape[0]:
             # shot numbers are sequential
             index = shotnum - first_sn
 
             # build sni and filter index
-            sni = np.where(index < cdset.shape[0], True, False)
+            sni = np.where(index < dset.shape[0], True, False)
             index = index[sni]
         else:
             # shot numbers are NOT sequential
             step_front_read = shotnum[-1] - first_sn
             step_end_read = last_sn - shotnum[0]
 
-            if cdset.shape[0] <= 1 + min(step_front_read,
-                                         step_end_read):
-                # cdset.shape is smaller than the theoretical reads from
+            if dset.shape[0] <= 1 + min(step_front_read,
+                                        step_end_read):
+                # dset.shape is smaller than the theoretical reads from
                 # either end of the array
                 #
-                cdset_sn = cdset[shotnumkey].view()
+                cdset_sn = dset[shotnumkey].view()
                 sni = np.isin(shotnum, cdset_sn)
 
                 # define index
@@ -885,7 +891,7 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
             elif step_front_read <= step_end_read:
                 # extracting from the beginning of the array is the
                 # smallest
-                some_cdset_sn = cdset[0:step_front_read + 1, shotnumkey]
+                some_cdset_sn = dset[0:step_front_read + 1, shotnumkey]
                 sni = np.isin(shotnum, some_cdset_sn)
 
                 # define index
@@ -894,8 +900,8 @@ def condition_shotnum_list_simple(shotnum, cdset, shotnumkey):
                 # extracting from the end of the array is the smallest
                 start, stop, step = slice(-step_end_read - 1,
                                           None,
-                                          None).indices(cdset.shape[0])
-                some_cdset_sn = cdset[start::, shotnumkey]
+                                          None).indices(dset.shape[0])
+                some_cdset_sn = dset[start::, shotnumkey]
                 sni = np.isin(shotnum, some_cdset_sn)
 
                 # define index

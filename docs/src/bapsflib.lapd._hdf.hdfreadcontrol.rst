@@ -16,8 +16,8 @@ bapsflib\.lapd\.\_hdf\.hdfreadcontrol
         :nosignatures:
 
         build_shotnum_dset_relation
+        build_sndr_for_simple_dset
         condition_shotnum_list_complex
-        condition_shotnum_list_simple
         condition_controls
         condition_shotnum
         do_shotnum_intersection

@@ -754,79 +754,69 @@ def condition_shotnum(shotnum: Any,
 
 
 def build_shotnum_dset_relation(
-        shotnum: Any,
-        cdset: h5py.Dataset,
+        shotnum: np.ndarray,
+        dset: h5py.Dataset,
         shotnumkey: str,
         cmap: ControlMap,
         cconfn: Any) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Conditions **shotnum** (when a `list`) against the control dataset
-    **cdset**.  Utilizes functions :func:`condition_shotnum_list_simple`
-    and :func:`condition_shotnum_list_complex`.
+    Compares the **shotnum** numpy array to the specified dataset,
+    **dset**, to determine which indices contain the desired shot
+    number(s).  As a results, three numpy arrays are returned which
+    satisfy the rule::
+
+        shotnum[sni] = dset[index, shotnumkey]
+
+    where **shotnum** is the original shot number array, **sni** is a
+    boolean numpy array masking which shot numbers were determined to
+    be in the dataset, and **index** is an array of indices
+    corresponding to the desired shot number(s).
 
     :param shotnum: desired HDF5 shot number(s)
-    :type shotnum: list(int)
-    :param cdset: control device dataset
-    :type cdset: :class:`h5py.Dataset`
+    :param dset: control device dataset
+    :type dset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
-        contains the shot numbers
+        contains shot numbers
     :param cmap: mapping object for control device
-    :param cconfn: configuration name for the control device
-    :return: index, shotnum, sni
+    :param str cconfn: configuration name for the control device
+    :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
+        arrays
 
     .. note::
 
-        The returned :class:`numpy.ndarray`'s (:const:`index`,
-        :const:`shotnum`, and :const:`sni`) follow the rule::
-
-            shotnum[sni] = cdset[index, shotnumkey]
+        This function leverages the functions
+        :func:`~bapsflib.lapd._hdf.hdfreadcontrol.condition_shotnum_list_simple`
+        and
+        :func:`~bapsflib.lapd._hdf.hdfreadcontrol.condition_shotnum_list_complex`
     """
     # Inputs:
-    # shotnum    (list(int))    - the desired shot number(s)
-    # cdset      (h5py.Dataset) - the control dataset
-    # shotnumkey (str)          - field name for the shot number column
-    #                             in cdset
-    # cmap                      - file mapping object for the control
-    #                             device
-    # cconfn                    - configuration for control device
+    # shotnum      - the desired shot number(s)
+    # dset         - the control device dataset
+    # shotnumkey   - field name for the shot number column in dset
+    # cmap         - file mapping object for the control device
+    # cconfn       - configuration for control device
     #
     # Returns:
-    # index    np.array(dtype=uint32) - cdset row index for the
-    #                                   specified shotnum
-    # shotnum  np.array(dtype=uint32) - shot numbers
-    # sni      np.array(dtype=bool)   - shotnum mask such that:
-    #            shotnum[sni] = cdset[index, shotnumkey]
+    # index     np.array(dtype=uint32)  - dset row index for the
+    #                                     specified shotnum
+    # shotnum   np.array(dtype=uint32)  - shot numbers
+    # sni       np.array(dtype=bool)    - shotnum mask such that:
+    #
+    #            shotnum[sni] = dset[index, shotnumkey]
     #
     # Initialize some vars
     n_configs = len(cmap.configs)
     configs_per_row = 1 if cmap.one_config_per_dset else n_configs
 
-    # remove shot numbers less-than or equal to 0
-    shotnum.sort()
-    shotnum = list(set(shotnum))
-    shotnum.sort()
-    if min(shotnum) <= 0:
-        # remove values less-than or equal to 0
-        new_sn = [sn for sn in shotnum if sn > 0]
-        shotnum = new_sn
-
-    # ensure shotnum is not empty
-    if len(shotnum) == 0:
-        raise ValueError('Valid shotnum not passed.')
-
-    # convert shotnum to np.array
-    # - shotnum is always a list up to this point
-    shotnum = np.array(shotnum).view()
-
     # Calc. index, shotnum, and sni
     if configs_per_row == 1:
         # the dataset only saves data for one configuration
         index, shotnum, sni = \
-            condition_shotnum_list_simple(shotnum, cdset, shotnumkey)
+            condition_shotnum_list_simple(shotnum, dset, shotnumkey)
     else:
         # the dataset saves data for multiple configurations
         index, shotnum, sni = \
-            condition_shotnum_list_complex(shotnum, cdset, shotnumkey,
+            condition_shotnum_list_complex(shotnum, dset, shotnumkey,
                                            cmap, cconfn)
 
     # return calculated arrays

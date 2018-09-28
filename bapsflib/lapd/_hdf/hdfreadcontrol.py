@@ -8,25 +8,75 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import bapsflib
+import h5py
 import numpy as np
+import os
 import time
 
+from bapsflib._hdf_mappers.controls.templates import \
+    (HDFMapControlTemplate, HDFMapControlCLTemplate)
 from functools import reduce
+from typing import (Any, Iterable, List, Tuple, Union)
 from warnings import warn
+
+ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 
 
 class HDFReadControl(np.recarray):
     """
     Reads control device data from the HDF5 file.
 
+    This class constructs and returns a structured numpy array.  The
+    data in the array is grouped into two categories:
+
+    #. shot numbers which are contained in the :code:`'shotnum'` field
+    #. control device data which is represented by the remaining fields
+       in the numpy array.  These field names are polymorphic and are
+       defined by the control device mapping class.
+
+    Data that is not shot number specific is stored in the :attr:`info`
+    attribute.
+
     .. note::
 
         * It is assumed that control data is always extracted with the
           intent of being matched to digitizer data.
-        * Only one control for each :const:`contype` can be specified
-          at a time.
+        * Only one control for each
+          :class:`~bapsflib._hdf_mappers.controls.contype.ConType` can
+          be specified at a time.
         * It is assumed that there is only ONE dataset associated with
-          each control device.
+          each control device configuration.
+        * If multiple device configurations are saved in the same HDF5
+          dataset (common in the :ibf:`'Waveform'` control device),
+          then it is assumed that the configuration writing order is
+          consistent for all recorded shot numbers.  That is, if
+          *'config1'*, *'config2'*, and *'config3'* are recorded in that
+          order for shot number 1, then that order is preserved for all
+          recorded shot numbers.
+    """
+    __example_doc__ = """
+    :Example: Here the control device :code:`'Waveform'` is used as a
+        basic example:
+        
+        >>> # open HDF5 file
+        >>> f = bapsflib.lapd.File('test.hdf5')
+        >>>
+        >>> # read control data
+        >>> # - this is equivalent to 
+        >>> #   f.read_control(['Waveform', 'config01'])
+        >>> data = HDFReadControl(f, ['Waveform', 'config01'])
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('command', '<U18')])
+        >>>
+        >>> # display shot numbers
+        >>> data['shotnum']
+        array([   1,    2,    3, ..., 6158, 6159, 6160], dtype=uint32)
+        >>>
+        >>> # show 'command' values for shot numbers 1 to 2
+        >>> data['command'][0:2:]
+        array(['FREQ 50000.000000', 'FREQ 50000.000000'],
+              dtype='<U18')
     """
     #
     # Extracting Data:
@@ -44,17 +94,17 @@ class HDFReadControl(np.recarray):
          "data.shotnum",
          FutureWarning)
 
-    def __new__(cls, hdf_file, controls,
+    def __new__(cls,
+                hdf_file: bapsflib.lapd.File,
+                controls,
                 shotnum=slice(None), intersection_set=True,
                 silent=False, **kwargs):
         """
-        :param hdf_file: object instance of the HDF5 file
-        :type hdf_file: :class:`bapsflib.lapd.files.File`
-        :param controls: a list indicating the desired control devices
-            (see
-            :func:`bapsflib.lapd.hdfreadcontrol.condition_controls`
-            for details)
-        :type controls: [str, (str, val), ]
+        :param hdf_file: HDF5 file object
+        :param controls: a list indicating the desired control device
+            names and their configuration name (if more than one
+            configuraiton exists)
+        :type controls: Union[str, Iterable[str, Tuple[str, Any]]]
         :param shotnum: HDF5 file shot number(s) indicating data
             entries to be extracted
         :type shotnum: int, list(int), or slice(start, stop, step)
@@ -68,16 +118,18 @@ class HDFReadControl(np.recarray):
 
         Behavior of :data:`shotnum` and :data:`intersection_set`:
             * :data:`shotnum` indexing starts at 1
-            * any values :code:`<= 0` will be thrown out
-            * if :code:`intersection_set=True`, then only data
+            * Any :data:`shotnum` values :code:`<= 0` will be thrown out
+            * If :code:`intersection_set=True`, then only data
               corresponding to shot numbers that are specified in
-              shotnum and are in all control datasets will be returned
-            * if :code:`intersection_set=False`, then the returned array
+              :data:`shotnum` and are in all control datasets will be
+              returned
+            * If :code:`intersection_set=False`, then the returned array
               will have entries for all shot numbers specified in
-              shotnum but entries that do not correlate with shot
-              numbers in control datasets will be give null values of
-              :code:`-99999`, :code:`numpy.nan`, or :code:`''`,
-              depending on :code:`numpy.dtype`.
+              :data:`shotnum` but entries that correspond to control
+              datasets that do not have the specified shot number will
+              be given a NULL value of :code:`-99999`,
+              :code:`numpy.nan`, or :code:`''`, depending on the
+              :code:`numpy.dtype`.
         """
         # When inheriting from numpy, the object creation and
         # initialization is handled by __new__ instead of __init__.
@@ -504,11 +556,12 @@ class HDFReadControl(np.recarray):
         #   ~ 'dataset name'
         #   ~ 'dataset path'
         #
-        obj.info = {
-            'hdf file': hdf_file.filename.split('/')[-1],
+        obj._info = {
+            'source file': os.path.abspath(hdf_file.filename),
             'controls': controls,
             'probe name': None,
-            'port': (None, None)}
+            'port': (None, None),
+        }
 
         # populate meta-info from controls.configs
         # TODO: populate info from controls.configs
@@ -543,11 +596,23 @@ class HDFReadControl(np.recarray):
         # - getattr() searches obj for the 'info' attribute. If the
         #   attribute exists, then it's returned. If the attribute does
         #   NOT exist, then the 3rd arg is returned as a default value.
-        self.info = getattr(obj, 'info',
-                            {'hdf file': None,
-                             'controls': None,
-                             'probe name': None,
-                             'port': (None, None)})
+        self._info = getattr(obj, '_info', {
+            'source file': None,
+            'controls': None,
+            'probe name': None,
+            'port': (None, None),
+        })
+
+    @property
+    def info(self) -> dict:
+        """A dictionary of meta-info for the control device."""
+        return self._info
+
+
+# add example to __new__ docstring
+HDFReadControl.__new__.__doc__ += "\n"
+for line in HDFReadControl.__example_doc__.splitlines():
+    HDFReadControl.__new__.__doc__ += "    " + line + "\n"
 
 
 def condition_controls(hdf_file: bapsflib.lapd.File,

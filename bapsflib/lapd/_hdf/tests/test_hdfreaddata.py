@@ -22,7 +22,7 @@ from bapsflib._hdf_mappers.controls import ConType
 
 
 class TestConditionShotnum(ut.TestCase):
-    """Test Case for condition_shotnum"""
+    """Test Case for build_shotnum_dset_relation"""
 
     def setUp(self):
         self.f = FauxHDFBuilder(

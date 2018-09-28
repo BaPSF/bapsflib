@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib._hdf_mappers.controls.waveform import \
     HDFMapControlWaveform
 from ..files import File
-from ..hdfreadcontrol import (condition_shotnum,
+from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               do_shotnum_intersection,
                               condition_controls,
                               HDFReadControl)
@@ -94,7 +94,7 @@ class TestConditionShotnum(ut.TestCase):
         cdset = self.cgroup['Run time list']
         shotnumkey = 'Shot number'
         for cspec in self.map.configs:
-            self.assertRaises(ValueError, condition_shotnum,
+            self.assertRaises(ValueError, build_shotnum_dset_relation,
                               og_shotnum, cdset, shotnumkey, self.map,
                               cspec)
 
@@ -108,7 +108,7 @@ class TestConditionShotnum(ut.TestCase):
         shotnumkey = 'Shot number'
         for og_shotnum in shotnum_list:
             for cspec in self.map.configs:
-                self.assertRaises(ValueError, condition_shotnum,
+                self.assertRaises(ValueError, build_shotnum_dset_relation,
                                   og_shotnum, cdset, shotnumkey,
                                   self.map, cspec)
 
@@ -130,9 +130,9 @@ class TestConditionShotnum(ut.TestCase):
         for og_shotnum in shotnum_list:
             for cspec in self.map.configs:
                 index, shotnum, sni = \
-                    condition_shotnum(og_shotnum, cdset,
-                                      shotnumkey,
-                                      self.map, cspec)
+                    build_shotnum_dset_relation(og_shotnum, cdset,
+                                                shotnumkey,
+                                                self.map, cspec)
                 self.assertSNSuite(og_shotnum,
                                    index, shotnum, sni,
                                    cdset, shotnumkey,
@@ -168,9 +168,9 @@ class TestConditionShotnum(ut.TestCase):
         for og_shotnum in shotnum_list:
             for cspec in self.map.configs:
                 index, shotnum, sni = \
-                    condition_shotnum(og_shotnum, cdset,
-                                      shotnumkey,
-                                      self.map, cspec)
+                    build_shotnum_dset_relation(og_shotnum, cdset,
+                                                shotnumkey,
+                                                self.map, cspec)
                 self.assertSNSuite(og_shotnum,
                                    index, shotnum, sni,
                                    cdset, shotnumkey,
@@ -215,10 +215,10 @@ class TestConditionShotnum(ut.TestCase):
             self.assertTrue(np.all(np.isin(shotnum, og_arr[og_i])))
             self.assertTrue(np.all(np.isin(og_arr[og_i], shotnum)))
         else:
-            # condition_shotnum should have thrown a ValueError
+            # build_shotnum_dset_relation should have thrown a ValueError
             # since no valid shot number was originally passed in
             raise RuntimeError(
-                'something went wrong, `condition_shotnum` should '
+                'something went wrong, `build_shotnum_dset_relation` should '
                 'have thrown a ValueError and shotnum should be empty, '
                 'shotnum.size = {}'.format(shotnum.size))
 

@@ -516,7 +516,7 @@ class TestBuildShotnumDsetRelation(TestBase):
 
     def setUp(self):
         # setup HDF5 file
-        super().setUpClass()
+        super().setUp()
         self.f.add_module('Waveform',
                           mod_args={'n_configs': 1, 'sn_size': 100})
         self.mod = self.f.modules['Waveform']

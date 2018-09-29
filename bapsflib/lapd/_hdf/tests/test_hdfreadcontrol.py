@@ -627,12 +627,10 @@ class TestBuildShotnumDsetRelation(TestBase):
 
             sn_arr = np.array(og_shotnum, dtype=np.uint32)
             for cconfn in self.map.configs:
-                index, shotnum, sni = \
-                    build_shotnum_dset_relation(sn_arr, cdset,
-                                                shotnumkey, self.map,
-                                                cconfn)
+                index, sni = build_shotnum_dset_relation(
+                    sn_arr, cdset, shotnumkey, self.map, cconfn)
 
-                self.assertSNSuite(sn_arr, index, shotnum, sni,
+                self.assertSNSuite(sn_arr, index, sni,
                                    cdset, shotnumkey,
                                    configkey, cconfn)
 
@@ -662,21 +660,18 @@ class TestBuildShotnumDsetRelation(TestBase):
         for og_shotnum in shotnum_list:
             sn_arr = np.array(og_shotnum, dtype=np.uint32)
             for cconfn in self.map.configs:
-                index, shotnum, sni = \
-                    build_shotnum_dset_relation(sn_arr, cdset,
-                                                shotnumkey, self.map,
-                                                cconfn)
+                index, sni = build_shotnum_dset_relation(
+                    sn_arr, cdset, shotnumkey, self.map, cconfn)
 
-                self.assertSNSuite(sn_arr, index, shotnum, sni,
+                self.assertSNSuite(sn_arr, index, sni,
                                    cdset, shotnumkey,
                                    configkey, cconfn)
 
-    def assertSNSuite(self, og_shotnum, index, shotnum, sni,
+    def assertSNSuite(self, shotnum, index, sni,
                       cdset, shotnumkey, configkey, cconfn):
         """Suite of assertions for shot number conditioning"""
-        # og_shotnum - original requested shot number
+        # shotnum    - original requested shot number
         # index      - index of dataset
-        # shotnum    - calculate shot number array
         # sni        - boolean mask for shotnum
         #               shotnum[sni] = cdset[index, shotnumkey]
         # cdset      - control devices dataset
@@ -687,20 +682,15 @@ class TestBuildShotnumDsetRelation(TestBase):
         #
         # all return variables should be np.ndarray
         self.assertTrue(isinstance(index, np.ndarray))
-        self.assertTrue(isinstance(shotnum, np.ndarray))
         self.assertTrue(isinstance(sni, np.ndarray))
 
         # all should be 1D arrays
         self.assertEqual(index.ndim, 1)
-        self.assertEqual(shotnum.ndim, 1)
         self.assertEqual(sni.ndim, 1)
 
         # equate array sizes
         self.assertEqual(shotnum.size, sni.size)
         self.assertEqual(np.count_nonzero(sni), index.size)
-
-        # shotnum is og_shotnum
-        self.assertTrue(np.array_equal(shotnum, og_shotnum))
 
         # shotnum[sni] = cdset[index, shotnumkey]
         if index.size != 0:
@@ -722,27 +712,20 @@ class TestDoShotnumIntersection(ut.TestCase):
         """Test intersection behavior with one control device"""
         # test a case that results in a null result
         shotnum = np.arange(1, 21, 1, dtype=np.uint32)
-        shotnum_dict = {'Waveform': shotnum}
         sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
         index_dict = {'Waveform': np.array([])}
         self.assertRaises(ValueError,
                           do_shotnum_intersection,
-                          shotnum, shotnum_dict, sni_dict, index_dict)
+                          shotnum, sni_dict, index_dict)
 
         # test a working case
         shotnum = np.arange(1, 21, 1)
-        shotnum_dict = {'Waveform': shotnum}
         sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
         index_dict = {'Waveform': np.array([5, 6, 7])}
         sni_dict['Waveform'][[5, 6, 7]] = True
-        shotnum, shotnum_dict, sni_dict, index_dict = \
-            do_shotnum_intersection(shotnum,
-                                    shotnum_dict,
-                                    sni_dict,
-                                    index_dict)
+        shotnum, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum, sni_dict, index_dict)
         self.assertTrue(np.array_equal(shotnum, [6, 7, 8]))
-        self.assertTrue(np.array_equal(shotnum,
-                                       shotnum_dict['Waveform']))
         self.assertTrue(np.array_equal(sni_dict['Waveform'],
                                        [True] * 3))
         self.assertTrue(np.array_equal(index_dict['Waveform'],
@@ -752,10 +735,6 @@ class TestDoShotnumIntersection(ut.TestCase):
         """Test intersection behavior with two control devices"""
         # test a case that results in a null result
         shotnum = np.arange(1, 21, 1)
-        shotnum_dict = {
-            'Waveform': shotnum,
-            '6K Compumotor': shotnum
-        }
         sni_dict = {
             'Waveform': np.zeros(shotnum.shape, dtype=bool),
             '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
@@ -767,7 +746,7 @@ class TestDoShotnumIntersection(ut.TestCase):
         sni_dict['6K Compumotor'][[6, 7, 8]] = True
         self.assertRaises(ValueError,
                           do_shotnum_intersection,
-                          shotnum, shotnum_dict, sni_dict, index_dict)
+                          shotnum, sni_dict, index_dict)
 
         # test a working case
         shotnum = np.arange(1, 21, 1)
@@ -785,14 +764,10 @@ class TestDoShotnumIntersection(ut.TestCase):
         }
         sni_dict['Waveform'][[5, 6]] = True
         sni_dict['6K Compumotor'][[5, 6, 7]] = True
-        shotnum, shotnum_dict, sni_dict, index_dict = \
-            do_shotnum_intersection(shotnum,
-                                    shotnum_dict,
-                                    sni_dict,
-                                    index_dict)
+        shotnum, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum, sni_dict, index_dict)
         self.assertTrue(np.array_equal(shotnum, [6, 7]))
         for key in shotnum_dict:
-            self.assertTrue(np.array_equal(shotnum, shotnum_dict[key]))
             self.assertTrue(np.array_equal(sni_dict[key], [True] * 2))
             self.assertTrue(np.array_equal(index_dict[key], [5, 6]))
 

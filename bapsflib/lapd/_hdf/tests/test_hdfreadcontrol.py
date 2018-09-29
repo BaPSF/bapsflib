@@ -16,6 +16,8 @@ import unittest as ut
 
 from bapsflib._hdf_mappers.controls.waveform import \
     HDFMapControlWaveform
+from numpy.lib import recfunctions as rfn
+
 from ..files import File
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               condition_controls,
@@ -549,8 +551,7 @@ class TestBuildShotnumDsetRelation(TestBase):
 
         # -- dset with non-sequential shot numbers                  ----
         self.mod.knobs.sn_size = 100
-        dset = self.cgroup['Run time list']
-        data = dset[...]
+        data = self.cgroup['Run time list'][...]
         data['Shot number'] = np.append(
             np.arange(5, 25, dtype=np.uint32),
             np.append(np.arange(51, 111, dtype=np.uint32),
@@ -568,11 +569,42 @@ class TestBuildShotnumDsetRelation(TestBase):
         # define multiple configurations for one dataset
         self.mod.knobs.n_configs = 3
 
-        # test in range shot number cases
+        # -- dset with 1 shotnum                                    ----
+        self.mod.knobs.sn_size = 1
         self.assertInRangeSN()
-
-        # test out of range shot number cases
         self.assertOutRangeSN()
+
+        # -- typical dset with sequential shot numbers              ----
+        self.mod.knobs.sn_size = 100
+        self.assertInRangeSN()
+        self.assertOutRangeSN()
+
+        # -- dset with non-sequential shot numbers                  ----
+        self.mod.knobs.sn_size = 100
+        data = self.cgroup['Run time list'][...]
+        sn_arr = np.append(
+            np.arange(5, 25, dtype=np.uint32),
+            np.append(np.arange(51, 111, dtype=np.uint32),
+                      np.arange(150, 170, dtype=np.uint32)))
+        data['Shot number'][0::3] = sn_arr
+        data['Shot number'][1::3] = sn_arr
+        data['Shot number'][2::3] = sn_arr
+        del self.cgroup['Run time list']
+        self.cgroup.create_dataset('Run time list', data=data)
+        self.assertInRangeSN()
+        self.assertOutRangeSN()
+
+        # -- dset without a configuration fields                    ----
+        self.mod.knobs.sn_size = 50
+        data = self.cgroup['Run time list'][...]
+        data = rfn.rename_fields(data, {'Configuration name': 'oops'})
+        del self.cgroup['Run time list']
+        self.cgroup.create_dataset('Run time list', data=data)
+        cdset = self.cgroup['Run time list']
+        with self.assertRaises(ValueError):
+            build_shotnum_dset_relation(
+                np.empty(5, dtype=np.uint32), cdset, 'Shot number',
+                self.map, 'config01')
 
     def assertInRangeSN(self):
         """

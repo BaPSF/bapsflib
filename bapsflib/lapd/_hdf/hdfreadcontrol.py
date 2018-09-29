@@ -254,6 +254,7 @@ class HDFReadControl(np.recarray):
         #         be given a NULL value depending on the dtype
         #
         # Gather control datasets and associated shot number field names
+        # - things needed to perform the conditioning
         cdset_dict = {}
         shotnumkey_dict = {}
         for control in controls:
@@ -273,52 +274,42 @@ class HDFReadControl(np.recarray):
                 raise ValueError(
                     'no shot number field defined for control device')
 
-        # Catch shotnum if a slice object or int
-        # - For either case, convert shotnum to a list
-        #
-        shotnum = condition_shotnum(shotnum,
-                                    cdset_dict,
+        # perform `shotnum` conditioning
+        # - `shotnum` is returned as a numpy array
+        shotnum = condition_shotnum(shotnum, cdset_dict,
                                     shotnumkey_dict)
 
-        # Ensure 'shotnum' is valid
-        # - at this point 'shotnum' should be a list
-        # - after this block (by the time you get to
-        #   ---- Build obj ----) 'shotnum' will be converted to a numpy
-        #   1D array containing the shot numbers to be included in the
-        #   returned obj array
+        # ---- Build `index` and `sni` arrays for each dataset      ----
+        #
+        # - Satisfies the condition:
+        #
+        #       shotnum[sni] = dset[index, shotnumkey]
         #
         # Notes:
-        # 1. shotnum can not be converted to a np.array until after
-        #    shotnum, index, and sni are determined for each control
-        # 2. all entries in shotnum_dict, index_dict, and sni_dict
-        #    should be np.arrays
-        # 3. shotnum values used to fill shotnum_dict should not go
-        #    through an intersection filtering in here, this will be
-        #    done after this for-loop
+        # 1. every entry in `index_dict` and `sni_dict` will be a numpy
+        #    array
+        # 2. all entries in `index_dict` and `sni_dict` are build with
+        #    respect to shotnum
         #
-        index_dict = {}
-        shotnum_dict = {}
-        sni_dict = {}
+        index_dict = {}  # type: IndexDict
+        sni_dict = {}  # type: IndexDict
         for control in controls:
             # control name (cname) and configuration name (cconfn)
             cname = control[0]
             cconfn = control[1]
             cmap = _fmap.controls[cname]
 
-            # get a conditioned version of index, shotnum, and sni for
-            # each control
-            index_dict[cname], shotnum_dict[cname], sni_dict[cname] = \
+            # build `index` and `sni` for each dataset
+            index_dict[cname], sni_dict[cname] = \
                 build_shotnum_dset_relation(shotnum, cdset_dict[cname],
                                             shotnumkey_dict[cname],
                                             cmap, cconfn)
 
-        # re-filter index, shotnum, sni
+        # re-filter `index`, `shotnum`, and `sni` if intesection_set
+        # requested
         if intersection_set:
-            shotnum, shotnum_dict, sni_dict, index_dict = \
-                do_shotnum_intersection(shotnum,
-                                        shotnum_dict,
-                                        sni_dict,
-                                        index_dict)
+            shotnum, sni_dict, index_dict = \
+                do_shotnum_intersection(shotnum, sni_dict, index_dict)
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -759,11 +750,11 @@ def build_shotnum_dset_relation(
         dset: h5py.Dataset,
         shotnumkey: str,
         cmap: ControlMap,
-        cconfn: Any) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        cconfn: Any) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** numpy array to the specified dataset,
     **dset**, to determine which indices contain the desired shot
-    number(s).  As a results, three numpy arrays are returned which
+    number(s).  As a results, two numpy arrays are returned which
     satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
@@ -780,8 +771,7 @@ def build_shotnum_dset_relation(
         contains shot numbers
     :param cmap: mapping object for control device
     :param cconfn: configuration name for the control device
-    :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
-        arrays
+    :return: :code:`index` and :code:`sni` numpy arrays
 
     .. note::
 
@@ -808,26 +798,26 @@ def build_shotnum_dset_relation(
     # Calc. index, shotnum, and sni
     if cmap.one_config_per_dset:
         # the dataset only saves data for one configuration
-        index, shotnum, sni = \
-            build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
+        index, sni = build_sndr_for_simple_dset(shotnum, dset,
+                                                shotnumkey)
     else:
         # the dataset saves data for multiple configurations
-        index, shotnum, sni = \
-            build_sndr_for_complex_dset(shotnum, dset, shotnumkey,
-                                        cmap, cconfn)
+        index, sni = build_sndr_for_complex_dset(shotnum, dset,
+                                                 shotnumkey, cmap,
+                                                 cconfn)
 
     # return calculated arrays
-    return index.view(), shotnum.view(), sni.view()
+    return index.view(), sni.view()
 
 
 def build_sndr_for_simple_dset(
         shotnum: np.ndarray,
         dset: h5py.Dataset,
-        shotnumkey: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        shotnumkey: str) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
-    shot number(s).  As a results, three numpy arrays are returned which
+    shot number(s).  As a results, two numpy arrays are returned which
     satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
@@ -845,8 +835,7 @@ def build_sndr_for_simple_dset(
     :type dset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
         contains the shot numbers
-    :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
-        arrays
+    :return: :code:`index` and :code:`sni` numpy arrays
     """
     # this is for a dataset that only records data for one configuration
     #
@@ -908,7 +897,7 @@ def build_sndr_for_simple_dset(
                 index += start
 
     # return calculated arrays
-    return index.view(), shotnum.view(), sni.view()
+    return index.view(), sni.view()
 
 
 def build_sndr_for_complex_dset(
@@ -916,11 +905,11 @@ def build_sndr_for_complex_dset(
         dset: h5py.Dataset,
         shotnumkey: str,
         cmap: ControlMap,
-        cconfn: Any) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+        cconfn: Any) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** numpy array to the specified "complex"
     dataset, **dset**, to determine which indices contain the desired
-    shot number(s).  As a results, three numpy arrays are returned which
+    shot number(s).  As a results, two numpy arrays are returned which
     satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
@@ -951,8 +940,7 @@ def build_sndr_for_complex_dset(
         contains the shot numbers
     :param cmap: mapping object for control device
     :param cconfn: configuration name for the control device
-    :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
-        arrays
+    :return: :code:`index` and :code:`sni` numpy arrays
     """
     # this is for a dataset that records data for multiple
     # configurations
@@ -1079,27 +1067,24 @@ def build_sndr_for_complex_dset(
                 index = (index * n_configs) + start
 
     # return calculated arrays
-    return index.view(), shotnum.view(), sni.view()
+    return index.view(), sni.view()
 
 
 def do_shotnum_intersection(
         shotnum: np.ndarray,
-        shotnum_dict: IndexDict,
         sni_dict: IndexDict,
         index_dict: IndexDict) -> Tuple[np.ndarray, IndexDict,
-                                        IndexDict, IndexDict]:
+                                        IndexDict]:
     """
     Calculates intersection of **shotnum** and all existing dataset
     shot numbers, **shotnum[sni]**.
 
     :param shotnum: desired HDF5 shot numbers
-    :param shotnum_dict: dictionary of all control dataset **shotnum**
-        arrays
     :param sni_dict: dictionary of all control dataset **sni** arrays
     :param index_dict:  dictionary of all control dataset **index**
         arrays
-    :return: intersected and re-calculated versions of :code:`index`,
-        :code:`shotnum`, and :code:`sni` numpy arrays
+    :return: intersected and re-calculated versions of :code:`index`
+        and :code:`sni` numpy arrays
 
     .. admonition:: Recall Array Relationship
 
@@ -1109,27 +1094,22 @@ def do_shotnum_intersection(
     """
     # intersect shot numbers
     shotnum_intersect = shotnum
-    for cname in shotnum_dict:
-        sn_arr = shotnum_dict[cname]
-        sni_arr = sni_dict[cname]
+    for sni in sni_dict.values():
         shotnum_intersect = np.intersect1d(shotnum_intersect,
-                                           sn_arr[sni_arr],
+                                           shotnum[sni],
                                            assume_unique=True)
     if shotnum_intersect.shape[0] == 0:
         raise ValueError('Input `shotnum` would result in a NULL array')
-    else:
-        shotnum = shotnum_intersect
 
     # now filter
-    for cname in shotnum_dict:
-        new_sn_mask = np.isin(
-            shotnum_dict[cname][sni_dict[cname]], shotnum)
-        new_sn = \
-            shotnum_dict[cname][sni_dict[cname]][new_sn_mask]
-        new_index = index_dict[cname][new_sn_mask]
-        shotnum_dict[cname] = new_sn
-        index_dict[cname] = new_index
-        sni_dict[cname] = np.ones(new_index.shape[0],
-                                  dtype=bool)
+    for cname in index_dict:
+        sni = sni_dict[cname]
+        mask_for_index = np.isin(shotnum[sni], shotnum_intersect)
+        index_dict[cname] = index_dict[cname][mask_for_index]
+        sni_dict[cname] = np.ones(shotnum_intersect.shape, dtype=bool)
 
-    return shotnum, shotnum_dict, sni_dict, index_dict
+    # update shotnum
+    shotnum = shotnum_intersect
+
+    # return
+    return shotnum, sni_dict, index_dict

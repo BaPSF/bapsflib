@@ -16,11 +16,12 @@ import time
 
 from bapsflib._hdf_mappers.controls.templates import \
     (HDFMapControlTemplate, HDFMapControlCLTemplate)
-from functools import reduce
-from typing import (Any, Iterable, List, Tuple, Union)
+from typing import (Any, Dict, Iterable, List, Tuple, Union)
 from warnings import warn
 
+# define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
+IndexDict = Dict[str, np.ndarray]
 
 
 class HDFReadControl(np.recarray):
@@ -653,8 +654,8 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
 
 
 def condition_shotnum(shotnum: Any,
-                      dset_dict: dict,
-                      shotnumkey_dict: dict) -> np.ndarray:
+                      dset_dict: IndexDict,
+                      shotnumkey_dict: IndexDict) -> np.ndarray:
     """
     Conditions the **shotnum** argument for
     :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`.
@@ -1081,19 +1082,41 @@ def build_sndr_for_complex_dset(
     return index.view(), shotnum.view(), sni.view()
 
 
-def do_shotnum_intersection(shotnum, shotnum_dict, sni_dict, index_dict):
-    # determine intersecting shot numbers
-    # - I'm assuming no intersection as been performed yet
-    #
-    sn_list = [shotnum_dict[key][sni_dict[key]]
-               for key in shotnum_dict]
-    sn_list.append(shotnum)
-    shotnum_intersect = reduce(
-        lambda x, y: np.intersect1d(x, y, assume_unique=True),
-        sn_list)
+def do_shotnum_intersection(
+        shotnum: np.ndarray,
+        shotnum_dict: IndexDict,
+        sni_dict: IndexDict,
+        index_dict: IndexDict) -> Tuple[np.ndarray, IndexDict,
+                                        IndexDict, IndexDict]:
+    """
+    Calculates intersection of **shotnum** and all existing dataset
+    shot numbers, **shotnum[sni]**.
+
+    :param shotnum: desired HDF5 shot numbers
+    :param shotnum_dict: dictionary of all control dataset **shotnum**
+        arrays
+    :param sni_dict: dictionary of all control dataset **sni** arrays
+    :param index_dict:  dictionary of all control dataset **index**
+        arrays
+    :return: intersected and re-calculated versions of :code:`index`,
+        :code:`shotnum`, and :code:`sni` numpy arrays
+
+    .. admonition:: Recall Array Relationship
+
+        .. code-block:: python
+
+            shotnum[sni] = dset[index, shotnumkey]
+    """
+    # intersect shot numbers
+    shotnum_intersect = shotnum
+    for cname in shotnum_dict:
+        sn_arr = shotnum_dict[cname]
+        sni_arr = sni_dict[cname]
+        shotnum_intersect = np.intersect1d(shotnum_intersect,
+                                           sn_arr[sni_arr],
+                                           assume_unique=True)
     if shotnum_intersect.shape[0] == 0:
-        raise ValueError(
-            'Input shotnum would result in a null array')
+        raise ValueError('Input `shotnum` would result in a NULL array')
     else:
         shotnum = shotnum_intersect
 

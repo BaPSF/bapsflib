@@ -778,7 +778,7 @@ def build_shotnum_dset_relation(
     :param str shotnumkey: field name in the control device dataset that
         contains shot numbers
     :param cmap: mapping object for control device
-    :param str cconfn: configuration name for the control device
+    :param cconfn: configuration name for the control device
     :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
         arrays
 
@@ -804,12 +804,8 @@ def build_shotnum_dset_relation(
     #
     #            shotnum[sni] = dset[index, shotnumkey]
     #
-    # Initialize some vars
-    n_configs = len(cmap.configs)
-    configs_per_row = 1 if cmap.one_config_per_dset else n_configs
-
     # Calc. index, shotnum, and sni
-    if configs_per_row == 1:
+    if cmap.one_config_per_dset:
         # the dataset only saves data for one configuration
         index, shotnum, sni = \
             build_sndr_for_simple_dset(shotnum, dset, shotnumkey)

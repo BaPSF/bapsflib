@@ -754,8 +754,9 @@ def build_shotnum_dset_relation(
     """
     Compares the **shotnum** numpy array to the specified dataset,
     **dset**, to determine which indices contain the desired shot
-    number(s).  As a results, two numpy arrays are returned which
-    satisfy the rule::
+    number(s)
+    [for :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`].
+    As a results, two numpy arrays are returned which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
@@ -817,8 +818,9 @@ def build_sndr_for_simple_dset(
     """
     Compares the **shotnum** numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
-    shot number(s).  As a results, two numpy arrays are returned which
-    satisfy the rule::
+    shot number(s)
+    [for :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`].
+    As a results, two numpy arrays are returned which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
@@ -909,8 +911,9 @@ def build_sndr_for_complex_dset(
     """
     Compares the **shotnum** numpy array to the specified "complex"
     dataset, **dset**, to determine which indices contain the desired
-    shot number(s).  As a results, two numpy arrays are returned which
-    satisfy the rule::
+    shot number(s)
+    [for :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`].
+    As a results, two numpy arrays are returned which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
@@ -1077,7 +1080,8 @@ def do_shotnum_intersection(
                                         IndexDict]:
     """
     Calculates intersection of **shotnum** and all existing dataset
-    shot numbers, **shotnum[sni]**.
+    shot numbers, **shotnum[sni]**
+    [for :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`].
 
     :param shotnum: desired HDF5 shot numbers
     :param sni_dict: dictionary of all control dataset **sni** arrays

@@ -132,8 +132,7 @@ class hdfReadData(np.recarray):
         # ---- Check for Control Device Addition ---
         # condition controls
         if add_controls is not None:
-            controls = condition_controls(hdf_file, add_controls,
-                                          silent=silent)
+            controls = condition_controls(hdf_file, add_controls)
 
             # check controls is not empty
             if not controls:

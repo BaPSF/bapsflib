@@ -824,7 +824,7 @@ def build_sndr_for_simple_dset(
         dset: h5py.Dataset,
         shotnumkey: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** numpy aray to the specified "simple"
+    Compares the **shotnum** numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
     shot number(s).  As a results, three numpy arrays are returned which
     satisfy the rule::

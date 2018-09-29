@@ -256,7 +256,7 @@ class HDFReadControl(np.recarray):
         # Gather control datasets and associated shot number field names
         # - things needed to perform the conditioning
         cdset_dict = {}
-        shotnumkey_dict = {}
+        shotnumkey_dict = {}  # type: Dict[str, str]
         for control in controls:
             # control name (cname) and configuration name (cconfn)
             cname = control[0]
@@ -646,7 +646,7 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
 
 def condition_shotnum(shotnum: Any,
                       dset_dict: IndexDict,
-                      shotnumkey_dict: IndexDict) -> np.ndarray:
+                      shotnumkey_dict: Dict[str, str]) -> np.ndarray:
     """
     Conditions the **shotnum** argument for
     :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl`.

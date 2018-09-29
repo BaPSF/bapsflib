@@ -721,7 +721,7 @@ class TestDoShotnumIntersection(ut.TestCase):
     def test_one_control(self):
         """Test intersection behavior with one control device"""
         # test a case that results in a null result
-        shotnum = np.arange(1, 21, 1)
+        shotnum = np.arange(1, 21, 1, dtype=np.uint32)
         shotnum_dict = {'Waveform': shotnum}
         sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
         index_dict = {'Waveform': np.array([])}

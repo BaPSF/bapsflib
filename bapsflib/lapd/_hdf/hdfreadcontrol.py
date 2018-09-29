@@ -917,9 +917,20 @@ def build_sndr_for_complex_dset(
         cmap: ControlMap,
         cconfn: Any) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Conditions **shotnum** (when a `list`) against control dataset
-    **cdset** when the control dataset contains recorded data for
-    multiple device configurations.
+    Compares the **shotnum** numpy array to the specified "complex"
+    dataset, **dset**, to determine which indices contain the desired
+    shot number(s).  As a results, three numpy arrays are returned which
+    satisfy the rule::
+
+        shotnum[sni] = dset[index, shotnumkey]
+
+    where **shotnum** is the original shot number array, **sni** is a
+    boolean numpy array masking which shot numbers were determined to
+    be in the dataset, and **index** is an array of indices
+    corresponding to the desired shot number(s).
+
+    A "complex" dataset is a dataset in which the data for MULTIPLE
+    configurations is recorded.
 
     .. admonition:: Dataset Assumption
 
@@ -933,33 +944,20 @@ def build_sndr_for_complex_dset(
         three rows will maintain that order.
 
     :param shotnum: desired HDF5 shot number
-    :type shotnum: :class:`numpy.ndarray`
     :param dset: control device dataset
     :type dset: :class:`h5py.Dataset`
     :param str shotnumkey: field name in the control device dataset that
         contains the shot numbers
     :param cmap: mapping object for control device
     :param cconfn: configuration name for the control device
-    :return: index, shotnum, sni
-
-    .. note::
-
-        The returned :class:`numpy.ndarray`'s (:const:`index`,
-        :const:`shotnum`, and :const:`sni`) follow the rule::
-
-            shotnum[sni] = dset[index, shotnumkey]
+    :return: :code:`index`, :code:`shotnum`, and :code:`sni` numpy
+        arrays
     """
-    # this is for a dataset that only records data for one configuration
+    # this is for a dataset that records data for multiple
+    # configurations
     #
-    # Ensure there is only one dataset for all configs
-    # Note: we should only get to this point if n_dsets != n_configs
-    n_dsets = len(cmap.dataset_names)
+    # Initialize some vals
     n_configs = len(cmap.configs)
-    if n_dsets != 1:
-        raise ValueError(
-            'Control has {} datasets and'.format(n_dsets)
-            + ' {} configurations, do NOT'.format(n_configs)
-            + ' know how to handle')
 
     # determine configkey
     # - configkey is the dataset field name for the column that contains
@@ -972,7 +970,7 @@ def build_sndr_for_complex_dset(
             break
     if configkey == '':
         raise ValueError(
-            'Can NOT find configuration field in the control'
+            'Can NOT find a configuration field in the control'
             + ' ({}) dataset'.format(cmap.device_name))
 
     # find index
@@ -996,11 +994,13 @@ def build_sndr_for_complex_dset(
             config_name_arr = dset[0:n_configs, configkey]
             index = np.where(config_name_arr == cconfn.encode())[0]
 
-            if index.size != 1:
+            if index.size != 1:  # pragma: no cover
                 # something went wrong...no configurations are found
                 # and, thus, the routines assumption's do not match
                 # the format of the dataset
-                raise ValueError
+                raise ValueError(
+                    "The specified dataset is NOT consistent with the"
+                    "routines assumptions of a complex dataset")
     else:
         # get 1st and last shot number
         first_sn, last_sn = dset[[-1, 0], shotnumkey]
@@ -1011,11 +1011,13 @@ def build_sndr_for_complex_dset(
         config_where = np.where(config_name_arr == cconfn.encode())[0]
         if config_where.size == 1:
             config_subindex = config_where[0]
-        else:
+        else:  # pragma: no cover
             # something went wrong...either no configurations
             # are found or the routine's assumptions do not
             # match the format of the dataset
-            raise ValueError
+            raise ValueError(
+                    "The specified dataset is NOT consistent with the"
+                    "routines assumptions of a complex dataset")
 
         # construct index for remaining scenarios
         if n_configs * (last_sn - first_sn + 1) == dset.shape[0]:
@@ -1041,13 +1043,12 @@ def build_sndr_for_complex_dset(
                     min(step_front_read, step_end_read) + 1):
                 # dset.shape is smaller than the theoretical
                 # sequential array
-                dset_sn = dset[config_subindex::n_configs,
-                                 shotnumkey].view()
+                dset_sn = dset[config_subindex::n_configs, shotnumkey]
                 sni = np.isin(shotnum, dset_sn)
                 index = np.where(np.isin(dset_sn, shotnum))[0]
 
                 # adjust index to correspond to associated configuration
-                index = (config_subindex + 1) * index
+                index = (index * n_configs) + config_subindex
             elif step_front_read <= step_end_read:
                 # extracting from the beginning of the array is the
                 # smallest
@@ -1055,13 +1056,12 @@ def build_sndr_for_complex_dset(
                 stop = n_configs * (step_front_read + 1)
                 stop += config_subindex
                 step = n_configs
-                some_dset_sn = dset[start:stop:step,
-                                      shotnumkey].view()
+                some_dset_sn = dset[start:stop:step, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
                 index = np.where(np.isin(some_dset_sn, shotnum))[0]
 
                 # adjust index to correspond to associated configuration
-                index = (config_subindex + 1) * index
+                index = (index * n_configs) + config_subindex
             else:
                 # extracting from the end of the array is the
                 # smallest
@@ -1070,14 +1070,12 @@ def build_sndr_for_complex_dset(
                           None,
                           n_configs).indices(dset.shape[0])
                 start += config_subindex
-                some_dset_sn = dset[start:stop:step,
-                                      shotnumkey].view()
+                some_dset_sn = dset[start:stop:step, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
-                index = np.where(np.isin(some_dset_sn, shotnum))
+                index = np.where(np.isin(some_dset_sn, shotnum))[0]
 
                 # adjust index to correspond to associated configuration
-                index = (config_subindex + 1) * index
-                index += start
+                index = (index * n_configs) + start
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()

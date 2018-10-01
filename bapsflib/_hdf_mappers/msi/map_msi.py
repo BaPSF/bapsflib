@@ -16,7 +16,7 @@ from .discharge import HDFMapMSIDischarge
 from .gaspressure import HDFMapMSIGasPressure
 from .heater import HDFMapMSIHeater
 from .interferometerarray import HDFMapMSIInterferometerArray
-from .magneticfield import hdfMap_msi_magneticfield
+from .magneticfield import HDFMapMSIMagneticField
 
 
 class HDFMapMSI(dict):
@@ -39,7 +39,7 @@ class HDFMapMSI(dict):
         'Gas pressure': HDFMapMSIGasPressure,
         'Heater': HDFMapMSIHeater,
         'Interferometer array': HDFMapMSIInterferometerArray,
-        'Magnetic field': hdfMap_msi_magneticfield
+        'Magnetic field': HDFMapMSIMagneticField
     }
     """
     Dictionary containing references to the defined (known) MSI

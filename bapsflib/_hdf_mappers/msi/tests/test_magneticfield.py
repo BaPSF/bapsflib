@@ -16,16 +16,16 @@ import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
 
-from ..magneticfield import hdfMap_msi_magneticfield
+from ..magneticfield import HDFMapMSIMagneticField
 from .common import MSIDiagnosticTestCase
 
 
 class TestMagneticField(MSIDiagnosticTestCase):
-    """Test class for hdfMap_msi_magneticfield"""
+    """Test class for HDFMapMSIMagneticField"""
     # define setup variables
     DEVICE_NAME = 'Magnetic field'
     DEVICE_PATH = '/MSI/Magnetic field'
-    MAP_CLASS = hdfMap_msi_magneticfield
+    MAP_CLASS = HDFMapMSIMagneticField
 
     def setUp(self):
         super().setUp()

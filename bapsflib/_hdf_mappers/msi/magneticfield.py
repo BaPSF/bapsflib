@@ -17,7 +17,7 @@ from warnings import warn
 from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi_magneticfield(HDFMapMSITemplate):
+class HDFMapMSIMagneticField(HDFMapMSITemplate):
     """
     Mapping class for the 'Magnetic field' MSI diagnostic.
 

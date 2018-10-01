@@ -8,7 +8,7 @@ bapsflib\.\_hdf\_mappers\.msi\.magneticfield
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.magneticfield.hdfMap_msi_magneticfield
+.. .. autoclass:: bapsflib.lapd.map_msi.magneticfield.HDFMapMSIMagneticField
     :members:
     :undoc-members:
     :show-inheritance:

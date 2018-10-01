@@ -11,14 +11,22 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import bapsflib
 import numpy as np
+import os
 import unittest as ut
 
+from bapsflib._hdf_mappers.controls import ConType
+from bapsflib._hdf_mappers.controls.templates import \
+    HDFMapControlTemplate
 from bapsflib._hdf_mappers.controls.waveform import \
     HDFMapControlWaveform
 from numpy.lib import recfunctions as rfn
+from typing import (Any, Dict, List, Tuple)
+from unittest import mock
 
 from ..files import File
+from ..hdfmapper import hdfMap
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               condition_controls,
                               condition_shotnum,
@@ -437,7 +445,7 @@ class TestConditionShotnum(TestBase):
         self.f.create_dataset('d2', data=data)
 
         # make fake dicts
-        dset_dict ={
+        dset_dict = {
             'c1': self.f['d1'],
             'c2': self.f['d2'],
         }
@@ -1483,6 +1491,25 @@ class TestHDFReadControl(TestBase):
                     # 2. cd_nan should be True for all sni_not entries
                     self.assertTrue(np.all(np.logical_not(cd_nan[sni])))
                     self.assertTrue(np.all(cd_nan[sni_not]))
+
+    def assertRecursiveEqual(self, item1, item2):
+        """
+        Recursively check equality of a dictionary with array items.
+        """
+        try:
+            self.assertEqual(item1, item2)
+        except ValueError:
+            if isinstance(item1, np.ndarray) \
+                    and isinstance(item2, np.ndarray):
+                self.assertTrue(np.array_equal(item1,
+                                               item2))
+            elif isinstance(item1, dict) \
+                    and isinstance(item2, dict):
+                for key, val in item1.items():
+                    self.assertIn(key, item2)
+                    self.assertRecursiveEqual(val, item2[key])
+            else:
+                self.fail()
 
 
 if __name__ == '__main__':

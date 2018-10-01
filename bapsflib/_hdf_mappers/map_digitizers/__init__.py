@@ -1,1 +1,1 @@
-from .map_digis import hdfMap_digitizers
+from .map_digis import HDFMapDigitizers

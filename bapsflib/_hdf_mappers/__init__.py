@@ -20,7 +20,7 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 :ibf:`MSI Diagnostic` HDF5 groups.
 """
 from .controls import HDFMapControls
-from .map_digitizers import hdfMap_digitizers
+from .map_digitizers import HDFMapDigitizers
 from .msi import HDFMapMSI
 
-__all__ = ['HDFMapControls', 'hdfMap_digitizers', 'HDFMapMSI']
+__all__ = ['HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']

@@ -138,6 +138,13 @@ class HDFReadControl(np.recarray):
             raise TypeError(
                 '`hdf_file` is NOT type `bapsflib.lapd.File`')
 
+        # print execution timing
+        if timeit:  # pragma: no cover
+            tt.append(time.time())
+            print('tt - hdf_file conditioning: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+
+        # ---- Examine file map object                              ----
         # grab instance of _fmap
         _fmap = hdf_file.file_map
 
@@ -145,12 +152,6 @@ class HDFReadControl(np.recarray):
         if not bool(_fmap.controls):
             raise ValueError(
                 'There are no control devices in the HDF5 file.')
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print('tt - hdf_file conditioning: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Condition 'controls' Argument                        ----
         # - some calling routines (such as, lapd.File.read_data)
@@ -226,13 +227,9 @@ class HDFReadControl(np.recarray):
             cmap = _fmap.controls[cname]
             cdset_path = cmap.configs[cconfn]['dset paths'][0]
             cdset_dict[cname] = hdf_file.get(cdset_path)
-            try:
-                shotnumkey = \
-                    cmap.configs[cconfn]['shotnum']['dset field'][0]
-                shotnumkey_dict[cname] = shotnumkey
-            except KeyError:
-                raise ValueError(
-                    'no shot number field defined for control device')
+            shotnumkey = \
+                cmap.configs[cconfn]['shotnum']['dset field'][0]
+            shotnumkey_dict[cname] = shotnumkey
 
         # perform `shotnum` conditioning
         # - `shotnum` is returned as a numpy array
@@ -277,10 +274,10 @@ class HDFReadControl(np.recarray):
             print('tt - condition shotnum: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # ---- Build obj ----
+        # ---- Build obj                                            ----
         # Define dtype and shape for numpy array
         shape = shotnum.shape
-        dtype = [('shotnum', '<u4', 1)]
+        dtype = [('shotnum', np.uint32, 1)]
         for control in controls:
             # control name (cname) and configuration name (cconfn)
             cname = control[0]
@@ -293,7 +290,7 @@ class HDFReadControl(np.recarray):
                 dtype.append((
                     field_name,
                     fconfig['dtype'],
-                    fconfig['shape']
+                    fconfig['shape'],
                 ))
 
         # print execution timing
@@ -304,7 +301,7 @@ class HDFReadControl(np.recarray):
 
         # Initialize Control Data
         data = np.empty(shape, dtype=dtype)
-        data['shotnum'] = shotnum.view()
+        data['shotnum'] = shotnum
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -323,9 +320,7 @@ class HDFReadControl(np.recarray):
             cconfig = cmap.configs[cconfn]
             cdset = cdset_dict[cname]
             sni = sni_dict[cname]
-            index = index_dict[cname]
-            if isinstance(index, np.ndarray):
-                index = index.tolist()
+            index = index_dict[cname].tolist()
 
             # populate control data array
             # 1. scan over numpy fields
@@ -378,11 +373,11 @@ class HDFReadControl(np.recarray):
                         if data.dtype[nf_name].shape != ():
                             # field contains an array (e.g. 'xyz')
                             data[nf_name][sni, npi] = \
-                                cdset[index, df_name].view()
+                                cdset[index, df_name]
                         else:
                             # field is a constant
                             data[nf_name][sni] = \
-                                cdset[index, df_name].view()
+                                cdset[index, df_name]
 
                     # handle NaN fill
                     if not intersection_set:
@@ -597,9 +592,11 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
     else:
         raise TypeError('`controls` argument is not Iterable')
 
+    # re-assign `controls`
+    controls = new_controls
+
     # enforce one control per contype
     checked = []
-    controls = new_controls
     for control in controls:
         # control is a tuple, not a string
         contype = _fmap.controls[control[0]].contype

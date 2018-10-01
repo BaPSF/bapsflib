@@ -17,7 +17,6 @@ from warnings import warn
 from .templates import HDFMapMSITemplate
 
 
-# noinspection PyPep8Naming
 class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
     """
     Mapping class for the 'Interferometer array' MSI diagnostic.

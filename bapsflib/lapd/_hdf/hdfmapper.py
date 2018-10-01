@@ -38,13 +38,13 @@ from bapsflib._hdf_mappers.map_digitizers import hdfMap_digitizers
 from bapsflib._hdf_mappers.map_digitizers.digi_template import \
     hdfMap_digi_template
 from bapsflib._hdf_mappers.msi import hdfMap_msi
-from bapsflib._hdf_mappers.msi.templates import hdfMap_msi_template
+from bapsflib._hdf_mappers.msi.templates import HDFMapMSITemplate
 
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 DigiMap = hdfMap_digi_template
-MSIMap = hdfMap_msi_template
+MSIMap = HDFMapMSITemplate
 
 
 class hdfMap(object):

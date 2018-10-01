@@ -27,7 +27,7 @@ class HDFReadMSI(np.ndarray):
        which is stored in the sub-fields of the :code:`'meta'` field
     #. recorded data arrays which get unique fields based on their
        mapping
-       :attr:`~bapsflib._hdf_mappers.msi.templates.hdfMap_msi_template.configs`
+       :attr:`~bapsflib._hdf_mappers.msi.templates.HDFMapMSITemplate.configs`
        attribute
 
     Data that is not shot number specific is stored in the :attr:`info`

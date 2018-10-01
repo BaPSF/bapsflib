@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..map_msi import hdfMap_msi
-from ..templates import hdfMap_msi_template
+from ..templates import HDFMapMSITemplate
 
 
 class TestHDFMapMSI(ut.TestCase):
@@ -156,7 +156,7 @@ class TestHDFMapMSI(ut.TestCase):
 
         # all dict items are a mapping class
         for val in msi_map.values():
-            self.assertIsInstance(val, hdfMap_msi_template)
+            self.assertIsInstance(val, HDFMapMSITemplate)
 
         # look for map attributes
         self.assertTrue(

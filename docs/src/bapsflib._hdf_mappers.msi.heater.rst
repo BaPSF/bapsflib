@@ -20,5 +20,5 @@ bapsflib\.\_hdf\_mappers\.msi\.heater
         .. Dictionary containing all the relevant mapping information to
         translate the HDF5 data locations for the
         :mod:`bapsflib.lapd` module.  For more detail see
-        :attr:`bapsflib.lapd.map_msi.msi_template.hdfMap_msi_template.configs`
+        :attr:`bapsflib.lapd.map_msi.msi_template.HDFMapMSITemplate.configs`
         and :ref:`add_msi_mod`.

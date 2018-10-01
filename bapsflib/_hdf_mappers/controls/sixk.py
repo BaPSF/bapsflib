@@ -132,7 +132,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 'dset paths': self._configs[config_name]['dset paths'],
                 'dset field': ('Shot number',),
                 'shape': dset.dtype['Shot number'].shape,
-                'dtype': np.int32
+                'dtype': np.int32,
             }
 
             # ---- define 'state values'                            ----

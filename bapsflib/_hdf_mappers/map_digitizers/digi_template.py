@@ -13,7 +13,7 @@ import h5py
 from abc import ABC, abstractmethod
 
 
-class hdfMap_digi_template(ABC):
+class HDFMapDigiTemplate(ABC):
     """
     Template class for all digitizer mapping classes to inherit from.
 
@@ -21,7 +21,7 @@ class hdfMap_digi_template(ABC):
 
         def __init__(self, digi_group)
             # initialize
-            hdfMap_digi_template.__init__(self, digi_group)
+            HDFMapDigiTemplate.__init__(self, digi_group)
 
             # populate self.configs
             self._build_configs()

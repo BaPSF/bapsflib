@@ -783,9 +783,14 @@ class TestDoShotnumIntersection(ut.TestCase):
 class TestHDFReadControl(TestBase):
     """Test Case for HDFReadControl class."""
     # Note:
+    # - Key code segments of HDFReadControl are tested by:
+    #   1. TestConditionControls
+    #   2. TestConditionShotnum
+    #   3. TestBuildShotnumDsetRelation
+    #   4. TestDoShotnumIntersection
     # - TestBuildShotnumDsetRelation tests HDFReadControl's ability to
     #   properly identify the dataset indices corresponding to the
-    #   desired shot numbers (it checks against the original dataset)
+    #   desired shot numbers (it checks against an original dataset)
     # - TestDoIntersection tests HDFReadControl's ability to intersect
     #   all shot numbers between the datasets and shotnum
     # - Thus, testing here should focus on the construction and
@@ -838,21 +843,122 @@ class TestHDFReadControl(TestBase):
     def test_misc_behavior(self):
         """Test miscellaneous behavior"""
         # setup HDF5 file
-        self.f.remove_all_modules()
         self.f.add_module('Waveform')
 
-        # shotnum is a list, but not all elements are ints
-        self.assertRaises(ValueError,
-                          HDFReadControl,
-                          self.lapdf, ['Waveform'], shotnum=[1, 'blah'])
+        # 'assume_controls_conditioned' kwarg
+        controls = [('Waveform', 'config01')]
+        sn = np.array([1, 2], dtype=np.uint32)
+        control_plus = [(controls[0][0],
+                         controls[0][1],
+                         {'sn_requested': sn,
+                          'sn_correct': sn,
+                          'sn_valid': sn})]
+        _lapdf = self.lapdf
+        data = HDFReadControl(_lapdf, controls, shotnum=sn,
+                              assume_controls_conditioned=False)
+        self.assertCDataObj(data, _lapdf, control_plus)
 
-        # shotnum is not int, list, or slice
-        self.assertRaises(ValueError,
-                          HDFReadControl,
-                          self.lapdf, ['Waveform'], shotnum=None)
-        self.assertRaises(ValueError,
-                          HDFReadControl,
-                          self.lapdf, ['Waveform'], shotnum='blah')
+    @mock.patch.object(hdfMap, 'controls',
+                       new_callable=mock.PropertyMock)
+    def test_nan_fill(self, mock_controls):
+        """Test different NaN fills."""
+        # -- Define "Sample Control" in HDF5 file                   ----
+        data = np.empty(10,
+                        dtype=[('Shot number', np.uint32),
+                               ('bits', np.uint32),
+                               ('signal', np.float32),
+                               ('command', np.bytes_, 10),
+                               ('valid', np.bool)])
+        data['Shot number'] = np.arange(1, 11, 1, dtype=np.uint32)
+        data['bits'] = np.arange(-11, -21, -1, dtype=np.int32)
+        data['signal'] = np.arange(-5.0, 9.0, 1.5, dtype=np.float32)
+        for ii in range(data.size):
+            data['command'][ii] = \
+                'VOLT {:5.1f}'.format(data['signal'][ii])
+        data['valid'][[1, 8]] = True
+        self.f.create_group('Raw data + config/Sample')
+        self.f.create_dataset('Raw data + config/Sample/Dataset',
+                              data=data)
+
+        # -- Define "Sample Control Mapping Class"                  ----
+        class HDFMapSampleControl(HDFMapControlTemplate):
+            def __init__(self, group):
+                HDFMapControlTemplate.__init__(self, group)
+
+                # define control type
+                self._info['contype'] = ConType.motion
+
+                # populate self.configs
+                self._build_configs()
+
+            def _build_configs(self):
+                config_name = 'config01'
+                dset_name = self.construct_dataset_name()
+                dset = self.group[dset_name]
+                dset_paths = (dset.name, )
+                self._configs[config_name] = {
+                    'dset paths': dset_paths,
+                    'shotnum': {
+                        'dset paths': dset_paths,
+                        'dset field': ('Shot number',),
+                        'shape': (),
+                        'dtype': np.uint32,
+                    },
+                    'state values': {
+                        'bits': {
+                            'dset paths': dset_paths,
+                            'dset field': ('bits',),
+                            'shape': (),
+                            'dtype': np.int32,
+                        },
+                        'signal': {
+                            'dset paths': dset_paths,
+                            'dset field': ('signal',),
+                            'shape': (),
+                            'dtype': np.float32,
+                        },
+                        'command': {
+                            'dset paths': dset_paths,
+                            'dset field': ('command',),
+                            'shape': (),
+                            'dtype': np.dtype((np.unicode_, 10)),
+                        },
+                        'valid': {
+                            'dset paths': dset_paths,
+                            'dset field': ('valid',),
+                            'shape': (),
+                            'dtype': np.bool,
+                        },
+                    },
+                }
+
+            def construct_dataset_name(self, *args):
+                return 'Dataset'
+
+        # -- Set Mocking                                            ----
+        mock_controls.return_value = {
+            'Sample':
+                HDFMapSampleControl(self.f['Raw data + config/Sample']),
+        }
+
+        # -- Run Tests                                              ----
+        with self.assertWarns(UserWarning):
+            _lapdf = self.lapdf
+            sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
+            sn_v = np.array([8, 9, 10], dtype=np.uint32)
+            controls = [('Sample', 'config01')]
+            control_plus = [(controls[0][0],
+                             controls[0][1],
+                             {'sn_requested': sn,
+                              'sn_correct': sn,
+                              'sn_valid': sn_v})]
+            data = HDFReadControl(_lapdf,
+                                  controls,
+                                  shotnum=sn,
+                                  intersection_set=False,
+                                  assume_controls_conditioned=True)
+            self.assertCDataObj(data, _lapdf, control_plus,
+                                intersection_set=False)
 
     def test_single_control(self):
         """

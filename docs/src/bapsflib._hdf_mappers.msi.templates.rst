@@ -8,3 +8,10 @@ bapsflib\.\_hdf\_mappers\.msi\.templates
     :exclude-members: _abc_cache, _abc_negative_cache,
         _abc_negative_cache_version, _abc_registry
     :show-inheritance:
+
+    .. rubric:: Classes
+
+    .. autosummary::
+        :nosignatures:
+
+        HDFMapMSITemplate

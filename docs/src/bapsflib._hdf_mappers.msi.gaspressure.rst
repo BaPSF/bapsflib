@@ -8,7 +8,7 @@ bapsflib\.\_hdf\_mappers\.msi\.gaspressure
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.gaspressure.hdfMap_msi_gaspressure
+.. .. autoclass:: bapsflib.lapd.map_msi.gaspressure.HDFMapMSIGasPressure
     :members:
     :undoc-members:
     :show-inheritance:

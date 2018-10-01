@@ -17,7 +17,7 @@ from warnings import warn
 from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi_gaspressure(HDFMapMSITemplate):
+class HDFMapMSIGasPressure(HDFMapMSITemplate):
     """
     Mapping class for the 'Gas pressure' MSI diagnostic.
 

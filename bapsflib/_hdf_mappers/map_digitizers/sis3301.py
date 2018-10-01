@@ -12,7 +12,7 @@ import h5py
 
 from warnings import warn
 
-from .digi_template import HDFMapDigiTemplate
+from .templates import HDFMapDigiTemplate
 
 
 class HDFMapDigiSIS3301(HDFMapDigiTemplate):

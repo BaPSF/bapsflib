@@ -35,7 +35,7 @@ from bapsflib._hdf_mappers.controls import HDFMapControls
 from bapsflib._hdf_mappers.controls.templates import (
     HDFMapControlTemplate, HDFMapControlCLTemplate)
 from bapsflib._hdf_mappers.map_digitizers import HDFMapDigitizers
-from bapsflib._hdf_mappers.map_digitizers.digi_template import \
+from bapsflib._hdf_mappers.map_digitizers.templates import \
     HDFMapDigiTemplate
 from bapsflib._hdf_mappers.msi import HDFMapMSI
 from bapsflib._hdf_mappers.msi.templates import HDFMapMSITemplate

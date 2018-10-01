@@ -6,19 +6,8 @@ bapsflib\.\_hdf\_mappers\.msi\.heater
     :members:
     :undoc-members:
     :inherited-members:
-    :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.heater.HDFMapMSIHeater
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :inherited-members:
-    :exclude-members: configs
+    .. rubric:: Classes
 
-    .. .. py:attribute:: configs
-
-        .. Dictionary containing all the relevant mapping information to
-        translate the HDF5 data locations for the
-        :mod:`bapsflib.lapd` module.  For more detail see
-        :attr:`bapsflib.lapd.map_msi.msi_template.HDFMapMSITemplate.configs`
-        and :ref:`add_msi_mod`.
+    .. autosummary:: HDFMapMSIHeater
+        :nosignatures:

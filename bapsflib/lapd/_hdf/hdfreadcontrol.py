@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 import bapsflib
+import copy
 import h5py
 import numpy as np
 import os
@@ -21,6 +22,7 @@ from warnings import warn
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
+ControlsType = Union[str, Iterable[Union[str, Tuple[str, Any]]]]
 IndexDict = Dict[str, np.ndarray]
 
 
@@ -97,9 +99,10 @@ class HDFReadControl(np.recarray):
 
     def __new__(cls,
                 hdf_file: bapsflib.lapd.File,
-                controls,
-                shotnum=slice(None), intersection_set=True,
-                silent=False, **kwargs):
+                controls: ControlsType,
+                shotnum=slice(None),
+                intersection_set=True,
+                **kwargs):
         """
         :param hdf_file: HDF5 file object
         :param controls: a list indicating the desired control device
@@ -167,9 +170,6 @@ class HDFReadControl(np.recarray):
                 timeit = False
         else:
             timeit = False
-
-        # initiate warning string
-        warn_str = ''
 
         # ---- Condition `hdf_file`                                 ----
         # - `hdf_file` is a lapd.file object
@@ -255,7 +255,7 @@ class HDFReadControl(np.recarray):
         #
         # Gather control datasets and associated shot number field names
         # - things needed to perform the conditioning
-        cdset_dict = {}
+        cdset_dict = {}  # type: Dict[str, h5py.Dataset]
         shotnumkey_dict = {}  # type: Dict[str, str]
         for control in controls:
             # control name (cname) and configuration name (cconfn)
@@ -472,27 +472,36 @@ class HDFReadControl(np.recarray):
         # Construct obj
         obj = data.view(cls)
 
-        # assign dataset info
-        # TODO: add a dict key for each control w/ controls config
-        # - control configs dict should include:
-        #   ~ 'contype'
-        #   ~ 'dataset name'
-        #   ~ 'dataset path'
-        #
+        # -- Populate `_info`                                      ----
+        # initialize `_info`
         obj._info = {
             'source file': os.path.abspath(hdf_file.filename),
-            'controls': controls,
+            'controls': {},
             'probe name': None,
             'port': (None, None),
         }
 
-        # populate meta-info from controls.configs
-        # TODO: populate info from controls.configs
-        #
+        # add control meta-info
+        for control in controls:
+            # control name (cname) and configuration name (cconfn)
+            cname = control[0]
+            cconfn = control[1]
 
-        # print warnings
-        if not silent and warn_str != '':
-            print(warn_str)
+            # get control dataset
+            cmap = _fmap.controls[cname]
+            cconfig = cmap.configs[cconfn]  # type: dict
+
+            # populate
+            obj._info['controls'][cname] = {
+                'device group path': cmap.info['group path'],
+                'device dataset path': cconfig['dset paths'][0],
+                'contype': cmap.contype,
+                'configuration name': cconfn,
+            }
+            for key, val in cconfig.items():
+                if key not in ['dset paths', 'shotnum', 'state values']:
+                    obj._info['controls'][cname][key] = \
+                        copy.deepcopy(val)
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -645,7 +654,7 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
 
 
 def condition_shotnum(shotnum: Any,
-                      dset_dict: IndexDict,
+                      dset_dict: Dict[str, h5py.Dataset],
                       shotnumkey_dict: Dict[str, str]) -> np.ndarray:
     """
     Conditions the **shotnum** argument for

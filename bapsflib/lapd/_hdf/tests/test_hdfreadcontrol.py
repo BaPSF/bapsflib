@@ -821,47 +821,19 @@ class TestHDFReadControl(TestBase):
     def lapdf(self):
         return File(self.f.filename)
 
-    def test_hdf_file_handling(self):
+    def test_raise_errors(self):
         """Test handling of input argument `hdf_file`."""
         # Note:
-        # - all possibilities of the 'controls' argument are not tested
-        #   here since they are essentially tested with the
-        #   TestConditionControls class
+        # - raised errors from conditioning `controls` is handled by
+        #   condition_controls() and TestConditionControls
+        # - raised errors from conditioning `shotnum` is handled by
+        #   condition_shotnum() and TestConditionShotnum
         #
-        # not a lapdfhdf.File object but a h5py.File object
+        # `hdf_fil` is NOT a bapsflib.lapdf.File
         self.assertRaises(TypeError, HDFReadControl, self.f, [])
 
-        # a lapd.File object with no control devices
+        # HDF5 file object has no mapped control devices
         self.assertRaises(ValueError, HDFReadControl, self.lapdf, [])
-
-        # improper (empty) controls argument
-        self.f.add_module('Waveform')
-        self.assertRaises(ValueError, HDFReadControl, self.lapdf, [])
-        self.assertRaises(ValueError,
-                          HDFReadControl, self.lapdf, [],
-                          assume_controls_conditioned=True)
-
-    def test_output_obj_format(self):
-        """Test format of returned object."""
-        # 1. output data is a np.recarray
-        # 2. has attributes 'info' and 'configs' (both are dicts)
-        #
-        # remove all modules
-        self.f.remove_all_modules()
-        self.f.add_module('Waveform')
-        cdata = HDFReadControl(self.lapdf, ['Waveform'], shotnum=1)
-
-        # subclass of cdata is a np.recarray
-        self.assertIsInstance(cdata, np.recarray)
-
-        # required fields in all cdata
-        self.assertIn('shotnum', cdata.dtype.fields)
-
-        # look for required attributes
-        # TODO: attribute 'configs' needs to be added
-        #
-        self.assertTrue(hasattr(cdata, 'info'))
-        # self.assertTrue(hasattr(cdata, 'configs'))
 
     def test_misc_behavior(self):
         """Test miscellaneous behavior"""

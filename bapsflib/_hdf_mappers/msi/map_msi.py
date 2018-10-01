@@ -19,7 +19,7 @@ from .interferometerarray import hdfMap_msi_interarr
 from .magneticfield import hdfMap_msi_magneticfield
 
 
-class hdfMap_msi(dict):
+class HDFMapMSI(dict):
     """
     A dictionary containing mapping objects for all the discovered
     MSI diagnostic HDF5 groups.  The dictionary keys are the MSI
@@ -28,11 +28,11 @@ class hdfMap_msi(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf_mappers import hdfMap_msi
+        >>> from bapsflib._hdf_mappers import HDFMapMSI
         >>> f = lapd.File('sample.hdf5')
         >>> # 'MSI' is the LaPD HDF5 group name for the group housing
         ... # MSI diagnostic groups
-        ... msi_map = hdfMap_msi(f['MSI'])
+        ... msi_map = HDFMapMSI(f['MSI'])
     """
     _defined_mapping_classes = {
         'Discharge': hdfMap_msi_discharge,

@@ -37,7 +37,7 @@ from bapsflib._hdf_mappers.controls.templates import (
 from bapsflib._hdf_mappers.map_digitizers import hdfMap_digitizers
 from bapsflib._hdf_mappers.map_digitizers.digi_template import \
     hdfMap_digi_template
-from bapsflib._hdf_mappers.msi import hdfMap_msi
+from bapsflib._hdf_mappers.msi import HDFMapMSI
 from bapsflib._hdf_mappers.msi.templates import HDFMapMSITemplate
 
 
@@ -57,7 +57,7 @@ class hdfMap(object):
 
     * :class:`~.controls.map_controls.HDFMapControls`.
     * :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
-    * :class:`~.msi.map_msi.hdfMap_msi`.
+    * :class:`~.msi.map_msi.HDFMapMSI`.
     """
     # MSI stuff
     _MSI_GNAME = 'MSI'
@@ -233,10 +233,10 @@ class hdfMap(object):
         """
         Attaches a dictionary (:attr:`__msi`) containing all MSI
         diagnostic mapping objects constructed by
-        :class:`~.msi.map_msi.hdfMap_msi`.
+        :class:`~.msi.map_msi.HDFMapMSI`.
         """
         if self.has_msi_group:
-            self.__msi = hdfMap_msi(self.__hdf_obj[self._MSI_GNAME])
+            self.__msi = HDFMapMSI(self.__hdf_obj[self._MSI_GNAME])
         else:
             self.__msi = {}
 

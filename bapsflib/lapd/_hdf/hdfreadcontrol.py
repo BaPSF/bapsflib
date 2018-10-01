@@ -81,21 +81,6 @@ class HDFReadControl(np.recarray):
         array(['FREQ 50000.000000', 'FREQ 50000.000000'],
               dtype='<U18')
     """
-    #
-    # Extracting Data:
-    # - if multiple controls are specified then,
-    #   ~ only one control of each contype can be in the list of
-    #     controls
-    #   ~ if a specified control does not exist in the HDF5 file, then
-    #     a TypeError will be raised
-    #   ~ if a control device configuration is not specified, then if
-    #     the control has one config then that config will be assumed,
-    #     otherwise, a TypeError will be raised
-    #
-    warn("attribute access to numpy array fields will be deprecated "
-         "by Oct., access fields like data['shotnum'] NOT like "
-         "data.shotnum",
-         FutureWarning)
 
     def __new__(cls,
                 hdf_file: bapsflib.lapd.File,
@@ -107,7 +92,7 @@ class HDFReadControl(np.recarray):
         :param hdf_file: HDF5 file object
         :param controls: a list indicating the desired control device
             names and their configuration name (if more than one
-            configuraiton exists)
+            configuration exists)
         :type controls: Union[str, Iterable[str, Tuple[str, Any]]]
         :param shotnum: HDF5 file shot number(s) indicating data
             entries to be extracted
@@ -135,31 +120,6 @@ class HDFReadControl(np.recarray):
               :code:`numpy.nan`, or :code:`''`, depending on the
               :code:`numpy.dtype`.
         """
-        # When inheriting from numpy, the object creation and
-        # initialization is handled by __new__ instead of __init__.
-        #
-        # :param: controls:
-        # - :data:`controls` is a list of strings or 2-element tuples
-        # - if an element is a string
-        #   * that string is the name of the desired control device
-        #   * the control device must have only one configuration
-        # - if an element is a 2-element tuple:
-        #   * the 1st value is a string naming the control device
-        #   * the 2nd value is the device configuration name as defined
-        #     in the device mapping
-        # - :data:`controls` can only contain one control device for
-        #   each :data:`contype`
-        # - Examples:
-        #   1. a '6K Compumotor' with multiple configurations
-        #
-        #       controls = [('6K Compumotor', 1)]
-        #
-        #   2. a '6K Compumotor' with multiple configurations and a
-        #      'Waveform' with one configuration
-        #
-        #       controls = ['Waveform, ('6K Compumotor', 1)]
-        #
-
         # initialize timing
         tt = []
         if 'timeit' in kwargs:  # pragma: no cover
@@ -182,7 +142,6 @@ class HDFReadControl(np.recarray):
         _fmap = hdf_file.file_map
 
         # Check for non-empty controls
-        # if not _fmap.controls or _fmap.controls is None:
         if not bool(_fmap.controls):
             raise ValueError(
                 'There are no control devices in the HDF5 file.')
@@ -200,6 +159,7 @@ class HDFReadControl(np.recarray):
         #   conditioning here
         #
         try:
+            # check if `controls` was already conditioned
             if not kwargs['assume_controls_conditioned']:
                 controls = condition_controls(hdf_file, controls)
         except KeyError:
@@ -305,7 +265,7 @@ class HDFReadControl(np.recarray):
                                             shotnumkey_dict[cname],
                                             cmap, cconfn)
 
-        # re-filter `index`, `shotnum`, and `sni` if intesection_set
+        # re-filter `index`, `shotnum`, and `sni` if intersection_set
         # requested
         if intersection_set:
             shotnum, sni_dict, index_dict = \
@@ -354,7 +314,7 @@ class HDFReadControl(np.recarray):
 
         # Assign Control Data to Numpy array
         for control in controls:
-            # control name (cname) and configuraiton name (cconfn)
+            # control name (cname) and configuration name (cconfn)
             cname = control[0]
             cconfn = control[1]
 
@@ -376,10 +336,9 @@ class HDFReadControl(np.recarray):
             #
             for nf_name, fconfig \
                     in cconfig['state values'].items():
-                # nf_name
-                #   the numpy field name
-                # fconfig
-                #   the mapping dictionary for nf_name
+                # nf_name = the numpy field name
+                # fconfig = the mapping dictionary for nf_name
+                #
                 for npi, df_name in enumerate(fconfig['dset field']):
                     # df_name
                     #   the dset field name that will fill the numpy
@@ -469,7 +428,7 @@ class HDFReadControl(np.recarray):
                   '{} ms'.format((tt[-1] - tt[-n_controls-2]) * 1.E3)
                   + ' (intersection_set={})'.format(intersection_set))
 
-        # Construct obj
+        # -- Define `obj`                                           ----
         obj = data.view(cls)
 
         # -- Populate `_info`                                      ----
@@ -513,21 +472,13 @@ class HDFReadControl(np.recarray):
         return obj
 
     def __array_finalize__(self, obj):
-        # according to numpy documentation:
-        #  __array__finalize__(self, obj) is called whenever the system
-        #  internally allocates a new array from obj, where obj is a
-        #  subclass (subtype) of the (big)ndarray. It can be used to
-        #  change attributes of self after construction (so as to ensure
-        #  a 2-d matrix for example), or to update meta-information from
-        #  the parent. Subclasses inherit a default implementation of
-        #  this method that does nothing.
-        if obj is None:
+        # This should only be True during explicit construction
+        # if obj is None:
+        if obj is None or obj.__class__ is np.ndarray:
             return
 
         # Define info attribute
-        # - getattr() searches obj for the 'info' attribute. If the
-        #   attribute exists, then it's returned. If the attribute does
-        #   NOT exist, then the 3rd arg is returned as a default value.
+        # (for view casting and new from template)
         self._info = getattr(obj, '_info', {
             'source file': None,
             'controls': None,
@@ -566,6 +517,16 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
         >>> conditioned_controls
         [('Waveform', 'config01'), ('6K Compumotor', 3)]
 
+    .. admonition:: Condition Criteria
+
+        #. Input **controls** should be
+           :code:`Union[str, Iterable[Union[str, Tuple[str, Any]]]]`
+        #. There can only be one control for each
+           :class:`~bapsflib._hdf_mappers.controls.contype.ConType`.
+        #. If a control has multiple configurations, then one must be
+           specified.
+        #. If a control has ONLY ONE configuration, then that will be
+           assumed (and checked against the specified configuration).
     """
     # grab instance of file mapping
     _fmap = hdf_file.file_map
@@ -665,6 +626,14 @@ def condition_shotnum(shotnum: Any,
     :param shotnumkey_dict: dictionary of the shot number field name
         for each control dataset in dset_dict
     :return: conditioned **shotnum** numpy array
+
+    .. admonition:: Condition Criteria
+
+        #. Input **shotnum** should be
+           :code:`Union[int, List[int,...], slice, np.ndarray]`
+        #. Any :math:`\mathbf{shotnum} \le 0` will be removed.
+        #. A :code:`ValueError` will be thrown if the conditioned array
+           is NULL.
     """
     # Acceptable `shotnum` types
     # 1. int

@@ -15,7 +15,7 @@ from warnings import warn
 from .digi_template import HDFMapDigiTemplate
 
 
-class hdfMap_digi_siscrate(HDFMapDigiTemplate):
+class HDFMapDigiSISCrate(HDFMapDigiTemplate):
     """
     Mapping class for the 'SIS crate' digitizer.
     """

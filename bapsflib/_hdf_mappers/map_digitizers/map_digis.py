@@ -13,7 +13,7 @@
 import h5py
 
 from .sis3301 import HDFMapDigiSIS3301
-from .siscrate import hdfMap_digi_siscrate
+from .siscrate import HDFMapDigiSISCrate
 
 
 class HDFMapDigitizers(dict):
@@ -30,7 +30,7 @@ class HDFMapDigitizers(dict):
     """
     _defined_digitizer_mappings = {
         'SIS 3301': HDFMapDigiSIS3301,
-        'SIS crate': hdfMap_digi_siscrate}
+        'SIS crate': HDFMapDigiSISCrate}
     """
     Dictionary containing references to the defined (known) digitizer 
     mapping classes.

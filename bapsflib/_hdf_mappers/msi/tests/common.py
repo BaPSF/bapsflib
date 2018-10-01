@@ -15,7 +15,7 @@ import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-from ..templates import hdfMap_msi_template
+from ..templates import HDFMapMSITemplate
 
 
 class MSIDiagnosticTestCase(ut.TestCase):
@@ -95,7 +95,7 @@ class MSIDiagnosticTestCase(ut.TestCase):
         # interface objects can utilized the mapping.
         #
         # check mapping instance
-        self.assertIsInstance(_map, hdfMap_msi_template)
+        self.assertIsInstance(_map, HDFMapMSITemplate)
 
         # assert attribute existence
         self.assertTrue(hasattr(_map, 'info'))

@@ -14,10 +14,10 @@ import numpy as np
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from .templates import hdfMap_msi_template
+from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi_heater(hdfMap_msi_template):
+class hdfMap_msi_heater(HDFMapMSITemplate):
     """
     Mapping class for the 'Heater' MSI diagnostic.
 
@@ -35,7 +35,7 @@ class hdfMap_msi_heater(hdfMap_msi_template):
         :type group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_msi_template.__init__(self, group)
+        HDFMapMSITemplate.__init__(self, group)
 
         # populate self.configs
         self._build_configs()

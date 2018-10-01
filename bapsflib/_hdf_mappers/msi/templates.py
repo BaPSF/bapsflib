@@ -14,7 +14,7 @@ import h5py
 from abc import (ABC, abstractmethod)
 
 
-class hdfMap_msi_template(ABC):
+class HDFMapMSITemplate(ABC):
     # noinspection PySingleQuotedDocstring
     '''
     Template class for all MSI diagnostic mapping classes to inherit
@@ -27,7 +27,7 @@ class hdfMap_msi_template(ABC):
             :param group: HDF5 group object
             """
             # initialize
-            hdfMap_msi_template.__init__(self, group)
+            HDFMapMSITemplate.__init__(self, group)
 
             # populate self.configs
             self._build_configs()

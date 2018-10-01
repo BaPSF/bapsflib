@@ -18,7 +18,7 @@ from .templates import HDFMapMSITemplate
 
 
 # noinspection PyPep8Naming
-class hdfMap_msi_interarr(HDFMapMSITemplate):
+class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
     """
     Mapping class for the 'Interferometer array' MSI diagnostic.
 

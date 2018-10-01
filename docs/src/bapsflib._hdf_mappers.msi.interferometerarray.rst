@@ -8,7 +8,7 @@ bapsflib\._hdf_mappers\.msi\.interferometerarray
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.interferometerarray.hdfMap_msi_interarr
+.. .. autoclass:: bapsflib.lapd.map_msi.interferometerarray.HDFMapMSIInterferometerArray
     :members:
     :undoc-members:
     :show-inheritance:

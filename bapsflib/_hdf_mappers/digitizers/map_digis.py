@@ -26,7 +26,7 @@ class HDFMapDigitizers(dict):
 
         >>> dmaps = HDFMapDigitizers(data_group)
         >>> dmaps['SIS 3301']
-        <bapsflib.lapd.map_digitizers.sis3301.HDFMapDigiSIS3301>
+        <bapsflib.lapd.digitizers.sis3301.HDFMapDigiSIS3301>
     """
     _defined_digitizer_mappings = {
         'SIS 3301': HDFMapDigiSIS3301,

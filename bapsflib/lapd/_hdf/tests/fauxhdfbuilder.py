@@ -26,7 +26,7 @@ from bapsflib._hdf_mappers.controls.tests import (
     FauxSixK,
     FauxN5700PS
 )
-from bapsflib._hdf_mappers.map_digitizers.tests import FauxSIS3301
+from bapsflib._hdf_mappers.digitizers.tests import FauxSIS3301
 
 
 class FauxHDFBuilder(h5py.File):

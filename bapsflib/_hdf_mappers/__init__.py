@@ -14,13 +14,13 @@ and map the various HDF5 files generated during experiments at the
 Basic Plasma Science Facility.  Sub-package
 :mod:`~bapsflib._hdf_mappers.controls` contains routines for mapping
 :ibf:`Control Device` HDF5 groups,
-:mod:`~bapsflib._hdf_mappers.map_digitizers` contains routines for
+:mod:`~bapsflib._hdf_mappers.digitizers` contains routines for
 mapping :ibf:`Digitizer` HDF5 groups, and
 :mod:`~bapsflib._hdf_mappers.msi` contains routines for mapping
 :ibf:`MSI Diagnostic` HDF5 groups.
 """
 from .controls import HDFMapControls
-from .map_digitizers import HDFMapDigitizers
+from .digitizers import HDFMapDigitizers
 from .msi import HDFMapMSI
 
 __all__ = ['HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']

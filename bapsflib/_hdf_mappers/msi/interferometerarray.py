@@ -39,7 +39,7 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
         |   |   +-- Interferometer summary list
         |   |   +-- Interferometer trace
     """
-    def __init__(self, group):
+    def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 MSI diagnostic group
         :type group: :class:`h5py.Group`

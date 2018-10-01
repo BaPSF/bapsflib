@@ -175,7 +175,7 @@ class HDFMapMSITemplate(ABC):
         return self._info
 
     @property
-    def device_name(self):
+    def device_name(self) -> str:
         """Name of MSI diagnostic (device)"""
         return self._info['group name']
 

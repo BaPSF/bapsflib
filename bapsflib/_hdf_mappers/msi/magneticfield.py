@@ -30,7 +30,7 @@ class HDFMapMSIMagneticField(HDFMapMSITemplate):
         |   +-- Magnetic field profile
         |   +-- Magnetic field summary
     """
-    def __init__(self, group):
+    def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 MSI diagnostic group
         :type group: :class:`h5py.Group`

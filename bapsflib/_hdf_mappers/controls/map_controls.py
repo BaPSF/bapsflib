@@ -11,10 +11,15 @@
 import h5py
 
 from bapsflib.utils.errors import HDFMappingError
+from typing import (Dict, Union)
 
 from .n5700ps import HDFMapControlN5700PS
 from .sixk import HDFMapControl6K
+from .templates import (HDFMapControlTemplate, HDFMapControlCLTemplate)
 from .waveform import HDFMapControlWaveform
+
+# define type aliases
+ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 
 
 class HDFMapControls(dict):
@@ -80,7 +85,7 @@ class HDFMapControls(dict):
         return tuple(self._defined_mapping_classes.keys())
 
     @property
-    def __build_dict(self) -> dict:
+    def __build_dict(self) -> Dict[str, ControlMap]:
         """
         Discovers the HDF5 control devices and builds the dictionary
         containing the control device mapping objects.  This is the

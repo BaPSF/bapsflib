@@ -26,7 +26,7 @@ ControlsType = Union[str, Iterable[Union[str, Tuple[str, Any]]]]
 IndexDict = Dict[str, np.ndarray]
 
 
-class HDFReadControl(np.recarray):
+class HDFReadControl(np.ndarray):
     """
     Reads control device data from the HDF5 file.
 

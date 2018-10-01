@@ -15,7 +15,7 @@ from warnings import warn
 from .digi_template import HDFMapDigiTemplate
 
 
-class hdfMap_digi_sis3301(HDFMapDigiTemplate):
+class HDFMapDigiSIS3301(HDFMapDigiTemplate):
     """
     Mapping class for the 'SIS 3301' digitizer.
     """

@@ -12,7 +12,7 @@
 #
 import h5py
 
-from .sis3301 import hdfMap_digi_sis3301
+from .sis3301 import HDFMapDigiSIS3301
 from .siscrate import hdfMap_digi_siscrate
 
 
@@ -26,10 +26,10 @@ class HDFMapDigitizers(dict):
 
         >>> dmaps = HDFMapDigitizers(data_group)
         >>> dmaps['SIS 3301']
-        <bapsflib.lapd.map_digitizers.sis3301.hdfMap_digi_sis3301>
+        <bapsflib.lapd.map_digitizers.sis3301.HDFMapDigiSIS3301>
     """
     _defined_digitizer_mappings = {
-        'SIS 3301': hdfMap_digi_sis3301,
+        'SIS 3301': HDFMapDigiSIS3301,
         'SIS crate': hdfMap_digi_siscrate}
     """
     Dictionary containing references to the defined (known) digitizer 

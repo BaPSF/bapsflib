@@ -15,7 +15,7 @@
 # TODO: testing of shot and sample averaging identification
 # - this feature has to be added to the FauxSIS3301 first
 #
-from ..sis3301 import hdfMap_digi_sis3301
+from ..sis3301 import HDFMapDigiSIS3301
 from .common import DigitizerTestCase
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
@@ -24,7 +24,7 @@ import unittest as ut
 
 
 class TestSIS3301(DigitizerTestCase):
-    """Test class for hdfMap_digi_sis3301"""
+    """Test class for HDFMapDigiSIS3301"""
     #
     # * There is currently no test for a situation where there
     #   are multiple active 'SIS 3301' configurations.
@@ -39,7 +39,7 @@ class TestSIS3301(DigitizerTestCase):
 
     @property
     def map(self):
-        return hdfMap_digi_sis3301(self.dgroup)
+        return HDFMapDigiSIS3301(self.dgroup)
 
     @property
     def dgroup(self):

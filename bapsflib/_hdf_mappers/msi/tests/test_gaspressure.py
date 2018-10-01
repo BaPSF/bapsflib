@@ -16,16 +16,16 @@ import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
 
-from ..gaspressure import hdfMap_msi_gaspressure
+from ..gaspressure import HDFMapMSIGasPressure
 from .common import MSIDiagnosticTestCase
 
 
 class TestGasPressure(MSIDiagnosticTestCase):
-    """Test class for hdfMap_msi_gaspressure"""
+    """Test class for HDFMapMSIGasPressure"""
     # define setup variables
     DEVICE_NAME = 'Gas pressure'
     DEVICE_PATH = '/MSI/Gas pressure'
-    MAP_CLASS = hdfMap_msi_gaspressure
+    MAP_CLASS = HDFMapMSIGasPressure
 
     def setUp(self):
         super().setUp()

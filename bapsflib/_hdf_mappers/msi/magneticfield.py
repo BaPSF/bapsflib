@@ -14,10 +14,10 @@ import numpy as np
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from .templates import hdfMap_msi_template
+from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi_magneticfield(hdfMap_msi_template):
+class HDFMapMSIMagneticField(HDFMapMSITemplate):
     """
     Mapping class for the 'Magnetic field' MSI diagnostic.
 
@@ -30,13 +30,13 @@ class hdfMap_msi_magneticfield(hdfMap_msi_template):
         |   +-- Magnetic field profile
         |   +-- Magnetic field summary
     """
-    def __init__(self, group):
+    def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 MSI diagnostic group
         :type group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_msi_template.__init__(self, group)
+        HDFMapMSITemplate.__init__(self, group)
 
         # populate self.configs
         self._build_configs()

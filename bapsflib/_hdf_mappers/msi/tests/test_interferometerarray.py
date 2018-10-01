@@ -16,16 +16,16 @@ import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
 
-from ..interferometerarray import hdfMap_msi_interarr
+from ..interferometerarray import HDFMapMSIInterferometerArray
 from .common import MSIDiagnosticTestCase
 
 
 class TestInterferometerArray(MSIDiagnosticTestCase):
-    """Test class for hdfMap_msi_interarr"""
+    """Test class for HDFMapMSIInterferometerArray"""
     # define setup variables
     DEVICE_NAME = 'Interferometer array'
     DEVICE_PATH = '/MSI/Interferometer array'
-    MAP_CLASS = hdfMap_msi_interarr
+    MAP_CLASS = HDFMapMSIInterferometerArray
 
     def setUp(self):
         super().setUp()

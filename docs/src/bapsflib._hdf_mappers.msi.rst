@@ -15,3 +15,15 @@ bapsflib\.\_hdf\_mappers\.msi
     bapsflib._hdf_mappers.msi.magneticfield
     bapsflib._hdf_mappers.msi.map_msi
     bapsflib._hdf_mappers.msi.templates
+
+.. rubric:: Classes
+
+.. autosummary::
+    :nosignatures:
+
+    HDFMapMSI
+
+.. autoclass:: HDFMapMSI
+    :members:
+    :undoc-members:
+    :show-inheritance:

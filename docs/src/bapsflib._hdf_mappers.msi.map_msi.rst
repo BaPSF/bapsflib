@@ -6,3 +6,8 @@ bapsflib\.\_hdf\_mappers\.msi\.map\_msi
     :undoc-members:
     :show-inheritance:
     :private-members:
+
+    .. rubric:: Classes
+
+    .. autosummary:: HDFMapMSI
+        :nosignatures:

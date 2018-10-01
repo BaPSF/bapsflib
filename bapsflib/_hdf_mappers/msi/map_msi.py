@@ -11,15 +11,17 @@
 import h5py
 
 from bapsflib.utils.errors import HDFMappingError
+from typing import Dict
 
-from .discharge import hdfMap_msi_discharge
-from .gaspressure import hdfMap_msi_gaspressure
-from .heater import hdfMap_msi_heater
-from .interferometerarray import hdfMap_msi_interarr
-from .magneticfield import hdfMap_msi_magneticfield
+from .discharge import HDFMapMSIDischarge
+from .gaspressure import HDFMapMSIGasPressure
+from .heater import HDFMapMSIHeater
+from .interferometerarray import HDFMapMSIInterferometerArray
+from .magneticfield import HDFMapMSIMagneticField
+from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi(dict):
+class HDFMapMSI(dict):
     """
     A dictionary containing mapping objects for all the discovered
     MSI diagnostic HDF5 groups.  The dictionary keys are the MSI
@@ -28,18 +30,18 @@ class hdfMap_msi(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf_mappers import hdfMap_msi
+        >>> from bapsflib._hdf_mappers import HDFMapMSI
         >>> f = lapd.File('sample.hdf5')
         >>> # 'MSI' is the LaPD HDF5 group name for the group housing
         ... # MSI diagnostic groups
-        ... msi_map = hdfMap_msi(f['MSI'])
+        ... msi_map = HDFMapMSI(f['MSI'])
     """
     _defined_mapping_classes = {
-        'Discharge': hdfMap_msi_discharge,
-        'Gas pressure': hdfMap_msi_gaspressure,
-        'Heater': hdfMap_msi_heater,
-        'Interferometer array': hdfMap_msi_interarr,
-        'Magnetic field': hdfMap_msi_magneticfield
+        'Discharge': HDFMapMSIDischarge,
+        'Gas pressure': HDFMapMSIGasPressure,
+        'Heater': HDFMapMSIHeater,
+        'Interferometer array': HDFMapMSIInterferometerArray,
+        'Magnetic field': HDFMapMSIMagneticField
     }
     """
     Dictionary containing references to the defined (known) MSI
@@ -77,7 +79,7 @@ class hdfMap_msi(dict):
         return tuple(self._defined_mapping_classes.keys())
 
     @property
-    def __build_dict(self) -> dict:
+    def __build_dict(self) -> Dict[str, HDFMapMSITemplate]:
         """
         Discovers the HDF5 MSI diagnostics and builds the dictionary
         containing the diagnostic mapping objects.  This is the

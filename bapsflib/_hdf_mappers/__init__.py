@@ -21,6 +21,6 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 """
 from .controls import HDFMapControls
 from .map_digitizers import hdfMap_digitizers
-from .msi import hdfMap_msi
+from .msi import HDFMapMSI
 
-__all__ = ['HDFMapControls', 'hdfMap_digitizers', 'hdfMap_msi']
+__all__ = ['HDFMapControls', 'hdfMap_digitizers', 'HDFMapMSI']

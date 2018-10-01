@@ -16,12 +16,12 @@ import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-from ..map_msi import hdfMap_msi
-from ..templates import hdfMap_msi_template
+from ..map_msi import HDFMapMSI
+from ..templates import HDFMapMSITemplate
 
 
 class TestHDFMapMSI(ut.TestCase):
-    """Test class for hdfMap_msi"""
+    """Test class for HDFMapMSI"""
     # What to test?
     # X  1. returned object is a dictionary
     # X  2. if input is not h5py.Group instance, then TypeError is
@@ -59,7 +59,7 @@ class TestHDFMapMSI(ut.TestCase):
     @staticmethod
     def map_msi(group):
         """Mapping function"""
-        return hdfMap_msi(group)
+        return HDFMapMSI(group)
 
     def test_not_h5py_group(self):
         """Test error if object to map is not h5py.Group"""
@@ -150,13 +150,13 @@ class TestHDFMapMSI(ut.TestCase):
         self.assertIn('Heater', _map)
         self.assertNotIn('Discharge', _map)
 
-    def assertBasics(self, msi_map: hdfMap_msi):
+    def assertBasics(self, msi_map: HDFMapMSI):
         # mapped object is a dictionary
         self.assertIsInstance(msi_map, dict)
 
         # all dict items are a mapping class
         for val in msi_map.values():
-            self.assertIsInstance(val, hdfMap_msi_template)
+            self.assertIsInstance(val, HDFMapMSITemplate)
 
         # look for map attributes
         self.assertTrue(

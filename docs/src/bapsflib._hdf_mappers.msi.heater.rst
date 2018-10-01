@@ -8,7 +8,7 @@ bapsflib\.\_hdf\_mappers\.msi\.heater
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.heater.hdfMap_msi_heater
+.. .. autoclass:: bapsflib.lapd.map_msi.heater.HDFMapMSIHeater
     :members:
     :undoc-members:
     :show-inheritance:

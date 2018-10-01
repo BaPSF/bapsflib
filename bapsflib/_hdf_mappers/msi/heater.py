@@ -17,7 +17,7 @@ from warnings import warn
 from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi_heater(HDFMapMSITemplate):
+class HDFMapMSIHeater(HDFMapMSITemplate):
     """
     Mapping class for the 'Heater' MSI diagnostic.
 

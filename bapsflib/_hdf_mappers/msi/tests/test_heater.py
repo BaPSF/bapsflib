@@ -16,15 +16,15 @@ import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
 
-from ..heater import hdfMap_msi_heater
+from ..heater import HDFMapMSIHeater
 from .common import MSIDiagnosticTestCase
 
 
 class TestHeater(MSIDiagnosticTestCase):
-    """Test class for hdfMap_msi_heater"""
+    """Test class for HDFMapMSIHeater"""
     DEVICE_NAME = 'Heater'
     DEVICE_PATH = '/MSI/Heater'
-    MAP_CLASS = hdfMap_msi_heater
+    MAP_CLASS = HDFMapMSIHeater
 
     def setUp(self):
         super().setUp()

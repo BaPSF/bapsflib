@@ -8,7 +8,7 @@ bapsflib\._hdf_mappers\.msi\.discharge
     :inherited-members:
     :private-members:
 
-.. .. autoclass:: bapsflib.lapd.map_msi.discharge.hdfMap_msi_discharge
+.. .. autoclass:: bapsflib.lapd.map_msi.discharge.HDFMapMSIDischarge
     :members:
     :undoc-members:
     :show-inheritance:

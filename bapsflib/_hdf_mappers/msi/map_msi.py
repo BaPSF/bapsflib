@@ -12,7 +12,7 @@ import h5py
 
 from bapsflib.utils.errors import HDFMappingError
 
-from .discharge import hdfMap_msi_discharge
+from .discharge import HDFMapMSIDischarge
 from .gaspressure import hdfMap_msi_gaspressure
 from .heater import hdfMap_msi_heater
 from .interferometerarray import hdfMap_msi_interarr
@@ -35,7 +35,7 @@ class HDFMapMSI(dict):
         ... msi_map = HDFMapMSI(f['MSI'])
     """
     _defined_mapping_classes = {
-        'Discharge': hdfMap_msi_discharge,
+        'Discharge': HDFMapMSIDischarge,
         'Gas pressure': hdfMap_msi_gaspressure,
         'Heater': hdfMap_msi_heater,
         'Interferometer array': hdfMap_msi_interarr,

@@ -16,16 +16,16 @@ import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
 
-from ..discharge import hdfMap_msi_discharge
+from ..discharge import HDFMapMSIDischarge
 from .common import MSIDiagnosticTestCase
 
 
 class TestDischarge(MSIDiagnosticTestCase):
-    """Test class for hdfMap_msi_discharge"""
+    """Test class for HDFMapMSIDischarge"""
     # define setup variables
     DEVICE_NAME = 'Discharge'
     DEVICE_PATH = '/MSI/Discharge'
-    MAP_CLASS = hdfMap_msi_discharge
+    MAP_CLASS = HDFMapMSIDischarge
 
     def setUp(self):
         super().setUp()

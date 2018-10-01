@@ -17,7 +17,7 @@ from warnings import warn
 from .templates import HDFMapMSITemplate
 
 
-class hdfMap_msi_discharge(HDFMapMSITemplate):
+class HDFMapMSIDischarge(HDFMapMSITemplate):
     """
     Mapping class for the 'Discharge' MSI diagnostic.
 

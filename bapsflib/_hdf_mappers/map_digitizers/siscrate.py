@@ -12,10 +12,10 @@ import h5py
 
 from warnings import warn
 
-from .digi_template import hdfMap_digi_template
+from .digi_template import HDFMapDigiTemplate
 
 
-class hdfMap_digi_siscrate(hdfMap_digi_template):
+class hdfMap_digi_siscrate(HDFMapDigiTemplate):
     """
     Mapping class for the 'SIS crate' digitizer.
     """
@@ -25,7 +25,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         :type digi_group: :class:`h5py.Group`
         """
         # initialize
-        hdfMap_digi_template.__init__(self, digi_group)
+        HDFMapDigiTemplate.__init__(self, digi_group)
 
         # populate self.configs
         self._build_configs()
@@ -41,7 +41,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         Predefined (known) adc's for digitizer 'SIS crate'
 
         (See
-        :attr:`~.digi_template.hdfMap_digi_template._predefined_adc`
+        :attr:`~.digi_template.HDFMapDigiTemplate._predefined_adc`
         of the base class for details)
         """
         return ['SIS 3302', 'SIS 3305']
@@ -50,8 +50,8 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         """
         Populates :attr:`configs` dictionary
 
-        (See :meth:`~.digi_template.hdfMap_digi_template._build_configs`
-        and :attr:`~.digi_template.hdfMap_digi_template.configs`
+        (See :meth:`~.digi_template.HDFMapDigiTemplate._build_configs`
+        and :attr:`~.digi_template.HDFMapDigiTemplate.configs`
         of the base class for details)
         """
         # self.configs is initialized in the template
@@ -117,7 +117,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             | `config_name`
 
         (See
-        :meth:`~.digi_template.hdfMap_digi_template.parse_config_name`
+        :meth:`~.digi_template.HDFMapDigiTemplate.parse_config_name`
         of the base class for details)
         """
         return True, name
@@ -129,7 +129,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         configuration.
 
         (See
-        :meth:`~.digi_template.hdfMap_digi_template._is_config_active`
+        :meth:`~.digi_template.HDFMapDigiTemplate._is_config_active`
         of the base class for details)
         """
         active = False
@@ -147,7 +147,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         """
         Gathers information on the adc configuration.
 
-        (See :meth:`~.digi_template.hdfMap_digi_template._adc_info`
+        (See :meth:`~.digi_template.HDFMapDigiTemplate._adc_info`
         of the base class for details)
         """
         # digitizer 'Raw data + config/SIS crate' has two adc's,
@@ -241,7 +241,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         Determines active adc's used in the digitizer configuration.
 
         (See
-        :meth:`~.digi_template.hdfMap_digi_template._find_config_adc`
+        :meth:`~.digi_template.HDFMapDigiTemplate._find_config_adc`
         of the base class for details)
         """
         active_adc = []
@@ -258,7 +258,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
         Determines active connections on the adc.
 
         (See
-        :meth:`~.digi_template.hdfMap_digi_template._find_adc_connections`
+        :meth:`~.digi_template.HDFMapDigiTemplate._find_adc_connections`
         of the base class for details)
         """
         # initialize conn, brd, and chs
@@ -434,7 +434,7 @@ class hdfMap_digi_siscrate(hdfMap_digi_template):
             | `config_name` [Slot `#`: SIS `####` FPGA `#` ch `#`]
 
         (See
-        :meth:`~.digi_template.hdfMap_digi_template.construct_dataset_name`
+        :meth:`~.digi_template.HDFMapDigiTemplate.construct_dataset_name`
         of the base class for details)
         """
         # TODO: Replace Warnings with proper error handling

@@ -11,12 +11,14 @@
 import h5py
 
 from bapsflib.utils.errors import HDFMappingError
+from typing import Dict
 
 from .discharge import HDFMapMSIDischarge
 from .gaspressure import HDFMapMSIGasPressure
 from .heater import HDFMapMSIHeater
 from .interferometerarray import HDFMapMSIInterferometerArray
 from .magneticfield import HDFMapMSIMagneticField
+from .templates import HDFMapMSITemplate
 
 
 class HDFMapMSI(dict):
@@ -77,7 +79,7 @@ class HDFMapMSI(dict):
         return tuple(self._defined_mapping_classes.keys())
 
     @property
-    def __build_dict(self) -> dict:
+    def __build_dict(self) -> Dict[str, HDFMapMSITemplate]:
         """
         Discovers the HDF5 MSI diagnostics and builds the dictionary
         containing the diagnostic mapping objects.  This is the

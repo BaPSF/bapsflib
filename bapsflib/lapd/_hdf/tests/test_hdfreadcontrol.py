@@ -1373,31 +1373,87 @@ class TestHDFReadControl(TestBase):
         self.assertCDataFormat(cdata, control_plus, sn_c,
                                intersection_set=False)
 
-    @ut.skip
-    def test_command_list_functionality(self):
-        """
-        Testing HDF5 with a control device that utilizes a command list.
-        """
-        # TODO: command list functionality
-        # clean HDF5 file
-        # self.f.remove_all_modules()
-        pass
-
-    def assertCDataFormat(self, cdata, control_plus, sn_correct,
-                          intersection_set=True):
+    def assertCDataObj(
+            self,
+            cdata: HDFReadControl,
+            _lapdf: bapsflib.lapd.File,
+            control_plus: List[Tuple[str, Any, Dict[str, Any]]],
+            intersection_set=True):
         """Assertion for detailed format of returned data object."""
         # cdata            - returned data object of HDFReadControl()
-        # control_plus     - control name, control configureation, and
+        # control_plus     - control name, control configuration, and
         #                    expected shot numbers ('sn_valid')
-        # sn_correct       - the correct shot numbers
-        #                    (i.e. cdata['shotnumm'] == sn_correct)
         # intersection_set - whether cdata is generated w/
         #                    intersection_set=True (or False)
         #
+        # data is a structured numpy array
+        self.assertIsInstance(cdata, np.ndarray)
 
+        # -- check 'info' attribute                                 ----
+        # check existence and type
+        self.assertTrue(hasattr(cdata, 'info'))
+        self.assertIsInstance(cdata.info, dict)
+
+        # examine HDFReadControl defined keys
+        self.assertIn('source file', cdata.info)
+        self.assertIn('controls', cdata.info)
+        self.assertIn('probe name', cdata.info)
+        self.assertIn('port', cdata.info)
+
+        # examine values of HDFReadControl defined keys
+        self.assertEqual(cdata.info['source file'],
+                         os.path.abspath(_lapdf.filename))
+        self.assertIsInstance(cdata.info['controls'], dict)
+        self.assertIsInstance(cdata.info['port'], tuple)
+        self.assertEqual(len(cdata.info['port']), 2)
+
+        # examine control specific meta-info items
+        for control in control_plus:
+            # get control device vars
+            device = control[0]
+            config_name = control[1]
+            _map = _lapdf.file_map.controls[device]
+            config = _map.configs[config_name]
+
+            # check device inclusion
+            self.assertIn(device, cdata.info['controls'])
+            _sub_info = cdata.info['controls'][device]
+
+            # gather all control meta-info keys
+            infokeys = list(config.keys())
+            infokeys.remove('dset paths')
+            infokeys.remove('shotnum')
+            infokeys.remove('state values')
+            infokeys = (['device group path',
+                         'device dataset path',
+                         'contype',
+                         'configuration name']
+                        + infokeys)
+
+            # check all meta-info keys
+            for key in infokeys:
+                # existence
+                self.assertIn(key, _sub_info)
+
+                # value
+                if key == 'device group path':
+                    self.assertEqual(_sub_info[key],
+                                     _map.info['group path'])
+                elif key == 'device dataset path':
+                    self.assertEqual(_sub_info[key],
+                                     config['dset paths'][0])
+                elif key == 'contype':
+                    self.assertEqual(_sub_info[key], _map.contype)
+                elif key == 'configuration name':
+                    self.assertEqual(_sub_info[key], config_name)
+                else:
+                    self.assertRecursiveEqual(_sub_info[key],
+                                              config[key])
+
+        # -- check obj array                                        ----
         # check shot numbers are correct
-        self.assertTrue(np.array_equal(cdata['shotnum'],
-                                       sn_correct))
+        sn_correct = control_plus[0][2]['sn_correct']
+        self.assertTrue(np.array_equal(cdata['shotnum'], sn_correct))
 
         # perform assertions based on control
         for control in control_plus:
@@ -1431,34 +1487,28 @@ class TestHDFReadControl(TestBase):
                 dtype = cdata.dtype[field].base
 
                 # assert "NaN" fills
-                if intersection_set:
-                    # there should be NO NaN fills
-                    if np.issubdtype(dtype, np.integer):
-                        cd_nan = np.where(cdata[field] == -99999,
-                                          True, False)
-                    elif np.issubdtype(dtype, np.floating):
-                        cd_nan = np.isnan(cdata[field])
-                    elif np.issubdtype(dtype, np.flexible):
-                        cd_nan = np.where(cdata[field] == '',
-                                          True, False)
+                if np.issubdtype(dtype, np.integer):
+                    cd_nan = np.where(cdata[field] == -99999,
+                                      True, False)
+                elif np.issubdtype(dtype, np.floating):
+                    cd_nan = np.isnan(cdata[field])
+                elif np.issubdtype(dtype, np.flexible):
+                    cd_nan = np.where(cdata[field] == '',
+                                      True, False)
+                else:
+                    cd_nan = None
 
-                    # test
+                if cd_nan is None:
+                    # no NaN Fill was performed
+                    pass
+                elif intersection_set:
+                    # there should be NO NaN fills
                     # 1. cd_nan should be False for all entries
                     # 2. sni should be True for all entries
                     self.assertTrue(np.all(np.logical_not(cd_nan)))
                     self.assertTrue(np.all(sni))
                 else:
                     # there is a possibility for NaN fill
-                    if np.issubdtype(dtype, np.integer):
-                        cd_nan = np.where(cdata[field] == -99999,
-                                          True, False)
-                    elif np.issubdtype(dtype, np.floating):
-                        cd_nan = np.isnan(cdata[field])
-                    elif np.issubdtype(dtype, np.flexible):
-                        cd_nan = np.where(cdata[field] == '',
-                                          True, False)
-
-                    # test
                     # 1. cd_nan should be False for all sni entries
                     # 2. cd_nan should be True for all sni_not entries
                     self.assertTrue(np.all(np.logical_not(cd_nan[sni])))

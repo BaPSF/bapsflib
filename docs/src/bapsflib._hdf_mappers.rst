@@ -9,5 +9,5 @@ bapsflib\.\_hdf\_mappers
     :caption: Sub-Packages & Modules
 
     bapsflib._hdf_mappers.controls
-    bapsflib._hdf_mappers.map_digitizers
+    bapsflib._hdf_mappers.digitizers
     bapsflib._hdf_mappers.msi

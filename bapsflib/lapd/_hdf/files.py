@@ -265,6 +265,7 @@ class File(h5py.File):
         detail.
 
         :param str msi_diag: name of MSI diagnostic
+        :param bool silent:
         :return: data for MSI diagnostic
         :rtype: :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI`
 

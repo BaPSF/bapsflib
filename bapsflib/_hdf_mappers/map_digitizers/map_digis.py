@@ -16,7 +16,7 @@ from .sis3301 import hdfMap_digi_sis3301
 from .siscrate import hdfMap_digi_siscrate
 
 
-class hdfMap_digitizers(dict):
+class HDFMapDigitizers(dict):
     """
     A dictionary that contains mapping objects for all the discovered
     digitizers in the HDF5 data group.  The dictionary keys are the
@@ -24,7 +24,7 @@ class hdfMap_digitizers(dict):
 
     For example,::
 
-        >>> dmaps = hdfMap_digitizers(data_group)
+        >>> dmaps = HDFMapDigitizers(data_group)
         >>> dmaps['SIS 3301']
         <bapsflib.lapd.map_digitizers.sis3301.hdfMap_digi_sis3301>
     """

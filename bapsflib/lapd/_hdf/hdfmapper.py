@@ -34,7 +34,7 @@ from warnings import warn
 from bapsflib._hdf_mappers.controls import HDFMapControls
 from bapsflib._hdf_mappers.controls.templates import (
     HDFMapControlTemplate, HDFMapControlCLTemplate)
-from bapsflib._hdf_mappers.map_digitizers import hdfMap_digitizers
+from bapsflib._hdf_mappers.map_digitizers import HDFMapDigitizers
 from bapsflib._hdf_mappers.map_digitizers.digi_template import \
     HDFMapDigiTemplate
 from bapsflib._hdf_mappers.msi import HDFMapMSI
@@ -56,7 +56,7 @@ class hdfMap(object):
     The following classes are leveraged to construct the mappings:
 
     * :class:`~.controls.map_controls.HDFMapControls`.
-    * :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
+    * :class:`~.map_digitizers.map_digis.HDFMapDigitizers`.
     * :class:`~.msi.map_msi.HDFMapMSI`.
     """
     # MSI stuff
@@ -259,10 +259,10 @@ class hdfMap(object):
         """
         Attaches a dictionary (:attr:`__digitizers`) containing all
         digitizer mapping objects constructed by
-        :class:`~.map_digitizers.map_digis.hdfMap_digitizers`.
+        :class:`~.map_digitizers.map_digis.HDFMapDigitizers`.
         """
         if self.has_data_group:
-            self.__digitizers = hdfMap_digitizers(
+            self.__digitizers = HDFMapDigitizers(
                 self.__hdf_obj[self._DATA_GNAME])
         else:
             self.__digitizers = {}

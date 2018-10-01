@@ -14,3 +14,23 @@ class HDFMappingError(Exception):
     """Exception for failed HDF5 mappings"""
     def __init__(self, device_name: str, why=''):
         super().__init__("'" + device_name + "' mapping failed: " + why)
+
+
+class HDFReadError(Exception):
+    """Exception for failed HDF5 reading"""
+    pass
+
+
+class HDFReadDigiError(HDFReadError):
+    """Exception for failed HDF5 reading of digitizer."""
+    pass
+
+
+class HDFReadControlError(HDFReadError):
+    """Exception for failed HDF5 reading of digitizer."""
+    pass
+
+
+class HDFReadMSIError(HDFReadError):
+    """Exception for failed HDF5 reading of digitizer."""
+    pass

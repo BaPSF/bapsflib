@@ -8,6 +8,6 @@ bapsflib\.\_hdf\_mappers
     :titlesonly:
     :caption: Sub-Packages & Modules
 
-    bapsflib._hdf_mappers.map_controls
+    bapsflib._hdf_mappers.controls
     bapsflib._hdf_mappers.map_digitizers
-    bapsflib._hdf_mappers.map_msi
+    bapsflib._hdf_mappers.msi

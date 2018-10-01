@@ -18,10 +18,11 @@ from ..files import File
 from ..hdfreaddata import (hdfReadData, condition_shotnum)
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib._hdf_mappers.controls import ConType
 
 
 class TestConditionShotnum(ut.TestCase):
-    """Test Case for condition_shotnum"""
+    """Test Case for build_shotnum_dset_relation"""
 
     def setUp(self):
         self.f = FauxHDFBuilder(
@@ -683,10 +684,10 @@ class TestHDFReadData(ut.TestCase):
         #       - shotnum = int, list, slice
         #
         # Note:
-        # - TestConditionShotnum tests hdfReadData's ability to properly
+        # - TestBuildShotnumDsetRelation tests hdfReadData's ability to properly
         #   identify the dataset indices corresponding to the desired
         #   shot numbers (it checks against the original dataset)
-        # - TestConditionShotnum also tests hdfReadData's ability to
+        # - TestBuildShotnumDsetRelation also tests hdfReadData's ability to
         #   intersect shot numbers between shotnum and the digi data,
         #   but not the control device data...intersection with control
         #   device data will be done with test_add_controls
@@ -1144,9 +1145,9 @@ class TestHDFReadData(ut.TestCase):
         #   `add_controls` is not tested here.
         # - Only behavior in adding control device data to `data` is
         #   done here
-        # - the call to hdfReadControl is always done using a shot
+        # - the call to HDFReadControl is always done using a shot
         #   number list. Thus, testing with hdfReadData with `index` or
-        #   `shotnum` accesses hdfReadControl in the same way
+        #   `shotnum` accesses HDFReadControl in the same way
         #
         # setup HDF5
         # - add 'SIS 3301', 'Waveform', and '6K Compumotor'
@@ -1409,7 +1410,7 @@ class TestHDFReadData(ut.TestCase):
         #       - some entries will be np.nan and some won't
         #
         # Note:
-        # - hdfReadControl handles the construction of 'xyz' when a
+        # - HDFReadControl handles the construction of 'xyz' when a
         #   control device is added (#2 above).  Thus, I assume the
         #   behavior is correct by the time it gets to hdfReadData
         # - Thus, here only #1 from above is tested
@@ -1421,7 +1422,7 @@ class TestHDFReadData(ut.TestCase):
             # Possible motion control added
             for con, config in controls:
                 if self.lapdf.file_map.controls[con].contype \
-                        == 'motion':
+                        == ConType.motion:
                     # a motion control was added
                     motion_added = True
                     break

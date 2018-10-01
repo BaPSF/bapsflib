@@ -10,13 +10,10 @@
 #
 import h5py
 import os
-import sys
+import warnings
 
 from .hdfoverview import hdfOverview
 from .hdfmapper import hdfMap
-# from .hdfreaddata import hdfReadData
-# from .hdfreadcontrol import hdfReadControl
-# from .hdfreadmsi import HDFReadMSI
 
 
 class File(h5py.File):
@@ -175,29 +172,35 @@ class File(h5py.File):
         # TODO: write docstrings
         #
         from .hdfreaddata import hdfReadData
-        return hdfReadData(self, board, channel,
-                           index=index,
-                           shotnum=shotnum,
-                           digitizer=digitizer,
-                           adc=adc,
-                           config_name=config_name,
-                           keep_bits=keep_bits,
-                           add_controls=add_controls,
-                           intersection_set=intersection_set,
-                           silent=silent,
-                           **kwargs)
+
+        warn_filter = 'ignore' if silent else 'default'
+        with warnings.catch_warnings():
+            warnings.simplefilter(warn_filter)
+            data = hdfReadData(self, board, channel,
+                               index=index,
+                               shotnum=shotnum,
+                               digitizer=digitizer,
+                               adc=adc,
+                               config_name=config_name,
+                               keep_bits=keep_bits,
+                               add_controls=add_controls,
+                               intersection_set=intersection_set,
+                               **kwargs)
+
+        return data
 
     def read_controls(self, controls,
-                      shotnum=slice(None), intersection_set=True,
+                      shotnum=slice(None),
+                      intersection_set=True,
                       silent=False, **kwargs):
         """
         Reads data out of control device datasets.  See
-        :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl` for
+        :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl` for
         more detail.
 
         :param controls: a list of strings and/or 2-element tuples
             indicating the control device(s). (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl`
+            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
             for details)
         :type controls: [str, (str, val), ]
         :param shotnum: HDF5 file shot number(s) indicating data
@@ -208,12 +211,12 @@ class File(h5py.File):
             :data:`shotnum` and the shot numbers contained in each
             control device dataset. :code:`False` will return the union
             instead of the intersection  (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl`
+            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
             for details)
         :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
             to suppress command line printout of soft-warnings
         :return: extracted data from control device(s)
-        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.hdfReadControl`
+        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
 
         :Example:
 
@@ -243,20 +246,26 @@ class File(h5py.File):
             >>> cdata = f.read_controls(controls)
 
         """
-        from .hdfreadcontrol import hdfReadControl
-        return hdfReadControl(self, controls,
-                              shotnum=shotnum,
-                              intersection_set=intersection_set,
-                              silent=silent,
-                              **kwargs)
+        from .hdfreadcontrol import HDFReadControl
 
-    def read_msi(self, msi_diag):
+        warn_filter = 'ignore' if silent else 'default'
+        with warnings.catch_warnings():
+            warnings.simplefilter(warn_filter)
+            data = HDFReadControl(self, controls,
+                                  shotnum=shotnum,
+                                  intersection_set=intersection_set,
+                                  **kwargs)
+
+        return data
+
+    def read_msi(self, msi_diag, silent=False, **kwargs):
         """
         Reads data out for a MSI Diagnostic.  See
         :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI` for more
         detail.
 
         :param str msi_diag: name of MSI diagnostic
+        :param bool silent:
         :return: data for MSI diagnostic
         :rtype: :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI`
 
@@ -278,7 +287,13 @@ class File(h5py.File):
 
         """
         from .hdfreadmsi import HDFReadMSI
-        return HDFReadMSI(self, msi_diag)
+
+        warn_filter = 'ignore' if silent else 'default'
+        with warnings.catch_warnings():
+            warnings.simplefilter(warn_filter)
+            data = HDFReadMSI(self, msi_diag, **kwargs)
+
+        return data
 
     def remap(self):
         # TODO: initiate a re-mapping of the HDF5 file

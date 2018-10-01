@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -11,10 +8,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-"""
-This :mod:`~bapsflib.lapd.constants` package contains constants relevant
-to the setup and configuration of the LaPD.
-"""
-from .constants import (port_spacing, ref_port, SouthCathode)
+from enum import Enum
 
-__all__ = ['SouthCathode', 'port_spacing', 'ref_port']
+
+class ConType(Enum):
+    """Enum of Control Device Types"""
+    motion = 'motion'
+    power = 'power'
+    timing = 'timing'
+    waveform = 'waveform'
+
+    def __repr__(self):  # pragma: no cover
+        return 'contype.' + self.name

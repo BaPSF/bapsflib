@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -11,10 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-"""
-This :mod:`~bapsflib.lapd.constants` package contains constants relevant
-to the setup and configuration of the LaPD.
-"""
-from .constants import (port_spacing, ref_port, SouthCathode)
-
-__all__ = ['SouthCathode', 'port_spacing', 'ref_port']
+"""Package of control device mapping classes and their constructor."""
+from .contype import ConType
+from .map_controls import HDFMapControls

@@ -12,7 +12,7 @@
 import numpy as np
 import time
 
-from .hdfreadcontrol import (hdfReadControl,
+from .hdfreadcontrol import (HDFReadControl,
                              condition_controls)
 
 from bapsflib.plasma import core
@@ -132,8 +132,7 @@ class hdfReadData(np.recarray):
         # ---- Check for Control Device Addition ---
         # condition controls
         if add_controls is not None:
-            controls = condition_controls(hdf_file, add_controls,
-                                          silent=silent)
+            controls = condition_controls(hdf_file, add_controls)
 
             # check controls is not empty
             if not controls:
@@ -372,7 +371,7 @@ class hdfReadData(np.recarray):
         # - shotnum should always be a ndarray at this point
         #
         if len(controls) != 0:
-            cdata = hdfReadControl(hdf_file, controls,
+            cdata = HDFReadControl(hdf_file, controls,
                                    assume_controls_conditioned=True,
                                    shotnum=shotnum.tolist(),
                                    intersection_set=intersection_set,

@@ -22,17 +22,20 @@ class HDFReadMSI(np.ndarray):
     This class constructs and returns a structured numpy array.  The
     data in the array is grouped in three categories:
 
-    1. shot numbers which are contained in the :code:`'shotnum'` field
-    2. metadata data that is both shot number and diagnostic specific
+    #. shot numbers which are contained in the :code:`'shotnum'` field
+    #. metadata data that is both shot number and diagnostic specific
        which is stored in the sub-fields of the :code:`'meta'` field
-    3. recorded data arrays which get unique fields based on their
-       mapping :attr:`configs` attribute
+    #. recorded data arrays which get unique fields based on their
+       mapping
+       :attr:`~bapsflib._hdf_mappers.msi.templates.hdfMap_msi_template.configs`
+       attribute
 
     Data that is not shot number specific is stored in the :attr:`info`
     attribute.
-
-    :Example: Here the :code:`'Discharge'` MSI diagnostic is used as an
-        example:
+    """
+    __example_doc__ = """
+    :Example: Here the :code:`'Discharge'` MSI diagnostic is used 
+        as an example:
 
         >>> # open HDF5 file
         >>> f = bapsflib.lapd.File('test.hdf5')
@@ -53,8 +56,8 @@ class HDFReadMSI(np.ndarray):
         >>> mdata['shotnum']
         array([    0, 19251], dtype=int32)
         >>>
-        >>> # data arrays correspond to fields 'voltage' and 'current'
-        >>> # - display first 3 elements of shot number 0 for 'voltage'
+        >>> # fields 'voltage' and 'current' belong to data arrays
+        >>> # - show first 3 elements of 'voltage' for shot number 0
         >>> mdata['voltage'][0,0:3:]
         array([-46.99707 , -46.844482, -46.99707], dtype=float32)
         >>>
@@ -81,15 +84,15 @@ class HDFReadMSI(np.ndarray):
                 **kwargs):
         """
         :param hdf_file: HDF5 file object
+        :type hdf_file: :class:`~bapsflib.lapd.File`
         :param str dname: name of desired MSI diagnostic
         """
         # ---- Condition `hdf_file`                                 ----
-        # grab file_map
-        # - also ensure hdf_file is a lapd.file object
+        # - `hdf_file` is a lapd.File object
         #
         if not isinstance(hdf_file, bapsflib.lapd.File):
             raise TypeError(
-                '`hdf_file` needs to be of type `lapd.File`')
+                '`hdf_file` needs to be of type `bapsflib.lapd.File`')
 
         # ---- Condition `dname`                                    ----
         # ensure `dname` is a string
@@ -295,5 +298,11 @@ class HDFReadMSI(np.ndarray):
 
     @property
     def info(self):
-        """A dictionary of metadata for the MSI diagnostic."""
+        """A dictionary of meta-info for the MSI diagnostic."""
         return self._info
+
+
+# add example to __new__ docstring
+HDFReadMSI.__new__.__doc__ += "\n"
+for line in HDFReadMSI.__example_doc__.splitlines():
+    HDFReadMSI.__new__.__doc__ += "    " + line + "\n"

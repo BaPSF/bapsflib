@@ -1,5 +1,6 @@
 bapsflib\.lapd\.\constants
 ==========================
+.. py:currentmodule:: bapsflib.lapd.constants
 
 .. automodule:: bapsflib.lapd.constants
 
@@ -10,27 +11,22 @@ bapsflib\.lapd\.\constants
 
     ./bapsflib.lapd.constants.constants
 
-Classes & Constants & Functions
--------------------------------
+.. rubric:: Classes
 
-.. contents::
-    :depth: 2
-    :local:
+.. autosummary:: SouthCathode
+    :nosignatures:
 
-bapsflib\.lapd\.constants.MainCathode
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. rubric:: Constants
 
-.. autoclass:: bapsflib.lapd.constants.MainCathode
+.. autosummary::
+
+    port_spacing
+    ref_port
+
+.. autoclass:: bapsflib.lapd.constants.SouthCathode
     :members:
     :undoc-members:
     :show-inheritance:
 
-bapsflib\.lapd\.constants.port_spacing
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autodata:: bapsflib.lapd.constants.port_spacing
-
-bapsflib\.lapd\.constants.ref_port
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. autodata:: bapsflib.lapd.constants.ref_port
+.. autodata:: port_spacing
+.. autodata:: ref_port

@@ -12,14 +12,10 @@ bapsflib\.lapd
     bapsflib.lapd.constants
     bapsflib.lapd.tools
 
-Classes & Constants & Functions
--------------------------------
+.. rubric:: Classes
 
-.. contents::
-    :local:
-
-bapsflib\.lapd\.File
-^^^^^^^^^^^^^^^^^^^^
+.. autosummary:: bapsflib.lapd.File
+    :nosignatures:
 
 .. autoclass:: bapsflib.lapd.File
     :members:

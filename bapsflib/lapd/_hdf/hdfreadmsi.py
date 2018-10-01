@@ -92,7 +92,7 @@ class HDFReadMSI(np.ndarray):
         #
         if not isinstance(hdf_file, bapsflib.lapd.File):
             raise TypeError(
-                '`hdf_file` needs to be of type `lapd.File`')
+                '`hdf_file` needs to be of type `bapsflib.lapd.File`')
 
         # ---- Condition `dname`                                    ----
         # ensure `dname` is a string

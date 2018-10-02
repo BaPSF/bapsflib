@@ -72,47 +72,56 @@ class DigitizerTestCase(ut.TestCase):
         """Mapping function"""
         return self.MAP_CLASS(group)
 
-    def assertDigitizerMapBasics(self, dmap, dgroup):
+    def test_map_basics(self):
+        """Test all required basic map features."""
+        self.assertDigitizerMapBasics(self.map, self.dgroup)
+
+    def test_not_h5py_group(self):
+        """Test error if object to map is not h5py.Group"""
+        with self.assertRaises(TypeError):
+            self.map_device(None)
+
+    def assertDigitizerMapBasics(self, _map, _group):
         # assert attribute existence
-        self.assertTrue(hasattr(dmap, 'info'))
-        self.assertTrue(hasattr(dmap, 'configs'))
-        self.assertTrue(hasattr(dmap, 'active_configs'))
-        self.assertTrue(hasattr(dmap, 'group'))
-        self.assertTrue(hasattr(dmap, 'shotnum_field'))
-        self.assertTrue(hasattr(dmap, 'construct_dataset_name'))
-        self.assertTrue(hasattr(dmap, 'construct_header_dataset_name'))
+        self.assertTrue(hasattr(_map, 'info'))
+        self.assertTrue(hasattr(_map, 'configs'))
+        self.assertTrue(hasattr(_map, 'active_configs'))
+        self.assertTrue(hasattr(_map, 'group'))
+        self.assertTrue(hasattr(_map, 'shotnum_field'))
+        self.assertTrue(hasattr(_map, 'construct_dataset_name'))
+        self.assertTrue(hasattr(_map, 'construct_header_dataset_name'))
 
         # test type and keys for map.info
-        self.assertIsInstance(dmap.info, dict)
-        self.assertIn('group name', dmap.info)
-        self.assertIn('group path', dmap.info)
+        self.assertIsInstance(_map.info, dict)
+        self.assertIn('group name', _map.info)
+        self.assertIn('group path', _map.info)
 
         # test map.configs
         # - must be a dict
         # - each key must have a dict value
         # - each sub-dict must have certain keys
-        self.assertIsInstance(dmap.configs, dict)
-        for config in dmap.configs:
-            self.assertIsInstance(dmap.configs[config], dict)
-            self.assertIn('active', dmap.configs[config])
-            self.assertIn('adc', dmap.configs[config])
-            self.assertIn('group name', dmap.configs[config])
-            self.assertIn('group path', dmap.configs[config])
+        self.assertIsInstance(_map.configs, dict)
+        for config in _map.configs:
+            self.assertIsInstance(_map.configs[config], dict)
+            self.assertIn('active', _map.configs[config])
+            self.assertIn('adc', _map.configs[config])
+            self.assertIn('group name', _map.configs[config])
+            self.assertIn('group path', _map.configs[config])
 
             # check types
-            self.assertIsInstance(dmap.configs[config]['active'], bool)
-            self.assertIsInstance(dmap.configs[config]['adc'], list)
+            self.assertIsInstance(_map.configs[config]['active'], bool)
+            self.assertIsInstance(_map.configs[config]['adc'], list)
             self.assertIsInstance(
-                dmap.configs[config]['group name'], str)
+                _map.configs[config]['group name'], str)
             self.assertIsInstance(
-                dmap.configs[config]['group path'], str)
+                _map.configs[config]['group path'], str)
 
             # test adc details
-            for adc in dmap.configs[config]['adc']:
-                self.assertIn(adc, dmap.configs[config])
-                self.assertIsInstance(dmap.configs[config][adc], list)
+            for adc in _map.configs[config]['adc']:
+                self.assertIn(adc, _map.configs[config])
+                self.assertIsInstance(_map.configs[config][adc], list)
 
-                for item in dmap.configs[config][adc]:
+                for item in _map.configs[config][adc]:
                     self.assertIsInstance(item, tuple)
                     self.assertTrue(len(item) == 3)
                     self.assertIsInstance(item[0], np.int_)
@@ -133,7 +142,7 @@ class DigitizerTestCase(ut.TestCase):
                     self.assertIn('sample average (hardware)', item[2])
 
         # assert attribute 'group' type
-        self.assertIsInstance(dmap.group, h5py.Group)
+        self.assertIsInstance(_map.group, h5py.Group)
 
         # ------ Basic construct_dataset_name() Behavior ------
         #
@@ -145,37 +154,37 @@ class DigitizerTestCase(ut.TestCase):
         # 6. return_info=True returns 2-element tuple
         #
         # gather active map info
-        config = dmap.active_configs[0]
-        adc = dmap.configs[config]['adc'][0]
-        brd = dmap.configs[config][adc][0][0]
-        ch = dmap.configs[config][adc][0][1][0]
+        config = _map.active_configs[0]
+        adc = _map.configs[config]['adc'][0]
+        brd = _map.configs[config][adc][0][0]
+        ch = _map.configs[config][adc][0][1][0]
 
         # (1) invalid board number
         self.assertRaises(ValueError,
-                          dmap.construct_dataset_name, -1, 1)
+                          _map.construct_dataset_name, -1, 1)
 
         # (2) invalid channel number
         self.assertRaises(ValueError,
-                          dmap.construct_dataset_name, brd, -1)
+                          _map.construct_dataset_name, brd, -1)
 
         # (3) invalid config_name
         self.assertRaises(ValueError,
-                          dmap.construct_dataset_name,
+                          _map.construct_dataset_name,
                           brd, ch, config_name='')
 
         # (4) invalid adc
         self.assertRaises(ValueError,
-                          dmap.construct_dataset_name,
+                          _map.construct_dataset_name,
                           brd, ch, adc='')
         # (5) returned object must be string
-        dname = dmap.construct_dataset_name(brd, ch)
+        dname = _map.construct_dataset_name(brd, ch)
         self.assertIsInstance(dname, str)
 
         # (6) returned object must be 2-element tuple
         # 0 = is a string
         # 1 = is a dict
         #
-        dname = dmap.construct_dataset_name(brd, ch, return_info=True)
+        dname = _map.construct_dataset_name(brd, ch, return_info=True)
         self.assertIsInstance(dname, tuple)
         self.assertEqual(len(dname), 2)
         self.assertIsInstance(dname[0], str)

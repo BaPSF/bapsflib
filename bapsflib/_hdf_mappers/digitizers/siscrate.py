@@ -19,13 +19,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
     """
     Mapping class for the 'SIS crate' digitizer.
     """
-    def __init__(self, digi_group):
+    def __init__(self, group: h5py.Group):
         """
-        :param digi_group: the HDF5 digitizer group
-        :type digi_group: :class:`h5py.Group`
+        :param group: the HDF5 digitizer group
         """
         # initialize
-        HDFMapDigiTemplate.__init__(self, digi_group)
+        HDFMapDigiTemplate.__init__(self, group)
 
         # populate self.configs
         self._build_configs()
@@ -494,7 +493,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     d_info = extras
                     d_info['adc'] = adc
                     d_info['configuration name'] = config_name
-                    d_info['digitizer'] = self.info['group name']
+                    d_info['digitizer'] = self._info['group name']
 
         # (board, channel) combo must be active
         if bc_valid is False:

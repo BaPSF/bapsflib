@@ -51,19 +51,11 @@ class HDFMapDigiTemplate(ABC):
         else:
             raise TypeError('arg `group` is not of type h5py.Group')
 
+        # define _info attribute
         self._info = {'group name': os.path.basename(group.name),
                       'group path': group.name}
-        """
-        Information dict of digitizer HDF5 Group
-        
-        .. code-block:: python
-        
-            _info = {
-                'group name': str, # name of digitizer group
-                'group path': str  # full path to digitizer group
-            }
-        """
 
+        # initialize configuration dictionary
         self.configs = {}
         """
         :data:`configs` will contain all the mapping metadata for each
@@ -93,6 +85,18 @@ class HDFMapDigiTemplate(ABC):
                  'sample average (hardware)': int # adc sample averaging
             }), ]
         """
+
+    @property
+    def info(self) -> dict:
+        """
+        Digitizer dictionary of meta-info. For example, ::
+
+            info = {
+                'group name': 'Digitizer',
+                'group path': '/foo/bar/Digitizer',
+            }
+        """
+        return self._info
 
     @property
     def active_configs(self):

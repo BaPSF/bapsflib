@@ -73,6 +73,7 @@ class HDFMapDigiTemplate(ABC):
 
     @property
     def configs(self) -> dict:
+        # TODO: RE-WRITE DOCSTRING AND ADD DETAIL
         """
         :data:`configs` will contain all the mapping metadata for each
         digitizer configuration.  If no configurations are found then
@@ -125,6 +126,7 @@ class HDFMapDigiTemplate(ABC):
         """
         return self._info
 
+    # TODO: DROP METHOD AND ADD TO CONFIGS DICT
     @property
     @abstractmethod
     def shotnum_field(self):

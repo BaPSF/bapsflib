@@ -868,7 +868,7 @@ class TestHDFReadData(ut.TestCase):
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        main_digi = self.lapdf.file_map.main_digitizer.digi_name
+        main_digi = self.lapdf.file_map.main_digitizer.device_name
 
         # ----- `digitizer` not specified ------
         data = hdfReadData(self.lapdf, 0, 0)
@@ -890,7 +890,7 @@ class TestHDFReadData(ut.TestCase):
         # added another digit to the HDF5 file
         # self.f.add_module('SIS Crate',
         #                   {'n_configs': 1, 'sn_size': 50})
-        # main_digi = self.lapdf.file_map.main_digitizer.digi_name
+        # main_digi = self.lapdf.file_map.main_digitizer.device_name
 
         # valid `digitizer`
         data = hdfReadData(self.lapdf, 0, 0, digitizer='SIS 3301')
@@ -967,7 +967,7 @@ class TestHDFReadData(ut.TestCase):
         # added another digit to the HDF5 file
         # self.f.add_module('SIS Crate',
         #                   {'n_configs': 1, 'sn_size': 50})
-        # main_digi = self.lapdf.file_map.main_digitizer.digi_name
+        # main_digi = self.lapdf.file_map.main_digitizer.device_name
 
         # valid `adc`
         # for adc in ['SIS 3302', 'SIS 3305']:

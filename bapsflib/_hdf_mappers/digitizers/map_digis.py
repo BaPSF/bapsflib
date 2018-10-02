@@ -8,8 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: determine a default structure for all digitizer classes
-#
 import h5py
 
 from typing import (Dict, Tuple)
@@ -23,13 +21,18 @@ class HDFMapDigitizers(dict):
     """
     A dictionary that contains mapping objects for all the discovered
     digitizers in the HDF5 data group.  The dictionary keys are the
-    discovered digitizer names.
+    names of he discovered digitizers.
 
-    For example,::
+    :Example:
 
-        >>> dmaps = HDFMapDigitizers(data_group)
-        >>> dmaps['SIS 3301']
-        <bapsflib.lapd.digitizers.sis3301.HDFMapDigiSIS3301>
+        >>> from bapsflib import lapd
+        >>> from bapsflib._hdf_mappers import HDFMapDigitizers
+        >>> f = lapd.File('sample.hdf5')
+        >>> # 'Raw data + config' is the LaPD HDF5 group name for the
+        ... # group housing digitizer and control devices
+        ... digi_map = HDFMapDigitizers(f['Raw data + config'])
+        >>> digi_map['SIS 3301']
+        <bapsflib._hdf_mappers.digitizers.sis3301.HDFMapDigiSIS3301>
     """
     _defined_mapping_classes = {
         'SIS 3301': HDFMapDigiSIS3301,
@@ -41,11 +44,8 @@ class HDFMapDigitizers(dict):
 
     def __init__(self, data_group: h5py.Group):
         """
-        :param data_group: HDF5 (data) group that contains the digitizer
-            groups
-        :type data_group: :class:`h5py.Group`
+        :param data_group: HDF5 group object
         """
-
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
             raise TypeError('data_group is not of type h5py.Group')
@@ -70,15 +70,6 @@ class HDFMapDigitizers(dict):
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
 
-    # @property
-    # def data_group(self):
-    #     """
-    #     :return: instance of the HDF5 data group containing the
-    #         digitizers
-    #     :rtype: :mod:`h5py.Group`
-    #     """
-    #     return self.__data_group
-
     @property
     def mappable_devices(self) -> Tuple[str, ...]:
         """
@@ -87,7 +78,7 @@ class HDFMapDigitizers(dict):
         return tuple(self._defined_mapping_classes)
 
     @property
-    def __build_dict(self):
+    def __build_dict(self) -> Dict[str, HDFMapDigiTemplate]:
         """
         Discovers the HDF5 digitizers and builds the dictionary
         containing the digitizer mapping objects.  This is the

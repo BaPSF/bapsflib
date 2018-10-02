@@ -9,19 +9,24 @@
 #   license terms and contributor agreement.
 #
 import h5py
+import os
 
 from abc import ABC, abstractmethod
 
 
 class HDFMapDigiTemplate(ABC):
-    """
+    # noinspection PySingleQuotedDocstring
+    '''
     Template class for all digitizer mapping classes to inherit from.
 
     Any inheriting class should define :code:`__init__` as::
 
-        def __init__(self, digi_group)
+        def __init__(self, group: h5py.Group)
+            """
+            :param group: HDF5 group object
+            """
             # initialize
-            HDFMapDigiTemplate.__init__(self, digi_group)
+            HDFMapDigiTemplate.__init__(self, group)
 
             # populate self.configs
             self._build_configs()
@@ -30,31 +35,30 @@ class HDFMapDigiTemplate(ABC):
 
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
-    """
+    '''
     # If I wanted the mapping object to also be an instance of the
     # digit group I would need to change:
-    #    1. inheritance of the templabe from 'object' to 'h5py.Group'
+    #    1. inheritance of the template from 'object' to 'h5py.Group'
     #    2. to initialize w/ h5py.Group.__init__(digi_group.id)
     #
-    def __init__(self, digi_group):
+    def __init__(self, group: h5py.Group):
         """
-        :param digi_group: the digitizer HDF5 group
-        :type digi_group: :class:`h5py.Group`
+        :param group: the digitizer HDF5 group
         """
-        # condition digi_group arg
-        if type(digi_group) is h5py.Group:
-            self.__digi_group = digi_group
+        # condition group arg
+        if isinstance(group, h5py.Group):
+            self._digi_group = group
         else:
-            raise TypeError('arg digi_group is not of type h5py.Group')
+            raise TypeError('arg `group` is not of type h5py.Group')
 
-        self.info = {'group name': digi_group.name.split('/')[-1],
-                     'group path': digi_group.name}
+        self._info = {'group name': os.path.basename(group.name),
+                      'group path': group.name}
         """
         Information dict of digitizer HDF5 Group
         
         .. code-block:: python
         
-            info = {
+            _info = {
                 'group name': str, # name of digitizer group
                 'group path': str  # full path to digitizer group
             }
@@ -108,7 +112,7 @@ class HDFMapDigiTemplate(ABC):
     @property
     def digi_name(self):
         """Name of digitizer"""
-        return self.info['group name']
+        return self._info['group name']
 
     @property
     @abstractmethod
@@ -133,7 +137,7 @@ class HDFMapDigiTemplate(ABC):
         :return: HDF5 digitizer group
         :rtype: :class:`h5py.Group`
         """
-        return self.__digi_group
+        return self._digi_group
 
     @abstractmethod
     def _build_configs(self):

@@ -28,7 +28,7 @@ class HDFMapDigitizers(dict):
         >>> dmaps['SIS 3301']
         <bapsflib.lapd.digitizers.sis3301.HDFMapDigiSIS3301>
     """
-    _defined_digitizer_mappings = {
+    _defined_mapping_classes = {
         'SIS 3301': HDFMapDigiSIS3301,
         'SIS crate': HDFMapDigiSISCrate}
     """
@@ -82,7 +82,7 @@ class HDFMapDigitizers(dict):
         :return: list of the predefined digitizer group names
         :rtype: list(str)
         """
-        return list(self._defined_digitizer_mappings)
+        return list(self._defined_mapping_classes)
 
     @property
     def __build_dict(self):
@@ -97,9 +97,9 @@ class HDFMapDigitizers(dict):
         digi_dict = {}
         try:
             for name in self.data_group_subgnames:
-                if name in self._defined_digitizer_mappings:
+                if name in self._defined_mapping_classes:
                     digi_dict[name] = \
-                        self._defined_digitizer_mappings[name](
+                        self._defined_mapping_classes[name](
                             self.__data_group[name])
         except TypeError:
             pass

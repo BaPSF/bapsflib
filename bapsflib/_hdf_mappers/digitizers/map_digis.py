@@ -12,8 +12,11 @@
 #
 import h5py
 
+from typing import (Dict, Tuple)
+
 from .sis3301 import HDFMapDigiSIS3301
 from .siscrate import HDFMapDigiSISCrate
+from .templates import HDFMapDigiTemplate
 
 
 class HDFMapDigitizers(dict):
@@ -77,12 +80,11 @@ class HDFMapDigitizers(dict):
     #     return self.__data_group
 
     @property
-    def predefined_digitizer_groups(self):
+    def mappable_devices(self) -> Tuple[str, ...]:
         """
-        :return: list of the predefined digitizer group names
-        :rtype: list(str)
+        Tuple of the mappable digitizers (i.e. their HDF5 group names)
         """
-        return list(self._defined_mapping_classes)
+        return tuple(self._defined_mapping_classes)
 
     @property
     def __build_dict(self):

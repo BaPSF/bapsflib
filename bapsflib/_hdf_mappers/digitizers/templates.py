@@ -12,7 +12,7 @@ import h5py
 import os
 
 from abc import ABC, abstractmethod
-
+from typing import List
 
 class HDFMapDigiTemplate(ABC):
     # noinspection PySingleQuotedDocstring
@@ -59,6 +59,21 @@ class HDFMapDigiTemplate(ABC):
         self._configs = {}
 
     @property
+    def active_configs(self) -> List[str, ...]:
+        """
+        :return: list of active configuration names
+        :rtype: list(str)
+        """
+        afigs = []
+        for key in self._configs:
+            try:
+                if self._configs[key]['active']:
+                    afigs.append(key)
+            except KeyError:
+                pass
+        return afigs
+
+    @property
     def configs(self) -> dict:
         """
         :data:`configs` will contain all the mapping metadata for each
@@ -91,6 +106,16 @@ class HDFMapDigiTemplate(ABC):
         return self._configs
 
     @property
+    def digi_name(self) -> str:
+        """Name of digitizer"""
+        return self._info['group name']
+
+    @property
+    def group(self) -> h5py.Group:
+        """Instance of the HDF5 Digitizer group"""
+        return self._digi_group
+
+    @property
     def info(self) -> dict:
         """
         Digitizer dictionary of meta-info. For example, ::
@@ -101,26 +126,6 @@ class HDFMapDigiTemplate(ABC):
             }
         """
         return self._info
-
-    @property
-    def active_configs(self):
-        """
-        :return: list of active configuration names
-        :rtype: list(str)
-        """
-        afigs = []
-        for key in self._configs:
-            try:
-                if self._configs[key]['active']:
-                    afigs.append(key)
-            except KeyError:
-                pass
-        return afigs
-
-    @property
-    def digi_name(self):
-        """Name of digitizer"""
-        return self._info['group name']
 
     @property
     @abstractmethod
@@ -138,14 +143,6 @@ class HDFMapDigiTemplate(ABC):
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError
-
-    @property
-    def group(self):
-        """
-        :return: HDF5 digitizer group
-        :rtype: :class:`h5py.Group`
-        """
-        return self._digi_group
 
     @abstractmethod
     def _build_configs(self):

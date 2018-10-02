@@ -11,7 +11,7 @@
 import h5py
 
 from bapsflib.utils.errors import HDFMappingError
-from typing import (Dict, Union)
+from typing import (Dict, Tuple, Union)
 
 from .n5700ps import HDFMapControlN5700PS
 from .sixk import HDFMapControl6K
@@ -77,7 +77,7 @@ class HDFMapControls(dict):
         dict.__init__(self, self.__build_dict)
 
     @property
-    def mappable_devices(self) -> tuple:
+    def mappable_devices(self) -> Tuple[str, ...]:
         """
         tuple of the mappable control devices (i.e. their HDF5 group
         names)

@@ -106,7 +106,7 @@ class HDFMapDigiTemplate(ABC):
         return self._configs
 
     @property
-    def digi_name(self) -> str:
+    def device_name(self) -> str:
         """Name of digitizer"""
         return self._info['group name']
 

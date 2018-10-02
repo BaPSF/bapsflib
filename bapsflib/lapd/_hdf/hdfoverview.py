@@ -192,7 +192,7 @@ class hdfOverview(object):
         # list digitizers
         for digi in self.__hdf_map.digitizers:
             item = digi
-            if digi == self.__hdf_map.main_digitizer.digi_name:
+            if digi == self.__hdf_map.main_digitizer.device_name:
                 item += ' (main)'
             status_print(item, '', '', indent=2)
 

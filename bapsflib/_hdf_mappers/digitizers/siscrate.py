@@ -69,32 +69,32 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             is_config, config_name = self._parse_config_name(name)
             if is_config:
                 # initialize configuration name in the config dict
-                self.configs[config_name] = {}
+                self._configs[config_name] = {}
 
                 # determine if config is active
-                self.configs[config_name]['active'] = \
+                self._configs[config_name]['active'] = \
                     self._is_config_active(config_name, dataset_names)
 
                 # assign active adc's to the configuration
-                self.configs[config_name]['adc'] = \
+                self._configs[config_name]['adc'] = \
                     self._find_config_adc(self.group[name])
 
                 # add 'group name'
-                self.configs[config_name]['group name'] = name
+                self._configs[config_name]['group name'] = name
 
                 # add 'group path'
-                self.configs[config_name]['group path'] = \
+                self._configs[config_name]['group path'] = \
                     self.group[name].name
 
                 # add adc info
-                for adc in self.configs[config_name]['adc']:
-                    self.configs[config_name][adc] = \
+                for adc in self._configs[config_name]['adc']:
+                    self._configs[config_name][adc] = \
                         self._adc_info(adc, self.group[name])
 
                 # update adc info with 'nshotnum' and 'nt'
-                for adc in self.configs[config_name]['adc']:
-                    for conn in self.configs[config_name][adc]:
-                        if self.configs[config_name]['active']:
+                for adc in self._configs[config_name]['adc']:
+                    for conn in self._configs[config_name][adc]:
+                        if self._configs[config_name]['active']:
                             nshotnum, nt = self._get_dset_shape(
                                 config_name, adc, conn)
                             conn[2].update({
@@ -446,8 +446,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         #   is sought out
         if config_name is None:
             found = 0
-            for name in self.configs:
-                if self.configs[name]['active'] is True:
+            for name in self._configs:
+                if self._configs[name]['active'] is True:
                     config_name = name
                     found += 1
 
@@ -461,10 +461,10 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             else:
                 raise ValueError("No active digitizer configuration "
                                  "detected.")
-        elif config_name not in self.configs:
+        elif config_name not in self._configs:
             # config_name must be a known configuration
             raise ValueError('Invalid configuration name given.')
-        elif self.configs[config_name]['active'] is False:
+        elif self._configs[config_name]['active'] is False:
             raise ValueError('Specified configuration name is not '
                              'active.')
 
@@ -474,9 +474,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # - self.__config_crates() always adds 'SIS 3302' first. If
         #   '3302' is not active then the list will only contain '3305'.
         if adc is None:
-            adc = self.configs[config_name]['adc'][0]
+            adc = self._configs[config_name]['adc'][0]
             warn_str += '\nNo adc specified, so assuming ' + adc + '.'
-        elif adc not in self.configs[config_name]['adc']:
+        elif adc not in self._configs[config_name]['adc']:
             raise ValueError(
                 'Specified adc ({}) is not in specified '.format(adc)
                 + 'configuration ({}).'.format(config_name))
@@ -484,7 +484,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # search if (board, channel) combo is connected
         bc_valid = False
         d_info = None
-        for brd, chs, extras in self.configs[config_name][adc]:
+        for brd, chs, extras in self._configs[config_name][adc]:
             if board == brd:
                 if channel in chs:
                     bc_valid = True

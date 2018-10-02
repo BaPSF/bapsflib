@@ -56,26 +56,29 @@ class HDFMapDigiTemplate(ABC):
                       'group path': group.name}
 
         # initialize configuration dictionary
-        self.configs = {}
+        self._configs = {}
+
+    @property
+    def configs(self) -> dict:
         """
         :data:`configs` will contain all the mapping metadata for each
         digitizer configuration.  If no configurations are found then
-        :data:`configs` will be an empty :obj:`dict`.  Otherwise, each 
+        :data:`configs` will be an empty :obj:`dict`.  Otherwise, each
         found configuration will be given an entry in :data:`configs`
         where the dictionary key will be the configuration name and its
         value will be a :obj:`dict` that looks like::
-        
+
             configs[config_name] = {
                 'active': bool, # True/False if config is active or not
                 'adc': ['adc_name', ], # list of active adc's
                 'group name': '', # name of configuration group
                 'group path': ''  # absolute path to configuration group
             }
-        
-        In Addition, for each 
+
+        In Addition, for each
         :code:`adc_name in configs[config_name]['adc']` there will be
         a dictionary item added to :data:`configs` that looks like::
-        
+
             configs[config_name][adc_name] = [(
                 int,     # board number of active boards
                 [int, ], # channel numbers of active channels
@@ -85,6 +88,7 @@ class HDFMapDigiTemplate(ABC):
                  'sample average (hardware)': int # adc sample averaging
             }), ]
         """
+        return self._configs
 
     @property
     def info(self) -> dict:
@@ -105,9 +109,9 @@ class HDFMapDigiTemplate(ABC):
         :rtype: list(str)
         """
         afigs = []
-        for key in self.configs:
+        for key in self._configs:
             try:
-                if self.configs[key]['active']:
+                if self._configs[key]['active']:
                     afigs.append(key)
             except KeyError:
                 pass

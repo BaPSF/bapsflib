@@ -69,30 +69,30 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             is_config, config_name = self._parse_config_name(name)
             if is_config:
                 # initialize configuration name in the config dict
-                self.configs[config_name] = {}
+                self._configs[config_name] = {}
 
                 # determine if config is active
-                self.configs[config_name]['active'] = \
+                self._configs[config_name]['active'] = \
                     self._is_config_active(config_name, dataset_names)
 
                 # assign active adc's to the configuration
-                self.configs[config_name]['adc'] = \
+                self._configs[config_name]['adc'] = \
                     self._find_config_adc(self.group[name])
 
                 # add 'group name'
-                self.configs[config_name]['group name'] = name
+                self._configs[config_name]['group name'] = name
 
                 # add 'group path'
-                self.configs[config_name]['group path'] = \
+                self._configs[config_name]['group path'] = \
                     self.group[name].name
 
                 # add adc info
-                self.configs[config_name]['SIS 3301'] = \
+                self._configs[config_name]['SIS 3301'] = \
                     self._adc_info('SIS 3301', self.group[name])
 
                 # update adc info with 'nshotnum' and 'nt'
-                if self.configs[config_name]['active']:
-                    for conn in self.configs[config_name]['SIS 3301']:
+                if self._configs[config_name]['active']:
+                    for conn in self._configs[config_name]['SIS 3301']:
                         nshotnum, nt = self._get_dset_shape(
                             config_name, 'SIS 3301', conn)
                         conn[2].update({
@@ -100,7 +100,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             'nt': nt
                         })
                 else:
-                    for conn in self.configs[config_name]['SIS 3301']:
+                    for conn in self._configs[config_name]['SIS 3301']:
                         conn[2].update({
                             'nshotnum': None,
                             'nt': None
@@ -302,8 +302,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         #   is sought out
         if config_name is None:
             found = 0
-            for name in self.configs:
-                if self.configs[name]['active'] is True:
+            for name in self._configs:
+                if self._configs[name]['active'] is True:
                     config_name = name
                     found += 1
 
@@ -317,10 +317,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             else:
                 raise ValueError("No active digitizer configuration "
                                  "detected.")
-        elif config_name not in self.configs:
+        elif config_name not in self._configs:
             # config_name must be a known configuration
             raise ValueError('Invalid configuration name given.')
-        elif self.configs[config_name]['active'] is False:
+        elif self._configs[config_name]['active'] is False:
             raise ValueError('Specified configuration name is not '
                              'active.')
 
@@ -334,7 +334,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         bc_valid = False
         d_info = None
         for brd, chs, extras in \
-                self.configs[config_name]['SIS 3301']:
+                self._configs[config_name]['SIS 3301']:
             if board == brd:
                 if channel in chs:
                     bc_valid = True

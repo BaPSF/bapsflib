@@ -36,7 +36,7 @@ class HDFMapDigitizers(dict):
     mapping classes.
     """
 
-    def __init__(self, data_group):
+    def __init__(self, data_group: h5py.Group):
         """
         :param data_group: HDF5 (data) group that contains the digitizer
             groups
@@ -44,7 +44,7 @@ class HDFMapDigitizers(dict):
         """
 
         # condition data_group arg
-        if type(data_group) is not h5py.Group:
+        if not isinstance(data_group, h5py.Group):
             raise TypeError('data_group is not of type h5py.Group')
 
         # store HDF5 data group instance
@@ -61,7 +61,7 @@ class HDFMapDigitizers(dict):
         #: list of all group names in the HDF5 data group
         self.data_group_subgnames = []
         for name in data_group:
-            if type(data_group[name]) is h5py.Group:
+            if isinstance(data_group[name], h5py.Group):
                 self.data_group_subgnames.append(name)
 
         # Build the self dictionary

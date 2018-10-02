@@ -8,12 +8,69 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import unittest as ut
-import numpy as np
 import h5py
+import numpy as np
+import unittest as ut
+
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
 class DigitizerTestCase(ut.TestCase):
+    """Base TestCase for testing digitizer mapping classes."""
+    # TODO: DESIGN A FAILURES TEST 'test_map_failures'
+    # - These are required scenarios where the mapping class should
+    #   raise a HDFMappingError
+
+    f = NotImplemented    # type: FauxHDFBuilder
+    DEVICE_NAME = NotImplemented  # type: str
+    DEVICE_PATH = NotImplemented  # type: str
+    MAP_CLASS = NotImplemented
+
+    @classmethod
+    def setUpClass(cls):
+        # skip tests if in MSIDiagnosticTestCase
+        if cls is DigitizerTestCase:
+            raise ut.SkipTest("In DigitizerTestCase, "
+                              "skipping base tests")
+        super().setUpClass()
+
+        # create HDF5 file
+        cls.f = FauxHDFBuilder()
+
+    def setUp(self):
+        # setup HDF5 file
+        if not (self.DEVICE_NAME in self.f.modules
+                and len(self.f.modules) == 1):
+            # clear HDF5 file and add module
+            self.f.remove_all_modules()
+            self.f.add_module(self.DEVICE_NAME)
+
+        # define `mod` attribute
+        self.mod = self.f.modules[self.DEVICE_NAME]
+
+    def tearDown(self):
+        # reset module
+        self.mod.knobs.reset()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()
+
+    @property
+    def map(self):
+        """Map object of device"""
+        return self.map_device(self.dgroup)
+
+    @property
+    def dgroup(self):
+        """Device HDF5 group"""
+        return self.f[self.DEVICE_PATH]
+
+    def map_device(self, group):
+        """Mapping function"""
+        return self.MAP_CLASS(group)
 
     def assertDigitizerMapBasics(self, dmap, dgroup):
         # assert attribute existence

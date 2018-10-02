@@ -14,6 +14,7 @@ import os
 from abc import ABC, abstractmethod
 from typing import List
 
+
 class HDFMapDigiTemplate(ABC):
     # noinspection PySingleQuotedDocstring
     '''
@@ -59,11 +60,8 @@ class HDFMapDigiTemplate(ABC):
         self._configs = {}
 
     @property
-    def active_configs(self) -> List[str, ...]:
-        """
-        :return: list of active configuration names
-        :rtype: list(str)
-        """
+    def active_configs(self) -> List[str]:
+        """List of active digitizer configurations"""
         afigs = []
         for key in self._configs:
             try:
@@ -112,7 +110,7 @@ class HDFMapDigiTemplate(ABC):
 
     @property
     def group(self) -> h5py.Group:
-        """Instance of the HDF5 Digitizer group"""
+        """Instance of the HDF5 digitizer group"""
         return self._digi_group
 
     @property

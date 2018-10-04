@@ -539,8 +539,9 @@ class hdfReadData(np.recarray):
             obj._info['signal units'] = 'V'
 
         # print warnings
-        if not silent and warn_str != '':
-            print(warn_str)
+        # if not silent and warn_str != '':
+        #    print(warn_str)
+        warn(warn_str)
 
         # print execution timing
         if timeit:

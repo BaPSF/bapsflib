@@ -44,8 +44,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         """
         Populates :attr:`configs` dictionary
 
-        (See :meth:`~.digi_template.HDFMapDigiTemplate._build_configs`
-        and :attr:`~.digi_template.HDFMapDigiTemplate.configs`
+        (See :meth:`~.templates.HDFMapDigiTemplate._build_configs`
+        and :attr:`~.templates.HDFMapDigiTemplate.configs`
         of the base class for details)
         """
         # self.configs is initialized in the template
@@ -72,7 +72,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
                 # assign active adc's to the configuration
                 self._configs[config_name]['adc'] = \
-                    self._find_config_adc(self.group[name])
+                    self._find_active_adcs(self.group[name])
 
                 # add 'group name'
                 self._configs[config_name]['group name'] = name
@@ -111,7 +111,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             | `config_name`
 
         (See
-        :meth:`~.digi_template.HDFMapDigiTemplate.parse_config_name`
+        :meth:`~.templates.HDFMapDigiTemplate.parse_config_name`
         of the base class for details)
         """
         return True, name
@@ -123,7 +123,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         configuration.
 
         (See
-        :meth:`~.digi_template.HDFMapDigiTemplate._is_config_active`
+        :meth:`~.templates.HDFMapDigiTemplate._is_config_active`
         of the base class for details)
         """
         active = False
@@ -141,7 +141,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         """
         Gathers information on the adc configuration.
 
-        (See :meth:`~.digi_template.HDFMapDigiTemplate._adc_info`
+        (See :meth:`~.templates.HDFMapDigiTemplate._adc_info`
         of the base class for details)
         """
         # digitizer 'Raw data + config/SIS crate' has two adc's,
@@ -230,12 +230,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         return nshotnum, nt
 
     @staticmethod
-    def _find_config_adc(config_group):
+    def _find_active_adcs(config_group):
         """
         Determines active adc's used in the digitizer configuration.
 
         (See
-        :meth:`~.digi_template.HDFMapDigiTemplate._find_config_adc`
+        :meth:`~.templates.HDFMapDigiTemplate._find_active_adcs`
         of the base class for details)
         """
         active_adc = []
@@ -252,7 +252,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         Determines active connections on the adc.
 
         (See
-        :meth:`~.digi_template.HDFMapDigiTemplate._find_adc_connections`
+        :meth:`~.templates.HDFMapDigiTemplate._find_adc_connections`
         of the base class for details)
         """
         # initialize conn, brd, and chs
@@ -428,7 +428,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             | `config_name` [Slot `#`: SIS `####` FPGA `#` ch `#`]
 
         (See
-        :meth:`~.digi_template.HDFMapDigiTemplate.construct_dataset_name`
+        :meth:`~.templates.HDFMapDigiTemplate.construct_dataset_name`
         of the base class for details)
         """
         # TODO: Replace Warnings with proper error handling

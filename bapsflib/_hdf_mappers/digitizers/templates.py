@@ -62,14 +62,12 @@ class HDFMapDigiTemplate(ABC):
     @property
     def active_configs(self) -> List[str]:
         """List of active digitizer configurations"""
-        afigs = []
-        for key in self._configs:
-            try:
-                if self._configs[key]['active']:
-                    afigs.append(key)
-            except KeyError:
-                pass
-        return afigs
+        active = []
+        for cname in self._configs:
+            if self._configs[cname]['active']:
+                active.append(cname)
+
+        return active
 
     @property
     def configs(self) -> dict:

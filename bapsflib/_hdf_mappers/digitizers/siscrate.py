@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 import h5py
+import numpy as np
 
 from warnings import warn
 
@@ -74,12 +75,16 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 self._configs[config_name]['adc'] = \
                     self._find_active_adcs(self.group[name])
 
-                # add 'group name'
-                self._configs[config_name]['group name'] = name
-
-                # add 'group path'
-                self._configs[config_name]['group path'] = \
+                # define 'config group path'
+                self._configs[config_name]['config group path'] = \
                     self.group[name].name
+
+                # define 'shotnum' entry
+                self._configs[config_name]['shotnum'] = {
+                    'dset field': ('Shot number',),
+                    'shape': (),
+                    'dtype': np.uint32,
+                }
 
                 # add adc info
                 for adc in self._configs[config_name]['adc']:

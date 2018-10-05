@@ -135,11 +135,11 @@ class HDFMapDigiTemplate(ABC):
 
     @property
     @abstractmethod
-    def _predefined_adc(self):
+    def _device_adcs(self) -> Tuple[str, ...]:
         """
-        :return: list of all predefined (known)
-            analog-digital-converters (adc's) for the digitizer
-        :rtype: list(str)
+        Tuple of integrated Analog-Digital-Converts (adc's) for the
+        digitizer.
+
         :raise: :exc:`NotImplementedError`
         """
         raise NotImplementedError

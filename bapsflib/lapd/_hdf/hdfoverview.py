@@ -300,7 +300,7 @@ class hdfOverview(object):
             # print adc's
             # noinspection PyProtectedMember
             item = "adc's:  "\
-                   + str(self.__hdf_map.digitizers[key]._predefined_adc)
+                   + str(self.__hdf_map.digitizers[key]._device_adcs)
             status_print(item, '', '', indent=1)
 
             # print digitizer configs

@@ -375,7 +375,7 @@ class hdfMap(object):
         return vers
 
     @property
-    def main_digitizer(self):
+    def main_digitizer(self) -> DigiMap:
         """
         :return: the mapping object for the digitizer that is assumed
             to be the 'main digitizer' in :attr:`digitizers`

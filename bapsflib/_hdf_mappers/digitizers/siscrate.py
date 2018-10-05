@@ -35,12 +35,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         return 'Shot number'
 
     @property
-    def _predefined_adc(self):
+    def _device_adcs(self):
         """
         Predefined (known) adc's for digitizer 'SIS crate'
 
         (See
-        :attr:`~.digi_template.HDFMapDigiTemplate._predefined_adc`
+        :attr:`~.templates.HDFMapDigiTemplate._device_adcs`
         of the base class for details)
         """
         return ['SIS 3302', 'SIS 3305']

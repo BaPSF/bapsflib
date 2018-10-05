@@ -12,7 +12,7 @@ import h5py
 import os
 
 from abc import ABC, abstractmethod
-from typing import List
+from typing import (List, Tuple)
 
 
 class HDFMapDigiTemplate(ABC):
@@ -123,13 +123,6 @@ class HDFMapDigiTemplate(ABC):
             }
         """
         return self._info
-
-    # TODO: DROP METHOD AND ADD TO CONFIGS DICT
-    @property
-    @abstractmethod
-    def shotnum_field(self):
-        """Field name for shot number column in header dataset"""
-        raise NotImplementedError
 
     @property
     @abstractmethod

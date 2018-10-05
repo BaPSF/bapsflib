@@ -30,11 +30,6 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         self._build_configs()
 
     @property
-    def shotnum_field(self):
-        """Field name for shot number column in header dataset"""
-        return 'Shot number'
-
-    @property
     def _device_adcs(self):
         """
         Predefined (known) adc's for digitizer 'SIS crate'

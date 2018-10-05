@@ -179,7 +179,11 @@ class hdfReadData(np.recarray):
         dpath = digi_map.info['group path'] + '/'
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
-        shotnumkey = digi_map.shotnum_field
+        # shotnumkey = digi_map.shotnum_field
+        if config_name is None:
+            config_name = digi_map.active_configs[0]
+        shotnumkey = \
+            digi_map.configs[config_name]['shotnum']['dset field'][0]
 
         # print execution timing
         if timeit:

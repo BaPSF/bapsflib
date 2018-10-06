@@ -111,6 +111,11 @@ class FauxSIS3301(h5py.Group):
             else:
                 warn('`val` not valid, no update performed')
 
+        def reset(self):
+            """Reset 'SIS 3301' group to defaults."""
+            self._faux._default_setup()
+            self._faux._update()
+
     def __init__(self, id, n_configs=1, sn_size=100, nt=10000,
                  **kwargs):
         # ensure id is for a HDF5 group
@@ -123,13 +128,13 @@ class FauxSIS3301(h5py.Group):
         h5py.Group.__init__(self, gid)
 
         # define key values
-        self._n_configs = n_configs
-        self._sn_size = sn_size
-        self._nt = nt
-        self._active_brdch = np.zeros((13, 8), dtype=bool)
-        self._active_brdch[0][0] = True
-        self._config_names = []
-        self._active_config = 'config01'
+        self._default_setup()
+        if n_configs != self._n_configs:
+            self._n_configs = n_configs
+        if sn_size != self._sn_size:
+            self._sn_size = sn_size
+        if nt != self._nt:
+            self._nt = nt
 
         # set root attributes
         self._set_sis3301_attrs()
@@ -142,106 +147,34 @@ class FauxSIS3301(h5py.Group):
         """Knobs for controlling structure of digitizer group"""
         return self._knobs(self)
 
-    # @property
-    # def active_brdch(self):
-    #     """
-    #     Boolean numpy array of active board, channel combinations.
-    #     Shape = (13, 8) 13 boards and 8 channels
-    #     """
-    #     return self._active_brdch.copy()
-
-    # @active_brdch.setter
-    # def active_brdch(self, val):
-    #     """
-    #     Set the active board, channel combinations
-    #     """
-    #     if isinstance(val, np.ndarray):
-    #         if val.shape == self._active_brdch.shape \
-    #                 and val.dtype == self._active_brdch.dtype\
-    #                 and np.any(val):
-    #             self._active_brdch = val
-    #             self._update()
-    #         else:
-    #             warn('`val` not valid, no update performed')
-    #     else:
-    #         warn('`val` not valid, no update performed')
-
-    # @property
-    # def active_config(self):
-    #     """current active configuration"""
-    #     return self._active_config
-
-    # @active_config.setter
-    # def active_config(self, val):
-    #     if val in self._config_names:
-    #         if val != self._active_config:
-    #             self._active_config = val
-    #             self._update()
-    #     else:
-    #         warn('`val` not valid, no update performed')
-
     @property
     def config_names(self):
         """list of 'SIS 3301' configuration names"""
         return self._config_names.copy()
 
-    # @property
-    # def n_configs(self):
-    #     """Number of SIS 3301 configurations"""
-    #     return self._n_configs
-
-    # @n_configs.setter
-    # def n_configs(self, val):
-    #     """Set number of waveform configurations"""
-    #     if val >= 1 and isinstance(val, int):
-    #         if val != self._n_configs:
-    #             self._n_configs = val
-    #             self._update()
-    #     else:
-    #         warn('`val` not valid, no update performed')
-
-    # @property
-    # def nt(self):
-    #     """Number of temporal samples"""
-    #     return self._nt
-
-    # @nt.setter
-    # def nt(self, val):
-    #     """Set the number of temporal samples"""
-    #     if isinstance(val, int):
-    #         if val != self._nt:
-    #             self._nt = val
-    #             self._update()
-    #     else:
-    #         warn('`val` not valid, no update performed')
-
-    # @property
-    # def sn_size(self):
-    #     """Number of shot numbers in a dataset"""
-    #     return self._sn_size
-
-    # @sn_size.setter
-    # def sn_size(self, val):
-    #     """Set the number of shot numbers in a dataset"""
-    #     if isinstance(val, int):
-    #         if val != self._sn_size:
-    #             self._sn_size = val
-    #             self._update()
-    #     else:
-    #         warn('`val` not valid, no update performed')
+    def _default_setup(self):
+        """Set group setup parameters to defaults"""
+        self._n_configs = 1
+        self._sn_size = 100
+        self._nt = 10000
+        self._active_brdch = np.zeros((13, 8), dtype=bool)
+        self._active_brdch[0][0] = True
+        self._config_names = []
+        self._active_config = 'config01'
 
     def _set_sis3301_attrs(self):
         """Sets the 'SIS 3301' group attributes"""
         self.attrs.update({
-            'Created date': b'5/21/2004 4:09:05 PM',
-            'Description': b'Struck Innovative Systeme 3301 8 channel '
-                           b'ADC boards, 100 MHz.  Also provides '
-                           b'access to SIS 3820 VME clock distribute.',
-            'Device name': b'SIS 3301',
-            'Module IP address': b'192.168.7.3',
-            'Module VI path': b'C:\\ACQ II home\\Modules\\SIS 3301\\'
-                              b'SIS 3301.vi',
-            'Type': b'Data acquisition'
+            'Created date': np.bytes_('5/21/2004 4:09:05 PM'),
+            'Description': np.bytes_(
+                'Struck Innovative Systeme 3301 8 channel ADC boards, '
+                '100 MHz.  Also provides access to SIS 3820 VME clock '
+                'distribute.'),
+            'Device name': np.bytes_('SIS 3301'),
+            'Module IP address': np.bytes_('192.168.7.3'),
+            'Module VI path': np.bytes_(
+                'C:\ACQ II home\Modules\SIS 3301\SIS 3301.vi'),
+            'Type': np.bytes_('Data acquisition'),
         })
 
     def _update(self):
@@ -266,7 +199,12 @@ class FauxSIS3301(h5py.Group):
         # build datasets
         self._build_datasets()
 
-    def _build_config_group(self, config_name):
+    def _build_config_group(self, config_name: str):
+        """
+        Creates and populates the digitizer configuration group.
+
+        :param config_name: name of digitizer configuration
+        """
         # create configuration group
         gname = 'Configuration: ' + config_name
         self.create_group(gname)
@@ -275,13 +213,13 @@ class FauxSIS3301(h5py.Group):
         # TODO: allow setting of sample averaging
         # TODO: allow setting of shot averaging
         self[gname].attrs.update({
-            'Clock rate': b'Internal 100 MHz',
-            'Configuration': config_name.encode(),
-            'Samples to average': 'No averaging',
-            'Shots to average': 1,
-            'Software start': b'TRUE',
-            'Stop delay': 0,
-            'Trigger mode': b'Start/stop'
+            'Clock rate': np.bytes_('Internal 100 MHz'),
+            'Configuration': np.bytes_(config_name),
+            'Samples to average': np.bytes_('No averaging'),
+            'Shots to average': np.int16(1),
+            'Software start': np.bytes_('TRUE'),
+            'Stop delay': np.uint16(0),
+            'Trigger mode': np.bytes_('Start/stop'),
         })
 
         # create and build Board[] and Channels[] sub-groups
@@ -290,29 +228,33 @@ class FauxSIS3301(h5py.Group):
         brd_index = np.where(brd_bool_arr)[0]
         for brd in brd_index:
             # create Board[] group
-            # TODO: properly define attribute 'Board samples'
             brd_name = 'Board[{}]'.format(brd_count)
-            brd_count += 1
+            brd_path = gname + '/' + brd_name
             self[gname].create_group(brd_name)
-            self[gname + '/' + brd_name].attrs.update({
-                'Board': brd,
-                'Board samples': -99999
+            brd_count += 1
+
+            # define Board[] attrs
+            self[brd_path].attrs.update({
+                'Board': np.uint32(brd),
+                'Board samples': np.uint32(self._nt),
             })
 
-            # get active channels
+            # build Channels[] groups
             ch_index = np.where(self._active_brdch[brd])[0]
             ch_count = 0
             for ch in ch_index:
-                # create Channels[]
+                # create Channels[] group
                 ch_name = 'Channels[{}]'.format(ch_count)
-                ch_count += 1
-                brd_path = gname + '/' + brd_name
+                ch_path = brd_path + '/' + ch_name
                 self[brd_path].create_group(ch_name)
-                self[brd_path + '/' + ch_name].attrs.update({
-                    'Board': brd,
-                    'Channel': ch,
-                    'DC offset (mV)': 0.0,
-                    'Data type': b'type info'
+                ch_count += 1
+
+                # define Channels[] attrs
+                self[ch_path].attrs.update({
+                    'Board': np.uint32(brd),
+                    'Channel': np.uint32(ch),
+                    'DC offset (mV)': np.float64(0.0),
+                    'Data type': np.bytes_('signal type info'),
                 })
 
     def _build_datasets(self):
@@ -325,8 +267,7 @@ class FauxSIS3301(h5py.Group):
             dset_name = (self._active_config
                          + ' [{}:{}]'.format(brd, ch))
             shape = (self._sn_size, self._nt)
-            dtype = np.int16
-            data = np.ndarray(shape=shape, dtype=dtype)
+            data = np.empty(shape=shape, dtype=np.int16)
             self.create_dataset(dset_name, data=data)
 
             # create header dataset
@@ -338,7 +279,7 @@ class FauxSIS3301(h5py.Group):
                               ('Min', np.int16),
                               ('Max', np.int16),
                               ('Clipped', np.uint8)])
-            dheader = np.ndarray(shape=shape, dtype=dtype)
+            dheader = np.empty(shape=shape, dtype=dtype)
             dheader['Shot'] = np.arange(1, shape[0] + 1, 1,
                                         dtype=dheader['Shot'].dtype)
             dheader['Scale'] = 3.051944077014923E-4

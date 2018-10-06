@@ -22,7 +22,7 @@ from ..templates import (HDFMapControlTemplate,
 
 
 def method_overridden(cls, obj, method: str) -> bool:
-    """check is obj's class over-road base class method"""
+    """check if obj's class over-road base class method"""
     obj_method = method in obj.__class__.__dict__.keys()
     base_method = method in cls.__dict__.keys()
     print(obj_method, base_method)

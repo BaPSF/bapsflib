@@ -50,128 +50,11 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         # initialize
         HDFMapDigiTemplate.__init__(self, group)
 
+        # define device adc's
+        self._device_adcs = ('SIS 3301',)  # type: Tuple[str, ...]
+
         # populate self.configs
         self._build_configs()
-
-    def construct_dataset_name(
-            self, board: int, channel: int,
-            config_name=None, adc='SIS 3301', return_info=False
-    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
-        """
-        Construct the name of the HDF5 dataset containing digitizer
-        data. The dataset name follows the format::
-
-            '<config_name> [<board>:<channel>]'
-
-        where `<config_name>` is the digitizer configuration name,
-        `<board>` is the requested board number, and `<channel>` is
-        the requested channel number.
-
-        :param board: board number
-        :param channel: channel number
-        :param config_name: digitizer configuration name
-        :param adc: analog-digital-converter name
-        :param return_info: :code:`True` will return a dictionary of
-            meta-info associated with the digitizer data
-            (DEFAULT :code:`False`)
-        :returns: digitizer dataset name. If :code:`return_info=True`,
-            then returns a tuple of (dataset name, dictionary of
-            meta-info)
-        """
-        # Condition config_name
-        # - if config_name is not specified then the 'active' config
-        #   is sought out
-        if config_name is None:
-            if len(self.active_configs) == 1:
-                config_name = self.active_configs[0]
-                warn("`config_name` not specified, assuming '"
-                     + config_name + "'.")
-            elif len(self.active_configs) > 1:
-                raise ValueError(
-                    "There are multiple active digitizer "
-                    "configurations...`config_name` kwarg must be "
-                    "specified.")
-            else:
-                raise ValueError(
-                    "No active digitizer configuration detected.")
-        elif config_name not in self._configs:
-            # config_name must be a known configuration
-            raise ValueError("Invalid `config_name` given.")
-        elif self._configs[config_name]['active'] is False:
-            raise ValueError(
-                "Specified configuration name `config_name` is not "
-                "active.")
-
-        # Condition adc keyword
-        if adc != 'SIS 3301':
-            raise ValueError(
-                "Specified adc ({}) is not in specified ".format(adc)
-                + "configuration ({}).".format(config_name))
-
-        # search if (board, channel) combo is connected
-        bc_valid = False
-        d_info = None
-        for brd, chs, extras in self._configs[config_name]['SIS 3301']:
-            if board == brd and channel in chs:
-                # board, channel combo valid
-                bc_valid = True
-
-                # save adc settings for return if requested
-                if return_info:
-                    d_info = extras
-                    d_info['adc'] = 'SIS 3301'
-                    d_info['configuration name'] = config_name
-                    d_info['digitizer'] = self._info['group name']
-                break
-
-        # (board, channel) combo must be active
-        if not bc_valid:
-            raise ValueError(
-                "Input `board` and `channel` do NOT specified a "
-                "valid dataset.")
-
-        # checks passed, build dataset_name
-        dataset_name = '{0} [{1}:{2}]'.format(config_name, board,
-                                              channel)
-
-        # return
-        if return_info is True:
-            return dataset_name, d_info
-        else:
-            return dataset_name
-
-    def construct_header_dataset_name(
-            self, board: int, channel: int,
-            config_name=None, adc='SIS 3301', **kwargs) -> str:
-        """
-        Construct the name of the HDF5 header dataset associated with
-        the digitizer dataset. The header dataset stores shot numbers
-        and other shot number specific meta-data.  It also has a one-
-        to-one row correspondence with the digitizer dataset.  The
-        header dataset name follows the format::
-
-            '<config_name> [<board>:<channel>] headers'
-
-        where `<config_name>` is the digitizer configuration name,
-        `<board>` is the requested board number, and `<channel>` is
-        the requested channel number.
-
-        :param board: board number
-        :param channel: channel number
-        :param config_name: digitizer configuration name
-        :param adc: analog-digital-converter name
-        :returns: header dataset name associated with the digitizer
-            dataset
-        """
-        # ensure return_info kwarg is always False
-        kwargs['return_info'] = False
-
-        # get dataset name
-        dset_name = self.construct_dataset_name(board, channel,
-                                                **kwargs)
-        # build and return header name
-        dheader_name = dset_name + ' headers'
-        return dheader_name
 
     def _adc_info_first_pass(
             self,
@@ -179,14 +62,15 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             config_group: h5py.Group
     ) -> Tuple[Tuple[int, Tuple[int, ...], Dict[str, Any]], ...]:
         """
-        Gathers active board numbers, associated active channels, and
-        setup meta-info.
+        Gathers the analog-digital-converter's connected board and
+        channel numbers, as well as, the associated setup configuration
+        for each connected board.
 
         :param adc_name: name of analog-digital-converter
         :param config_group: HDF5 group object of the configuration
             group
 
-        :return:
+        :returns:
 
             Tuple of 3-element tuples where the 1st element of the
             nested tuple represents a connected *board* number, the 2nd
@@ -535,19 +419,18 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             # populate
             if bool(config_name):
                 # initialize configuration name in the config dict
-                self._configs[config_name] = {}
+                # - add 'config group path'
+                self._configs[config_name] = {
+                    'config group path': self.group[name].name,
+                }
 
                 # determine if config is active
                 self._configs[config_name]['active'] = \
-                    self._is_config_active(config_name)
+                    self.deduce_config_active_status(config_name)
 
                 # assign active adc's to the configuration
                 self._configs[config_name]['adc'] = \
                     self._find_active_adcs(self.group[name])
-
-                # assign 'config group path'
-                self._configs[config_name]['config group path'] = \
-                    self.group[name].name
 
                 # define 'shotnum' entry
                 self._configs[config_name]['shotnum'] = {
@@ -558,7 +441,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
                 # initialize adc info
                 self._configs[config_name]['SIS 3301'] = \
-                    self._adc_info_first_pass('SIS 3301', self.group[name])
+                    self._adc_info_first_pass('SIS 3301',
+                                              self.group[name])
 
                 # update adc info with 'nshotnum' and 'nt'
                 # - `construct_dataset_name` needs adc info to be seeded
@@ -597,11 +481,15 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     "active configuration '{}'".format(config_name)
                     + " has no connected board and channels")
 
-    @property
-    def _device_adcs(self) -> Tuple[str, ...]:
+    @staticmethod
+    def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:
         """
-        Tuple of integrated Analog-Digital-Converters (adc's) for
-        digitizer 'SIS 3301'
+        Determines active adc's used in the digitizer configuration.
+
+        :param config_group: HDF5 group object of the configuration
+            group
+
+        :returns: tuple of active (used) analog-digital-converter names
         """
         # noinspection PyRedundantParentheses
         return ('SIS 3301', )
@@ -628,7 +516,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         """
         config_name = self._parse_config_name(
             os.path.basename(config_group.name))
-        active = self._is_config_active(config_name)
+        active = self.deduce_config_active_status(config_name)
 
         # initialize conn, brd, and chs
         # conn = list of connections
@@ -728,43 +616,6 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         return tuple(conn)
 
     @staticmethod
-    def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:
-        """
-        Determines active adc's used in the digitizer configuration.
-
-        :param config_group: HDF5 group object of the configuration
-            group
-
-        :returns: tuple of active (used) analog-digital-converter names
-        """
-        # noinspection PyRedundantParentheses
-        return ('SIS 3301', )
-
-    def _is_config_active(self, config_name: str) -> bool:
-        """
-        Determines if :code:`config_name` is an active digitizer
-        configuration.
-
-        :param config_name: digitizer configuration name
-        """
-        active = False
-
-        # gather datset names
-        dataset_names = []
-        for name in self.group:
-            if isinstance(self.group[name], h5py.Dataset):
-                dataset_names.append(name)
-
-        # if config_name is in any dataset name then config_name is
-        # active
-        for name in dataset_names:
-            if config_name in name:
-                active = True
-                break
-
-        return active
-
-    @staticmethod
     def _parse_config_name(name: str) -> Union[None, str]:
         """
         Parses :code:`name` to determine the digitizer configuration
@@ -794,3 +645,137 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             return _match.group('NAME')
         else:
             return
+
+    def construct_dataset_name(
+            self, board: int, channel: int,
+            config_name=None, adc='SIS 3301', return_info=False
+    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
+        """
+        Construct the name of the HDF5 dataset containing digitizer
+        data. The dataset name follows the format::
+
+            '<config_name> [<board>:<channel>]'
+
+        where `<config_name>` is the digitizer configuration name,
+        `<board>` is the requested board number, and `<channel>` is
+        the requested channel number.
+
+        :param board: board number
+        :param channel: channel number
+        :param str config_name: digitizer configuration name
+        :param str adc: analog-digital-converter name
+        :param bool return_info: :code:`True` will return a dictionary
+            of meta-info associated with the digitizer data
+            (DEFAULT :code:`False`)
+        :returns: digitizer dataset name. If :code:`return_info=True`,
+            then returns a tuple of (dataset name, dictionary of
+            meta-info)
+
+        The returned adc information dictionary looks like::
+
+            adc_dict = {
+                'adc': str,
+                'bit': int,
+                'clock rate': astropy.units.Quantity,
+                'configuration name': str,
+                'digitizer': str,
+                'nshotnum': int,
+                'nt': int,
+                'sample average (hardware)': int,
+                'shot average (software)': int,
+            }
+        """
+        # Condition config_name
+        # - if config_name is not specified then the 'active' config
+        #   is sought out
+        if config_name is None:
+            if len(self.active_configs) == 1:
+                config_name = self.active_configs[0]
+                warn("`config_name` not specified, assuming '"
+                     + config_name + "'.")
+            elif len(self.active_configs) > 1:
+                raise ValueError(
+                    "There are multiple active digitizer "
+                    "configurations...`config_name` kwarg must be "
+                    "specified.")
+            else:
+                raise ValueError(
+                    "No active digitizer configuration detected.")
+        elif config_name not in self._configs:
+            # config_name must be a known configuration
+            raise ValueError("Invalid `config_name` given.")
+        elif self._configs[config_name]['active'] is False:
+            raise ValueError(
+                "Specified configuration name `config_name` is not "
+                "active.")
+
+        # Condition adc keyword
+        if adc != 'SIS 3301':
+            raise ValueError(
+                "Specified adc ({}) is not in specified ".format(adc)
+                + "configuration ({}).".format(config_name))
+
+        # search if (board, channel) combo is connected
+        bc_valid = False
+        d_info = None
+        for brd, chs, extras in self._configs[config_name]['SIS 3301']:
+            if board == brd and channel in chs:
+                # board, channel combo valid
+                bc_valid = True
+
+                # save adc settings for return if requested
+                if return_info:
+                    d_info = extras
+                    d_info['adc'] = 'SIS 3301'
+                    d_info['configuration name'] = config_name
+                    d_info['digitizer'] = self._info['group name']
+                break
+
+        # (board, channel) combo must be active
+        if not bc_valid:
+            raise ValueError(
+                "Input `board` and `channel` do NOT specified a "
+                "valid dataset.")
+
+        # checks passed, build dataset_name
+        dataset_name = '{0} [{1}:{2}]'.format(config_name, board,
+                                              channel)
+
+        # return
+        if return_info is True:
+            return dataset_name, d_info
+        else:
+            return dataset_name
+
+    def construct_header_dataset_name(
+            self, board: int, channel: int,
+            config_name=None, adc='SIS 3301', **kwargs) -> str:
+        """
+        Construct the name of the HDF5 header dataset associated with
+        the digitizer dataset. The header dataset stores shot numbers
+        and other shot number specific meta-data.  It also has a one-
+        to-one row correspondence with the digitizer dataset.  The
+        header dataset name follows the format::
+
+            '<config_name> [<board>:<channel>] headers'
+
+        where `<config_name>` is the digitizer configuration name,
+        `<board>` is the requested board number, and `<channel>` is
+        the requested channel number.
+
+        :param board: board number
+        :param channel: channel number
+        :param str config_name: digitizer configuration name
+        :param str adc: analog-digital-converter name
+        :returns: header dataset name associated with the digitizer
+            dataset
+        """
+        # ensure return_info kwarg is always False
+        kwargs['return_info'] = False
+
+        # get dataset name
+        dset_name = self.construct_dataset_name(board, channel,
+                                                **kwargs)
+        # build and return header name
+        dheader_name = dset_name + ' headers'
+        return dheader_name

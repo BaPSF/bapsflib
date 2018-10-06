@@ -15,12 +15,10 @@
 # TODO: testing of shot and sample averaging identification
 # - this feature has to be added to the FauxSIS3301 first
 #
-from ..sis3301 import HDFMapDigiSIS3301
-from .common import DigitizerTestCase
-
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
-
 import unittest as ut
+
+from .common import DigitizerTestCase
+from ..sis3301 import HDFMapDigiSIS3301
 
 
 class TestSIS3301(DigitizerTestCase):
@@ -30,24 +28,15 @@ class TestSIS3301(DigitizerTestCase):
     #   are multiple active 'SIS 3301' configurations.
     #
 
+    DEVICE_NAME = 'SIS 3301'
+    DEVICE_PATH = '/Raw data + config/' + DEVICE_NAME
+    MAP_CLASS = HDFMapDigiSIS3301
+
     def setUp(self):
-        self.f = FauxHDFBuilder(add_modules={'SIS 3301': {}})
-        self.mod = self.f.modules['SIS 3301']
+        super().setUp()
 
     def tearDown(self):
-        self.f.cleanup()
-
-    @property
-    def map(self):
-        return HDFMapDigiSIS3301(self.dgroup)
-
-    @property
-    def dgroup(self):
-        return self.f['Raw data + config/SIS 3301']
-
-    def test_map_basics(self):
-        """Test all required basic map features."""
-        self.assertDigitizerMapBasics(self.map, self.dgroup)
+        super().tearDown()
 
     def test_active_configs(self):
         """

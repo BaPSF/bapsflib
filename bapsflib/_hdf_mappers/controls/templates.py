@@ -117,7 +117,7 @@ class HDFMapControlTemplate(ABC):
                 config['shotnum']
             ", "
             Defines how the run shot numbers are stored in the HDF5
-            file, which are mapped to the :code:`'shotnum` field of the
+            file, which are mapped to the :code:`'shotnum'` field of the
             constructed numpy array.  Should look like, ::
 
                 config['shotnum'] = {

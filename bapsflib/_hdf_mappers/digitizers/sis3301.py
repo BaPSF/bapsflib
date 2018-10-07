@@ -787,8 +787,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         kwargs['return_info'] = False
 
         # get dataset name
-        dset_name = self.construct_dataset_name(board, channel,
-                                                **kwargs)
+        dset_name = self.construct_dataset_name(
+            board, channel, config_name=config_name, adc=adc, **kwargs)
+
         # build and return header name
         dheader_name = dset_name + ' headers'
         return dheader_name

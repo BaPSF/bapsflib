@@ -527,8 +527,14 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
         # Determine connected (brd, ch) combinations
         # scan thru board groups
-        for ibrd, board in enumerate(config_group):
-            # define board number
+        for board in config_group:
+            # Is it a board group?
+            if not bool(re.fullmatch(r'Boards\[\d+\]', board)):
+                warn("'{}' does not match expected ".format(board)
+                     + "board group name...not adding to mapping")
+                continue
+
+            # get board number
             brd_group = config_group[board]
             try:
                 brd = brd_group.attrs['Board']
@@ -563,7 +569,14 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
             # scan thru channel groups
             chs = []
-            for ich, ch_key in enumerate(brd_group):
+            for ch_key in brd_group:
+                # Is it a channel group?
+                if not bool(re.fullmatch(r'Channels\[\d+\]', ch_key)):
+                    warn("'{}' does not match expected ".format(board)
+                         + "channel group name...not adding to mapping")
+                    continue
+
+                # get channel number
                 ch_group = brd_group[ch_key]
                 try:
                     ch = ch_group.attrs['Channel']

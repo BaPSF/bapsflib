@@ -145,8 +145,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             splave = None
             if 'Samples to average' in config_group.attrs:
                 avestr = config_group.attrs['Samples to average']
-                if isinstance(avestr, bytes):
-                    avestr = avestr.decode('utf-8')
+                avestr = avestr.decode('utf-8')
 
                 if avestr != 'No averaging':
                     _match = re.fullmatch(

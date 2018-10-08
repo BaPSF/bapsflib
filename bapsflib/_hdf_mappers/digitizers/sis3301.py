@@ -249,10 +249,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                                + "and channel {}".format(ch)
                                + " ...removing combo from map")
                         warn(why)
-                        if ch not in chs_to_remove:
-                            chs_to_remove.append(ch)
+                        chs_to_remove.append(ch)
 
             # ensure chs is not NULL
+            chs_to_remove = list(set(chs_to_remove))
             for ch in chs_to_remove:
                 new_chs.remove(ch)
             if len(new_chs) == 0:

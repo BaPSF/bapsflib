@@ -116,21 +116,26 @@ class TestSIS3301(DigitizerTestCase):
 
     def test_map_warnings(self):
         """Test scenarios that should cause a UserWarning."""
-        # 1. a configuration group sub-group does not match naming
-        #    scheme for a board config group
-        # 2. 'Board' attribute for a board config group is not an int
-        #    or np.integer
-        # 3. 'Board' attribute for a board config group is a negative
-        #    integer
-        # 4. for a none active config, two board groups define the same
-        #    board number
-        # 5. a board config sub-group does not match the naming scheme
-        #    for a channel group
-        # 6. 'Channel' attribute for a channel config group is not an
-        #    int or np.integer
-        # 7. 'Channel' attribute for a channel config group is a
-        #    negative integer
-        # 8. two channel config groups define the same channel number
+        # 1.  a configuration group sub-group does not match naming
+        #     scheme for a board config group
+        # 2.  'Board' attribute for a board config group is not an int
+        #     or np.integer
+        # 3.  'Board' attribute for a board config group is a negative
+        #     integer
+        # 4.  for a none active config, two board groups define the same
+        #     board number
+        # 5.  a board config sub-group does not match the naming scheme
+        #     for a channel group
+        # 6.  'Channel' attribute for a channel config group is not an
+        #     int or np.integer
+        # 7.  'Channel' attribute for a channel config group is a
+        #     negative integer
+        # 8.  two channel config groups define the same channel number
+        # 9.  the list of discovered channel numbers is NULL
+        # 10. config group attribute 'Samples to average' is not
+        #     convertible to int
+        # 11. an expected dataset is missing
+        # 12. all expected datasets for a board are missing
         #
         # setup group
         config_name = 'config01'
@@ -277,6 +282,27 @@ class TestSIS3301(DigitizerTestCase):
             old_path = brd_path + '/' + name
             new_path = old_path + 'Q'
             self.dgroup.move(new_path, old_path)
+
+        # -- warnings that occur in `_adc_info_first_pass`          ----
+        # config group attribute 'Samples to average' is not        (10)
+        # convertible to int
+        config_group = self.dgroup[config_path]
+        s2a = config_group.attrs['Samples to average']
+        config_group.attrs['Samples to average'] = \
+            b'Average 9.0 Samples'
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            for conn in _map.configs[config_name][adc]:
+                self.assertIsNone(conn[2]['sample average (hardware)'])
+        config_group.attrs['Samples to average'] = s2a
+
+        # -- warnings that occur in `_adc_info_second_pass`         ----
+        # an expected dataset is missing                            (11)
+        # i.e. the config groups define a board-channel combo that
+        #      does not have an existing dataset
+
+        # all expected datasets for a given board are missing       (12)
 
         self.fail()
 

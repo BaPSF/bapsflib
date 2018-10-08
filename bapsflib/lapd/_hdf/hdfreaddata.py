@@ -164,8 +164,9 @@ class hdfReadData(np.recarray):
         #              header dataset (dheader)
         #
         # Build kwargs for construct_dataset_name()
-        kwargs = {'return_info': True,
-                  'silent': silent}
+        # kwargs = {'return_info': True,
+        #           'silent': silent}
+        kwargs = {'return_info': True}
         if config_name is not None:
             kwargs['config_name'] = config_name
         if adc is not None:
@@ -700,12 +701,18 @@ class hdfReadData(np.recarray):
             'clock rate' item in :attr:`info`.
         :rtype: float
         """
+        # calc base dt
+        dt = 1.0 / self.info['clock rate']
+        dt = dt.to('s')
+
+        '''
         # define unit conversions
         units = {'GHz': 1.E9, 'MHz': 1.E6, 'kHz': 1.E3, 'Hz': 1.0}
 
         # calc base dt
         dt = 1.0 / (self.info['clock rate'][0] *
                     units[self.info['clock rate'][1]])
+        '''
 
         # adjust for hardware averaging
         if self.info['sample average'] is not None:

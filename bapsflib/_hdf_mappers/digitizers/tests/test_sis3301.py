@@ -18,6 +18,7 @@ import numpy as np
 import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
+from unittest import mock
 
 from .common import DigitizerTestCase
 from ..sis3301 import HDFMapDigiSIS3301
@@ -39,6 +40,120 @@ class TestSIS3301(DigitizerTestCase):
 
     def tearDown(self):
         super().tearDown()
+
+    def test_construct_dataset_name(self):
+        """Test functionality of method `construct_dataset_name`"""
+        # setup
+        config_name = 'config01'
+        adc = 'SIS 3301'
+        config_path = 'Configuration: {}'.format(config_name)
+        my_bcs = [(0, (0, 3, 5)),
+                  (3, (0, 1, 2, 3)),
+                  (5, (5, 6, 7))]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for brd, chns in my_bcs:
+            bc_arr[brd, chns] = True
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.active_brdch = bc_arr
+
+        # -- Handling of kwarg `config_name`                        ----
+        # not specified, and only ONE active config
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        with self.assertWarns(UserWarning):
+            self.assertEqual(self.map.construct_dataset_name(brd, ch),
+                             dset_name)
+
+        # not specified, and MULTIPLE active configs
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        self.mod.knobs.active_config = (config_name, 'config02')
+        self.assertRaises(ValueError,
+                          self.map.construct_dataset_name, brd, ch)
+        self.mod.knobs.active_config = config_name
+
+        # not specified, and NO active configs
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        _map = self.map
+        with mock.patch.object(HDFMapDigiSIS3301, 'active_configs',
+                               new_callable=mock.PropertyMock) \
+                as mock_aconfig:
+            mock_aconfig.return_value = []
+            self.assertRaises(ValueError,
+                              _map.construct_dataset_name, brd, ch)
+
+        # `config_name` not in configs
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        self.assertRaises(ValueError,
+                          self.map.construct_dataset_name,
+                          brd, ch, config_name='not a config')
+
+        # `config_name` in configs but not active
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        self.assertRaises(ValueError,
+                          self.map.construct_dataset_name,
+                          brd, ch, config_name='config02')
+
+        # -- Handling of kwarg `adc`                                ----
+        # `adc` not 'SIS 3301'
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        self.assertRaises(ValueError,
+                          self.map.construct_dataset_name,
+                          brd, ch, adc='not SIS 3301')
+
+        # -- `board` and `channel` combo not in configs             ----
+        brd = 1
+        ch = 1
+        for conn in my_bcs:
+            if brd == conn[0] and ch in conn[1]:
+                self.fail("test setup is incorrect, brd and ch should "
+                          "not be in connections")
+        self.assertRaises(ValueError,
+                          self.map.construct_dataset_name, brd, ch)
+
+        # -- return when `return_info=True`                         ----
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        _map = self.map
+        d_info = {}
+        for conn in _map.configs[config_name][adc]:
+            if brd == conn[0] and ch in conn[1]:
+                d_info = conn[2]
+                break
+
+        # get dset_name
+        val = _map.construct_dataset_name(brd, ch, return_info=True)
+
+        self.assertIsInstance(val, tuple)
+        self.assertEqual(len(val), 2)
+
+        # first element is dataset name
+        self.assertEqual(val[0], dset_name)
+
+        # second element is dataset info
+        self.assertIsInstance(val[1], dict)
+        keys = ('adc', 'bit', 'clock rate', 'configuration name',
+                'digitizer', 'nshotnum', 'nt',
+                'sample average (hardware)',
+                'shot average (software)')
+        for key in keys:
+            self.assertIn(key, val[1])
+
+            if key == 'adc':
+                self.assertEqual(val[1][key], adc)
+            elif key == 'configuration name':
+                self.assertEqual(val[1][key], config_name)
+            elif key == 'digitizer':
+                self.assertEqual(val[1][key], _map.info['group name'])
+            else:
+                self.assertEqual(val[1][key], d_info[key])
 
     def test_map_failures(self):
         """Test scenarios that should raise HDFMappingError"""
@@ -594,8 +709,6 @@ class TestSIS3301(DigitizerTestCase):
             hdset_name = dset_name + ' headers'
             del self.dgroup[hdset_name]
             self.dgroup.move(hdset_name + 'Q', hdset_name)
-
-        self.fail()
 
     def test_mappings(self):
         # -- One Config & One Active Config                         ----

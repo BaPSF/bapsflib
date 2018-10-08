@@ -787,7 +787,8 @@ class TestSIS3301(DigitizerTestCase):
         _map = self.map
         self.assertDigitizerMapBasics(_map, self.dgroup)
         self.assertEqual(_map.active_configs, [config_name])
-        self.assertEqual(list(_map.configs), self.mod.config_names)
+        self.assertEqual(set(list(_map.configs)),
+                         set(self.mod.config_names))
         self.assertConnectionsEqual(_map, tuple(my_bcs),
                                     adc, config_name)
 

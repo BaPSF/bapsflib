@@ -14,6 +14,7 @@
 # TODO: testing of shot and sample averaging identification
 # - this feature has to be added to the FauxSIS3301 first
 #
+import numpy as np
 import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
@@ -136,6 +137,20 @@ class TestSIS3301(DigitizerTestCase):
         #     convertible to int
         # 11. an expected dataset is missing
         # 12. all expected datasets for a board are missing
+        # 13. dataset has fields
+        # 14. data set is not a 2D array
+        # 15. number of dataset time samples not consistent for all
+        #     channels connected to a board
+        # 16. number of dataset shot number not consistent for all
+        #     channels connect to a board, but are still consistent
+        #     with their associated header dataset
+        # 17. header dataset missing expected shot number field
+        # 18. shot number field in header dataset does not have
+        #     expected shape and/or dtype
+        # 19. dataset and associated header dataset do not have same
+        #     number of shot numbers
+        # 20. after all the above checks, ensure the connected channels
+        #     are not NULL for the board
         #
         # setup group
         config_name = 'config01'
@@ -301,8 +316,284 @@ class TestSIS3301(DigitizerTestCase):
         # an expected dataset is missing                            (11)
         # i.e. the config groups define a board-channel combo that
         #      does not have an existing dataset
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        new_name = dset_name + 'Q'
+        self.dgroup.move(dset_name, new_name)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        self.dgroup.move(new_name, dset_name)
 
         # all expected datasets for a given board are missing       (12)
+        brd = my_bcs[0][0]
+        chs = my_bcs[0][1]
+        for ch in chs:
+            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            new_name = dset_name + 'Q'
+            self.dgroup.move(dset_name, new_name)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                brd,
+                [conn[0] for conn in _map.configs[config_name][adc]]
+            )
+        for ch in chs:
+            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            new_name = dset_name + 'Q'
+            self.dgroup.move(new_name, dset_name)
+
+        # datasets has fields                                       (13)
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        new_name = dset_name + 'Q'
+        self.dgroup.move(dset_name, new_name)
+        data = np.empty(3, dtype=[('f1', np.int16), ('f2', np.int16)])
+        self.dgroup.create_dataset(dset_name, data=data)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        del self.dgroup[dset_name]
+        self.dgroup.move(new_name, dset_name)
+
+        # dataset is not a 2D array                                 (14)
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        new_name = dset_name + 'Q'
+        self.dgroup.move(dset_name, new_name)
+        data = np.empty((3, 100, 3), dtype=np.int16)
+        self.dgroup.create_dataset(dset_name, data=data)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        del self.dgroup[dset_name]
+        self.dgroup.move(new_name, dset_name)
+
+        # number of dataset time samples not consistent for         (15)
+        # all channels connected to board
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        new_name = dset_name + 'Q'
+        self.dgroup.move(dset_name, new_name)
+        dset = self.dgroup[new_name]
+        data = np.empty((dset.shape[0], dset.shape[1] + 1),
+                        dtype=dset.dtype)
+        self.dgroup.create_dataset(dset_name, data=data)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+                    # nt is set to -1
+                    self.assertEqual(conn[2]['nt'], -1)
+
+            # channel still in mapping
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertIn(ch, chs)
+        del self.dgroup[dset_name]
+        self.dgroup.move(new_name, dset_name)
+
+        # number dataset shot numbers not consistent for all        (16)
+        # channels connected to board, but are still consistent
+        # with their associated header dataset
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        hdset_name = dset_name + ' headers'
+        data = self.dgroup[dset_name][...]
+        hdata = self.dgroup[hdset_name][...]
+        data2 = np.append(data, data[-2::, ...], axis=0)
+        hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
+        self.dgroup.move(dset_name, dset_name + 'Q')
+        self.dgroup.move(hdset_name, hdset_name + 'Q')
+        self.dgroup.create_dataset(dset_name, data=data2)
+        self.dgroup.create_dataset(hdset_name, data=hdata2)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+                    # nshotnum is set to -1
+                    self.assertEqual(conn[2]['nshotnum'], -1)
+
+            # channel still in mapping
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertIn(ch, chs)
+        del self.dgroup[dset_name]
+        del self.dgroup[hdset_name]
+        self.dgroup.move(dset_name + 'Q', dset_name)
+        self.dgroup.move(hdset_name + 'Q', hdset_name)
+
+        # header dataset missing expected shot number field         (17)
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        hdset_name = dset_name + ' headers'
+        hdata = self.dgroup[hdset_name][...]
+        names = list(hdata.dtype.names)
+        names.remove('Shot')
+        hdata2 = hdata[names]
+        self.dgroup.move(hdset_name, hdset_name + 'Q')
+        self.dgroup.create_dataset(hdset_name, data=hdata2)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            # channel not in mapping
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        del self.dgroup[hdset_name]
+        self.dgroup.move(hdset_name + 'Q', hdset_name)
+
+        # shot number field in header dataset does not have         (18)
+        # expected shape and/or dtype
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        hdset_name = dset_name + ' headers'
+        hdata = self.dgroup[hdset_name][...]
+        self.dgroup.move(hdset_name, hdset_name + 'Q')
+
+        # wrong dtype
+        hdata2 = np.empty(hdata.shape, dtype=[('Shot', np.float32)])
+        self.dgroup.create_dataset(hdset_name, data=hdata2)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            # channel not in mapping
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        del self.dgroup[hdset_name]
+
+        # wrong shape
+        hdata2 = np.empty(hdata.shape, dtype=[('Shot', np.uint32, 2)])
+        self.dgroup.create_dataset(hdset_name, data=hdata2)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            # channel not in mapping
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        del self.dgroup[hdset_name]
+        self.dgroup.move(hdset_name + 'Q', hdset_name)
+
+        # dataset and associated header dataset do not have same    (19)
+        # number of shot numbers
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        hdset_name = dset_name + ' headers'
+        hdata = self.dgroup[hdset_name][...]
+        hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
+        self.dgroup.move(hdset_name, hdset_name + 'Q')
+        self.dgroup.create_dataset(hdset_name, data=hdata2)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            # channel not in mapping
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(ch, chs)
+        del self.dgroup[hdset_name]
+        self.dgroup.move(hdset_name + 'Q', hdset_name)
+
+        # after all the above checks, ensure the connected          (20)
+        # channels are not NULL for the board
+        # i.e. this could happen if all the header datasets for a
+        #      given board are missing the shot number field
+        brd = my_bcs[0][0]
+        chs = my_bcs[0][1]
+        for ch in chs:
+            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            hdset_name = dset_name + ' headers'
+
+            hdata = self.dgroup[hdset_name][...]
+            names = list(hdata.dtype.names)
+            names.remove('Shot')
+            hdata2 = hdata[names]
+
+            self.dgroup.move(hdset_name, hdset_name + 'Q')
+            self.dgroup.create_dataset(hdset_name, data=hdata2)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                brd,
+                [conn[0] for conn in _map.configs[config_name][adc]]
+            )
+        for ch in chs:
+            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            hdset_name = dset_name + ' headers'
+            del self.dgroup[hdset_name]
+            self.dgroup.move(hdset_name + 'Q', hdset_name)
 
         self.fail()
 

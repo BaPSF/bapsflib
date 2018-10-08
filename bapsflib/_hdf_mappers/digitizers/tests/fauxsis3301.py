@@ -10,6 +10,8 @@
 #
 import h5py
 import numpy as np
+
+from typing import Iterable
 from warnings import warn
 
 
@@ -18,7 +20,7 @@ class FauxSIS3301(h5py.Group):
     Creates a Faux 'SIS 3301' Group in a HDF5 file.
     """
 
-    # noinspection SpellCheckingInspection
+    # noinspection SpellCheckingInspection,PyProtectedMember
     class _knobs(object):
         """
         A class that contains all the controls for specifying the
@@ -42,8 +44,8 @@ class FauxSIS3301(h5py.Group):
             Set the active board, channel combinations
             """
             if isinstance(val, np.ndarray):
-                if val.shape == self._faux._active_brdch.shape \
-                        and val.dtype == self._faux._active_brdch.dtype \
+                if val.shape == (13, 8) \
+                        and np.issubdtype(val.dtype, np.bool) \
                         and np.any(val):
                     self._faux._active_brdch = val
                     self._faux._update()
@@ -59,7 +61,15 @@ class FauxSIS3301(h5py.Group):
 
         @active_config.setter
         def active_config(self, val):
-            if val in self._faux._config_names:
+            if not isinstance(val, Iterable) or isinstance(val, str):
+                val = (val,)
+            elif isinstance(val, tuple):
+                pass
+            else:
+                val = tuple(val)
+
+            # if val in self._faux._config_names:
+            if all(cname in self._faux._config_names for cname in val):
                 if val != self._faux._active_config:
                     self._faux._active_config = val
                     self._faux._update()
@@ -160,7 +170,7 @@ class FauxSIS3301(h5py.Group):
         self._active_brdch = np.zeros((13, 8), dtype=bool)
         self._active_brdch[0][0] = True
         self._config_names = []
-        self._active_config = 'config01'
+        self._active_config = ('config01',)
 
     def _set_sis3301_attrs(self):
         """Sets the 'SIS 3301' group attributes"""
@@ -193,8 +203,9 @@ class FauxSIS3301(h5py.Group):
             self._build_config_group(config_name)
 
         # reset active configuration if necessary
-        if self._active_config not in self._config_names:
-            self._active_config = self._config_names[0]
+        if not all(cname in self._config_names
+                   for cname in self._active_config):
+            self._active_config = (self._config_names[0],)
 
         # build datasets
         self._build_datasets()
@@ -228,7 +239,7 @@ class FauxSIS3301(h5py.Group):
         brd_index = np.where(brd_bool_arr)[0]
         for brd in brd_index:
             # create Board[] group
-            brd_name = 'Board[{}]'.format(brd_count)
+            brd_name = 'Boards[{}]'.format(brd_count)
             brd_path = gname + '/' + brd_name
             self[gname].create_group(brd_name)
             brd_count += 1
@@ -263,28 +274,31 @@ class FauxSIS3301(h5py.Group):
             brd = brds[i]
             ch = chs[i]
 
-            # create dataset
-            dset_name = (self._active_config
-                         + ' [{}:{}]'.format(brd, ch))
-            shape = (self._sn_size, self._nt)
-            data = np.empty(shape=shape, dtype=np.int16)
-            self.create_dataset(dset_name, data=data)
+            # create and populate datasets
+            for cname in self._active_config:
+                # create "main" data set
+                # dset_name = (self._active_config
+                #              + ' [{}:{}]'.format(brd, ch))
+                dset_name = cname + ' [{}:{}]'.format(brd, ch)
+                shape = (self._sn_size, self._nt)
+                data = np.empty(shape=shape, dtype=np.int16)
+                self.create_dataset(dset_name, data=data)
 
-            # create header dataset
-            dheader_name = dset_name + ' headers'
-            shape = (self._sn_size, )
-            dtype = np.dtype([('Shot', np.uint32),
-                              ('Scale', np.float64),
-                              ('Offset', np.float64),
-                              ('Min', np.int16),
-                              ('Max', np.int16),
-                              ('Clipped', np.uint8)])
-            dheader = np.empty(shape=shape, dtype=dtype)
-            dheader['Shot'] = np.arange(1, shape[0] + 1, 1,
-                                        dtype=dheader['Shot'].dtype)
-            dheader['Scale'] = 3.051944077014923E-4
-            dheader['Offset'] = -2.5
-            dheader['Min'] = data.min(axis=1)
-            dheader['Max'] = data.max(axis=1)
-            dheader['Clipped'] = 0
-            self.create_dataset(dheader_name, data=dheader)
+                # create & populate header dataset
+                dheader_name = dset_name + ' headers'
+                shape = (self._sn_size, )
+                dtype = np.dtype([('Shot', np.uint32),
+                                  ('Scale', np.float64),
+                                  ('Offset', np.float64),
+                                  ('Min', np.int16),
+                                  ('Max', np.int16),
+                                  ('Clipped', np.uint8)])
+                dheader = np.empty(shape=shape, dtype=dtype)
+                dheader['Shot'] = np.arange(1, shape[0] + 1, 1,
+                                            dtype=dheader['Shot'].dtype)
+                dheader['Scale'] = 3.051944077014923E-4
+                dheader['Offset'] = -2.5
+                dheader['Min'] = data.min(axis=1)
+                dheader['Max'] = data.max(axis=1)
+                dheader['Clipped'] = 0
+                self.create_dataset(dheader_name, data=dheader)

@@ -115,6 +115,169 @@ class TestSIS3301(DigitizerTestCase):
             _map = self.map
 
     def test_map_warnings(self):
+        """Test scenarios that should cause a UserWarning."""
+        # 1. a configuration group sub-group does not match naming
+        #    scheme for a board config group
+        # 2. 'Board' attribute for a board config group is not an int
+        #    or np.integer
+        # 3. 'Board' attribute for a board config group is a negative
+        #    integer
+        # 4. for a none active config, two board groups define the same
+        #    board number
+        # 5. a board config sub-group does not match the naming scheme
+        #    for a channel group
+        # 6. 'Channel' attribute for a channel config group is not an
+        #    int or np.integer
+        # 7. 'Channel' attribute for a channel config group is a
+        #    negative integer
+        # 8. two channel config groups define the same channel number
+        #
+        # setup group
+        config_name = 'config01'
+        adc = 'SIS 3301'
+        config_path = 'Configuration: {}'.format(config_name)
+        my_bcs = [(0, (0, 3, 5)),
+                  (3, (0, 1, 2, 3)),
+                  (5, (5, 6, 7))]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for brd, chns in my_bcs:
+            bc_arr[brd, chns] = True
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.active_brdch = bc_arr
+
+        # -- warnings that occur in `_find_adc_connections`         ----
+        # configuration group sub-group does not match board group   (1)
+        # name
+        brd_path = config_path + '/Boards[0]'
+        new_path = config_path + '/Not a board'
+        self.dgroup.move(brd_path, new_path)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+        self.dgroup.move(new_path, brd_path)
+
+        # 'Board' attribute for a board config group is not an int   (2)
+        # or np.integer
+        brd_path = config_path + '/Boards[0]'
+        brd_group = self.dgroup[brd_path]
+        brd = brd_group.attrs['Board']
+        brd_group.attrs['Board'] = 'five'
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                'five',
+                [conn[0] for conn in _map.configs[config_name][adc]])
+
+        # 'Board' attribute for a board config group is a negative   (3)
+        # int
+        brd_group.attrs['Board'] = -1
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                -1,
+                [conn[0] for conn in _map.configs[config_name][adc]])
+        brd_group.attrs['Board'] = brd
+
+        # for none active config, two board config groups define     (4)
+        # the same board number
+        path = 'Configuration: config02/Boards[0]'
+        path2 = 'Configuration: config02/Boards[1]'
+        brd = self.dgroup[path2].attrs['Board']
+        self.dgroup[path2].attrs['Board'] = \
+            self.dgroup[path].attrs['Board']
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                brd,
+                [conn[0] for conn in _map.configs['config02'][adc]])
+        self.dgroup[path2].attrs['Board'] = brd
+
+        # a board config group sub-group does not match naming       (5)
+        # scheme for a channel group
+        brd_path = config_path + '/Boards[0]'
+        ch_path = brd_path + '/Channels[0]'
+        new_path = brd_path + '/Not a channel'
+        self.dgroup.move(ch_path, new_path)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+        self.dgroup.move(new_path, ch_path)
+
+        # 'Channel' attribute for a channel config group is not an   (6)
+        # int or np.integer
+        brd_path = config_path + '/Boards[0]'
+        ch_path = brd_path + '/Channels[0]'
+        ch_group = self.dgroup[ch_path]
+        brd = self.dgroup[brd_path].attrs['Board']
+        ch = ch_group.attrs['Channel']
+        ch_group.attrs['Channel'] = 'five'
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn('five', chs)
+
+        # 'Channel' attribute for a channel config group is a        (7)
+        # negative int
+        ch_group.attrs['Channel'] = -1
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            chs = None
+            for conn in _map.configs[config_name][adc]:
+                if conn[0] == brd:
+                    chs = conn[1]
+
+            if chs is None:
+                self.fail('board missing from connections')
+            else:
+                self.assertNotIn(-1, chs)
+        ch_group.attrs['Channel'] = ch
+
+        # two channel config groups define the same channel number   (8)
+        path = brd_path + '/Channels[0]'
+        path2 = brd_path + '/Channels[1]'
+        brd = self.dgroup[brd_path].attrs['Board']
+        ch = self.dgroup[path2].attrs['Channel']
+        self.dgroup[path2].attrs['Channel'] = \
+            self.dgroup[path].attrs['Channel']
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                brd,
+                [conn[0] for conn in _map.configs[config_name][adc]])
+        self.dgroup[path2].attrs['Channel'] = ch
+
+        # the list of discovered channel numbers is NULL             (9)
+        # - this could happen if there are no channel config groups
+        brd_path = config_path + '/Boards[0]'
+        brd = self.dgroup[brd_path].attrs['Board']
+        ch_group_names = list(self.dgroup[brd_path])
+        for name in ch_group_names:
+            old_path = brd_path + '/' + name
+            new_path = old_path + 'Q'
+            self.dgroup.move(old_path, new_path)
+        with self.assertWarns(UserWarning):
+            _map = self.map
+
+            self.assertNotIn(
+                brd,
+                [conn[0] for conn in _map.configs[config_name][adc]])
+        for name in ch_group_names:
+            old_path = brd_path + '/' + name
+            new_path = old_path + 'Q'
+            self.dgroup.move(new_path, old_path)
+
         self.fail()
 
     def test_mappings(self):

@@ -46,7 +46,7 @@ class TestSIS3301(DigitizerTestCase):
         # setup
         config_name = 'config01'
         adc = 'SIS 3301'
-        config_path = 'Configuration: {}'.format(config_name)
+        # config_path = 'Configuration: {}'.format(config_name)
         my_bcs = [(0, (0, 3, 5)),
                   (3, (0, 1, 2, 3)),
                   (5, (5, 6, 7))]
@@ -154,6 +154,43 @@ class TestSIS3301(DigitizerTestCase):
                 self.assertEqual(val[1][key], _map.info['group name'])
             else:
                 self.assertEqual(val[1][key], d_info[key])
+
+    def test_construct_header_dataset_name(self):
+        """
+        Test functionality of method `construct_header_dataset_name`
+        """
+        # setup:
+        config_name = 'config01'
+        # adc = 'SIS 3301'
+        # config_path = 'Configuration: {}'.format(config_name)
+        my_bcs = [(0, (0, 3, 5)),
+                  (3, (0, 1, 2, 3)),
+                  (5, (5, 6, 7))]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for brd, chns in my_bcs:
+            bc_arr[brd, chns] = True
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.active_brdch = bc_arr
+
+        # `return_info` does NOT return extra info
+        brd = my_bcs[0][0]
+        ch = my_bcs[0][1][0]
+        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        hdset_name = dset_name + ' headers'
+        _map = self.map
+        with mock.patch.object(
+                HDFMapDigiSIS3301, 'construct_dataset_name',
+                wraps=_map.construct_dataset_name) as mock_cdn:
+
+            name = _map.construct_header_dataset_name(
+                brd, ch, return_info=True)
+
+            # check `construct_dataset_name` was called
+            self.assertTrue(mock_cdn.called)
+
+            # check equality
+            self.assertEqual(name, hdset_name)
 
     def test_map_failures(self):
         """Test scenarios that should raise HDFMappingError"""

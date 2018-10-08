@@ -15,6 +15,7 @@ import os
 import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from typing import Tuple
 
 from ..templates import HDFMapDigiTemplate
 
@@ -70,16 +71,16 @@ class DigitizerTestCase(ut.TestCase):
         cls.f.cleanup()
 
     @property
-    def map(self):
+    def map(self) -> HDFMapDigiTemplate:
         """Map object of device"""
         return self.map_device(self.dgroup)
 
     @property
-    def dgroup(self):
+    def dgroup(self) -> h5py.Group:
         """Device HDF5 group"""
         return self.f[self.DEVICE_PATH]
 
-    def map_device(self, group):
+    def map_device(self, group: h5py.Group) -> HDFMapDigiTemplate:
         """Mapping function"""
         return self.MAP_CLASS(group)
 
@@ -430,3 +431,20 @@ class DigitizerTestCase(ut.TestCase):
                 dset_name = _map.construct_dataset_name(**kwargs)
                 self.assertIsInstance(dset_name, str)
                 self.assertIsNotNone(_group.get(dset_name))
+
+    def assertConnectionsEqual(
+            self,
+            _map: HDFMapDigiTemplate,
+            connections: Tuple[Tuple[int, Tuple[int, ...]], ...],
+            adc: str,
+            config_name: str):
+        """
+        Test equality of mapped adc connections and expected
+        adc connections.
+        """
+        map_conns = _map.configs[config_name][adc]
+        filter_conns = []
+        for conn in map_conns:
+            filter_conns.append((conn[0], conn[1]))
+        map_conns = tuple(filter_conns)
+        self.assertEqual(map_conns, connections)

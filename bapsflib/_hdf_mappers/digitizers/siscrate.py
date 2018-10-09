@@ -574,50 +574,76 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                   (2, 'SIS 3305'): 15}
         return bs_map[(brd, adc)]
 
-    def construct_dataset_name(self, board, channel,
-                               config_name=None, adc=None,
-                               return_info=False, silent=False):
+    def construct_dataset_name(
+            self, board: int, channel: int,
+            config_name=None, adc=None, return_info=False
+    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
         """
-        Constructs the HDF5 dataset name based on inputs.  The dataset
-        name follows the format:
+        Construct the name of the HDF5 dataset containing digitizer
+        data. The dataset naming follows two formats based on their
+        associated adc::
 
-            | `config_name` [Slot `#`: SIS `####` FPGA `#` ch `#`]
+            # for 'SIS 3302'
+            '<config_name> [Slot <slot>: SIS 3302 ch <ch>]'
 
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate.construct_dataset_name`
-        of the base class for details)
+            # for 'SIS 3305'
+            '<config_name> [Slot <slot>: SIS 3305 FPGA <num> ch <ch>]'
+
+        where `<config_name>` is the digitizer configuration name,
+        `<slot>` is the slot number in the digitizer crate that is
+        associated with the board number, `<ch>` is the requested
+        channel number, and `<num>` is the FPGA number.  Only the
+        'SIS 3305' utilizes the FPGA nomenclature, where channels 1-4
+        reside on 'FPGA 1' and channels 5-8 reside on 'FPGA 2'.
+
+        :param board: board number
+        :param channel: channel number
+        :param str config_name: digitizer configuration name
+        :param str adc: analog-digital-converter name
+        :param bool return_info: :code:`True` will return a dictionary
+            of meta-info associated with the digitizer data
+            (DEFAULT :code:`False`)
+        :returns: digitizer dataset name. If :code:`return_info=True`,
+            then returns a tuple of (dataset name, dictionary of
+            meta-info)
+
+        The returned adc information dictionary looks like::
+
+            adc_dict = {
+                'adc': str,
+                'bit': int,
+                'clock rate': astropy.units.Quantity,
+                'configuration name': str,
+                'digitizer': str,
+                'nshotnum': int,
+                'nt': int,
+                'sample average (hardware)': int,
+                'shot average (software)': int,
+            }
         """
-        # TODO: Replace Warnings with proper error handling
-
-        # initiate warning string
-        warn_str = ''
-
         # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
         if config_name is None:
-            found = 0
-            for name in self._configs:
-                if self._configs[name]['active'] is True:
-                    config_name = name
-                    found += 1
-
-            if found == 1:
-                warn_str = ('\nconfig_name not specified, '
-                            'assuming ' + config_name + '.')
-            elif found >= 1:
-                raise ValueError("There are multiple active digitizer"
-                                 "configurations. User must specify"
-                                 "config_name keyword.")
+            if len(self.active_configs) == 1:
+                config_name = self.active_configs[0]
+                warn("`config_name` not specified, assuming '"
+                     + config_name + "'.")
+            elif len(self.active_configs) > 1:
+                raise ValueError(
+                    "There are multiple active digitizer "
+                    "configurations...`config_name` kwarg must be "
+                    "specified.")
             else:
-                raise ValueError("No active digitizer configuration "
-                                 "detected.")
+                raise ValueError(
+                    "No active digitizer configuration detected.")
         elif config_name not in self._configs:
             # config_name must be a known configuration
-            raise ValueError('Invalid configuration name given.')
+            raise ValueError("Invalid `config_name` given.")
         elif self._configs[config_name]['active'] is False:
-            raise ValueError('Specified configuration name is not '
-                             'active.')
+            raise ValueError(
+                "Specified configuration name `config_name` is not "
+                "active.")
 
         # Condition adc
         # - if adc is not specified then the slow adc '3302' is assumed
@@ -625,8 +651,13 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # - self.__config_crates() always adds 'SIS 3302' first. If
         #   '3302' is not active then the list will only contain '3305'.
         if adc is None:
-            adc = self._configs[config_name]['adc'][0]
-            warn_str += '\nNo adc specified, so assuming ' + adc + '.'
+            if len(self.configs[config_name]['adc']) == 1:
+                adc = self.configs[config_name]['adc'][0]
+                warn("No `adc` specified, but only one adc used..."
+                     "assuming adc '{}'".format(adc))
+            elif len(self.configs[config_name]['adc']) > 1:
+                adc = 'SIS 3302'
+                warn("No `adc` specified...assuming adc 'SIS 3302'")
         elif adc not in self._configs[config_name]['adc']:
             raise ValueError(
                 'Specified adc ({}) is not in specified '.format(adc)
@@ -636,27 +667,31 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         bc_valid = False
         d_info = None
         for brd, chs, extras in self._configs[config_name][adc]:
-            if board == brd:
-                if channel in chs:
-                    bc_valid = True
+            if board == brd and channel in chs:
+                # board, channel combo valid
+                bc_valid = True
 
-                    # save adc settings for return if requested
+                # save adc settings for return if requested
+                if return_info:
                     d_info = extras
                     d_info['adc'] = adc
                     d_info['configuration name'] = config_name
                     d_info['digitizer'] = self._info['group name']
+                break
 
         # (board, channel) combo must be active
         if bc_valid is False:
-            raise ValueError('Specified (board, channel) is not valid')
+            raise ValueError(
+                "Input `board` and `channel` do NOT specified a "
+                "valid dataset.")
 
         # checks passed, build dataset_name
-        if '3302' in adc:
-            slot = self.brd_to_slot(board, 'SIS 3302')
+        slot = self.brd_to_slot(board, adc)
+        if adc == 'SIS 3302':
             dataset_name = '{0} [Slot {1}: SIS 3302 ch {2}]'.format(
                 config_name, slot, channel)
-        elif '3305' in adc:
-            slot = self.brd_to_slot(board, 'SIS 3305')
+        else:
+            # this is 'SIS 3305'
             if channel in range(1, 5):
                 fpga = 1
                 ch = channel
@@ -664,16 +699,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 fpga = 2
                 ch = channel - 4
 
-            dataset_name = '{0} [Slot {1}: '.format(config_name, slot) \
-                           + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga,
-                                                                ch)
-        else:
-            raise ValueError('We have a problem! Somehow adc '
-                             + '({}) is not known.'.format(adc))
-
-        # print warnings
-        if not silent and warn_str != '':
-            warn(warn_str)
+            dataset_name = (
+                '{0} [Slot {1}: '.format(config_name, slot)
+                + 'SIS 3305 FPGA {0} ch {1}]'.format(fpga, ch))
 
         # return
         if return_info is True:

@@ -342,7 +342,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         adc_pairs = []
         for slot, index in zip(slots, indices):
             if slot != 3:
-                brd, adc = self.slot_to_brd(slot)
+                brd, adc = self.slot_info[slot]
                 adc_pairs.append((slot, index, brd, adc))
 
         # Ensure the same configuration index is not assign to multiple
@@ -735,7 +735,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # ensure return_info kwarg is always False
         kwargs['return_info'] = False
 
-        # get dataset naem
+        # get dataset name
         dset_name = self.construct_dataset_name(board, channel,
                                                 **kwargs)
 
@@ -743,20 +743,18 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         dheader_name = dset_name + ' headers'
         return dheader_name
 
-    @staticmethod
-    def slot_to_brd(slot):
+    @property
+    def slot_info(self):
         """
-        Translates the 'SIS crate` slot number to the board number and
-        adc.
-
-        :param int slot: digitizer slot number
-        :return: (board number, adc name)
-        :rtype: (int, str)
+        Slot info dictionary.  Contains relationship between slot
+        number and the associated board number and adc name.
         """
-        sb_map = {5: (1, 'SIS 3302'),
-                  7: (2, 'SIS 3302'),
-                  9: (3, 'SIS 3302'),
-                  11: (4, 'SIS 3302'),
-                  13: (1, 'SIS 3305'),
-                  15: (2, 'SIS 3305')}
-        return sb_map[slot]
+        slot_info = {
+            5: (1, 'SIS 3302'),
+            7: (2, 'SIS 3302'),
+            9: (3, 'SIS 3302'),
+            11: (4, 'SIS 3302'),
+            13: (1, 'SIS 3305'),
+            15: (2, 'SIS 3305'),
+        }
+        return slot_info

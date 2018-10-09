@@ -742,7 +742,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         return dheader_name
 
     @property
-    def slot_info(self):
+    def slot_info(self) -> Dict[int, Tuple[int, str]]:
         """
         Slot info dictionary.  Contains relationship between slot
         number and the associated board number and adc name.

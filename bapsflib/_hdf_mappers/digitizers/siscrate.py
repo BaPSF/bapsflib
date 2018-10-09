@@ -427,7 +427,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         Parses :code:`name` to determine the digitizer configuration
         name.  A configuration group name follows the format::
 
-            '<configurtion name>'
+            '<configuration name>'
 
         :param name: name of potential configuration group
         :returns: digitizer configuration name, or :code:`None` if
@@ -447,7 +447,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             return
         elif not isinstance(self.group[name], h5py.Group):
             return
-        elif all(attr in self.group[name] for attr in expected_attrs):
+        elif all(attr in self.group[name].attrs
+                 for attr in expected_attrs):
             return name
         else:
             return

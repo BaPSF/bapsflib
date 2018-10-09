@@ -421,42 +421,35 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # return
         return nshotnum, nt
 
-    @staticmethod
-    def _parse_config_name(name):
+    def _parse_config_name(self, name: str) -> Union[None, str]:
         """
         Parses :code:`name` to determine the digitizer configuration
-        name.  A configuration group name follows the format:
+        name.  A configuration group name follows the format::
 
-            | `config_name`
+            '<configurtion name>'
 
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate.parse_config_name`
-        of the base class for details)
+        :param name: name of potential configuration group
+        :returns: digitizer configuration name, or :code:`None` if
+            `name` does not represent a configuration group
+
+        .. note::
+
+            The group is only considered a configuration group if it
+            contains the attributes :ibf:`'SIS crate board types'`,
+            :ibf:`'SIS crate config indices'`, and
+            :ibf:`'SIS crate slot numbers'`
         """
-        return True, name
-
-    '''
-    @staticmethod
-    def deduce_config_active_status(config_name, dataset_names):
-        """
-        Determines if :code:`config_name` is an active digitizer
-        configuration.
-
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate.deduce_config_active_status`
-        of the base class for details)
-        """
-        active = False
-
-        # if config_name is in any dataset name then config_name is
-        # active
-        for name in dataset_names:
-            if config_name in name:
-                active = True
-                break
-
-        return active
-    '''
+        expected_attrs = ('SIS crate board types',
+                          'SIS crate config indices',
+                          'SIS crate slot numbers')
+        if name not in self.group:
+            return
+        elif not isinstance(self.group[name], h5py.Group):
+            return
+        elif all(attr in self.group[name] for attr in expected_attrs):
+            return name
+        else:
+            return
 
     @staticmethod
     def brd_to_slot(brd, adc):

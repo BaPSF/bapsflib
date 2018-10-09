@@ -43,16 +43,46 @@ class FauxSISCrate(h5py.Group):
             """
             Set the active board, channel combinations
             """
-            if isinstance(val, np.ndarray):
-                if val.shape == (13, 8) \
-                        and np.issubdtype(val.dtype, np.bool) \
-                        and np.any(val):
-                    self._faux._active_brdch = val
-                    self._faux._update()
-                else:
-                    warn('`val` not valid, no update performed')
-            else:
+            if not isinstance(val, np.ndarray):
                 warn('`val` not valid, no update performed')
+                return
+            elif val.shape != ():
+                warn('`val` not valid, no update performed')
+                return
+            elif not all(name in val.dtype.names
+                         for name in self._faux.device_adc):
+                warn('`val` not valid, no update performed')
+                return
+            elif val.dtype['SIS 3302'].shape != (4, 8) \
+                    or val.dtype['SIS 3305'].shape != (2, 8):
+                warn('`val` not valid, no update performed')
+                return
+            elif not np.any(val['SIS 3302']) \
+                    and not np.any(val['SIS 3305']):
+                warn('`val` not valid, no update performed')
+                return
+
+            # check agains 'SIS 3305' mode
+            # - prevent enabling channels that can't be enabled for
+            #   the SIS 3305 mode
+            if self.sis3305_mode == 2:
+                mask = np.array(2 * [True, False, False, False],
+                                dtype=np.bool)
+            elif self.sis3305_mode == 1:
+                mask = np.array(2 * [True, False, True, False],
+                                dtype=np.bool)
+            else:
+                mask = np.ones(8, dtype=np.bool)
+            mask = np.logical_not(mask)
+            mask = mask.reshape(1, 8)
+            mask = mask.append(mask, mask, axis=0)
+            if np.any(val['SIS 3305'][mask]):
+                warn('`val` not valid, no update performed')
+                return
+
+            # we're good
+            self._faux._active_brdch = val
+            self._faux._update()
 
         @property
         def active_config(self):

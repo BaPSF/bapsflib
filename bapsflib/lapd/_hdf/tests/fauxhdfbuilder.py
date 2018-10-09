@@ -13,20 +13,23 @@ import inspect
 import os
 import tempfile
 
-from typing import (Dict, Any)
+from bapsflib._hdf_mappers.controls.tests import (
+    FauxWaveform,
+    FauxSixK,
+    FauxN5700PS,
+)
+from bapsflib._hdf_mappers.digitizers.tests import (
+    FauxSIS3301,
+    FauxSISCrate,
+)
 from bapsflib._hdf_mappers.msi.tests import (
     FauxDischarge,
     FauxGasPressure,
     FauxHeater,
     FauxInterferometerArray,
-    FauxMagneticField
+    FauxMagneticField,
 )
-from bapsflib._hdf_mappers.controls.tests import (
-    FauxWaveform,
-    FauxSixK,
-    FauxN5700PS
-)
-from bapsflib._hdf_mappers.digitizers.tests import FauxSIS3301
+from typing import (Dict, Any)
 
 
 class FauxHDFBuilder(h5py.File):
@@ -41,7 +44,8 @@ class FauxHDFBuilder(h5py.File):
         'Magnetic field': FauxMagneticField
     }
     _KNOWN_DIGITIZERS = {
-        'SIS 3301': FauxSIS3301
+        'SIS 3301': FauxSIS3301,
+        'SIS crate': FauxSISCrate,
     }
     _KNOWN_CONTROLS = {
         'Waveform': FauxWaveform,

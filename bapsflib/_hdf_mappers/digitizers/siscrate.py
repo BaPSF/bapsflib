@@ -8,9 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import astropy.units as u
 import h5py
 import numpy as np
+import os
+import re
 
+from bapsflib.utils.errors import HDFMappingError
+from typing import (Any, Dict, Tuple, Union)
 from warnings import warn
 
 from .templates import HDFMapDigiTemplate
@@ -19,6 +24,41 @@ from .templates import HDFMapDigiTemplate
 class HDFMapDigiSISCrate(HDFMapDigiTemplate):
     """
     Mapping class for the 'SIS crate' digitizer.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- SIS crate
+        |   +-- config01
+        |   |   +-- SIS crate 3302 calibration[0]
+        |   |   |   +--
+        .
+        |   |   +-- SIS crate 3302 configurations[0]
+        |   |   |   +--
+        .
+        |   |   +-- SIS crate 3305 calibration[0]
+        |   |   |   +--
+        .
+        |   |   +-- SIS crate 3305 configurations[0]
+        |   |   |   +--
+        .
+        .
+        |   |   +-- SIS crate 3820 configurations[0]
+        |   |   |   +--
+        |   +-- config01 [Slot 5: SIS 3302 ch 1]
+        |   +-- config01 [Slot 5: SIS 3302 ch 1] headers
+        .
+        .
+        .
+        |   +-- config01 [Slot 13: SIS 3305 FPGA 1 ch 1]
+        |   +-- config01 [Slot 13: SIS 3305 FPGA 1 ch 1] headers
+        .
+        |   +-- config01 [Slot 13: SIS 3305 FPGA 2 ch 1]
+        |   +-- config01 [Slot 13: SIS 3305 FPGA 2 ch 1] headers
+        .
+        .
+        .
     """
     def __init__(self, group: h5py.Group):
         """
@@ -27,120 +67,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # initialize
         HDFMapDigiTemplate.__init__(self, group)
 
+        # define device adc's
+        self._device_adcs = ('SIS 3302',
+                             'SIS 3305',)  # type: Tuple[str, ...]
+
         # populate self.configs
         self._build_configs()
-
-    @property
-    def _device_adcs(self):
-        """
-        Predefined (known) adc's for digitizer 'SIS crate'
-
-        (See
-        :attr:`~.templates.HDFMapDigiTemplate._device_adcs`
-        of the base class for details)
-        """
-        return ['SIS 3302', 'SIS 3305']
-
-    def _build_configs(self):
-        """
-        Populates :attr:`configs` dictionary
-
-        (See :meth:`~.templates.HDFMapDigiTemplate._build_configs`
-        and :attr:`~.templates.HDFMapDigiTemplate.configs`
-        of the base class for details)
-        """
-        # self.configs is initialized in the template
-
-        # collect digi_group's dataset names and sub-group names
-        subgroup_names = []
-        dataset_names = []
-        for key in self.group.keys():
-            if isinstance(self.group[key], h5py.Dataset):
-                dataset_names.append(key)
-            if isinstance(self.group[key], h5py.Group):
-                subgroup_names.append(key)
-
-        # populate self.configs
-        for name in subgroup_names:
-            is_config, config_name = self._parse_config_name(name)
-            if is_config:
-                # initialize configuration name in the config dict
-                self._configs[config_name] = {}
-
-                # determine if config is active
-                self._configs[config_name]['active'] = \
-                    self._is_config_active(config_name, dataset_names)
-
-                # assign active adc's to the configuration
-                self._configs[config_name]['adc'] = \
-                    self._find_active_adcs(self.group[name])
-
-                # define 'config group path'
-                self._configs[config_name]['config group path'] = \
-                    self.group[name].name
-
-                # define 'shotnum' entry
-                self._configs[config_name]['shotnum'] = {
-                    'dset field': ('Shot number',),
-                    'shape': (),
-                    'dtype': np.uint32,
-                }
-
-                # add adc info
-                for adc in self._configs[config_name]['adc']:
-                    self._configs[config_name][adc] = \
-                        self._adc_info(adc, self.group[name])
-
-                # update adc info with 'nshotnum' and 'nt'
-                for adc in self._configs[config_name]['adc']:
-                    for conn in self._configs[config_name][adc]:
-                        if self._configs[config_name]['active']:
-                            nshotnum, nt = self._get_dset_shape(
-                                config_name, adc, conn)
-                            conn[2].update({
-                                'nshotnum': nshotnum,
-                                'nt': nt
-                            })
-                        else:
-                            conn[2].update({
-                                'nshotnum': None,
-                                'nt': None
-                            })
-
-    @staticmethod
-    def _parse_config_name(name):
-        """
-        Parses :code:`name` to determine the digitizer configuration
-        name.  A configuration group name follows the format:
-
-            | `config_name`
-
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate.parse_config_name`
-        of the base class for details)
-        """
-        return True, name
-
-    @staticmethod
-    def _is_config_active(config_name, dataset_names):
-        """
-        Determines if :code:`config_name` is an active digitizer
-        configuration.
-
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate._is_config_active`
-        of the base class for details)
-        """
-        active = False
-
-        # if config_name is in any dataset name then config_name is
-        # active
-        for name in dataset_names:
-            if config_name in name:
-                active = True
-                break
-
-        return active
 
     def _adc_info(self, adc_name, config_group):
         """
@@ -199,40 +131,73 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                               'shot average (software)': None,
                               'sample average (hardware)': None}))
 
-        return adc_info
+        return tuple(adc_info)
 
-    def _get_dset_shape(self, config_name, adc, conn_tuple):
-        conn = conn_tuple
+    def _build_configs(self):
+        """
+        Populates :attr:`configs` dictionary
 
-        # gather all dataset shapes
-        brd = conn[0]
-        dset_shapes = []
-        for ch in conn[1]:
-            dset_name = self.construct_dataset_name(
-                brd, ch,
-                config_name=config_name,
-                adc=adc,
-                silent=True
-            )
-            dset_shapes.append(self.group[dset_name].shape)
+        (See :meth:`~.templates.HDFMapDigiTemplate._build_configs`
+        and :attr:`~.templates.HDFMapDigiTemplate.configs`
+        of the base class for details)
+        """
+        # self.configs is initialized in the template
 
-        # check all datasets have the same shape
-        if all(shape == dset_shapes[0] for shape in dset_shapes):
-            # all shapes are consistent
-            if len(dset_shapes[0]) == 1:
-                nshotnum = 1
-                nt = dset_shapes[0][0]
-            else:
-                nshotnum = dset_shapes[0][0]
-                nt = dset_shapes[0][1]
-        else:
-            raise ValueError(
-                'Dataset shapes on board {} are not'.format(
-                    brd)
-                + ' consistent adc ({})'.format(adc))
+        # collect digi_group's dataset names and sub-group names
+        subgroup_names = []
+        dataset_names = []
+        for key in self.group.keys():
+            if isinstance(self.group[key], h5py.Dataset):
+                dataset_names.append(key)
+            if isinstance(self.group[key], h5py.Group):
+                subgroup_names.append(key)
 
-        # return
-        return nshotnum, nt
+        # populate self.configs
+        for name in subgroup_names:
+            is_config, config_name = self._parse_config_name(name)
+            if is_config:
+                # initialize configuration name in the config dict
+                self._configs[config_name] = {}
+
+                # determine if config is active
+                self._configs[config_name]['active'] = \
+                    self.deduce_config_active_status(config_name)
+
+                # assign active adc's to the configuration
+                self._configs[config_name]['adc'] = \
+                    self._find_active_adcs(self.group[name])
+
+                # define 'config group path'
+                self._configs[config_name]['config group path'] = \
+                    self.group[name].name
+
+                # define 'shotnum' entry
+                self._configs[config_name]['shotnum'] = {
+                    'dset field': ('Shot number',),
+                    'shape': (),
+                    'dtype': np.uint32,
+                }
+
+                # add adc info
+                for adc in self._configs[config_name]['adc']:
+                    self._configs[config_name][adc] = \
+                        self._adc_info(adc, self.group[name])
+
+                # update adc info with 'nshotnum' and 'nt'
+                for adc in self._configs[config_name]['adc']:
+                    for conn in self._configs[config_name][adc]:
+                        if self._configs[config_name]['active']:
+                            nshotnum, nt = self._get_dset_shape(
+                                config_name, adc, conn)
+                            conn[2].update({
+                                'nshotnum': nshotnum,
+                                'nt': nt
+                            })
+                        else:
+                            conn[2].update({
+                                'nshotnum': None,
+                                'nt': None
+                            })
 
     @staticmethod
     def _find_active_adcs(config_group):
@@ -410,7 +375,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
                 # build subconn tuple with connected board, channels
                 # and acquisition parameters
-                subconn = (brd, chs,
+                subconn = (brd, tuple(chs),
                            {'bit': None,
                             'clock rate': cmode,
                             'shot average (software)': shtave,
@@ -421,7 +386,96 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # reset values
                 cmode = (None, 'GHz')
 
-        return conn
+        return tuple(conn)
+
+    def _get_dset_shape(self, config_name, adc, conn_tuple):
+        conn = conn_tuple
+
+        # gather all dataset shapes
+        brd = conn[0]
+        dset_shapes = []
+        for ch in conn[1]:
+            dset_name = self.construct_dataset_name(
+                brd, ch,
+                config_name=config_name,
+                adc=adc,
+                silent=True
+            )
+            dset_shapes.append(self.group[dset_name].shape)
+
+        # check all datasets have the same shape
+        if all(shape == dset_shapes[0] for shape in dset_shapes):
+            # all shapes are consistent
+            if len(dset_shapes[0]) == 1:
+                nshotnum = 1
+                nt = dset_shapes[0][0]
+            else:
+                nshotnum = dset_shapes[0][0]
+                nt = dset_shapes[0][1]
+        else:
+            raise ValueError(
+                'Dataset shapes on board {} are not'.format(
+                    brd)
+                + ' consistent adc ({})'.format(adc))
+
+        # return
+        return nshotnum, nt
+
+    @staticmethod
+    def _parse_config_name(name):
+        """
+        Parses :code:`name` to determine the digitizer configuration
+        name.  A configuration group name follows the format:
+
+            | `config_name`
+
+        (See
+        :meth:`~.templates.HDFMapDigiTemplate.parse_config_name`
+        of the base class for details)
+        """
+        return True, name
+
+    '''
+    @staticmethod
+    def deduce_config_active_status(config_name, dataset_names):
+        """
+        Determines if :code:`config_name` is an active digitizer
+        configuration.
+
+        (See
+        :meth:`~.templates.HDFMapDigiTemplate.deduce_config_active_status`
+        of the base class for details)
+        """
+        active = False
+
+        # if config_name is in any dataset name then config_name is
+        # active
+        for name in dataset_names:
+            if config_name in name:
+                active = True
+                break
+
+        return active
+    '''
+
+    @staticmethod
+    def brd_to_slot(brd, adc):
+        """
+        Translates board number and adc name to the digitizer slot
+        number.
+
+        :param int brd: board number
+        :param str adc: adc name
+        :return: digitizer slot number
+        :rtype: int
+        """
+        bs_map = {(1, 'SIS 3302'): 5,
+                  (2, 'SIS 3302'): 7,
+                  (3, 'SIS 3302'): 9,
+                  (4, 'SIS 3302'): 11,
+                  (1, 'SIS 3305'): 13,
+                  (2, 'SIS 3305'): 15}
+        return bs_map[(brd, adc)]
 
     def construct_dataset_name(self, board, channel,
                                config_name=None, adc=None,
@@ -559,22 +613,3 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                   13: (1, 'SIS 3305'),
                   15: (2, 'SIS 3305')}
         return sb_map[slot]
-
-    @staticmethod
-    def brd_to_slot(brd, adc):
-        """
-        Translates board number and adc name to the digitizer slot
-        number.
-
-        :param int brd: board number
-        :param str adc: adc name
-        :return: digitizer slot number
-        :rtype: int
-        """
-        bs_map = {(1, 'SIS 3302'): 5,
-                  (2, 'SIS 3302'): 7,
-                  (3, 'SIS 3302'): 9,
-                  (4, 'SIS 3302'): 11,
-                  (1, 'SIS 3305'): 13,
-                  (2, 'SIS 3305'): 15}
-        return bs_map[(brd, adc)]

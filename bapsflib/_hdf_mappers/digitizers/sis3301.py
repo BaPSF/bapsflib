@@ -769,11 +769,11 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         to-one row correspondence with the digitizer dataset.  The
         header dataset name follows the format::
 
-            '<config_name> [<board>:<channel>] headers'
+            '<dataset name> headers'
 
-        where `<config_name>` is the digitizer configuration name,
-        `<board>` is the requested board number, and `<channel>` is
-        the requested channel number.
+        where `<dataset name>` is the digitizer dataset name specified
+        by the input arguments and constructed by
+        :meth:`construct_dataset_name`.
 
         :param board: board number
         :param channel: channel number

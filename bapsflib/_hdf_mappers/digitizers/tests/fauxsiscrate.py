@@ -107,6 +107,27 @@ class FauxSISCrate(h5py.Group):
                 warn('`val` not valid, no update performed')
 
         @property
+        def sis3305_mode(self):
+            """
+            SIS 3305 acquisition mode. (0 = 1.25 GHz, 1 = 2.5 GHZ,
+            2 = 5 GHz)
+            """
+            return self._faux._sis3305_mode
+
+        @sis3305_mode.setter
+        def sis3305_mode(self, val):
+            """
+            Set SIS 3305 acquisition mode. (0 = 1.25 GHz, 1 = 2.5 GHZ,
+            2 = 5 GHz)
+            """
+            if val in (0, 1, 2):
+                if val != self._faux._sis3305_mode:
+                    self._faux._sis3305_mode = val
+                    self._faux._update()
+            else:
+                warn("`val` not valid, no update performed")
+
+        @property
         def sn_size(self):
             """Number of shot numbers in a dataset"""
             return self._faux._sn_size
@@ -352,6 +373,7 @@ class FauxSISCrate(h5py.Group):
         self._active_brdch['SIS 3302'][0][0] = True
         self._config_names = []
         self._active_config = ('config01',)
+        self._sis3305_mode = 0
 
     def _set_siscrate_attrs(self):
         """Sets the 'SIS crate' group attributes"""

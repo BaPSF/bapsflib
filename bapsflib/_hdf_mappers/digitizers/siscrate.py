@@ -76,16 +76,16 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
     def _adc_info_first_pass(
             self,
-            adc_name: str,
-            config_name: str
+            config_name: str,
+            adc_name: str
     ) -> Tuple[Tuple[int, Tuple[int, ...], Dict[str, Any]], ...]:
         """
         Gathers the analog-digital-converter's connected board and
         channel numbers, as well as, the associated setup configuration
         for each connected board.
 
-        :param adc_name: name of analog-digital-converter
         :param config_name: digitizer configuration name
+        :param adc_name: name of analog-digital-converter
 
         :returns:
 
@@ -206,9 +206,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # initialize adc info
                 for adc in self._configs[config_name]['adc']:
                     self._configs[config_name][adc] = \
-                        self._adc_info_first_pass(adc, config_name)
-                    # self._configs[config_name][adc] = \
-                    #     self._adc_info_first_pass(adc, self.group[name])
+                        self._adc_info_first_pass(config_name, adc)
 
                 # update adc info with 'nshotnum' and 'nt'
                 # - `construct_dataset_name` needs adc info to be seeded

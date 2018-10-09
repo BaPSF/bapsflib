@@ -11,7 +11,6 @@
 import astropy.units as u
 import h5py
 import numpy as np
-import os
 import re
 
 from bapsflib.utils.errors import HDFMappingError
@@ -229,7 +228,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             })
 
         # -- raise HDFMappingErrors                                 ----
-        #no configurations found
+        # no configurations found
         if not bool(self._configs):
             why = "there are no mappable configurations"
             raise HDFMappingError(self.info['group path'], why=why)
@@ -324,11 +323,13 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         _helpers = {
             'SIS 3302': {
                 'short': '3302',
-                're': r"SIS crate 3302 configurations\[(?P<INDEX>\d+)\]",
+                're':
+                    r"SIS crate 3302 configurations\[(?P<INDEX>\d+)\]",
             },
             'SIS 3305': {
                 'short': '3305',
-                're': r"SIS crate 3305 configurations\[(?P<INDEX>\d+)\]",
+                're':
+                    r"SIS crate 3305 configurations\[(?P<INDEX>\d+)\]",
             },
         }
 
@@ -356,8 +357,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         raise HDFMappingError(
                             self.info['group path'], why=why)
                     else:
-                        why += "...config not active so not adding to " \
-                               "mapping"
+                        why += "...config not active so not adding " \
+                               "to mapping"
                         warn(why)
                         return ()
 
@@ -502,7 +503,6 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 brd, ch,
                 config_name=config_name,
                 adc=adc,
-                silent=True
             )
             dset_shapes.append(self.group[dset_name].shape)
 

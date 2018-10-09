@@ -134,16 +134,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         return tuple(adc_info)
 
     def _build_configs(self):
-        """
-        Populates :attr:`configs` dictionary
-
-        (See :meth:`~.templates.HDFMapDigiTemplate._build_configs`
-        and :attr:`~.templates.HDFMapDigiTemplate.configs`
-        of the base class for details)
-        """
-        # self.configs is initialized in the template
-
-        # collect digi_group's dataset names and sub-group names
+        """Builds the :attr:`configs` dictionary."""
+        # collect names of datasets and sub-groups
         subgroup_names = []
         dataset_names = []
         for key in self.group.keys():
@@ -152,10 +144,13 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             if isinstance(self.group[key], h5py.Group):
                 subgroup_names.append(key)
 
-        # populate self.configs
+        # build self.configs
         for name in subgroup_names:
-            is_config, config_name = self._parse_config_name(name)
-            if is_config:
+            # determine configuration name
+            config_name = self._parse_config_name(name)
+
+            # populate
+            if bool(config_name):
                 # initialize configuration name in the config dict
                 self._configs[config_name] = {}
 
@@ -198,6 +193,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                                 'nshotnum': None,
                                 'nt': None
                             })
+
+        # -- raise HDFMappingErrors                                 ----
 
     @staticmethod
     def _find_active_adcs(config_group):

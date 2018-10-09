@@ -11,9 +11,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: testing of shot and sample averaging identification
-# - this feature has to be added to the FauxSIS3301 first
-#
 import numpy as np
 import unittest as ut
 
@@ -26,10 +23,6 @@ from ..sis3301 import HDFMapDigiSIS3301
 
 class TestSIS3301(DigitizerTestCase):
     """Test class for HDFMapDigiSIS3301"""
-    #
-    # * There is currently no test for a situation where there
-    #   are multiple active 'SIS 3301' configurations.
-    #
 
     DEVICE_NAME = 'SIS 3301'
     DEVICE_PATH = '/Raw data + config/' + DEVICE_NAME

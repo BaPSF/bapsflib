@@ -555,23 +555,6 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         else:
             return
 
-    def get_slot(self, brd: int, adc: str) -> Union[None, int]:
-        """
-        Get slot number for given board number and adc.
-
-        :param brd: board number
-        :param adc: digitizer analog-digital-converter name
-        :returns: slot number, or :code:`None` if there is no associated
-            slot number
-        """
-        slot = None
-        for s, info in self.slot_info.items():
-            if brd == info[0] and adc == info[1]:
-                slot = s
-                break
-
-        return slot
-
     def construct_dataset_name(
             self, board: int, channel: int,
             config_name=None, adc=None, return_info=False
@@ -740,6 +723,23 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # build and return header name
         dheader_name = dset_name + ' headers'
         return dheader_name
+
+    def get_slot(self, brd: int, adc: str) -> Union[None, int]:
+        """
+        Get slot number for given board number and adc.
+
+        :param brd: board number
+        :param adc: digitizer analog-digital-converter name
+        :returns: slot number, or :code:`None` if there is no associated
+            slot number
+        """
+        slot = None
+        for s, info in self.slot_info.items():
+            if brd == info[0] and adc == info[1]:
+                slot = s
+                break
+
+        return slot
 
     @property
     def slot_info(self) -> Dict[int, Tuple[int, str]]:

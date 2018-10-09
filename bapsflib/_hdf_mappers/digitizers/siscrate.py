@@ -152,7 +152,10 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             # populate
             if bool(config_name):
                 # initialize configuration name in the config dict
-                self._configs[config_name] = {}
+                # - add 'config group path'
+                self._configs[config_name] = {
+                    'config group path': self.group[name].name,
+                }
 
                 # determine if config is active
                 self._configs[config_name]['active'] = \
@@ -162,10 +165,6 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 self._configs[config_name]['adc'] = \
                     self._find_active_adcs(self.group[name])
 
-                # define 'config group path'
-                self._configs[config_name]['config group path'] = \
-                    self.group[name].name
-
                 # define 'shotnum' entry
                 self._configs[config_name]['shotnum'] = {
                     'dset field': ('Shot number',),
@@ -173,12 +172,16 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     'dtype': np.uint32,
                 }
 
-                # add adc info
+                # initialize adc info
                 for adc in self._configs[config_name]['adc']:
                     self._configs[config_name][adc] = \
                         self._adc_info(adc, self.group[name])
 
                 # update adc info with 'nshotnum' and 'nt'
+                # - `construct_dataset_name` needs adc info to be seeded
+                # - the following updates depend on
+                #   construct_dataset_name
+                #
                 for adc in self._configs[config_name]['adc']:
                     for conn in self._configs[config_name][adc]:
                         if self._configs[config_name]['active']:

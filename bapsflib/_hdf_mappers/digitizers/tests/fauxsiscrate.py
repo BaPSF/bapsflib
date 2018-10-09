@@ -243,44 +243,8 @@ class FauxSISCrate(h5py.Group):
                 self._build_config_sis3302_subgroup(
                     config_name, slot, index)
             elif adc == 'SIS 3305':
-                pass
-
-        '''
-        # create and build Board[] and Channels[] sub-groups
-        brd_count = 0
-        brd_bool_arr = np.any(self._active_brdch, axis=1)
-        brd_index = np.where(brd_bool_arr)[0]
-        for brd in brd_index:
-            # create Board[] group
-            brd_name = 'Boards[{}]'.format(brd_count)
-            brd_path = gname + '/' + brd_name
-            self[gname].create_group(brd_name)
-            brd_count += 1
-
-            # define Board[] attrs
-            self[brd_path].attrs.update({
-                'Board': np.uint32(brd),
-                'Board samples': np.uint32(self._nt),
-            })
-
-            # build Channels[] groups
-            ch_index = np.where(self._active_brdch[brd])[0]
-            ch_count = 0
-            for ch in ch_index:
-                # create Channels[] group
-                ch_name = 'Channels[{}]'.format(ch_count)
-                ch_path = brd_path + '/' + ch_name
-                self[brd_path].create_group(ch_name)
-                ch_count += 1
-
-                # define Channels[] attrs
-                self[ch_path].attrs.update({
-                    'Board': np.uint32(brd),
-                    'Channel': np.uint32(ch),
-                    'DC offset (mV)': np.float64(0.0),
-                    'Data type': np.bytes_('signal type info'),
-                })
-        '''
+                self._build_config_sis3305_subgroup(
+                    config_name, slot, index)
 
     def _build_config_sis3302_subgroup(
             self, config_name: str, slot: int, index: int):
@@ -323,6 +287,65 @@ class FauxSISCrate(h5py.Group):
 
             # 'Enabled #' fields
             field = 'Enabled {}'.format(ii)
+            self[gpath].attrs[field] = \
+                np.bytes_('TRUE' if sis_arr[ii - 1] else 'FALSE')
+
+    def _build_config_sis3305_subgroup(
+            self, config_name: str, slot: int, index: int):
+        """
+        Create and set attributes for a SIS 3305 configuration group.
+        """
+        # create group
+        gname = 'SIS crate 3305 configurations[{}]'.format(index)
+        gpath = config_name + '/' + gname
+        self.create_group(gpath)
+
+        # get channel array
+        brd = self.slot_info[slot][0]
+        sis_arr = self._active_brdch['SIS 3305'][brd - 1]
+
+        # populate attributes
+        self[gpath].attrs.update({
+            'Bandwidth': np.uint32(1),
+            'Channel mode': np.uint32(self._sis3305_mode),
+            'Clock rate': np.uint32(0),
+            'Samples': np.uint32(self.knobs.nt),
+            'Shot averaging (software)': np.int32(1),
+        })
+        for ii in range(1, 9):
+            # setup
+            if 1 <= ii <= 4:
+                fpga_str = 'FPGA 1 '
+                ch = ii
+            else:
+                fpga_str = 'FPGA 2 '
+                ch = ii - 4
+
+            # 'FPGA # Avail #' fields
+            if self._sis3305_mode == 2 and ch != 1:
+                mode = 'FALSE'
+            elif self._sis3305_mode == 1 and ch not in (1, 3):
+                mode = 'FALSE'
+            else:
+                mode = 'TRUE'
+            field = fpga_str + 'Avail {}'.format(ch)
+            self[gpath].attrs[field] = np.bytes_(mode)
+
+            # 'FPGA # Ch #' fields
+            field = fpga_str + 'Ch {}'.format(ch)
+            self[gpath].attrs[field] = np.int32(ii)
+
+            # 'FPGA # Comment #' fields
+            field = fpga_str + 'Comment {}'.format(ch)
+            self[gpath].attrs[field] = np.bytes_('')
+
+            # 'FPGA # Data type #' fields
+            field = fpga_str + 'Data type {}'.format(ch)
+            self[gpath].attrs[field] = \
+                np.bytes_('probe name {}'.format(ii))
+
+            # 'FPGA # Enabled #' fields
+            field = fpga_str + 'Enabled {}'.format(ch)
             self[gpath].attrs[field] = \
                 np.bytes_('TRUE' if sis_arr[ii - 1] else 'FALSE')
 
@@ -371,6 +394,7 @@ class FauxSISCrate(h5py.Group):
             dtype=[('SIS 3302', np.bool, (4, 8)),
                    ('SIS 3305', np.bool, (2, 8))])
         self._active_brdch['SIS 3302'][0][0] = True
+        self._active_brdch['SIS 3305'][0][0] = True
         self._config_names = []
         self._active_config = ('config01',)
         self._sis3305_mode = 0

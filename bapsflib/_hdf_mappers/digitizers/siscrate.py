@@ -74,11 +74,11 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # populate self.configs
         self._build_configs()
 
-    def _adc_info(self, adc_name, config_group):
+    def _adc_info_first_pass(self, adc_name, config_group):
         """
         Gathers information on the adc configuration.
 
-        (See :meth:`~.templates.HDFMapDigiTemplate._adc_info`
+        (See :meth:`~.templates.HDFMapDigiTemplate._adc_info_first_pass`
         of the base class for details)
         """
         # digitizer 'Raw data + config/SIS crate' has two adc's,
@@ -175,7 +175,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # initialize adc info
                 for adc in self._configs[config_name]['adc']:
                     self._configs[config_name][adc] = \
-                        self._adc_info(adc, self.group[name])
+                        self._adc_info_first_pass(adc, self.group[name])
 
                 # update adc info with 'nshotnum' and 'nt'
                 # - `construct_dataset_name` needs adc info to be seeded

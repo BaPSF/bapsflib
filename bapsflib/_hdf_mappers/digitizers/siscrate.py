@@ -709,14 +709,36 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         else:
             return dataset_name
 
-    def construct_header_dataset_name(self, board, channel, **kwargs):
-        """"Name of header dataset"""
+    def construct_header_dataset_name(
+            self, board: int, channel: int,
+            config_name=None, adc=None, **kwargs) -> str:
+        """
+        Construct the name of the HDF5 header dataset associated with
+        the digitizer dataset. The header dataset stores shot numbers
+        and other shot number specific meta-data.  It also has a one-
+        to-one row correspondence with the digitizer dataset.  The
+        header dataset name follows the format::
+
+            '<dataset name> headers'
+
+        where `<dataset name>` is the digitizer dataset name specified
+        by the input arguments and constructed by
+        :meth:`construct_dataset_name`.
+
+        :param board: board number
+        :param channel: channel number
+        :param str config_name: digitizer configuration name
+        :param str adc: analog-digital-converter name
+        :returns: header dataset name associated with the digitizer
+            dataset
+        """
         # ensure return_info kwarg is always False
         kwargs['return_info'] = False
 
         # get dataset naem
         dset_name = self.construct_dataset_name(board, channel,
                                                 **kwargs)
+
         # build and return header name
         dheader_name = dset_name + ' headers'
         return dheader_name

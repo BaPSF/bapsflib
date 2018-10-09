@@ -220,6 +220,7 @@ class FauxSISCrate(h5py.Group):
 
         :param config_name: name of digitizer configuration
         """
+        # TODO: consider adding calibration sub-groups
         # create configuration group
         gname = config_name
         self.create_group(gname)
@@ -401,39 +402,90 @@ class FauxSISCrate(h5py.Group):
         })
 
     def _build_datasets(self):
-        brds, chs = np.where(self._active_brdch)
-        for i in range(brds.size):
-            brd = brds[i]
-            ch = chs[i]
+        """Create and populate all datasets."""
+        self._build_datasets_sis3302()
+        self._build_datasets_sis3305()
 
-            # create and populate datasets
+    def _build_datasets_sis3302(self):
+        """Create and populate datasets related to SIS 3302."""
+        bc_arr = np.where(self._active_brdch['SIS 3302'])
+
+        for board, channel in zip(bc_arr[0], bc_arr[1]):
+            brd = board + 1
+            ch = channel + 1
+            slot = self.get_slot(brd, 'SIS 3302')
+
             for cname in self._active_config:
-                # create "main" data set
-                # dset_name = (self._active_config
-                #              + ' [{}:{}]'.format(brd, ch))
-                dset_name = cname + ' [{}:{}]'.format(brd, ch)
+                # create main dataset
+                dset_name = cname \
+                            + " [Slot {}: ".format(slot) \
+                            + "SIS 3302 ch {}]".format(ch)
                 shape = (self._sn_size, self._nt)
                 data = np.empty(shape=shape, dtype=np.int16)
                 self.create_dataset(dset_name, data=data)
 
-                # create & populate header dataset
-                dheader_name = dset_name + ' headers'
-                shape = (self._sn_size, )
-                dtype = np.dtype([('Shot', np.uint32),
-                                  ('Scale', np.float64),
-                                  ('Offset', np.float64),
-                                  ('Min', np.int16),
-                                  ('Max', np.int16),
-                                  ('Clipped', np.uint8)])
+                # create header dataset
+                hdset_name = dset_name + ' headers'
+                shape = (self._sn_size,)
+                dtype = np.dtype([('Shot number', np.int32),
+                                  ('Scale', np.float32),
+                                  ('Offset', np.float32),
+                                  ('Min', np.uint16),
+                                  ('Max', np.uint16),
+                                  ('Clipped', np.int8)])
                 dheader = np.empty(shape=shape, dtype=dtype)
-                dheader['Shot'] = np.arange(1, shape[0] + 1, 1,
-                                            dtype=dheader['Shot'].dtype)
-                dheader['Scale'] = 3.051944077014923E-4
-                dheader['Offset'] = -2.5
+                dheader['Shot number'] = \
+                    np.arange(1, shape[0] + 1, 1,
+                              dtype=dheader['Shot number'].dtype)
+                dheader['Scale'] = 7.7241166E-5
+                dheader['Offset'] = -2.531
                 dheader['Min'] = data.min(axis=1)
                 dheader['Max'] = data.max(axis=1)
                 dheader['Clipped'] = 0
-                self.create_dataset(dheader_name, data=dheader)
+                self.create_dataset(hdset_name, data=dheader)
+
+    def _build_datasets_sis3305(self):
+        """Create and populate datasets related to SIS 3305."""
+        bc_arr = np.where(self._active_brdch['SIS 3305'])
+
+        for board, channel in zip(bc_arr[0], bc_arr[1]):
+            brd = board + 1
+            ch = channel + 1
+            slot = self.get_slot(brd, 'SIS 3305')
+            if 1 <= ch <= 4:
+                fpga_str = 'FPGA 1'
+            else:
+                fpga_str = 'FPGA 2'
+                ch = ch - 4
+
+            for cname in self._active_config:
+                # create main dataset
+                dset_name = cname \
+                            + " [Slot {}: SIS 3305 ".format(slot) \
+                            + fpga_str + " ch {}]".format(ch)
+                shape = (self._sn_size, self._nt)
+                data = np.empty(shape=shape, dtype=np.int16)
+                self.create_dataset(dset_name, data=data)
+
+                # create header dataset
+                hdset_name = dset_name + ' headers'
+                shape = (self._sn_size,)
+                dtype = np.dtype([('Shot number', np.int32),
+                                  ('Scale', np.float32),
+                                  ('Offset', np.float32),
+                                  ('Min', np.uint16),
+                                  ('Max', np.uint16),
+                                  ('Clipped', np.int8)])
+                dheader = np.empty(shape=shape, dtype=dtype)
+                dheader['Shot number'] = \
+                    np.arange(1, shape[0] + 1, 1,
+                              dtype=dheader['Shot number'].dtype)
+                dheader['Scale'] = 0.0019550342
+                dheader['Offset'] = -1.0
+                dheader['Min'] = data.min(axis=1)
+                dheader['Max'] = data.max(axis=1)
+                dheader['Clipped'] = 0
+                self.create_dataset(hdset_name, data=dheader)
 
     def _default_setup(self):
         """Set group setup parameters to defaults"""
@@ -488,7 +540,6 @@ class FauxSISCrate(h5py.Group):
             self._config_names.append(config_name)
             self._build_config_group(config_name)
 
-        '''
         # reset active configuration if necessary
         if not all(cname in self._config_names
                    for cname in self._active_config):
@@ -496,7 +547,6 @@ class FauxSISCrate(h5py.Group):
 
         # build datasets
         self._build_datasets()
-        '''
 
     @property
     def config_names(self):

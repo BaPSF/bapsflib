@@ -555,24 +555,22 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         else:
             return
 
-    @staticmethod
-    def brd_to_slot(brd, adc):
+    def get_slot(self, brd: int, adc: str) -> Union[None, int]:
         """
-        Translates board number and adc name to the digitizer slot
-        number.
+        Get slot number for given board number and adc.
 
-        :param int brd: board number
-        :param str adc: adc name
-        :return: digitizer slot number
-        :rtype: int
+        :param brd: board number
+        :param adc: digitizer analog-digital-converter name
+        :returns: slot number, or :code:`None` if there is no associated
+            slot number
         """
-        bs_map = {(1, 'SIS 3302'): 5,
-                  (2, 'SIS 3302'): 7,
-                  (3, 'SIS 3302'): 9,
-                  (4, 'SIS 3302'): 11,
-                  (1, 'SIS 3305'): 13,
-                  (2, 'SIS 3305'): 15}
-        return bs_map[(brd, adc)]
+        slot = None
+        for s, info in self.slot_info.items():
+            if brd == info[0] and adc == info[1]:
+                slot = s
+                break
+
+        return slot
 
     def construct_dataset_name(
             self, board: int, channel: int,
@@ -686,7 +684,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 "valid dataset.")
 
         # checks passed, build dataset_name
-        slot = self.brd_to_slot(board, adc)
+        slot = self.get_slot(board, adc)
         if adc == 'SIS 3302':
             dataset_name = '{0} [Slot {1}: SIS 3302 ch {2}]'.format(
                 config_name, slot, channel)

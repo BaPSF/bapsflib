@@ -11,9 +11,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-# TODO: testing of shot and sample averaging identification
-# - this feature has to be added to the FauxSIS3305 first
-#
 import numpy as np
 import unittest as ut
 
@@ -25,11 +22,7 @@ from ..siscrate import HDFMapDigiSISCrate
 
 
 class TestSIS3305(DigitizerTestCase):
-    """Test class for HDFMapDigiSIS3305"""
-    #
-    # * There is currently no test for a situation where there
-    #   are multiple active 'SIS 3301' configurations.
-    #
+    """Test class for HDFMapDigiSISCrate"""
 
     DEVICE_NAME = 'SIS crate'
     DEVICE_PATH = '/Raw data + config/' + DEVICE_NAME
@@ -40,6 +33,34 @@ class TestSIS3305(DigitizerTestCase):
 
     def tearDown(self):
         super().tearDown()
+
+    def test_parse_config_name(self):
+        """Test HDFMapDigiSIS3301 method `_parse_config_name`."""
+        _map = self.map  # type: HDFMapDigiSISCrate
+        self.assertTrue(hasattr(_map, '_parse_config_name'))
+
+        # `name` is a config
+        self.assertEqual(_map._parse_config_name('config01'),
+                         'config01')
+
+        # `name` is not in the 'SIS crate' group
+        self.assertIsNone(_map._parse_config_name('not a config'))
+
+        # `name` specifies a dataset
+        dset_name = _map.construct_dataset_name(
+            1, 1, config_name='config01', adc='SIS 3302')
+        self.assertIsNone(_map._parse_config_name(dset_name))
+
+        # config group is missing key attributs
+        attrs = ('SIS crate board types', 'SIS crate config indices',
+                 'SIS crate slot numbers')
+        for attr in attrs:
+            val = self.dgroup['config01'].attrs[attr]
+            del self.dgroup['config01'].attrs[attr]
+
+            self.assertIsNone(_map._parse_config_name('config01'))
+
+            self.dgroup['config01'].attrs[attr] = val
 
     '''
     def test_construct_dataset_name(self):

@@ -197,22 +197,23 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # -- raise HDFMappingErrors                                 ----
 
     @staticmethod
-    def _find_active_adcs(config_group):
+    def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:
         """
         Determines active adc's used in the digitizer configuration.
 
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate._find_active_adcs`
-        of the base class for details)
-        """
-        active_adc = []
-        adc_types = list(config_group.attrs['SIS crate board types'])
-        if 2 in adc_types:
-            active_adc.append('SIS 3302')
-        if 3 in adc_types:
-            active_adc.append('SIS 3305')
+        :param config_group: HDF5 group object of the configuration
+            group
 
-        return active_adc
+        :returns: tuple of active (used) analog-digital-converter names
+        """
+        active_adcs = []
+        adc_types = config_group.attrs['SIS crate board types']
+        if 2 in adc_types:
+            active_adcs.append('SIS 3302')
+        if 3 in adc_types:
+            active_adcs.append('SIS 3305')
+
+        return tuple(active_adcs)
 
     def _find_adc_connections(self, adc_name, config_group):
         """

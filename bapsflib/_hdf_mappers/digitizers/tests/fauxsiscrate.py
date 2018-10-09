@@ -268,7 +268,8 @@ class FauxSISCrate(h5py.Group):
         for slot, index in zip(brd_slot_num, brd_config_indices):
             adc = self.slot_info[slot][1]
             if adc == 'SIS 3820':
-                pass
+                self._build_config_sis3820_subgroup(
+                    config_name, slot, index)
             elif adc == 'SIS 3302':
                 self._build_config_sis3302_subgroup(
                     config_name, slot, index)
@@ -378,6 +379,26 @@ class FauxSISCrate(h5py.Group):
             field = fpga_str + 'Enabled {}'.format(ch)
             self[gpath].attrs[field] = \
                 np.bytes_('TRUE' if sis_arr[ii - 1] else 'FALSE')
+
+    def _build_config_sis3820_subgroup(
+            self, config_name: str, slot: int, index: int):
+        """
+        Create and set attributes for a SIS 3820 configuration group.
+        """
+        # create group
+        gname = 'SIS crate 3820 configurations[{}]'.format(index)
+        gpath = config_name + '/' + gname
+        self.create_group(gpath)
+
+        # populate attributes
+        self[gpath].attrs.update({
+            'Clock frequency divider': np.uint32(1),
+            'Clock mode': np.uint32(1),
+            'Clock source': np.uint32(1),
+            'Delay': np.uint32(0),
+            'Even outputs': np.uint32(1),
+            'Odd outputs': np.uint32(0),
+        })
 
     def _build_datasets(self):
         brds, chs = np.where(self._active_brdch)

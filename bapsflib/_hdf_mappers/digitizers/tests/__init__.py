@@ -9,3 +9,4 @@
 #   license terms and contributor agreement.
 #
 from .fauxsis3301 import FauxSIS3301
+from .fauxsiscrate import FauxSISCrate

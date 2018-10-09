@@ -123,7 +123,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         # initialize
         adc_info = []
 
-        # conns is a list of tuples where each tuple is a seed for the
+        # conns is a tuple of tuples where each tuple is a seed for the
         # elements of `adc_info`
         conns = self._find_adc_connections(adc_name, config_group)
 

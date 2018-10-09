@@ -74,62 +74,93 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # populate self.configs
         self._build_configs()
 
-    def _adc_info_first_pass(self, adc_name, config_group):
+    def _adc_info_first_pass(
+            self,
+            adc_name: str,
+            config_name: str
+    ) -> Tuple[Tuple[int, Tuple[int, ...], Dict[str, Any]], ...]:
         """
-        Gathers information on the adc configuration.
+        Gathers the analog-digital-converter's connected board and
+        channel numbers, as well as, the associated setup configuration
+        for each connected board.
 
-        (See :meth:`~.templates.HDFMapDigiTemplate._adc_info_first_pass`
-        of the base class for details)
+        :param adc_name: name of analog-digital-converter
+        :param config_name: digitizer configuration name
+
+        :returns:
+
+            Tuple of 3-element tuples where the 1st element of the
+            nested tuple represents a connected *board* number, the 2nd
+            element is a tuple of connected *channel* numbers for the
+            *board*, and the 3rd element is a dictionary of adc setup
+            values (*bit*, *clock rate*, etc.).
+
+        On the first pass, the meta-info dict will contain:
+
+        .. csv-table::
+            :header: "Key", "Description"
+            :widths: 20, 60
+
+            "::
+
+                'bit'
+            ", "
+            bit resolution of the digitizer's analog-digital-converter
+            "
+            "::
+
+                'clock rate'
+            ", "
+            clock rate of the digitizer's analog-digital-converter
+            "
+            "::
+
+                'shot average (software)'
+            ", "
+            number of shots intended to be averaged over
+            "
+            "::
+
+                'sample average (hardware)'
+            ", "
+            number of data samples average together
+            "
         """
         # digitizer 'Raw data + config/SIS crate' has two adc's,
         # SIS 3302 and SIS 3305
-        # adc_info = ( int, # board
-        #              [int, ], # channels
-        #              {'bit': int, # bit resolution
-        #               'clock rate': (float, 'unit'),
-        #               'shot average (software)': int,
-        #               'sample average (hardware)': int})
+        # adc_info = (
+        #     int, # board number
+        #     (int, ), # connected channel numbers
+        #     {'bit': int, # bit resolution
+        #      'clock rate': <Quantity 100.0 MHz>,
+        #      'nshotnum: int, # num. of recorded shot numbers
+        #      'nt': int, # num. of recorded time samples
+        #      'shot average (software)': int,
+        #      'sample average (hardware)': int},
+        # )
+        #
+        # initialize
         adc_info = []
 
-        # build adc_info
-        if adc_name == 'SIS 3302':
-            # for SIS 3302
-            conns = self._find_adc_connections('SIS 3302',
-                                               config_group)
-            for conn in conns:
-                # define 'bit' and 'clock rate'
+        # initialize connections
+        # Note:
+        #   * conns is a tuple of tuples where each tuple is a seed for
+        #     the elements of `adc_info`
+        #   * the 'clock rate' for 'SIS 3305' depends on the mode of
+        #     the adc which is store in the configuration group.  Thus,
+        #     assignment is left to `_find_adc_connections.
+        #
+        conns = self._find_adc_connections(adc_name, config_name)
+
+        # add 'bit' values to adc_info
+        for conn in conns:
+            if adc_name == 'SIS 3302':
                 conn[2]['bit'] = 16
-                conn[2]['clock rate'] = (100.0, 'MHz')
-
-                # keys 'shot average (software)' and
-                # 'sample average (hardware)' are added in
-                # self.__find_crate_connections
-
-                # append info
-                adc_info.append(conn)
-        elif adc_name == 'SIS 3305':
-            # note: clock rate for 'SIS 3305' depends on how
-            # diagnostics are connected to the DAQ. Thus, assignment is
-            # left to method self.__find_crate_connections.
-            conns = self._find_adc_connections('SIS 3305',
-                                               config_group)
-            for conn in conns:
-                # define 'bit' and 'clock rate'
-                # - clock rate is defined in __find_adc_connections
+            elif adc_name == 'SIS 3305':
                 conn[2]['bit'] = 10
 
-                # keys 'shot average (software)' and
-                # 'sample average (hardware)' are added in
-                # self.__find_crate_connections
-
-                # append info
-                adc_info.append(conn)
-        else:
-            adc_info.append((None, [None],
-                             {'bit': None,
-                              'clock rate': (None, 'MHz'),
-                              'shot average (software)': None,
-                              'sample average (hardware)': None}))
+            # append info
+            adc_info.append(conn)
 
         return tuple(adc_info)
 
@@ -175,7 +206,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # initialize adc info
                 for adc in self._configs[config_name]['adc']:
                     self._configs[config_name][adc] = \
-                        self._adc_info_first_pass(adc, self.group[name])
+                        self._adc_info_first_pass(adc, config_name)
+                    # self._configs[config_name][adc] = \
+                    #     self._adc_info_first_pass(adc, self.group[name])
 
                 # update adc info with 'nshotnum' and 'nt'
                 # - `construct_dataset_name` needs adc info to be seeded
@@ -198,6 +231,20 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             })
 
         # -- raise HDFMappingErrors                                 ----
+        #no configurations found
+        if not bool(self._configs):
+            why = "there are no mappable configurations"
+            raise HDFMappingError(self.info['group path'], why=why)
+
+        # ensure there are active configs
+        if len(self.active_configs) == 0:
+            raise HDFMappingError(
+                self.info['group path'],
+                "there are not active configurations")
+
+        # if 'adc' is NULL and 'acitve' is True raise HDFMappingError
+        # if 'adc' is NULL and 'acitve' is False issue warning
+        # ensure active configs are not NULL
 
     @staticmethod
     def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:
@@ -218,174 +265,231 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         return tuple(active_adcs)
 
-    def _find_adc_connections(self, adc_name, config_group):
+    def _find_adc_connections(
+            self,
+            adc_name: str,
+            config_name: str
+    ) -> Tuple[Tuple[int, Tuple[int, ...], Dict[str, Any]], ...]:
         """
         Determines active connections on the adc.
 
-        (See
-        :meth:`~.templates.HDFMapDigiTemplate._find_adc_connections`
-        of the base class for details)
+        :param adc_name: name of the analog-digital-converter
+        :param config_name: digitizer configuration name
+
+        :return:
+
+            Tuple of 3-element tuples where the 1st element of the
+            nested tuple represents a connected *board* number, the 2nd
+            element is a tuple of connected *channel* numbers for the
+            *board*, and the 3rd element is a dictionary of adc setup
+            values (*bit*, *clock rate*, etc.).
+
+        On determination of adc connections, the meta-info dict will
+        also be populated with:
+
+        .. csv-table::
+            :header: "Key", "Description"
+            :widths: 20, 60
+
+            "::
+
+                'clock rate'
+            ", "
+            clock rate of the digitizer's analog-digital-converter
+            "
+            "::
+
+                'shot average (software)'
+            ", "
+            number of shots intended to be averaged over
+            "
+            "::
+
+                'sample average (hardware)'
+            ", "
+            number of data samples average together
+            "
         """
-        # initialize conn, brd, and chs
+        config_path = self.configs[config_name]['config group path']
+        config_group = self.group.get(config_path)
+        active = self.configs[config_name]['active']
+
+        # initialize conn
         # conn = list of connections
-        # brd  = board number
-        # chs  = list of connect channels of board brd
         #
         conn = []
-        brd = None
-        chs = []
-        cmode = (None, 'GHz')
 
-        # Build a tuple relating the adc name (adc), adc slot number
-        # (slot), associated data configuration unique identifier index
-        # (index), and board number (brd)
-        active_slots = config_group.attrs['SIS crate slot numbers']
-        config_indices = config_group.attrs['SIS crate config indices']
-        info_list = []
-        for slot, index in zip(active_slots, config_indices):
+        # define _helpers
+        if adc_name not in ('SIS 3302', 'SIS 3305'):
+            warn("Invalid adc name '{}'".format(adc_name))
+            return ()
+        _helpers = {
+            'SIS 3302': {
+                'short': '3302',
+                're': r"SIS crate 3302 configurations\[(?P<INDEX>\d+)\]",
+            },
+            'SIS 3305': {
+                'short': '3305',
+                're': r"SIS crate 3305 configurations\[(?P<INDEX>\d+)\]",
+            },
+        }
+
+        # Build tuple (slot, config index, board, adc)
+        # - build a tuple that pairs the adc name (adc), adc slot
+        #   number (slot), configuration group index (index), and
+        #   board number (brd)
+        #
+        slots = config_group.attrs['SIS crate slot numbers']
+        indices = config_group.attrs['SIS crate config indices']
+        adc_pairs = []
+        for slot, index in zip(slots, indices):
             if slot != 3:
                 brd, adc = self.slot_to_brd(slot)
-                info_list.append((slot, index, brd, adc))
+                adc_pairs.append((slot, index, brd, adc))
 
-        # filter out calibration groups and only gather configuration
-        # groups
-        sis3302_gnames = []
-        sis3305_gnames = []
-        for key in config_group.keys():
-            if 'configurations' in key:
-                if '3302' in key:
-                    sis3302_gnames.append(key)
-                elif '3305' in key:
-                    sis3305_gnames.append(key)
+        # Ensure the same configuration index is not assign to multiple
+        # slots for the same adc
+        for slot, index, brd, adc in adc_pairs:
+            for ss, ii, bb, aa in adc_pairs:
+                if ii == index and aa == adc and ss != slot:
+                    why = ("The same configuration index is assigned "
+                           "to multiple slots of the same adc.")
+                    if active:
+                        raise HDFMappingError(
+                            self.info['group path'], why=why)
+                    else:
+                        why += "...config not active so not adding to " \
+                               "mapping"
+                        warn(why)
+                        return ()
+
+        # gather adc configuration groups
+        gnames = []
+        for name in config_group:
+            _match = re.fullmatch(_helpers[adc_name]['re'], name)
+            if bool(_match):
+                gnames.append((name, int(_match.group('INDEX'))))
 
         # Determine connected (brd, ch) combinations
-        # TODO: make this section more efficient
-        if adc_name == 'SIS 3302':
-            for name in sis3302_gnames:
+        for name, config_index in gnames:
+            # find board number
+            brd = None
+            for slot, index, board, adc in adc_pairs:
+                if adc_name == adc and config_index == index:
+                    brd = board
+                    break
 
-                # Find board number
-                config_index = int(name[-2])
-                brd = None
-                for slot, index, board, adc in info_list:
-                    if '3302' in adc and config_index == index:
-                        brd = board
-                        break
+            # ensure board number was found
+            if brd is None:
+                why = ("Board not found since group name "
+                       + "determined `config_index` "
+                       + "{} not".format(config_index)
+                       + " defined in top-level configuration group")
+                warn(why)
+                continue
 
-                # Find active channels
-                chs = []
-                for key in config_group[name].attrs:
-                    if 'Enable' in key:
-                        tf_str = config_group[name].attrs[key]
-                        if 'TRUE' in tf_str.decode('utf-8'):
-                            chs.append(int(key[-1]))
+            # find connected channels
+            chs = []
+            for key, val in config_group[name].attrs.items():
+                if 'Enabled' in key and val == b'TRUE':
+                    _patterns = (r"Enabled\s(?P<CH>\d+)",
+                                 r"FPGA 1 Enabled\s(?P<CH>\d+)",
+                                 r"FPGA 2 Enabled\s(?P<CH>\d+)",)
+                    ch = None
+                    for pat in _patterns:
+                        _match = re.fullmatch(pat, key)
+                        if bool(_match):
+                            ch = int(_match.group('CH'))
+                            if 'FPGA 2' in pat:
+                                ch += 4
+                            break
+                    if ch is not None:
+                        chs.append(ch)
 
-                # determine 'shot average (software)'
-                if 'Shot averaging (software)' \
-                        in config_group[name].attrs:
-                    shtave = config_group[name].attrs[
-                        'Shot averaging (software)']
-                    if shtave == 0 or shtave == 1:
-                        shtave = None
-                else:
-                    shtave = None
+            # ensure connected channels are unique
+            if len(chs) != len(set(chs)):
+                why = ("HDF5 structure unexpected..."
+                       + "'{}'".format(config_name + '/' + name)
+                       + " does not define a unique set of channel "
+                       + "numbers...not adding to `configs` dict")
+                warn(why)
 
-                # determine 'sample average (hardware)'
+                # skip adding to conn list
+                continue
+
+            # ensure chs is not NULL
+            if len(chs) == 0:
+                why = ("HDF5 structure unexpected..."
+                       + "'{}'".format(config_name + '/' + name)
+                       + " does not define any valid channel "
+                       + "numbers...not adding to `configs` dict")
+                warn(why)
+
+                # skip adding to conn list
+                continue
+
+            # determine shot averaging
+            shot_ave = None
+            if 'Shot averaging (software)' \
+                    in config_group[name].attrs:
+                shot_ave = config_group[name].attrs[
+                    'Shot averaging (software)']
+                if shot_ave == 0 or shot_ave == 1:
+                    shot_ave = None
+
+            # determine sample averaging
+            sample_ave = None
+            if adc_name == 'SIS 3305':
+                # the 'SIS 3305' adc does NOT support sample averaging
+                pass
+            else:
+                # SIS 3302
                 # - the HDF5 attribute is the power to 2
                 # - So, a hardware sample of 5 actually means the number
                 #   of points sampled is 2^5
-                if 'Sample averaging (hardware)'\
+                if 'Sample averaging (hardware)' \
                         in config_group[name].attrs:
-                    splave = config_group[name].attrs[
+                    sample_ave = config_group[name].attrs[
                         'Sample averaging (hardware)']
-                    if splave == 0:
-                        splave = None
+                    if sample_ave == 0:
+                        sample_ave = None
                     else:
-                        splave = 2 ** splave
+                        sample_ave = 2 ** sample_ave
+
+            # determine clock rate
+            if adc_name == 'SIS 3305':
+                # has different clock rate modes
+                try:
+                    cr_mode = config_group[name].attrs['Channel mode']
+                    cr_mode = int(cr_mode)
+                except (KeyError, ValueError):
+                    why = ("HDF5 structure unexpected..."
+                           + "'{}'".format(config_name + '/' + name)
+                           + " does not define a clock rate mode"
+                           + "...setting to None in the `configs` dict")
+                    warn(why)
+                    cr_mode = -1
+                if cr_mode == 0:
+                    cr = u.Quantity(1.25, unit='GHz')
+                elif cr_mode == 1:
+                    cr = u.Quantity(2.5, unit='GHz')
+                elif cr_mode == 2:
+                    cr = u.Quantity(5.0, unit='GHz')
                 else:
-                    splave = None
+                    cr = None
+            else:
+                # 'SIS 3302' has one clock rate mode
+                cr = u.Quantity(100.0, unit='MHz')
 
-                # build subconn tuple with connected board, channels
-                # and acquisition parameters
-                subconn = (brd, chs,
-                           {'bit': None,
-                            'clock rate': (None, 'MHz'),
-                            'shot average (software)': shtave,
-                            'sample average (hardware)': splave})
-                if brd is not None:
-                    # This counters a bazaar occurrence in the
-                    # 'SIS crate' configuration where there's more
-                    # configuration subgroups in config_group than there
-                    # are listed in
-                    # config_group.attrs['SIS crate config indices']
-                    conn.append(subconn)
+            # build subconn tuple with connected board, channels, and
+            # acquisition parameters
+            subconn = (brd, tuple(chs),
+                       {'clock rate': cr,
+                        'shot average (software)': shot_ave,
+                        'sample average (hardware)': sample_ave})
 
-                # reset values
-                # brd = None
-                # chs = []
-
-        elif adc_name == 'SIS 3305':
-            for name in sis3305_gnames:
-
-                # Find board number
-                config_index = int(name[-2])
-                brd = None
-                for slot, index, board, adc in info_list:
-                    if '3305' in adc and config_index == index:
-                        brd = board
-                        break
-
-                # Find active channels and clock mode
-                chs = []
-                for key in config_group[name].attrs.keys():
-                    # channels
-                    if 'Enable' in key:
-                        if 'FPGA 1' in key:
-                            tf_str = config_group[name].attrs[key]
-                            if 'TRUE' in tf_str.decode('utf-8'):
-                                chs.append(int(key[-1]))
-                        elif 'FPGA 2' in key:
-                            tf_str = config_group[name].attrs[key]
-                            if 'TRUE' in tf_str.decode('utf-8'):
-                                chs.append(int(key[-1]) + 4)
-
-                    # clock mode
-                    # the clock state of 3305 is stored in the 'channel
-                    # mode' attribute.  The values follow
-                    #   0 = 1.25 GHz
-                    #   1 = 2.5  GHz
-                    #   2 = 5.0  GHz
-                    cmodes = [(1.25, 'GHz'),
-                              (2.5, 'GHz'),
-                              (5.0, 'GHz')]
-                    if 'Channel mode' in key:
-                        cmode = cmodes[config_group[name].attrs[key]]
-
-                # determine 'shot average (software)'
-                if 'Shot averaging (software)' \
-                        in config_group[name].attrs:
-                    shtave = config_group[name].attrs[
-                        'Shot averaging (software)']
-                    if shtave == 0 or shtave == 1:
-                        shtave = None
-                else:
-                    shtave = None
-
-                # determine 'sample average (hardware)'
-                # - SIS 3305 has no hardware sampling feature
-                splave = None
-
-                # build subconn tuple with connected board, channels
-                # and acquisition parameters
-                subconn = (brd, tuple(chs),
-                           {'bit': None,
-                            'clock rate': cmode,
-                            'shot average (software)': shtave,
-                            'sample average (hardware)': splave})
-                if brd is not None:
-                    conn.append(subconn)
-
-                # reset values
-                cmode = (None, 'GHz')
+            # add to all connections list
+            conn.append(subconn)
 
         return tuple(conn)
 

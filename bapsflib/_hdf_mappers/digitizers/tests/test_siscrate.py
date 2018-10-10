@@ -22,7 +22,7 @@ from .common import DigitizerTestCase
 from ..siscrate import HDFMapDigiSISCrate
 
 
-class TestSIS3305(DigitizerTestCase):
+class TestSISCrate(DigitizerTestCase):
     """Test class for HDFMapDigiSISCrate"""
 
     DEVICE_NAME = 'SIS crate'

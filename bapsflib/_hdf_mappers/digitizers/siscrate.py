@@ -229,9 +229,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # get datasets
                 names = [
                     self.construct_dataset_name(
-                        brd, ch, config_name=config_name),
+                        brd, ch, config_name=config_name, adc=adc_name),
                     self.construct_header_dataset_name(
-                        brd, ch, config_name=config_name),
+                        brd, ch, config_name=config_name, adc=adc_name),
                 ]
                 for dset_name in names:
                     if dset_name not in self.group:
@@ -265,7 +265,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             for ch in new_chs:
                 # -- examine dataset --
                 dset_name = self.construct_dataset_name(
-                    brd, ch, config_name=config_name)
+                    brd, ch, config_name=config_name, adc=adc_name)
                 dset = self.group[dset_name]
 
                 # dataset should not have fields
@@ -325,7 +325,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
                 # -- examine header dataset --
                 hdset_name = self.construct_header_dataset_name(
-                    brd, ch, config_name=config_name)
+                    brd, ch, config_name=config_name, adc=adc_name)
                 hdset = self.group[hdset_name]
                 sn_field = self.configs[config_name][
                     'shotnum']['dset field'][0]

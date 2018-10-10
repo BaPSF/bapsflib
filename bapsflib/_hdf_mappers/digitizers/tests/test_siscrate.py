@@ -223,6 +223,49 @@ class TestSIS3305(DigitizerTestCase):
             else:
                 self.assertEqual(val[1][key], d_info[key])
 
+    def test_construct_header_dataset_name(self):
+        """
+        Test functionality of method `construct_header_dataset_name`
+        """
+        # setup:
+        config_name = 'config01'
+        adc = 'SIS 3302'
+        # config_path = 'Configuration: {}'.format(config_name)
+        my_sabc = [
+            (5, adc, 1, (1, 3, 5)),
+            (9, adc, 3, (1, 2, 3, 4)),
+            (11, adc, 4, (5, 6, 7)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.active_brdch = bc_arr
+
+        # `return_info` does NOT return extra info
+        slot = my_sabc[0][0]
+        adc = my_sabc[0][1]
+        brd = my_sabc[0][2]
+        ch = my_sabc[0][3][0]
+        dset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(
+            config_name, slot, ch)
+        hdset_name = dset_name + ' headers'
+        _map = self.map
+        with mock.patch.object(
+                HDFMapDigiSISCrate, 'construct_dataset_name',
+                wraps=_map.construct_dataset_name) as mock_cdn:
+
+            name = _map.construct_header_dataset_name(
+                brd, ch, return_info=True)
+
+            # check `construct_dataset_name` was called
+            self.assertTrue(mock_cdn.called)
+
+            # check equality
+            self.assertEqual(name, hdset_name)
+
     def test_parse_config_name(self):
         """Test HDFMapDigiSIS3301 method `_parse_config_name`."""
         _map = self.map  # type: HDFMapDigiSISCrate

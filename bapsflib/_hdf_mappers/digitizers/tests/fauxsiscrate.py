@@ -50,7 +50,7 @@ class FauxSISCrate(h5py.Group):
                 warn('`val` not valid, no update performed')
                 return
             elif not all(name in val.dtype.names
-                         for name in self._faux.device_adc):
+                         for name in self._faux.device_adcs):
                 warn('`val` not valid, no update performed')
                 return
             elif val.dtype['SIS 3302'].shape != (4, 8) \
@@ -75,7 +75,7 @@ class FauxSISCrate(h5py.Group):
                 mask = np.ones(8, dtype=np.bool)
             mask = np.logical_not(mask)
             mask = mask.reshape(1, 8)
-            mask = mask.append(mask, mask, axis=0)
+            mask = np.append(mask, mask, axis=0)
             if np.any(val['SIS 3305'][mask]):
                 warn('`val` not valid, no update performed')
                 return

@@ -447,8 +447,8 @@ class TestSISCrate(DigitizerTestCase):
         _map = self.map
         self.assertDigitizerMapBasics(_map, self.dgroup)
         self.assertEqual(_map.active_configs, [config_name])
-        self.assertEqual(set(list(_map.configs)),
-                         set(self.mod.config_names))
+        self.assertEqual(sorted(list(_map.configs)),
+                         sorted(self.mod.config_names))
         for adc in ('SIS 3302', 'SIS 3305'):
             self.assertIn(adc, _map.configs[config_name]['adc'])
 
@@ -482,7 +482,8 @@ class TestSISCrate(DigitizerTestCase):
         _map = self.map
         self.assertDigitizerMapBasics(_map, self.dgroup)
         self.assertEqual(_map.active_configs, list(config_names))
-        self.assertEqual(list(_map.configs), self.mod.config_names)
+        self.assertEqual(sorted(list(_map.configs)),
+                         sorted(self.mod.config_names))
         for config_name in config_names:
             self.assertEqual(_map.configs[config_name]['adc'], (adc,))
             self.assertConnectionsEqual(

@@ -335,13 +335,11 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
                 # should have fields (specifically the shotnum field)
                 if sn_field not in hdset.dtype.names:
-                    why = (
-                            "HDF5 structure unexpected..."
-                            + "dataset '{}'".format(hdset_name)
-                            + " does NOT have expected shot number field "
-                            + "'{}'".format(sn_field)
-                            + "...not adding to `configs` dict"
-                    )
+                    why = ("HDF5 structure unexpected..."
+                           + "dataset '{}' does ".format(hdset_name)
+                           + "NOT have expected shot number field "
+                           + "'{}'".format(sn_field)
+                           + "...not adding to `configs` dict")
                     warn(why)
                     chs_to_remove.append(ch)
                     continue
@@ -483,9 +481,22 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 self.info['group path'],
                 "there are not active configurations")
 
-        # if 'adc' is NULL and 'acitve' is True raise HDFMappingError
-        # if 'adc' is NULL and 'acitve' is False issue warning
         # ensure active configs are not NULL
+        for config_name in self.active_configs:  # pragma: no branch
+            config = self.configs[config_name]
+            if len(config['adc']) == 0:
+                raise HDFMappingError(
+                    self.info['group path'],
+                    "active configuration '{}'".format(config_name)
+                    + " has no active adc's")
+
+            for adc in config['adc']:  # pragma: no branch
+                if len(config[adc]) == 0:  # pragma: no branch
+                    raise HDFMappingError(
+                        self.info['group path'],
+                        "active configuration '{}'".format(config_name)
+                        + " has no mapped connections for adc "
+                        + "{}".format(adc))
 
     @staticmethod
     def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:

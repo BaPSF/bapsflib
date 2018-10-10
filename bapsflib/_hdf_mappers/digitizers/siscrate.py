@@ -577,13 +577,36 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             },
         }
 
+        # get slot numbers and configuration indices
+        slots = config_group.attrs[
+            'SIS crate slot numbers']  # type: np.ndarray
+        indices = config_group.attrs[
+            'SIS crate config indices']  # type: np.ndarray
+
+        # ensure slots and indices are 1D arrays of the same size
+        if slots.ndim != 1 or indices.ndim != 1:
+            raise HDFMappingError(
+                self.info['group path'],
+                "HDF5 structure unexpected...Defined slots and "
+                "configuration indices are not 1D arrays.")
+        elif slots.size != indices.size:
+            raise HDFMappingError(
+                self.info['group path'],
+                "HDF5 structure unexpected...Defined slots and "
+                "configuration indices are not the same size.")
+
+        # ensure defined slots are unique
+        if np.unique(slots).size != slots.size:
+            raise HDFMappingError(
+                self.info['group path'],
+                "HDF5 structure unexpected...defined slot numbers are "
+                "not unique")
+
         # Build tuple (slot, config index, board, adc)
         # - build a tuple that pairs the adc name (adc), adc slot
         #   number (slot), configuration group index (index), and
         #   board number (brd)
         #
-        slots = config_group.attrs['SIS crate slot numbers']
-        indices = config_group.attrs['SIS crate config indices']
         adc_pairs = []
         for slot, index in zip(slots, indices):
             if slot != 3:

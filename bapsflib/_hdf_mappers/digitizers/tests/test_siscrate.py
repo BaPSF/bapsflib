@@ -490,6 +490,102 @@ class TestSIS3305(DigitizerTestCase):
                 tuple([(stuff[2], stuff[3]) for stuff in my_sabc]),
                 adc, config_name)
 
+    def test_misc(self):
+        """
+        Test misc behavior the does not fit into other test methods.
+        """
+        # TODO: test `get_slot`
+        # TODO: test `slot_info`
+        '''
+        # setup
+        config_name = 'config01'
+        adc = 'SIS 3301'
+        config_path = 'Configuration: {}'.format(config_name)
+        my_bcs = [(0, (0, 3, 5)),
+                  (3, (0, 1, 2, 3)),
+                  (5, (5, 6, 7))]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for brd, chns in my_bcs:
+            bc_arr[brd, chns] = True
+        self.mod.knobs.active_brdch = bc_arr
+
+        # -- config group attribute `Shots to average`              ----
+        sh2a = self.dgroup[config_path].attrs['Shots to average']
+
+        # `Shots to average' missing
+        del self.dgroup[config_path].attrs['Shots to average']
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['shot average (software)'])
+
+        # `Shots to average' is 0 or 1
+        self.dgroup[config_path].attrs['Shots to average'] = 1
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['shot average (software)'])
+
+        # `Shots to average' is >1
+        self.dgroup[config_path].attrs['Shots to average'] = 5
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertEqual(conn[2]['shot average (software)'], 5)
+
+        self.dgroup[config_path].attrs['Shots to average'] = sh2a
+
+        # -- config group attribute `Samples to average`            ----
+        sp2a = self.dgroup[config_path].attrs['Samples to average']
+
+        # 'Samples to average' is missing
+        del self.dgroup[config_path].attrs['Samples to average']
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['sample average (hardware)'])
+
+        # 'Samples to average' is 'No averaging'
+        self.dgroup[config_path].attrs['Samples to average'] = \
+            np.bytes_('No averaging')
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['sample average (hardware)'])
+
+        # 'Samples to average' does not match string
+        # 'Average {} Samples'
+        self.dgroup[config_path].attrs['Samples to average'] = \
+            np.bytes_('hello')
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['sample average (hardware)'])
+
+        # 'Samples to average' does match string 'Average {} Samples',
+        # but can not be converted to int
+        self.dgroup[config_path].attrs['Samples to average'] = \
+            np.bytes_('Average 5.0 Samples')
+        _map = None
+        with self.assertWarns(UserWarning):
+            _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['sample average (hardware)'])
+
+        # 'Samples to average' does match string 'Average {} Samples',
+        # and is converted to an int of 0 or 1
+        for val in (0, 1):
+            self.dgroup[config_path].attrs['Samples to average'] = \
+                np.bytes_('Average {} Samples'.format(val))
+            _map = self.map
+            for conn in _map.configs[config_name][adc]:
+                self.assertIsNone(conn[2]['sample average (hardware)'])
+
+        # 'Samples to average' does match string 'Average {} Samples',
+        # and is converted to an int >1
+        self.dgroup[config_path].attrs['Samples to average'] = \
+            np.bytes_('Average 5 Samples'.format(val))
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertEqual(conn[2]['sample average (hardware)'], 5)
+        '''
+        self.fail()
+
     def test_parse_config_name(self):
         """Test HDFMapDigiSIS3301 method `_parse_config_name`."""
         _map = self.map  # type: HDFMapDigiSISCrate

@@ -490,6 +490,7 @@ class TestSIS3305(DigitizerTestCase):
                 tuple([(stuff[2], stuff[3]) for stuff in my_sabc]),
                 adc, config_name)
 
+    @ut.SkipTest
     def test_misc(self):
         """
         Test misc behavior the does not fit into other test methods.

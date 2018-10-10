@@ -266,6 +266,128 @@ class TestSIS3305(DigitizerTestCase):
             # check equality
             self.assertEqual(name, hdset_name)
 
+    def test_mappings(self):
+        # -- One Config & One Active Config                         ----
+        # -- & One Active ADC (SIS 3302)                            ----
+        # setup faux group
+        config_name = 'config01'
+        adc = 'SIS 3302'
+        my_sabc = [
+            (5, adc, 1, (1, 3, 5)),
+            (9, adc, 3, (1, 2, 3, 4)),
+            (11, adc, 4, (5, 6, 7)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
+        self.mod.knobs.active_brdch = bc_arr
+
+        # test
+        _map = self.map
+        self.assertDigitizerMapBasics(_map, self.dgroup)
+        self.assertEqual(_map.active_configs, [config_name])
+        self.assertEqual(list(_map.configs), [config_name])
+        self.assertEqual(_map.configs[config_name]['adc'], (adc,))
+        self.assertConnectionsEqual(
+            _map,
+            tuple([(stuff[2], stuff[3])for stuff in my_sabc]),
+            adc, config_name)
+
+        # -- One Config & One Active Config                         ----
+        # -- & One Active ADC (SIS 3305)                            ----
+        # setup faux group
+        config_name = 'config01'
+        adc = 'SIS 3305'
+        my_sabc = [
+            (13, adc, 1, (1,)),
+            (15, adc, 2, (1, 4, 7)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
+        self.mod.knobs.active_brdch = bc_arr
+
+        # test
+        _map = self.map
+        self.assertDigitizerMapBasics(_map, self.dgroup)
+        self.assertEqual(_map.active_configs, [config_name])
+        self.assertEqual(list(_map.configs), [config_name])
+        self.assertEqual(_map.configs[config_name]['adc'], (adc,))
+        self.assertConnectionsEqual(
+            _map,
+            tuple([(stuff[2], stuff[3]) for stuff in my_sabc]),
+            adc, config_name)
+
+        # -- Multiple Configs & One Active Config                   ----
+        # -- & MULTIPULE Active ADCs                                ---
+        # setup faux group
+        config_name = 'config02'
+        # adc = 'SIS 3302'
+        self.mod.knobs.n_configs = 3
+        self.mod.knobs.active_config = config_name
+        my_sabc = [
+            (5, 'SIS 3302', 1, (1, 3, 5)),
+            (9, 'SIS 3302', 3, (1, 2, 3, 4)),
+            (15, 'SIS 3305', 2, (1, 4, 7)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
+        self.mod.knobs.active_brdch = bc_arr
+
+        # test
+        _map = self.map
+        self.assertDigitizerMapBasics(_map, self.dgroup)
+        self.assertEqual(_map.active_configs, [config_name])
+        self.assertEqual(set(list(_map.configs)),
+                         set(self.mod.config_names))
+        for adc in ('SIS 3302', 'SIS 3305'):
+            self.assertIn(adc, _map.configs[config_name]['adc'])
+
+            conns = []
+            for stuff in my_sabc:
+                if stuff[1] == adc:
+                    conns.append((stuff[2], stuff[3]))
+
+            self.assertConnectionsEqual(
+                _map, tuple(conns), adc, config_name)
+
+        # -- Multiple Configs & Two Active Config                   ----
+        # setup faux group
+        config_names = ('config02', 'config03')
+        adc = 'SIS 3302'
+        self.mod.knobs.n_configs = 3
+        self.mod.knobs.active_config = config_names
+        my_sabc = [
+            (5, adc, 1, (1, 3, 5)),
+            (9, adc, 3, (1, 2, 3, 4)),
+            (11, adc, 4, (5, 6, 7)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
+        bc_arr = self.mod.knobs.active_brdch
+        bc_arr[...] = False
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
+        self.mod.knobs.active_brdch = bc_arr
+
+        # test
+        _map = self.map
+        self.assertDigitizerMapBasics(_map, self.dgroup)
+        self.assertEqual(_map.active_configs, list(config_names))
+        self.assertEqual(list(_map.configs), self.mod.config_names)
+        for config_name in config_names:
+            self.assertEqual(_map.configs[config_name]['adc'], (adc,))
+            self.assertConnectionsEqual(
+                _map,
+                tuple([(stuff[2], stuff[3]) for stuff in my_sabc]),
+                adc, config_name)
+
     def test_parse_config_name(self):
         """Test HDFMapDigiSIS3301 method `_parse_config_name`."""
         _map = self.map  # type: HDFMapDigiSISCrate

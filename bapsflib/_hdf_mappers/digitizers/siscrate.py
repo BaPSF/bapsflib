@@ -155,7 +155,10 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         for conn in conns:
             if adc_name == 'SIS 3302':
                 conn[2]['bit'] = 16
-            elif adc_name == 'SIS 3305':
+            else:
+                # * this is the adc_name == 'SIS 3305' case
+                # * `_find_adc_connections() ensures only 'SIS 3302'
+                #   and 'SIS 3305' can come out
                 conn[2]['bit'] = 10
 
             # append info

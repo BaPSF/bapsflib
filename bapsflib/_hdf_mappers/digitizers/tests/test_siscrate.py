@@ -481,7 +481,8 @@ class TestSISCrate(DigitizerTestCase):
         # test
         _map = self.map
         self.assertDigitizerMapBasics(_map, self.dgroup)
-        self.assertEqual(_map.active_configs, list(config_names))
+        self.assertEqual(sorted(_map.active_configs),
+                         sorted(list(config_names)))
         self.assertEqual(sorted(list(_map.configs)),
                          sorted(self.mod.config_names))
         for config_name in config_names:

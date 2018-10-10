@@ -879,7 +879,11 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 adc = self.configs[config_name]['adc'][0]
                 warn("No `adc` specified, but only one adc used..."
                      "assuming adc '{}'".format(adc))
-            elif len(self.configs[config_name]['adc']) > 1:
+            else:
+                # there should never be a case where there are NO active
+                # adc's, this covers the case where there is MULTIPLE
+                # adc's
+                #
                 adc = 'SIS 3302'
                 warn("No `adc` specified...assuming adc 'SIS 3302'")
         elif adc not in self._configs[config_name]['adc']:

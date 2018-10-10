@@ -46,8 +46,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, adc, 3, (1, 2, 3, 4)),
             (11, adc, 4, (5, 6, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -134,8 +134,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, adc, 3, (1, 2, 3, 4)),
             (13, 'SIS 3305', 1, (2, 6, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -236,8 +236,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, adc, 3, (1, 2, 3, 4)),
             (11, adc, 4, (5, 6, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -289,8 +289,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, adc, 3, (1, 2, 3, 4)),
             (11, adc, 4, (5, 6, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -379,8 +379,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, adc, 3, (1, 2, 3, 4)),
             (11, adc, 4, (5, 6, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -406,8 +406,8 @@ class TestSIS3305(DigitizerTestCase):
             (13, adc, 1, (1,)),
             (15, adc, 2, (1, 4, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -436,8 +436,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, 'SIS 3302', 3, (1, 2, 3, 4)),
             (15, 'SIS 3305', 2, (1, 4, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -471,8 +471,8 @@ class TestSIS3305(DigitizerTestCase):
             (9, adc, 3, (1, 2, 3, 4)),
             (11, adc, 4, (5, 6, 7)),
         ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for slot, adc, brd, chns in my_sabc:
             for ch in chns:
                 bc_arr[adc][brd - 1][ch - 1] = True
@@ -505,8 +505,8 @@ class TestSIS3305(DigitizerTestCase):
         my_bcs = [(0, (0, 3, 5)),
                   (3, (0, 1, 2, 3)),
                   (5, (5, 6, 7))]
-        bc_arr = self.mod.knobs.active_brdch
-        bc_arr[...] = False
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
         for brd, chns in my_bcs:
             bc_arr[brd, chns] = True
         self.mod.knobs.active_brdch = bc_arr

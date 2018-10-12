@@ -741,6 +741,7 @@ class TestSIS3301(DigitizerTestCase):
             self.dgroup.move(hdset_name + 'Q', hdset_name)
 
     def test_mappings(self):
+        """Test various digitizer group setups."""
         # -- One Config & One Active Config                         ----
         # setup faux group
         config_name = 'config01'

@@ -11,6 +11,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import astropy.units as u
 import numpy as np
 import unittest as ut
 
@@ -1002,102 +1003,188 @@ class TestSISCrate(DigitizerTestCase):
                 tuple([(stuff[2], stuff[3]) for stuff in my_sabc]),
                 adc, config_name)
 
-    @ut.SkipTest
     def test_misc(self):
         """
         Test misc behavior the does not fit into other test methods.
         """
-        # TODO: test `get_slot`
-        # TODO: test `slot_info`
-        '''
         # setup
         config_name = 'config01'
-        adc = 'SIS 3301'
-        config_path = 'Configuration: {}'.format(config_name)
-        my_bcs = [(0, (0, 3, 5)),
-                  (3, (0, 1, 2, 3)),
-                  (5, (5, 6, 7))]
+        config_path = config_name
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.active_config = config_name
+        adc = 'SIS 3302'
+        my_sabc = [
+            (5, adc, 1, (1, 3, 5)),
+            (9, adc, 3, (1, 2, 3, 4)),
+            (11, adc, 4, (5, 6, 7)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
         dtype = self.mod.knobs.active_brdch.dtype
         bc_arr = np.zeros((), dtype=dtype)
-        for brd, chns in my_bcs:
-            bc_arr[brd, chns] = True
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
         self.mod.knobs.active_brdch = bc_arr
 
-        # -- config group attribute `Shots to average`              ----
-        sh2a = self.dgroup[config_path].attrs['Shots to average']
+        # -- examine property `slot_info`                          ----
+        _map = self.map  # type: HDFMapDigiSISCrate
+        self.assertTrue(hasattr(_map, 'slot_info'))
+        self.assertIsInstance(type(_map).slot_info, property)
+        self.assertIsInstance(_map.slot_info, dict)
 
-        # `Shots to average' missing
-        del self.dgroup[config_path].attrs['Shots to average']
+        for key, val in _map.slot_info.items():
+            self.assertIsInstance(key, int)
+            self.assertIsInstance(val, tuple)
+            self.assertEqual(len(val), 2)
+            self.assertIsInstance(val[0], int)
+            self.assertIn(val[1], ('SIS 3302', 'SIS 3305'))
+
+        # -- examine method `get_slot`                              ----
+        self.assertTrue(hasattr(_map, 'get_slot'))
+        slot = my_sabc[0][0]
+        adc = my_sabc[0][1]
+        brd = my_sabc[0][2]
+        si = _map.slot_info.copy()
+        with mock.patch.object(
+                HDFMapDigiSISCrate, 'slot_info',
+                new_callable=mock.PropertyMock) as mock_si:
+            mock_si.return_value = si
+
+            # good inputs
+            self.assertEqual(_map.get_slot(brd, adc), slot)
+            self.assertTrue(mock_si.called)
+            mock_si.reset_mock()
+
+            # inputs do not correlate to a slot
+            self.assertIsNone(_map.get_slot(-1, ''))
+            self.assertTrue(mock_si.called)
+
+        # -- adc config group has an 'Enabled *' keyword but does   ----
+        # -- not match an expected pattern                          ----
+        # everything is done as normal
+        adc_config_name = "SIS crate 3302 configurations[0]"
+        adc_group = self.dgroup[config_path + '/' + adc_config_name]
+        adc_group.attrs['Enabled B'] = np.bytes_('TRUE')
+        self.assertDigitizerMapBasics(self.map, self.dgroup)
+        del adc_group.attrs['Enabled B']
+
+        # -- config group attribute `Shot averaging (software)`     ----
+        shot_key = "Shot averaging (software)"
+        adc_config_name = "SIS crate 3302 configurations[0]"
+        adc_config_path = config_path + '/' + adc_config_name
+        sh2a = self.dgroup[adc_config_path].attrs[shot_key]
+
+        # `Shot averaging (software)' missing
+        del self.dgroup[adc_config_path].attrs[shot_key]
         _map = self.map
         for conn in _map.configs[config_name][adc]:
             self.assertIsNone(conn[2]['shot average (software)'])
 
-        # `Shots to average' is 0 or 1
-        self.dgroup[config_path].attrs['Shots to average'] = 1
+        # `Shots averaging (software)' is 0 or 1
+        self.dgroup[adc_config_path].attrs[shot_key] = 1
         _map = self.map
         for conn in _map.configs[config_name][adc]:
             self.assertIsNone(conn[2]['shot average (software)'])
 
-        # `Shots to average' is >1
-        self.dgroup[config_path].attrs['Shots to average'] = 5
+        # `Shot averaging (software)' is >1
+        self.dgroup[adc_config_path].attrs[shot_key] = 5
+        _map = self.map
+        brd = my_sabc[0][2]
+        for conn in _map.configs[config_name][adc]:
+            if conn[0] == brd:
+                self.assertEqual(conn[2]['shot average (software)'], 5)
+
+        self.dgroup[adc_config_path].attrs[shot_key] = sh2a
+
+        # -- config group attribute `Sample averaging (hardware)`   ----
+        brd = my_sabc[0][2]
+        sp2a_key = "Sample averaging (hardware)"
+        adc_config_name = "SIS crate 3302 configurations[0]"
+        adc_config_path = config_path + '/' + adc_config_name
+        sp2a = self.dgroup[adc_config_path].attrs[sp2a_key]
+
+        # 'Sample averaging (hardware)' is missing
+        del self.dgroup[adc_config_path].attrs[sp2a_key]
         _map = self.map
         for conn in _map.configs[config_name][adc]:
-            self.assertEqual(conn[2]['shot average (software)'], 5)
-
-        self.dgroup[config_path].attrs['Shots to average'] = sh2a
-
-        # -- config group attribute `Samples to average`            ----
-        sp2a = self.dgroup[config_path].attrs['Samples to average']
-
-        # 'Samples to average' is missing
-        del self.dgroup[config_path].attrs['Samples to average']
-        _map = self.map
-        for conn in _map.configs[config_name][adc]:
-            self.assertIsNone(conn[2]['sample average (hardware)'])
-
-        # 'Samples to average' is 'No averaging'
-        self.dgroup[config_path].attrs['Samples to average'] = \
-            np.bytes_('No averaging')
-        _map = self.map
-        for conn in _map.configs[config_name][adc]:
-            self.assertIsNone(conn[2]['sample average (hardware)'])
-
-        # 'Samples to average' does not match string
-        # 'Average {} Samples'
-        self.dgroup[config_path].attrs['Samples to average'] = \
-            np.bytes_('hello')
-        _map = self.map
-        for conn in _map.configs[config_name][adc]:
-            self.assertIsNone(conn[2]['sample average (hardware)'])
-
-        # 'Samples to average' does match string 'Average {} Samples',
-        # but can not be converted to int
-        self.dgroup[config_path].attrs['Samples to average'] = \
-            np.bytes_('Average 5.0 Samples')
-        _map = None
-        with self.assertWarns(UserWarning):
-            _map = self.map
-        for conn in _map.configs[config_name][adc]:
-            self.assertIsNone(conn[2]['sample average (hardware)'])
-
-        # 'Samples to average' does match string 'Average {} Samples',
-        # and is converted to an int of 0 or 1
-        for val in (0, 1):
-            self.dgroup[config_path].attrs['Samples to average'] = \
-                np.bytes_('Average {} Samples'.format(val))
-            _map = self.map
-            for conn in _map.configs[config_name][adc]:
+            if conn[0] == brd:
                 self.assertIsNone(conn[2]['sample average (hardware)'])
 
-        # 'Samples to average' does match string 'Average {} Samples',
-        # and is converted to an int >1
-        self.dgroup[config_path].attrs['Samples to average'] = \
-            np.bytes_('Average 5 Samples'.format(val))
+        # 'Sample averaging (hardware)' is 0
+        self.dgroup[adc_config_path].attrs[sp2a_key] = 0
         _map = self.map
         for conn in _map.configs[config_name][adc]:
-            self.assertEqual(conn[2]['sample average (hardware)'], 5)
-        '''
-        self.fail()
+            if conn[0] == brd:
+                self.assertIsNone(conn[2]['sample average (hardware)'])
+
+        # 'Sample averaging (hardware)' is 5
+        self.dgroup[adc_config_path].attrs[sp2a_key] = 5
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            if conn[0] == brd:
+                self.assertEqual(
+                    conn[2]['sample average (hardware)'], 2 ** 5)
+
+        self.dgroup[adc_config_path].attrs[sp2a_key] = sp2a
+
+        # -- config group attribute `clock rate`                    ----
+        # * 'clock rate' is not a defined attribute for 'SIS 3302' and
+        #   will always be 100 MHz
+        #
+        # setup
+        config_name = 'config01'
+        config_path = config_name
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.active_config = config_name
+        my_sabc = [
+            (13, 'SIS 3305', 1, (1, 3, 5)),
+        ]  # type: List[Tuple[int, str, int, Tuple[int, ...]]]
+        dtype = self.mod.knobs.active_brdch.dtype
+        bc_arr = np.zeros((), dtype=dtype)
+        for slot, adc, brd, chns in my_sabc:
+            for ch in chns:
+                bc_arr[adc][brd - 1][ch - 1] = True
+        self.mod.knobs.active_brdch = bc_arr
+
+        brd = my_sabc[0][2]
+        adc = my_sabc[0][1]
+        adc_config_name = "SIS crate 3305 configurations[0]"
+        adc_config_path = config_path + '/' + adc_config_name
+        cr_mode = self.dgroup[adc_config_path].attrs['Channel mode']
+
+        # mode set to 0
+        self.dgroup[adc_config_path].attrs['Channel mode'] = 0
+        _map = self.map
+        conns = _map.configs[config_name][adc]
+        for conn in conns:
+            if conn[0] == brd:
+                self.assertEqual(conn[2]['clock rate'],
+                                 u.Quantity(1.25, unit='GHz'))
+
+        # mode set to 1
+        self.dgroup[adc_config_path].attrs['Channel mode'] = 1
+        _map = self.map
+        conns = _map.configs[config_name][adc]
+        for conn in conns:
+            if conn[0] == brd:
+                self.assertEqual(conn[2]['clock rate'],
+                                 u.Quantity(2.5, unit='GHz'))
+
+        # mode set to 2
+        self.dgroup[adc_config_path].attrs['Channel mode'] = 2
+        _map = self.map
+        conns = _map.configs[config_name][adc]
+        for conn in conns:
+            if conn[0] == brd:
+                self.assertEqual(conn[2]['clock rate'],
+                                 u.Quantity(5.0, unit='GHz'))
+
+        # mode is anything else
+        self.dgroup[adc_config_path].attrs['Channel mode'] = 7
+        _map = self.map
+        conns = _map.configs[config_name][adc]
+        for conn in conns:
+            if conn[0] == brd:
+                self.assertIsNone(conn[2]['clock rate'])
 
     def test_parse_config_name(self):
         """Test HDFMapDigiSIS3301 method `_parse_config_name`."""

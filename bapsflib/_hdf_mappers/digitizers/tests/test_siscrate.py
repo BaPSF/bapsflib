@@ -878,8 +878,8 @@ class TestSISCrate(DigitizerTestCase):
             del self.dgroup[hdset_name]
             self.dgroup.move(hdset_name + 'Q', hdset_name)
 
-
     def test_mappings(self):
+        """Test various digitizer group setups."""
         # -- One Config & One Active Config                         ----
         # -- & One Active ADC (SIS 3302)                            ----
         # setup faux group

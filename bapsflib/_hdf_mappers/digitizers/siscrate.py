@@ -690,6 +690,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             if 'FPGA 2' in pat:
                                 ch += 4
                             break
+
                     if ch is not None:
                         chs.append(ch)
 
@@ -710,7 +711,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     in config_group[name].attrs:
                 shot_ave = config_group[name].attrs[
                     'Shot averaging (software)']
-                if shot_ave == 0 or shot_ave == 1:
+                if shot_ave in (0, 1):
                     shot_ave = None
 
             # determine sample averaging

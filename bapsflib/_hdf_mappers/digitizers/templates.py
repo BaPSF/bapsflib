@@ -113,8 +113,8 @@ class HDFMapDigiTemplate(ABC):
     def active_configs(self) -> List[str]:
         """List of active digitizer configurations"""
         active = []
-        for cname in self._configs:
-            if self._configs[cname]['active']:
+        for cname in self.configs:
+            if self.configs[cname]['active']:
                 active.append(cname)
 
         return active
@@ -403,14 +403,13 @@ class HDFMapDigiTemplate(ABC):
             if board == conn[0]:
                 found = True
                 break
-        if not found or not bool(board) or not bool(conn[0]):
+        if not found or not bool(board):
             raise ValueError("Board number ({}) ".format(board)
                              + "not found in setup")
 
         # look for `channel`
         if channel not in conn[1] \
-                or not bool(channel) \
-                or not bool(conn[1]):
+                or not bool(channel):
             raise ValueError("Channel number ({}) ".format(channel)
                              + " not found in setup")
 

@@ -283,10 +283,10 @@ class TestSIS3301(DigitizerTestCase):
         # 11. an expected dataset is missing
         # 12. all expected datasets for a board are missing
         # 13. dataset has fields
-        # 14. data set is not a 2D array
+        # 14. dataset is not a 2D array
         # 15. number of dataset time samples not consistent for all
         #     channels connected to a board
-        # 16. number of dataset shot number not consistent for all
+        # 16. number of dataset shot numbers not consistent for all
         #     channels connect to a board, but are still consistent
         #     with their associated header dataset
         # 17. header dataset missing expected shot number field

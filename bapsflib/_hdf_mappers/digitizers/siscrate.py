@@ -572,7 +572,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         conn = []
 
         # define _helpers
-        if adc_name not in ('SIS 3302', 'SIS 3305'):
+        if adc_name not in ('SIS 3302', 'SIS 3305'):  # pragma: no cover
+            # this should never happen
             warn("Invalid adc name '{}'".format(adc_name))
             return ()
         _helpers = {
@@ -621,8 +622,14 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         adc_pairs = []
         for slot, index in zip(slots, indices):
             if slot != 3:
-                brd, adc = self.slot_info[slot]
-                adc_pairs.append((slot, index, brd, adc))
+                try:
+                    brd, adc = self.slot_info[slot]
+                    adc_pairs.append((slot, index, brd, adc))
+                except KeyError:
+                    why = ("HDF5 structure unexpected...defined slot"
+                           + "number {} is unexpected".format(slot)
+                           + "...not adding to `configs` mapping")
+                    warn(why)
 
         # Ensure the same configuration index is not assign to multiple
         # slots for the same adc
@@ -667,11 +674,14 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
             # find connected channels
             chs = []
+            if adc_name == 'SIS 3302':
+                _patterns = (r"Enabled\s(?P<CH>\d+)",)
+            else:
+                # SIS 3305
+                _patterns = (r"FPGA 1 Enabled\s(?P<CH>\d+)",
+                             r"FPGA 2 Enabled\s(?P<CH>\d+)")
             for key, val in config_group[name].attrs.items():
                 if 'Enabled' in key and val == b'TRUE':
-                    _patterns = (r"Enabled\s(?P<CH>\d+)",
-                                 r"FPGA 1 Enabled\s(?P<CH>\d+)",
-                                 r"FPGA 2 Enabled\s(?P<CH>\d+)",)
                     ch = None
                     for pat in _patterns:
                         _match = re.fullmatch(pat, key)
@@ -682,17 +692,6 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             break
                     if ch is not None:
                         chs.append(ch)
-
-            # ensure connected channels are unique
-            if len(chs) != len(set(chs)):
-                why = ("HDF5 structure unexpected..."
-                       + "'{}'".format(config_name + '/' + name)
-                       + " does not define a unique set of channel "
-                       + "numbers...not adding to `configs` dict")
-                warn(why)
-
-                # skip adding to conn list
-                continue
 
             # ensure chs is not NULL
             if len(chs) == 0:

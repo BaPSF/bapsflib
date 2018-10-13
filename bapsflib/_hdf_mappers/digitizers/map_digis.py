@@ -10,6 +10,7 @@
 #
 import h5py
 
+from bapsflib.utils.errors import HDFMappingError
 from typing import (Dict, Tuple)
 
 from .sis3301 import HDFMapDigiSIS3301
@@ -53,20 +54,6 @@ class HDFMapDigitizers(dict):
         # store HDF5 data group instance
         self.__data_group = data_group
 
-        # all data_group subgroups
-        # - each of these subgroups can fall into one of four 'LaPD
-        #   data types'
-        #   1. data sequence
-        #   2. digitizer groups (known)
-        #   3. controls (known)
-        #   4. unknown
-        #
-        #: list of all group names in the HDF5 data group
-        self.data_group_subgnames = []
-        for name in data_group:
-            if isinstance(data_group[name], h5py.Group):
-                self.data_group_subgnames.append(name)
-
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
 
@@ -87,14 +74,32 @@ class HDFMapDigitizers(dict):
         :return: digitizer mapping dictionary
         :rtype: dict
         """
+        # all data_group subgroups
+        # - each of these subgroups can fall into one of four 'LaPD
+        #   data types'
+        #   1. data sequence
+        #   2. digitizer groups (known)
+        #   3. controls (known)
+        #   4. unknown
+        #
+        #: list of all group names in the HDF5 data group
+        subgnames = []
+        for name in self.__data_group:
+            if isinstance(self.__data_group[name], h5py.Group):
+                subgnames.append(name)
+
+        # build dictionary
         digi_dict = {}
-        try:
-            for name in self.data_group_subgnames:
-                if name in self._defined_mapping_classes:
+        for name in subgnames:
+            if name in self._defined_mapping_classes:
+                # only add mappings that succeed
+                try:
                     digi_dict[name] = \
                         self._defined_mapping_classes[name](
                             self.__data_group[name])
-        except TypeError:
-            pass
+                except HDFMappingError:
+                    # mapping failed
+                    pass
 
+        # return dictionary
         return digi_dict

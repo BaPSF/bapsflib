@@ -322,6 +322,11 @@ class ControlTestCase(ut.TestCase):
             raise ValueError("what needs to be defined as 'default', "
                              "'cl', 'cl only'")
 
+        # 'state value' can NOT be called 'signal'
+        # - this is reserved for the signal field created by HDFReadData
+        #
+        self.assertNotEqual(sv_name, 'signal')
+
         # -- check absolutely required elements                     ----
         if what in ('default', 'cl'):
             # required keys

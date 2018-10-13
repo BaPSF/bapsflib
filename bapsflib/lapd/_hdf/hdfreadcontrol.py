@@ -130,7 +130,7 @@ class HDFReadControl(np.ndarray):
             timeit = False
 
         # ---- Condition `hdf_file`                                 ----
-        # - `hdf_file` is a lapd.file object
+        # - `hdf_file` is a lapd.File object
         #
         if not isinstance(hdf_file, bapsflib.lapd.File):
             raise TypeError(

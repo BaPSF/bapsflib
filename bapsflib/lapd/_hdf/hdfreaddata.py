@@ -12,8 +12,7 @@
 import numpy as np
 import time
 
-from .hdfreadcontrol import (HDFReadControl,
-                             condition_controls)
+from .hdfreadcontrol import (condition_controls, HDFReadControl)
 
 from bapsflib.plasma import core
 from warnings import warn
@@ -41,7 +40,7 @@ class HDFReadData(np.recarray):
                 index=slice(None), shotnum=slice(None),
                 digitizer=None, adc=None,
                 config_name=None, keep_bits=False, add_controls=None,
-                intersection_set=True, silent=False, **kwargs):
+                intersection_set=True, **kwargs):
         """
         When inheriting from numpy, the object creation and
         initialization is handled by __new__ instead of __init__.
@@ -72,8 +71,6 @@ class HDFReadData(np.recarray):
             tuple[0] is the control device name and tuple[1] is a unique
             specifier for that control device.
         :param bool intersection_set:
-        :param bool silent: set :code:`True` to suppress command line
-            print out of soft warnings
 
         .. note::
 
@@ -164,8 +161,6 @@ class HDFReadData(np.recarray):
         #              header dataset (dheader)
         #
         # Build kwargs for construct_dataset_name()
-        # kwargs = {'return_info': True,
-        #           'silent': silent}
         kwargs = {'return_info': True}
         if config_name is not None:
             kwargs['config_name'] = config_name
@@ -379,8 +374,7 @@ class HDFReadData(np.recarray):
             cdata = HDFReadControl(hdf_file, controls,
                                    assume_controls_conditioned=True,
                                    shotnum=shotnum.tolist(),
-                                   intersection_set=intersection_set,
-                                   silent=silent)
+                                   intersection_set=intersection_set)
 
             # print execution timing
             if timeit:
@@ -544,8 +538,6 @@ class HDFReadData(np.recarray):
             obj._info['signal units'] = 'V'
 
         # print warnings
-        # if not silent and warn_str != '':
-        #    print(warn_str)
         warn(warn_str)
 
         # print execution timing

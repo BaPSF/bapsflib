@@ -261,10 +261,6 @@ class HDFReadData(np.recarray):
         #     * shotnum
         #       > will be the desired global shot numbers
         #
-        # rename 'shots' to 'index'
-        if 'shots' in kwargs and index is None:
-            index = kwargs['shots']
-
         # Determine if indexing w.r.t. `index` or `shotnum`
         index_with = 'shotnum' \
             if shotnum != slice(None) and index == slice(None)\

@@ -160,6 +160,17 @@ class HDFMapControlTemplate(ABC):
             HDF5 dataset is mapped to the 1st index, :code:`'y'` is
             mapped to the 2nd index, and :code:`'z'` is mapped to the
             3rd index.
+
+            **Note:**
+
+            * A state value field (key) can not be defined as
+              :code:`'signal'` since this field is reserved for
+              digitizer data constructed by
+              :class:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`.
+            * If state value data represents probe position data, then
+              it should be given the field name (key) :code:`'xyz'`
+              (like in the example above).
+
             "
 
         If a control device saves data around the concept of a
@@ -215,7 +226,7 @@ class HDFMapControlTemplate(ABC):
 
         .. note::
 
-            for further details, look to :ref:`add_control_mod`.
+            For further details, look to :ref:`add_control_mod`.
         """
         return self._configs
 

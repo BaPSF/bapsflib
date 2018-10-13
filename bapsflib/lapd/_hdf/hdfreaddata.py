@@ -20,7 +20,7 @@ from warnings import warn
 
 
 # noinspection PyInitNewSignature
-class hdfReadData(np.recarray):
+class HDFReadData(np.recarray):
     """
     Reads digitizer (and control device) data from the HDF5 file.
     """

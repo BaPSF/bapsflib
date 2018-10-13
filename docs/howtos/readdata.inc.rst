@@ -3,7 +3,7 @@
    :ref:`lapd_file_overview`).  Each class of data is given its own read
    method on :class:`bapsflib.lapdhdf.File`:
 
-Three classes :class:`~bapsflib.lapdhdf.hdfreaddata.hdfReadData`,
+Three classes :class:`~bapsflib.lapdhdf.hdfreaddata.HDFReadData`,
 :class:`~bapsflib.lapdhdf.hdfreadcontrol.HDFReadControl`, and
 :class:`~bapsflib.lapdhdf.hdfreadmsi.HDFReadMSI` are given to read data
 for **digitizers**, **control devices**, and **MSI diagnostics**,
@@ -19,7 +19,7 @@ and will return a structured :mod:`numpy` array with the requested data.
         What it does"
     :widths: 10, 15, 40
 
-    :mod:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData`, "
+    :mod:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`, "
     :meth:`~bapsflib.lapd.File.read_data`","
     Designed to extract **digitizer** data from a HDF5 file with the
     option of mating **control device** data at the time of extraction.

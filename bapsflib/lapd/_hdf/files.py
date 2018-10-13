@@ -118,11 +118,11 @@ class File(h5py.File):
         # TODO: docstrings and code block needs updating
         """
         Provides access to
-        :class:`~bapsflib.lapd.hdfreaddata.hdfReadData` to extract
+        :class:`~bapsflib.lapd.hdfreaddata.HDFReadData` to extract
         data from a specified digitizer dataset in the HDF5 file and,
         if requested, mate control device data to the extracted
         digitizer data. See
-        :class:`~bapsflib.lapd.hdfreaddata.hdfReadData` for more
+        :class:`~bapsflib.lapd.hdfreaddata.HDFReadData` for more
         detail.
 
         :param int board: digitizer board number
@@ -139,19 +139,19 @@ class File(h5py.File):
         :param add_controls: a list of strings and/or 2-element tuples
             indicating control device data to be mated to the digitizer
             data. (see
-            :class:`~bapsflib.lapd.hdfreaddata.hdfReadData`
+            :class:`~bapsflib.lapd.hdfreaddata.HDFReadData`
             for details)
         :type add_controls: [str, (str, val), ]
         :param bool intersection_set: :code:`True` (default) forces the
             returned array to only contain shot numbers that are in the
             intersection of :data:`shotnum`, the digitizer dataset, and
             all the control device datasets. (see
-            :class:`~bapsflib.lapd.hdfreaddata.hdfReadData`
+            :class:`~bapsflib.lapd.hdfreaddata.HDFReadData`
             for details)
         :param bool silent: :code:`False` (default). Set :code:`True` to
             suppress command line printout of soft-warnings
         :return: extracted data from digitizer (and control devices)
-        :rtype: :class:`~bapsflib.lapd.hdfreaddata.hdfReadData`
+        :rtype: :class:`~bapsflib.lapd.hdfreaddata.HDFReadData`
         """
         #
         # :param add_controls: a list of strings and/or 2-element tuples
@@ -171,12 +171,12 @@ class File(h5py.File):
         #
         # TODO: write docstrings
         #
-        from .hdfreaddata import hdfReadData
+        from .hdfreaddata import HDFReadData
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():
             warnings.simplefilter(warn_filter)
-            data = hdfReadData(self, board, channel,
+            data = HDFReadData(self, board, channel,
                                index=index,
                                shotnum=shotnum,
                                digitizer=digitizer,

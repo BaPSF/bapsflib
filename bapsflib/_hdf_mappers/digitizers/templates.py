@@ -124,7 +124,7 @@ class HDFMapDigiTemplate(ABC):
         """
         Dictionary containing al the relevant mapping information to
         translate the HDF5 data into a numpy array by
-        :class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData`.
+        :class:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`.
 
         **-- Constructing** :code:`configs` **--**
 
@@ -185,7 +185,7 @@ class HDFMapDigiTemplate(ABC):
             is the numpy :code:`dtype` of the data.  This all defines
             the numpy :code:`dtype` of the :code:`'shotnum'` field in
             the
-            :mod:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData`
+            :mod:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`
             constructed numpy array.
             "
 

@@ -96,14 +96,12 @@ class HDFReadControl(np.ndarray):
         :type controls: Union[str, Iterable[str, Tuple[str, Any]]]
         :param shotnum: HDF5 file shot number(s) indicating data
             entries to be extracted
-        :type shotnum: int, list(int), or slice(start, stop, step)
+        :type shotnum: Union[int, List[int], slice, numpy.ndarray]
         :param bool intersection_set: :code:`True` (DEFAULT) will force
             the returned shot numbers to be the intersection of
             :data:`shotnum` and the shot numbers contained in each
             control device dataset. :code:`False` will return the union
             instead of the intersection
-        :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
-            to suppress command line printout of soft-warnings
 
         Behavior of :data:`shotnum` and :data:`intersection_set`:
             * :data:`shotnum` indexing starts at 1

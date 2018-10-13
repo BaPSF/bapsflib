@@ -8,7 +8,7 @@ bapsflib\.lapd\.\_hdf\.hdfreaddata
 
     .. rubric:: Classes
 
-    .. autosummary:: hdfReadData
+    .. autosummary:: HDFReadData
         :nosignatures:
 
     .. rubric:: Functions

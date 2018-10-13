@@ -66,14 +66,14 @@ extracted as follows::
     >>> data = f.read_data(board, channel)
 
 where :obj:`data` is an instance of
-:class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData`.  The
-:class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData` class acts as a
+:class:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`.  The
+:class:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData` class acts as a
 wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
 a :class:`numpy.recarray` object, but will have additional methods and
 attributes that describe the data's origin and parameters (e.g.
-:attr:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData.info`,
-:attr:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData.dt`,
-:attr:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData.dv`, etc.).
+:attr:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData.info`,
+:attr:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData.dt`,
+:attr:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData.dv`, etc.).
 
 By default, :obj:`data` is a structured :mod:`numpy` array with the
 following :data:`dtype`::
@@ -256,7 +256,7 @@ keyword :data:`add_controls`.  Specifying :data:`add_controls` will
 trigger a call to the
 :class:`~bapsflib.lapd._hdf.hdfreadcontrol.HDFReadControl` class and
 extract the desired control device data.
-:class:`~bapsflib.lapd._hdf.hdfreaddata.hdfReadData` then compares and
+:class:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData` then compares and
 mates that control device data with the digitizer data according to the
 global HDF5 shot number.
 

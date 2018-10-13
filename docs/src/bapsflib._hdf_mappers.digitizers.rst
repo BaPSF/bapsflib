@@ -12,3 +12,13 @@ bapsflib\.\_hdf\_mappers\.digitizers
     bapsflib._hdf_mappers.digitizers.map_digis
     bapsflib._hdf_mappers.digitizers.sis3301
     bapsflib._hdf_mappers.digitizers.siscrate
+
+.. rubric::
+
+.. autosummary:: HDFMapDigitizers
+    :nosignatures:
+
+.. autoclass:: HDFMapDigitizers
+    :members:
+    :undoc-members:
+    :show-inheritance:

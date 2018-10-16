@@ -143,14 +143,9 @@ class HDFReadData(np.recarray):
               digitizer dataset, the :data:`index` keyword will always
               execute quicker than the :data:`shotnum` keyword.
         """
-        #
-        # numpy uses __new__ to initialize objects, so an __init__ is
-        # not necessary
-        #
-
         # initialize timing
         tt = []
-        if 'timeit' in kwargs:
+        if 'timeit' in kwargs:  # pragma: no cover
             timeit = kwargs['timeit']
             if timeit:
                 tt.append(time.time())
@@ -162,57 +157,61 @@ class HDFReadData(np.recarray):
         # initiate warning string
         warn_str = ''
 
-        # ---- Condition hdf_file ----
-        # Check hdf_file is a lapd.File object
-        try:
-            file_map = hdf_file.file_map
-        except AttributeError:
-            raise AttributeError(
-                'hdf_file needs to be of type lapd.File')
-
-        # Condition digitizer keyword
-        if digitizer is None:
-            warn_str = "** Warning: Digitizer not specified so " \
-                + "assuming the 'main_digitizer' ({})".format(
-                    file_map.main_digitizer.info[
-                        'group name']) \
-                + " defined in the mappings."
-            digi_map = file_map.main_digitizer
-        else:
-            try:
-                digi_map = hdf_file.file_map.digitizers[digitizer]
-            except KeyError:
-                raise ValueError('Specified Digitizer is not among '
-                                 'known digitizers')
+        # ---- Condition hdf_file                                   ----
+        # - `hdf_file` is a lapd.File object
+        #
+        if not isinstance(hdf_file, bapsflib.lapd.File):
+            raise TypeError(
+                '`hdf_file` is NOT type `bapsflib.lapd.File`')
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - hdf_file conditioning: '
-                  '{} ms'.format((tt[-1]-tt[-2])*1.E3))
+            print('tt - `hdf_file` conditioning: '
+                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # ---- Check for Control Device Addition ---
+        # ---- Examine file map object                              ----
+        # grab instance of `hdfMap`
+        _fmap = hdf_file.file_map
+
+        # ---- Condition `digitizer` keyword                        ----
+        if digitizer is None:
+            why = ("Digitizer not specified so assuming the "
+                   "'main_digitizer' "
+                   "({})".format(_fmap.main_digitizer.device_name)
+                   + " defined in the mappings.")
+            warn(why)
+            _dmap = _fmap.main_digitizer
+        else:
+            try:
+                _dmap = _fmap.digitizers[digitizer]
+            except KeyError:
+                raise ValueError(
+                    "Specified Digitizer '{}'".format(digitizer)
+                    + " is not among known digitizers "
+                    "({})".format(list(_fmap.digitizers)))
+
+        # ---- Condition `add_controls`                             ----
+        # Check for non-empty controls
+        if bool(add_controls) and not bool(_fmap.controls):
+            raise ValueError(
+                'There are no control devices in the HDF5 file.')
+
         # condition controls
-        if add_controls is not None:
+        if not bool(add_controls):
             controls = condition_controls(hdf_file, add_controls)
-
-            # check controls is not empty
-            if not controls:
-                warn_str = '\n** Warning: no valid controls passed, ' \
-                           'none added to array'
-                controls = []
         else:
             controls = []
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - add_controls conditioning: '
+            print('tt - `add_controls` conditioning: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
-        # ---- Gather Digi Dataset Info ----
+        # ---- Gather Digi Dataset Info                             ----
         #
-        # Note: digi_map.construct_dataset_name has conditioning for
+        # Note: _dmap.construct_dataset_name has conditioning for
         #       board, channel, adc, and
         #
         # dname      - digitizer dataset name
@@ -233,21 +232,21 @@ class HDFReadData(np.recarray):
             kwargs['adc'] = adc
 
         # Get dataset
-        dname, d_info = digi_map.construct_dataset_name(
+        dname, d_info = _dmap.construct_dataset_name(
             board, channel, **kwargs)
-        dhname = digi_map.construct_header_dataset_name(
+        dhname = _dmap.construct_header_dataset_name(
             board, channel, **kwargs)
-        dpath = digi_map.info['group path'] + '/'
+        dpath = _dmap.info['group path'] + '/'
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
-        # shotnumkey = digi_map.shotnum_field
+        # shotnumkey = _dmap.shotnum_field
         if config_name is None:
-            config_name = digi_map.active_configs[0]
+            config_name = _dmap.active_configs[0]
         shotnumkey = \
-            digi_map.configs[config_name]['shotnum']['dset field'][0]
+            _dmap.configs[config_name]['shotnum']['dset field'][0]
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - get dset and dheader: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -263,7 +262,7 @@ class HDFReadData(np.recarray):
             keep_bits = True
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - condition keep_bits kwarg: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -358,7 +357,7 @@ class HDFReadData(np.recarray):
                 index = np.arange(start, stop, step)
 
             # print execution timing
-            if timeit:
+            if timeit:  # pragma: no cover
                 tt.append(time.time())
                 print('tt - condition index: '
                       '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -416,7 +415,7 @@ class HDFReadData(np.recarray):
                                   intersection_set)
 
             # print execution timing
-            if timeit:
+            if timeit:  # pragma: no cover
                 tt.append(time.time())
                 print('tt - condition shotnum: '
                       '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -438,7 +437,7 @@ class HDFReadData(np.recarray):
                                    intersection_set=intersection_set)
 
             # print execution timing
-            if timeit:
+            if timeit:  # pragma: no cover
                 tt.append(time.time())
                 print('tt - read in cdata (control data): '
                       '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -482,7 +481,7 @@ class HDFReadData(np.recarray):
         data = np.empty(shape, dtype=dtype)
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - define data: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -533,7 +532,7 @@ class HDFReadData(np.recarray):
             data['xyz'] = np.nan
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - fill data array: '
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
@@ -602,7 +601,7 @@ class HDFReadData(np.recarray):
         warn(warn_str)
 
         # print execution timing
-        if timeit:
+        if timeit:  # pragma: no cover
             tt.append(time.time())
             print('tt - execution time: '
                   '{} ms'.format((tt[-1] - tt[0]) * 1.E3))

@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 #
+import bapsflib
 import numpy as np
 import time
 
@@ -21,62 +22,126 @@ from warnings import warn
 # noinspection PyInitNewSignature
 class HDFReadData(np.recarray):
     """
-    Reads digitizer (and control device) data from the HDF5 file.
+    Reads digitizer and control device data from the HDF5 file. Control
+    device data is extracted using
+    :class:`~.hdfreadcontrol.HDFReadControl` and combined with the
+    digitizer data.
+
+    This class constructs and returns a structured numpy array.  The
+    data in the array is grouped into three categories:
+
+    #. shot numbers which are contained in the :code:`'shotnum'` field
+    #. digitizer data which is contained in the :code:`'signal'` field
+    #. control device data which is represented by the remaining fields
+       in the numpy array.  These field names are polymorphic and are
+       defined by the control device mapping class. (see
+       :class:`~.hdfreadcontrol.HDFReadControl` for more detail)
+
+    Data that is not shot number specific is stored in the :attr:`info`
+    attribute.
+
+    .. note::
+
+        * Evey returned numpy array will have the :code:`'xyz'` field,
+          which is reserved for probe position data.  If a control
+          device specifies this field, then field will be filled with
+          the control device data;otherwise, the field will be filled
+          with :code:`numpy.nan` values.
     """
-    # Extracting Data:
-    #  dset = h5py.get() returns a view of the dataset (dset)
-    #  From here, instantiating from dset will create a copy of the
-    #    data. If you want to keep views then one could use
-    #    dset.values.view().  The dset.vlaues is the np.ndarray.
-    #  To extract data, fancy indexing [::] can be used directly on
-    #    dset or dset.values.
-    #
+    __example_doc__ = """
+    :Example: Here data is extracted from the digitizer 
+        :code:`'SIS crate'` and position data is mated from the
+        control device :code:`'6K Compumotor'`.
+        
+        >>> # open HDF5 file
+        >>> f = bapsflib.lapd.File('test.hdf5')
+        >>>
+        >>> # read digitizer data from board 1, channel 1,
+        >>> # - this is equivalent to 
+        >>> #   f.read_data(1, 1)
+        >>> data = HDFReadData(f, 1, 1)
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
+              ('xyz', '<f4', (3,))])
+        >>>
+        >>> # display shot numbers
+        >>> data['shotnum']
+        array([  1,  2, ..., 98, 99], dtype=uint32)
+        >>>
+        >>> # show 'signal' values for shot number 1
+        >>> data['signal'][0]
+        array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
+               -0.4105754 , -0.41119337], dtype=float32)
+        >>>
+        >>> # show 'xyz' values for shot number 1
+        >>> data['xyz'][0]
+        array([nan, nan, nan], dtype=float32)
+        >>>
+        >>> # read digitizer data while adding '6K Compumotor' data
+        >>> # from receptacle (configuration) 3
+        >>> data = HDFReadData(f, 1, 1, 
+                               add_controls=[('6K Compumotor', 3)])
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
+               ('xyz', '<f4', (3,)), ('ptip_rot_theta', '<f8'), 
+               ('ptip_rot_phi', '<f8')])
+        >>>
+        >>> # show 'xyz' values for shot number 1
+        >>> data['xyz'][0]
+        array([ -32. ,   15. , 1022.4], dtype=float32)
+
+    """
     warn("attribute access to numpy array fields will be deprecated "
          "by Oct., access fields like data['shotnum'] NOT like "
          "data.shotnum",
          FutureWarning)
 
-    def __new__(cls, hdf_file, board, channel,
-                index=slice(None), shotnum=slice(None),
-                digitizer=None, adc=None,
-                config_name=None, keep_bits=False, add_controls=None,
+    def __new__(cls,
+                hdf_file: bapsflib.lapd.File,
+                board: int, channel: int,
+                index=slice(None),
+                shotnum=slice(None),
+                digitizer=None,
+                config_name=None,
+                adc=None,
+                keep_bits=False,
+                add_controls=None,
                 intersection_set=True, **kwargs):
         """
-        When inheriting from numpy, the object creation and
-        initialization is handled by __new__ instead of __init__.
-
-        :param hdf_file: object instance of the HDF5 file
-        :type hdf_file: :class:`bapsflib.lapd.files.File`
-        :param int board: board number of data to be extracted
-        :param int channel: channel number of data to be extracted
-        :param index: row index/indices of dataset to be extracted
-            (overridden by :code:`shotnum`)
-        :type index: :code:`None`, int, list(int), or slice()
-        :param shotnum: global HDF5 shot number (overrides
-            :code:`index`)
-        :type shotnum: :code:`None`, int, list(int), or slice()
-        :param str digitizer: name of digitizer for which board and
-            channel belong to
-        :param str adc: name of analog-digital-converter in the
-            digitizer for which board and channel belong to
-        :param str config_name: name of the digitizer configuration to
-            be used
+        :param hdf_file: HDF5 file object
+        :param board: analog-digital-converter board number
+        :param channel: analog-digital-converter channel number
+        :param index: dataset row indices to be sliced (overridden
+            by :code:`shotnum`)
+        :type index: Union[int, List[int], slice, numpy.ndarray]
+        :param shotnum: HDF5 file shot number(s) indicating data
+            entries to be extracted (overrides :code:`index`)
+        :type shotnum: Union[int, List[int], slice, numpy.ndarray]
+        :param str digitizer: digitizer name
+        :param str adc: name of analog-digital-converter
+        :param str config_name: name of the digitizer configuration
         :param bool keep_bits: set :code:`True` to keep data in bits,
-            :code:`False` (default) convert data to voltage
-        :param add_controls: list of control devices whose data will
-            be matched with the digitizer data
-        :type add_controls: list of strings and/or 2-element tuples. If
-            an element is a string, then the string is the control
-            device name. If an element is a 2-element tuple, then
-            tuple[0] is the control device name and tuple[1] is a unique
-            specifier for that control device.
-        :param bool intersection_set:
+            :code:`False` (DEFAULT) to convert data to voltage
+        :param add_controls: a list indicating the desired control
+            device names and their configuration name (if more than one
+            configuration exists)
+        :type controls: Union[str, Iterable[str, Tuple[str, Any]]]
+        :param bool intersection_set: :code:`True` (DEFAULT) will force
+            the returned shot numbers to be the intersection of
+            :data:`shotnum` and the shot numbers contained in each
+            control device and digitizer dataset. :code:`False` will
+            return the union of shot numbers.
+
+        Behavior of :data:`index`, :data:`shotnum` and
+        :data:`intersection_set`:
 
         .. note::
 
-            Keyword :code:`shots` was renamed to :code:`index` in
-            version 0.1.3.dev1.  Keyword :code:`shots` will still work,
-            but will be deprecated in the future.
+            * The :data:`shotnum` keyword will always override the
+              :data:`index` keyword, but, due to extra overhead
+              required for identifying shot number locations in the
+              digitizer dataset, the :data:`index` keyword will always
+              execute quicker than the :data:`shotnum` keyword.
         """
         #
         # numpy uses __new__ to initialize objects, so an __init__ is
@@ -1046,3 +1111,9 @@ def condition_shotnum(shotnum, dheader, shotnumkey,
 
     # return calculated arrays
     return index.view(), shotnum.view(), sni.view()
+
+
+# add example to __new__ docstring
+HDFReadData.__new__.__doc__ += "\n"
+for line in HDFReadData.__example_doc__.splitlines():
+    HDFReadData.__new__.__doc__ += "    " + line + "\n"

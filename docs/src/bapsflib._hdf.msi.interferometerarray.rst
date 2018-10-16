@@ -1,7 +1,7 @@
-bapsflib\._hdf_mappers\.msi\.interferometerarray
-================================================
+bapsflib\.\_hdf\.msi\.interferometerarray
+=========================================
 
-.. automodule:: bapsflib._hdf_mappers.msi.interferometerarray
+.. automodule:: bapsflib._hdf.msi.interferometerarray
     :show-inheritance:
     :members:
     :undoc-members:

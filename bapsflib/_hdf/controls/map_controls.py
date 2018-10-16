@@ -31,13 +31,13 @@ class HDFMapControls(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf_mappers import HDFMapControls
+        >>> from bapsflib._hdf import HDFMapControls
         >>> f = lapd.File('sample.hdf5')
         >>> # 'Raw data + config' is the LaPD HDF5 group name for the
         ... # group housing digitizer and control devices
         ... control_map = HDFMapControls(f['Raw data + config'])
         >>> control_map['6K Compumotor']
-        <bapsflib._hdf_mappers.controls.sixk.HDFMapControl6K>
+        <bapsflib._hdf.controls.sixk.HDFMapControl6K>
     """
     _defined_mapping_classes = {
         '6K Compumotor': HDFMapControl6K,

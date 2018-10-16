@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.msi\.heater
-=========================================
+bapsflib\.\_hdf\.msi\.heater
+============================
 
-.. automodule:: bapsflib._hdf_mappers.msi.heater
+.. automodule:: bapsflib._hdf.msi.heater
     :show-inheritance:
     :members:
     :undoc-members:

@@ -44,12 +44,12 @@ class HDFMapControlTemplate(ABC):
 
         * Any method that raises a :exc:`NotImplementedError` is
           intended to be overwritten by the inheriting class.
-        * :code:`from bapsflib._hdf_mappers.controls import ConType`
+        * :code:`from bapsflib._hdf.controls import ConType`
         * If a control device is structured around a
           :ibf:`command list`, then its mapping class should subclass
-          :mod:`~bapsflib._hdf_mappers.controls.templates.HDFMapControlCLTemplate`.
+          :mod:`~bapsflib._hdf.controls.templates.HDFMapControlCLTemplate`.
           Which is a subclass of
-          :mod:`~bapsflib._hdf_mappers.controls.templates.HDFMapControlTemplate`,
+          :mod:`~bapsflib._hdf.controls.templates.HDFMapControlTemplate`,
           but adds methods for parsing/handling a command list.
     '''
     def __init__(self, group: h5py.Group):
@@ -347,7 +347,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
         * Any method that raises a :exc:`NotImplementedError` is
           intended to be overwritten by the inheriting class.
-        * :code:`from bapsflib._hdf_mappers.controls import ConType`
+        * :code:`from bapsflib._hdf.controls import ConType`
     '''
     def __init__(self, group: h5py.Group):
         """

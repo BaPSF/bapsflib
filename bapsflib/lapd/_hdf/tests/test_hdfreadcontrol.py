@@ -16,10 +16,10 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib._hdf_mappers.controls import ConType
-from bapsflib._hdf_mappers.controls.templates import \
+from bapsflib._hdf.controls import ConType
+from bapsflib._hdf.controls.templates import \
     HDFMapControlTemplate
-from bapsflib._hdf_mappers.controls.waveform import \
+from bapsflib._hdf.controls.waveform import \
     HDFMapControlWaveform
 from numpy.lib import recfunctions as rfn
 from typing import (Any, Dict, List, Tuple)

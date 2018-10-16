@@ -27,13 +27,13 @@ class HDFMapDigitizers(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf_mappers import HDFMapDigitizers
+        >>> from bapsflib._hdf import HDFMapDigitizers
         >>> f = lapd.File('sample.hdf5')
         >>> # 'Raw data + config' is the LaPD HDF5 group name for the
         ... # group housing digitizer and control devices
         ... digi_map = HDFMapDigitizers(f['Raw data + config'])
         >>> digi_map['SIS 3301']
-        <bapsflib._hdf_mappers.digitizers.sis3301.HDFMapDigiSIS3301>
+        <bapsflib._hdf.digitizers.sis3301.HDFMapDigiSIS3301>
     """
     _defined_mapping_classes = {
         'SIS 3301': HDFMapDigiSIS3301,

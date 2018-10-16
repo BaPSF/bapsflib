@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.digitizers\.map\_digis
-================================================
+bapsflib\.\_hdf\.digitizers\.map\_digis
+=======================================
 
-.. automodule:: bapsflib._hdf_mappers.digitizers.map_digis
+.. automodule:: bapsflib._hdf.digitizers.map_digis
     :members:
     :undoc-members:
     :private-members:

@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.msi\.gaspressure
-==========================================
+bapsflib\.\_hdf\.msi\.gaspressure
+=================================
 
-.. automodule:: bapsflib._hdf_mappers.msi.gaspressure
+.. automodule:: bapsflib._hdf.msi.gaspressure
     :show-inheritance:
     :members:
     :undoc-members:

@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.digitizers\.templates
-===============================================
+bapsflib\.\_hdf\.msi\.templates
+===============================
 
-.. automodule:: bapsflib._hdf_mappers.digitizers.templates
+.. automodule:: bapsflib._hdf.msi.templates
     :members:
     :undoc-members:
     :private-members:
@@ -11,5 +11,5 @@ bapsflib\.\_hdf\_mappers\.digitizers\.templates
 
     .. rubric:: Classes
 
-    .. autosummary:: HDFMapDigiTemplate
+    .. autosummary:: HDFMapMSITemplate
         :nosignatures:

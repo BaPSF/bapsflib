@@ -18,7 +18,7 @@ from ..files import File
 from ..hdfreaddata import (HDFReadData, condition_shotnum)
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
-from bapsflib._hdf_mappers.controls import ConType
+from bapsflib._hdf.controls import ConType
 
 
 class TestConditionShotnum(ut.TestCase):

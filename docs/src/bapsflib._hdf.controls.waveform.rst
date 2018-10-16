@@ -1,7 +1,7 @@
-bapsflib\.\_hdf\_mappers\.controls\.waveform
-============================================
+bapsflib\.\_hdf\.controls\.waveform
+===================================
 
-.. automodule:: bapsflib._hdf_mappers.controls.waveform
+.. automodule:: bapsflib._hdf.controls.waveform
     :show-inheritance:
     :members:
     :undoc-members:

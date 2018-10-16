@@ -11,7 +11,7 @@ bapsflib
     :titlesonly:
     :caption: Sub-Packages & Modules
 
-    ./bapsflib._hdf_mappers
+    ./bapsflib._hdf
     ./bapsflib.lapd
     bapsflib.lapdhdf <./bapsflib.lapd>
 

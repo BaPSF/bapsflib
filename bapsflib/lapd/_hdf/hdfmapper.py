@@ -31,14 +31,14 @@ import warnings
 from typing import (Dict, Union)
 from warnings import warn
 
-from bapsflib._hdf_mappers.controls import HDFMapControls
-from bapsflib._hdf_mappers.controls.templates import (
+from bapsflib._hdf.controls import HDFMapControls
+from bapsflib._hdf.controls.templates import (
     HDFMapControlTemplate, HDFMapControlCLTemplate)
-from bapsflib._hdf_mappers.digitizers import HDFMapDigitizers
-from bapsflib._hdf_mappers.digitizers.templates import \
+from bapsflib._hdf.digitizers import HDFMapDigitizers
+from bapsflib._hdf.digitizers.templates import \
     HDFMapDigiTemplate
-from bapsflib._hdf_mappers.msi import HDFMapMSI
-from bapsflib._hdf_mappers.msi.templates import HDFMapMSITemplate
+from bapsflib._hdf.msi import HDFMapMSI
+from bapsflib._hdf.msi.templates import HDFMapMSITemplate
 
 
 # define type aliases

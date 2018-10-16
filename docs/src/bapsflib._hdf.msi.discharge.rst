@@ -1,7 +1,7 @@
-bapsflib\._hdf_mappers\.msi\.discharge
-======================================
+bapsflib\.\_hdf\.msi\.discharge
+==============================
 
-.. automodule:: bapsflib._hdf_mappers.msi.discharge
+.. automodule:: bapsflib._hdf.msi.discharge
     :show-inheritance:
     :members:
     :undoc-members:

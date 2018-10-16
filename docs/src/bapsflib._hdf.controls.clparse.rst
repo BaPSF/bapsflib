@@ -1,7 +1,7 @@
-bapsflib\.\_hdf_mappers\.controls\.clparse
-==========================================
+bapsflib\.\_hdf\.controls\.clparse
+==================================
 
-.. automodule:: bapsflib._hdf_mappers.controls.clparse
+.. automodule:: bapsflib._hdf.controls.clparse
     :members:
     :undoc-members:
     :private-members:

@@ -15,8 +15,8 @@ import numpy as np
 import os
 import unittest as ut
 
+from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib.lapd import File
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 from ..hdfreadmsi import HDFReadMSI
 

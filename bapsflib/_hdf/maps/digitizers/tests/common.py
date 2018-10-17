@@ -14,7 +14,7 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib._hdf.maps import FauxHDFBuilder
 from typing import Tuple
 
 from ..templates import HDFMapDigiTemplate

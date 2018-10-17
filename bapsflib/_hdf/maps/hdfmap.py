@@ -49,7 +49,7 @@ MSIMap = HDFMapMSITemplate
 class HDFMap(object):
     """
     Constructs a complete file mapping of :obj:`hdf_obj` that is
-    utilized by :class:`bapsflib.lapd.files.File` to manipulate and
+    utilized by :class:`bapsflib.lapd.File` to manipulate and
     read data out of the HDF5 file.
 
     The following classes are leveraged to construct the mappings:

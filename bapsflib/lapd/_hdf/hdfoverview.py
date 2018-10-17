@@ -27,7 +27,7 @@ class hdfOverview(object):
     def __init__(self, hdf_obj):
         """
         :param hdf_obj: HDF5 file map object
-        :type hdf_obj: :class:`bapsflib.lapd.files.File`
+        :type hdf_obj: :class:`bapsflib.lapd.File`
         """
         super().__init__()
 

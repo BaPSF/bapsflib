@@ -12,7 +12,7 @@ import h5py
 import os
 import warnings
 
-from .hdfoverview import hdfOverview
+from bapsflib.lapd._hdf.hdfoverview import hdfOverview
 from bapsflib._hdf.maps.hdfmap import HDFMap
 
 
@@ -66,7 +66,7 @@ class File(h5py.File):
         """
         return self.__file_map
 
-    def get_map(self, name: str):
+    def get_device_map(self, name: str):
         # TODO: hl access to mapping objects
         pass
 

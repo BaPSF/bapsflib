@@ -12,3 +12,4 @@
 The :mod:`bapsflib.lapd._hdf` package contains an assortment of tools
 to access and read out data written to HDF5 files by the LaPD.
 """
+from bapsflib._hdf.utils.file import File

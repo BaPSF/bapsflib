@@ -8,6 +8,5 @@ bapsflib\.lapd\.\_hdf
     :titlesonly:
     :caption: Sub-Packages & Modules
 
-    bapsflib.lapd._hdf.files
     bapsflib.lapd._hdf.hdferrors
     bapsflib.lapd._hdf.hdfoverview

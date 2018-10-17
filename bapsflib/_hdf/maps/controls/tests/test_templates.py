@@ -17,7 +17,7 @@ import os
 import re
 import unittest as ut
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib._hdf.maps import FauxHDFBuilder
 from enum import Enum
 from unittest import mock
 

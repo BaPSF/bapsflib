@@ -16,24 +16,19 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib._hdf.maps.controls import ConType
-from bapsflib._hdf.maps.controls.templates import \
-    HDFMapControlTemplate
-from bapsflib._hdf.maps.controls.waveform import \
-    HDFMapControlWaveform
+from bapsflib._hdf.maps import (ConType, FauxHDFBuilder, HDFMap)
+from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
 from numpy.lib import recfunctions as rfn
 from typing import (Any, Dict, List, Tuple)
 from unittest import mock
 
 from ..files import File
-from bapsflib._hdf.maps.hdfmap import HDFMap
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               condition_controls,
                               condition_shotnum,
                               do_shotnum_intersection,
                               HDFReadControl)
-
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
 
 class TestBase(ut.TestCase):

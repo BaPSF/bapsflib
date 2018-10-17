@@ -17,7 +17,7 @@ import unittest as ut
 from ..files import File
 from ..hdfreaddata import (HDFReadData, condition_shotnum)
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.controls import ConType
 
 

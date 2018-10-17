@@ -23,6 +23,7 @@ from .controls import (ConType, HDFMapControls)
 from .digitizers import HDFMapDigitizers
 from .hdfmap import HDFMap
 from .msi import HDFMapMSI
+from .tests.fauxhdfbuilder import FauxHDFBuilder
 
-__all__ = ['ConType', 'HDFMap', 'HDFMapControls', 'HDFMapDigitizers',
-           'HDFMapMSI']
+__all__ = ['ConType', 'FauxHDFBuilder', 'HDFMap', 'HDFMapControls',
+           'HDFMapDigitizers', 'HDFMapMSI']

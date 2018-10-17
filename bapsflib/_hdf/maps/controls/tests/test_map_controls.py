@@ -14,7 +14,7 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+from bapsflib._hdf.maps import FauxHDFBuilder
 
 from ..map_controls import HDFMapControls
 from ..templates import (HDFMapControlTemplate,

@@ -13,8 +13,7 @@
 #
 import unittest as ut
 
-from bapsflib.lapd._hdf.tests import FauxHDFBuilder
-
+from .fauxhdfbuilder import FauxHDFBuilder
 from ..hdfmap import HDFMap
 
 

@@ -13,7 +13,7 @@ import os
 import warnings
 
 from .hdfoverview import hdfOverview
-from .hdfmapper import hdfMap
+from bapsflib._hdf.maps.hdfmap import hdfMap
 
 
 class File(h5py.File):
@@ -62,7 +62,7 @@ class File(h5py.File):
     def file_map(self):
         """
         HDF5 file mappings
-        (:class:`bapsflib.lapd.hdfmapper.hdfMap`)
+        (:class:`bapsflib._hdf.maps.hdfmap.hdfMap`)
         """
         return self.__file_map
 

@@ -205,10 +205,10 @@ data extraction accordingly.
 
 If :data:`digitizer` is not specified, then it is assumed that the
 desired digitizer is the one defined in
-:attr:`~bapsflib.lapd._hdf.hdfmapper.hdfMap.main_digitizer`.  Suppose
+:attr:`~bapsflib._hdf.maps.hdfmap.hdfMap.main_digitizer`.  Suppose
 the :file:`test.hdf5` has two digitizers, :code:`'SIS 3301'` and
 :code:`'SIS crate'`.  In this case :code:`'SIS 3301'` would be assumed
-as the :attr:`~bapsflib.lapd._hdf.hdfmapper.hdfMap.main_digitizer`.  To
+as the :attr:`~bapsflib._hdf.maps.hdfmap.hdfMap.main_digitizer`.  To
 extract data from :code:`'SIS crate'` one would use the
 :data:`digitizer` keyword as follows::
 

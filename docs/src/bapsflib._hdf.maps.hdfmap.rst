@@ -1,7 +1,7 @@
-bapsflib\.lapd\.\_hdf\.hdfmapper
-================================
+bapsflib\.\_hdf\.maps\.hdfmap
+=============================
 
-.. automodule:: bapsflib.lapd._hdf.hdfmapper
+.. automodule:: bapsflib._hdf.maps.hdfmap
     :members:
     :undoc-members:
     :show-inheritance:

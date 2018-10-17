@@ -13,14 +13,14 @@
 #
 import unittest as ut
 
-from . import FauxHDFBuilder
+from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-from ..hdfmapper import hdfMap
+from ..hdfmap import hdfMap
 
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib.lapd.hdfmapper.hdfMap`
+    Test Case for :class:`~bapsflib._hdf.maps.hdfmap.hdfMap`
     """
     def setUp(self):
         self.f = FauxHDFBuilder()

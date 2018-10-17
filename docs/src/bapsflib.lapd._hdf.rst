@@ -13,4 +13,3 @@ bapsflib\.lapd\.\_hdf
     bapsflib.lapd._hdf.hdfoverview
     bapsflib.lapd._hdf.hdfreadcontrol
     bapsflib.lapd._hdf.hdfreaddata
-    bapsflib.lapd._hdf.hdfreadmsi

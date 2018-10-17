@@ -9,3 +9,4 @@ bapsflib\.\_hdf
     :caption: Sub-Packages & Modules
 
     bapsflib._hdf.maps
+    bapsflib._hdf.utils

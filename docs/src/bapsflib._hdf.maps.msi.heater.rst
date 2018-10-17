@@ -1,5 +1,5 @@
 bapsflib\.\_hdf\.maps\.msi\.heater
-============================
+==================================
 
 .. automodule:: bapsflib._hdf.maps.msi.heater
     :show-inheritance:

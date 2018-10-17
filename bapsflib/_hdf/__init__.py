@@ -14,8 +14,9 @@ access classes (in :mod:`~.utils`) used to map and interface with the
 HDF5 files generated at BaPSF.
 """
 from .maps import (ConType, HDFMap)
+from .utils.hdfreadmsi import HDFReadMSI
 # from bapsflib._hdf.maps.controls import HDFMapControls
 # from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
 # from bapsflib._hdf.maps.msi import HDFMapMSI
 
-__all__ = ['ConType', 'HDFMap']
+__all__ = ['ConType', 'HDFReadMSI', 'HDFMap']

@@ -62,7 +62,7 @@ class HDFMapMSITemplate(ABC):
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data into a numpy array.  The actually numpy
         array construction is done by
-        :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`.
+        :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.
 
         **-- Constructing** :code:`configs` **--**
 
@@ -70,7 +70,7 @@ class HDFMapMSITemplate(ABC):
         (:code:`'shape'`, :code:`'shotnum'`, :code:`'signals'`, and
         :code:`'meta'`) and optional keys.  Any option key is considered
         as meta-info for the device and is added to the
-        :attr:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI.info`
+        :attr:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI.info`
         dictionary when the numpy array is constructed.  The required
         keys constitute the mapping for constructing the numpy array.
 
@@ -83,7 +83,7 @@ class HDFMapMSITemplate(ABC):
                 configs['shape']
             ", "
             This is used as the :data:`shape` for the
-            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`
+            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`
             constructed numpy array and typically looks like::
 
                 configs['shape'] = (nsn, )
@@ -98,7 +98,7 @@ class HDFMapMSITemplate(ABC):
             Specifies the dataset(s) containing the recorded HDF5 shot
             numbers.  This maps to the :code:`'shotnum'` field of the
             numpy array constructed by
-            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI`.  Should
+            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.  Should
             look like::
 
                 configs['shotnum'] = {
@@ -121,7 +121,7 @@ class HDFMapMSITemplate(ABC):
             ", "
             This is another dictionary where each key will map to a
             field in the
-            :mod:`~bapsflib.lapd._hdf.hdfreadmsi.HDFReadMSI` numpy
+            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` numpy
             array.  For example, ::
 
                 configs['signals'] = {

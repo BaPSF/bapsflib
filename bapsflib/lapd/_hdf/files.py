@@ -261,13 +261,13 @@ class File(h5py.File):
     def read_msi(self, msi_diag, silent=False, **kwargs):
         """
         Reads data out for a MSI Diagnostic.  See
-        :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI` for more
+        :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` for more
         detail.
 
         :param str msi_diag: name of MSI diagnostic
         :param bool silent:
         :return: data for MSI diagnostic
-        :rtype: :class:`~bapsflib.lapd.hdfreadmsi.HDFReadMSI`
+        :rtype: :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`
 
         :Example:
 
@@ -286,7 +286,7 @@ class File(h5py.File):
             True
 
         """
-        from .hdfreadmsi import HDFReadMSI
+        from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():

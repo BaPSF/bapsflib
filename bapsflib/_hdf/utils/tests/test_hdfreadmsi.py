@@ -16,8 +16,9 @@ import os
 import unittest as ut
 
 from bapsflib.lapd import File
-from bapsflib.lapd._hdf.hdfreadmsi import HDFReadMSI
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
+
+from ..hdfreadmsi import HDFReadMSI
 
 
 class TestHDFReadMSI(ut.TestCase):

@@ -1,7 +1,7 @@
-bapsflib\.lapd\.\_hdf\.files
+bapsflib\.\_hdf\.utils\.file
 ============================
 
-.. automodule:: bapsflib.lapd._hdf.files
+.. automodule:: bapsflib._hdf.utils.file
     :members:
     :undoc-members:
     :show-inheritance:

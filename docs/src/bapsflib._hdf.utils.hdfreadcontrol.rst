@@ -1,7 +1,7 @@
-bapsflib\.lapd\.\_hdf\.hdfreadcontrol
-=====================================
+bapsflib\.\_hdf\.utils\.hdfreadcontrol
+======================================
 
-.. automodule:: bapsflib.lapd._hdf.hdfreadcontrol
+.. automodule:: bapsflib._hdf.utils.hdfreadcontrol
     :members:
     :undoc-members:
     :show-inheritance:

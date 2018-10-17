@@ -13,7 +13,8 @@ import bapsflib
 import numpy as np
 import time
 
-from .hdfreadcontrol import (condition_controls, HDFReadControl)
+from bapsflib._hdf.utils.hdfreadcontrol import (condition_controls,
+                                                HDFReadControl)
 
 from bapsflib.plasma import core
 from warnings import warn

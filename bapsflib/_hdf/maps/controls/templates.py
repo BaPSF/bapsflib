@@ -166,7 +166,7 @@ class HDFMapControlTemplate(ABC):
             * A state value field (key) can not be defined as
               :code:`'signal'` since this field is reserved for
               digitizer data constructed by
-              :class:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`.
+              :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
             * If state value data represents probe position data, then
               it should be given the field name (key) :code:`'xyz'`
               (like in the example above).

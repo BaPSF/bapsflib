@@ -14,11 +14,10 @@
 import numpy as np
 import unittest as ut
 
-from ..files import File
-from ..hdfreaddata import (HDFReadData, condition_shotnum)
+from bapsflib._hdf.maps import (ConType, FauxHDFBuilder)
+from bapsflib.lapd._hdf.files import File
 
-from bapsflib._hdf.maps import FauxHDFBuilder
-from bapsflib._hdf.maps.controls import ConType
+from ..hdfreaddata import (HDFReadData, condition_shotnum)
 
 
 class TestConditionShotnum(ut.TestCase):

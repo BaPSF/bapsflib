@@ -171,7 +171,7 @@ class File(h5py.File):
         #
         # TODO: write docstrings
         #
-        from .hdfreaddata import HDFReadData
+        from bapsflib._hdf.utils.hdfreaddata import HDFReadData
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():

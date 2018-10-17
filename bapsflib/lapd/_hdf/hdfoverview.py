@@ -21,7 +21,7 @@ from bapsflib import lapd
 class hdfOverview(object):
     """
     Initiates the HDF5 mapping constructor
-    (:class:`~.hdfmapper.hdfMap`) and prints a file report to screen
+    (:class:`~.hdfmap.hdfMap`) and prints a file report to screen
     (or file).
     """
     def __init__(self, hdf_obj):

@@ -10,4 +10,5 @@ bapsflib\.\_hdf\.maps
 
     bapsflib._hdf.maps.controls
     bapsflib._hdf.maps.digitizers
+    bapsflib._hdf.maps.hdfmap
     bapsflib._hdf.maps.msi

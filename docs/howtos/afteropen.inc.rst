@@ -1,5 +1,5 @@
 Upon opening a file, :class:`~bapsflib.lapd.File` calls on the
-:class:`~bapsflib.lapd._hdf.hdfmapper.hdfMap` class to construct a
+:class:`~bapsflib._hdf.maps.hdfmap.hdfMap` class to construct a
 mapping of the HDF5 file's internal data structure, see section
 :ref:`file_mappings` for details on the mapping construction.  Since the
 various elements in the HDF5 data structure defined by the LaPD DAQ
@@ -14,7 +14,7 @@ format that will be consistent over time for both the user and the
 
     >>> f = lapd.File('test.hdf5')
     >>> f.file_map
-    <bapsflib.lapd._hdf.hdfmapper.hdfMap>
+    <bapsflib._hdf.maps.hdfmap.hdfMap>
 
 This mapping object is used by :mod:`bapsflib`'s high-level functions
 to collect data requested by the user.  The user can also delve into the
@@ -33,7 +33,7 @@ attributes for th user to interface with, see :numref:`f_meth_table`.
     :widths: 20, 60
 
     :attr:`~bapsflib.lapd.File.file_map`, "instance of the
-    HDF5 file mapping (:class:`~bapsflib.lapd._hdf.hdfmapper.hdfMap`)
+    HDF5 file mapping (:class:`~bapsflib._hdf.maps.hdfmap.hdfMap`)
     "
     :attr:`~bapsflib.lapd.File.info`, "dictionary of general
     info on the HDF5 file and experimental run (see section

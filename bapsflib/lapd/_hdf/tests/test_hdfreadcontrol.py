@@ -26,7 +26,7 @@ from typing import (Any, Dict, List, Tuple)
 from unittest import mock
 
 from ..files import File
-from ..hdfmapper import hdfMap
+from bapsflib._hdf.maps.hdfmap import hdfMap
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               condition_controls,
                               condition_shotnum,

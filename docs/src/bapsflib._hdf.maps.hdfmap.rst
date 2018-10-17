@@ -8,5 +8,5 @@ bapsflib\.\_hdf\.maps\.hdfmap
 
     .. rubric:: Classes
 
-    .. autosummary:: hdfMap
+    .. autosummary:: HDFMap
         :nosignatures:

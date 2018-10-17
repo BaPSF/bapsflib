@@ -24,7 +24,7 @@ from ..sixk import HDFMapControl6K
 
 
 class TestSixK(ControlTestCase):
-    """Test class for hdfMap_control_sixk"""
+    """Test class for HDFMapControl6K"""
 
     # define setup variables
     DEVICE_NAME = '6K Compumotor'

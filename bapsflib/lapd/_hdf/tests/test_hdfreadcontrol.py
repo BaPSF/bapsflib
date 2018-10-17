@@ -26,7 +26,7 @@ from typing import (Any, Dict, List, Tuple)
 from unittest import mock
 
 from ..files import File
-from bapsflib._hdf.maps.hdfmap import hdfMap
+from bapsflib._hdf.maps.hdfmap import HDFMap
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               condition_controls,
                               condition_shotnum,
@@ -858,7 +858,7 @@ class TestHDFReadControl(TestBase):
                               assume_controls_conditioned=False)
         self.assertCDataObj(data, _lapdf, control_plus)
 
-    @mock.patch.object(hdfMap, 'controls',
+    @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock)
     def test_nan_fill(self, mock_controls):
         """Test different NaN fills."""

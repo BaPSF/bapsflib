@@ -13,7 +13,7 @@ import os
 import warnings
 
 from .hdfoverview import hdfOverview
-from bapsflib._hdf.maps.hdfmap import hdfMap
+from bapsflib._hdf.maps.hdfmap import HDFMap
 
 
 class File(h5py.File):
@@ -45,7 +45,7 @@ class File(h5py.File):
                            userblock_size, swmr, **kwargs)
 
         # perform mapping
-        self.__file_map = hdfMap(self, silent=silent)
+        self.__file_map = HDFMap(self, silent=silent)
 
         # initialize _info attribute
         self._build_info()
@@ -62,7 +62,7 @@ class File(h5py.File):
     def file_map(self):
         """
         HDF5 file mappings
-        (:class:`bapsflib._hdf.maps.hdfmap.hdfMap`)
+        (:class:`bapsflib._hdf.maps.hdfmap.HDFMap`)
         """
         return self.__file_map
 

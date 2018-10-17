@@ -15,12 +15,12 @@ import unittest as ut
 
 from bapsflib.lapd._hdf.tests import FauxHDFBuilder
 
-from ..hdfmap import hdfMap
+from ..hdfmap import HDFMap
 
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.hdfmap.hdfMap`
+    Test Case for :class:`~bapsflib._hdf.maps.hdfmap.HDFMap`
     """
     def setUp(self):
         self.f = FauxHDFBuilder()
@@ -30,7 +30,7 @@ class TestHDFMap(ut.TestCase):
 
     @property
     def map(self):
-        return hdfMap(self.f)
+        return HDFMap(self.f)
 
     def test_attribute_existence(self):
         """Test existence of required attributes."""

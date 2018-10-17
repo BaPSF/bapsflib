@@ -19,7 +19,7 @@ and will return a structured :mod:`numpy` array with the requested data.
         What it does"
     :widths: 10, 15, 40
 
-    :mod:`~bapsflib.lapd._hdf.hdfreaddata.HDFReadData`, "
+    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, "
     :meth:`~bapsflib.lapd.File.read_data`","
     Designed to extract **digitizer** data from a HDF5 file with the
     option of mating **control device** data at the time of extraction.

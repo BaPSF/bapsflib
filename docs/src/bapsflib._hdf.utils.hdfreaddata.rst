@@ -1,7 +1,7 @@
-bapsflib\.lapd\.\_hdf\.hdfreaddata
-==================================
+bapsflib\.\_hdf\.utils\.hdfreaddata
+===================================
 
-.. automodule:: bapsflib.lapd._hdf.hdfreaddata
+.. automodule:: bapsflib._hdf.utils.hdfreaddata
     :members:
     :undoc-members:
     :show-inheritance:

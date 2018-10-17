@@ -9,4 +9,5 @@ bapsflib\.\_hdf\.utils
     :caption: Sub-Packages & Modules
 
     bapsflib._hdf.utils.hdfreadcontrol
+    bapsflib._hdf.utils.hdfreaddata
     bapsflib._hdf.utils.hdfreadmsi

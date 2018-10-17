@@ -9,18 +9,12 @@
 #   license terms and contributor agreement.
 #
 """
-This package contains an assortment of mapping classes used to inspect
-and map the various HDF5 files generated during experiments at the
-Basic Plasma Science Facility.  Sub-package
-:mod:`~bapsflib._hdf.controls` contains routines for mapping
-:ibf:`Control Device` HDF5 groups,
-:mod:`~bapsflib._hdf.digitizers` contains routines for
-mapping :ibf:`Digitizer` HDF5 groups, and
-:mod:`~bapsflib._hdf.msi` contains routines for mapping
-:ibf:`MSI Diagnostic` HDF5 groups.
+This package contains the mapping classes (in :mod:`~.maps`) and file
+access classes (in :mod:`~.utils`) used to map and interface with the
+HDF5 files generated at BaPSF.
 """
-from .controls import HDFMapControls
-from .digitizers import HDFMapDigitizers
-from .msi import HDFMapMSI
+# from bapsflib._hdf.maps.controls import HDFMapControls
+# from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
+# from bapsflib._hdf.maps.msi import HDFMapMSI
 
-__all__ = ['HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']
+# __all__ = ['HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']

@@ -13,16 +13,16 @@ import inspect
 import os
 import tempfile
 
-from bapsflib._hdf.controls.tests import (
+from bapsflib._hdf.maps.controls.tests import (
     FauxWaveform,
     FauxSixK,
     FauxN5700PS,
 )
-from bapsflib._hdf.digitizers.tests import (
+from bapsflib._hdf.maps.digitizers.tests import (
     FauxSIS3301,
     FauxSISCrate,
 )
-from bapsflib._hdf.msi.tests import (
+from bapsflib._hdf.maps.msi.tests import (
     FauxDischarge,
     FauxGasPressure,
     FauxHeater,

@@ -15,7 +15,7 @@ import numpy as np
 import os
 import time
 
-from bapsflib._hdf.controls.templates import \
+from bapsflib._hdf.maps.controls.templates import \
     (HDFMapControlTemplate, HDFMapControlCLTemplate)
 from typing import (Any, Dict, Iterable, List, Tuple, Union)
 from warnings import warn
@@ -46,7 +46,7 @@ class HDFReadControl(np.ndarray):
         * It is assumed that control data is always extracted with the
           intent of being matched to digitizer data.
         * Only one control for each
-          :class:`~bapsflib._hdf.controls.contype.ConType` can
+          :class:`~bapsflib._hdf.maps.controls.contype.ConType` can
           be specified at a time.
         * It is assumed that there is only ONE dataset associated with
           each control device configuration.
@@ -515,7 +515,7 @@ def condition_controls(hdf_file: bapsflib.lapd.File,
         #. Input **controls** should be
            :code:`Union[str, Iterable[Union[str, Tuple[str, Any]]]]`
         #. There can only be one control for each
-           :class:`~bapsflib._hdf.controls.contype.ConType`.
+           :class:`~bapsflib._hdf.maps.controls.contype.ConType`.
         #. If a control has multiple configurations, then one must be
            specified.
         #. If a control has ONLY ONE configuration, then that will be

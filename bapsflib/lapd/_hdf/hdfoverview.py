@@ -21,7 +21,7 @@ from bapsflib import lapd
 class hdfOverview(object):
     """
     Initiates the HDF5 mapping constructor
-    (:class:`~.hdfmap.hdfMap`) and prints a file report to screen
+    (:class:`~.hdfmap.HDFMap`) and prints a file report to screen
     (or file).
     """
     def __init__(self, hdf_obj):
@@ -36,7 +36,7 @@ class hdfOverview(object):
             self.__hdf_obj = hdf_obj
             self.__hdf_map = hdf_obj.file_map
         else:
-            raise ValueError('input arg is not of type hdfMap')
+            raise ValueError('input arg is not of type HDFMap')
 
     def print(self):
         """
@@ -314,7 +314,7 @@ class hdfOverview(object):
         configuration(s).
 
         :param digi: an instance of a single member of
-            `hdfMap.digitizers`
+            `HDFMap.digitizers`
         """
         if len(digi.configs) != 0:
             nconfigs = len(digi.configs)

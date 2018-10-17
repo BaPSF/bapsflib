@@ -1,6 +1,6 @@
 The :class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview` class provides a
 set of tools (see :numref:`f_overview_methods`) to report the results of
-the HDF5 file mapping by :class:`~bapsflib._hdf.maps.hdfmap.hdfMap`.
+the HDF5 file mapping by :class:`~bapsflib._hdf.maps.hdfmap.HDFMap`.
 An instance of :class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview` is
 bound to :class:`~bapsflib.lapd.File` as the
 :attr:`~bapsflib.lapd.File.overview` attribute and will report
@@ -31,7 +31,7 @@ The overview report is divided into three blocks:
 
     #. Discovery Report
         * This block gives a brief report on what devices the
-          :class:`~bapsflib._hdf.maps.hdfmap.hdfMap` class discovered
+          :class:`~bapsflib._hdf.maps.hdfmap.HDFMap` class discovered
           in the the file.
         * There are no details about each discovered device, just what
           was discovered.

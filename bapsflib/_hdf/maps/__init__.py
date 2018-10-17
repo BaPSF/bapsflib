@@ -21,6 +21,8 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 """
 from .controls import (ConType, HDFMapControls)
 from .digitizers import HDFMapDigitizers
+from .hdfmap import HDFMap
 from .msi import HDFMapMSI
 
-__all__ = ['ConType', 'HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']
+__all__ = ['ConType', 'HDFMap', 'HDFMapControls', 'HDFMapDigitizers',
+           'HDFMapMSI']

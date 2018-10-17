@@ -171,7 +171,7 @@ class HDFReadData(np.recarray):
                   '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
 
         # ---- Examine file map object                              ----
-        # grab instance of `hdfMap`
+        # grab instance of `HDFMap`
         _fmap = hdf_file.file_map
 
         # ---- Condition `digitizer` keyword                        ----

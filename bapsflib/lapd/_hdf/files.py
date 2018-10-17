@@ -246,7 +246,7 @@ class File(h5py.File):
             >>> cdata = f.read_controls(controls)
 
         """
-        from .hdfreadcontrol import HDFReadControl
+        from bapsflib._hdf.utils.hdfreadcontrol import HDFReadControl
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():

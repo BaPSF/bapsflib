@@ -24,6 +24,7 @@ https://github.com/rocco8773/bapsflib
 """
 # --- Public API -------------------------------------------------------
 
+from . import _hdf
 from . import lapd
 from . import lapdhdf
 from . import plasma

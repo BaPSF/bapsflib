@@ -8,3 +8,27 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import unittest as ut
+
+from bapsflib._hdf.maps import FauxHDFBuilder
+
+
+class TestBase(ut.TestCase):
+    """Base test class for all test classes here."""
+
+    f = NotImplemented   # type: FauxHDFBuilder
+
+    @classmethod
+    def setUpClass(cls):
+        # create HDF5 file
+        super().setUpClass()
+        cls.f = FauxHDFBuilder()
+
+    def tearDown(self):
+        self.f.remove_all_modules()
+
+    @classmethod
+    def tearDownClass(cls):
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()

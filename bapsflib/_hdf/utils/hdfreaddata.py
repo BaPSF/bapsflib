@@ -9,7 +9,6 @@
 #   license terms and contributor agreement.
 #
 #
-import bapsflib
 import numpy as np
 import time
 
@@ -17,6 +16,8 @@ from bapsflib._hdf.utils.hdfreadcontrol import (condition_controls,
                                                 HDFReadControl)
 from bapsflib.plasma import core
 from warnings import warn
+
+from .file import File
 
 
 # noinspection PyInitNewSignature
@@ -97,7 +98,7 @@ class HDFReadData(np.recarray):
          FutureWarning)
 
     def __new__(cls,
-                hdf_file: bapsflib.lapd.File,
+                hdf_file: File,
                 board: int, channel: int,
                 index=slice(None),
                 shotnum=slice(None),
@@ -160,7 +161,7 @@ class HDFReadData(np.recarray):
         # ---- Condition hdf_file                                   ----
         # - `hdf_file` is a lapd.File object
         #
-        if not isinstance(hdf_file, bapsflib.lapd.File):
+        if not isinstance(hdf_file, File):
             raise TypeError(
                 '`hdf_file` is NOT type `bapsflib.lapd.File`')
 

@@ -8,7 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import bapsflib
 import copy
 import h5py
 import numpy as np
@@ -17,9 +16,10 @@ import time
 
 from bapsflib._hdf.maps.controls.templates import \
     (HDFMapControlTemplate, HDFMapControlCLTemplate)
-from typing import (Any, Dict, Iterable, List, Tuple, Union)
+from typing import (Any, Dict, Iterable, Tuple, Union)
 from warnings import warn
 
+from .file import File
 from .helpers import condition_controls
 
 # define type aliases
@@ -85,7 +85,7 @@ class HDFReadControl(np.ndarray):
     """
 
     def __new__(cls,
-                hdf_file: bapsflib.lapd.File,
+                hdf_file: File,
                 controls: ControlsType,
                 shotnum=slice(None),
                 intersection_set=True,
@@ -134,7 +134,7 @@ class HDFReadControl(np.ndarray):
         # ---- Condition `hdf_file`                                 ----
         # - `hdf_file` is a lapd.File object
         #
-        if not isinstance(hdf_file, bapsflib.lapd.File):
+        if not isinstance(hdf_file, File):
             raise TypeError(
                 '`hdf_file` is NOT type `bapsflib.lapd.File`')
 

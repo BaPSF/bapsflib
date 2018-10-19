@@ -11,11 +11,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import numpy as np
 import unittest as ut
 
 from . import TestBase
 from ..file import File
-from ..helpers import condition_controls
+from ..helpers import (condition_controls, condition_shotnum)
 
 
 class TestConditionControls(TestBase):
@@ -344,6 +345,142 @@ class TestConditionControls(TestBase):
         self.assertRaises(TypeError,
                           condition_controls,
                           _lapdf, ['Waveform', '6K Compumotor'])
+
+
+class TestConditionShotnum(TestBase):
+    """Test Case for condition_shotnum"""
+
+    def test_shotnum_int(self):
+        # shotnum <= 0 (invalid)
+        sn = [-20, 0]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # shotnum > 0 (valid)
+        sn = [1, 100]
+        for shotnum in sn:
+            _sn = condition_shotnum(shotnum, {}, {})
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertEqual(_sn.shape, (1,))
+            self.assertTrue(np.issubdtype(_sn.dtype, np.uint32))
+            self.assertEqual(_sn[0], shotnum)
+
+    def test_shotnum_list(self):
+        # not all list elements are integers
+        sn = [
+            [0, 1, None],
+            [1.5, 2.6],
+        ]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # all shotnum values are <= 0
+        sn = [
+            [0],
+            [-20, -5, -1],
+        ]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # valid shotnum lists
+        sn = [
+            ([0, 1, 5, 8], np.array([1, 5, 8], dtype=np.uint32)),
+            ([-20, -5, 10], np.array([10], dtype=np.uint32)),
+            ([1, 2, 4], np.array([1, 2, 4], dtype=np.uint32)),
+        ]
+        for shotnum, ex_sn in sn:
+            _sn = condition_shotnum(shotnum, {}, {})
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertTrue(np.array_equal(_sn, ex_sn))
+
+    def test_shotnum_slice(self):
+        # create 2 fake datasets (d1 and d1)
+        data = np.array(np.arange(1, 6, dtype=np.uint32),
+                        dtype=[('Shot number', np.uint32)])
+        self.f.create_dataset('d1', data=data)
+        data['Shot number'] = np.arange(3, 8, dtype=np.uint32)
+        self.f.create_dataset('d2', data=data)
+
+        # make fake dicts
+        dset_dict = {
+            'c1': self.f['d1'],
+            'c2': self.f['d2'],
+        }
+        shotnumkey_dict = {
+            'c1': 'Shot number',
+            'c2': 'Shot number',
+        }
+
+        # invalid shotnum slices (creats NULL arrays)
+        with self.assertRaises(ValueError):
+            _sn = condition_shotnum(slice(-1, -4, 1),
+                                    dset_dict, shotnumkey_dict)
+
+        # valid shotnum slices
+        sn = [
+            (slice(None),
+             np.array([1, 2, 3, 4, 5, 6, 7], dtype=np.uint32)),
+            (slice(3),
+             np.array([1, 2], dtype=np.uint32)),
+            (slice(1, 8, 3),
+             np.array([1, 4, 7], dtype=np.uint32)),
+            (slice(5, 10, 1),
+             np.array([5, 6, 7, 8, 9], dtype=np.uint32)),
+            (slice(-2, -1),
+             np.array([6], dtype=np.uint32)),
+        ]
+        for shotnum, ex_sn in sn:
+            _sn = condition_shotnum(shotnum, dset_dict, shotnumkey_dict)
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertTrue(np.array_equal(_sn, ex_sn))
+
+        # remove datasets
+        del self.f['d1']
+        del self.f['d2']
+
+    def test_shotnum_ndarray(self):
+        # shotnum invalid
+        # 1. is not 1 dimentional
+        # 2. has fields
+        # 3. is not np.integer
+        # 4. would result in NULL
+        sn = [
+            np.array([[1, 2], [3, 5]], dtype=np.uint32),
+            np.zeros((5,), dtype=[('f1', np.uint8)]),
+            np.array([True, False], dtype=bool),
+            np.array([5.5, 7], dtype=np.float32),
+            np.array([-20, -1], dtype=np.int32),
+            np.array([0], dtype=np.int32),
+        ]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
+
+        # shotnum valid
+        sn = [
+            (np.array([-5, 0, 10], np.int32),
+             np.array([10], np.uint32)),
+            (np.array([20, 30], np.int32),
+             np.array([20, 30], np.uint32)),
+        ]
+        for shotnum, ex_sn in sn:
+            _sn = condition_shotnum(shotnum, {}, {})
+
+            self.assertIsInstance(_sn, np.ndarray)
+            self.assertTrue(np.array_equal(_sn, ex_sn))
+
+    def test_shotnum_invalid(self):
+        # shotnum not int, List[int], slice, or ndarray
+        sn = [1.5, None, True, {}]
+        for shotnum in sn:
+            with self.assertRaises(ValueError):
+                _sn = condition_shotnum(shotnum, {}, {})
 
 
 if __name__ == '__main__':

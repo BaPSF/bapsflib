@@ -14,6 +14,8 @@ import copy
 import numpy as np
 import os
 
+from .file import File
+
 
 class HDFReadMSI(np.ndarray):
     """
@@ -80,8 +82,7 @@ class HDFReadMSI(np.ndarray):
         4.88e-05
     """
 
-    def __new__(cls, hdf_file: bapsflib.lapd.File, dname: str,
-                **kwargs):
+    def __new__(cls, hdf_file: File, dname: str, **kwargs):
         """
         :param hdf_file: HDF5 file object
         :type hdf_file: :class:`~bapsflib.lapd.File`
@@ -90,9 +91,10 @@ class HDFReadMSI(np.ndarray):
         # ---- Condition `hdf_file`                                 ----
         # - `hdf_file` is a lapd.File object
         #
-        if not isinstance(hdf_file, bapsflib.lapd.File):
+        if not isinstance(hdf_file, File):
             raise TypeError(
-                '`hdf_file` needs to be of type `bapsflib.lapd.File`')
+                "`hdf_file` is NOT type `"
+                + File.__module__ + "." + File.__qualname__ + "`")
 
         # ---- Condition `dname`                                    ----
         # ensure `dname` is a string

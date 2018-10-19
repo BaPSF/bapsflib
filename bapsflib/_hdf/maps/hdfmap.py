@@ -51,6 +51,12 @@ class HDFMap(object):
         """
         :param hdf_obj: the HDF5 file object
         :type hdf_obj: :class:`h5py.File`
+        :param control_path: internal HDF5 path to group containing
+            control devices
+        :param digitizer_path: internal HDF5 path to group containing
+            digitizers
+        :param msi_path: internal HDF5 path to group containing
+            MSI diagnostics
         """
         # store an instance of the HDF5 object for HDFMap
         if isinstance(hdf_obj, h5py.File):
@@ -63,30 +69,6 @@ class HDFMap(object):
         self._DIGITIZER_PATH = '/' if digitizer_path == '' \
             else digitizer_path
         self._MSI_PATH = '/' if msi_path == '' else msi_path
-
-        '''
-        # initialize attributes dict
-        self._attrs = {'root': dict(hdf_obj.attrs)}
-
-        # populate attributes
-        for attr in (self._MSI_PATH, self._DIGITIZER_PATH,
-                     self._CONTROL_PATH):
-            if attr == '/':
-                # root attributes already added
-                pass
-            elif attr in self._attrs:
-                # attributes for this path already added
-                pass
-            elif attr in hdf_obj:
-                # get attributes to add
-                attr_update = dict(hdf_obj[attr].attrs)
-                for key, val in attr_update.items():
-                    if isinstance(val, np.bytes_):
-                        attr_update[key] = val.decode('utf-8')
-
-                # update attributes
-                self._attrs[attr] = attr_update
-        '''
 
         # attach the mapping dictionaries
         self.__attach_msi()
@@ -175,61 +157,6 @@ class HDFMap(object):
                         self.__unknowns.append(
                             self._hdf_obj[path][item].name)
 
-        '''
-        # scan through root
-        check_list = device_paths.copy()
-        if self._CONTROL_PATH == '/':
-            check_list.extend(list(self.controls))
-        if self._DIGITIZER_PATH == '/':
-            check_list.extend(list(self.digitizers))
-        if self._MSI_PATH == '/':
-            check_list.extend(list(self.msi))
-        for item in self._hdf_obj:
-            if item not in check_list:
-                self.__unknowns.append(self._hdf_obj[item].name)
-        
-        # scan through MSI group
-        if self._MSI_PATH == '/':
-            # done above
-            pass
-        elif self._MSI_PATH in self._hdf_obj:
-            for item in self._hdf_obj[self._MSI_PATH]:
-                if item not in self.msi:
-                    self.__unknowns.append(
-                        self._hdf_obj[self._MSI_PATH][item].name)
-
-        # scan through control and digitizer group
-        devices_known = []
-        if self._CONTROL_PATH == self._DIGITIZER_PATH:
-            if self._CONTROL_PATH != '/':
-                devices_known.append(
-                    (self._CONTROL_PATH,
-                     list(self.controls) + list(self.digitizers))
-                )
-        else:
-            if self._CONTROL_PATH != '/':
-                devices_known.append(
-                    (self._CONTROL_PATH, list(self.controls))
-                )
-            if self._DIGITIZER_PATH != '/':
-                devices_known.append(
-                    (self._DIGITIZER_PATH, list(self.digitizers))
-                )
-        for path, devices in devices_known:
-            if path in self._hdf_obj:
-                for item in self._hdf_obj[path]:
-                    if item not in devices:
-                        self.__unknowns.append(
-                            self._hdf_obj[path][item].name)
-        '''
-
-    '''
-    @property
-    def attrs(self):
-        """Dictionary of the 'MSI' and 'Raw data + config' attributes"""
-        return self._attrs
-    '''
-
     @property
     def controls(self) -> Union[dict, HDFMapControls]:
         """
@@ -258,6 +185,26 @@ class HDFMap(object):
             dmap = fmap.digitizers['SIS 3301']
         """
         return self.__digitizers
+
+    def get(self, name: str):
+        """
+        Get an device mapping instance.
+
+        :param name: name of desired device
+        :returns: If the specified device is mapped, then an instance
+            of the mapping is returned. Otherwise, :code:`None` is
+            returned.
+        """
+        if name in self.controls:
+            _map = self.controls[name]
+        elif name in self.digitizers:
+            _map = self.digitizers[name]
+        elif name in self.msi:
+            _map = self.msi[name]
+        else:
+            _map = None
+
+        return _map
 
     @property
     def main_digitizer(self) -> Union[None, DigiMap]:

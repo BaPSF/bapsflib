@@ -332,7 +332,8 @@ class TestHDFReadControl(TestBase):
         super(TestHDFReadControl, self).tearDown()
 
     @property
-    def lapdf(self):
+    def bf(self):
+        """Opened BaPSF HDF5 File instance."""
         return File(self.f.filename)
 
     def test_raise_errors(self):
@@ -343,11 +344,11 @@ class TestHDFReadControl(TestBase):
         # - raised errors from conditioning `shotnum` is handled by
         #   condition_shotnum() and TestConditionShotnum
         #
-        # `hdf_fil` is NOT a bapsflib.lapdf.File
+        # `hdf_fil` is NOT a bapsflib._hdf.utils.file.File
         self.assertRaises(TypeError, HDFReadControl, self.f, [])
 
         # HDF5 file object has no mapped control devices
-        self.assertRaises(ValueError, HDFReadControl, self.lapdf, [])
+        self.assertRaises(ValueError, HDFReadControl, self.bf, [])
 
     def test_misc_behavior(self):
         """Test miscellaneous behavior"""
@@ -362,10 +363,10 @@ class TestHDFReadControl(TestBase):
                          {'sn_requested': sn,
                           'sn_correct': sn,
                           'sn_valid': sn})]
-        _lapdf = self.lapdf
-        data = HDFReadControl(_lapdf, controls, shotnum=sn,
+        _bf = self.bf
+        data = HDFReadControl(_bf, controls, shotnum=sn,
                               assume_controls_conditioned=False)
-        self.assertCDataObj(data, _lapdf, control_plus)
+        self.assertCDataObj(data, _bf, control_plus)
 
     @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock)
@@ -452,7 +453,7 @@ class TestHDFReadControl(TestBase):
 
         # -- Run Tests                                              ----
         with self.assertWarns(UserWarning):
-            _lapdf = self.lapdf
+            _bf = self.bf
             sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
             sn_v = np.array([8, 9, 10], dtype=np.uint32)
             controls = [('Sample', 'config01')]
@@ -461,12 +462,12 @@ class TestHDFReadControl(TestBase):
                              {'sn_requested': sn,
                               'sn_correct': sn,
                               'sn_valid': sn_v})]
-            data = HDFReadControl(_lapdf,
+            data = HDFReadControl(_bf,
                                   controls,
                                   shotnum=sn,
                                   intersection_set=False,
                                   assume_controls_conditioned=True)
-            self.assertCDataObj(data, _lapdf, control_plus,
+            self.assertCDataObj(data, _bf, control_plus,
                                 intersection_set=False)
 
     def test_single_control(self):
@@ -496,7 +497,7 @@ class TestHDFReadControl(TestBase):
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 50,
                            'n_motionlists': 1})
-        _lapdf = self.lapdf
+        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
         control = [('6K Compumotor', sixk_cspec)]
         control_plus = [
@@ -533,10 +534,10 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus)
+            self.assertCDataObj(cdata, _bf, control_plus)
 
         # ====== Dataset w/ Sequential Shot Numbers               ======
         # ------ intersection_set = False                         ------
@@ -570,11 +571,11 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_lapdf, control,
+            cdata = HDFReadControl(_bf, control,
                                    shotnum=sn_r,
                                    intersection_set=False)
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus,
+            self.assertCDataObj(cdata, _bf, control_plus,
                                 intersection_set=False)
 
         # ====== Dataset w/ Sequential Shot Numbers               ======
@@ -586,13 +587,13 @@ class TestHDFReadControl(TestBase):
         control_plus[0][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(_lapdf, control)
-        self.assertCDataObj(cdata, _lapdf, control_plus)
+        cdata = HDFReadControl(_bf, control)
+        self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
-        cdata = HDFReadControl(_lapdf, control,
+        cdata = HDFReadControl(_bf, control,
                                intersection_set=False)
-        self.assertCDataObj(cdata, _lapdf, control_plus,
+        self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
         # ====== Dataset w/ a Jump in Shot Numbers ======
@@ -605,7 +606,7 @@ class TestHDFReadControl(TestBase):
         dset['Shot number'] = sn_arr
 
         # re-defined filxe obj
-        _lapdf = self.lapdf
+        _bf = self.bf
 
         # ====== Dataset w/ a Jump in Shot Numbers                ======
         # ------ intersection_set = True                          ------
@@ -633,10 +634,10 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus)
+            self.assertCDataObj(cdata, _bf, control_plus)
 
         # ====== Dataset w/ a Jump in Shot Numbers                ======
         # ------ intersection_set = False                         ------
@@ -670,12 +671,12 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_lapdf, control,
+            cdata = HDFReadControl(_bf, control,
                                    shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus,
+            self.assertCDataObj(cdata, _bf, control_plus,
                                 intersection_set=False)
 
         # ====== Dataset w/ a Jump in Shot Numbers                ======
@@ -687,14 +688,14 @@ class TestHDFReadControl(TestBase):
         control_plus[0][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(_lapdf, control)
-        self.assertCDataObj(cdata, _lapdf, control_plus)
+        cdata = HDFReadControl(_bf, control)
+        self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
         sn_c = np.arange(1, 61, 1)
         control_plus[0][2]['sn_correct'] = sn_c
-        cdata = HDFReadControl(_lapdf, control, intersection_set=False)
-        self.assertCDataObj(cdata, _lapdf, control_plus,
+        cdata = HDFReadControl(_bf, control, intersection_set=False)
+        self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
     def test_two_controls(self):
@@ -725,7 +726,7 @@ class TestHDFReadControl(TestBase):
                           {'n_configs': 1, 'sn_size': 50,
                            'n_motionlists': 1})
         self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
-        _lapdf = self.lapdf
+        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
         control = [('Waveform', 'config01'),
                    ('6K Compumotor', sixk_cspec)]
@@ -776,10 +777,10 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(self.bf, control, shotnum=sn_r)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus)
+            self.assertCDataObj(cdata, _bf, control_plus)
 
         # ==== Both Datasets Have Matching Sequential Shot Numbers ====
         # ---- intersection_set = False                            ----
@@ -821,11 +822,11 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r,
+            cdata = HDFReadControl(self.bf, control, shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus,
+            self.assertCDataObj(cdata, _bf, control_plus,
                                 intersection_set=False)
 
         # ==== Both Datasets Have Matching Sequential Shot Numbers ====
@@ -844,13 +845,13 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(self.lapdf, control)
-        self.assertCDataObj(cdata, _lapdf, control_plus)
+        cdata = HDFReadControl(self.bf, control)
+        self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
-        cdata = HDFReadControl(self.lapdf, control,
+        cdata = HDFReadControl(self.bf, control,
                                intersection_set=False)
-        self.assertCDataObj(cdata, _lapdf, control_plus,
+        self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
         # ====      Both Datasets Have Jumps in Shot Numbers      ====
@@ -876,7 +877,7 @@ class TestHDFReadControl(TestBase):
         sn_sixk = sn_arr
 
         # re-defined filxe obj
-        _lapdf = self.lapdf
+        _bf = self.bf
 
         # ====      Both Datasets Have Jumps in Shot Numbers      ====
         # ---- intersection_set = True                            ----
@@ -912,10 +913,10 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r)
+            cdata = HDFReadControl(self.bf, control, shotnum=sn_r)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus)
+            self.assertCDataObj(cdata, _bf, control_plus)
 
         # ====      Both Datasets Have Jumps in Shot Numbers      ====
         # ---- intersection_set = False                           ----
@@ -963,11 +964,11 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.lapdf, control, shotnum=sn_r,
+            cdata = HDFReadControl(self.bf, control, shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
-            self.assertCDataObj(cdata, _lapdf, control_plus,
+            self.assertCDataObj(cdata, _bf, control_plus,
                                 intersection_set=False)
 
         # ====      Both Datasets Have Jumps in Shot Numbers      ====
@@ -986,8 +987,8 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(self.lapdf, control)
-        self.assertCDataObj(cdata, _lapdf, control_plus)
+        cdata = HDFReadControl(self.bf, control)
+        self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
         sn_c = np.arange(1, 61, 1)
@@ -998,15 +999,15 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = \
             np.intersect1d(sn_c, sn_sixk)  # type: np.ndarray
 
-        cdata = HDFReadControl(self.lapdf, control,
+        cdata = HDFReadControl(self.bf, control,
                                intersection_set=False)
-        self.assertCDataObj(cdata, _lapdf, control_plus,
+        self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
     def assertCDataObj(
             self,
             cdata: HDFReadControl,
-            _lapdf: bapsflib.lapd.File,
+            _bf: bapsflib.lapd.File,
             control_plus: List[Tuple[str, Any, Dict[str, Any]]],
             intersection_set=True):
         """Assertion for detailed format of returned data object."""
@@ -1032,7 +1033,7 @@ class TestHDFReadControl(TestBase):
 
         # examine values of HDFReadControl defined keys
         self.assertEqual(cdata.info['source file'],
-                         os.path.abspath(_lapdf.filename))
+                         os.path.abspath(_bf.filename))
         self.assertIsInstance(cdata.info['controls'], dict)
         self.assertIsInstance(cdata.info['port'], tuple)
         self.assertEqual(len(cdata.info['port']), 2)
@@ -1042,7 +1043,7 @@ class TestHDFReadControl(TestBase):
             # get control device vars
             device = control[0]
             config_name = control[1]
-            _map = _lapdf.file_map.controls[device]
+            _map = _bf.file_map.controls[device]
             config = _map.configs[config_name]
 
             # check device inclusion
@@ -1095,7 +1096,7 @@ class TestHDFReadControl(TestBase):
             sn_v = control[2]['sn_valid']
 
             # retrieve control mapping
-            cmap = self.lapdf.file_map.controls[device]
+            cmap = self.bf.file_map.controls[device]
 
             # gather fields that should be in cdata for this control
             # device

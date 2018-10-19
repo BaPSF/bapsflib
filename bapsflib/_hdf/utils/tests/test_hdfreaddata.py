@@ -15,8 +15,8 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf.maps import (ConType, FauxHDFBuilder)
-from bapsflib._hdf.utils.file import File
 
+from ..file import File
 from ..hdfreaddata import (HDFReadData, condition_shotnum)
 
 

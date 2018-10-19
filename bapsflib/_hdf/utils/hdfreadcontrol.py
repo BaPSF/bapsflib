@@ -136,7 +136,8 @@ class HDFReadControl(np.ndarray):
         #
         if not isinstance(hdf_file, File):
             raise TypeError(
-                '`hdf_file` is NOT type `bapsflib.lapd.File`')
+                "`hdf_file` is NOT type `"
+                + File.__module__ + "." + File.__qualname__ + "`")
 
         # print execution timing
         if timeit:  # pragma: no cover

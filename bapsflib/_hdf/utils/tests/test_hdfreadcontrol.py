@@ -19,12 +19,12 @@ import unittest as ut
 from bapsflib._hdf.maps import (ConType, HDFMap)
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
-from bapsflib._hdf.utils.file import File
 from numpy.lib import recfunctions as rfn
 from typing import (Any, Dict, List, Tuple)
 from unittest import mock
 
 from . import TestBase
+from ..file import File
 from ..hdfreadcontrol import (build_shotnum_dset_relation,
                               do_shotnum_intersection,
                               HDFReadControl)

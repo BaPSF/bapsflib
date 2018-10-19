@@ -61,45 +61,7 @@ class TestHDFMap(ut.TestCase):
                               digitizer_path=digitizer_path,
                               control_path=control_path)
 
-    def test_control_mapping_attachment(self):
-        """Test attachment of mapped control devices."""
-        #   1. specified control path does NOT exist
-        #   2. control path VALID, but NO controls
-        #   3. control path VALID, mixture of mappable and non-mappable
-        #      controls
-        #
-        # specified control path does NOT exist                      (1)
-        with self.assertWarns(UserWarning):
-            _map = self.map_file(self.f, msi_path='MSI',
-                                 digitizer_path='Raw data + config',
-                                 control_path='Not a control path')
-            self.assertHDFMapBasics(_map, self.f)
-            self.assertEqual(_map.controls, {})
-
-        # control path VALID, but NO controls                        (2)
-        _map = self.map_file(self.f, msi_path='MSI',
-                             digitizer_path='Raw data + config',
-                             control_path='Raw data + config')
-        self.assertHDFMapBasics(_map, self.f)
-        self.assertEqual(_map.controls, {})
-        self.assertIsInstance(_map.controls, HDFMapControls)
-
-        # control path VALID, mixture of mappable and                (3)
-        # non-mappable controls
-        self.f.add_module('Waveform')
-        self.f.create_group('Raw data + config/Not control or digi')
-        _map = self.map_file(self.f, msi_path='MSI',
-                             digitizer_path='Raw data + config',
-                             control_path='Raw data + config')
-        self.assertHDFMapBasics(_map, self.f)
-        self.assertIsInstance(_map.controls, HDFMapControls)
-        self.assertEqual(len(_map.controls), 1)
-        self.assertIn('Waveform', _map.controls)
-        self.assertEqual(_map.unknowns,
-                         ['/Raw data + config/Not control or digi'])
-        del self.f['Raw data + config/Not control or digi']
-
-    def test_device_all_in_one_group(self):
+    def test_all_devices_ain_one_group(self):
         """
         Test the case where all devices (Controls, Digitizers, and
         MSI diagnostics) share the same group.
@@ -151,6 +113,44 @@ class TestHDFMap(ut.TestCase):
                          sorted(['/MSI', '/Raw data + config/Unknown']))
 
         del self.f['Raw data + config/Unknown']
+
+    def test_control_mapping_attachment(self):
+        """Test attachment of mapped control devices."""
+        #   1. specified control path does NOT exist
+        #   2. control path VALID, but NO controls
+        #   3. control path VALID, mixture of mappable and non-mappable
+        #      controls
+        #
+        # specified control path does NOT exist                      (1)
+        with self.assertWarns(UserWarning):
+            _map = self.map_file(self.f, msi_path='MSI',
+                                 digitizer_path='Raw data + config',
+                                 control_path='Not a control path')
+            self.assertHDFMapBasics(_map, self.f)
+            self.assertEqual(_map.controls, {})
+
+        # control path VALID, but NO controls                        (2)
+        _map = self.map_file(self.f, msi_path='MSI',
+                             digitizer_path='Raw data + config',
+                             control_path='Raw data + config')
+        self.assertHDFMapBasics(_map, self.f)
+        self.assertEqual(_map.controls, {})
+        self.assertIsInstance(_map.controls, HDFMapControls)
+
+        # control path VALID, mixture of mappable and                (3)
+        # non-mappable controls
+        self.f.add_module('Waveform')
+        self.f.create_group('Raw data + config/Not control or digi')
+        _map = self.map_file(self.f, msi_path='MSI',
+                             digitizer_path='Raw data + config',
+                             control_path='Raw data + config')
+        self.assertHDFMapBasics(_map, self.f)
+        self.assertIsInstance(_map.controls, HDFMapControls)
+        self.assertEqual(len(_map.controls), 1)
+        self.assertIn('Waveform', _map.controls)
+        self.assertEqual(_map.unknowns,
+                         ['/Raw data + config/Not control or digi'])
+        del self.f['Raw data + config/Not control or digi']
 
     def test_digitizer_mapping_attachment(self):
         """Test attachment of mapped digitizers."""
@@ -213,6 +213,32 @@ class TestHDFMap(ut.TestCase):
         self.assertEqual(_map.msi, {})
         self.assertEqual(_map.unknowns, [])
         self.assertIs(_map.main_digitizer, None)
+
+    def test_get(self):
+        """Test method `get`"""
+        # populate with one of each device
+        self.f.add_module('Waveform')
+        self.f.add_module('SIS 3301')
+        self.f.add_module('Discharge')
+        _map = self.map_file(self.f, msi_path='MSI',
+                             digitizer_path='Raw data + config',
+                             control_path='Raw data + config')
+
+        # get control device
+        device_map = _map.get('Waveform')
+        self.assertEqual(device_map, _map.controls['Waveform'])
+
+        # get digitizer
+        device_map = _map.get('SIS 3301')
+        self.assertEqual(device_map, _map.digitizers['SIS 3301'])
+
+        # get MSI diagnostic
+        device_map = _map.get('Discharge')
+        self.assertEqual(device_map, _map.msi['Discharge'])
+
+        # get an un-mapped device
+        device_map = _map.get('Not a device')
+        self.assertIs(device_map, None)
 
     def test_main_digitizer(self):
         """Test identification of the "main" digitizer"""

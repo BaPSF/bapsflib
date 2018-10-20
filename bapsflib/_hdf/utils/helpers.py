@@ -57,9 +57,9 @@ def build_shotnum_dset_relation(
     .. note::
 
         This function leverages the functions
-        :func:`~bapsflib._hdf.utils.hdfreadcontrol.build_sndr_for_simple_dset`
+        :func:`~.helpers.build_sndr_for_simple_dset`
         and
-        :func:`~bapsflib._hdf.utils.hdfreadcontrol.build_sndr_for_complex_dset`
+        :func:`~.helpers.build_sndr_for_complex_dset`
     """
     # Inputs:
     # shotnum      - the desired shot number(s)
@@ -98,9 +98,8 @@ def build_sndr_for_simple_dset(
     """
     Compares the **shotnum** numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
-    shot number(s)
-    [for :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`].
-    As a results, two numpy arrays are returned which satisfy the rule::
+    shot number(s).  As a results, two numpy arrays are returned which
+    satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
@@ -113,10 +112,10 @@ def build_sndr_for_simple_dset(
     configuration is recorded.
 
     :param shotnum: desired HDF5 shot number
-    :param dset: control device dataset
+    :param dset: dataset containing shot numbers
     :type dset: :class:`h5py.Dataset`
-    :param str shotnumkey: field name in the control device dataset that
-        contains the shot numbers
+    :param str shotnumkey: field name in the dataset that contains
+        the shot numbers
     :return: :code:`index` and :code:`sni` numpy arrays
     """
     # this is for a dataset that only records data for one configuration
@@ -191,9 +190,8 @@ def build_sndr_for_complex_dset(
     """
     Compares the **shotnum** numpy array to the specified "complex"
     dataset, **dset**, to determine which indices contain the desired
-    shot number(s)
-    [for :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`].
-    As a results, two numpy arrays are returned which satisfy the rule::
+    shot number(s).  As a results, two numpy arrays are returned
+    which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
@@ -217,10 +215,10 @@ def build_sndr_for_complex_dset(
         three rows will maintain that order.
 
     :param shotnum: desired HDF5 shot number
-    :param dset: control device dataset
+    :param dset: dataset containing shot numbers
     :type dset: :class:`h5py.Dataset`
-    :param str shotnumkey: field name in the control device dataset that
-        contains the shot numbers
+    :param str shotnumkey: field name in the dataset that contains
+        the shot numbers
     :param cmap: mapping object for control device
     :param cconfn: configuration name for the control device
     :return: :code:`index` and :code:`sni` numpy arrays

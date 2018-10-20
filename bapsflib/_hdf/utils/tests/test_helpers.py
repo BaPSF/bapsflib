@@ -121,17 +121,20 @@ class TestBuildShotnumDsetRelation(TestBase):
         """
         Assert shot numbers cases with in-range of dataset shot numbers.
         """
+        cdset = self.cgroup['Run time list']
+        shotnumkey = 'Shot number'
+        configkey = 'Configuration name'
+        last_sn = cdset[-1, 'Shot number']
         shotnum_list = [
             [10],
             [50, 51],
             [50, 60],
             [1, self.mod.knobs.sn_size],
             [50, 51, 52, 53, 54, 55, 56, 57, 58, 59],
-            [1, 11, 21, 31, 41, 51, 61, 71, 81, 91]
+            [1, 11, 21, 31, 41, 51, 61, 71, 81, 91],
         ]
-        cdset = self.cgroup['Run time list']
-        shotnumkey = 'Shot number'
-        configkey = 'Configuration name'
+        if last_sn > 2:
+            shotnum_list.append([last_sn - 1])
         for og_shotnum in shotnum_list:
             if og_shotnum == [1, 1]:
                 continue

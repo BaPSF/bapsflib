@@ -166,9 +166,10 @@ def build_sndr_for_simple_dset(
                 index = np.where(np.isin(some_dset_sn, shotnum))[0]
             else:
                 # extracting from the end of the array is the smallest
-                start, stop, step = slice(-step_end_read - 1,
-                                          None,
-                                          None).indices(dset.shape[0])
+                start, stop, step = \
+                    slice(-step_end_read.astype(np.int32) - 1,
+                          None,
+                          None).indices(dset.shape[0])
                 some_dset_sn = dset[start::, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 

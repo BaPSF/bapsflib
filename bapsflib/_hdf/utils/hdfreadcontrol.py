@@ -118,7 +118,7 @@ class HDFReadControl(np.ndarray):
               will have entries for all shot numbers specified in
               :data:`shotnum` but entries that correspond to control
               datasets that do not have the specified shot number will
-              be given a NULL value of :code:`-99999`,
+              be given a NULL value of :code:`-99999`, :code:`0`,
               :code:`numpy.nan`, or :code:`''`, depending on the
               :code:`numpy.dtype`.
         """
@@ -186,7 +186,7 @@ class HDFReadControl(np.ndarray):
         #            ~ dtype = np.integer
         #            ~ shape = (len(controls), num_of_indices)
         #
-        # shotnum -- global HDF5 shot number
+        # shotnum -- global HDF5 shot numbers
         #            ~ index at 1
         #            ~ will be a filtered version of input kwarg shotnum
         #              based on intersection_set
@@ -200,7 +200,7 @@ class HDFReadControl(np.ndarray):
         #            ~ numpy.ndarray
         #            ~ dtype = np.bool
         #            ~ shape = (len(controls), sn_size)
-        #            ~ np.count_nonzer(arr[0,...]) = num_of_indices
+        #            ~ np.count_nonzero(arr[0,...]) = num_of_indices
         #
         # - Indexing behavior: (depends on intersection_set)
         #
@@ -397,7 +397,11 @@ class HDFReadControl(np.ndarray):
                         # NaN fill
                         if np.issubdtype(dtype, np.integer):
                             # any integer, signed or not
-                            data[nf_name][ii] = -99999
+                            fill = 0 \
+                                if isinstance(dtype,
+                                              np.unsignedinteger) \
+                                else -99999
+                            data[nf_name][ii] = fill
                         elif np.issubdtype(dtype, np.floating):
                             # any float type
                             data[nf_name][ii] = np.nan

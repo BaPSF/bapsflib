@@ -856,7 +856,9 @@ class TestHDFReadControl(TestBase):
 
                 # assert "NaN" fills
                 if np.issubdtype(dtype, np.integer):
-                    cd_nan = np.where(cdata[field] == -99999,
+                    fill = 0 if isinstance(dtype, np.unsignedinteger) \
+                        else -99999
+                    cd_nan = np.where(cdata[field] == fill,
                                       True, False)
                 elif np.issubdtype(dtype, np.floating):
                     cd_nan = np.isnan(cdata[field])

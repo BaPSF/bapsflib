@@ -14,12 +14,15 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib._hdf.maps import (ConType, FauxHDFBuilder)
+from bapsflib._hdf.maps import (ConType, HDFMap)
+from unittest import mock
 
+from . import TestBase
 from ..file import File
 from ..hdfreaddata import (HDFReadData, condition_shotnum)
 
 
+'''
 class TestConditionShotnum(ut.TestCase):
     """Test Case for build_shotnum_dset_relation"""
 
@@ -489,9 +492,10 @@ class TestConditionShotnum(ut.TestCase):
         else:
             self.assertTrue(np.array_equal(
                 shotnum[sni], dheader[index.tolist(), shotnumkey]))
+'''
 
 
-class TestHDFReadData(ut.TestCase):
+class TestHDFReadData(TestBase):
     """Test Case for HDFReadData"""
     #
     # Notes:
@@ -537,25 +541,57 @@ class TestHDFReadData(ut.TestCase):
     #
 
     def setUp(self):
-        self.f = FauxHDFBuilder()
+        super().setUp()
 
     def tearDown(self):
-        self.f.cleanup()
+        super().setUp()
 
     @property
-    def lapdf(self):
+    def bf(self) -> File:
+        """Opened BaPSF HDF5 File instance."""
         return File(self.f.filename)
 
-    def test_hdf_file_handling(self):
-        """Test handling of input argument `hdf_file`."""
-        # setup HDF5 file
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
+    @ut.SkipTest
+    def test_adding_controls(self):
+        """Test adding control device data to digitizer data."""
+        self.fail()
+
+    def test_raise_errors(self):
+        """Test scenarios that cause exceptions to be raised."""
+        # 1. input file object `hdf_obj` is not a bapsflib file object
+        #    bapsflib._hdf.utils.file.File
+        # 2. `add_controls` is requested but there are no control
+        #    devices
+        # 3. HDF5 file has no digitizers
+        # 4. `digitizer` is None and no "main" digitizer was identified
+        # 5. specified `digitizer` is not a mapped digitizer
+        #
+        # not a bapsflib._hdf.utils.file.File object                 (1)
+        self.assertRaises(TypeError, HDFReadData, None, 0, 0)
+
+        # `add_controls` is requested but there are no               (2)
+        # control devices
+        self.assertRaises(ValueError,
+                          HDFReadData, self.bf, 0, 0,
+                          add_controls='Waveform')
+
+        # HDF5 file has no digitizers                                (3)
+        self.assertRaises(ValueError, HDFReadData, self.bf, 0, 0)
+
+        # `digitizer` is None and no "main" digitizer was            (4)
+        # identified
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        with mock.patch.object(HDFMap, 'main_digitizer',
+                               new_callable=mock.PropertyMock,
+                               return_value=None):
+            self.assertRaises(ValueError, HDFReadData, self.bf, 0, 0)
 
-        # not a lapdfhdf.File object but a h5py.File object
-        self.assertRaises(AttributeError, HDFReadData, self.f, 0, 0)
+        # specified `digitizer` is not a mapped digitizer            (5)
+        self.assertRaises(ValueError,
+                          HDFReadData, self.bf, 0, 0,
+                          digitizer='Not a digi')
 
+    @ut.SkipTest
     def test_misc_behavior(self):
         """Test miscellaneous behavior"""
         # setup HDF5 file
@@ -565,38 +601,39 @@ class TestHDFReadData(ut.TestCase):
         # shotnum is a list, but not all elements are ints
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, shotnum=[1, 'blah'])
+                          self.bf, 0, 0, shotnum=[1, 'blah'])
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, shotnum=None)
+                          self.bf, 0, 0, shotnum=None)
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, shotnum='blahe')
+                          self.bf, 0, 0, shotnum='blahe')
 
         # index is a list, but not all elements are ints
         self.assertRaises(TypeError,
                           HDFReadData,
-                          self.lapdf, 0, 0, index=[1, 'blah'])
+                          self.bf, 0, 0, index=[1, 'blah'])
         self.assertRaises(TypeError,
                           HDFReadData,
-                          self.lapdf, 0, 0, index=None)
+                          self.bf, 0, 0, index=None)
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, index='blah')
+                          self.bf, 0, 0, index='blah')
 
         # test when `index` and `shotnum` are both used
         # - HDFReadData should ignore `shotnum` and default to `index`
         #
-        dset = self.lapdf.get(
+        dset = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0]')
         index = [2, 3]
         shotnum = [45, 50]
-        data = HDFReadData(self.lapdf, 0, 0,
+        data = HDFReadData(self.bf, 0, 0,
                            index=index, shotnum=shotnum)
         self.assertDataFormat(data,
                               {'correct': [3, 4], 'valid': [3, 4]},
                               dset)
 
+    @ut.SkipTest
     def test_read_w_index(self):
         """Test reading out data using `index` keyword"""
         # Test Outline: (#see Note below)
@@ -619,9 +656,9 @@ class TestHDFReadData(ut.TestCase):
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        dset = self.lapdf.get(
+        dset = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0]')
-        dheader = self.lapdf.get(
+        dheader = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0] headers')
 
         # ======        Dataset w/ Sequential Shot Numbers        ======
@@ -633,7 +670,7 @@ class TestHDFReadData(ut.TestCase):
         for index in index_list:
             self.assertRaises(ValueError,
                               HDFReadData,
-                              self.lapdf, 0, 0, index=index)
+                              self.bf, 0, 0, index=index)
 
         # ------ intersection_set = True                          ------
         index_list = [
@@ -652,7 +689,7 @@ class TestHDFReadData(ut.TestCase):
         ]
         for ii, ii_c in zip(index_list, index_list_correct):
             # defined data for testing
-            data = HDFReadData(self.lapdf, 0, 0, index=ii)
+            data = HDFReadData(self.bf, 0, 0, index=ii)
             shotnum = {'correct': dheader[ii_c, 'Shot'].view(),
                        'valid': dheader[ii_c, 'Shot'].view()}
 
@@ -661,13 +698,14 @@ class TestHDFReadData(ut.TestCase):
 
         # ------ `index` (and `shotnum`) omitted                  ------
         # defined data for testing
-        data = HDFReadData(self.lapdf, 0, 0)
+        data = HDFReadData(self.bf, 0, 0)
         shotnum = {'correct': dheader['Shot'].view(),
                    'valid': dheader['Shot'].view()}
 
         # perform assertion
         self.assertDataFormat(data, shotnum, dset)
 
+    @ut.SkipTest
     def test_read_w_shotnum(self):
         """Test reading out data using `index` keyword"""
         # Test Outline: (#see Note below)
@@ -700,9 +738,9 @@ class TestHDFReadData(ut.TestCase):
         # setup HDF5 file
         self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        dset = self.lapdf.get(
+        dset = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0]')
-        dheader = self.lapdf.get(
+        dheader = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0] headers')
 
         # ======        Dataset w/ Sequential Shot Numbers        ======
@@ -729,7 +767,7 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0, shotnum=sn_r)
+            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r)
 
             # perform assertion
             self.assertDataFormat(data, shotnum, dset)
@@ -763,7 +801,7 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0, shotnum=sn_r,
+            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r,
                                intersection_set=False)
 
             # perform assertion
@@ -797,7 +835,7 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0, shotnum=sn_r)
+            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r)
 
             # perform assertion
             self.assertDataFormat(data, shotnum, dset)
@@ -831,13 +869,14 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0, shotnum=sn_r,
+            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r,
                                intersection_set=False)
 
             # perform assertion
             self.assertDataFormat(data, shotnum, dset,
                                   intersection_set=False)
 
+    @ut.SkipTest
     def test_digitizer_kwarg_functionality(self):
         """Test kwarg `digitizer` functionality"""
         #
@@ -867,21 +906,21 @@ class TestHDFReadData(ut.TestCase):
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        main_digi = self.lapdf.file_map.main_digitizer.device_name
+        main_digi = self.bf.file_map.main_digitizer.device_name
 
         # ----- `digitizer` not specified ------
-        data = HDFReadData(self.lapdf, 0, 0)
+        data = HDFReadData(self.bf, 0, 0)
         self.assertEqual(data.info['digitizer'], main_digi)
 
         # ----- `digitizer` specified w/ ONE Digitizer ------
         # valid `digitizer`
-        data = HDFReadData(self.lapdf, 0, 0, digitizer='SIS 3301')
+        data = HDFReadData(self.bf, 0, 0, digitizer='SIS 3301')
         self.assertEqual(data.info['digitizer'], 'SIS 3301')
 
         # invalid `digitizer`
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, digitizer='blah')
+                          self.bf, 0, 0, digitizer='blah')
 
         # ----- `digitizer` specified w/ TWO Digitizer ------
         # TODO: #3 NEEDS TO BE ADDED WHEN FauxSISCrate IS CREATED
@@ -889,21 +928,22 @@ class TestHDFReadData(ut.TestCase):
         # added another digit to the HDF5 file
         # self.f.add_module('SIS Crate',
         #                   {'n_configs': 1, 'sn_size': 50})
-        # main_digi = self.lapdf.file_map.main_digitizer.device_name
+        # main_digi = self.bf.file_map.main_digitizer.device_name
 
         # valid `digitizer`
-        data = HDFReadData(self.lapdf, 0, 0, digitizer='SIS 3301')
+        data = HDFReadData(self.bf, 0, 0, digitizer='SIS 3301')
         self.assertEqual(data.info['digitizer'], main_digi)
 
         # valid `digitizer` (not main_digitizer)
-        # data = HDFReadData(self.lapdf, 0, 0, digitizer='SIS Crate')
+        # data = HDFReadData(self.bf, 0, 0, digitizer='SIS Crate')
         # self.assertEqual(data.info['digitizer'], 'SIS Crate')
 
         # invalid `digitizer`
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, digitizer='blah')
+                          self.bf, 0, 0, digitizer='blah')
 
+    @ut.SkipTest
     def test_adc_kwarg_functionality(self):
         """Test kwarg `adc` functionality"""
         #
@@ -947,18 +987,18 @@ class TestHDFReadData(ut.TestCase):
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
 
         # ----- `adc` not specified ------
-        data = HDFReadData(self.lapdf, 0, 0)
+        data = HDFReadData(self.bf, 0, 0)
         self.assertEqual(data.info['adc'], 'SIS 3301')
 
         # ----- `adc` specified for digitizer w/ ONE adc ------
         # valid `adc`
-        data = HDFReadData(self.lapdf, 0, 0, adc='SIS 3301')
+        data = HDFReadData(self.bf, 0, 0, adc='SIS 3301')
         self.assertEqual(data.info['adc'], 'SIS 3301')
 
         # invalid `adc`
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, adc='blah')
+                          self.bf, 0, 0, adc='blah')
 
         # ----- `adc` specified for digitizer w/ TWO adc's ------
         # TODO: #3 NEEDS TO BE ADDED WHEN FauxSISCrate IS CREATED
@@ -966,20 +1006,21 @@ class TestHDFReadData(ut.TestCase):
         # added another digit to the HDF5 file
         # self.f.add_module('SIS Crate',
         #                   {'n_configs': 1, 'sn_size': 50})
-        # main_digi = self.lapdf.file_map.main_digitizer.device_name
+        # main_digi = self.bf.file_map.main_digitizer.device_name
 
         # valid `adc`
         # for adc in ['SIS 3302', 'SIS 3305']:
-        #     data = HDFReadData(self.lapdf, 0, 0,
+        #     data = HDFReadData(self.bf, 0, 0,
         #                        digitizer='SIS Crate', adc=adc)
         #     self.assertEqual(data.info['adc'], adc)
 
         # invalid `adc`
         # self.assertRaises(ValueError,
         #                   HDFReadData,
-        #                   self.lapdf, 0, 0,
+        #                   self.bf, 0, 0,
         #                   digitizer='SIS Crate', adc='blah')
 
+    @ut.SkipTest
     def test_config_name_kwarg_functionality(self):
         """Test kwarg `config_name` functionality"""
         #
@@ -1023,19 +1064,19 @@ class TestHDFReadData(ut.TestCase):
         self.f.add_module('SIS 3301', {'n_configs': 3, 'sn_size': 50})
 
         # ----- `config_name` not specified ------
-        data = HDFReadData(self.lapdf, 0, 0)
+        data = HDFReadData(self.bf, 0, 0)
         self.assertEqual(data.info['configuration name'], 'config01')
 
         # ----- `config_name` specified for digitizer w/ ONE ------
         # ----- active configuration                         ------
         # valid `config_name`
-        data = HDFReadData(self.lapdf, 0, 0, config_name='config01')
+        data = HDFReadData(self.bf, 0, 0, config_name='config01')
         self.assertEqual(data.info['configuration name'], 'config01')
 
         # invalid `config_name`
         self.assertRaises(ValueError,
                           HDFReadData,
-                          self.lapdf, 0, 0, config_name='blah')
+                          self.bf, 0, 0, config_name='blah')
 
         # ----- `config_name` specified for digitizer w/ ------
         # ----- MULTIPLE active configurations           ------
@@ -1049,8 +1090,9 @@ class TestHDFReadData(ut.TestCase):
         # invalid `config_name`
         # self.assertRaises(ValueError,
         #                   HDFReadData,
-        #                   self.lapdf, 0, 0, config_name='blah')
+        #                   self.bf, 0, 0, config_name='blah')
 
+    @ut.SkipTest
     def test_keep_bits_kwarg_functionality(self):
         """Test kwarg `keep_bits` functionality"""
         #
@@ -1077,14 +1119,14 @@ class TestHDFReadData(ut.TestCase):
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        dset = self.lapdf.get(
+        dset = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0]')
         dheader_name = \
             'Raw data + config/SIS 3301/config01 [0:0] headers'
-        dheader = self.lapdf.get(dheader_name)
+        dheader = self.bf.get(dheader_name)
 
         # ------ test keep_bits=True ------
-        data = HDFReadData(self.lapdf, 0, 0, index=0, keep_bits=True)
+        data = HDFReadData(self.bf, 0, 0, index=0, keep_bits=True)
         self.assertDataFormat(data,
                               {'requested': [1],
                                'correct': [1],
@@ -1102,8 +1144,9 @@ class TestHDFReadData(ut.TestCase):
         # test
         self.assertWarns(UserWarning,
                          HDFReadData,
-                         self.lapdf, 0, 0, shotnum=1, keep_bits=False)
+                         self.bf, 0, 0, shotnum=1, keep_bits=False)
 
+    @ut.SkipTest
     def test_add_controls(self):
         """Test kwarg `add_controls` functionality"""
         #
@@ -1156,7 +1199,7 @@ class TestHDFReadData(ut.TestCase):
         self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 50})
-        dset = self.lapdf.get(
+        dset = self.bf.get(
             'Raw data + config/SIS 3301/config01 [0:0]')
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
 
@@ -1190,7 +1233,7 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0,
+            data = HDFReadData(self.bf, 0, 0,
                                shotnum=sn_r, add_controls=control)
 
             # perform assertion
@@ -1219,7 +1262,7 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0,
+            data = HDFReadData(self.bf, 0, 0,
                                shotnum=sn_r, add_controls=control,
                                intersection_set=False)
 
@@ -1257,7 +1300,7 @@ class TestHDFReadData(ut.TestCase):
             shotnum = {'requested': sn_r,
                        'correct': sn_c,
                        'valid': sn_v}
-            data = HDFReadData(self.lapdf, 0, 0,
+            data = HDFReadData(self.bf, 0, 0,
                                shotnum=sn_r, add_controls=control)
 
             # perform assertion
@@ -1286,7 +1329,7 @@ class TestHDFReadData(ut.TestCase):
                 shotnum = {'requested': sn_r,
                            'correct': sn_c,
                            'valid': sn_v}
-                data = HDFReadData(self.lapdf, 0, 0,
+                data = HDFReadData(self.bf, 0, 0,
                                    shotnum=sn_r, add_controls=control,
                                    intersection_set=False)
 
@@ -1294,15 +1337,16 @@ class TestHDFReadData(ut.TestCase):
                 self.assertDataWithControl(data, shotnum, dset, control,
                                            intersection_set=False)
 
+    @ut.SkipTest
     def test_obj_attributes(self):
-        """Ensure existence of keey attributes"""
+        """Ensure existence of key attributes"""
         # setup HDF5
         if len(self.f.modules) >= 1:
             self.f.remove_all_modules()
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
 
         # Define test data
-        data = HDFReadData(self.lapdf, 0, 0)
+        data = HDFReadData(self.bf, 0, 0)
 
         # Key Attribute Existence
         self.assertTrue(hasattr(data, 'info'))
@@ -1420,7 +1464,7 @@ class TestHDFReadData(ut.TestCase):
         if len(controls) != 0:
             # Possible motion control added
             for con, config in controls:
-                if self.lapdf.file_map.controls[con].contype \
+                if self.bf.file_map.controls[con].contype \
                         == ConType.motion:
                     # a motion control was added
                     motion_added = True
@@ -1443,7 +1487,7 @@ class TestHDFReadData(ut.TestCase):
             config = control[1]
 
             # retrieve control mapping
-            cmap = self.lapdf.file_map.controls[device]
+            cmap = self.bf.file_map.controls[device]
 
             # gather fields that should be in data for this control
             # device

@@ -21,7 +21,8 @@ from warnings import warn
 
 from .file import File
 from .helpers import (build_shotnum_dset_relation,
-                      condition_controls, condition_shotnum)
+                      condition_controls, condition_shotnum,
+                      do_shotnum_intersection)
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
@@ -493,49 +494,3 @@ class HDFReadControl(np.ndarray):
 HDFReadControl.__new__.__doc__ += "\n"
 for line in HDFReadControl.__example_doc__.splitlines():
     HDFReadControl.__new__.__doc__ += "    " + line + "\n"
-
-
-def do_shotnum_intersection(
-        shotnum: np.ndarray,
-        sni_dict: IndexDict,
-        index_dict: IndexDict) -> Tuple[np.ndarray, IndexDict,
-                                        IndexDict]:
-    """
-    Calculates intersection of **shotnum** and all existing dataset
-    shot numbers, **shotnum[sni]**
-    [for :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`].
-
-    :param shotnum: desired HDF5 shot numbers
-    :param sni_dict: dictionary of all control dataset **sni** arrays
-    :param index_dict:  dictionary of all control dataset **index**
-        arrays
-    :return: intersected and re-calculated versions of :code:`index`
-        and :code:`sni` numpy arrays
-
-    .. admonition:: Recall Array Relationship
-
-        .. code-block:: python
-
-            shotnum[sni] = dset[index, shotnumkey]
-    """
-    # intersect shot numbers
-    shotnum_intersect = shotnum
-    for sni in sni_dict.values():
-        shotnum_intersect = np.intersect1d(shotnum_intersect,
-                                           shotnum[sni],
-                                           assume_unique=True)
-    if shotnum_intersect.shape[0] == 0:
-        raise ValueError('Input `shotnum` would result in a NULL array')
-
-    # now filter
-    for cname in index_dict:
-        sni = sni_dict[cname]
-        mask_for_index = np.isin(shotnum[sni], shotnum_intersect)
-        index_dict[cname] = index_dict[cname][mask_for_index]
-        sni_dict[cname] = np.ones(shotnum_intersect.shape, dtype=bool)
-
-    # update shotnum
-    shotnum = shotnum_intersect
-
-    # return
-    return shotnum, sni_dict, index_dict

@@ -20,7 +20,8 @@ from numpy.lib import recfunctions as rfn
 from . import TestBase
 from ..file import File
 from ..helpers import (build_shotnum_dset_relation,
-                       condition_controls, condition_shotnum)
+                       condition_controls, condition_shotnum,
+                       do_shotnum_intersection)
 
 
 class TestBuildShotnumDsetRelation(TestBase):
@@ -678,6 +679,72 @@ class TestConditionShotnum(TestBase):
         for shotnum in sn:
             with self.assertRaises(ValueError):
                 _sn = condition_shotnum(shotnum, {}, {})
+
+
+class TestDoShotnumIntersection(ut.TestCase):
+    """Test Case for do_shotnum_intersection"""
+    def test_one_control(self):
+        """Test intersection behavior with one control device"""
+        # test a case that results in a null result
+        shotnum = np.arange(1, 21, 1, dtype=np.uint32)
+        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
+        index_dict = {'Waveform': np.array([])}
+        self.assertRaises(ValueError,
+                          do_shotnum_intersection,
+                          shotnum, sni_dict, index_dict)
+
+        # test a working case
+        shotnum = np.arange(1, 21, 1)
+        sni_dict = {'Waveform': np.zeros(shotnum.shape, dtype=bool)}
+        index_dict = {'Waveform': np.array([5, 6, 7])}
+        sni_dict['Waveform'][[5, 6, 7]] = True
+        shotnum, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum, sni_dict, index_dict)
+        self.assertTrue(np.array_equal(shotnum, [6, 7, 8]))
+        self.assertTrue(np.array_equal(sni_dict['Waveform'],
+                                       [True] * 3))
+        self.assertTrue(np.array_equal(index_dict['Waveform'],
+                                       [5, 6, 7]))
+
+    def test_two_controls(self):
+        """Test intersection behavior with two control devices"""
+        # test a case that results in a null result
+        shotnum = np.arange(1, 21, 1)
+        sni_dict = {
+            'Waveform': np.zeros(shotnum.shape, dtype=bool),
+            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
+        }
+        index_dict = {
+            'Waveform': np.array([]),
+            '6K Compumotor': np.array([5, 6, 7])
+        }
+        sni_dict['6K Compumotor'][[6, 7, 8]] = True
+        self.assertRaises(ValueError,
+                          do_shotnum_intersection,
+                          shotnum, sni_dict, index_dict)
+
+        # test a working case
+        shotnum = np.arange(1, 21, 1)
+        shotnum_dict = {
+            'Waveform': shotnum,
+            '6K Compumotor': shotnum
+        }
+        sni_dict = {
+            'Waveform': np.zeros(shotnum.shape, dtype=bool),
+            '6K Compumotor': np.zeros(shotnum.shape, dtype=bool)
+        }
+        index_dict = {
+            'Waveform': np.array([5, 6]),
+            '6K Compumotor': np.array([5, 6, 7])
+        }
+        sni_dict['Waveform'][[5, 6]] = True
+        sni_dict['6K Compumotor'][[5, 6, 7]] = True
+        shotnum, sni_dict, index_dict = \
+            do_shotnum_intersection(shotnum, sni_dict, index_dict)
+        self.assertTrue(np.array_equal(shotnum, [6, 7]))
+        for key in shotnum_dict:
+            self.assertTrue(np.array_equal(sni_dict[key], [True] * 2))
+            self.assertTrue(np.array_equal(index_dict[key], [5, 6]))
 
 
 if __name__ == '__main__':

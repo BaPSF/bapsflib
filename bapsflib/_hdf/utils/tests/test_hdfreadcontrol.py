@@ -11,7 +11,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import bapsflib
 import numpy as np
 import os
 import unittest as ut
@@ -744,7 +743,7 @@ class TestHDFReadControl(TestBase):
     def assertCDataObj(
             self,
             cdata: HDFReadControl,
-            _bf: bapsflib.lapd.File,
+            _bf: File,
             control_plus: List[Tuple[str, Any, Dict[str, Any]]],
             intersection_set=True):
         """Assertion for detailed format of returned data object."""

@@ -239,14 +239,13 @@ class HDFMap(object):
         # digitizer
         possible_candidates = ('SIS 3301', 'SIS crate')
         digi = None
-        try:
+        if len(self.digitizers) == 1:
+            digi = self.digitizers[list(self.digitizers)[0]]
+        else:
             for key in possible_candidates:
-                if key in self.__digitizers:
-                    digi = self.__digitizers[key]
+                if key in self.digitizers:
+                    digi = self.digitizers[key]
                     break
-        except TypeError:  # pragma: no cover
-            # catch if __digitizers is None
-            pass
 
         return digi
 

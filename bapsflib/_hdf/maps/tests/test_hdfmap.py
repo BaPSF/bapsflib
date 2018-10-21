@@ -61,7 +61,7 @@ class TestHDFMap(ut.TestCase):
                               digitizer_path=digitizer_path,
                               control_path=control_path)
 
-    def test_all_devices_ain_one_group(self):
+    def test_all_devices_in_one_group(self):
         """
         Test the case where all devices (Controls, Digitizers, and
         MSI diagnostics) share the same group.

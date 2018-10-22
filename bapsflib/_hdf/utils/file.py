@@ -24,15 +24,6 @@ class File(h5py.File):
     All functionality of :class:`h5py.File` is preserved (for detials
     see http://docs.h5py.org/en/latest/)
     """
-
-    """
-    :param driver: File driver to use
-    :param libver: Compatibility bounds
-    :param userblock_size: Size (in bytes) of the user block. If
-        nonzero, must be a power of 2 and at least 512.
-    :param swmr: Single Write, Multiple Read
-    :param kwargs: Driver specific keywords
-    """
     def __init__(self, name: str, mode='r',
                  control_path='/', digitizer_path='/', msi_path='/',
                  silent=False, **kwargs):
@@ -114,8 +105,8 @@ class File(h5py.File):
         return self.file_map.digitizers
 
     @property
-    def file_map(self):
-        """HDF5 file map"""
+    def file_map(self) -> HDFMap:
+        """HDF5 file map (:class:`~bapsflib._hdf.maps.hdfmap.HDFMap`)"""
         return self._file_map
 
     @property

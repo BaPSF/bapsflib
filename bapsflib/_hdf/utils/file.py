@@ -167,7 +167,7 @@ class File(h5py.File):
             >>> f = File('sample.hdf5')
             >>>
             >>> # list control devices
-            >>> f.list_controls
+            >>> list(f.controls)
             ['6K Compumotor', 'Waveform']
             >>>
             >>> # list '6K Compumotor' configurations
@@ -300,12 +300,12 @@ class File(h5py.File):
             >>> f = File('sample.hdf5')
             >>>
             >>> # list msi diagnostics
-            >>> f.list_msi
+            >>> list(f.msi)
             ['Interferometer array', 'Magnetic field']
             >>>
             >>> # read 'Interferometer array'
             >>> mdata = f.read_msi('Interferometer array')
-            >>> isinstance(mdata, np.recarray)
+            >>> isinstance(mdata, np.ndarray)
             True
 
         """

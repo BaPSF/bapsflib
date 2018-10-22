@@ -17,41 +17,23 @@ import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 
+from . import TestBase
 from ..file import File
 from ..hdfreadmsi import HDFReadMSI
 
 
-class TestHDFReadMSI(ut.TestCase):
+class TestHDFReadMSI(TestBase):
     """Test Case for the HDFReadMSI class."""
     # What to test:
     #   1. Diagnostic aliases
     #   2. Input arguments
     #   3. Designed Failures
 
-    f = NotImplemented
-
-    @classmethod
-    def setUpClass(cls):
-        # create HDF5 file
-        cls.f = FauxHDFBuilder()
-
     def setUp(self):
-        # Leaving HDF5 file setup to each test method
-        pass
+        super().setUp()
 
     def tearDown(self):
-        # remove modules form HDF5 file
-        if len(self.f.modules) != 0:
-            self.f.remove_all_modules()
-
-    @classmethod
-    def tearDownClass(cls):
-        # cleanup and close HDF5 file
-        cls.f.cleanup()
-
-    @property
-    def lapdf(self):
-        return File(self.f.filename)
+        super().tearDown()
 
     @staticmethod
     def read(hdf_obj: File, name: str) -> HDFReadMSI:
@@ -74,11 +56,11 @@ class TestHDFReadMSI(ut.TestCase):
         # -- `dname` not valid                                      ----
         # `dname` is not a string
         with self.assertRaises(TypeError):
-            self.read(self.lapdf, None)
+            self.read(self.bf, None)
 
         # `dname` not a mapped MSI diagnostic
         with self.assertRaises(ValueError):
-            self.read(self.lapdf, 'Not Diagnostic')
+            self.read(self.bf, 'Not Diagnostic')
 
         # -- Not all datasets for `dname` have matching             ----
         # -- shot numbers                                           ----
@@ -93,7 +75,7 @@ class TestHDFReadMSI(ut.TestCase):
         del self.f[dset_path]
         self.f.create_dataset(dset_path, data=data)
         with self.assertRaises(ValueError):
-            self.read(self.lapdf, 'Interferometer array')
+            self.read(self.bf, 'Interferometer array')
         # self.fail("Not all datasets have matching shot numbers")
 
     def test_read_simple(self):
@@ -103,9 +85,9 @@ class TestHDFReadMSI(ut.TestCase):
         """
         # Using 'Discharge' as a test case
         self.f.add_module('Discharge')
-        _lapdf = self.lapdf
-        _map = _lapdf.file_map.msi['Discharge']
-        self.assertDataObj(self.read(_lapdf, 'Discharge'), _lapdf, _map)
+        _bf = self.bf
+        _map = _bf.file_map.msi['Discharge']
+        self.assertDataObj(self.read(_bf, 'Discharge'), _bf, _map)
 
     def test_read_complex(self):
         """
@@ -115,12 +97,12 @@ class TestHDFReadMSI(ut.TestCase):
         # Using 'Interferometer array' as a test case
         self.f.add_module('Interferometer array',
                           mod_args={'n interferometers': 4, })
-        _lapdf = self.lapdf
-        _map = _lapdf.file_map.msi['Interferometer array']
-        self.assertDataObj(self.read(_lapdf, 'Interferometer array'),
-                           _lapdf, _map)
+        _bf = self.bf
+        _map = _bf.file_map.msi['Interferometer array']
+        self.assertDataObj(self.read(_bf, 'Interferometer array'),
+                           _bf, _map)
 
-    def assertDataObj(self, _data: HDFReadMSI, _lapdf, _map):
+    def assertDataObj(self, _data: HDFReadMSI, _bf, _map):
         # data is a structured numpy array
         self.assertIsInstance(_data, np.ndarray)
 
@@ -146,7 +128,7 @@ class TestHDFReadMSI(ut.TestCase):
                 else sn_config['dset field'][ii]
 
             # grab dataset
-            dset = _lapdf.get(path)
+            dset = _bf.get(path)
             sn_arr = dset[field]
 
             # examine
@@ -170,7 +152,7 @@ class TestHDFReadMSI(ut.TestCase):
                     else config['dset field'][ii]
 
                 # grab dataset
-                dset = _lapdf.get(path)
+                dset = _bf.get(path)
 
                 # examine
                 if len(config['dset paths']) == 1:
@@ -193,7 +175,7 @@ class TestHDFReadMSI(ut.TestCase):
             # compare values
             for ii, path in enumerate(config['dset paths']):
                 # grab dataset
-                dset = _lapdf.get(path)
+                dset = _bf.get(path)
 
                 # examine
                 if len(config['dset paths']) == 1:
@@ -223,7 +205,7 @@ class TestHDFReadMSI(ut.TestCase):
             # value
             if key == 'source file':
                 self.assertEqual(_data.info[key],
-                                 os.path.abspath(_lapdf.filename))
+                                 os.path.abspath(_bf.filename))
             elif key == 'device name':
                 self.assertEqual(_data.info[key],
                                  _map.info['group name'])

@@ -14,18 +14,18 @@ import warnings
 
 # from bapsflib.lapd._hdf.hdfoverview import hdfOverview
 from bapsflib._hdf.maps.hdfmap import HDFMap
+from warnings import warn
 
 
 class File(h5py.File):
     """
-    Open a HDF5 File.
+    Open a HDF5 file created at the Basic Plasma Science Facility.
 
-    see :mod:`h5py` documentation for :class:`h5py.File` details:
-    http://docs.h5py.org/en/latest/
+    All functionality of :class:`h5py.File` is preserved (for detials
+    see http://docs.h5py.org/en/latest/)
+    """
 
-    :param str name: Name of file (`str` or `unicode`)
-    :param str mode: Mode in which to open the file.
-        (default 'r' read-only)
+    """
     :param driver: File driver to use
     :param libver: Compatibility bounds
     :param userblock_size: Size (in bytes) of the user block. If
@@ -33,20 +33,44 @@ class File(h5py.File):
     :param swmr: Single Write, Multiple Read
     :param kwargs: Driver specific keywords
     """
-    def __init__(self, name, mode='r', driver=None, libver=None,
-                 userblock_size=None, swmr=False, silent=False,
-                 **kwargs):
-        # TODO: re-work the argument pass through to h5py.File
-        # TODO: add keyword save_report
-        # - this will save the hdfChecks report to a text file alongside
-        #   the HDF5 file
-        #
-        h5py.File.__init__(self, name, mode, driver, libver,
-                           userblock_size, swmr, **kwargs)
+    def __init__(self, name: str, mode='r',
+                 control_path='/', digitizer_path='/', msi_path='/',
+                 silent=False, **kwargs):
+        """
+        :param name: name (and path) of file on disk
+        :param mode: readonly :code:`'r'` (DEFAULT) and read/write
+            :code:`'r+'`
+        :param control_path: internal HDF5 path to group containing
+            control devices
+        :param digitizer_path: internal HDF5 path to group containing
+            digitizer devices
+        :param msi_path: internal HDF5 path to group containing MSI
+            devices
+        :param silent: set :code:`True` to suppress warnings
+            (:code:`False` DEFAULT)
+        :param kwargs:  additional keywords passed on to
+            :class:`h5py.File`
+        """
+        # initialize
+        if mode not in ('r', 'r+'):
+            warn("Only modes readonly 'r' and read/wrie 'r+' are "
+                 "supported.  Opening as readonly.")
+            mode = 'r'
+        kwargs['mode'] = mode
+        h5py.File.__init__(self, name, **kwargs)
 
-        # map and build info
+        # -- define device paths --
+        #: Internal HDF5 path for control devices. (DEFAULT :code:`'/'`)
+        self.CONTROL_PATH = control_path
 
-        # perform mapping
+        #: Internal HDF5 path for digitizer devices.
+        #: (DEFAULT :code:`'/'`)
+        self.DIGITIZER_PATH = digitizer_path
+
+        #: Internal HDF5 path for MSI devices. (DEFAULT :code:`'/'`)
+        self.MSI_PATH = msi_path
+
+        # -- map and build info --
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
             warnings.simplefilter(warn_filter)
@@ -72,11 +96,27 @@ class File(h5py.File):
         # self._info.update(self.file_map.exp_info)
 
     def _map_file(self):
+        """Map/re-map the HDF5 file."""
         self._file_map = HDFMap(
             self,
-            msi_path='MSI',
-            digitizer_path='Raw data + config',
-            control_path='Raw data + config')
+            control_path=self.CONTROL_PATH,
+            digitizer_path=self.DIGITIZER_PATH,
+            msi_path=self.MSI_PATH)
+
+    @property
+    def controls(self):
+        """Dictionary of control device mappings."""
+        return self.file_map.controls
+
+    @property
+    def digitizers(self):
+        """Dictionary of digitizer device mappings"""
+        return self.file_map.digitizers
+
+    @property
+    def file_map(self):
+        """HDF5 file map"""
+        return self._file_map
 
     @property
     def info(self):
@@ -87,47 +127,9 @@ class File(h5py.File):
         return self._info
 
     @property
-    def file_map(self):
-        """
-        HDF5 file mappings
-        (:class:`bapsflib._hdf.maps.hdfmap.HDFMap`)
-        """
-        return self._file_map
-
-    def get_device_map(self, name: str):
-        # TODO: hl access to mapping objects
-        pass
-
-    @property
-    def list_file_items(self):
-        """
-        list of absolute paths for all items (Groups and Datasets) in
-        the HDF5 file
-        """
-        some_list = []
-        self.visit(some_list.append)
-        return some_list
-
-    @property
-    def list_msi(self):
-        """
-        list of all mapped MSI diagnostics
-        """
-        return list(self.file_map.msi)
-
-    @property
-    def list_digitizers(self):
-        """
-        list of all mapped digitizers
-        """
-        return list(self.file_map.digitizers)
-
-    @property
-    def list_controls(self):
-        """
-        list of all mapped control devices
-        """
-        return list(self.file_map.controls)
+    def msi(self):
+        """Dictionary of MSI device mappings."""
+        return self.file_map.msi
 
     '''
     @property

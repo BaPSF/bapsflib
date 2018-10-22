@@ -12,6 +12,8 @@ import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 
+from ..file import File
+
 
 class TestBase(ut.TestCase):
     """Base test class for all test classes here."""
@@ -32,3 +34,9 @@ class TestBase(ut.TestCase):
         # cleanup and close HDF5 file
         super().tearDownClass()
         cls.f.cleanup()
+
+    @property
+    def bf(self):
+        """Opened BaPSF HDF5 File instance."""
+        return File(self.f.filename, control_path='Raw data + config',
+                    digitizer_path='Raw data + config', msi_path='MSI')

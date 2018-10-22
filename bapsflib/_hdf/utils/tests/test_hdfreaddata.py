@@ -11,550 +11,708 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import astropy.units as u
+import h5py
 import numpy as np
+import os
 import unittest as ut
 
 from bapsflib._hdf.maps import (ConType, HDFMap)
+from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from unittest import mock
 
 from . import TestBase
 from ..file import File
-from ..hdfreaddata import (HDFReadData, condition_shotnum)
-
-
-'''
-class TestConditionShotnum(ut.TestCase):
-    """Test Case for build_shotnum_dset_relation"""
-
-    def setUp(self):
-        self.f = FauxHDFBuilder(
-            add_modules={'SIS 3301': {'n_configs': 1, 'sn_size': 50}})
-        self.mod = self.f.modules['SIS 3301']
-
-    def tearDown(self):
-        self.f.cleanup()
-
-    @property
-    def group(self):
-        return self.f['Raw data + config/SIS 3301']
-
-    @property
-    def dheader(self):
-        return self.group['config01 [0:0] headers']
-
-    def test_sequential_sn(self):
-        """
-        Test shotnum conditioning on a dheader with sequential shot
-        numbers
-        """
-        # setup HDF5 file
-        self.mod._update()
-
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertZeroSN()
-
-        # ====== test cases have NO valid shot numbers ======
-        # ------ intersection_set = True               ------
-        sn_requested = [
-            [self.mod.knobs.sn_size + 1],
-            [-1, self.mod.knobs.sn_size + 1],
-            [-1, 0, 60]
-        ]
-        for sn in sn_requested:
-            self.assertRaises(ValueError,
-                              condition_shotnum,
-                              sn, self.dheader, 'Shot', True)
-
-        # ------ intersection_set = False              ------
-        shotnum = {}
-        sn_requested = [
-            [self.mod.knobs.sn_size + 1],
-            [-1, self.mod.knobs.sn_size + 1],
-            [-1, 0, 60]
-        ]
-        sn_correct = [
-            [self.mod.knobs.sn_size + 1],
-            [self.mod.knobs.sn_size + 1],
-            [60]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ====== test in range shot number cases ======
-        # ------ intersection_set = True         ------
-        shotnum = {}
-        sn_requested = [
-            [1],
-            [10],
-            [5, 40],
-            [30, 41],
-            [1, self.mod.knobs.sn_size],
-            [30, 31, 32, 33, 34, 35, 36, 37, 38, 39],
-            [1, 11, 21, 31, 41]
-        ]
-        sn_correct = sn_requested
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot', True)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ------ intersection_set = False         ------
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ====== test out of range shot number cases ======
-        # ------ intersection_set = True             ------
-        shotnum = {}
-        sn_requested = [
-            [1, self.mod.knobs.sn_size + 1],
-            [-1, 10, self.mod.knobs.sn_size + 1],
-            [48, 49, 50, 51, 52]
-        ]
-        sn_correct = [
-            [1],
-            [10],
-            [48, 49, 50]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot', True)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ------ intersection_set = False             ------
-        shotnum = {}
-        sn_requested = [
-            [1, self.mod.knobs.sn_size + 1],
-            [-1, 10, self.mod.knobs.sn_size + 1],
-            [48, 49, 50, 51, 52]
-        ]
-        sn_correct = [
-            [1, self.mod.knobs.sn_size + 1],
-            [10, self.mod.knobs.sn_size + 1],
-            [48, 49, 50, 51, 52]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-    def test_non_sequential_sn(self):
-        """
-        Test shotnum conditioning on a dheader with sequential shot
-        numbers
-        """
-        # setup HDF5 file
-        # - shot numbers will have a 10 shot number jump after shot
-        #   number 30
-        #   [..., 29, 30, 41, 42, ...]
-        #
-        self.mod._update()
-        sn_arr = np.arange(1, self.mod.knobs.sn_size + 1, 1)
-        sn_arr[30::] = np.arange(41, 61, 1)
-        self.dheader['Shot'] = sn_arr
-
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertZeroSN()
-
-        # ====== test cases have NO valid shot numbers ======
-        # ------ intersection_set = True               ------
-        sn_requested = [
-            [sn_arr[-1] + 1],
-            [-1, sn_arr[-1] + 1],
-            [35],
-            [-1, 0, 70]
-        ]
-        for sn in sn_requested:
-            self.assertRaises(ValueError,
-                              condition_shotnum,
-                              sn, self.dheader, 'Shot', True)
-
-        # ------ intersection_set = False              ------
-        shotnum = {}
-        sn_requested = [
-            [sn_arr[-1] + 1],
-            [-1, sn_arr[-1] + 1],
-            [35],
-            [-1, 0, 70]
-        ]
-        sn_correct = [
-            [sn_arr[-1] + 1],
-            [sn_arr[-1] + 1],
-            [35],
-            [70]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ====== test in range shot number cases ======
-        # ------ intersection_set = True         ------
-        shotnum = {}
-        sn_requested = [
-            [1],
-            [10],
-            [5, 60],
-            [29, 30, 41, 42],
-            [1, 11, 21, 41, 51]
-        ]
-        sn_correct = sn_requested
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  True)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ------ intersection_set = False         ------
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ====== test out of range shot number cases ======
-        # ------ intersection_set = True             ------
-        shotnum = {}
-        sn_requested = [
-            [1, sn_arr[-1] + 1],
-            [-1, 10, sn_arr[-1] + 1],
-            [28, 29, 30, 31, 32],
-            [58, 59, 60, 61, 62]
-        ]
-        sn_correct = [
-            [1],
-            [10],
-            [28, 29, 30],
-            [58, 59, 60]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  True)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ------ intersection_set = False             ------
-        shotnum = {}
-        sn_requested = [
-            [1, sn_arr[-1] + 1],
-            [-1, 10, sn_arr[-1] + 1],
-            [28, 29, 30, 31, 32],
-            [58, 59, 60, 61, 62]
-        ]
-        sn_correct = [
-            [1, sn_arr[-1] + 1],
-            [10, sn_arr[-1] + 1],
-            [28, 29, 30, 31, 32],
-            [58, 59, 60, 61, 62]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-    def test_dataset_w_one_sn(self):
-        """
-        Test shotnum conditioning on a dheader with a single shot
-        number
-        """
-        # setup HDF5 file
-        self.mod.knobs.sn_size = 1
-
-        # test zero shot number
-        self.assertZeroSN()
-
-        # test negative shot number cases
-        self.assertZeroSN()
-
-        # ====== test cases have NO valid shot numbers ======
-        # ------ intersection_set = True               ------
-        sn_requested = [
-            [-1, 0, 2],
-            [5],
-        ]
-        for sn in sn_requested:
-            self.assertRaises(ValueError,
-                              condition_shotnum,
-                              sn, self.dheader, 'Shot', True)
-
-        # ------ intersection_set = False              ------
-        shotnum = {}
-        sn_requested = [
-            [-1, 0, 2],
-            [5]
-        ]
-        sn_correct = [
-            [2],
-            [5]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ====== test out of  range shot number cases ======
-        # ------ intersection_set = True               ------
-        shotnum = {}
-        sn_requested = [
-            [1],
-            [-1, 0, 1, 2],
-            [1, 5]
-        ]
-        sn_correct = [
-            [1],
-            [1],
-            [1]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  True)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-        # ------ intersection_set = True               ------
-        shotnum = {}
-        sn_requested = [
-            [1],
-            [-1, 0, 1, 2],
-            [1, 5]
-        ]
-        sn_correct = [
-            [1],
-            [1, 2],
-            [1, 5]
-        ]
-        for sn_r, sn_c in zip(sn_requested, sn_correct):
-            shotnum['requested'] = sn_r
-            shotnum['correct'] = sn_c
-            index, sn, sni = \
-                condition_shotnum(sn_r, self.dheader, 'Shot',
-                                  False)
-            shotnum['shotnum'] = sn
-
-            # assert
-            self.assertSNSuite(shotnum, index, sni,
-                               self.dheader, 'Shot')
-
-    def assertZeroSN(self):
-        """Assert the zero shot number case."""
-        # for intersection_set = True
-        self.assertRaises(ValueError,
-                          condition_shotnum,
-                          [0], self.dheader, 'Shot', True)
-
-        # for intersection_set = False
-        self.assertRaises(ValueError,
-                          condition_shotnum,
-                          [0], self.dheader, 'Shot', False)
-
-    def assertNegativeSN(self):
-        """Assert negative shot number cases."""
-        shotnum_list = [
-            [-1],
-            [-10, -5, 0]
-        ]
-        for og_sn in shotnum_list:
-            # for intersection_set = True
-            self.assertRaises(ValueError,
-                              condition_shotnum,
-                              og_sn, self.dheader, 'Shot', True)
-
-            # for intersection_set = False
-            self.assertRaises(ValueError,
-                              condition_shotnum,
-                              [0], self.dheader, 'Shot', False)
-
-    def assertSNSuite(self, shotnum_dict, index, sni, dheader,
-                      shotnumkey):
-        """Suite of assertions for shot number conditioning"""
-        # og_shotnum - original requested shot number
-        # index      - index of dataset
-        # shotnum    - calculate shot number array
-        # sni        - boolean mask for shotnum
-        #               shotnum[sni] = dheader[index, shotnumkey]
-        # dheader    - digi header dataset
-        # shotnumkey - field in dheader that corresponds to shot numbers
-        #
-        sn_r = shotnum_dict['requested']
-        shotnum = shotnum_dict['shotnum']
-        sn_c = shotnum_dict['correct']
-
-        # all return variables should be np.ndarray
-        self.assertTrue(isinstance(index, np.ndarray))
-        self.assertTrue(isinstance(shotnum, np.ndarray))
-        self.assertTrue(isinstance(sni, np.ndarray))
-
-        # all should be 1D arrays
-        self.assertEqual(index.shape[0], index.size)
-        self.assertEqual(shotnum.shape[0], shotnum.size)
-        self.assertEqual(sni.shape[0], sni.size)
-
-        # equate array sizes
-        self.assertEqual(shotnum.size, sni.size)
-        self.assertEqual(np.count_nonzero(sni), index.size)
-
-        # all shotnum > 0
-        self.assertTrue(np.all(np.where(shotnum > 0, True, False)))
-
-        # ensure correct shot numbers were determined
-        self.assertTrue(np.array_equal(shotnum, sn_c))
-
-        # shotnum[sni] = dheader[index, shotnumkey]
-        if len(index.tolist()) == 0:
-            self.assertTrue(np.all(np.logical_not(sni)))
-        else:
-            self.assertTrue(np.array_equal(
-                shotnum[sni], dheader[index.tolist(), shotnumkey]))
-'''
+from ..hdfreadcontrol import HDFReadControl
+from ..hdfreaddata import (build_sndr_for_simple_dset,
+                           condition_shotnum,
+                           do_shotnum_intersection,
+                           HDFReadData)
 
 
 class TestHDFReadData(TestBase):
-    """Test Case for HDFReadData"""
+    """
+    Test Case for
+    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
+    """
     #
     # Notes:
     # - tests are currently performed on digitizer 'SIS 3301'
-    # - board and channel args are not directly tested here since...
-    #   1. they are directly passed to the construct_dataset_name()
-    #      method bound to the digitizer map
-    #   2. the digitizer mapping tests should be testing the
-    #      construct_dataset_name() behavior
-    #
-    # What to test:
-    # X 1. basic input handling of hdf_file
-    #   2. basic format of returned object
-    #   3. detailed format of returned object (probably based on inputs)
-    #   4. handling of `index`
-    #      - intersection_set = True/False
-    #   5. handling of `shotnum`
-    #      - intersection_set = True/False
-    #   6. handling of kwargs
-    #      - digitizer (one and two digis)
-    #        > specified and not specified
-    #      - adc (one and two adc's)
-    #        > specified and not specified
-    #      - config_name
-    #        > specified and not specified
-    #        > behavior depends on how map.construct_dataset_name()
-    #          behaves, construct_dataset_name() should return a dataset
-    #          name as long as config_name is labelled as 'active'
-    #     - keep_bits
-    #       > by default 'signal' field should be voltage, but
-    #         keep_bits=True retains the bit values
-    #   7. handling of `add_controls`
-    #      - ??? this might be complex
-    #   8. test attributes
-    #      - info and it's keys
-    #      - plasma
-    #        > it's keys
-    #        > .set_plasma
-    #        > .set_plasma_value
-    #      - dv
-    #      - dt
-    #      - convert_signal
-    #
 
     def setUp(self):
         super().setUp()
 
     def tearDown(self):
-        super().setUp()
+        super().tearDown()
 
     @property
     def bf(self) -> File:
         """Opened BaPSF HDF5 File instance."""
         return File(self.f.filename)
 
-    @ut.SkipTest
-    def test_adding_controls(self):
+    @mock.patch('bapsflib._hdf.utils.hdfreaddata.HDFReadControl')
+    @mock.patch('bapsflib._hdf.utils.hdfreaddata.condition_controls')
+    @mock.patch.object(HDFMap, 'controls',
+                       new_callable=mock.PropertyMock,
+                       return_value={'control': None})
+    def test_adding_controls(self, mock_cmap, mock_cc, mock_cdata):
         """Test adding control device data to digitizer data."""
-        self.fail()
+        # setup HDF5
+        sn_size = 50
+        self.f.add_module('SIS 3301',
+                          {'n_configs': 1, 'sn_size': sn_size,
+                           'nt': 1000})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+        digi_path = 'Raw data + config/SIS 3301'
+        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_path = digi_path + '/' + dset_name
+        dset = _bf.get(dset_path)
+        dheader = _bf.get(dset_path + ' headers')
+        shotnumkey = 'Shot'
+
+        # setup mock control data
+        cdata = np.empty(20, dtype=[('shotnum', np.uint32, 1),
+                                    ('xyz', np.float32, 3),
+                                    ('freq', np.float32, 1)])
+        cdata['shotnum'] = np.arange(41, 61, 1, dtype=np.uint32)
+        cdata['xyz'][..., 0] = np.arange(0., 20., 1., dtype=np.float32)
+        cdata['xyz'][..., 1] = np.arange(0., 30., 1.5, dtype=np.float32)
+        cdata['xyz'][..., 2] = np.arange(0., -40., -2.,
+                                         dtype=np.float32)
+        cdata['freq'] = np.arange(20.0, 120.0, 5.0, dtype=np.float32)
+
+        # setup mock condition_controls
+        mock_cc.return_value = [('control', 'config01')]
+
+        # -- `intersection_set=True`                                ----
+        # shotnum exists in both digitizer and control dataset
+        shotnum = 45
+        indices = [44]
+        m_info = {
+            'controls': {
+                'control': {
+                    'device group path': 'Raw data + config/control',
+                    'contype': 'motion+',
+                    'configuration name': 'config01',
+                }
+            }
+        }
+        m_cdata = np.reshape(cdata[4], 1).view(HDFReadControl)
+        m_cdata._info = m_info
+        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           add_controls=[('control', 'config01')],
+                           intersection_set=True)
+        self.assertDataObj(data, _bf, motion_added=True)
+        self.assertTrue(np.array_equiv(
+            data['shotnum'], np.array([shotnum], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertControlInData(m_cdata, data,
+                                 np.array([shotnum],
+                                          dtype=np.uint32).reshape(1))
+        self.assertTrue(mock_cdata.called)
+        self.assertTrue(mock_cc.called)
+        mock_cdata.reset_mock()
+        mock_cc.reset_mock()
+
+        # some shot numbers are missing from the control dataset
+        shotnum = [20, 45]
+        indices = [44]
+        m_info = {
+            'controls': {
+                'control': {
+                    'device group path': 'Raw data + config/control',
+                    'contype': 'motion+',
+                    'configuration name': 'config01',
+                }
+            }
+        }
+        fields = list(cdata.dtype.names)
+        fields.remove('xyz')
+        m_cdata = np.reshape(cdata[4][fields], 1).view(HDFReadControl)
+        m_cdata._info = m_info
+        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           add_controls=[('control', 'config01')],
+                           intersection_set=True)
+        self.assertDataObj(data, _bf, motion_added=True)
+        self.assertTrue(np.array_equiv(
+            data['shotnum'], np.array([45], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertControlInData(m_cdata, data,
+                                 np.array([45],
+                                          dtype=np.uint32).reshape(1))
+        self.assertTrue(mock_cdata.called)
+        self.assertTrue(mock_cc.called)
+        mock_cdata.reset_mock()
+        mock_cc.reset_mock()
+
+        # control does not have 'xyz'
+        shotnum = 45
+        indices = [44]
+        m_info = {
+            'controls': {
+                'control': {
+                    'device group path': 'Raw data + config/control',
+                    'contype': 'motion+',
+                    'configuration name': 'config01',
+                }
+            }
+        }
+        m_cdata = np.reshape(cdata[4], 1).view(HDFReadControl)
+        m_cdata._info = m_info
+        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           add_controls=[('control', 'config01')],
+                           intersection_set=True)
+        self.assertDataObj(data, _bf, motion_added=True)
+        self.assertTrue(np.array_equiv(
+            data['shotnum'], np.array([shotnum], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertControlInData(m_cdata, data,
+                                 np.array([shotnum],
+                                          dtype=np.uint32).reshape(1))
+        self.assertTrue(mock_cdata.called)
+        self.assertTrue(mock_cc.called)
+        mock_cdata.reset_mock()
+        mock_cc.reset_mock()
+
+        # -- `intersection_set=False`                               ----
+        # some shot numbers are missing from the control dataset
+        shotnum = [20, 45]
+        indices = [19, 44]
+        m_info = {
+            'controls': {
+                'control': {
+                    'device group path': 'Raw data + config/control',
+                    'contype': 'motion+',
+                    'configuration name': 'config01',
+                }
+            }
+        }
+        m_cdata = np.empty(1, dtype=cdata.dtype).view(HDFReadControl)
+        m_cdata[0]['shotnum'] = 20
+        m_cdata[0]['xyz'] = np.nan
+        m_cdata[0]['freq'] = np.nan
+        m_cdata = np.append(m_cdata, np.reshape(cdata[4], 1))
+        m_cdata = m_cdata.view(HDFReadControl)
+        m_cdata._info = m_info
+        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           add_controls=[('control', 'config01')],
+                           intersection_set=False)
+        self.assertDataObj(data, _bf, motion_added=True)
+        self.assertTrue(np.array_equiv(
+            data['shotnum'], np.array([shotnum], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertControlInData(m_cdata, data,
+                                 np.array(shotnum, dtype=np.uint32))
+        self.assertTrue(mock_cdata.called)
+        self.assertTrue(mock_cc.called)
+        mock_cdata.reset_mock()
+        mock_cc.reset_mock()
+
+    def test_kwarg_adc(self):
+        """Test handling of keyword `adc`."""
+        # Handling should be done by mapping function
+        # `construct_dset_name` which is covered by the associated
+        # mapping test
+        #
+        # add a digitizer
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+
+        _bf = self.bf
+        _map = _bf.file_map.digitizers[digi]
+        with mock.patch.object(
+                HDFMapDigiSIS3301, 'construct_dataset_name',
+                wraps=_map.construct_dataset_name) as mock_cdn:
+
+            # everything is good
+            data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                               config_name=config_name)
+            self.assertTrue(mock_cdn.called)
+            self.assertDataObj(data, _bf)
+            self.assertEqual(data.info['adc'], adc)
+            mock_cdn.reset_mock()
+
+            # not a configuration name
+            with self.assertRaises(ValueError):
+                data = HDFReadData(_bf, brd, ch, adc='not an adc',
+                                   digitizer=digi,
+                                   config_name=config_name)
+                self.assertTrue(mock_cdn.called)
+            mock_cdn.reset_mock()
+
+            # `adc` None
+            data = HDFReadData(_bf, brd, ch,
+                               digitizer=digi,
+                               config_name=config_name)
+            self.assertTrue(mock_cdn.called)
+            self.assertDataObj(data, _bf)
+            self.assertEqual(data.info['adc'], adc)
+            mock_cdn.reset_mock()
+
+    def test_kwarg_board(self):
+        """Test handling of argument `board`."""
+        # Handling should be done by mapping function
+        # `construct_dset_name` which is covered by the associated
+        # mapping test
+        #
+        # add a digitizer
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+
+        _bf = self.bf
+        _map = _bf.file_map.digitizers[digi]
+        with mock.patch.object(
+                HDFMapDigiSIS3301, 'construct_dataset_name',
+                wraps=_map.construct_dataset_name) as mock_cdn:
+
+            # everything is good
+            data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                               config_name=config_name)
+            self.assertTrue(mock_cdn.called)
+            self.assertDataObj(data, _bf)
+            self.assertEqual(data.info['board'], brd)
+            mock_cdn.reset_mock()
+
+            # not a configuration name
+            with self.assertRaises(ValueError):
+                data = HDFReadData(_bf, -1, ch, adc=adc,
+                                   digitizer=digi,
+                                   config_name=config_name)
+                self.assertTrue(mock_cdn.called)
+                mock_cdn.reset_mock()
+
+    def test_kwarg_channel(self):
+        """Test handling of argument `channel`."""
+        # Handling should be done by mapping function
+        # `construct_dset_name` which is covered by the associated
+        # mapping test
+        #
+        # add a digitizer
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+
+        _bf = self.bf
+        _map = _bf.file_map.digitizers[digi]
+        with mock.patch.object(
+                HDFMapDigiSIS3301, 'construct_dataset_name',
+                wraps=_map.construct_dataset_name) as mock_cdn:
+
+            # everything is good
+            data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                               config_name=config_name)
+            self.assertTrue(mock_cdn.called)
+            self.assertDataObj(data, _bf)
+            self.assertEqual(data.info['channel'], ch)
+            mock_cdn.reset_mock()
+
+            # not a configuration name
+            with self.assertRaises(ValueError):
+                data = HDFReadData(_bf, brd, -1, adc=adc,
+                                   digitizer=digi,
+                                   config_name=config_name)
+                self.assertTrue(mock_cdn.called)
+                mock_cdn.reset_mock()
+
+    def test_kwarg_config_name(self):
+        """Test handling of keyword `digitizer`."""
+        # Handling should be done by mapping function
+        # `construct_dset_name` which is covered by the associated
+        # mapping test
+        #
+        # add a digitizer
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+
+        _bf = self.bf
+        _map = _bf.file_map.digitizers[digi]
+        with mock.patch.object(
+                HDFMapDigiSIS3301, 'construct_dataset_name',
+                wraps=_map.construct_dataset_name) as mock_cdn:
+
+            # everything is good
+            data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                               config_name=config_name)
+            self.assertTrue(mock_cdn.called)
+            self.assertDataObj(data, _bf)
+            self.assertEqual(data.info['configuration name'],
+                             config_name)
+            mock_cdn.reset_mock()
+
+            # not a configuration name
+            with self.assertRaises(ValueError):
+                data = HDFReadData(_bf, brd, ch, adc=adc,
+                                   digitizer=digi,
+                                   config_name='not a config')
+                self.assertTrue(mock_cdn.called)
+                mock_cdn.reset_mock()
+
+            # `config_name` None
+            with self.assertWarns(UserWarning):
+                data = HDFReadData(_bf, brd, ch, adc=adc,
+                                   digitizer=digi)
+                self.assertTrue(mock_cdn.called)
+                self.assertDataObj(data, _bf)
+                self.assertEqual(data.info['configuration name'],
+                                 config_name)
+                mock_cdn.reset_mock()
+
+    def test_kwarg_digitizer(self):
+        """Test handling of keyword `digitizer`."""
+        # Note: cases were an exception is raise is covered by
+        #       `test_raise_errors`
+        #
+        # add a digitizer
+        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+
+        # `digitizer` is None and "main" digitizer was identified
+        with self.assertWarns(UserWarning):
+            data = HDFReadData(_bf, brd, ch, adc=adc,
+                               config_name=config_name)
+            self.assertDataObj(data, _bf)
+            self.assertEqual(data.info['digitizer'], digi)
+
+        # specified `digitizer` is VALID
+        data = HDFReadData(_bf, brd, ch, digitizer=digi, adc=adc,
+                           config_name=config_name)
+        self.assertDataObj(data, _bf)
+        self.assertEqual(data.info['digitizer'], digi)
+
+    def test_kwarg_keep_bits(self):
+        """Test behavior of keyword `keep_bits`."""
+        # setup
+        sn_size = 50
+        self.f.add_module('SIS 3301',
+                          {'n_configs': 1, 'sn_size': sn_size,
+                           'nt': 1000})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+        digi_path = 'Raw data + config/SIS 3301'
+        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_path = digi_path + '/' + dset_name
+        dset = _bf.get(dset_path)
+        dheader = _bf.get(dset_path + ' headers')
+        shotnumkey = 'Shot'
+
+        # -- `keep_bits=False` (DEFAULT)                            ----
+        shotnum = 5
+        indices = [4]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           keep_bits=False)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equiv(data['shotnum'],
+                                       np.array([5], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertEqual(data.info['signal units'], u.volt)
+
+        # voltage step size can not be calculated
+        shotnum = 5
+        indices = [4]
+        with mock.patch.object(
+                HDFReadData, 'dv',
+                new_callable=mock.PropertyMock(return_value=None)):
+            with self.assertWarns(UserWarning):
+                data = HDFReadData(_bf, brd, ch,
+                                   config_name=config_name,
+                                   adc=adc, digitizer=digi,
+                                   shotnum=shotnum,
+                                   keep_bits=False)
+            self.assertTrue(np.issubdtype(data.dtype['signal'].base,
+                                          np.floating))
+            self.assertTrue(np.array_equal(
+                data['signal'], dset[indices, ...].astype(np.float32)))
+            self.assertEqual(data.info['signal units'], u.bit)
+
+        # -- `keep_bits=True`                                       ----
+        # default behavior
+        shotnum = 5
+        indices = [4]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           keep_bits=True)
+        self.assertDataObj(data, _bf, keep_bits=True)
+        self.assertTrue(np.array_equiv(data['shotnum'],
+                                       np.array([5], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices, keep_bits=True)
+        self.assertEqual(data.info['signal units'], u.bit)
+
+
+    @mock.patch(
+        'bapsflib._hdf.utils.hdfreaddata.do_shotnum_intersection',
+        side_effect=do_shotnum_intersection)
+    def test_kwarg_intersection_set(self, mock_inter):
+        """Test behavior of keyword `intersection_set`."""
+        # Note: `intersection_set` has no affect when calling with
+        #       `index` and no `add_controls`
+        #
+        # setup
+        sn_size = 50
+        self.f.add_module('SIS 3301',
+                          {'n_configs': 1, 'sn_size': sn_size,
+                           'nt': 1000})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+        digi_path = 'Raw data + config/SIS 3301'
+        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_path = digi_path + '/' + dset_name
+        dset = _bf.get(dset_path)
+        dheader = _bf.get(dset_path + ' headers')
+        shotnumkey = 'Shot'
+
+        # -- examine `intersection_set=True` (DEFAULT)              ----
+        # specified shot numbers are in range of dataset shot numbers
+        shotnum = [10, 20]
+        indices = [9, 19]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], dheader[indices, shotnumkey]))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertTrue(mock_inter.called)
+        mock_inter.reset_mock()
+
+        # some of the specified shot numbers are not contained in
+        # the dataset
+        shotnum = [1, sn_size + 1]
+        indices = [0]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], dheader[indices, shotnumkey]))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertTrue(mock_inter.called)
+        mock_inter.reset_mock()
+
+        # -- examine `intersection_set=False`                       ----
+        # negative shot numbers are still excluded
+        # - shot number 20 is VALID so no nan fill
+        shotnum = [-5, 20]
+        indices = [19]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           intersection_set=False)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], dheader[indices, shotnumkey]))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertFalse(mock_inter.called)
+        mock_inter.reset_mock()
+
+        # some specified shot numbers are not contained in the
+        # dataset
+        shotnum = [20, sn_size + 2]
+        indices = [19]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           intersection_set=False)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'][0], dheader[indices, shotnumkey][0]))
+        self.assertDataArrayValues(
+            np.delete(data, np.s_[1]).view(HDFReadData), dset, indices)
+        self.assertTrue(np.all(np.isnan(data['signal'][1])))
+        self.assertFalse(mock_inter.called)
+        mock_inter.reset_mock()
+
+        # some specified shot numbers are not contained in the
+        # dataset (keep_bits = True)
+        shotnum = [20, sn_size + 2]
+        indices = [19]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum,
+                           keep_bits=True,
+                           intersection_set=False)
+        self.assertDataObj(data, _bf, keep_bits=True)
+        self.assertTrue(np.array_equal(
+            data['shotnum'][0], dheader[indices, shotnumkey][0]))
+        self.assertDataArrayValues(
+            np.delete(data, np.s_[1]).view(HDFReadData), dset, indices,
+            keep_bits=True)
+        self.assertTrue(np.all(data['signal'][1] == 0))
+        self.assertFalse(mock_inter.called)
+        mock_inter.reset_mock()
+
+    def test_misc_behavior(self):
+        """Test miscellaneous behavior"""
+        # setup
+        sn_size = 50
+        self.f.add_module('SIS 3301',
+                          {'n_configs': 1, 'sn_size': sn_size,
+                           'nt': 1000})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+        digi_path = 'Raw data + config/SIS 3301'
+        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_path = digi_path + '/' + dset_name
+        dset = _bf.get(dset_path)
+        dheader = _bf.get(dset_path + ' headers')
+        shotnumkey = 'Shot'
+
+        # -- `index` and `shotnum` are both defined                   --
+        # - HDFReadData should ignore `shotnum` and default to `index`
+        #
+        index = [2, 3]
+        shotnum = [45, 50]
+        data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                           config_name=config_name,
+                           index=index, shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(data['shotnum'],
+                                       dheader[index, shotnumkey]))
+
+        # -- Digitizer header dataset is missing the 'Offset' field   --
+        index = [2, 3]
+        shotnum = [45, 50]
+        hdata = dheader[...]
+        _bf.move(dset_path + ' headers', dset_path + ' headers_')
+        fields = list(hdata.dtype.names)
+        fields.remove('Offset')
+        _bf.create_dataset(dset_path + ' headers', data=hdata[fields])
+        with self.assertWarns(UserWarning):
+            data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                               config_name=config_name,
+                               index=index, shotnum=shotnum)
+            self.assertIsNone(data.info['voltage offset'])
+            self.assertIsNone(data.dv)
+            self.assertEqual(data.info['signal units'], u.bit)
+            self.assertTrue(np.issubdtype(
+                data.dtype['signal'].base, np.floating))
+        del _bf[dset_path + ' headers']
+        _bf.move(dset_path + ' headers_', dset_path + ' headers')
+
+        # -- test property `dv`                                       --
+        index = [2, 3]
+        shotnum = [45, 50]
+        data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                           config_name=config_name,
+                           index=index, shotnum=shotnum)
+
+        # `info` keys 'voltage offset' and/or 'bit' are None
+        keys = ('bit', 'voltage offset')
+        for key in keys:
+            old_val = data.info[key]
+            data.info[key] = None
+            self.assertIsNone(data.dv)
+            data.info[key] = old_val
+
+        # test known value
+        old_bit = data.info['bit']
+        old_offset = data.info['voltage offset']
+        data.info['bit'] = 10
+        data.info['voltage offset'] = -1.0 * u.volt
+        dv = (2.0 * abs(-1.) / ((2. ** 10) - 1.))
+        self.assertIsInstance(data.dv, u.Quantity)
+        self.assertEqual(data.dv.value, dv)
+        self.assertEqual(data.dv.unit, u.volt)
+        data.info['bit'] = old_bit
+        data.info['voltage offset'] = old_offset
+
+        # -- test property `dt`                                       --
+        index = [2, 3]
+        shotnum = [45, 50]
+        data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi,
+                           config_name=config_name,
+                           index=index, shotnum=shotnum)
+
+        # `info` key 'clock rate' not an astropy.units.Quantity
+        old_cr = data.info['clock rate']
+        data.info['clock rate'] = 100.0
+        self.assertIsNone(data.dt)
+
+        # known case (w/ sample averaging)
+        old_ave = data.info['sample average']
+        data.info['sample average'] = 5
+        data.info['clock rate'] = u.Quantity(2.0, unit='MHz')
+        dt = (1.0 / 2.0e6) * float(5)
+        self.assertIsInstance(data.dt, u.Quantity)
+        self.assertEqual(data.dt.value, dt)
+        self.assertEqual(data.dt.unit, u.s)
+
+        # known case (no sample averaging)
+        data.info['sample average'] = None
+        dt = (1.0 / 2.0e6)
+        self.assertIsInstance(data.dt, u.Quantity)
+        self.assertEqual(data.dt.value, dt)
+        self.assertEqual(data.dt.unit, u.s)
+        data.info['clock rate'] = old_cr
+        data.info['sample average'] = old_ave
+
 
     def test_raise_errors(self):
         """Test scenarios that cause exceptions to be raised."""
@@ -565,937 +723,394 @@ class TestHDFReadData(TestBase):
         # 3. HDF5 file has no digitizers
         # 4. `digitizer` is None and no "main" digitizer was identified
         # 5. specified `digitizer` is not a mapped digitizer
+        # 6. specified `index` in not a valid type
         #
+        _bf = self.bf
+
         # not a bapsflib._hdf.utils.file.File object                 (1)
         self.assertRaises(TypeError, HDFReadData, None, 0, 0)
 
         # `add_controls` is requested but there are no               (2)
         # control devices
         self.assertRaises(ValueError,
-                          HDFReadData, self.bf, 0, 0,
+                          HDFReadData, _bf, 0, 0,
                           add_controls='Waveform')
 
         # HDF5 file has no digitizers                                (3)
-        self.assertRaises(ValueError, HDFReadData, self.bf, 0, 0)
+        self.assertRaises(ValueError, HDFReadData, _bf, 0, 0)
 
         # `digitizer` is None and no "main" digitizer was            (4)
         # identified
+        #
+        # setup
         self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+
+        # test
         with mock.patch.object(HDFMap, 'main_digitizer',
                                new_callable=mock.PropertyMock,
                                return_value=None):
-            self.assertRaises(ValueError, HDFReadData, self.bf, 0, 0)
+            self.assertRaises(ValueError, HDFReadData, _bf, brd, ch)
 
         # specified `digitizer` is not a mapped digitizer            (5)
         self.assertRaises(ValueError,
-                          HDFReadData, self.bf, 0, 0,
+                          HDFReadData, _bf, brd, ch,
                           digitizer='Not a digi')
 
-    @ut.SkipTest
-    def test_misc_behavior(self):
-        """Test miscellaneous behavior"""
-        # setup HDF5 file
-        self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-
-        # shotnum is a list, but not all elements are ints
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, shotnum=[1, 'blah'])
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, shotnum=None)
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, shotnum='blahe')
-
-        # index is a list, but not all elements are ints
+        # specified `index` is NOT a valid type                      (6)
         self.assertRaises(TypeError,
-                          HDFReadData,
-                          self.bf, 0, 0, index=[1, 'blah'])
-        self.assertRaises(TypeError,
-                          HDFReadData,
-                          self.bf, 0, 0, index=None)
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, index='blah')
+                          HDFReadData, _bf, brd, ch, index='blah',
+                          digitizer=digi, adc=adc,
+                          config_name=config_name)
 
-        # test when `index` and `shotnum` are both used
-        # - HDFReadData should ignore `shotnum` and default to `index`
-        #
-        dset = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0]')
-        index = [2, 3]
-        shotnum = [45, 50]
-        data = HDFReadData(self.bf, 0, 0,
-                           index=index, shotnum=shotnum)
-        self.assertDataFormat(data,
-                              {'correct': [3, 4], 'valid': [3, 4]},
-                              dset)
-
-    @ut.SkipTest
     def test_read_w_index(self):
-        """Test reading out data using `index` keyword"""
-        # Test Outline: (#see Note below)
-        # 1. Dataset with sequential shot numbers
-        #    a. invalid indices
-        #    b. intersection_set = True
-        #       - index = int, list, slice
-        #    c. index (& shotnum) omitted
-        #       - intersection_set = True
-        #       - in this condition HDFReadData assumes index
+        """Test reading data using `index` keyword."""
+        # setup
+        sn_size =50
+        self.f.add_module('SIS 3301',
+                          {'n_configs': 1, 'sn_size': sn_size,
+                           'nt': 1000})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+        digi_path = 'Raw data + config/SIS 3301'
+        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_path = digi_path + '/' + dset_name
+        dheader = _bf.get(dset_path + ' headers')
+        shotnumkey = 'Shot'
+
+        # -- examine the various `index` types                      ----
+        # Note: the scenario where `index` is an invalid type is covered
+        #       by `test_raise_errors`
         #
-        # Note:
-        # - When using `index`, intersection_set = False only comes in
-        #   play when control device data is added
-        # - When using `index` HDFReadData does note care if the shot
-        #   numbers are sequential or not
+        # `index` is an int
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, index=1)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equiv(data['shotnum'],
+                                       dheader[1, shotnumkey]))
+
+        # `index` is a list
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, index=[1, 5])
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(data['shotnum'],
+                                       dheader[[1, 5], shotnumkey]))
+
+        # `index` is a slice object
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi,
+                           index=slice(4, 10, 3))
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], dheader[slice(4, 10, 3), shotnumkey]))
+
+        # `index` is a numpy array
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi,
+                           index=np.array([10, 20, 30]))
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'],
+            dheader[np.array([10, 20, 30]).tolist(), shotnumkey]))
+
+        # `index` is an Ellipsis
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi,
+                           index=np.s_[...])
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], dheader[np.s_[...], shotnumkey]))
+
+        # `index` (and `shotnum`) not defined
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], dheader[:, shotnumkey]))
+
+        # -- examine handling of negative indices                   ----
+        # valid negative index
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, index=[10, -2])
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(data['shotnum'],
+                                       dheader[[-2, 10], shotnumkey]))
+
+        # invalid negative index
+        with self.assertRaises(ValueError):
+            data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                               adc=adc, digitizer=digi,
+                               index=[-sn_size - 10])
+            self.assertDataObj(data, _bf)
+
+    @mock.patch('bapsflib._hdf.utils.hdfreaddata.condition_shotnum',
+                side_effect=condition_shotnum)
+    @mock.patch(
+        'bapsflib._hdf.utils.hdfreaddata.build_sndr_for_simple_dset',
+        side_effect=build_sndr_for_simple_dset)
+    @mock.patch(
+        'bapsflib._hdf.utils.hdfreaddata.do_shotnum_intersection',
+        side_effect=do_shotnum_intersection)
+    def test_read_w_shotnum(self, mock_inter, mock_build_sndr, mock_cs):
+        """Test reading data using `index` keyword."""
+        # setup
+        sn_size = 50
+        self.f.add_module('SIS 3301',
+                          {'n_configs': 1, 'sn_size': sn_size,
+                           'nt': 1000})
+        _mod = self.f.modules['SIS 3301']
+        digi = 'SIS 3301'
+        adc = 'SIS 3301'
+        config_name = _mod.knobs.active_config[0]
+        bc_arr = _mod.knobs.active_brdch
+        bc_indices = np.where(bc_arr)
+        brd = bc_indices[0][0]
+        ch = bc_indices[1][0]
+        _bf = self.bf
+        digi_path = 'Raw data + config/SIS 3301'
+        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_path = digi_path + '/' + dset_name
+        dset = _bf.get(dset_path)
+        dheader = _bf.get(dset_path + ' headers')
+        shotnumkey = 'Shot'
+
+        # -- examine the various `shotnum` types                    ----
+        # Note: relying on test for `condition_shotnum`,
+        #       `build_sndr_for_simple_dset`, and
+        #       `do_shotnum_intersection` for detailed behavior and
+        #       testing
         #
+        # `shotnum` is an int
+        shotnum = 5
+        indices = [4]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equiv(data['shotnum'],
+                                       np.array([5], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertTrue(mock_build_sndr.called)
+        self.assertTrue(mock_cs.called)
+        self.assertTrue(mock_inter.called)
+        mock_build_sndr.reset_mock()
+        mock_cs.reset_mock()
+        mock_inter.reset_mock()
 
-        # setup HDF5 file
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        dset = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0]')
-        dheader = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0] headers')
+        # `shotnum` is a list
+        shotnum = [-10, 50]
+        indices = [49]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi, shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], np.array([50], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertTrue(mock_build_sndr.called)
+        self.assertTrue(mock_cs.called)
+        self.assertTrue(mock_inter.called)
+        mock_build_sndr.reset_mock()
+        mock_cs.reset_mock()
+        mock_inter.reset_mock()
 
-        # ======        Dataset w/ Sequential Shot Numbers        ======
-        # ------ Invalid `index` values                           ------
-        index_list = [
-            [-51],
-            [40, 55]
-        ]
-        for index in index_list:
-            self.assertRaises(ValueError,
-                              HDFReadData,
-                              self.bf, 0, 0, index=index)
+        # `shotnum` is a slice object
+        shotnum = slice(5, 10, 2)
+        indices = [4, 6, 8]
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi,
+                           shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], np.array([5, 7, 9], dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertTrue(mock_build_sndr.called)
+        self.assertTrue(mock_cs.called)
+        self.assertTrue(mock_inter.called)
+        mock_build_sndr.reset_mock()
+        mock_cs.reset_mock()
+        mock_inter.reset_mock()
 
-        # ------ intersection_set = True                          ------
-        index_list = [
-            0,
-            [2],
-            [10, 20, 40],
-            slice(40, 80, 3),
-            [-1]
-        ]
-        index_list_correct = [
-            [0],
-            [2],
-            [10, 20, 40],
-            [40, 43, 46, 49],
-            [49]
-        ]
-        for ii, ii_c in zip(index_list, index_list_correct):
-            # defined data for testing
-            data = HDFReadData(self.bf, 0, 0, index=ii)
-            shotnum = {'correct': dheader[ii_c, 'Shot'].view(),
-                       'valid': dheader[ii_c, 'Shot'].view()}
+        # `shotnum` is a numpy array
+        shotnum = np.arange(1, 10, 3)
+        indices = np.array(shotnum - 1).tolist()  # type: list
+        data = HDFReadData(_bf, brd, ch, config_name=config_name,
+                           adc=adc, digitizer=digi,
+                           shotnum=shotnum)
+        self.assertDataObj(data, _bf)
+        self.assertTrue(np.array_equal(
+            data['shotnum'], np.arange(1, 10, 3, dtype=np.uint32)))
+        self.assertDataArrayValues(data, dset, indices)
+        self.assertTrue(mock_build_sndr.called)
+        self.assertTrue(mock_cs.called)
+        self.assertTrue(mock_inter.called)
+        mock_build_sndr.reset_mock()
+        mock_cs.reset_mock()
+        mock_inter.reset_mock()
 
-            # perform assertion
-            self.assertDataFormat(data, shotnum, dset)
+    def assertControlInData(self,
+                            cdata: HDFReadControl,
+                            data: HDFReadData,
+                            shotnum: np.ndarray):
 
-        # ------ `index` (and `shotnum`) omitted                  ------
-        # defined data for testing
-        data = HDFReadData(self.bf, 0, 0)
-        shotnum = {'correct': dheader['Shot'].view(),
-                   'valid': dheader['Shot'].view()}
+        # -- analyze numpy array                                    ----
+        self.assertTrue(np.array_equal(data['shotnum'], shotnum))
+        self.assertTrue(np.any(np.isin(shotnum, cdata['shotnum'])))
 
-        # perform assertion
-        self.assertDataFormat(data, shotnum, dset)
+        mask = np.isin(cdata['shotnum'], data['shotnum'])
+        self.assertTrue(np.all(mask))
 
-    @ut.SkipTest
-    def test_read_w_shotnum(self):
-        """Test reading out data using `index` keyword"""
-        # Test Outline: (#see Note below)
-        # 1. Dataset with sequential shot numbers
-        #    a. intersection_set = True
-        #       - shotnum = int, list, slice
-        #    b. intersection_set = False
-        #       - shotnum = int, list, slice
-        # 2. Dataset with sequential shot numbers
-        #    a. intersection_set = True
-        #       - shotnum = int, list, slice
-        #    b. intersection_set = False
-        #       - shotnum = int, list, slice
-        #
-        # Note:
-        # - TestBuildShotnumDsetRelation tests HDFReadData's ability to properly
-        #   identify the dataset indices corresponding to the desired
-        #   shot numbers (it checks against the original dataset)
-        # - TestBuildShotnumDsetRelation also tests HDFReadData's ability to
-        #   intersect shot numbers between shotnum and the digi data,
-        #   but not the control device data...intersection with control
-        #   device data will be done with test_add_controls
-        # - Thus, testing here should focus on the construction and
-        #   basic population of data and not so much ensuring the exact
-        #   dset values are populated
-        # - The condition of omitting `shotnum` and `index` is not
-        #   tested here since omitting both defaults to `index`. `index`
-        #   is tested with test_read_w_index
-        #
-        # setup HDF5 file
-        self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        dset = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0]')
-        dheader = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0] headers')
+        for field in cdata.dtype.names:
+            self.assertIn(field, data.dtype.names)
+            self.assertTrue(np.issubdtype(cdata.dtype[field].base,
+                                          data.dtype[field].base))
+            self.assertEqual(cdata.dtype[field].shape,
+                             data.dtype[field].shape)
 
-        # ======        Dataset w/ Sequential Shot Numbers        ======
-        # ------ intersection_set = True                          ------
-        sn_list_requested = [
-            1,
-            [2],
-            [10, 20, 30],
-            [45, 110],
-            slice(40, 61, 3)
-        ]
-        sn_list_correct = [
-            [1],
-            [2],
-            [10, 20, 30],
-            [45],
-            [40, 43, 46, 49]
-        ]
-        sn_list_valid = sn_list_correct
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r)
+            if field == 'shotnum':
+                continue
+            else:
+                data_nan_mask = np.isnan(data[field])
+                cdata_nan_mask = np.isnan(cdata[field])
 
-            # perform assertion
-            self.assertDataFormat(data, shotnum, dset)
+                if np.any(data_nan_mask):
+                    self.assertTrue(np.array_equal(
+                        data_nan_mask, cdata_nan_mask))
+                    self.assertTrue(np.array_equal(
+                        cdata[field][np.logical_not(cdata_nan_mask)],
+                        data[field][np.logical_not(data_nan_mask)]))
+                else:
+                    self.assertTrue(np.array_equal(
+                        cdata[field], data[field]))
 
-        # ------ intersection_set = False                         ------
-        sn_list_requested = [
-            1,
-            [2],
-            [10, 20, 30],
-            [45, 110],
-            slice(40, 61, 3)
-        ]
-        sn_list_correct = [
-            [1],
-            [2],
-            [10, 20, 30],
-            [45, 110],
-            [40, 43, 46, 49, 52, 55, 58]
-        ]
-        sn_list_valid = [
-            [1],
-            [2],
-            [10, 20, 30],
-            [45],
-            [40, 43, 46, 49]
-        ]
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r,
-                               intersection_set=False)
+        # -- analyze `info` attribute                               ----
+        self.assertEqual(data.info['controls'], cdata.info['controls'])
 
-            # perform assertion
-            self.assertDataFormat(data, shotnum, dset,
-                                  intersection_set=False)
+    def assertDataArrayValues(self, data: HDFReadData,
+                              dset: h5py.Dataset,
+                              indices: list,
+                              keep_bits=False):
+        """Assert the correct 'signal' values were added."""
+        dv = data.dv.value
+        offset = abs(data.info['voltage offset'].value)
 
-        # ======         Dataset w/ Jump in Shot Numbers         ======
-        # create shot number jump
-        dheader[30::, 'Shot'] = np.arange(41, 61, 1)
+        dset_arr = dset[indices, ...]
+        if not keep_bits:
+            dset_arr = dset_arr.astype(np.float32)
+            dset_arr = (dv * dset_arr) - offset
 
-        # ------ intersection_set = True                         ------
-        sn_list_requested = [
-            1,
-            [2],
-            [10, 20, 35],
-            [45, 110],
-            slice(34, 65, 4)
-        ]
-        sn_list_correct = [
-            [1],
-            [2],
-            [10, 20],
-            [45],
-            [42, 46, 50, 54, 58]
-        ]
-        sn_list_valid = sn_list_correct
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r)
+        self.assertTrue(np.array_equal(data['signal'], dset_arr))
 
-            # perform assertion
-            self.assertDataFormat(data, shotnum, dset)
+    def assertDataInfo(self, data, _bf):
+        """
+        Assertions for the `info` attribute bound to the returned data
+        object.
+        """
+        # check types
+        self.assertIsInstance(data.info, dict)
+        self.assertIsInstance(type(data).info, property)
 
-        # ------ intersection_set = False                        ------
-        sn_list_requested = [
-            1,
-            [2],
-            [10, 20, 35],
-            [45, 110],
-            slice(34, 65, 4)
-        ]
-        sn_list_correct = [
-            [1],
-            [2],
-            [10, 20, 35],
-            [45, 110],
-            [34, 38, 42, 46, 50, 54, 58, 62]
-        ]
-        sn_list_valid = [
-            [1],
-            [2],
-            [10, 20],
-            [45],
-            [42, 46, 50, 54, 58]
-        ]
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0, shotnum=sn_r,
-                               intersection_set=False)
+        # required keys
+        keys = ('adc',
+                'bit',
+                'board',
+                'channel',
+                'clock rate',
+                'configuration name',
+                'controls',
+                'device dataset path',
+                'device group path',
+                'digitizer',
+                'port',
+                'probe name',
+                'sample average',
+                'shot average',
+                'signal units',
+                'source file',
+                'voltage offset')
+        for key in keys:
+            self.assertIn(key, data.info)
 
-            # perform assertion
-            self.assertDataFormat(data, shotnum, dset,
-                                  intersection_set=False)
+            if key == 'source file':
+                self.assertEqual(data.info[key],
+                                 os.path.abspath(_bf.filename))
+            elif key in ('bit', 'sample average', 'shot average'):
+                self.assertIsInstance(data.info[key],
+                                      (type(None), int, np.integer))
+            elif key in ('board', 'channel'):
+                self.assertIsInstance(data.info[key], (int, np.integer))
+            elif key in ('adc', 'configuration name',
+                         'device dataset path', 'device group path',
+                         'digitizer'):
+                self.assertIsInstance(data.info[key], str)
+            elif key == 'controls':
+                self.assertIsInstance(data.info[key], dict)
+            elif key == 'signal units':
+                self.assertIsInstance(data.info[key], u.UnitBase)
+            elif key == 'voltage offset':
+                self.assertIsInstance(data.info[key],
+                                      (type(None), u.Quantity))
 
-    @ut.SkipTest
-    def test_digitizer_kwarg_functionality(self):
-        """Test kwarg `digitizer` functionality"""
-        #
-        # Behavior:
-        # 1. not specified
-        #    - will default to the file_map.main_digitizer
-        # 2. specified
-        #    a. specified digi exists (valid)
-        #       i. only one digis is in HDF5
-        #          - routine runs w/ specified `digitizer`
-        #       ii. multiple digis are in HDF5
-        #          - routine runs w/ specified `digitizer`
-        #    b. specified digi DOES NOT exist (not valid)
-        #       - ValueError is raised
-        #
-        # Test Outline:
-        # 1. `digitizer` not specified
-        # 2. `digitizer` specified w/ one existing digis
-        #    a. `digitizer` is valid
-        #    b. `digitizer` is NOT valid
-        # 3. `digitizer` specified w/ two existing digis
-        #    a. `digitizer` is valid
-        #    a. `digitizer` is valid (and NOT main_digitizer)
-        #    b. `digitizer` is NOT valid
-        #
-        # setup HDF5
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        main_digi = self.bf.file_map.main_digitizer.device_name
+    def assertDataObj(self, data: HDFReadData, _bf: File,
+                      motion_added=False, keep_bits=False):
+        """Assertion for detailed format of returned data object."""
+        # data is a structured numpy array
+        self.assertIsInstance(data, np.ndarray)
+        self.assertIsInstance(data, HDFReadData)
 
-        # ----- `digitizer` not specified ------
-        data = HDFReadData(self.bf, 0, 0)
-        self.assertEqual(data.info['digitizer'], main_digi)
-
-        # ----- `digitizer` specified w/ ONE Digitizer ------
-        # valid `digitizer`
-        data = HDFReadData(self.bf, 0, 0, digitizer='SIS 3301')
-        self.assertEqual(data.info['digitizer'], 'SIS 3301')
-
-        # invalid `digitizer`
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, digitizer='blah')
-
-        # ----- `digitizer` specified w/ TWO Digitizer ------
-        # TODO: #3 NEEDS TO BE ADDED WHEN FauxSISCrate IS CREATED
-        #
-        # added another digit to the HDF5 file
-        # self.f.add_module('SIS Crate',
-        #                   {'n_configs': 1, 'sn_size': 50})
-        # main_digi = self.bf.file_map.main_digitizer.device_name
-
-        # valid `digitizer`
-        data = HDFReadData(self.bf, 0, 0, digitizer='SIS 3301')
-        self.assertEqual(data.info['digitizer'], main_digi)
-
-        # valid `digitizer` (not main_digitizer)
-        # data = HDFReadData(self.bf, 0, 0, digitizer='SIS Crate')
-        # self.assertEqual(data.info['digitizer'], 'SIS Crate')
-
-        # invalid `digitizer`
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, digitizer='blah')
-
-    @ut.SkipTest
-    def test_adc_kwarg_functionality(self):
-        """Test kwarg `adc` functionality"""
-        #
-        # Behavior:
-        # 1. not specified
-        #    a. digitizer w/ ONE adc
-        #       - defaults to the one
-        #    b. digitizer w/ MULTIPLE adc's
-        #       - defaults to the one w/ the slowest clock rate
-        # 2. specified
-        #    a. digitizer w/ ONE adc
-        #       i. `adc` is valid
-        #           - routine runs w/ `adc`
-        #       ii. `adc` is NOT valid
-        #           - raises ValueError
-        #    b. digitizer w/ MULTIPLE adc's
-        #       i. `adc` is valid
-        #           - routine runs w/ `adc`
-        #       ii. `adc` is NOT valid
-        #           - raises ValueError
-        #
-        # Test Outline:
-        # 1. not specified
-        #    a. digitizer w/ ONE adc
-        #    b. digitizer w/ MULTIPLE adc's
-        # 2. `adc` specfied for digitizer w/ ONE adc
-        #    a. `adc` is valid
-        #    b. `adc` is NOT valid
-        # 3. `adc` specified for digitizer w/ MULTIPLE adc's
-        #    a. `adc` is valid
-        #    b. `adc` is NOT valid
-        #
-        # Note:
-        # - the digi_map.construct_dataset_name() handles conditioning
-        #   of `adc` and, thus, the digi map tests should handle all
-        #   details of `adc` handling
-        #
-        # setup HDF5
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-
-        # ----- `adc` not specified ------
-        data = HDFReadData(self.bf, 0, 0)
-        self.assertEqual(data.info['adc'], 'SIS 3301')
-
-        # ----- `adc` specified for digitizer w/ ONE adc ------
-        # valid `adc`
-        data = HDFReadData(self.bf, 0, 0, adc='SIS 3301')
-        self.assertEqual(data.info['adc'], 'SIS 3301')
-
-        # invalid `adc`
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, adc='blah')
-
-        # ----- `adc` specified for digitizer w/ TWO adc's ------
-        # TODO: #3 NEEDS TO BE ADDED WHEN FauxSISCrate IS CREATED
-        #
-        # added another digit to the HDF5 file
-        # self.f.add_module('SIS Crate',
-        #                   {'n_configs': 1, 'sn_size': 50})
-        # main_digi = self.bf.file_map.main_digitizer.device_name
-
-        # valid `adc`
-        # for adc in ['SIS 3302', 'SIS 3305']:
-        #     data = HDFReadData(self.bf, 0, 0,
-        #                        digitizer='SIS Crate', adc=adc)
-        #     self.assertEqual(data.info['adc'], adc)
-
-        # invalid `adc`
-        # self.assertRaises(ValueError,
-        #                   HDFReadData,
-        #                   self.bf, 0, 0,
-        #                   digitizer='SIS Crate', adc='blah')
-
-    @ut.SkipTest
-    def test_config_name_kwarg_functionality(self):
-        """Test kwarg `config_name` functionality"""
-        #
-        # Behavior:
-        # 1. not specified
-        #    a. digitizer w/ One active config
-        #       - will default to active config and run
-        #    b. digitizer w/ MULTIPLE active config'S
-        #       - will raise ValueError
-        # 2. specified
-        #    a. digitizer w/ ONE active config
-        #       i. `config_name` is active config
-        #          - routine wil run with `config_name`
-        #       ii. `config_name` not an active config
-        #          - raises ValueError
-        #    b. digitizer w/ MULTIPLE active configs
-        #       i. `config_name` is among active configs
-        #          - routine wil run with `config_name`
-        #       ii. `config_name` not an active config
-        #          - raises ValueError
-        #
-        # Test Outline:
-        # 1. not specified
-        #    a. digitizer w/ One active config
-        #    b. digitizer w/ MULTIPLE active config'S
-        # 2. `config_name` for digitizer w/ ONE active config
-        #    a. `config_name` is active config
-        #    b. `config_name` not an active config
-        # 3. `config_name` for digitizer w/ MULTIPLE active configs
-        #    a. `config_name` is among active configs
-        #    b. `config_name` not an active config
-        #
-        # Note:
-        # - the digi_map.construct_dataset_name() handles conditioning
-        #   of `config_name` and, thus, the digi map tests should
-        #   handle all details of `config_name` handling
-        #
-        # setup HDF5
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 3, 'sn_size': 50})
-
-        # ----- `config_name` not specified ------
-        data = HDFReadData(self.bf, 0, 0)
-        self.assertEqual(data.info['configuration name'], 'config01')
-
-        # ----- `config_name` specified for digitizer w/ ONE ------
-        # ----- active configuration                         ------
-        # valid `config_name`
-        data = HDFReadData(self.bf, 0, 0, config_name='config01')
-        self.assertEqual(data.info['configuration name'], 'config01')
-
-        # invalid `config_name`
-        self.assertRaises(ValueError,
-                          HDFReadData,
-                          self.bf, 0, 0, config_name='blah')
-
-        # ----- `config_name` specified for digitizer w/ ------
-        # ----- MULTIPLE active configurations           ------
-        # TODO: #3 NEEDS TO BE ADDED
-        # - WHEN MULTIPLE CONFIGS IS INCORPORATED IN THE FAUX BUILDERS
-        #
-        # initialize digi w/ multiple configurations
-
-        # valid `config_name`
-
-        # invalid `config_name`
-        # self.assertRaises(ValueError,
-        #                   HDFReadData,
-        #                   self.bf, 0, 0, config_name='blah')
-
-    @ut.SkipTest
-    def test_keep_bits_kwarg_functionality(self):
-        """Test kwarg `keep_bits` functionality"""
-        #
-        # Behavior:
-        # 1. keep_bits = False (Default)
-        #    - convert 'signal' bit values to voltage
-        #      ~ Num. of bits is defined in the mappers
-        #      ~ voltage offset is defined in the header dataset
-        #      ~ if voltage offset cannot be found, then keep_bits will
-        #        revert to True
-        # 2. keep_bits = True
-        #    - keep 'signal' in bit values
-        #
-        # Test Outline:
-        # 1. keep_bits = True
-        # 2. keep_bits = False, but there no 'Offset' field in the
-        #    header dataset
-        #
-        # Note:
-        # - keep_bits = False is being call for almost every other test
-        #   in this TestCase
-        #
-        # setup HDF5
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        dset = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0]')
-        dheader_name = \
-            'Raw data + config/SIS 3301/config01 [0:0] headers'
-        dheader = self.bf.get(dheader_name)
-
-        # ------ test keep_bits=True ------
-        data = HDFReadData(self.bf, 0, 0, index=0, keep_bits=True)
-        self.assertDataFormat(data,
-                              {'requested': [1],
-                               'correct': [1],
-                               'valid': [1]}, dset,
-                              keep_bits=True)
-
-        # ----- keep_bits=False, but no Offset ------
-        # remove 'Offset' from the header dataset
-        fnames = list(dheader.dtype.names)
-        del fnames[fnames.index('Offset')]
-        fnames = tuple(fnames)
-        del self.f['Raw data + config/SIS 3301/config01 [0:0] headers']
-        self.f.create_dataset(dheader_name, data=dheader[fnames])
-
-        # test
-        self.assertWarns(UserWarning,
-                         HDFReadData,
-                         self.bf, 0, 0, shotnum=1, keep_bits=False)
-
-    @ut.SkipTest
-    def test_add_controls(self):
-        """Test kwarg `add_controls` functionality"""
-        #
-        # Behavior:
-        # 1. omitted
-        #    - no control device data is added
-        # 2. specified
-        #    - the control device data fields are added to `data`
-        #    a. intersection_set = True
-        #       - shot numbers are intersected between shotnum, the
-        #         digitizer shot numbers, and the control device shot
-        #         numbers
-        #    b. intersection_set = False
-        #       - no intersection of shot numbers is done and the
-        #         control device data will have "NaN" fills where
-        #         appropriate
-        #
-        # Test Outline:
-        # 1. specify a 'motion' control device
-        #    a. intersection_set = True
-        #       - ensure all control fields are included in data
-        #       - shotnum in digi but not in control
-        #    b. intersection_set = False
-        #       - ensure all control fields are included in data
-        #       - shotnum in digi but not in control
-        # 2. specify a non-motion control device
-        #    a. intersection_set = True
-        #       - ensure all control fields are included in data
-        #       - shotnum in digi but not in control
-        #    b. intersection_set = False
-        #       - ensure all control fields are included in data
-        #       - shotnum in digi but not in control
-        #
-        # Note:
-        # - conditioning of `add_controls` is handled by function
-        #   hdfreadcontrol.condition_controls(), which is tested in
-        #   test_hdfreadcontrol.py.  Thus, the exact structure of
-        #   `add_controls` is not tested here.
-        # - Only behavior in adding control device data to `data` is
-        #   done here
-        # - the call to HDFReadControl is always done using a shot
-        #   number list. Thus, testing with HDFReadData with `index` or
-        #   `shotnum` accesses HDFReadControl in the same way
-        #
-        # setup HDF5
-        # - add 'SIS 3301', 'Waveform', and '6K Compumotor'
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-        self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
-        self.f.add_module('6K Compumotor',
-                          {'n_configs': 1, 'sn_size': 50})
-        dset = self.bf.get(
-            'Raw data + config/SIS 3301/config01 [0:0]')
-        sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
-
-        # ======          adding a motion control device          ======
-        control = [('6K Compumotor', sixk_cspec)]
-
-        # place shot number jumps in the control datasets
-        cdset_name = self.f.modules['6K Compumotor']._configs[
-            sixk_cspec]['dset name']
-        cdset = self.f.modules['6K Compumotor'][cdset_name]
-        sn_arr = cdset['Shot number']
-        sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
-        cdset['Shot number'] = sn_arr
-
-        # ------ intersection_set = True        ------
-        sn_list_requested = [
-            [1],
-            [28, 29, 30, 31, 32],
-            [48, 49, 50, 51, 52]
-        ]
-        sn_list_correct = [
-            [1],
-            [28, 29, 30],
-            [48, 49, 50]
-        ]
-        sn_list_valid = sn_list_correct
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0,
-                               shotnum=sn_r, add_controls=control)
-
-            # perform assertion
-            self.assertDataWithControl(data, shotnum, dset, control)
-
-        # ------ intersection_set = False       ------
-        sn_list_requested = [
-            [1],
-            [28, 29, 30, 31, 32],
-            [48, 49, 50, 51, 52]
-        ]
-        sn_list_correct = [
-            [1],
-            [28, 29, 30, 31, 32],
-            [48, 49, 50, 51, 52]
-        ]
-        sn_list_valid = [
-            [1],
-            [28, 29, 30, 31, 32],
-            [48, 49, 50]
-        ]
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0,
-                               shotnum=sn_r, add_controls=control,
-                               intersection_set=False)
-
-            # perform assertion
-            self.assertDataWithControl(data, shotnum, dset, control,
-                                       intersection_set=False)
-
-        # ======        adding a non-motion control device        ======
-        control = [('Waveform', 'config01')]
-
-        # place shot number jumps in the control datasets
-        cdset_name = self.f.modules['Waveform']._configs[
-            'config01']['dset name']
-        cdset = self.f.modules['Waveform'][cdset_name]
-        sn_arr = cdset['Shot number']
-        sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
-        cdset['Shot number'] = sn_arr
-
-        # ------ intersection_set = True        ------
-        sn_list_requested = [
-            [1],
-            [28, 29, 30, 31, 32],
-            [48, 49, 50, 51, 52]
-        ]
-        sn_list_correct = [
-            [1],
-            [28, 29, 30],
-            [48, 49, 50]
-        ]
-        sn_list_valid = sn_list_correct
-        for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                    sn_list_correct,
-                                    sn_list_valid):
-            # define data for testing
-            shotnum = {'requested': sn_r,
-                       'correct': sn_c,
-                       'valid': sn_v}
-            data = HDFReadData(self.bf, 0, 0,
-                               shotnum=sn_r, add_controls=control)
-
-            # perform assertion
-            self.assertDataWithControl(data, shotnum, dset, control)
-
-            # ------ intersection_set = False       ------
-            sn_list_requested = [
-                [1],
-                [28, 29, 30, 31, 32],
-                [48, 49, 50, 51, 52]
-            ]
-            sn_list_correct = [
-                [1],
-                [28, 29, 30, 31, 32],
-                [48, 49, 50, 51, 52]
-            ]
-            sn_list_valid = [
-                [1],
-                [28, 29, 30, 31, 32],
-                [48, 49, 50]
-            ]
-            for sn_r, sn_c, sn_v in zip(sn_list_requested,
-                                        sn_list_correct,
-                                        sn_list_valid):
-                # define data for testing
-                shotnum = {'requested': sn_r,
-                           'correct': sn_c,
-                           'valid': sn_v}
-                data = HDFReadData(self.bf, 0, 0,
-                                   shotnum=sn_r, add_controls=control,
-                                   intersection_set=False)
-
-                # perform assertion
-                self.assertDataWithControl(data, shotnum, dset, control,
-                                           intersection_set=False)
-
-    @ut.SkipTest
-    def test_obj_attributes(self):
-        """Ensure existence of key attributes"""
-        # setup HDF5
-        if len(self.f.modules) >= 1:
-            self.f.remove_all_modules()
-        self.f.add_module('SIS 3301', {'n_configs': 1, 'sn_size': 50})
-
-        # Define test data
-        data = HDFReadData(self.bf, 0, 0)
-
-        # Key Attribute Existence
-        self.assertTrue(hasattr(data, 'info'))
-        self.assertTrue(hasattr(data, 'plasma'))
-        self.assertTrue(hasattr(data, 'set_plasma'))
-        self.assertTrue(hasattr(data, 'set_plasma_value'))
+        # attribute existence
         self.assertTrue(hasattr(data, 'dt'))
         self.assertTrue(hasattr(data, 'dv'))
-        self.assertTrue(hasattr(data, 'convert_signal'))
+        self.assertTrue(hasattr(data, 'info'))
 
-        # Keys in `info` attribute
-        self.assertIn('hdf file', data.info)
-        self.assertIn('dataset name', data.info)
-        self.assertIn('dataset path', data.info)
-        self.assertIn('digitizer', data.info)
-        self.assertIn('configuration name', data.info)
-        self.assertIn('adc', data.info)
-        self.assertIn('bit', data.info)
-        self.assertIn('clock rate', data.info)
-        self.assertIn('sample average', data.info)
-        self.assertIn('shot average', data.info)
-        self.assertIn('board', data.info)
-        self.assertIn('channel', data.info)
-        self.assertIn('voltage offset', data.info)
-        self.assertIn('probe name', data.info)
-        self.assertIn('port', data.info)
-        self.assertIn('signal units', data.info)
-        self.assertIn('added controls', data.info)
+        # -- check `info`                                           ----
+        self.assertDataInfo(data, _bf)
 
-        # `dt` functionality
-        # TODO: test calc of dt for sample (hardware) averaging
+        # -- check `dt`                                             ----
+        self.assertIsInstance(type(data).dt, property)
+        self.assertIsInstance(data.dt, (type(None), u.Quantity))
 
-    def assertDataFormat(self, data, shotnum, dset, keep_bits=False,
-                         intersection_set=True):
-        # subclass of data is a np.recarray
-        self.assertIsInstance(data, np.recarray)
+        # -- check `dv`                                             ----
+        self.assertIsInstance(type(data).dv, property)
+        self.assertIsInstance(data.dv, (type(None), u.Quantity))
 
-        # check all required fields are in data
-        self.assertIn('shotnum', data.dtype.fields)
-        self.assertIn('signal', data.dtype.fields)
-        self.assertIn('xyz', data.dtype.fields)
-        self.assertEqual(data.dtype['xyz'].shape, (3,))
+        # -- examine data array                                     ----
+        for field in ('shotnum', 'signal', 'xyz'):
+            self.assertIn(field, data.dtype.names)
 
-        # check shot numbers are correct
-        self.assertTrue(np.array_equal(data['shotnum'],
-                                       shotnum['correct']))
+            if field == 'shotnum':
+                self.assertEqual(data.dtype['shotnum'].base, np.uint32)
+                self.assertEqual(data.dtype['shotnum'].shape, ())
+            elif field == 'signal':
+                self.assertEqual(data.dtype['signal'].ndim, 1)
 
-        # check 'signal' dtype
-        self.assertEqual(data.dtype['signal'].shape[0], dset.shape[1])
-        if keep_bits:
-            # signal should be bits (integer)
-            self.assertTrue(np.issubdtype(data.dtype['signal'].base,
-                                          np.integer))
-        else:
-            # signal should be volts (floating point)
-            self.assertTrue(np.issubdtype(data.dtype['signal'].base,
-                                          np.floating))
+                if keep_bits:
+                    self.assertTrue(np.issubdtype(
+                        data.dtype['signal'].base, np.integer))
+                else:
+                    self.assertTrue(np.issubdtype(
+                        data.dtype['signal'].base, np.floating))
 
-        # ------ Check proper fill of "NaN" values in 'signal' ------
-        #
-        # grab dtype
-        dtype = data.dtype['signal'].base
+            elif field == 'xyz':
+                self.assertTrue(np.issubdtype(data.dtype['xyz'].base,
+                                              np.floating))
+                self.assertEqual(data.dtype['xyz'].shape, (3,))
 
-        # find "NaN" elements
-        if np.issubdtype(dtype, np.integer):
-            # 'signal' is an integer
-            d_nan = np.where(data['signal'] == -99999, True, False)
-        elif np.issubdtype(dtype, np.floating):
-            # 'signal' is an integer
-            d_nan = np.isnan(data['signal'])
-        else:
-            # something went wrong
-            raise ValueError(
-                "dtype of data['signal'] is not an integer or "
-                "float")
-
-        # perform tests
-        if intersection_set:
-            # there should be NO "NaN" fills
-            # 1. d_nan should be False for all entries
-            #
-            self.assertTrue(np.all(np.logical_not(d_nan)))
-        else:
-            # there could be "NaN" fills
-            #
-            # build `sni` and `sni_not`
-            sni = np.isin(data['shotnum'], shotnum['valid'])
-            sni_not = np.logical_not(sni)
-
-            # test
-            # 1. d_nan should be False for all sni entries
-            # 2. d_nan should be True for all sni_not entries
-            self.assertTrue(np.all(np.logical_not(d_nan[sni])))
-            self.assertTrue(np.all(d_nan[sni_not]))
-
-        # ------ Check proper fill of "NaN" values in 'xyz' ------
-        # 'xyz' behavior:
-        # 1. NO motion control device added
-        #    - all 'xyz' entries should be np.nan
-        # 2. motion control device added
-        #    a. intersection_set = True
-        #       - NO 'xyz' element should be np.nan
-        #    b. intersection_set = False
-        #       - some entries will be np.nan and some won't
-        #
-        # Note:
-        # - HDFReadControl handles the construction of 'xyz' when a
-        #   control device is added (#2 above).  Thus, I assume the
-        #   behavior is correct by the time it gets to HDFReadData
-        # - Thus, here only #1 from above is tested
-        #
-        # Determine if a motion control was added
-        controls = data.info['added controls']
-        motion_added = False
-        if len(controls) != 0:
-            # Possible motion control added
-            for con, config in controls:
-                if self.bf.file_map.controls[con].contype \
-                        == ConType.motion:
-                    # a motion control was added
-                    motion_added = True
-                    break
-
-        # test
-        if not motion_added:
-            self.assertTrue(np.all(np.isnan(data['xyz'])))
-
-    def assertDataWithControl(self, data, shotnum, dset, controls,
-                              intersection_set=True):
-        # assert data format
-        self.assertDataFormat(data, shotnum, dset,
-                              intersection_set=intersection_set)
-
-        # check all control device field are added
-        for control in controls:
-            # define control
-            device = control[0]
-            config = control[1]
-
-            # retrieve control mapping
-            cmap = self.bf.file_map.controls[device]
-
-            # gather fields that should be in data for this control
-            # device
-            fields = list(cmap.configs[config]['state values'])
-
-            # check that all fields are in cdata
-            for field in fields:
-                self.assertIn(field, data.dtype.fields)
+                if motion_added is False:
+                    self.assertTrue(np.all(np.isnan(data['xyz'])))
 
 
 if __name__ == '__main__':

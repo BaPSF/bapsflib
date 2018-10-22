@@ -14,7 +14,7 @@ astropy >= 2.0
 codecov >= 2.0.15
 coverage >= 4.5.1
 h5py >= 2.6
-numpy >= 1.7
+numpy >= 1.12
 scipy >= 1.0.0
 #
 # Add Sphinx/Documentation requirements

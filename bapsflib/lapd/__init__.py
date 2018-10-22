@@ -20,6 +20,6 @@ contains functions and classes relevant for calculating LaPD parameters
 """
 from . import constants
 from . import tools
-from ._hdf import File
+from ._hdf.file import File
 
 __all__ = ['File', 'constants', 'tools']

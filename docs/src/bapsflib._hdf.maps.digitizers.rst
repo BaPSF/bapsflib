@@ -8,12 +8,12 @@ bapsflib\.\_hdf\.maps\.digitizers
     :titlesonly:
     :caption: Sub-Packages & Modules
 
-    bapsflib._hdf.maps.digitizers.templates
     bapsflib._hdf.maps.digitizers.map_digis
     bapsflib._hdf.maps.digitizers.sis3301
     bapsflib._hdf.maps.digitizers.siscrate
+    bapsflib._hdf.maps.digitizers.templates
 
-.. rubric::
+.. rubric:: Classes
 
 .. autosummary:: HDFMapDigitizers
     :nosignatures:

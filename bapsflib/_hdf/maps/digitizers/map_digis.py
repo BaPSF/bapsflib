@@ -27,7 +27,7 @@ class HDFMapDigitizers(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf import HDFMapDigitizers
+        >>> from bapsflib._hdf.maps import HDFMapDigitizers
         >>> f = lapd.File('sample.hdf5')
         >>> # 'Raw data + config' is the LaPD HDF5 group name for the
         ... # group housing digitizer and control devices

@@ -34,7 +34,7 @@ from typing import (Dict, Any)
 
 class FauxHDFBuilder(h5py.File):
     """
-    Builds a Faux HDF5 file that simulates a HDF5 build by the LaPD.
+    Builds a Faux HDF5 file that simulates a HDF5 constructed at BaPSF.
     """
     _KNOWN_MSI = {
         'Discharge': FauxDischarge,

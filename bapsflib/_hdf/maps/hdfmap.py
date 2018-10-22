@@ -66,10 +66,14 @@ class HDFMap(object):
             raise TypeError("arg `hdf_file` not an h5py.File object")
 
         # define paths
-        self._CONTROL_PATH = '/' if control_path == '' else control_path
-        self._DIGITIZER_PATH = '/' if digitizer_path == '' \
-            else digitizer_path
-        self._MSI_PATH = '/' if msi_path == '' else msi_path
+        self.DEVICE_PATHS = {
+            'control': control_path,
+            'digitizer': digitizer_path,
+            'msi': msi_path,
+        }
+        for device, path in self.DEVICE_PATHS.items():
+            if path == '':
+                self.DEVICE_PATHS[device] = '/'
 
         # attach the mapping dictionaries
         self.__attach_msi()
@@ -92,12 +96,13 @@ class HDFMap(object):
         the control device mapping objects constructed by
         :class:`~.controls.map_controls.HDFMapControls`.
         """
-        if self._CONTROL_PATH in self._hdf_obj:
+        control_path = self.DEVICE_PATHS['control']
+        if control_path in self._hdf_obj:
             self.__controls = HDFMapControls(
-                self._hdf_obj[self._CONTROL_PATH])
+                self._hdf_obj[control_path])
         else:
             warn("Group for control devices "
-                 + "('{}')".format(self._CONTROL_PATH)
+                 + "('{}')".format(control_path)
                  + " does NOT exist.")
             self.__controls = {}
 
@@ -107,12 +112,13 @@ class HDFMap(object):
         all the digitizer mapping objects constructed by
         :class:`~.digitizers.map_digis.HDFMapDigitizers`.
         """
-        if self._DIGITIZER_PATH in self._hdf_obj:
+        digi_path = self.DEVICE_PATHS['digitizer']
+        if digi_path in self._hdf_obj:
             self.__digitizers = HDFMapDigitizers(
-                self._hdf_obj[self._DIGITIZER_PATH])
+                self._hdf_obj[digi_path])
         else:
             warn("Group for digitizers "
-                 + "('{}')".format(self._DIGITIZER_PATH)
+                 + "('{}')".format(digi_path)
                  + " does NOT exist.")
             self.__digitizers = {}
 
@@ -122,10 +128,11 @@ class HDFMap(object):
         diagnostic mapping objects constructed by
         :class:`~.msi.map_msi.HDFMapMSI`.
         """
-        if self._MSI_PATH in self._hdf_obj:
-            self.__msi = HDFMapMSI(self._hdf_obj[self._MSI_PATH])
+        msi_path = self.DEVICE_PATHS['msi']
+        if msi_path in self._hdf_obj:
+            self.__msi = HDFMapMSI(self._hdf_obj[msi_path])
         else:
-            warn("MSI ('{}') does NOT exist.".format(self._MSI_PATH))
+            warn("MSI ('{}') does NOT exist.".format(msi_path))
             self.__msi = {}
 
     def __attach_unknowns(self):
@@ -142,8 +149,9 @@ class HDFMap(object):
         # 4. MSI group -- '/MSI' (typical)
         #
         self.__unknowns = []
-        device_paths = [self._CONTROL_PATH, self._DIGITIZER_PATH,
-                        self._MSI_PATH]
+        device_paths = [self.DEVICE_PATHS['control'],
+                        self.DEVICE_PATHS['digitizer'],
+                        self.DEVICE_PATHS['msi']]
         mapped_devices = [list(self.controls), list(self.digitizers),
                           list(self.msi)]
 

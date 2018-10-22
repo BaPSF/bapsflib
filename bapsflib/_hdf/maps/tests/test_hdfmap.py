@@ -324,32 +324,16 @@ class TestHDFMap(ut.TestCase):
         self.assertIsInstance(_map, HDFMap)
 
         # check attribute existence
-        # attrs = ('_CONTROL_PATH', '_DIGITIZER_PATH', '_MSI_PATH',
-        #          'attrs', 'controls', 'digitizers', 'main_digitizer',
-        #          'msi', 'unknowns')
-        attrs = ('_CONTROL_PATH', '_DIGITIZER_PATH', '_MSI_PATH',
-                 'controls', 'digitizers', 'main_digitizer', 'msi',
-                 'unknowns')
+        attrs = ('DEVICE_PATHS', 'controls', 'digitizers',
+                 'main_digitizer', 'msi', 'unknowns')
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
 
-        '''
-        # -- check 'attrs'                                          ----
-        self.assertIsInstance(type(_map).attrs, property)
-        self.assertIsInstance(_map.attrs, dict)
-        self.assertIn('root', _map.attrs)
-        self.assertIsInstance(_map.attrs['root'], dict)
-        for path in (_map._CONTROL_PATH, _map._DIGITIZER_PATH,
-                     _map._MSI_PATH):
-            if path == '/':
-                pass
-            elif path in _file:
-                self.assertIn(path, _map.attrs)
-                self.assertIsInstance(_map.attrs[path], dict)
-
-                for attr in _file[path].attrs:
-                    self.assertIn(attr, _map.attrs[path])
-        '''
+        # -- check 'DEVICE_PATHS'                                   ----
+        self.assertIsInstance(_map.DEVICE_PATHS, dict)
+        for device in ('control', 'digitizer', 'msi'):
+            self.assertIn(device, _map.DEVICE_PATHS)
+            self.assertIsInstance(_map.DEVICE_PATHS[device], str)
 
         # -- check 'controls'                                       ----
         self.assertIsInstance(type(_map).controls, property)

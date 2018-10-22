@@ -10,7 +10,7 @@
 #
 """
 Helper functions that are utilized by the the HDF5 utility classes
-defined in module :mod:`bapslib._hdf.utils`.
+defined in module :mod:`bapsflib._hdf.utils`.
 """
 import h5py
 import numpy as np

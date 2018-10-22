@@ -30,7 +30,7 @@ class HDFMapMSI(dict):
     :Example:
 
         >>> from bapsflib import lapd
-        >>> from bapsflib._hdf import HDFMapMSI
+        >>> from bapsflib._hdf.maps import HDFMapMSI
         >>> f = lapd.File('sample.hdf5')
         >>> # 'MSI' is the LaPD HDF5 group name for the group housing
         ... # MSI diagnostic groups

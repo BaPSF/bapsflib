@@ -16,6 +16,9 @@ import sys
 from datetime import datetime
 
 from .file import File
+from ..maps.controls.templates import HDFMapControlTemplate
+from ..maps.digitizers.templates import HDFMapDigiTemplate
+from ..maps.msi.templates import HDFMapMSITemplate
 
 
 class HDFOverview(object):
@@ -264,16 +267,15 @@ class HDFOverview(object):
         configurations.
 
         :param str name: name of digitizer. If :code:`None` or
-            `name` is not detected then all digitizers are printed.
+            `name` is among digitizers, then all digitizers are printed.
         """
         # gather configs to print
-        if name is None:
-            configs = self._fmap.digitizers
-        elif name in self._fmap.digitizers:
-            configs = [name]
+
+        if name in self._fmap.digitizers:
+            _dmap = {name, self._fmap.digitizers[name]}
         else:
             name = None
-            configs = self._fmap.digitizers
+            _dmap = self._fmap.digitizers
 
         # print heading
         title = 'Digitizer Report'
@@ -283,65 +285,55 @@ class HDFOverview(object):
         print('^' * len(title) + '\n')
 
         # print digitizer config
-        for key in configs:
+        for name, _map in _dmap.items():
             # print digitizer name
-            item = key
-            if key in self._fmap.main_digitizer.info['group name']:
+            item = name
+            if name == self._fmap.main_digitizer.device_name:
                 item += ' (main)'
             status_print(item, '', '')
 
             # print adc's
-            # noinspection PyProtectedMember
-            item = "adc's:  "\
-                   + str(self._fmap.digitizers[key]._device_adcs)
+            item = "adc's:  {}".format(_map.device_adcs)
             status_print(item, '', '', indent=1)
 
             # print digitizer configs
-            self.report_digitizer_configs(
-                self._fmap.digitizers[key])
+            self.report_digitizer_configs(_map)
 
     @staticmethod
-    def report_digitizer_configs(digi):
+    def report_digitizer_configs(digi: HDFMapDigiTemplate):
         """
         Prints to screen information about the passed digitizer
         configuration(s).
 
-        :param digi: an instance of a single member of
-            `HDFMap.digitizers`
+        :param digi: a digitizer mapping object
         """
-        if len(digi.configs) != 0:
-            nconfigs = len(digi.configs)
-            nconf_active = 0
-            for key in digi.configs:
-                if digi.configs[key]['active']:
-                    nconf_active += 1
+        nconfigs = len(digi.configs)
+        if nconfigs != 0:
+            nconf_active = len(digi.active_configs)
 
             item = 'Configurations Detected ({})'.format(nconfigs)
             note = '({0} active, {1} inactive)'.format(
                 nconf_active, nconfigs - nconf_active)
             status_print(item, '', note, indent=1, item_found_pad=' ')
 
-            for conf in digi.configs:
+            for cname, config in digi.configs.items():
                 # print configuration name
-                item = conf
+                item = cname
                 found = ''
-                note = 'active' if digi.configs[conf]['active'] \
-                    else 'NOT active'
+                note = 'active' if config['active'] else 'NOT active'
                 status_print(item, found, note, indent=2,
                              item_found_pad=' ')
 
                 # print active adc's
-                item = "adc's (active):  "\
-                       + str(digi.configs[conf]['adc'])
+                item = "adc's (active):  {}".format(config['adc'])
                 status_print(item, '', '', indent=3)
 
                 # print path for config
-                item = 'path: '\
-                       + digi.configs[conf]['group path']
+                item = 'path: ' + config['config group path']
                 status_print(item, '', '', indent=3, item_found_pad=' ')
 
                 # print adc details for configuration
-                for adc in digi.configs[conf]['adc']:
+                for adc in config['adc']:
                     # adc name
                     item = adc + ' adc connections'
                     status_print(item, '', '', indent=3,
@@ -360,18 +352,17 @@ class HDFOverview(object):
                     print(line)
 
                     # adc connections
-                    nconns = len(digi.configs[conf][adc])
+                    nconns = len(config[adc])
                     for iconn in range(nconns):
-                        conns = digi.configs[conf][adc][iconn][0:2]
-                        adc_stats = digi.configs[conf][adc][iconn][2]
+                        conns = config[adc][iconn][0:2]
+                        adc_stats = config[adc][iconn][2]
 
                         # construct and print line
                         line = line_indent + str(conns)
                         line = line.ljust(51)
                         line += str(adc_stats['bit']).ljust(5)
-                        line += '{0} {1}'.format(
-                            adc_stats['clock rate'][0],
-                            adc_stats['clock rate'][1]).ljust(13)
+                        line += '{}'.format(
+                            adc_stats['clock rate']).ljust(13)
                         line += str(adc_stats['nshotnum']).ljust(10)
                         line += str(adc_stats['nt']).ljust(10)
                         line += str(

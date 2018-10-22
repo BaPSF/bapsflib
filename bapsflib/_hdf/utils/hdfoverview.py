@@ -65,33 +65,9 @@ class HDFOverview(object):
         Prints general HDF5 file info.
         """
         # print basic file info
-        print('Filename:     {}'.format(
-            self._file.info['filename']))
+        print('Filename:     {}'.format(self._file.info['file']))
         print('Abs. Path:    {}'.format(
             self._file.info['absolute file path']))
-        print('LaPD version: {}'.format(
-            self._file.info['lapd version']))
-        print('Investigator: {}'.format(
-            self._file.info['investigator']))
-        print('Run Date:     {}'.format
-              (self._file.info['run date']))
-
-        # exp. and run structure
-        print('\nExp. and Run Structure:')
-        print('  (set)  {}'.format(self._file.info['exp set name']))
-        print('  (exp)  +-- {}'.format(self._file.info['exp name']))
-        print('  (run)  |   +-- {}'.format(
-            self._file.info['run name']))
-
-        # print run description
-        print('\nRun Description:')
-        for line in self._file.info['run description'].splitlines():
-            print('    ' + line)
-
-        # print exp description
-        print('\nExp. Description:')
-        for line in self._file.info['exp description'].splitlines():
-            print('    ' + line)
 
     def report_discovery(self):
         """

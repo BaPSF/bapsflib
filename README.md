@@ -1,11 +1,11 @@
 # bapsflib
 
-[![GitHub package version](https://img.shields.io/badge/version-v0.1.3.dev5-blue.svg)](./bapsflib/__init__.py)
+[![GitHub package version](https://img.shields.io/badge/version-v1.0.0.dev-blue.svg)](./bapsflib/__init__.py)
 [![License](https://img.shields.io/badge/License-BSD-blue.svg)](./LICENSES/LICENSE.txt)
 
-[![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/?version=0.1.3.dev5)](https://bapsflib.readthedocs.io/en/0.1.3.dev5/?badge=0.1.3.dev5)
-[![Build Status](https://travis-ci.org/BaPSF/bapsflib.svg?branch=0.1.3.dev5)](https://travis-ci.org/BaPSF/bapsflib)
-[![codecov](https://codecov.io/gh/BaPSF/bapsflib/branch/0.1.3.dev5/graph/badge.svg)](https://codecov.io/gh/BaPSF/bapsflib/branch/0.1.3.dev5)
+[![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/)](https://bapsflib.readthedocs.io/en/latest)
+[![Build Status](https://travis-ci.org/BaPSF/bapsflib.svg?branch=master)](https://travis-ci.org/BaPSF/bapsflib)
+[![codecov](https://codecov.io/gh/BaPSF/bapsflib/branch/master/graph/badge.svg)](https://codecov.io/gh/BaPSF/bapsflib/branch/master)
 
 The **bapsflib** package is developed on Python 3.5+ and is intend to 
 be a toolkit for reading, manipulating, and analyzing data collected at 

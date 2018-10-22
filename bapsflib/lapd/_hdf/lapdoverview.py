@@ -8,29 +8,30 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import os
-import sys
 import bapsflib
-
+import os
 import pprint as pp
+import sys
 
+from bapsflib._hdf.utils.hdfoverview import hdfOverview
 from datetime import datetime
-from bapsflib import lapd
+
+from .file import File
 
 
-class hdfOverview(object):
+class LaPDOverview(hdfOverview):
     """
-    Reports an overview of the HDF5 file mapping.
+    Reports an overview of the LaPD HDF5 file mapping.
     """
-    def __init__(self, hdf_obj):
+    def __init__(self, hdf_obj: File):
         """
         :param hdf_obj: HDF5 file map object
         :type hdf_obj: :class:`bapsflib.lapd.File`
         """
         super().__init__()
 
-        # store an instance of the HDF5 file object for hdfOverview
-        if isinstance(hdf_obj, lapd.File):
+        # store an instance of the HDF5 file object for LaPDOverview
+        if isinstance(hdf_obj, File):
             self.__hdf_obj = hdf_obj
             self.__hdf_map = hdf_obj.file_map
         else:
@@ -462,7 +463,7 @@ class hdfOverview(object):
 def status_print(item, found, note, indent=0,
                  item_found_pad=' ', found_tab=55):
     """
-    Stylistic status printing for :py:class:`hdfOverview`
+    Stylistic status printing for :py:class:`LaPDOverview`
 
     :param item: `str` for item (1st) column
     :param found: `str` for found (2nd) column

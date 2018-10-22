@@ -60,6 +60,21 @@ class HDFOverview(object):
         # ------ Print Detailed Reports                           ------
         self.report_details()
 
+    def save(self, filename):
+        """Saves the HDF5 overview to a text file."""
+        if filename is True:
+            # use the same name as the HDF5 file
+            filename = os.path.splitext(self._file.filename)[0]\
+                       + '.txt'
+
+        # write to file
+        with open(filename, 'w') as of:
+            sys.stdout = of
+            self.print()
+
+        # return to standard output
+        sys.stdout = sys.__stdout__
+
     def report_general(self):
         """
         Prints general HDF5 file info.
@@ -78,11 +93,20 @@ class HDFOverview(object):
         print('\n\nDiscovery Report')
         print('----------------\n')
 
+        # print digitizers
+        self.control_discovery()
+        print('\n')
+
+        # print digitizers
+        self.digitizer_discovery()
+        print('\n')
+
         # print msi
         self.msi_discovery()
+        print('\n')
 
-        # print data
-        self.data_discovery()
+        # print unknowns
+        self.unknowns_discovery()
 
     def report_details(self):
         """
@@ -102,93 +126,86 @@ class HDFOverview(object):
         # msi report
         self.report_msi()
 
-    def save(self, filename):
-        """Saves the HDF5 overview to a text file."""
-        if filename is True:
-            # use the same name as the HDF5 file
-            filename = os.path.splitext(self._file.filename)[0]\
-                       + '.txt'
+    def control_discovery(self):
+        """
+        Prints a discovery report of the Control devices.
+        """
+        # is there a control group
+        _path = self._fmap.DEVICE_PATHS['control']
+        _detected = _path in self._file
 
-        # write to file
-        with open(filename, 'w') as of:
-            sys.stdout = of
-            self.print()
+        # print number of diagnostics
+        ndevices = len(self._fmap.controls)
+        item = 'Control devices ({})'.format(ndevices)
+        status_print(item, '', '', indent=0)
 
-        # return to standard output
-        sys.stdout = sys.__stdout__
+        # print status to screen
+        item = _path + '/'
+        found = 'found' if _detected else 'missing'
+        status_print(item, found, '', item_found_pad=' ', indent=1)
+
+        # list diagnostics
+        for device in self._fmap.controls:
+            status_print(device, '', '', indent=2)
+
+    def digitizer_discovery(self):
+        """
+        Prints a discovery report of the Digitizer devices.
+        """
+        # is there a digitizer group
+        _path = self._fmap.DEVICE_PATHS['digitizer']
+        _detected = _path in self._file
+
+        # print number of diagnostics
+        ndevices = len(self._fmap.digitizers)
+        item = 'Digitizer devices ({})'.format(ndevices)
+        status_print(item, '', '', indent=0)
+
+        # print status to screen
+        item = _path + '/'
+        found = 'found' if _detected else 'missing'
+        status_print(item, found, '', item_found_pad=' ', indent=1)
+
+        # list diagnostics
+        for device in self._fmap.digitizers:
+            if device == self._fmap.main_digitizer.device_name:
+                device += " (main)"
+            status_print(device, '', '', indent=2)
 
     def msi_discovery(self):
         """
-        Prints a discovery report of the 'MSI' Group.
+        Prints a discovery report of the MSI devices.
         """
-        # is there a MSI
-        # msi_detected = self._fmap.has_msi_group
-        msi_detected = self._fmap._MSI_PATH in self._file
-
-        # print status to screen
-        item = self._fmap._MSI_PATH + '/'
-        found = 'found' if msi_detected else 'missing'
-        status_print(item, found, '', item_found_pad=' ')
+        # is there a MSI group
+        _path = self._fmap.DEVICE_PATHS['msi']
+        _detected = _path in self._file
 
         # print number of diagnostics
-        ndiag = len(self._fmap.msi)
-        item = 'diagnostics ({})'.format(ndiag)
-        status_print(item, '', '', indent=1)
-
-        # list diagnostics
-        for diag in self._fmap.msi:
-            status_print(diag, '', '', indent=2)
-
-    def data_discovery(self):
-        """
-        Prints a discovery report of the 'Raw data + config' Group.
-        This includes a discovery report of digitizers and control
-        devices.
-        """
-        # TODO: HANDLE CASES WERE _DIGITIZER_PATH AND _CONTROL_PATH ARE NOT THE SAME
-        # is there a 'Raw data + config'
-        data_detected = self._fmap._DIGITIZER_PATH in self._file
+        ndevices = len(self._fmap.msi)
+        item = 'MSI devices ({})'.format(ndevices)
+        status_print(item, '', '', indent=0)
 
         # print status to screen
-        item = self._fmap._DIGITIZER_PATH + '/ '
-        found = 'found' if data_detected else 'missing'
-        status_print(item, found, '')
+        item = _path + '/'
+        found = 'found' if _detected else 'missing'
+        status_print(item, found, '', item_found_pad=' ', indent=1)
 
-        # ---- Data run Sequence                                    ----
-        item = 'Data run sequence'
-        found = '' \
-            if self._fmap.has_data_run_sequence \
-            else 'not mapped'
-        status_print(item, found, '', indent=1)
+        # list diagnostics
+        for device in self._fmap.msi:
+            status_print(device, '', '', indent=2)
 
-        # ---- Digitizers                                           ----
-        item = 'digitizers ({})'.format(len(self._fmap.digitizers))
-        status_print(item, '', '', indent=1)
-
-        # list digitizers
-        for digi in self._fmap.digitizers:
-            item = digi
-            if digi == self._fmap.main_digitizer.device_name:
-                item += ' (main)'
-            status_print(item, '', '', indent=2)
-
-        # ---- Control Devices                                      ----
-        item = 'control devices ({})'.format(
-            len(self._fmap.controls))
-        status_print(item, '', '', indent=1)
-
-        # list controls
-        for control in self._fmap.controls:
-            status_print(control, '', '', indent=2)
-
-        # ---- Unknowns                                             ----
-        item = 'Unknowns ({})'.format(len(self._fmap.unknowns))
+    def unknowns_discovery(self):
+        """
+        Prints a discovery report of the Unknown devices.
+        """
+        ndevices = len(self._fmap.unknowns)
+        item = 'Unknowns ({})'.format(ndevices)
         note = 'aka unmapped'
         status_print(item, note, '', indent=0)
 
         # list unknowns
-        for unknown in self._fmap.unknowns:
-            status_print(unknown, '', '', indent=1)
+        for device in self._fmap.unknowns:
+            status_print(device, '', '', indent=1)
 
     def report_msi(self, name=None):
         """

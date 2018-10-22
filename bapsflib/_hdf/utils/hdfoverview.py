@@ -18,7 +18,7 @@ from datetime import datetime
 from .file import File
 
 
-class hdfOverview(object):
+class HDFOverview(object):
     """
     Reports an overview of the HDF5 file mapping.
     """
@@ -29,7 +29,7 @@ class hdfOverview(object):
         """
         super().__init__()
 
-        # store an instance of the HDF5 file object for hdfOverview
+        # store an instance of the HDF5 file object for HDFOverview
         if isinstance(hdf_obj, File):
             self._file = hdf_obj
             self._fmap = hdf_obj.file_map
@@ -462,7 +462,7 @@ class hdfOverview(object):
 def status_print(item, found, note, indent=0,
                  item_found_pad=' ', found_tab=55):
     """
-    Stylistic status printing for :py:class:`hdfOverview`
+    Stylistic status printing for :py:class:`HDFOverview`
 
     :param item: `str` for item (1st) column
     :param found: `str` for found (2nd) column

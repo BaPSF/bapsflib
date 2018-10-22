@@ -15,7 +15,7 @@ import warnings
 from bapsflib._hdf.maps.hdfmap import HDFMap
 from warnings import warn
 
-from .hdfoverview import hdfOverview
+from .hdfoverview import HDFOverview
 
 
 class File(h5py.File):
@@ -120,9 +120,9 @@ class File(h5py.File):
     @property
     def overview(self):
         """
-        HDF5 file overview. (:class:`~.hdfoverview.hdfOverview`)
+        HDF5 file overview. (:class:`~.hdfoverview.HDFOverview`)
         """
-        return hdfOverview(self)
+        return HDFOverview(self)
 
     def read_controls(self, controls,
                       shotnum=slice(None),

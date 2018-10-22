@@ -13,13 +13,13 @@ import os
 import pprint as pp
 import sys
 
-from bapsflib._hdf.utils.hdfoverview import hdfOverview
+from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from datetime import datetime
 
 from .file import File
 
 
-class LaPDOverview(hdfOverview):
+class LaPDOverview(HDFOverview):
     """
     Reports an overview of the LaPD HDF5 file mapping.
     """

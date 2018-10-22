@@ -148,10 +148,11 @@ class hdfOverview(object):
         Prints a discovery report of the 'MSI' Group.
         """
         # is there a MSI
-        msi_detected = self.__hdf_map.has_msi_group
+        # msi_detected = self.__hdf_map.has_msi_group
+        msi_detected = self.__hdf_map._MSI_PATH in self.__hdf_obj
 
         # print status to screen
-        item = self.__hdf_map._MSI_GNAME + '/'
+        item = self.__hdf_map._MSI_PATH + '/'
         found = 'found' if msi_detected else 'missing'
         status_print(item, found, '', item_found_pad=' ')
 
@@ -170,11 +171,12 @@ class hdfOverview(object):
         This includes a discovery report of digitizers and control
         devices.
         """
+        # TODO: HANDLE CASES WERE _DIGITIZER_PATH AND _CONTROL_PATH ARE NOT THE SAME
         # is there a 'Raw data + config'
-        data_detected = self.__hdf_map.has_data_group
+        data_detected = self.__hdf_map._DIGITIZER_PATH in self.__hdf_obj
 
         # print status to screen
-        item = self.__hdf_map._DATA_GNAME + '/ '
+        item = self.__hdf_map._DIGITIZER_PATH + '/ '
         found = 'found' if data_detected else 'missing'
         status_print(item, found, '')
 

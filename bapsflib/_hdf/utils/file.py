@@ -12,7 +12,7 @@ import h5py
 import os
 import warnings
 
-from bapsflib.lapd._hdf.hdfoverview import hdfOverview
+# from bapsflib.lapd._hdf.hdfoverview import hdfOverview
 from bapsflib._hdf.maps.hdfmap import HDFMap
 
 
@@ -44,11 +44,39 @@ class File(h5py.File):
         h5py.File.__init__(self, name, mode, driver, libver,
                            userblock_size, swmr, **kwargs)
 
-        # perform mapping
-        self.__file_map = HDFMap(self, silent=silent)
+        # map and build info
 
-        # initialize _info attribute
-        self._build_info()
+        # perform mapping
+        warn_filter = "ignore" if silent else "default"
+        with warnings.catch_warnings():
+            warnings.simplefilter(warn_filter)
+
+            # create map
+            self._map_file()
+
+            # build `_info` attribute
+            self._build_info()
+
+    def _build_info(self):
+        """Builds the general info dictionary for the file"""
+        # define file keys
+        self._info = {
+            'filename': os.path.basename(self.filename),
+            'absolute file path': os.path.abspath(self.filename),
+        }
+
+        # add run info
+        # self._info.update(self.file_map.run_info)
+
+        # add exp info
+        # self._info.update(self.file_map.exp_info)
+
+    def _map_file(self):
+        self._file_map = HDFMap(
+            self,
+            msi_path='MSI',
+            digitizer_path='Raw data + config',
+            control_path='Raw data + config')
 
     @property
     def info(self):
@@ -56,7 +84,7 @@ class File(h5py.File):
         Dictionary of general info on the HDF5 file and experimental
         run.
         """
-        return self._info.copy()
+        return self._info
 
     @property
     def file_map(self):
@@ -64,7 +92,7 @@ class File(h5py.File):
         HDF5 file mappings
         (:class:`bapsflib._hdf.maps.hdfmap.HDFMap`)
         """
-        return self.__file_map
+        return self._file_map
 
     def get_device_map(self, name: str):
         # TODO: hl access to mapping objects
@@ -101,6 +129,7 @@ class File(h5py.File):
         """
         return list(self.file_map.controls)
 
+    '''
     @property
     def overview(self):
         """
@@ -108,6 +137,7 @@ class File(h5py.File):
         :class:`~bapsflib.lapd.hdfoverview.hdfOverview`)
         """
         return hdfOverview(self)
+    '''
 
     def read_data(self, board, channel,
                   index=slice(None), shotnum=slice(None),
@@ -303,18 +333,3 @@ class File(h5py.File):
         """Description of experimental run (from the HDF5 file)"""
         for line in self._info['run description'].splitlines():
             print(line)
-
-    def _build_info(self):
-        """Builds the general info dictionary for the file"""
-        # define file keys
-        self._info = {
-            'filename': os.path.basename(self.filename),
-            'absolute file path': os.path.abspath(self.filename),
-            'lapd version': self.file_map.hdf_version
-        }
-
-        # add run info
-        self._info.update(self.file_map.run_info)
-
-        # add exp info
-        self._info.update(self.file_map.exp_info)

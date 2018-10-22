@@ -26,3 +26,8 @@ class File(BaseFile):
 
         # add 'lapd version' to `_info`
         self._info['lapd version'] = self.file_map.lapd_version
+
+    def run_description(self):
+        """Description of experimental run (from the HDF5 file)"""
+        for line in self._info['run description'].splitlines():
+            print(line)

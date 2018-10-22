@@ -324,12 +324,3 @@ class File(h5py.File):
             data = HDFReadMSI(self, msi_diag, **kwargs)
 
         return data
-
-    def remap(self):
-        # TODO: initiate a re-mapping of the HDF5 file
-        pass
-
-    def run_description(self):
-        """Description of experimental run (from the HDF5 file)"""
-        for line in self._info['run description'].splitlines():
-            print(line)

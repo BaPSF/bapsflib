@@ -138,7 +138,8 @@ class TestHDFReadData(TestBase):
         }
         fields = list(cdata.dtype.names)
         fields.remove('xyz')
-        m_cdata = np.reshape(cdata[4][fields], 1).view(HDFReadControl)
+        m_cdata = np.reshape(cdata[fields][4], (1,))
+        m_cdata = m_cdata.view(HDFReadControl)
         m_cdata._info = m_info
         mock_cdata.return_value = m_cdata.view(HDFReadControl)
         data = HDFReadData(_bf, brd, ch, config_name=config_name,

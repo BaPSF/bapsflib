@@ -30,4 +30,4 @@ from . import lapdhdf
 from . import plasma
 
 # --- Define version ---------------------------------------------------
-__version__ = '0.1.3.dev5'
+__version__ = '1.0.0.dev'

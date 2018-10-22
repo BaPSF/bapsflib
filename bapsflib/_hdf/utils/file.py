@@ -85,7 +85,7 @@ class File(h5py.File):
         """Builds the general info dictionary for the file"""
         # define file keys
         self._info = {
-            'filename': os.path.basename(self.filename),
+            'file': os.path.basename(self.filename),
             'absolute file path': os.path.abspath(self.filename),
         }
 
@@ -140,6 +140,75 @@ class File(h5py.File):
         """
         return hdfOverview(self)
     '''
+
+    def read_controls(self, controls,
+                      shotnum=slice(None),
+                      intersection_set=True,
+                      silent=False, **kwargs):
+        """
+        Reads data out of control device datasets.  See
+        :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl` for
+        more detail.
+
+        :param controls: a list of strings and/or 2-element tuples
+            indicating the control device(s). (see
+            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
+            for details)
+        :type controls: [str, (str, val), ]
+        :param shotnum: HDF5 file shot number(s) indicating data
+            entries to be extracted
+        :type shotnum: int, list(int), slice()
+        :param bool intersection_set: :code:`True` (DEFAULT) will force
+            the returned shot numbers to be the intersection of
+            :data:`shotnum` and the shot numbers contained in each
+            control device dataset. :code:`False` will return the union
+            instead of the intersection  (see
+            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
+            for details)
+        :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
+            to suppress command line printout of soft-warnings
+        :return: extracted data from control device(s)
+        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
+
+        :Example:
+
+            >>> # open HDF5 file
+            >>> f = File('sample.hdf5')
+            >>>
+            >>> # list control devices
+            >>> f.list_controls
+            ['6K Compumotor', 'Waveform']
+            >>>
+            >>> # list '6K Compumotor' configurations
+            >>> list(f.file_map.controls['6K Compumotor'].configs)
+            [2, 3]
+            >>>
+            >>> # extract all '6k Compumotor', configuration 3 data
+            >>> cdata = f.read_controls([('6K Compumotor', 3)])
+            >>>
+            >>> # list 'Waveform' configurations
+            >>> list(f.file_map.controls['Waveform'].configs)
+            ['config01']
+            >>>
+            >>> # extract 'Waveform' data
+            >>> cdata = f.read_controls(['Waveform'])
+            >>>
+            >>> # extract both 'Waveform' and '6K Compumotor'
+            >>> controls = ['Waveform', ('6K Compumotor', 2)]
+            >>> cdata = f.read_controls(controls)
+
+        """
+        from bapsflib._hdf.utils.hdfreadcontrol import HDFReadControl
+
+        warn_filter = 'ignore' if silent else 'default'
+        with warnings.catch_warnings():
+            warnings.simplefilter(warn_filter)
+            data = HDFReadControl(self, controls,
+                                  shotnum=shotnum,
+                                  intersection_set=intersection_set,
+                                  **kwargs)
+
+        return data
 
     def read_data(self, board, channel,
                   index=slice(None), shotnum=slice(None),
@@ -218,75 +287,6 @@ class File(h5py.File):
                                add_controls=add_controls,
                                intersection_set=intersection_set,
                                **kwargs)
-
-        return data
-
-    def read_controls(self, controls,
-                      shotnum=slice(None),
-                      intersection_set=True,
-                      silent=False, **kwargs):
-        """
-        Reads data out of control device datasets.  See
-        :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl` for
-        more detail.
-
-        :param controls: a list of strings and/or 2-element tuples
-            indicating the control device(s). (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
-            for details)
-        :type controls: [str, (str, val), ]
-        :param shotnum: HDF5 file shot number(s) indicating data
-            entries to be extracted
-        :type shotnum: int, list(int), slice()
-        :param bool intersection_set: :code:`True` (DEFAULT) will force
-            the returned shot numbers to be the intersection of
-            :data:`shotnum` and the shot numbers contained in each
-            control device dataset. :code:`False` will return the union
-            instead of the intersection  (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
-            for details)
-        :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
-            to suppress command line printout of soft-warnings
-        :return: extracted data from control device(s)
-        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
-
-        :Example:
-
-            >>> # open HDF5 file
-            >>> f = File('sample.hdf5')
-            >>>
-            >>> # list control devices
-            >>> f.list_controls
-            ['6K Compumotor', 'Waveform']
-            >>>
-            >>> # list '6K Compumotor' configurations
-            >>> list(f.file_map.controls['6K Compumotor'].configs)
-            [2, 3]
-            >>>
-            >>> # extract all '6k Compumotor', configuration 3 data
-            >>> cdata = f.read_controls([('6K Compumotor', 3)])
-            >>>
-            >>> # list 'Waveform' configurations
-            >>> list(f.file_map.controls['Waveform'].configs)
-            ['config01']
-            >>>
-            >>> # extract 'Waveform' data
-            >>> cdata = f.read_controls(['Waveform'])
-            >>>
-            >>> # extract both 'Waveform' and '6K Compumotor'
-            >>> controls = ['Waveform', ('6K Compumotor', 2)]
-            >>> cdata = f.read_controls(controls)
-
-        """
-        from bapsflib._hdf.utils.hdfreadcontrol import HDFReadControl
-
-        warn_filter = 'ignore' if silent else 'default'
-        with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
-            data = HDFReadControl(self, controls,
-                                  shotnum=shotnum,
-                                  intersection_set=intersection_set,
-                                  **kwargs)
 
         return data
 

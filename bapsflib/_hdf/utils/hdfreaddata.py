@@ -26,7 +26,7 @@ from .hdfreadcontrol import HDFReadControl
 
 
 # noinspection PyInitNewSignature
-class HDFReadData(np.recarray):
+class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
     device data is extracted using
@@ -97,10 +97,6 @@ class HDFReadData(np.recarray):
         array([ -32. ,   15. , 1022.4], dtype=float32)
 
     """
-    warn("attribute access to numpy array fields will be deprecated "
-         "by Oct., access fields like data['shotnum'] NOT like "
-         "data.shotnum",
-         FutureWarning)
 
     def __new__(cls,
                 hdf_file: File,

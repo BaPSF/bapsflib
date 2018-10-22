@@ -62,15 +62,10 @@ class TestHDFReadControl(TestBase):
     #
 
     def setUp(self):
-        super(TestHDFReadControl, self).setUp()
+        super().setUp()
 
     def tearDown(self):
-        super(TestHDFReadControl, self).tearDown()
-
-    @property
-    def bf(self):
-        """Opened BaPSF HDF5 File instance."""
-        return File(self.f.filename)
+        super().tearDown()
 
     def test_raise_errors(self):
         """Test handling of input argument `hdf_file`."""

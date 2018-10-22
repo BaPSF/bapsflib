@@ -245,29 +245,25 @@ class TestConditionControls(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    @property
-    def lapdf(self):
-        return File(self.f.filename)
-
     def test_input_failures(self):
         """Test input failures of `controls`"""
         # `controls` is Null
         self.assertRaises(ValueError,
-                          condition_controls, self.lapdf, [])
+                          condition_controls, self.bf, [])
 
         # `controls` is not a string or Iterable
         self.assertRaises(TypeError,
-                          condition_controls, self.lapdf, True)
+                          condition_controls, self.bf, True)
 
         # 'controls` element is not a str or tuple
         self.assertRaises(TypeError,
                           condition_controls,
-                          self.lapdf, ['Waveform', 8])
+                          self.bf, ['Waveform', 8])
 
         # `controls` tuple element has length > 2
         self.assertRaises(ValueError,
                           condition_controls,
-                          self.lapdf, [('Waveform', 'c1', 'c2')])
+                          self.bf, [('Waveform', 'c1', 'c2')])
 
     def test_file_w_one_control(self):
         """
@@ -276,7 +272,7 @@ class TestConditionControls(TestBase):
         # set one control device
         self.f.add_module('Waveform',
                           mod_args={'n_configs': 1, 'sn_size': 100})
-        _lapdf = self.lapdf
+        _bf = self.bf
 
         # ---- Waveform w/ one Configuration                        ----
         # conditions that work
@@ -288,7 +284,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertEqual(
-                condition_controls(_lapdf, og_con),
+                condition_controls(_bf, og_con),
                 [('Waveform', 'config01')])
 
         # conditions that raise ValueError
@@ -299,11 +295,11 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(ValueError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # ---- Waveform w/ three Configurations                     ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        _lapdf = self.lapdf
+        _bf = self.bf
 
         # conditions that work
         con_list = [
@@ -312,7 +308,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertEqual(
-                condition_controls(_lapdf, og_con),
+                condition_controls(_bf, og_con),
                 og_con)
 
         # conditions that raise ValueError
@@ -322,7 +318,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(ValueError,
-                              condition_controls, _lapdf,
+                              condition_controls, _bf,
                               og_con)
 
     def test_file_w_multiple_controls(self):
@@ -337,7 +333,7 @@ class TestConditionControls(TestBase):
                           {'n_configs': 1, 'sn_size': 100})
 
         # ---- 1 Waveform Config & 1 6K Config                      ----
-        _lapdf = self.lapdf
+        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
 
         # conditions that work
@@ -362,7 +358,7 @@ class TestConditionControls(TestBase):
              [('Waveform', 'config01'), ('6K Compumotor', sixk_cspec)]),
         ]
         for og_con, correct_con in con_list:
-            self.assertEqual(condition_controls(_lapdf, og_con),
+            self.assertEqual(condition_controls(_bf, og_con),
                              correct_con)
 
         # conditions that raise TypeError
@@ -371,7 +367,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(TypeError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # conditions that raise ValueError
         con_list = [
@@ -382,11 +378,11 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(ValueError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # ---- 3 Waveform Config & 1 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        _lapdf = self.lapdf
+        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
 
         # conditions that work
@@ -408,7 +404,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con, correct_con in con_list:
             self.assertEqual(
-                condition_controls(_lapdf, og_con),
+                condition_controls(_bf, og_con),
                 correct_con)
 
         # conditions that raise TypeError
@@ -417,7 +413,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(TypeError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # conditions that raise ValueError
         con_list = [
@@ -431,12 +427,12 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(ValueError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # ---- 1 Waveform Config & 3 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 1
         self.f.modules['6K Compumotor'].knobs.n_configs = 3
-        _lapdf = self.lapdf
+        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names
 
         # conditions that work
@@ -454,7 +450,7 @@ class TestConditionControls(TestBase):
               ('6K Compumotor', sixk_cspec[1])])
         ]
         for og_con, correct_con in con_list:
-            self.assertEqual(condition_controls(_lapdf, og_con),
+            self.assertEqual(condition_controls(_bf, og_con),
                              correct_con)
 
         # conditions that raise TypeError
@@ -463,7 +459,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(TypeError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # conditions that raise ValueError
         con_list = [
@@ -477,11 +473,11 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(ValueError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # ---- 3 Waveform Config & 3 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        _lapdf = self.lapdf
+        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names
 
         # conditions that work
@@ -500,7 +496,7 @@ class TestConditionControls(TestBase):
               ('6K Compumotor', sixk_cspec[1])])
         ]
         for og_con, correct_con in con_list:
-            self.assertEqual(condition_controls(_lapdf, og_con),
+            self.assertEqual(condition_controls(_bf, og_con),
                              correct_con)
 
         # conditions that raise TypeError
@@ -509,7 +505,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(TypeError,
-                              condition_controls, _lapdf, og_con)
+                              condition_controls, _bf, og_con)
 
         # conditions that raise ValueError
         con_list = [
@@ -523,7 +519,7 @@ class TestConditionControls(TestBase):
         ]
         for og_con in con_list:
             self.assertRaises(ValueError,
-                              condition_controls, _lapdf,
+                              condition_controls, _bf,
                               og_con)
 
     def test_controls_w_same_contype(self):
@@ -536,16 +532,16 @@ class TestConditionControls(TestBase):
                           {'n_configs': 1, 'sn_size': 100})
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 100})
-        _lapdf = self.lapdf
+        _bf = self.bf
 
         # fake 6K as contype.waveform
-        _lapdf.file_map.controls['6K Compumotor'].info['contype'] = \
-            _lapdf.file_map.controls['Waveform'].info['contype']
+        _bf.file_map.controls['6K Compumotor'].info['contype'] = \
+            _bf.file_map.controls['Waveform'].info['contype']
 
         # test
         self.assertRaises(TypeError,
                           condition_controls,
-                          _lapdf, ['Waveform', '6K Compumotor'])
+                          _bf, ['Waveform', '6K Compumotor'])
 
 
 class TestConditionShotnum(TestBase):

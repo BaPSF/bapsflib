@@ -45,11 +45,6 @@ class TestHDFReadData(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    @property
-    def bf(self) -> File:
-        """Opened BaPSF HDF5 File instance."""
-        return File(self.f.filename)
-
     @mock.patch('bapsflib._hdf.utils.hdfreaddata.HDFReadControl')
     @mock.patch('bapsflib._hdf.utils.hdfreaddata.condition_controls')
     @mock.patch.object(HDFMap, 'controls',

@@ -14,7 +14,7 @@
 import io
 import unittest as ut
 
-from bapsflib._hdf import HDFMap
+from bapsflib._hdf.maps import HDFMap
 from unittest import mock
 
 from . import TestBase
@@ -73,6 +73,165 @@ class TestHDFOverview(TestBase):
         self.assertTrue(hasattr(_overview, 'report_msi_configs'))
         self.assertTrue(hasattr(_overview, 'save'))
         self.assertTrue(hasattr(_overview, 'unknowns_discovery'))
+
+    @mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_report_controls(self, mock_stdout):
+        _bf = self.bf
+        _overview = self.overview
+
+        # HDFOverview.report_control_configs                        ----
+        control = _bf.controls['Waveform']
+
+        # control has no configurations
+        with mock.patch.object(
+                control.__class__, 'configs',
+                new_callable=mock.PropertyMock,
+                return_value={}) as mock_configs:
+            _overview.report_control_configs(control)
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_configs.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # control HAS configurations
+        configs = control.configs.copy()
+        mock_values = {}
+        with mock.patch.object(
+                control.__class__, 'configs',
+                new_callable=mock.PropertyMock,
+                return_value=configs) as mock_values['configs']:
+            _overview.report_control_configs(control)
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_values['configs'].called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.report_controls                               ----
+        with mock.patch.object(HDFMap, 'controls',
+                               new_callable=mock.PropertyMock,
+                               return_value=_bf.file_map.controls) \
+                as mock_dmap, \
+                mock.patch.object(
+                    HDFOverview,
+                    'report_control_configs',
+                    side_effect=_overview.report_control_configs) \
+                as mock_rcc:
+            # specify an existing control
+            _overview.report_controls('Waveform')
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+            self.assertTrue(mock_rcc.called)
+            mock_dmap.reset_mock()
+            mock_rcc.reset_mock()
+
+            # "flush" StringIO
+            mock_stdout.truncate(0)
+            mock_stdout.seek(0)
+            self.assertEqual(mock_stdout.getvalue(), '')
+
+            # report all (aka specified control not in map dict)
+            _overview.report_controls()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+            self.assertTrue(mock_rcc.called)
+            mock_dmap.reset_mock()
+            mock_rcc.reset_mock()
+
+            # "flush" StringIO
+            mock_stdout.truncate(0)
+            mock_stdout.seek(0)
+            self.assertEqual(mock_stdout.getvalue(), '')
+
+    @mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_report_digitizers(self, mock_stdout):
+        self.f.add_module('SIS crate')
+
+        _bf = self.bf
+        _overview = self.overview
+
+        # HDFOverview.report_digitizer_configs                      ----
+        digi = _bf.digitizers['SIS 3301']
+
+        # digitizer has no configurations
+        with mock.patch.object(
+                digi.__class__, 'configs',
+                new_callable=mock.PropertyMock,
+                return_value={}) as mock_configs:
+
+            _overview.report_digitizer_configs(digi)
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_configs.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # digitizer HAS configurations
+        configs = digi.configs.copy()
+        active = digi.active_configs.copy()
+        mock_values = {}
+        with mock.patch.object(
+                digi.__class__, 'configs',
+                new_callable=mock.PropertyMock,
+                return_value=configs) as mock_values['configs'], \
+             mock.patch.object(
+                digi.__class__, 'active_configs',
+                new_callable=mock.PropertyMock,
+                return_value=active) as mock_values['active_configs']:
+
+            _overview.report_digitizer_configs(digi)
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_values['configs'].called)
+            self.assertTrue(mock_values['active_configs'].called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.report_digitizers                             ----
+        with mock.patch.object(HDFMap, 'digitizers',
+                               new_callable=mock.PropertyMock,
+                               return_value=_bf.file_map.digitizers) \
+                as mock_dmap, \
+                mock.patch.object(
+                    HDFOverview,
+                    'report_digitizer_configs',
+                    side_effect=_overview.report_digitizer_configs) \
+                as mock_rdc:
+
+            # specify an existing digitizer
+            _overview.report_digitizers('SIS 3301')
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+            self.assertTrue(mock_rdc.called)
+            mock_dmap.reset_mock()
+            mock_rdc.reset_mock()
+
+            # "flush" StringIO
+            mock_stdout.truncate(0)
+            mock_stdout.seek(0)
+            self.assertEqual(mock_stdout.getvalue(), '')
+
+            # report all (aka specified digitizer not in map dict)
+            _overview.report_digitizers()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+            self.assertTrue(mock_rdc.called)
+            mock_dmap.reset_mock()
+            mock_rdc.reset_mock()
+
+            # "flush" StringIO
+            mock_stdout.truncate(0)
+            mock_stdout.seek(0)
+            self.assertEqual(mock_stdout.getvalue(), '')
 
     @mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_discoveries(self, mock_stdout):

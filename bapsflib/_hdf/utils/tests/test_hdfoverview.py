@@ -12,6 +12,7 @@
 #   license terms and contributor agreement.
 #
 import io
+import os
 import unittest as ut
 
 from bapsflib._hdf.maps import HDFMap
@@ -442,6 +443,34 @@ class TestHDFOverview(TestBase):
             self.assertTrue(mock_values['report_general'].called)
             self.assertTrue(mock_values['report_discovery'].called)
             self.assertTrue(mock_values['report_details'].called)
+
+    @mock.patch('__main__.__builtins__.open',
+                new_callable=mock.mock_open)
+    def test_save(self, mock_o):
+        _bf = self.bf
+        _overview = self.overview
+
+        with mock.patch.object(
+                _overview.__class__, 'print',
+                side_effect=_overview.print) as mock_print:
+
+            # save overview file alongside HDF5 file
+            filename = os.path.splitext(_bf.filename)[0] + '.txt'
+            _overview.save()
+            self.assertTrue(mock_print.called)
+            self.assertEqual(mock_o.call_count, 1)
+            mock_o.assert_called_with(filename, 'w')
+
+            # reset mocks
+            mock_o.reset_mock()
+            mock_print.reset_mock()
+
+            # specify `filename`
+            filename = 'test.txt'
+            _overview.save(filename=filename)
+            self.assertTrue(mock_print.called)
+            self.assertEqual(mock_o.call_count, 1)
+            mock_o.assert_called_with(filename, 'w')
 
 
 if __name__ == '__main__':

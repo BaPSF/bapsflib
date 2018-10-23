@@ -1,14 +1,14 @@
-bapsflib\.lapd\.\_hdf\.hdfoverview
-==================================
+bapsflib\.lapd\.\_hdf\.lapdoverview
+===================================
 
-.. automodule:: bapsflib.lapd._hdf.hdfoverview
+.. automodule:: bapsflib.lapd._hdf.lapdoverview
     :members:
     :undoc-members:
     :show-inheritance:
 
     .. rubric:: Classes
 
-    .. autosummary:: hdfOverview
+    .. autosummary:: LaPDOverview
         :nosignatures:
 
     .. rubric:: Functions

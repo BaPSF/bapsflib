@@ -227,7 +227,7 @@ class HDFOverview(object):
         """
         # gather configs to print
         if name in self._fmap.msi:
-            _dmap = {name, self._fmap.msi[name]}
+            _dmap = {name: self._fmap.msi[name]}
         else:
             name = None
             _dmap = self._fmap.msi
@@ -277,7 +277,7 @@ class HDFOverview(object):
         """
         # gather configs to print
         if name in self._fmap.digitizers:
-            _dmap = {name, self._fmap.digitizers[name]}
+            _dmap = {name: self._fmap.digitizers[name]}
         else:
             name = None
             _dmap = self._fmap.digitizers
@@ -389,7 +389,7 @@ class HDFOverview(object):
         """
         # gather configs to print
         if name in self._fmap.controls:
-            _dmap = {name, self._fmap.controls[name]}
+            _dmap = {name: self._fmap.controls[name]}
         else:
             name = None
             _dmap = self._fmap.controls
@@ -468,8 +468,6 @@ def status_print(first: str, second: str, third: str,
             >>> status_print('one', 'two', 'three', second_tab=15,
             ...              indent=2, onetwo_pad='~')
             |   +-- one    two    three
-
-
 
     """
     note_tab = 7

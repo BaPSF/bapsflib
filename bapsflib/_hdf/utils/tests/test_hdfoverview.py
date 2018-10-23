@@ -423,6 +423,26 @@ class TestHDFOverview(TestBase):
             mock_stdout.seek(0)
             self.assertEqual(mock_stdout.getvalue(), '')
 
+    @mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_print(self, mock_stdout):
+        _bf = self.bf
+        _overview = self.overview
+
+        with mock.patch.object(_bf.__class__, 'info',
+                               new_callable=mock.PropertyMock,
+                               return_value=_bf.info) as mock_info,\
+                mock.patch.multiple(
+                    _overview.__class__,
+                    report_general=mock.DEFAULT,
+                    report_discovery=mock.DEFAULT,
+                    report_details=mock.DEFAULT) as mock_values:
+            _overview.print()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_info.called)
+            self.assertTrue(mock_values['report_general'].called)
+            self.assertTrue(mock_values['report_discovery'].called)
+            self.assertTrue(mock_values['report_details'].called)
+
 
 if __name__ == '__main__':
     ut.main()

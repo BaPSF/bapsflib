@@ -75,6 +75,93 @@ class TestHDFOverview(TestBase):
         self.assertTrue(hasattr(_overview, 'unknowns_discovery'))
 
     @mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_discoveries(self, mock_stdout):
+        self.f.add_module('SIS crate')
+
+        _bf = self.bf
+        _overview = self.overview
+
+        # HDFOverview.control_discovery()
+        with mock.patch.object(
+                HDFMap, 'controls', new_callable=mock.PropertyMock,
+                return_value=_bf.file_map.controls) as mock_dmap:
+            _overview.control_discovery()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.digitizer_discovery()
+        with mock.patch.object(
+                HDFMap, 'digitizers', new_callable=mock.PropertyMock,
+                return_value=_bf.file_map.digitizers) as mock_dmap:
+            _overview.digitizer_discovery()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.msi_discovery()
+        with mock.patch.object(
+                HDFMap, 'msi', new_callable=mock.PropertyMock,
+                return_value=_bf.file_map.msi) as mock_dmap:
+            _overview.msi_discovery()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_dmap.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.unknowns_discovery()
+        with mock.patch.object(
+                HDFMap, 'unknowns', new_callable=mock.PropertyMock,
+                return_value=_bf.file_map.unknowns) as mock_unknowns:
+            _overview.unknowns_discovery()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_unknowns.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.report_discovery()
+        with mock.patch.multiple(
+                HDFOverview,
+                control_discovery=mock.DEFAULT,
+                digitizer_discovery=mock.DEFAULT,
+                msi_discovery=mock.DEFAULT,
+                unknowns_discovery=mock.DEFAULT) as mock_values:
+            mock_values['control_discovery'].side_effect = \
+                _overview.control_discovery()
+            mock_values['digitizer_discovery'].side_effect = \
+                _overview.digitizer_discovery()
+            mock_values['msi_discovery'].side_effect = \
+                _overview.msi_discovery()
+            mock_values['unknowns_discovery'].side_effect = \
+                _overview.unknowns_discovery()
+
+            _overview.report_discovery()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_values['control_discovery'].called)
+            self.assertTrue(mock_values['digitizer_discovery'].called)
+            self.assertTrue(mock_values['msi_discovery'].called)
+            self.assertTrue(mock_values['unknowns_discovery'].called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+    @mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_report_controls(self, mock_stdout):
         _bf = self.bf
         _overview = self.overview
@@ -234,91 +321,78 @@ class TestHDFOverview(TestBase):
             self.assertEqual(mock_stdout.getvalue(), '')
 
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_discoveries(self, mock_stdout):
-        self.f.add_module('SIS crate')
-
+    def test_report_msi(self, mock_stdout):
         _bf = self.bf
         _overview = self.overview
 
-        # HDFOverview.control_discovery()
+        # HDFOverview.report_msi_configs                            ----
+        msi = _bf.msi['Discharge']
+
+        # MSI has no configurations
         with mock.patch.object(
-                HDFMap, 'controls', new_callable=mock.PropertyMock,
-                return_value=_bf.file_map.controls) as mock_dmap:
-            _overview.control_discovery()
+                msi.__class__, 'configs',
+                new_callable=mock.PropertyMock,
+                return_value={}) as mock_msi:
+            _overview.report_msi_configs(msi)
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_msi.called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # MSI HAS configurations
+        configs = msi.configs.copy()
+        mock_values = {}
+        with mock.patch.object(
+                msi.__class__, 'configs',
+                new_callable=mock.PropertyMock,
+                return_value=configs) as mock_values['configs']:
+            _overview.report_msi_configs(msi)
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_values['configs'].called)
+
+        # "flush" StringIO
+        mock_stdout.truncate(0)
+        mock_stdout.seek(0)
+        self.assertEqual(mock_stdout.getvalue(), '')
+
+        # HDFOverview.report_msi                                    ----
+        with mock.patch.object(HDFMap, 'msi',
+                               new_callable=mock.PropertyMock,
+                               return_value=_bf.file_map.msi) \
+                as mock_dmap, \
+                mock.patch.object(
+                    HDFOverview,
+                    'report_msi_configs',
+                    side_effect=_overview.report_control_configs) \
+                as mock_rmc:
+            # specify an existing control
+            _overview.report_msi('Discharge')
             self.assertNotEqual(mock_stdout.getvalue(), '')
             self.assertTrue(mock_dmap.called)
+            self.assertTrue(mock_rmc.called)
+            mock_dmap.reset_mock()
+            mock_rmc.reset_mock()
 
-        # "flush" StringIO
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-        self.assertEqual(mock_stdout.getvalue(), '')
+            # "flush" StringIO
+            mock_stdout.truncate(0)
+            mock_stdout.seek(0)
+            self.assertEqual(mock_stdout.getvalue(), '')
 
-        # HDFOverview.digitizer_discovery()
-        with mock.patch.object(
-                HDFMap, 'digitizers', new_callable=mock.PropertyMock,
-                return_value=_bf.file_map.digitizers) as mock_dmap:
-            _overview.digitizer_discovery()
+            # report all (aka specified control not in map dict)
+            _overview.report_msi()
             self.assertNotEqual(mock_stdout.getvalue(), '')
             self.assertTrue(mock_dmap.called)
+            self.assertTrue(mock_rmc.called)
+            mock_dmap.reset_mock()
+            mock_rmc.reset_mock()
 
-        # "flush" StringIO
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-        self.assertEqual(mock_stdout.getvalue(), '')
-
-        # HDFOverview.msi_discovery()
-        with mock.patch.object(
-                HDFMap, 'msi', new_callable=mock.PropertyMock,
-                return_value=_bf.file_map.msi) as mock_dmap:
-            _overview.msi_discovery()
-            self.assertNotEqual(mock_stdout.getvalue(), '')
-            self.assertTrue(mock_dmap.called)
-
-        # "flush" StringIO
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-        self.assertEqual(mock_stdout.getvalue(), '')
-
-        # HDFOverview.unknowns_discovery()
-        with mock.patch.object(
-                HDFMap, 'unknowns', new_callable=mock.PropertyMock,
-                return_value=_bf.file_map.unknowns) as mock_unknowns:
-            _overview.unknowns_discovery()
-            self.assertNotEqual(mock_stdout.getvalue(), '')
-            self.assertTrue(mock_unknowns.called)
-
-        # "flush" StringIO
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-        self.assertEqual(mock_stdout.getvalue(), '')
-
-        # HDFOverview.report_discovery()
-        with mock.patch.multiple(
-                HDFOverview,
-                control_discovery=mock.DEFAULT,
-                digitizer_discovery=mock.DEFAULT,
-                msi_discovery=mock.DEFAULT,
-                unknowns_discovery=mock.DEFAULT) as mock_values:
-            mock_values['control_discovery'].side_effect = \
-                _overview.control_discovery()
-            mock_values['digitizer_discovery'].side_effect = \
-                _overview.digitizer_discovery()
-            mock_values['msi_discovery'].side_effect = \
-                _overview.msi_discovery()
-            mock_values['unknowns_discovery'].side_effect = \
-                _overview.unknowns_discovery()
-
-            _overview.report_discovery()
-            self.assertNotEqual(mock_stdout.getvalue(), '')
-            self.assertTrue(mock_values['control_discovery'].called)
-            self.assertTrue(mock_values['digitizer_discovery'].called)
-            self.assertTrue(mock_values['msi_discovery'].called)
-            self.assertTrue(mock_values['unknowns_discovery'].called)
-
-        # "flush" StringIO
-        mock_stdout.truncate(0)
-        mock_stdout.seek(0)
-        self.assertEqual(mock_stdout.getvalue(), '')
+            # "flush" StringIO
+            mock_stdout.truncate(0)
+            mock_stdout.seek(0)
+            self.assertEqual(mock_stdout.getvalue(), '')
 
 
 if __name__ == '__main__':

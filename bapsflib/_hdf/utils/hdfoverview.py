@@ -267,10 +267,10 @@ class HDFOverview(object):
         configurations.
 
         :param str name: name of digitizer. If :code:`None` or
-            `name` is among digitizers, then all digitizers are printed.
+            `name` is not among digitizers, then all digitizers are
+            printed.
         """
         # gather configs to print
-
         if name in self._fmap.digitizers:
             _dmap = {name, self._fmap.digitizers[name]}
         else:
@@ -378,19 +378,18 @@ class HDFOverview(object):
     def report_controls(self, name=None):
         """
         Prints to screen a detailed report of detected control devices
-        and their configurations.
+        and their configuration(s).
 
         :param str name: name of control device. If :code:`None` or
-            `name` is not detected then all control devices are printed.
+            `name` is not among controls, then all control devices are
+            printed.
         """
         # gather configs to print
-        if name is None:
-            configs = self._fmap.controls.values()
-        elif name in self._fmap.controls:
-            configs = [self._fmap.controls[name]]
+        if name in self._fmap.controls:
+            _dmap = {name, self._fmap.controls[name]}
         else:
             name = None
-            configs = self._fmap.controls.values()
+            _dmap = self._fmap.controls
 
         # print heading
         title = 'Control Device Report'
@@ -400,38 +399,39 @@ class HDFOverview(object):
         print('^' * len(title) + '\n')
 
         # print control config
-        for control in configs:
+        for name, _map in _dmap.items():
             # print control name
-            status_print(control.device_name, '', '')
+            status_print(_map.device_name, '', '')
 
             # print path to control
-            item = 'path:     ' + control.info['group path']
+            item = 'path:     ' + _map.info['group path']
             status_print(item, '', '', indent=1)
 
             # print path to contype
-            item = 'contype:  ' + control.contype
+            item = 'contype:  {}'.format(_map.contype)
             status_print(item, '', '', indent=1)
 
             # print configurations
-            self.report_control_configs(control)
+            self.report_control_configs(_map)
 
     @staticmethod
-    def report_control_configs(cmap):
+    def report_control_configs(control: HDFMapControlTemplate):
         """
-        Report the configs for control associated with cmap.
+        Prints to screen information about the passed control device
+        configuration(s).
 
-        :param cmap: map of a control device
+        :param control: a control device mapping object
         """
-        if len(cmap.configs) != 0:
+        nconfigs = len(control.configs)
+        if nconfigs != 0:
             # display number of configurations
-            item = 'Configurations Detected ({})'.format(
-                len(cmap.configs))
+            item = 'Configurations Detected ({})'.format(nconfigs)
             status_print(item, '', '', indent=1)
 
             # display config values
-            for config_name, config in cmap.configs.items():
+            for cname, config in control.configs.items():
                 # print config_name
-                status_print(config_name, '', '', indent=2)
+                status_print(cname, '', '', indent=2)
 
                 # get pretty print string
                 ppconfig = pp.pformat(config)

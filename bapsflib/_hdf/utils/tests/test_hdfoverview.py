@@ -236,6 +236,22 @@ class TestHDFOverview(TestBase):
             self.assertEqual(mock_stdout.getvalue(), '')
 
     @mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_report_details(self, mock_stdout):
+        _bf = self.bf
+        _overview = self.overview
+
+        with mock.patch.multiple(
+                _overview.__class__,
+                report_controls=mock.DEFAULT,
+                report_digitizers=mock.DEFAULT,
+                report_msi=mock.DEFAULT) as mock_values:
+            _overview.report_details()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_values['report_digitizers'].called)
+            self.assertTrue(mock_values['report_controls'].called)
+            self.assertTrue(mock_values['report_msi'].called)
+
+    @mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_report_digitizers(self, mock_stdout):
         self.f.add_module('SIS crate')
 
@@ -319,6 +335,19 @@ class TestHDFOverview(TestBase):
             mock_stdout.truncate(0)
             mock_stdout.seek(0)
             self.assertEqual(mock_stdout.getvalue(), '')
+
+    @mock.patch('sys.stdout', new_callable=io.StringIO)
+    def test_report_general(self, mock_stdout):
+        _bf = self.bf
+        _overview = self.overview
+
+        with mock.patch.object(
+                _bf.__class__, 'info',
+                new_callable=mock.PropertyMock,
+                return_value=_bf.info) as mock_info:
+            _overview.report_general()
+            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertTrue(mock_info.called)
 
     @mock.patch('sys.stdout', new_callable=io.StringIO)
     def test_report_msi(self, mock_stdout):

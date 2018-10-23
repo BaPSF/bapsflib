@@ -216,16 +216,15 @@ class HDFOverview(object):
         their configurations.
 
         :param str name: name of MSI diagnostic. If :code:`None` or
-            `name` is not detected then all MSI diagnostics are printed.
+            `name` is not among MSI diagnostics, then all MSI
+            diagnostics are printed.
         """
         # gather configs to print
-        if name is None:
-            configs = self._fmap.msi.values()
-        elif name in self._fmap.msi:
-            configs = [self._fmap.msi[name]]
+        if name in self._fmap.msi:
+            _dmap = {name, self._fmap.msi[name]}
         else:
             name = None
-            configs = self._fmap.msi.values()
+            _dmap = self._fmap.msi
 
         # print heading
         title = 'MSI Diagnostic Report'
@@ -235,29 +234,29 @@ class HDFOverview(object):
         print('^' * len(title) + '\n')
 
         # print msi diagnostic config
-        for diag in configs:
+        for name, _map in _dmap.items():
             # print msi diag name
-            status_print(diag.device_name, '', '')
+            status_print(_map.device_name, '', '')
 
             # print path to diagnostic
-            item = 'path:  ' + diag.info['group path']
+            item = 'path:  ' + _map.info['group path']
             status_print(item, '', '', indent=1)
 
             # print the configs dict
-            self.report_msi_configs(diag)
+            self.report_msi_configs(_map)
 
     @staticmethod
-    def report_msi_configs(mmap):
+    def report_msi_configs(msi: HDFMapMSITemplate):
         """
-        Report the configs for MSI diagnostic with mmap.
+        Print to screan information about the passed MSI configuration.
 
-        :param mmap: map of MSI diagnostic
+        :param msi: a MSI mapping object
         """
         # print configs title
         status_print('configs', '', '', indent=1)
 
         # pretty print the configs dict
-        ppconfig = pp.pformat(mmap.configs)
+        ppconfig = pp.pformat(msi.configs)
         for line in ppconfig.splitlines():
             status_print(line, '', '', indent=2)
 

@@ -12,7 +12,9 @@ import h5py
 import os
 import warnings
 
-from bapsflib._hdf.maps.hdfmap import HDFMap
+from bapsflib._hdf.maps import (HDFMap, HDFMapControls,
+                                HDFMapDigitizers, HDFMapMSI)
+from typing import (Any, Dict)
 from warnings import warn
 
 
@@ -43,9 +45,10 @@ class File(h5py.File):
         """
         # initialize
         if mode not in ('r', 'r+'):
-            warn("Only modes readonly 'r' and read/wrie 'r+' are "
-                 "supported.  Opening as readonly.")
             mode = 'r'
+            if not silent:
+                warn("Only modes readonly 'r' and read/wrie 'r+' are "
+                     "supported.  Opening as readonly.")
         kwargs['mode'] = mode
         h5py.File.__init__(self, name, **kwargs)
 
@@ -88,12 +91,12 @@ class File(h5py.File):
             msi_path=self.MSI_PATH)
 
     @property
-    def controls(self):
+    def controls(self) -> HDFMapControls:
         """Dictionary of control device mappings."""
         return self.file_map.controls
 
     @property
-    def digitizers(self):
+    def digitizers(self) -> HDFMapDigitizers:
         """Dictionary of digitizer device mappings"""
         return self.file_map.digitizers
 
@@ -103,7 +106,7 @@ class File(h5py.File):
         return self._file_map
 
     @property
-    def info(self):
+    def info(self) -> Dict[str, Any]:
         """
         Dictionary of general info on the HDF5 file and experimental
         run.
@@ -111,7 +114,7 @@ class File(h5py.File):
         return self._info
 
     @property
-    def msi(self):
+    def msi(self) -> HDFMapMSI:
         """Dictionary of MSI device mappings."""
         return self.file_map.msi
 

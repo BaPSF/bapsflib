@@ -17,7 +17,7 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib._hdf.maps import (ConType, HDFMap)
+from bapsflib._hdf.maps import HDFMap
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from unittest import mock
 

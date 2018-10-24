@@ -12,7 +12,6 @@ import h5py
 import os
 import warnings
 
-# from bapsflib.lapd._hdf.hdfoverview import hdfOverview
 from bapsflib._hdf.maps.hdfmap import HDFMap
 from warnings import warn
 
@@ -80,12 +79,6 @@ class File(h5py.File):
             'absolute file path': os.path.abspath(self.filename),
         }
 
-        # add run info
-        # self._info.update(self.file_map.run_info)
-
-        # add exp info
-        # self._info.update(self.file_map.exp_info)
-
     def _map_file(self):
         """Map/re-map the HDF5 file."""
         self._file_map = HDFMap(
@@ -122,15 +115,14 @@ class File(h5py.File):
         """Dictionary of MSI device mappings."""
         return self.file_map.msi
 
-    '''
     @property
     def overview(self):
         """
-        HDF5 file overview. (Instance of
-        :class:`~bapsflib.lapd.hdfoverview.hdfOverview`)
+        HDF5 file overview. (:class:`~.hdfoverview.HDFOverview`)
         """
-        return hdfOverview(self)
-    '''
+        from .hdfoverview import HDFOverview
+
+        return HDFOverview(self)
 
     def read_controls(self, controls,
                       shotnum=slice(None),

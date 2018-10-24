@@ -36,7 +36,7 @@ class TestBase(ut.TestCase):
         cls.f.cleanup()
 
     @property
-    def bf(self):
+    def bf(self) -> File:
         """Opened BaPSF HDF5 File instance."""
         return File(self.f.filename, control_path='Raw data + config',
                     digitizer_path='Raw data + config', msi_path='MSI')

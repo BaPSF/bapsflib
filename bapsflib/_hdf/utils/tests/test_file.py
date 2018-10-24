@@ -159,13 +159,15 @@ class TestFile(TestBase):
         # `mode` calling
         with mock.patch('h5py.File.__init__',
                         wraps=h5py.File.__init__) as mock_file:
-            modes = (('r', 'r'), ('r+', 'r+'), ('w', 'r'))
-            for mode in modes:
+            modes = (('r', 'r'), ('r+', 'r+'), ('w', 'r'), ('w', 'r'))
+            silence = [True, False]
+            for ii, mode in enumerate(modes):
                 _bf = File(self.f.filename,
                            mode=mode[0],
                            control_path='Raw data + config',
                            digitizer_path='Raw data + config',
-                           msi_path='MSI')
+                           msi_path='MSI',
+                           silent=silence[ii % 2])
                 self.assertTrue(mock_file.called)
                 mock_file.assert_called_once_with(_bf, self.f.filename,
                                                   mode=mode[1])

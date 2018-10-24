@@ -47,7 +47,7 @@ class File(h5py.File):
         if mode not in ('r', 'r+'):
             mode = 'r'
             if not silent:
-                warn("Only modes readonly 'r' and read/wrie 'r+' are "
+                warn("Only modes readonly 'r' and read/write 'r+' are "
                      "supported.  Opening as readonly.")
         kwargs['mode'] = mode
         h5py.File.__init__(self, name, **kwargs)

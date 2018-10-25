@@ -142,8 +142,7 @@ class File(h5py.File):
                       silent=False, **kwargs):
         """
         Reads data from control device datasets.  See
-        :class:`~.hdfreadcontrol.HDFReadControl` for
-        more detail.
+        :class:`~.hdfreadcontrol.HDFReadControl` for more detail.
 
         :param controls:
 
@@ -340,21 +339,21 @@ class File(h5py.File):
 
         return data
 
-    def read_msi(self, msi_diag, silent=False, **kwargs):
+    def read_msi(self, msi_diag: str, silent=False, **kwargs):
         """
-        Reads data out for a MSI Diagnostic.  See
-        :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` for more
-        detail.
+        Reads data from MSI Diagnostic datasets.  See
+        :class:`~.hdfreadmsi.HDFReadMSI` for more detail.
 
-        :param str msi_diag: name of MSI diagnostic
+        :param msi_diag: name of MSI diagnostic
         :param bool silent:
-        :return: data for MSI diagnostic
-        :rtype: :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`
+
+            :code:`False` (DEFAULT).  Set :code:`True` to ignore any
+            UserWarnings (soft-warnings)
+
+        :rtype: :class:`~.hdfreadmsi.HDFReadMSI`
 
         :Example:
 
-            >>> import numpy as np
-            >>>
             >>> # open HDF5 file
             >>> f = File('sample.hdf5')
             >>>
@@ -364,9 +363,8 @@ class File(h5py.File):
             >>>
             >>> # read 'Interferometer array'
             >>> mdata = f.read_msi('Interferometer array')
-            >>> isinstance(mdata, np.ndarray)
-            True
-
+            >>> type(mdata)
+            bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI
         """
         from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 

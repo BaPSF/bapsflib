@@ -25,7 +25,7 @@ from ..hdfoverview import HDFOverview
 class TestHDFOverview(TestBase):
     """
     Test case for
-    :class:`~bapsflib._hdf.utils.hdfoverview.HDFOverview.`
+    :class:`~bapsflib._hdf.utils.hdfoverview.HDFOverview`.
     """
 
     def setUp(self):

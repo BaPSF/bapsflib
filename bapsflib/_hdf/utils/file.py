@@ -41,6 +41,16 @@ class File(h5py.File):
             (:code:`False` DEFAULT)
         :param kwargs:  additional keywords passed on to
             :class:`h5py.File`
+
+        :Example:
+
+            >>> # open HDF5 file
+            >>> f = File('sample.hdf5',
+            ...          control_path='Raw data + config',
+            ...          digitizer_path='Raw data + config',
+            ...          msi_path='MSI')
+            >>> type(f)
+            bapsflib._hdf.utils.file.File
         """
         # initialize
         if mode not in ('r', 'r+'):
@@ -73,7 +83,7 @@ class File(h5py.File):
             self._build_info()
 
     def _build_info(self):
-        """Builds the general info dictionary for the file"""
+        """Builds the general :attr:`info` dictionary for the file."""
         # define file keys
         self._info = {
             'file': os.path.basename(self.filename),
@@ -81,7 +91,7 @@ class File(h5py.File):
         }
 
     def _map_file(self):
-        """Map/re-map the HDF5 file."""
+        """Map/re-map the HDF5 file. (Builds :attr:`file_map`)"""
         self._file_map = HDFMap(
             self,
             control_path=self.CONTROL_PATH,
@@ -106,7 +116,7 @@ class File(h5py.File):
     @property
     def info(self) -> Dict[str, Any]:
         """
-        Dictionary of general info on the HDF5 file and experimental
+        Dictionary of general info on the HDF5 file and the experimental
         run.
         """
         return self._info
@@ -130,29 +140,43 @@ class File(h5py.File):
                       intersection_set=True,
                       silent=False, **kwargs):
         """
-        Reads data out of control device datasets.  See
-        :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl` for
+        Reads data from control device datasets.  See
+        :class:`~.hdfreadcontrol.HDFReadControl` for
         more detail.
 
-        :param controls: a list of strings and/or 2-element tuples
-            indicating the control device(s). (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
+        :param controls:
+
+            A list of strings and/or 2-element tuples
+            indicating the control device(s).  If a control device has
+            only one configuration then only the device name needs to
+            be passed :code:`'control'` in the list.  If a control
+            device has multiple configurations, then the device name
+            and its configuration "name" needs to be passed as a tuple
+            element :code:`('control', 'config')` in the list.
+            (see :func:`~.helpers.condition_controls` for details)
+
+        :type controls: List[Union[str, Tuple[str, Any]]]
+        :param shotnum:
+
+            HDF5 file shot number(s) indicating data entries to be
+            extracted
+
+        :type shotnum: Union[int, list(int), slice(), numpy.ndarry]
+        :param bool intersection_set:
+
+            :code:`True` (DEFAULT) will force the returned shot numbers
+            to be the intersection of :data:`shotnum` and the shot
+            numbers contained in each control device dataset.
+            :code:`False` will return the union instead of the
+            intersection, minus :math:`shotnum \le 0`. (see :class:`~.hdfreadcontrol.HDFReadControl`
             for details)
-        :type controls: [str, (str, val), ]
-        :param shotnum: HDF5 file shot number(s) indicating data
-            entries to be extracted
-        :type shotnum: int, list(int), slice()
-        :param bool intersection_set: :code:`True` (DEFAULT) will force
-            the returned shot numbers to be the intersection of
-            :data:`shotnum` and the shot numbers contained in each
-            control device dataset. :code:`False` will return the union
-            instead of the intersection  (see
-            :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
-            for details)
-        :param bool silent: :code:`False` (DEFAULT).  Set :code:`True`
-            to suppress command line printout of soft-warnings
-        :return: extracted data from control device(s)
-        :rtype: :class:`~bapsflib.lapd.hdfreadcontrol.HDFReadControl`
+
+        :param bool silent:
+
+            :code:`False` (DEFAULT).  Set :code:`True` to ignore any
+            UserWarnings (soft-warnings)
+
+        :rtype: :class:`~.hdfreadcontrol.HDFReadControl`
 
         :Example:
 
@@ -164,11 +188,13 @@ class File(h5py.File):
             ['6K Compumotor', 'Waveform']
             >>>
             >>> # list '6K Compumotor' configurations
-            >>> list(f.file_map.controls['6K Compumotor'].configs)
+            >>> list(f.controls['6K Compumotor'].configs)
             [2, 3]
             >>>
-            >>> # extract all '6k Compumotor', configuration 3 data
+            >>> # extract all '6k Compumotor' data for configuration 3
             >>> cdata = f.read_controls([('6K Compumotor', 3)])
+            >>> type(cdata)
+            bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl
             >>>
             >>> # list 'Waveform' configurations
             >>> list(f.file_map.controls['Waveform'].configs)
@@ -176,13 +202,17 @@ class File(h5py.File):
             >>>
             >>> # extract 'Waveform' data
             >>> cdata = f.read_controls(['Waveform'])
+            >>> list(cdata.info['controls'])
+            ['Waveform']
             >>>
             >>> # extract both 'Waveform' and '6K Compumotor'
             >>> controls = ['Waveform', ('6K Compumotor', 2)]
             >>> cdata = f.read_controls(controls)
+            >>> list(cdata.info['controls'])
+            ['6K Compumotor', 'Waveform']
 
         """
-        from bapsflib._hdf.utils.hdfreadcontrol import HDFReadControl
+        from .hdfreadcontrol import HDFReadControl
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():

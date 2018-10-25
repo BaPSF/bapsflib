@@ -14,7 +14,7 @@ import warnings
 
 from bapsflib._hdf.maps import (HDFMap, HDFMapControls,
                                 HDFMapDigitizers, HDFMapMSI)
-from typing import (Any, Dict)
+from typing import (Any, Dict, List, Tuple, Union)
 
 
 class File(h5py.File):
@@ -135,7 +135,8 @@ class File(h5py.File):
 
         return HDFOverview(self)
 
-    def read_controls(self, controls,
+    def read_controls(self,
+                      controls: List[Union[str, Tuple[str, Any]]],
                       shotnum=slice(None),
                       intersection_set=True,
                       silent=False, **kwargs):
@@ -148,11 +149,11 @@ class File(h5py.File):
 
             A list of strings and/or 2-element tuples
             indicating the control device(s).  If a control device has
-            only one configuration then only the device name needs to
-            be passed :code:`'control'` in the list.  If a control
-            device has multiple configurations, then the device name
-            and its configuration "name" needs to be passed as a tuple
-            element :code:`('control', 'config')` in the list.
+            only one configuration then only the device name
+            :code:`'control'` needs to be passed in the list.  If a
+            control device has multiple configurations, then the device
+            name and its configuration "name" needs to be passed as a
+            tuple element :code:`('control', 'config')` in the list.
             (see :func:`~.helpers.condition_controls` for details)
 
         :type controls: List[Union[str, Tuple[str, Any]]]
@@ -161,14 +162,15 @@ class File(h5py.File):
             HDF5 file shot number(s) indicating data entries to be
             extracted
 
-        :type shotnum: Union[int, list(int), slice(), numpy.ndarry]
+        :type shotnum: Union[int, list(int), slice(), numpy.array]
         :param bool intersection_set:
 
             :code:`True` (DEFAULT) will force the returned shot numbers
             to be the intersection of :data:`shotnum` and the shot
             numbers contained in each control device dataset.
             :code:`False` will return the union instead of the
-            intersection, minus :math:`shotnum \le 0`. (see :class:`~.hdfreadcontrol.HDFReadControl`
+            intersection, minus :math:`shotnum \le 0`. (see
+            :class:`~.hdfreadcontrol.HDFReadControl`
             for details)
 
         :param bool silent:
@@ -224,69 +226,103 @@ class File(h5py.File):
 
         return data
 
-    def read_data(self, board, channel,
+    def read_data(self, board: int, channel: int,
                   index=slice(None), shotnum=slice(None),
                   digitizer=None, adc=None,
                   config_name=None, keep_bits=False, add_controls=None,
                   intersection_set=True, silent=False,
                   **kwargs):
-        # TODO: docstrings and code block needs updating
         """
-        Provides access to
-        :class:`~bapsflib.lapd.hdfreaddata.HDFReadData` to extract
-        data from a specified digitizer dataset in the HDF5 file and,
-        if requested, mate control device data to the extracted
-        digitizer data. See
-        :class:`~bapsflib.lapd.hdfreaddata.HDFReadData` for more
-        detail.
+        Reads data from digitizer datasets and attaches control device
+        data when requested. (see :class:`.hdfreaddata.HDFReadData`
+        for details)
 
-        :param int board: digitizer board number
-        :param int channel: digitizer channel number
+        :param board: digitizer board number
+        :param channel: digitizer channel number
         :param index: dataset row index
-        :type index: int, list(int), slice()
+        :type index: Union[int, list(int), slice(), numpy.array]
         :param shotnum: HDF5 global shot number
-        :type shotnum: int, list(int), slice()
+        :type shotnum: Union[int, list(int), slice(), numpy.array]
         :param str digitizer: name of digitizer
         :param str adc: name of the digitizer's analog-digital converter
         :param str config_name: name of digitizer configuration
-        :param bool keep_bits: :code:`True` for output in bits,
-            :code:`False` (default) for output in voltage
-        :param add_controls: a list of strings and/or 2-element tuples
-            indicating control device data to be mated to the digitizer
-            data. (see
-            :class:`~bapsflib.lapd.hdfreaddata.HDFReadData`
-            for details)
-        :type add_controls: [str, (str, val), ]
-        :param bool intersection_set: :code:`True` (default) forces the
-            returned array to only contain shot numbers that are in the
-            intersection of :data:`shotnum`, the digitizer dataset, and
-            all the control device datasets. (see
-            :class:`~bapsflib.lapd.hdfreaddata.HDFReadData`
-            for details)
-        :param bool silent: :code:`False` (default). Set :code:`True` to
-            suppress command line printout of soft-warnings
-        :return: extracted data from digitizer (and control devices)
-        :rtype: :class:`~bapsflib.lapd.hdfreaddata.HDFReadData`
+        :param bool keep_bits:
+
+            :code:`True` to keep digitizer signal in bits,
+            :code:`False` (default) to convert digitizer signal to
+            voltage
+
+        :param add_controls:
+
+            A list of strings and/or 2-element tuples
+            indicating the control device(s).  If a control device has
+            only one configuration then only the device name
+            :code:`'control'` needs to be passed in the list.  If a
+            control device has multiple configurations, then the device
+            name and its configuration "name" needs to be passed as a
+            tuple element :code:`('control', 'config')` in the list.
+            (see :func:`~.helpers.condition_controls` for details)
+
+        :type add_controls: List[Union[str, Tuple[str, Any]]]
+        :param bool intersection_set:
+
+            :code:`True` (DEFAULT) will force the returned shot numbers
+            to be the intersection of :data:`shotnum`, the digitizer
+            dataset shot numbers, and, if requested, the shot numbers
+            contained in  each control device dataset. :code:`False`
+            will return the union instead of the intersection, minus
+            :math:`shotnum \le 0`. (see
+            :class:`~.hdfreaddata.HDFReadData` for details)
+
+        :param bool silent:
+
+            :code:`False` (DEFAULT).  Set :code:`True` to ignore any
+            UserWarnings (soft-warnings)
+
+        :rtype: :class:`~.hdfreaddata.HDFReadData`
+
+        :Example:
+
+            >>> # open HDF5 file
+            >>> f = File('sample.hdf5')
+            >>>
+            >>> # list control devices
+            >>> list(f.digitizers)
+            ['SIS crate']
+            >>>
+            >>> # get active configurations
+            >>> f.digitizers['SIS crate'].configs
+            ['config01', 'config02']
+            >>>
+            >>> # get active adc's for config
+            >>> f.digitizers['SIS crate'].configs['config01']['adc']
+            ('SIS 3302,)
+            >>>
+            >>> # get first connected brd and channels to adc
+            >>> brd, chs = f.digitizers['SIS crate'].configs['config01'][
+            ...     'SIS 3302'][0][0:2]
+            >>> brd
+            1
+            >>> chs
+            (1, 2, 3)
+            >>>
+            >>> # get data for brd = 1, ch = 1
+            >>> data = f.read_data(brd, chs[0],
+            ...                    digitizer='SIS crate',
+            ...                    adc='SIS 3302',
+            ...                    config_name='config01')
+            >>> type(data)
+            bapsflib._hdf.utils.hdfreaddata.HDFReadData
+            >>>
+            >>> # Note: a quicker way to see how the digitizers are
+            >>> #       configured is to use
+            >>> #
+            >>> #       f.overview.report_digitizers()
+            >>> #
+            >>> #       which prints to screen a report of the
+            >>> #       digitizer hookup
         """
-        #
-        # :param add_controls: a list of strings and/or 2-element tuples
-        #     indicating control device data to be mated to the
-        #     digitizer data. If an element is a string, then that
-        #     string is the name of the control device, If an element is
-        #     a 2-element tuple, then the 1st element is the name of the
-        #     control device and the 2nd element is a unique specifier
-        #     for that control device.
-        # :param intersection_set: :code:`True` (default) ensures the
-        #     returned array only contains shot numbers that are found
-        #     in the digitizer dataset and all added control device
-        #     datasets. :code:`False` will cause the returned array to
-        #     contain shot numbers specified by :data:`shotnum` or, when
-        #     :data:`index` is used, the matching shot numbers in the
-        #     digitizer dataset specified by :data:`index`
-        #
-        # TODO: write docstrings
-        #
-        from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+        from .hdfreaddata import HDFReadData
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():

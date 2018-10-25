@@ -15,14 +15,13 @@ import warnings
 from bapsflib._hdf.maps import (HDFMap, HDFMapControls,
                                 HDFMapDigitizers, HDFMapMSI)
 from typing import (Any, Dict)
-from warnings import warn
 
 
 class File(h5py.File):
     """
     Open a HDF5 file created at the Basic Plasma Science Facility.
 
-    All functionality of :class:`h5py.File` is preserved (for detials
+    All functionality of :class:`h5py.File` is preserved (for details
     see http://docs.h5py.org/en/latest/)
     """
     def __init__(self, name: str, mode='r',
@@ -45,10 +44,9 @@ class File(h5py.File):
         """
         # initialize
         if mode not in ('r', 'r+'):
-            mode = 'r'
-            if not silent:
-                warn("Only modes readonly 'r' and read/write 'r+' are "
-                     "supported.  Opening as readonly.")
+            raise ValueError(
+                "Only `mode` readonly 'r' and read/write 'r+' are "
+                "supported.")
         kwargs['mode'] = mode
         h5py.File.__init__(self, name, **kwargs)
 

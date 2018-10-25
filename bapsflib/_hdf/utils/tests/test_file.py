@@ -159,19 +159,22 @@ class TestFile(TestBase):
         # `mode` calling
         with mock.patch('h5py.File.__init__',
                         wraps=h5py.File.__init__) as mock_file:
-            modes = (('r', 'r'), ('r+', 'r+'), ('w', 'r'), ('w', 'r'))
-            silence = [True, False]
-            for ii, mode in enumerate(modes):
+            for mode in ('r', 'r+'):
                 _bf = File(self.f.filename,
-                           mode=mode[0],
+                           mode=mode,
                            control_path='Raw data + config',
                            digitizer_path='Raw data + config',
                            msi_path='MSI',
-                           silent=silence[ii % 2])
+                           silent=True)
                 self.assertTrue(mock_file.called)
                 mock_file.assert_called_once_with(_bf, self.f.filename,
-                                                  mode=mode[1])
+                                                  mode=mode)
                 mock_file.reset_mock()
+
+        # raise ValueError if mode not in ('r', 'r+')
+        with self.assertRaises(ValueError):
+            _bf = File(self.f.filename,
+                       mode='w')
 
 
 if __name__ == '__main__':

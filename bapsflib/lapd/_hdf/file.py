@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 from bapsflib._hdf import File as BaseFile
+
 from .lapdmap import LaPDMap
 
 
@@ -24,19 +25,25 @@ class File(BaseFile):
             (:code:`False` DEFAULT)
         :param kwargs: additional keywords passed on to
             :class:`h5py.File`
+
+        :Example:
+
+            >>> # open HDF5 file
+            >>> f = File('sample.hdf5')
+            >>> type(f)
+            bapsflib.lapd._hdf.file.File
+            >>> isinstance(f, bapsflib._hdf.utils.file.File)
+            True
+            >>> isinstance(f, h5py.File)
+            True
         """
         super().__init__(name, mode=mode,
                          control_path='Raw data + config',
                          digitizer_path='Raw data + config',
                          msi_path='MSI', silent=silent, **kwargs)
 
-    def _map_file(self):
-        """Map/re-map the LaPD HDF5 file."""
-        self._file_map = LaPDMap(self, control_path=self.CONTROL_PATH,
-                                 digitizer_path=self.DIGITIZER_PATH,
-                                 msi_path=self.MSI_PATH)
-
     def _build_info(self):
+        """Builds the general :attr:`info` dictionary for the file."""
         # run inherited code
         super()._build_info()
 
@@ -49,12 +56,28 @@ class File(BaseFile):
         # add experiment info
         self.info.update(self.file_map.exp_info)
 
+    def _map_file(self):
+        """Map/re-map the LaPD HDF5 file. (Builds :attr:`file_map`)"""
+        self._file_map = LaPDMap(self,
+                                 control_path=self.CONTROL_PATH,
+                                 digitizer_path=self.DIGITIZER_PATH,
+                                 msi_path=self.MSI_PATH)
+
     @property
     def file_map(self) -> LaPDMap:
         """LaPD HDF5 file map (:class:`~.lapdmap.LaPDMap`)"""
         return self._file_map
 
+    @property
+    def overview(self):
+        """
+        LaPD HDF5 file overview. (:class:`~.lapdoverview.LaPDOverview`)
+        """
+        from .lapdoverview import LaPDOverview
+
+        return LaPDOverview(self)
+
     def run_description(self):
-        """Description of experimental run (from the HDF5 file)"""
+        """Print description of the LaPD experimental run."""
         for line in self._info['run description'].splitlines():
             print(line)

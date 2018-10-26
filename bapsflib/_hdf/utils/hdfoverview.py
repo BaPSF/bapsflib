@@ -27,8 +27,8 @@ class HDFOverview(object):
     """
     def __init__(self, hdf_obj: File):
         """
-        :param hdf_obj: HDF5 file map object
-        :type hdf_obj: :class:`~bapsflib._hdf.utils.file.File`
+        :param hdf_obj: HDF5 file object
+        :type hdf_obj: :class:`~.file.File`
         """
         super().__init__()
 

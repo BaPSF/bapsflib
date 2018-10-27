@@ -21,13 +21,6 @@ from . import TestBase
 from ..lapdoverview import LaPDOverview
 
 
-def method_overridden(cls, obj, method: str) -> bool:
-    """check if obj's class over-road base class method"""
-    obj_method = method in obj.__class__.__dict__.keys()
-    base_method = method in cls.__dict__.keys()
-    return obj_method and base_method
-
-
 class TestLaPDOverview(TestBase):
     """
     Test case for :class:`~bapsflib.lapd._hdf.lapdoverview.HDFOverview`
@@ -62,8 +55,8 @@ class TestLaPDOverview(TestBase):
         self.assertIsInstance(_overview, LaPDOverview)
 
         # override method `report_general`
-        self.assertTrue(method_overridden(HDFOverview, _overview,
-                                          'report_general'))
+        self.assertMethodOverride(HDFOverview, _overview,
+                                  'report_general')
 
         # `report_general` prints to screen
         _lapdf.info['exp description'] = "This experiment\n" \

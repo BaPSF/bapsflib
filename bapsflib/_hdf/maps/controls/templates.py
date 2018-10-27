@@ -16,8 +16,8 @@ from abc import (ABC, abstractmethod)
 from typing import (Iterable, List, Union)
 from warnings import warn
 
-from . import ConType
 from .clparse import CLParse
+from .contype import ConType
 
 
 class HDFMapControlTemplate(ABC):

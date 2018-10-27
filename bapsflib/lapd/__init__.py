@@ -22,4 +22,4 @@ from . import constants
 from . import tools
 from ._hdf.file import File
 
-__all__ = ['File', 'constants', 'tools']
+__all__ = ['constants', 'File', 'tools']

@@ -8,7 +8,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from bapsflib._hdf import File as BaseFile
+import bapsflib
+import h5py
+
+from bapsflib._hdf.utils.file import File as BaseFile
 
 from .lapdmap import LaPDMap
 
@@ -79,5 +82,5 @@ class File(BaseFile):
 
     def run_description(self):
         """Print description of the LaPD experimental run."""
-        for line in self._info['run description'].splitlines():
+        for line in self.info['run description'].splitlines():
             print(line)

@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #

@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -26,7 +23,6 @@ https://github.com/rocco8773/bapsflib
 
 from . import _hdf
 from . import lapd
-from . import lapdhdf
 from . import plasma
 
 # --- Define version ---------------------------------------------------

@@ -24,6 +24,11 @@ class BaPSFConstant(Constant):
     _registry = {}
     _has_incompatible_units = set()
 
+    def __new__(cls, abbrev, name, value, unit, uncertainty,
+                reference=default_reference, system=None):
+        return super().__new__(cls, abbrev, name, value, unit,
+                               uncertainty, reference, system)
+
 
 # nominal port spacing
 port_spacing = BaPSFConstant('port_spacing', 'LaPD port spacing',
@@ -32,7 +37,7 @@ port_spacing.__doc__ += ': nominal distance between LaPD ports'
 
 # z = 0 port number
 ref_port = BaPSFConstant('ref_port', 'LaPD reference port number', 53,
-                         u.dimensionless_unscaled, 0, system='cgs')
+                         u.dimensionless_unscaled, 0, system=None)
 ref_port.__doc__ += (": LaPD :math:`z = 0` reference port (most "
                      "Northern port and :math:`+z` points South "
                      "towards south cathode)")

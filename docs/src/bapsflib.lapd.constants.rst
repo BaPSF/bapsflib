@@ -9,24 +9,25 @@ bapsflib\.lapd\.\constants
     :titlesonly:
     :caption: Sub-Packages & Modules
 
-    ./bapsflib.lapd.constants.constants
+    bapsflib.lapd.constants.constants
 
-.. rubric:: Classes
+.. .. rubric:: Classes
 
-.. autosummary:: SouthCathode
+.. .. autosummary:: SouthCathode
     :nosignatures:
+
+.. .. autoclass:: bapsflib.lapd.constants.SouthCathode
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 .. rubric:: Constants
 
 .. autosummary::
+    :nosignatures:
 
     port_spacing
     ref_port
-
-.. autoclass:: bapsflib.lapd.constants.SouthCathode
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
 .. autodata:: port_spacing
 .. autodata:: ref_port

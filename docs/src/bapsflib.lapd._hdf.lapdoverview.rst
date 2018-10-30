@@ -5,13 +5,9 @@ bapsflib\.lapd\.\_hdf\.lapdoverview
     :members:
     :undoc-members:
     :show-inheritance:
+    :inherited-members:
 
     .. rubric:: Classes
 
     .. autosummary:: LaPDOverview
-        :nosignatures:
-
-    .. rubric:: Functions
-
-    .. autosummary:: status_print
         :nosignatures:

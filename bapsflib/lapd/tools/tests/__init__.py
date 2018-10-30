@@ -8,12 +8,3 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-"""
-Package of digitizer mapping classes and their constructor
-(:class:`~.map_digis.HDFMapDigitizers`).
-"""
-from . import (map_digis, sis3301, siscrate, templates)
-from .map_digis import HDFMapDigitizers
-
-__all__ = ['HDFMapDigitizers', 'map_digis', 'sis3301', 'siscrate',
-           'templates']

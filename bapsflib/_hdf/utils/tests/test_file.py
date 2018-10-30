@@ -17,7 +17,6 @@ import unittest as ut
 
 from bapsflib._hdf import HDFMap
 from unittest import mock
-from warnings import warn
 
 from . import TestBase
 from ..file import File

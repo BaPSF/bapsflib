@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -12,9 +9,9 @@
 #   license terms and contributor agreement.
 #
 """
-This :mod:`~bapsflib.lapd.constants` package contains constants relevant
-to the setup and configuration of the LaPD.
+A package of relevant LaPD parameters and constants.
 """
-from .constants import (port_spacing, ref_port, SouthCathode)
+from . import constants
+from .constants import (port_spacing, ref_port)
 
-__all__ = ['SouthCathode', 'port_spacing', 'ref_port']
+__all__ = ['constants', 'port_spacing', 'ref_port']

@@ -15,7 +15,7 @@ import re
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from . import ConType
+from .contype import ConType
 from .templates import HDFMapControlTemplate
 
 

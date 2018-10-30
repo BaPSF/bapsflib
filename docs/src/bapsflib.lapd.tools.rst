@@ -8,21 +8,16 @@ bapsflib\.lapd\.\tools
     :titlesonly:
     :caption: Sub-Packages & Modules
 
-    ./bapsflib.lapd.tools.tools
+    bapsflib.lapd.tools.tools
 
-Classes & Constants & Functions
--------------------------------
 
-.. contents::
-    :depth: 2
-    :local:
+.. rubric:: Functions
 
-bapsflib\.lapd\.\_hdf\.tools\.portnum_to_z
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. autosummary::
+    :nosignatures:
+
+    portnum_to_z
+    z_to_portnum
 
 .. autofunction:: bapsflib.lapd.tools.portnum_to_z
-
-bapsflib\.lapd\.\_hdf\.tools\.z_to_portnum
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 .. autofunction:: bapsflib.lapd.tools.z_to_portnum

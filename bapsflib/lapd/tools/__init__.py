@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -15,6 +12,7 @@
 This package contains a variety of tools (functions, classes, etc.)
 relevant to the LaPD and its configuration.
 """
+from . import tools
 from .tools import (portnum_to_z, z_to_portnum)
 
-__all__ = ['portnum_to_z', 'z_to_portnum']
+__all__ = ['tools', 'portnum_to_z', 'z_to_portnum']

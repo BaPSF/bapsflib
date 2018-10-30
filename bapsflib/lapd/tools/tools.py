@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # This file is part of the bapsflib package, a Python toolkit for the
 # BaPSF group at UCLA.
 #
@@ -14,10 +11,14 @@
 import astropy.units as u
 import numpy as np
 
+from typing import Union
+
 from .. import constants as const
 
+__all__ = ['portnum_to_z', 'z_to_portnum']
 
-def portnum_to_z(portnum):
+
+def portnum_to_z(portnum: Union[int, float]) -> u.Quantity:
     """
     Converts LaPD port number to axial z location.
 
@@ -26,10 +27,12 @@ def portnum_to_z(portnum):
         Port 53 defines z = 0 cm and is the most Northern port.  The +z
         axis points South towards the main cathode.
     """
-    return const.port_spacing * (const.ref_port - portnum)
+    val = const.port_spacing * (const.ref_port - portnum)
+    return val.cgs
 
 
-def z_to_portnum(z, unit='cm', round_to_nearest=False):
+def z_to_portnum(z: Union[int, float, u.Quantity], unit='cm',
+                 round_to_nearest=False) -> u.Quantity:
     """
     Converts LaPD axial z location to port number.
 
@@ -43,12 +46,16 @@ def z_to_portnum(z, unit='cm', round_to_nearest=False):
         Port 53 defines z = 0 cm and is the most Northern port.  The +z
         axis points South towards the main cathode.
     """
+    # convert to float
+    if isinstance(z, int):
+        z = float(z)
+
     # convert to astropy.units.Quantity
     if not isinstance(z, u.Quantity):
         z = u.Quantity(z, unit=unit)
 
     # calc port number
-    portnum = const.ref_port - (z / const.port_spacing)
+    portnum = const.ref_port - (z.cgs / const.port_spacing)
 
     # convert to nearest port number
     if round_to_nearest:

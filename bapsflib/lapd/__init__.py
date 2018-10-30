@@ -18,8 +18,9 @@ diameters, port spacing, etc.).  The :mod:`~bapsflib.lapd.tools` package
 contains functions and classes relevant for calculating LaPD parameters
 (e.g. converting port number to axial z location, etc.).
 """
+from . import _hdf
 from . import constants
 from . import tools
 from ._hdf.file import File
 
-__all__ = ['File', 'constants', 'tools']
+__all__ = ['_hdf', 'constants', 'File', 'tools']

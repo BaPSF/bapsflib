@@ -9,5 +9,5 @@ bapsflib\.lapd\.\_hdf
     :caption: Sub-Packages & Modules
 
     bapsflib.lapd._hdf.file
-    bapsflib.lapd._hdf.lapdoverview
     bapsflib.lapd._hdf.lapdmap
+    bapsflib.lapd._hdf.lapdoverview

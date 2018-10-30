@@ -9,8 +9,7 @@
 #   license terms and contributor agreement.
 #
 """
-This :mod:`~bapsflib.lapd.constants` package contains constants relevant
-to the setup and configuration of the LaPD.
+A package of relevant LaPD parameters and constants.
 """
 from . import constants
 from .constants import (port_spacing, ref_port)

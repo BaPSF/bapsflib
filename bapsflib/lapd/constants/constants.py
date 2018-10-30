@@ -30,12 +30,13 @@ class BaPSFConstant(Constant):
                                uncertainty, reference, system)
 
 
-# nominal port spacing
+#: BaPSF Constant: nominal distance between LaPD ports
 port_spacing = BaPSFConstant('port_spacing', 'LaPD port spacing',
                              31.95, 'cm', 1.0, system='cgs')
 port_spacing.__doc__ += ': nominal distance between LaPD ports'
 
-# z = 0 port number
+#: BaPSF Constant: LaPD :math:`z = 0` reference port (most Northern
+#: port and :math:`+z` points South towards south cathode)
 ref_port = BaPSFConstant('ref_port', 'LaPD reference port number', 53,
                          u.dimensionless_unscaled, 0, system=None)
 ref_port.__doc__ += (": LaPD :math:`z = 0` reference port (most "

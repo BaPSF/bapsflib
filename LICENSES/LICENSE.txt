@@ -1,5 +1,5 @@
-BSD 3-Clause License for bapsflib Project version 0.1.2
-=======================================================
+BSD 3-Clause License for the bapsflib Project
+=============================================
 
 Copyright (c) 2017, Erik T. Everson and contributors
 All rights reserved.

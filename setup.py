@@ -31,6 +31,7 @@ Operating System :: MacOS
 Operating System :: Microsoft :: Windows
 Operating System :: POSIX :: Linux
 Programming Language :: Python :: 3
+Programming Language :: Python :: 3.5
 Programming Language :: Python :: 3.6
 Programming Language :: Python :: 3.7
 Topic :: Database
@@ -66,18 +67,28 @@ setup(
     name='bapsflib',
     version=find_version("bapsflib", "__init__.py"),
     description='A toolkit for handling data collected at BaPSF.',
-    license='BSD',
-    classifiers=CLASSIFIERS,
-    url='https://github.com/BaPSF/bapsflib.git',
+    scripts=[],
+    setup_requires=['astropy>=2.0',
+                    'h5py>=2.6',
+                    'numpy>=1.7',
+                    'scipy>=1.0.0'],
+    install_requires=['astropy>=2.0',
+                      'h5py>=2.6',
+                      'numpy>=1.7',
+                      'scipy>=1.0.0'],
+    python_requires='>=3.5',
     author='Erik T. Everson',
     author_email='eteveson@gmail.com',
+    license='3-clause BSD',
+    url='https://github.com/BaPSF/bapsflib',
+    keywords=['bapsf', 'HDF5', 'lapd', 'physics', 'plasma', 'science'],
+    classifiers=CLASSIFIERS,
     packages=find_packages(),
-    install_requires=['h5py>=2.6',
-                      'numpy>=1.7',
-                      'scipy>=1.0.0',
-                      'sphinx>=1.7.5',
-                      'sphinx-rtd-theme>=0.4.0'],
-    python_requires='>=3.5',
     zip_safe=False,
-    include_package_data=True
+    include_package_data=True,
+    package_urls={
+        "BaPSF": "http://plasma.physics.ucla.edu/",
+        "Documentation": "https://bapsflib.readthedocs.io/en/latest/",
+        "GitHub": "https://github.com/BaPSF/bapsflib",
+    }
 )

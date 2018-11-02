@@ -1,9 +1,7 @@
 # bapsflib
 
-[![GitHub package version](https://img.shields.io/badge/version-v1.0.0.dev-blue.svg)](./bapsflib/__init__.py)
+[![PyPI](https://img.shields.io/pypi/v/bapsflib.svg)](https://pypi.org/project/bapsflib)
 [![License](https://img.shields.io/badge/License-BSD-blue.svg)](./LICENSES/LICENSE.txt)
-
-<!-- [![Build Status](https://travis-ci.org/BaPSF/bapsflib.svg?branch=master)](https://travis-ci.org/BaPSF/bapsflib) -->
 
 [![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/)](https://bapsflib.readthedocs.io/en/latest)
 [![Build Status](https://img.shields.io/travis/BaPSF/bapsflib/master.svg?label=Travis%20CI)](https://travis-ci.org/BaPSF/bapsflib)

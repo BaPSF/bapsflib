@@ -20,27 +20,27 @@ from setuptools import setup, find_packages
 here = os.path.abspath(os.path.dirname(__file__))
 
 # define CLASSIFIERS
-CLASSIFIERS = """
-Development Status :: 2 - Pre-Alpha
-Intended Audience :: Developers
-Intended Audience :: Education
-Intended Audience :: Science/Research
-License :: OSI Approved :: BSD License
-Natural Language :: English
-Operating System :: MacOS
-Operating System :: Microsoft :: Windows
-Operating System :: POSIX :: Linux
-Programming Language :: Python :: 3
-Programming Language :: Python :: 3.5
-Programming Language :: Python :: 3.6
-Programming Language :: Python :: 3.7
-Topic :: Database
-Topic :: Education
-Topic :: Scientific/Engineering
-Topic :: Scientific/Engineering :: Physics
-Topic :: Software Development
-Topic :: Software Development :: Libraries :: Python Modules
-"""
+CLASSIFIERS = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education,"
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: BSD License",
+    "Natural Language :: English",
+    "Operating System :: MacOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.5",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Topic :: Database",
+    "Topic :: Education",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Scientific/Engineering :: Physics",
+    "Topic :: Software Development",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 
 
 # ---- Define helpers for version-ing                               ----

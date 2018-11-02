@@ -11,12 +11,12 @@
 /docs/_build/
 
 # PyCharm specifics
-.idea/
+.idea/*
 # /.idea/workspace.xml
 
 # macOS Files
 .DS_Store
 
 # venv
-/venv/
+venv/
 build/

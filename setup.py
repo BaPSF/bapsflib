@@ -62,11 +62,17 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
+# ---- Define long description                                      ----
+with open('README.md', 'r') as fh:
+    LONG_DESCRIPTION = fh.read()
+
 # ---- Perform setup                                                ----
 setup(
     name='bapsflib',
     version=find_version("bapsflib", "__init__.py"),
     description='A toolkit for handling data collected at BaPSF.',
+    long_description=LONG_DESCRIPTION,
+    long_description_content_type='text/markdown',
     scripts=[],
     setup_requires=['astropy>=2.0',
                     'h5py>=2.6',

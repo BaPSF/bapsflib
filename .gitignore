@@ -11,7 +11,8 @@
 /docs/_build/
 
 # PyCharm specifics
-/.idea/workspace.xml
+.idea/
+# /.idea/workspace.xml
 
 # macOS Files
 .DS_Store

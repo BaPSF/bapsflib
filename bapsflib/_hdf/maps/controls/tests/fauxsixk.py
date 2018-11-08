@@ -12,6 +12,7 @@ import h5py
 import random
 import math
 import numpy as np
+import platform
 
 from datetime import datetime as dt
 from warnings import warn
@@ -291,7 +292,10 @@ class FauxSixK(h5py.Group):
             self.create_group(ml_gname)
 
             # set motionlist attributes
-            timestamp = dt.now().strftime('%-m/%-d/%Y %-I:%M:%S %p')
+            time_format = '%-m/%-d/%Y %-I:%M:%S %p'
+            if platform.system() == 'Windows':
+                time_format = time_format.replace('-', '#')
+            timestamp = dt.now().strftime(time_format)
             self[ml_gname].attrs.update({
                 'Created date': np.bytes_(timestamp),
                 'Data motion count': np.uint32(sn_size_for_ml[i]),

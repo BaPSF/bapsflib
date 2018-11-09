@@ -1,82 +1,86 @@
 Installation
 ============
 
-Package Requirements
---------------------
+.. Package Requirements
+   --------------------
 
 
-Installing...
--------------
+Installing from :code:`pip`
+---------------------------
 
-The :py:mod:`bapsflib` package is still in active development so it has
-not been registered with PyPI.  Once a stable release is achieve, the
-package will be registered and, then, can be directly installed with:
-
-.. code-block:: bash
-
-    pip3 install bapsflib
-
-Directly from GitHub
-^^^^^^^^^^^^^^^^^^^^
-
-.. Note::
-
-    Will need a version of :command:`git` installed locally, see
-    installation
-    `here <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_.
-
-A copy of :mod:`bapsflib` can be installed into Python's
-:file:`site-packages` directory using the :command:`pip3` installer.
-Invoking the following command
+The :mod:`bapsflib` package is registered with
+`PyPI <https://pypi.org/project/bapsflib/>`_ and can be installed with
+:mod:`pip` via
 
 .. code-block:: bash
 
-    pip3 install git+https://github.com/BaPSF/bapsflib.git#egg=bapsflib
+    pip install bapsflib
 
-will install the `master` branch of :mod:`bapsflib`.  If an alternate
-branch `BranchName` is desired, then invoke:
+For the most recent development version, :mod:`bapsflib` can be
+installed from `GitHub <https://github.com/BaPSF/bapsflib>`_.
 
-.. code-block:: bash
+Installing Directly from GitHub
+-------------------------------
 
-    pip3 install git+https://github.com/BaPSF/bapsflib.git@BranchName#egg=bapsflib
+To install directly from GitHub, you need to have
+`git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
+installed on your computer.  If you do not have :code:`git` installed,
+then see `Installing from a GitHub Clone or Download`_.
 
-Now, the :py:mod:`bapsflib` package can be imported like any other
-Python package.
-
-Since :py:mod:`bapsflib` is not currently registered on PyPI, to upgrade
-the package the following command has to be used:
-
-.. code-block:: bash
-
-    pip3 install --upgrade git+https://github.com/BaPSF/bapsflib.git#egg=bapsflib
-
-From a Local GitHub Clone
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The second option is to install from a local copy of the GitHub
-repository.  A copy can be made one of two ways, (1) download a copy
-directly from the
-`GitHub repository <https://github.com/BaPSF/bapsflib>`_ or (2)
-make a :command:`git` clone of the repository.  To download a copy go to
-the :py:mod:`bapsflib`
-`repository <https://github.com/BaPSF/bapsflib>`_, find the
-**clone or download** button, choose **Download ZIP**, save to location
-of choice, and unpack.  To install the package, navigate to the
-:py:mod:`bapsflib` package main directory when the :file:`setup.py` file
-is located.  In the terminal execute the following command:
+To install directly from the :code:`master` branch invoke the following
+command
 
 .. code-block:: bash
 
-    pip3 install .
+    pip install git+https://github.com/BaPSF/bapsflib.git#egg=bapsflib
 
-and this will install the :py:mod:`bapsflib` package in Python's
-:file:`site-packages` directory.
+If an alternate branch :code:`BranchName` is desired, then invoke
 
+.. code-block:: bash
 
-Useful Links
-------------
+    pip install git+https://github.com/BaPSF/bapsflib.git@BranchName#egg=bapsflib
+
+Installing from a GitHub Clone or Download
+------------------------------------------
+
+A copy of the :mod:`bapsflib` package can be obtained by
+`cloning <https://help.github.com/articles/cloning-a-repository/>`_
+or downloading from the GitHub repository.
+
+Cloning the repository requires an installation of :code:`git` on your
+computer.  To clone the :code:`master` branch, first, on your computer,
+navigate to the directory you want the clone and do
+
+.. code-block:: bash
+
+    git clone https://github.com/BaPSF/bapsflib.git
+
+To download a copy, go to the
+`repository <https://github.com/BaPSF/bapsflib>`_, select the branch to
+be downloaded, click the green button labeled :ibf:`Clone or download`,
+select :ibf:`Download ZIP`, save the zip file to the desired directory,
+and unpack.
+
+After getting a copy of the :mod:`bapsflib` package (via clone or
+downlaod), navigate to the main package directory, where the package
+:file:`setup.py` file is located, and execute
+
+.. code-block:: bash
+
+    pip install .
+
+or
+
+.. code-block:: bash
+
+    python setup.py install
+
+Useful Installation Links
+-------------------------
 
 * bapsflib repository: https://github.com/BaPSF/bapsflib
+* bapsflib on PyPI: https://pypi.org/project/bapsflib/
 * setuptools documentation: https://setuptools.readthedocs.io/en/latest/index.html
 * pip documentation: https://pip.pypa.io/en/stable/
 * git installation: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
+* cloning and downloading form GitHub: https://help.github.com/articles/cloning-a-repository/

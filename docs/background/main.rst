@@ -18,7 +18,7 @@ grouping and linking mechanisms.  For HDF5 support visit HDF Group's
 Structure of a LaPD Generated HDF5 File
 =======================================
 
-.. include:: lapd_hdf5_structure.inc.rst
+.. include:: hdf5_structure.inc.rst
 
 .. _digi_overview:
 

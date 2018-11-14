@@ -1,7 +1,9 @@
-======================
-BaPSF Background Items
-======================
+================
+BaPSF Background
+================
 
+.. contents::
+   :local:
 
 What is HDF5?
 =============
@@ -14,8 +16,8 @@ structured through grouping and linking mechanisms.  For HDF5 support
 visit HDF Group's
 `HDF5 support site <https://support.hdfgroup.org/HDF5/>`_.
 
-Structure \& Terminology of Generated HDF5 Files
-================================================
+BaPSF HDF5 Files
+================
 
 .. include:: hdf5_structure.inc.rst
 

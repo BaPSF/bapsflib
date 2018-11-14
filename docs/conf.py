@@ -222,9 +222,17 @@ rst_prolog = """
    :language: python3
 
 .. role:: red
+.. role:: green
+.. role:: blue
 
 .. role:: ibf
     :class: ibf
+
+.. role:: textit
+    :class: textit
+
+.. role:: textbf
+    :class: textbf
 """
 
 

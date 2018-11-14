@@ -11,17 +11,6 @@
         overflow: visible !important;
     }}
 
-/* Add coloring for red text */
-.red {
-    color:red;
-}
-
-/* Add italic bold face role*/
-.ibf {
-    font-weight: bold;
-    font-style: italic;
-}
-
 /* Override RTD theme bottom margin for line blocks in a table */
 .rst-content table.docutils td .line-block {
     margin-bottom: 0px
@@ -30,6 +19,31 @@
 /* Override RTD theme bottom margin for code highlights in a table */
 .rst-content table.docutils td div[class^='highlight-default'] {
     margin-bottom: 12px;
+}
+/* --- Font Styles                                                --- */
+/* text coloring */
+.red {
+    color: red;
+}
+.blue {
+    color: blue;
+}
+.green {
+    color: green;
+}
+
+/* italic bold face role*/
+.ibf {
+    font-weight: bold;
+    font-style: italic;
+}
+/* italic text [mimic latex] */
+.textit {
+    font-style: italic;
+}
+/* bold test [mimic latex] */
+.textbf {
+    font-weight: bold;
 }
 
 /* --- RTD theme fixes since readthedocs.org theme does not match    ---

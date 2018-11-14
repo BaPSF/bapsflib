@@ -1,10 +1,10 @@
 .. There are three classes of data data saved in a HDF5 file, **digitizer**
    data, **control device** data, and **MSI diagnostic** data (see
    :ref:`lapd_file_overview`).  Each class of data is given its own read
-   method on :class:`bapsflib.lapdhdf.File`:
+   method on :class:`bapsflib.lapd.File`:
 
-Three classes :class:`~bapsflib.lapdhdf.hdfreaddata.HDFReadData`,
-:class:`~bapsflib.lapdhdf.hdfreadcontrol.HDFReadControl`, and
+Three classes :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`,
+:class:`~bapsflib._hdf_utils.hdfreadcontrol.HDFReadControl`, and
 :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` are given to read
 data for **digitizers**, **control devices**, and **MSI diagnostics**,
 respectively.  Each of these read classes are bound to

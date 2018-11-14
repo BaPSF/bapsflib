@@ -14,7 +14,7 @@ Welcome to bapsflib's documentation!
     installation
     getstarted
     ./background/main
-    ./howtos/main
+    using_lapd/main
     ./hdfmap/main
 
 

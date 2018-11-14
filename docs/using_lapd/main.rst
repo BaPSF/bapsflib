@@ -1,5 +1,5 @@
-HOWTOs and Explainers
-=====================
+Using :class:`bapsflib.lapd`
+============================
 
 .. contents:: Contents
     :depth: 3

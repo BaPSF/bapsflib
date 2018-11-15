@@ -1,48 +1,30 @@
-Using :class:`bapsflib.lapd`
-============================
+.. _using_bapsflib_lapd:
+
+==========================
+Using :mod:`bapsflib.lapd`
+==========================
+
+The :mod:`bapsflib.lapd` is a one-stop-shop for everything specifically
+related to handling data collected on the LaPD.  The package provides:
+
+#. HDF5 file access via :class:`bapsflib.lapd.File`
+#. LaPD machine specs and parameters in :mod:`bapsflib.lapd.constants`
+#. LaPD specific tools (e.g. port number to LaPD :math:`z` conversion
+   :func:`bapsflib.lapd.tools.portnum_to_z`) in
+   :mod:`bapsflib.lapd.tools`.
 
 .. contents:: Contents
     :depth: 3
     :local:
 
-.. _file_open:
+Accessing HDF5 Files
+====================
 
-Opening a File
---------------
+.. include:: file_access.inc.rst
 
-.. include:: openfile.inc.rst
 
-After Opening a File
---------------------
+LaPD Constants
+==============
 
-.. include:: afteropen.inc.rst
-
-.. _file_info:
-
-File Info: Metadata You Want
-----------------------------
-
-.. include:: file_info.inc.rst
-
-.. _file_hdfoverview:
-
-File Overview: Getting, Printing, and Saving
---------------------------------------------
-
-.. include:: file_overview.inc.rst
-
-.. _read_data:
-
-Reading Data from a HDF5 File
------------------------------
-
-.. include:: readdata.inc.rst
-
-.. _handle_data:
-
-.. Handling Extracted Data
-   -----------------------
-
-.. .. note:: To be written
-
-.. .. include:: handledata.rst
+LaPD Tools
+==========

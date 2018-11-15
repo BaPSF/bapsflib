@@ -3,7 +3,7 @@
 Opening a File
 --------------
 
-.. include:: openfile.inc.rst
+.. include:: file_openfile.inc.rst
 
 After Opening a File
 --------------------

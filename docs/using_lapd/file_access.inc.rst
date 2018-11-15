@@ -8,7 +8,7 @@ Opening a File
 After Opening a File
 --------------------
 
-.. include:: afteropen.inc.rst
+.. include:: file_afteropen.inc.rst
 
 .. _file_info:
 

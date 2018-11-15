@@ -10,6 +10,9 @@ After Opening a File
 
 .. include:: file_afteropen.inc.rst
 
+File Mapping
+------------
+
 .. _file_info:
 
 File Info: Metadata You Want

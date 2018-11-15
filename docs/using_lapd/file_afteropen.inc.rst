@@ -1,9 +1,9 @@
 Upon opening a file, :class:`~bapsflib.lapd.File` calls on the
 :class:`~bapsflib.lapd._hdf.lapdmap.LaPDMap` class
 (a subclass of :class:`~bapsflib._hdf.maps.hdfmap.HDFMap`) to construct
-a mapping of the HDF5 file's internal data structure, see section
-:ref:`hdfmap_details` for details.  This mapping provides the necessary
-translation for the high-level data reading methods,
+a mapping of the HDF5 file's internal data structure.  This mapping
+provides the necessary translation for the high-level data reading
+methods,
 :meth:`~bapsflib.lapd.File.read_data`,
 :meth:`~bapsflib.lapd.File.read_controls`, and
 :meth:`~bapsflib.lapd.File.read_msi`.  If an element of the HDF5 file

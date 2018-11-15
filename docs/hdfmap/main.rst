@@ -1,4 +1,4 @@
-.. _file_mappings:
+.. _hdfmap_details:
 
 HDF5 File Mapping (:class:`~bapsflib._hdf.maps.hdfmap.HDFMap`)
 ==============================================================

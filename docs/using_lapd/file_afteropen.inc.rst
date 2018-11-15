@@ -1,26 +1,31 @@
 Upon opening a file, :class:`~bapsflib.lapd.File` calls on the
-:class:`~bapsflib._hdf.maps.hdfmap.HDFMap` class to construct a
-mapping of the HDF5 file's internal data structure, see section
-:ref:`file_mappings` for details on the mapping construction.  Since the
-various elements in the HDF5 data structure defined by the LaPD DAQ
-system can evolve over time, the purpose of the mapping construction is
-to provide a translation of the evolving data structure into a universal
-format that will be consistent over time for both the user and the
-:mod:`bapsflib` methods. An instance of the mapping object is bound to
-:class:`~bapsflib.lapd.File` as
-:attr:`~bapsflib.lapd.File.file_map`
+:class:`~bapsflib.lapd._hdf.lapdmap.LaPDMap` class
+(a subclass of :class:`~bapsflib._hdf.maps.hdfmap.HDFMap`) to construct
+a mapping of the HDF5 file's internal data structure, see section
+:ref:`hdfmap_details` for details.  This mapping provides the necessary
+translation for the high-level data reading methods,
+:meth:`~bapsflib.lapd.File.read_data`,
+:meth:`~bapsflib.lapd.File.read_controls`, and
+:meth:`~bapsflib.lapd.File.read_msi`.  If an element of the HDF5 file
+is un-mappable -- a mapping module does not exist or the mapping
+fails -- the data can still be reached using the not-so-lower
+inherited methods of :class:`h5py.File`.  An instance of the mapping
+object is bound to :class:`~bapsflib.lapd.File` as
+:attr:`~bapsflib.lapd.File.file_map` ::
 
-.. code-block:: python3
-
+    >>> from bapsflib import lapd
+    >>> from bapsflib._hdf import HDFMap
     >>> f = lapd.File('test.hdf5')
     >>> f.file_map
-    <bapsflib._hdf.maps.hdfmap.HDFMap>
+    <LaPDMap of HDF5 file 'test.hdf5'>
+    >>>
+    >>> # is still an instance of HDFMap
+    >>> isinstance(f.file_map, HDFMap)
+    True
 
-This mapping object is used by :mod:`bapsflib`'s high-level functions
-to collect data requested by the user.  The user can also delve into the
-mapping object to learn about the setup and configurations for the
-various devices (digitizers, control devices, MSI diagnostics, etc.)
-used in the experimental run. [*]_
+For details on how the mapping works and how the mapping objects are
+structured see :ref:`hdfmap_details`.  For details on using the
+:attr:`~bapsflib.lapd.File.file_map` see :ref:`file_map` for details.
 
 The opened file object (``f``) provides a set of high-level methods and
 attributes for th user to interface with, see :numref:`f_meth_table`.
@@ -32,45 +37,54 @@ attributes for th user to interface with, see :numref:`f_meth_table`.
     :header: "method/attribute", "Description"
     :widths: 20, 60
 
-    :attr:`~bapsflib.lapd.File.file_map`, "instance of the
-    HDF5 file mapping (:class:`~bapsflib._hdf.maps.hdfmap.HDFMap`)
+    :attr:`~bapsflib.lapd.File.controls`, "
+    dictionary of control device mappings (quick access to
+    :attr:`f.file_map.controls`)
     "
-    :attr:`~bapsflib.lapd.File.info`, "dictionary of general
-    info on the HDF5 file and experimental run (see section
-    :ref:`file_info`)
+    :attr:`~bapsflib.lapd.File.digitizers`, "
+    dictionary of digitizer [device] mappings (quick access to
+    :attr:`f.file_map.digitizers`)
     "
-    :attr:`~bapsflib.lapd.File.list_controls`, "list naming all
-    successfully mapped control devices
+    :attr:`~bapsflib.lapd.File.file_map`, "
+    | instance of the LaPD HDF5 file mapping (instance of
+      :class:`~bapsflib.lapd._hdf.lapdmap.LaPDMap`)
+    | (see :ref:`file_map` for details)
     "
-    :attr:`~bapsflib.lapd.File.list_digitizers`, "list naming
-    all successfully mapped digitizers
+    :attr:`~bapsflib.lapd.File.info`, "
+    | dictionary of meta-info about the HDF5 file and the experimental
+      run
+    | (see :ref:`file_info` for details)
     "
-    :attr:`~bapsflib.lapd.File.list_file_items`, "list of paths
-    for all items (Groups and Datasets) in the HDF5 data structure
+    :attr:`~bapsflib.lapd.File.msi`, "
+    dictionary of MSI diagnostic [device] mappings (quick access to
+    :attr:`f.file_map.msi`)
     "
-    :attr:`~bapsflib.lapd.File.list_msi`, "list naming  all
-    successfully mapped MSI diagnostics
+    :attr:`~bapsflib.lapd.File.overview`, "
+    | instance of :class:`~bapsflib.lapd._hdf.lapdoverview.LaPDOverview`
+      which that allows for printing and saving of the file mapping
+      results
+    | (see :ref:`file_overview` for details)
     "
-    :attr:`~bapsflib.lapd.File.overview`, "instance of
-    :class:`~bapsflib.lapd._hdf.hdfoverview.hdfOverview` that allows for
-    printing and saving of the file mapping results, see
-    :ref:`file_hdfoverview` for details
+    :meth:`~bapsflib.lapd.File.read_controls`, "
+    | high-level method for reading control device data contained in the
+      HDF5 file (instance of
+      :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`)
+    | (see :ref:`read_controls` for details)
     "
-    :meth:`~bapsflib.lapd.File.read_controls`, "function to
-    read control device data (see section on reading
-    :ref:`read_controls`)
+    :meth:`~bapsflib.lapd.File.read_data`, "
+    | high-level method for reading digitizer data and mating control
+      device data at the time of read (instance of
+      :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`)
+    | (see :ref:`read_digi` for details)
     "
-    :meth:`~bapsflib.lapd.File.read_data`, "function to
-    read digitizer data and mate control device data (see section on
-    reading :ref:`read_digi`)
+    :meth:`~bapsflib.lapd.File.read_msi`, "
+    | high-level method for reading MSI diagnostic date (instance of
+      :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`)
+    | (see :ref:`read_msi` for details)
     "
-    :meth:`~bapsflib.lapd.File.read_msi`, "function to
-    read MSI diagnostic (see section on reading :ref:`read_msi`)
-    "
-    :meth:`~bapsflib.lapd.File.run_description`, "printout of
-    experimental run descriptions
+    :meth:`~bapsflib.lapd.File.run_description`, "
+    printout the LaPD experimental run description
     (:code:`print(f.info['run description'].splitlines())`)
     "
 
-.. [*] add a link to section on using the
-    :attr:`~bapsflib.lapd.File.file_map` attribute once written
+.. .. [*] add a link to section on using the :attr:`~bapsflib.lapd.File.file_map` attribute once written

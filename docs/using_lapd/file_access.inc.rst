@@ -10,6 +10,8 @@ After Opening a File
 
 .. include:: file_afteropen.inc.rst
 
+.. _file_map:
+
 File Mapping
 ------------
 
@@ -20,7 +22,7 @@ File Info: Metadata You Want
 
 .. include:: file_info.inc.rst
 
-.. _file_hdfoverview:
+.. _file_overview:
 
 File Overview: Getting, Printing, and Saving
 --------------------------------------------

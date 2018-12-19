@@ -15,6 +15,8 @@ After Opening a File
 File Mapping
 ------------
 
+.. include:: file_mappings.inc.rst
+
 .. _file_info:
 
 File Info: Metadata You Want

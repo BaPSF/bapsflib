@@ -9,10 +9,10 @@
 #   license terms and contributor agreement.
 #
 import h5py
-import random
 import math
 import numpy as np
 import platform
+import random
 
 from datetime import datetime as dt
 from warnings import warn

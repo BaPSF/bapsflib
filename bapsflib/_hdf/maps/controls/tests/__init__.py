@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from .fauxwaveform import FauxWaveform
-from .fauxsixk import FauxSixK
 from .fauxn5700ps import FauxN5700PS
+from .fauxnixz import FauxNIXZ
+from .fauxsixk import FauxSixK
+from .fauxwaveform import FauxWaveform

@@ -16,7 +16,8 @@ import time
 
 from bapsflib._hdf.maps.controls.templates import \
     (HDFMapControlTemplate, HDFMapControlCLTemplate)
-from typing import (Any, Dict, Iterable, Tuple, Union)
+from functools import reduce
+from typing import (Any, Dict, Iterable, List, Tuple, Union)
 from warnings import warn
 
 from .file import File
@@ -323,7 +324,7 @@ class HDFReadControl(np.ndarray):
             cconfig = cmap.configs[cconfn]
             cdset = cdset_dict[cname]
             sni = sni_dict[cname]
-            index = index_dict[cname].tolist()
+            index = index_dict[cname].tolist()  # type: List
 
             # populate control data array
             # 1. scan over numpy fields
@@ -373,14 +374,69 @@ class HDFReadControl(np.ndarray):
                             data[nf_name][sni_for_ci] = command
                     else:
                         # direct fill (NO command list)
+                        try:
+                            arr = cdset[index, df_name]
+                        except ValueError as err:
+                            mlist = [1] \
+                                    + list(data.dtype[nf_name].shape)
+                            size = reduce(lambda x, y: x*y, mlist)
+                            dtype = data.dtype[nf_name].base
+                            if df_name == '':
+                                # a mapping module gives an empty string
+                                # '' when the dataset does not have a
+                                # necessary field but you want the read
+                                # out to still function
+                                # - e.g. 'xyz' but the dataset only
+                                #   contains values fo 'x' and 'z'
+                                #   (the NI_XZ module)
+                                #
+                                # create zero array
+                                arr = np.zeros((len(index),),
+                                               dtype=dtype)
+                            elif size > 1:
+                                # expected field df_name is missing but
+                                # belongs to an array
+                                warn("Dataset missing field '"
+                                     + df_name
+                                     + "', applying NaN fill to to "
+                                     + "data array")
+                                arr = np.zeros((len(index),),
+                                               dtype=dtype)
+
+                                # NaN fill
+                                if np.issubdtype(dtype,
+                                                 np.signedinteger):
+                                    # any signed-integer
+                                    # unsigned has a 0 fill
+                                    arr[:] = -99999
+                                elif np.issubdtype(dtype, np.floating):
+                                    # any float type
+                                    arr[:] = np.nan
+                                elif np.issubdtype(dtype, np.flexible):
+                                    # string, unicode, void
+                                    # np.zero satisfies this
+                                    pass
+                                else:
+                                    # no real NaN concept exists
+                                    # - this shouldn't happen though
+                                    warn('dtype ({}) of '.format(dtype)
+                                         + '{} has no NaN '.format(
+                                        nf_name)
+                                         + 'concept...no NaN fill done')
+                            else:
+                                # expected field df_name is missing
+                                raise err
+
                         if data.dtype[nf_name].shape != ():
                             # field contains an array (e.g. 'xyz')
-                            data[nf_name][sni, npi] = \
-                                cdset[index, df_name]
+                            # data[nf_name][sni, npi] = \
+                            #     cdset[index, df_name]
+                            data[nf_name][sni, npi] = arr
                         else:
                             # field is a constant
-                            data[nf_name][sni] = \
-                                cdset[index, df_name]
+                            # data[nf_name][sni] = \
+                            #     cdset[index, df_name]
+                            data[nf_name][sni] = arr
 
                     # handle NaN fill
                     if not intersection_set:
@@ -416,7 +472,7 @@ class HDFReadControl(np.ndarray):
                             # no real NaN concept exists
                             # - this shouldn't happen though
                             warn('dtype ({}) of '.format(dtype)
-                                 + '{} has no Nan '.format(nf_name)
+                                 + '{} has no NaN '.format(nf_name)
                                  + 'concept...no NaN fill done')
 
             # print execution timing

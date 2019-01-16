@@ -451,13 +451,6 @@ class HDFReadControl(np.ndarray):
                             ii = np.s_[sni_not]
 
                         # NaN fill
-                        #if np.issubdtype(dtype, np.integer):
-                        #    # any integer, signed or not
-                        #    fill = 0 \
-                        #        if isinstance(dtype,
-                        #                      np.unsignedinteger) \
-                        #        else -99999
-                        #    data[nf_name][ii] = fill
                         if np.issubdtype(dtype, np.signedinteger):
                             data[nf_name][ii] = -99999
                         elif np.issubdtype(dtype, np.unsignedinteger):

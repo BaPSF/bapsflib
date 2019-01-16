@@ -106,12 +106,14 @@ class TestHDFReadControl(TestBase):
         # -- Define "Sample Control" in HDF5 file                   ----
         data = np.empty(10,
                         dtype=[('Shot number', np.uint32),
+                               ('index', np.int32),
                                ('bits', np.uint32),
                                ('signal', np.float32),
                                ('command', np.bytes_, 10),
                                ('valid', np.bool)])
         data['Shot number'] = np.arange(1, 11, 1, dtype=np.uint32)
-        data['bits'] = np.arange(-11, -21, -1, dtype=np.int32)
+        data['index'] = np.arange(-11, -21, -1, dtype=np.int32)
+        data['bits'] = np.arange(21, 31, 1, dtype=np.uint32)
         data['signal'] = np.arange(-5.0, 9.0, 1.5, dtype=np.float32)
         for ii in range(data.size):
             data['command'][ii] = \
@@ -146,11 +148,17 @@ class TestHDFReadControl(TestBase):
                         'dtype': np.uint32,
                     },
                     'state values': {
+                        'index': {
+                            'dset paths': dset_paths,
+                            'dset field': ('index',),
+                            'shape': (),
+                            'dtype': np.int32,
+                        },
                         'bits': {
                             'dset paths': dset_paths,
                             'dset field': ('bits',),
                             'shape': (),
-                            'dtype': np.int32,
+                            'dtype': np.uint32,
                         },
                         'signal': {
                             'dset paths': dset_paths,
@@ -849,10 +857,11 @@ class TestHDFReadControl(TestBase):
                 dtype = cdata.dtype[field].base
 
                 # assert "NaN" fills
-                if np.issubdtype(dtype, np.integer):
-                    fill = 0 if isinstance(dtype, np.unsignedinteger) \
-                        else -99999
-                    cd_nan = np.where(cdata[field] == fill,
+                if np.issubdtype(dtype, np.signedinteger):
+                    cd_nan = np.where(cdata[field] == -99999,
+                                      True, False)
+                elif np.issubdtype(dtype, np.unsignedinteger):
+                    cd_nan = np.where(cdata[field] == 0,
                                       True, False)
                 elif np.issubdtype(dtype, np.floating):
                     cd_nan = np.isnan(cdata[field])

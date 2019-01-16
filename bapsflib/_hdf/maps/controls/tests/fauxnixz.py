@@ -182,7 +182,7 @@ class FauxNIXZ(h5py.Group):
         self.create_dataset(dset_name, data=data)
 
         # add to configs
-        self._configs['config01']['dset name'] = dset_name
+        self.configs['config01']['dset name'] = dset_name
 
     def _add_motionlist_groups(self):
         """Add motion list groups"""
@@ -253,8 +253,8 @@ class FauxNIXZ(h5py.Group):
 
         # fill configs dict
         # there's one config and all ml's are in it
-        for config_name in self._configs:
-            self._configs[config_name]['motion lists'] = \
+        for config_name in self.configs:
+            self.configs[config_name]['motion lists'] = \
                 [self._ml[i]['name']
                  for i in range(self.knobs.n_motionlists)]
             # self._configs[config_name]['motion lists'] = \
@@ -291,7 +291,7 @@ class FauxNIXZ(h5py.Group):
         self._ml = []
 
         # re-initialize key dicts
-        self._configs = {'config01': {}}
+        self.configs = {'config01': {}}
 
         # add sub-groups
         self._add_motionlist_groups()

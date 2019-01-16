@@ -14,6 +14,7 @@ from bapsflib.utils.errors import HDFMappingError
 from typing import (Dict, Tuple, Union)
 
 from .n5700ps import HDFMapControlN5700PS
+from .nixz import HDFMapControlNIXZ
 from .sixk import HDFMapControl6K
 from .templates import (HDFMapControlTemplate, HDFMapControlCLTemplate)
 from .waveform import HDFMapControlWaveform
@@ -40,9 +41,10 @@ class HDFMapControls(dict):
         <bapsflib._hdf.maps.controls.sixk.HDFMapControl6K>
     """
     _defined_mapping_classes = {
+        'N5700_PS': HDFMapControlN5700PS,
+        'NI_XZ': HDFMapControlNIXZ,
         '6K Compumotor': HDFMapControl6K,
         'Waveform': HDFMapControlWaveform,
-        'N5700_PS': HDFMapControlN5700PS,
     }
     """
     Dictionary containing references to the defined (known) control

@@ -14,9 +14,10 @@ import os
 import tempfile
 
 from ..controls.tests import (
-    FauxWaveform,
-    FauxSixK,
     FauxN5700PS,
+    FauxNIXZ,
+    FauxSixK,
+    FauxWaveform,
 )
 from ..digitizers.tests import (
     FauxSIS3301,
@@ -48,9 +49,10 @@ class FauxHDFBuilder(h5py.File):
         'SIS crate': FauxSISCrate,
     }
     _KNOWN_CONTROLS = {
-        'Waveform': FauxWaveform,
         '6K Compumotor': FauxSixK,
         'N5700_PS': FauxN5700PS,
+        'NI_XZ': FauxNIXZ,
+        'Waveform': FauxWaveform,
     }
     _KNOWN_MODULES = _KNOWN_CONTROLS.copy()  # type: Dict[Any]
     _KNOWN_MODULES.update(_KNOWN_MSI)
@@ -251,3 +253,14 @@ class FauxHDFBuilder(h5py.File):
         modules = list(self._modules.keys())
         for mod in modules:
             self.remove_module(mod)
+
+    def reset(self):
+        """
+        Restore file such that only empty version of the 'MSI' and
+        'Raw data + config' group exist.
+        """
+        self.remove_all_modules()
+        for name in self['MSI']:
+            del self['MSI/' + name]
+        for name in self['Raw data + config']:
+            del self['Raw data + config/' + name]

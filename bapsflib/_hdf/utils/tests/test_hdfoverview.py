@@ -39,7 +39,6 @@ class TestHDFOverview(TestBase):
 
     def tearDown(self):
         super().tearDown()
-        del self.f['Raw data + config/Unknown']
 
     @property
     def overview(self):

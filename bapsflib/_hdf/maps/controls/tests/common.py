@@ -43,9 +43,9 @@ class ControlTestCase(ut.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        # skip tests if in MSIDiagnosticTestCase
+        # skip tests if in ControlTestCase
         if cls is ControlTestCase:
-            raise ut.SkipTest("In MSIDiagnosticTestCase, "
+            raise ut.SkipTest("In ControlTestCase, "
                               "skipping base tests")
         super().setUpClass()
 

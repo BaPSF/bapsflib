@@ -11,8 +11,34 @@
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
+from functools import wraps
 
 from ..file import File
+
+
+def with_bf(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        with File(self.f.filename,
+                  control_path='Raw data + config',
+                  digitizer_path='Raw data + config',
+                  msi_path='MSI') as bf:
+            return func(self, bf, *args, **kwargs)
+    return wrapper
+
+'''
+def with_bf(filename):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            with File(filename,
+                      control_path='Raw data + config',
+                      digitizer_path='Raw data + config',
+                      msi_path='MSI') as bf:
+                func(bf, *args, **kwargs)
+        return wrapper
+    return decorator
+'''
 
 
 class TestBase(ut.TestCase):

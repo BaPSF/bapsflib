@@ -23,6 +23,19 @@ def method_overridden(cls, obj, method: str) -> bool:
     return obj_method and base_method
 
 
+def with_lapdf(func):
+    """
+    Context decorator for managing the opening and closing LaPD HDF5
+    Files :class:`bapsflib.lapd._hdf.file.File`.  Intended for use on
+    test methods.
+    """
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        with File(self.f.filename) as lapdf:
+            return func(self, lapdf, *args, *kwargs)
+    return wrapper
+
+
 class TestBase(ut.TestCase):
     """Base test class for all test classes here."""
 

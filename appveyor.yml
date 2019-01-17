@@ -1,0 +1,19 @@
+# AppVeyor.com is a Continuous Integration service to build and run
+# tests under Windows
+environment:
+
+  matrix:
+    - PYTHON: "C:\\Python35"
+    - PYTHON: "C:\\Python35-x64"
+    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python36-x64"
+
+install:
+  - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - "%PYTHON%\\python.exe -m pip install -r requirements.txt"
+
+# Not a .NET project, package is built in the install step instead
+build: off
+
+test_script:
+  - "%PYTHON%\\python.exe -m unittest discover"

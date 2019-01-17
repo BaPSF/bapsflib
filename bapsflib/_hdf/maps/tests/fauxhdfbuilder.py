@@ -253,3 +253,14 @@ class FauxHDFBuilder(h5py.File):
         modules = list(self._modules.keys())
         for mod in modules:
             self.remove_module(mod)
+
+    def reset(self):
+        """
+        Restore file such that only empty version of the 'MSI' and
+        'Raw data + config' group exist.
+        """
+        self.remove_all_modules()
+        for name in self['MSI']:
+            del self['MSI/' + name]
+        for name in self['Raw data + config']:
+            del self['Raw data + config/' + name]

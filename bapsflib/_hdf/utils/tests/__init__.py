@@ -17,6 +17,11 @@ from ..file import File
 
 
 def with_bf(func):
+    """
+    Context decorator for managing the opening and closing BaPSF HDF5
+    Files :class:`bapsflib._hdf.utils.file.File`.  Intended for use on
+    test methods.
+    """
     @wraps(func)
     def wrapper(self, *args, **kwargs):
         with File(self.f.filename,
@@ -25,20 +30,6 @@ def with_bf(func):
                   msi_path='MSI') as bf:
             return func(self, bf, *args, **kwargs)
     return wrapper
-
-'''
-def with_bf(filename):
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            with File(filename,
-                      control_path='Raw data + config',
-                      digitizer_path='Raw data + config',
-                      msi_path='MSI') as bf:
-                func(bf, *args, **kwargs)
-        return wrapper
-    return decorator
-'''
 
 
 class TestBase(ut.TestCase):
@@ -60,9 +51,3 @@ class TestBase(ut.TestCase):
         # cleanup and close HDF5 file
         super().tearDownClass()
         cls.f.cleanup()
-
-    @property
-    def bf(self) -> File:
-        """Opened BaPSF HDF5 File instance."""
-        return File(self.f.filename, control_path='Raw data + config',
-                    digitizer_path='Raw data + config', msi_path='MSI')

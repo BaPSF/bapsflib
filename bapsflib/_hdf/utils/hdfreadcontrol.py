@@ -416,7 +416,7 @@ class HDFReadControl(np.ndarray):
                                     # string, unicode, void
                                     # np.zero satisfies this
                                     pass
-                                else:
+                                else:  # pragma: no cover
                                     # no real NaN concept exists
                                     # - this shouldn't happen though
                                     warn('dtype ({}) of '.format(dtype)

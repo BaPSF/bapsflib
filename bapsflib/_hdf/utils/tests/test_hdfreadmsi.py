@@ -15,9 +15,7 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib._hdf.maps import FauxHDFBuilder
-
-from . import TestBase
+from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfreadmsi import HDFReadMSI
 
@@ -40,7 +38,8 @@ class TestHDFReadMSI(TestBase):
         """Read MSI diagnostic data"""
         return HDFReadMSI(hdf_obj, name)
 
-    def test_raise_errors(self):
+    @with_bf
+    def test_raise_errors(self, _bf: File):
         """Test designed raise exceptions"""
         # 1.`hdf_file` not a lapd.File object
         # 2. `dname` not valid
@@ -56,11 +55,11 @@ class TestHDFReadMSI(TestBase):
         # -- `dname` not valid                                      ----
         # `dname` is not a string
         with self.assertRaises(TypeError):
-            self.read(self.bf, None)
+            self.read(_bf, None)
 
         # `dname` not a mapped MSI diagnostic
         with self.assertRaises(ValueError):
-            self.read(self.bf, 'Not Diagnostic')
+            self.read(_bf, 'Not Diagnostic')
 
         # -- Not all datasets for `dname` have matching             ----
         # -- shot numbers                                           ----
@@ -74,22 +73,24 @@ class TestHDFReadMSI(TestBase):
         data['Shot number'][1] += 1
         del self.f[dset_path]
         self.f.create_dataset(dset_path, data=data)
+        _bf._map_file()  # re-map file
         with self.assertRaises(ValueError):
-            self.read(self.bf, 'Interferometer array')
-        # self.fail("Not all datasets have matching shot numbers")
+            self.read(_bf, 'Interferometer array')
 
-    def test_read_simple(self):
+    @with_bf
+    def test_read_simple(self, _bf: File):
         """
         Test reading data from a simple device. (i.e. a device with
         one sequence of data per shot number)
         """
         # Using 'Discharge' as a test case
         self.f.add_module('Discharge')
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         _map = _bf.file_map.msi['Discharge']
         self.assertDataObj(self.read(_bf, 'Discharge'), _bf, _map)
 
-    def test_read_complex(self):
+    @with_bf
+    def test_read_complex(self, _bf: File):
         """
         Test reading data from a complex device. (i.e. a device with
         more than one sequence of data per shot number)
@@ -97,7 +98,7 @@ class TestHDFReadMSI(TestBase):
         # Using 'Interferometer array' as a test case
         self.f.add_module('Interferometer array',
                           mod_args={'n interferometers': 4, })
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         _map = _bf.file_map.msi['Interferometer array']
         self.assertDataObj(self.read(_bf, 'Interferometer array'),
                            _bf, _map)

@@ -101,6 +101,194 @@ class TestHDFReadControl(TestBase):
 
     @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock)
+    def test_missing_dataset_fields(self, mock_controls):
+        """
+        Test readout behavior when an expected/unexpected dataset
+        field is absent."""
+        # -- Define "Sample Control" in HDF5 file                   ----
+        data = np.empty(10,
+                        dtype=[('Shot number', np.uint32),
+                               ('x', np.float64),
+                               ('z', np.float64),
+                               ('i1', np.int32),
+                               ('i2', np.int32),
+                               ('u1', np.uint32),
+                               ('u2', np.uint32),
+                               ('c1', 'S10'),
+                               ('c2', 'S10'),
+                               ('field', np.float64)])
+        data['Shot number'] = np.arange(1, 11, 1, dtype=np.uint32)
+        data['x'] = np.arange(0.0, 10.0, 1., dtype=np.float64)
+        data['z'] = np.arange(-2.25, 2.26, 0.5, dtype=np.float64)
+        self.f.create_group('Raw data + config/Sample')
+        self.f.create_dataset('Raw data + config/Sample/Dataset',
+                              data=data)
+
+        # -- Define "Sample Control Mapping Class"                  ----
+        class HDFMapSampleControl(HDFMapControlTemplate):
+            def __init__(self, group):
+                HDFMapControlTemplate.__init__(self, group)
+
+                # define control type
+                self._info['contype'] = ConType.motion
+
+                # populate self.configs
+                self._build_configs()
+
+            def _build_configs(self):
+                config_name = 'config01'
+                dset_name = self.construct_dataset_name()
+                dset = self.group[dset_name]
+                dset_paths = (dset.name,)
+                self._configs[config_name] = {
+                    'dset paths': dset_paths,
+                    'shotnum': {
+                        'dset paths': dset_paths,
+                        'dset field': ('Shot number',),
+                        'shape': (),
+                        'dtype': np.uint32,
+                    },
+                    'state values': {
+                        'xyz': {
+                            'dset paths': dset_paths,
+                            'dset field': ('x', '', 'z'),
+                            'shape': (3,),
+                            'dtype': np.float64,
+                        },
+                        'index': {
+                            'dset paths': dset_paths,
+                            'dset field': ('i1', 'i2', ''),
+                            'shape': (3,),
+                            'dtype': np.int32,
+                        },
+                        'uindex': {
+                            'dset paths': dset_paths,
+                            'dset field': ('u1', 'u2', ''),
+                            'shape': (3,),
+                            'dtype': np.uint32,
+                        },
+                        'cindex': {
+                            'dset paths': dset_paths,
+                            'dset field': ('c1', 'c2', ''),
+                            'shape': (3,),
+                            'dtype': np.dtype((np.bytes_, 10)),
+                        },
+                        'field': {
+                            'dset paths': dset_paths,
+                            'dset field': ('field',),
+                            'shape': (),
+                            'dtype': np.float64,
+                        },
+                    },
+                }
+
+            def construct_dataset_name(self, *args):
+                return 'Dataset'
+
+        # -- Set Mocking                                            ----
+        mock_controls.return_value = {
+            'Sample':
+                HDFMapSampleControl(self.f['Raw data + config/Sample']),
+        }
+
+        # -- Run Tests                                              ----
+        # -- expected non-existent dataset field --
+        # - e.g. the dataset only has the 'x' and 'z' fields for the
+        #   'xyz' numpy array field
+        # - an expected non-existent field is added to the mapping
+        #   `configs` like
+        #
+        #       configs[cname]['state values']['xyz']['dset field'] = \
+        #           ('x', '', 'z')
+        #
+        _bf = self.bf
+        sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
+        sn_v = np.array([8, 9, 10], dtype=np.uint32)
+        controls = [('Sample', 'config01')]
+        cdata = HDFReadControl(_bf, controls,
+                               shotnum=sn,
+                               assume_controls_conditioned=True)
+        self.assertTrue(np.array_equal(cdata['shotnum'], sn_v))
+        self.assertTrue(np.array_equal(
+            cdata['xyz'][..., 1],
+            np.zeros(3, dtype=np.float64)))
+        self.assertTrue(np.array_equal(
+            cdata['index'][..., 2],
+            np.zeros(3, dtype=np.int32)))
+        self.assertTrue(np.array_equal(
+            cdata['uindex'][..., 2],
+            np.zeros(3, dtype=np.uint32)))
+        self.assertTrue(np.array_equal(
+            cdata['cindex'][..., 2],
+            np.zeros(3, dtype='S10')))
+
+        # -- expected dataset field missing for a grouping of fields  --
+        # -- that map to one numpy field                              --
+        # - e.g. field 'x' is missing from the dataset but is needed
+        #   for the 'xyz' numpy field
+        #
+        # remove fields from data
+        fields = list(data.dtype.names)
+        for field in ('x', 'i1', 'u1', 'c1'):
+            fields.remove(field)
+        del self.f['Raw data + config/Sample/Dataset']
+        self.f.create_dataset('Raw data + config/Sample/Dataset',
+                              data=data[fields])
+
+        # build control data array
+        _bf = self.bf
+        sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
+        sn_v = np.array([8, 9, 10], dtype=np.uint32)
+        controls = [('Sample', 'config01')]
+        with self.assertWarns(UserWarning):
+            cdata = HDFReadControl(_bf, controls,
+                                   shotnum=sn,
+                                   assume_controls_conditioned=True)
+
+            self.assertTrue(np.array_equal(cdata['shotnum'], sn_v))
+            self.assertTrue(np.all(np.isnan(cdata['xyz'][..., 0])))
+            self.assertTrue(np.array_equal(
+                cdata['xyz'][..., 1],
+                np.zeros(3, dtype=np.float64)))
+            self.assertTrue(np.array_equal(
+                cdata['index'][..., 0],
+                np.array([-99999] * 3, dtype=np.int32)))
+            self.assertTrue(np.array_equal(
+                cdata['index'][..., 2],
+                np.zeros(3, dtype=np.int32)))
+            self.assertTrue(np.array_equal(
+                cdata['uindex'][..., 0],
+                np.zeros(3, dtype=np.uint32)))
+            self.assertTrue(np.array_equal(
+                cdata['uindex'][..., 2],
+                np.zeros(3, dtype=np.uint32)))
+            self.assertTrue(np.array_equal(
+                cdata['cindex'][..., 0],
+                np.zeros(3, dtype='S10')))
+            self.assertTrue(np.array_equal(
+                cdata['cindex'][..., 2],
+                np.zeros(3, dtype='S10')))
+
+        # -- expected dataset field is missing and is the only field  --
+        # -- mapped to the numpy field                                --
+        # remove fields from data
+        fields = list(data.dtype.names)
+        fields.remove('field')
+        del self.f['Raw data + config/Sample/Dataset']
+        self.f.create_dataset('Raw data + config/Sample/Dataset',
+                              data=data[fields])
+
+        # test
+        _bf = self.bf
+        sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
+        controls = [('Sample', 'config01')]
+        with self.assertRaises(ValueError):
+            cdata = HDFReadControl(_bf, controls,
+                                   shotnum=sn,
+                                   assume_controls_conditioned=True)
+
+    @mock.patch.object(HDFMap, 'controls',
+                       new_callable=mock.PropertyMock)
     def test_nan_fill(self, mock_controls):
         """Test different NaN fills."""
         # -- Define "Sample Control" in HDF5 file                   ----

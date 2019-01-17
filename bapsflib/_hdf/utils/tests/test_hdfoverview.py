@@ -18,7 +18,8 @@ import unittest as ut
 from bapsflib._hdf.maps import HDFMap
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_bf)
+from ..file import File
 from ..hdfoverview import HDFOverview
 
 
@@ -40,10 +41,6 @@ class TestHDFOverview(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    @property
-    def overview(self):
-        return self.create_overview(self.bf)
-
     @staticmethod
     def create_overview(file):
         return HDFOverview(file)
@@ -53,9 +50,9 @@ class TestHDFOverview(TestBase):
         with self.assertRaises(ValueError):
             self.create_overview(None)
 
-    def test_overview_basics(self):
-        _bf = self.bf
-        _overview = self.overview
+    @with_bf
+    def test_overview_basics(self, _bf: File):
+        _overview = self.create_overview(_bf)
 
         # -- attribute existence                                    ----
         self.assertTrue(hasattr(_overview, 'control_discovery'))
@@ -74,12 +71,12 @@ class TestHDFOverview(TestBase):
         self.assertTrue(hasattr(_overview, 'save'))
         self.assertTrue(hasattr(_overview, 'unknowns_discovery'))
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_discoveries(self, mock_stdout):
+    def test_discoveries(self, _bf: File, mock_stdout):
         self.f.add_module('SIS crate')
-
-        _bf = self.bf
-        _overview = self.overview
+        _bf._map_file()  # re-map file
+        _overview = self.create_overview(_bf)
 
         # HDFOverview.control_discovery()
         with mock.patch.object(
@@ -161,10 +158,10 @@ class TestHDFOverview(TestBase):
         mock_stdout.seek(0)
         self.assertEqual(mock_stdout.getvalue(), '')
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_report_controls(self, mock_stdout):
-        _bf = self.bf
-        _overview = self.overview
+    def test_report_controls(self, _bf: File, mock_stdout):
+        _overview = self.create_overview(_bf)
 
         # HDFOverview.report_control_configs                        ----
         control = _bf.controls['Waveform']
@@ -235,10 +232,10 @@ class TestHDFOverview(TestBase):
             mock_stdout.seek(0)
             self.assertEqual(mock_stdout.getvalue(), '')
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_report_details(self, mock_stdout):
-        _bf = self.bf
-        _overview = self.overview
+    def test_report_details(self, _bf: File, mock_stdout):
+        _overview = self.create_overview(_bf)
 
         with mock.patch.multiple(
                 _overview.__class__,
@@ -251,12 +248,12 @@ class TestHDFOverview(TestBase):
             self.assertTrue(mock_values['report_controls'].called)
             self.assertTrue(mock_values['report_msi'].called)
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_report_digitizers(self, mock_stdout):
+    def test_report_digitizers(self, _bf: File, mock_stdout):
         self.f.add_module('SIS crate')
-
-        _bf = self.bf
-        _overview = self.overview
+        _bf._map_file()  # re-map file
+        _overview = self.create_overview(_bf)
 
         # HDFOverview.report_digitizer_configs                      ----
         digi = _bf.digitizers['SIS 3301']
@@ -336,10 +333,10 @@ class TestHDFOverview(TestBase):
             mock_stdout.seek(0)
             self.assertEqual(mock_stdout.getvalue(), '')
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_report_general(self, mock_stdout):
-        _bf = self.bf
-        _overview = self.overview
+    def test_report_general(self, _bf: File, mock_stdout):
+        _overview = self.create_overview(_bf)
 
         with mock.patch.object(
                 _bf.__class__, 'info',
@@ -349,10 +346,10 @@ class TestHDFOverview(TestBase):
             self.assertNotEqual(mock_stdout.getvalue(), '')
             self.assertTrue(mock_info.called)
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_report_msi(self, mock_stdout):
-        _bf = self.bf
-        _overview = self.overview
+    def test_report_msi(self, _bf: File, mock_stdout):
+        _overview = self.create_overview(_bf)
 
         # HDFOverview.report_msi_configs                            ----
         msi = _bf.msi['Discharge']
@@ -423,10 +420,10 @@ class TestHDFOverview(TestBase):
             mock_stdout.seek(0)
             self.assertEqual(mock_stdout.getvalue(), '')
 
+    @with_bf
     @mock.patch('sys.stdout', new_callable=io.StringIO)
-    def test_print(self, mock_stdout):
-        _bf = self.bf
-        _overview = self.overview
+    def test_print(self, _bf: File, mock_stdout):
+        _overview = self.create_overview(_bf)
 
         with mock.patch.object(_bf.__class__, 'info',
                                new_callable=mock.PropertyMock,
@@ -443,11 +440,11 @@ class TestHDFOverview(TestBase):
             self.assertTrue(mock_values['report_discovery'].called)
             self.assertTrue(mock_values['report_details'].called)
 
+    @with_bf
     @mock.patch('__main__.__builtins__.open',
                 new_callable=mock.mock_open)
-    def test_save(self, mock_o):
-        _bf = self.bf
-        _overview = self.overview
+    def test_save(self, _bf: File, mock_o):
+        _overview = self.create_overview(_bf)
 
         with mock.patch.object(
                 _overview.__class__, 'print',

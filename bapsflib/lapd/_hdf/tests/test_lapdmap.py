@@ -28,7 +28,7 @@ class TestLaPDMap(TestBase):
 
     @property
     def map(self):
-        """"LaPD map object"""
+        """LaPD map object"""
         return LaPDMap(self.lapdf)
 
     def test_mapping(self):

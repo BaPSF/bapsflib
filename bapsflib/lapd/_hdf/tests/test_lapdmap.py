@@ -17,7 +17,8 @@ import unittest as ut
 from bapsflib._hdf import HDFMap
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_lapdf)
+from ..file import File
 from ..lapdmap import LaPDMap
 
 
@@ -26,14 +27,14 @@ class TestLaPDMap(TestBase):
     Test case for :class:`~bapsflib.lapd._hdf.lapdmap.LaPDMap`
     """
 
-    @property
-    def map(self):
-        """LaPD map object"""
-        return LaPDMap(self.lapdf)
+    @staticmethod
+    def create_map(file):
+        """Generate LaPD map object"""
+        return LaPDMap(file)
 
-    def test_mapping(self):
-        _lapdf = self.lapdf
-        _map = self.map
+    @with_lapdf
+    def test_mapping(self, _lapdf: File):
+        _map = self.create_map(_lapdf)
 
         # LaPDMap subclasses HDFMap
         self.assertIsInstance(_map, HDFMap)
@@ -148,7 +149,7 @@ class TestLaPDMap(TestBase):
                                new_callable=mock.PropertyMock,
                                return_value=False) as mock_il:
             with self.assertWarns(UserWarning):
-                _map = self.map
+                _map = self.create_map(_lapdf)
                 self.assertTrue(mock_il.called)
 
 

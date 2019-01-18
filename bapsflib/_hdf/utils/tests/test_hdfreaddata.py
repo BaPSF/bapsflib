@@ -21,7 +21,7 @@ from bapsflib._hdf.maps import HDFMap
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfreadcontrol import HDFReadControl
 from ..hdfreaddata import (build_sndr_for_simple_dset,
@@ -45,12 +45,14 @@ class TestHDFReadData(TestBase):
     def tearDown(self):
         super().tearDown()
 
+    @with_bf
     @mock.patch('bapsflib._hdf.utils.hdfreaddata.HDFReadControl')
     @mock.patch('bapsflib._hdf.utils.hdfreaddata.condition_controls')
     @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock,
                        return_value={'control': None})
-    def test_adding_controls(self, mock_cmap, mock_cc, mock_cdata):
+    def test_adding_controls(self, _bf: File,
+                             mock_cmap, mock_cc, mock_cdata):
         """Test adding control device data to digitizer data."""
         # setup HDF5
         sn_size = 50
@@ -65,7 +67,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         digi_path = 'Raw data + config/SIS 3301'
         dset_name = config_name + " [{}:{}]".format(brd, ch)
         dset_path = digi_path + '/' + dset_name
@@ -220,7 +222,8 @@ class TestHDFReadData(TestBase):
         mock_cdata.reset_mock()
         mock_cc.reset_mock()
 
-    def test_kwarg_adc(self):
+    @with_bf
+    def test_kwarg_adc(self, _bf: File):
         """Test handling of keyword `adc`."""
         # Handling should be done by mapping function
         # `construct_dset_name` which is covered by the associated
@@ -237,7 +240,7 @@ class TestHDFReadData(TestBase):
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
 
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         _map = _bf.file_map.digitizers[digi]
         with mock.patch.object(
                 HDFMapDigiSIS3301, 'construct_dataset_name',
@@ -268,7 +271,8 @@ class TestHDFReadData(TestBase):
             self.assertEqual(data.info['adc'], adc)
             mock_cdn.reset_mock()
 
-    def test_kwarg_board(self):
+    @with_bf
+    def test_kwarg_board(self, _bf: File):
         """Test handling of argument `board`."""
         # Handling should be done by mapping function
         # `construct_dset_name` which is covered by the associated
@@ -285,7 +289,10 @@ class TestHDFReadData(TestBase):
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
 
-        _bf = self.bf
+        # re-map file
+        _bf._map_file()
+
+        # run assertions
         _map = _bf.file_map.digitizers[digi]
         with mock.patch.object(
                 HDFMapDigiSIS3301, 'construct_dataset_name',
@@ -307,7 +314,8 @@ class TestHDFReadData(TestBase):
                 self.assertTrue(mock_cdn.called)
                 mock_cdn.reset_mock()
 
-    def test_kwarg_channel(self):
+    @with_bf
+    def test_kwarg_channel(self, _bf: File):
         """Test handling of argument `channel`."""
         # Handling should be done by mapping function
         # `construct_dset_name` which is covered by the associated
@@ -324,7 +332,7 @@ class TestHDFReadData(TestBase):
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
 
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         _map = _bf.file_map.digitizers[digi]
         with mock.patch.object(
                 HDFMapDigiSIS3301, 'construct_dataset_name',
@@ -346,7 +354,8 @@ class TestHDFReadData(TestBase):
                 self.assertTrue(mock_cdn.called)
                 mock_cdn.reset_mock()
 
-    def test_kwarg_config_name(self):
+    @with_bf
+    def test_kwarg_config_name(self, _bf: File):
         """Test handling of keyword `digitizer`."""
         # Handling should be done by mapping function
         # `construct_dset_name` which is covered by the associated
@@ -363,7 +372,7 @@ class TestHDFReadData(TestBase):
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
 
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         _map = _bf.file_map.digitizers[digi]
         with mock.patch.object(
                 HDFMapDigiSIS3301, 'construct_dataset_name',
@@ -396,7 +405,8 @@ class TestHDFReadData(TestBase):
                                  config_name)
                 mock_cdn.reset_mock()
 
-    def test_kwarg_digitizer(self):
+    @with_bf
+    def test_kwarg_digitizer(self, _bf: File):
         """Test handling of keyword `digitizer`."""
         # Note: cases were an exception is raise is covered by
         #       `test_raise_errors`
@@ -411,7 +421,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # `digitizer` is None and "main" digitizer was identified
         with self.assertWarns(UserWarning):
@@ -426,7 +436,8 @@ class TestHDFReadData(TestBase):
         self.assertDataObj(data, _bf)
         self.assertEqual(data.info['digitizer'], digi)
 
-    def test_kwarg_keep_bits(self):
+    @with_bf
+    def test_kwarg_keep_bits(self, _bf: File):
         """Test behavior of keyword `keep_bits`."""
         # setup
         sn_size = 50
@@ -441,7 +452,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         digi_path = 'Raw data + config/SIS 3301'
         dset_name = config_name + " [{}:{}]".format(brd, ch)
         dset_path = digi_path + '/' + dset_name
@@ -492,11 +503,11 @@ class TestHDFReadData(TestBase):
         self.assertDataArrayValues(data, dset, indices, keep_bits=True)
         self.assertEqual(data.info['signal units'], u.bit)
 
-
+    @with_bf
     @mock.patch(
         'bapsflib._hdf.utils.hdfreaddata.do_shotnum_intersection',
         side_effect=do_shotnum_intersection)
-    def test_kwarg_intersection_set(self, mock_inter):
+    def test_kwarg_intersection_set(self, _bf: File, mock_inter):
         """Test behavior of keyword `intersection_set`."""
         # Note: `intersection_set` has no affect when calling with
         #       `index` and no `add_controls`
@@ -514,7 +525,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         digi_path = 'Raw data + config/SIS 3301'
         dset_name = config_name + " [{}:{}]".format(brd, ch)
         dset_path = digi_path + '/' + dset_name
@@ -597,7 +608,8 @@ class TestHDFReadData(TestBase):
         self.assertFalse(mock_inter.called)
         mock_inter.reset_mock()
 
-    def test_misc_behavior(self):
+    @with_bf
+    def test_misc_behavior(self, _bf: File):
         """Test miscellaneous behavior"""
         # setup
         sn_size = 50
@@ -612,7 +624,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         digi_path = 'Raw data + config/SIS 3301'
         dset_name = config_name + " [{}:{}]".format(brd, ch)
         dset_path = digi_path + '/' + dset_name
@@ -709,8 +721,8 @@ class TestHDFReadData(TestBase):
         data.info['clock rate'] = old_cr
         data.info['sample average'] = old_ave
 
-
-    def test_raise_errors(self):
+    @with_bf
+    def test_raise_errors(self, _bf: File):
         """Test scenarios that cause exceptions to be raised."""
         # 1. input file object `hdf_obj` is not a bapsflib file object
         #    bapsflib._hdf.utils.file.File
@@ -721,8 +733,6 @@ class TestHDFReadData(TestBase):
         # 5. specified `digitizer` is not a mapped digitizer
         # 6. specified `index` in not a valid type
         #
-        _bf = self.bf
-
         # not a bapsflib._hdf.utils.file.File object                 (1)
         self.assertRaises(TypeError, HDFReadData, None, 0, 0)
 
@@ -748,7 +758,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # test
         with mock.patch.object(HDFMap, 'main_digitizer',
@@ -767,7 +777,8 @@ class TestHDFReadData(TestBase):
                           digitizer=digi, adc=adc,
                           config_name=config_name)
 
-    def test_read_w_index(self):
+    @with_bf
+    def test_read_w_index(self, _bf: File):
         """Test reading data using `index` keyword."""
         # setup
         sn_size =50
@@ -782,7 +793,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         digi_path = 'Raw data + config/SIS 3301'
         dset_name = config_name + " [{}:{}]".format(brd, ch)
         dset_path = digi_path + '/' + dset_name
@@ -854,6 +865,7 @@ class TestHDFReadData(TestBase):
                                index=[-sn_size - 10])
             self.assertDataObj(data, _bf)
 
+    @with_bf
     @mock.patch('bapsflib._hdf.utils.hdfreaddata.condition_shotnum',
                 side_effect=condition_shotnum)
     @mock.patch(
@@ -862,7 +874,8 @@ class TestHDFReadData(TestBase):
     @mock.patch(
         'bapsflib._hdf.utils.hdfreaddata.do_shotnum_intersection',
         side_effect=do_shotnum_intersection)
-    def test_read_w_shotnum(self, mock_inter, mock_build_sndr, mock_cs):
+    def test_read_w_shotnum(self, _bf: File, mock_inter,
+                            mock_build_sndr, mock_cs):
         """Test reading data using `index` keyword."""
         # setup
         sn_size = 50
@@ -877,7 +890,7 @@ class TestHDFReadData(TestBase):
         bc_indices = np.where(bc_arr)
         brd = bc_indices[0][0]
         ch = bc_indices[1][0]
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         digi_path = 'Raw data + config/SIS 3301'
         dset_name = config_name + " [{}:{}]".format(brd, ch)
         dset_path = digi_path + '/' + dset_name

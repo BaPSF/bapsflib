@@ -18,7 +18,7 @@ import unittest as ut
 from bapsflib._hdf import HDFMap
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfoverview import HDFOverview
 from ..hdfreadcontrol import HDFReadControl
@@ -35,10 +35,9 @@ class TestFile(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    def test_file(self):
-
+    @with_bf
+    def test_file(self, _bf: File):
         # must by h5py.File instance
-        _bf = self.bf
         self.assertIsInstance(_bf, h5py.File)
 
         # path attributes
@@ -118,7 +117,7 @@ class TestFile(TestBase):
         with mock.patch(
                 HDFReadData.__module__ + '.'
                 + HDFReadData.__qualname__,
-                return_value='read data') as mock_rm:
+                return_value='read data') as mock_rd:
             extras = {
                 'index': 1,
                 'shotnum': 2,
@@ -130,9 +129,9 @@ class TestFile(TestBase):
                 'intersection_set': True,
             }
             data = _bf.read_data(1, 2, **extras, silent=False)
-            self.assertTrue(mock_rm.called)
+            self.assertTrue(mock_rd.called)
             self.assertEqual(data, 'read data')
-            mock_rm.assert_called_once_with(_bf, 1, 2, **extras)
+            mock_rd.assert_called_once_with(_bf, 1, 2, **extras)
 
         # calling `read_msi`
         with mock.patch(
@@ -151,29 +150,34 @@ class TestFile(TestBase):
                 side_effect=_bf._build_info) as mock_bi, \
                 mock.patch.object(File, '_map_file',
                                   side_effect=_bf._map_file) as mock_mf:
-            _bf = self.bf
+            _bf2 = File(self.f.filename,
+                        control_path='Raw data + config',
+                        digitizer_path='Raw data + config',
+                        msi_path='MSI')
             self.assertTrue(mock_mf.called)
             self.assertTrue(mock_bi.called)
+            _bf2.close()
 
         # `mode` calling
         with mock.patch('h5py.File.__init__',
                         wraps=h5py.File.__init__) as mock_file:
             for mode in ('r', 'r+'):
-                _bf = File(self.f.filename,
-                           mode=mode,
-                           control_path='Raw data + config',
-                           digitizer_path='Raw data + config',
-                           msi_path='MSI',
-                           silent=True)
+                _bf2 = File(self.f.filename,
+                            mode=mode,
+                            control_path='Raw data + config',
+                            digitizer_path='Raw data + config',
+                            msi_path='MSI',
+                            silent=True)
                 self.assertTrue(mock_file.called)
-                mock_file.assert_called_once_with(_bf, self.f.filename,
+                mock_file.assert_called_once_with(_bf2, self.f.filename,
                                                   mode=mode)
                 mock_file.reset_mock()
+                _bf2.close()
 
         # raise ValueError if mode not in ('r', 'r+')
         with self.assertRaises(ValueError):
-            _bf = File(self.f.filename,
-                       mode='w')
+            _bf2 = File(self.f.filename, mode='w')
+            _bf2.close()
 
 
 if __name__ == '__main__':

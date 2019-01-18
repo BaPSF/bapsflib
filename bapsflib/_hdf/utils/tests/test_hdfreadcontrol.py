@@ -20,7 +20,7 @@ from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from typing import (Any, Dict, List, Tuple)
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfreadcontrol import HDFReadControl
 
@@ -67,7 +67,8 @@ class TestHDFReadControl(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    def test_raise_errors(self):
+    @with_bf
+    def test_raise_errors(self, _bf: File):
         """Test handling of input argument `hdf_file`."""
         # Note:
         # - raised errors from conditioning `controls` is handled by
@@ -79,12 +80,14 @@ class TestHDFReadControl(TestBase):
         self.assertRaises(TypeError, HDFReadControl, self.f, [])
 
         # HDF5 file object has no mapped control devices
-        self.assertRaises(ValueError, HDFReadControl, self.bf, [])
+        self.assertRaises(ValueError, HDFReadControl, _bf, [])
 
-    def test_misc_behavior(self):
+    @with_bf
+    def test_misc_behavior(self, _bf: File):
         """Test miscellaneous behavior"""
         # setup HDF5 file
         self.f.add_module('Waveform')
+        _bf._map_file()  # re-map file
 
         # 'assume_controls_conditioned' kwarg
         controls = [('Waveform', 'config01')]
@@ -94,14 +97,14 @@ class TestHDFReadControl(TestBase):
                          {'sn_requested': sn,
                           'sn_correct': sn,
                           'sn_valid': sn})]
-        _bf = self.bf
         data = HDFReadControl(_bf, controls, shotnum=sn,
                               assume_controls_conditioned=False)
         self.assertCDataObj(data, _bf, control_plus)
 
+    @with_bf
     @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock)
-    def test_missing_dataset_fields(self, mock_controls):
+    def test_missing_dataset_fields(self, _bf: File, mock_controls):
         """
         Test readout behavior when an expected/unexpected dataset
         field is absent."""
@@ -123,6 +126,7 @@ class TestHDFReadControl(TestBase):
         self.f.create_group('Raw data + config/Sample')
         self.f.create_dataset('Raw data + config/Sample/Dataset',
                               data=data)
+        _bf._map_file()  # re-map file
 
         # -- Define "Sample Control Mapping Class"                  ----
         class HDFMapSampleControl(HDFMapControlTemplate):
@@ -201,7 +205,6 @@ class TestHDFReadControl(TestBase):
         #       configs[cname]['state values']['xyz']['dset field'] = \
         #           ('x', '', 'z')
         #
-        _bf = self.bf
         sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
         sn_v = np.array([8, 9, 10], dtype=np.uint32)
         controls = [('Sample', 'config01')]
@@ -236,7 +239,6 @@ class TestHDFReadControl(TestBase):
                               data=data[fields])
 
         # build control data array
-        _bf = self.bf
         sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
         sn_v = np.array([8, 9, 10], dtype=np.uint32)
         controls = [('Sample', 'config01')]
@@ -279,7 +281,6 @@ class TestHDFReadControl(TestBase):
                               data=data[fields])
 
         # test
-        _bf = self.bf
         sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
         controls = [('Sample', 'config01')]
         with self.assertRaises(ValueError):
@@ -287,9 +288,10 @@ class TestHDFReadControl(TestBase):
                                    shotnum=sn,
                                    assume_controls_conditioned=True)
 
+    @with_bf
     @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock)
-    def test_nan_fill(self, mock_controls):
+    def test_nan_fill(self, _bf: File, mock_controls):
         """Test different NaN fills."""
         # -- Define "Sample Control" in HDF5 file                   ----
         data = np.empty(10,
@@ -310,6 +312,7 @@ class TestHDFReadControl(TestBase):
         self.f.create_group('Raw data + config/Sample')
         self.f.create_dataset('Raw data + config/Sample/Dataset',
                               data=data)
+        _bf._map_file()  # re-map file
 
         # -- Define "Sample Control Mapping Class"                  ----
         class HDFMapSampleControl(HDFMapControlTemplate):
@@ -380,7 +383,6 @@ class TestHDFReadControl(TestBase):
 
         # -- Run Tests                                              ----
         with self.assertWarns(UserWarning):
-            _bf = self.bf
             sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
             sn_v = np.array([8, 9, 10], dtype=np.uint32)
             controls = [('Sample', 'config01')]
@@ -397,7 +399,8 @@ class TestHDFReadControl(TestBase):
             self.assertCDataObj(data, _bf, control_plus,
                                 intersection_set=False)
 
-    def test_single_control(self):
+    @with_bf
+    def test_single_control(self, _bf: File):
         """
         Testing HDF5 with one control device that saves data from
         ONE configuration into ONE dataset. (Simple Control)
@@ -424,7 +427,7 @@ class TestHDFReadControl(TestBase):
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 50,
                            'n_motionlists': 1})
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
         control = [('6K Compumotor', sixk_cspec)]
         control_plus = [
@@ -531,9 +534,7 @@ class TestHDFReadControl(TestBase):
         sn_arr = dset['Shot number']
         sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
-
-        # re-defined filxe obj
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # ====== Dataset w/ a Jump in Shot Numbers                ======
         # ------ intersection_set = True                          ------
@@ -625,7 +626,8 @@ class TestHDFReadControl(TestBase):
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
-    def test_two_controls(self):
+    @with_bf
+    def test_two_controls(self, _bf: File):
         """
         Testing HDF5 with two control devices.  Each control is setup
         with one configuration each.
@@ -653,7 +655,7 @@ class TestHDFReadControl(TestBase):
                           {'n_configs': 1, 'sn_size': 50,
                            'n_motionlists': 1})
         self.f.add_module('Waveform', {'n_configs': 1, 'sn_size': 50})
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
         control = [('Waveform', 'config01'),
                    ('6K Compumotor', sixk_cspec)]
@@ -704,7 +706,7 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.bf, control, shotnum=sn_r)
+            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus)
@@ -749,7 +751,7 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.bf, control, shotnum=sn_r,
+            cdata = HDFReadControl(_bf, control, shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
@@ -772,11 +774,11 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(self.bf, control)
+        cdata = HDFReadControl(_bf, control)
         self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
-        cdata = HDFReadControl(self.bf, control,
+        cdata = HDFReadControl(_bf, control,
                                intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
@@ -802,9 +804,7 @@ class TestHDFReadControl(TestBase):
         sn_arr[30::] = np.arange(38, 58, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         sn_sixk = sn_arr
-
-        # re-defined filxe obj
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # ====      Both Datasets Have Jumps in Shot Numbers      ====
         # ---- intersection_set = True                            ----
@@ -840,7 +840,7 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.bf, control, shotnum=sn_r)
+            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus)
@@ -891,7 +891,7 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(self.bf, control, shotnum=sn_r,
+            cdata = HDFReadControl(_bf, control, shotnum=sn_r,
                                    intersection_set=False)
 
             # assert cdata format
@@ -914,7 +914,7 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(self.bf, control)
+        cdata = HDFReadControl(_bf, control)
         self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
@@ -926,7 +926,7 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = \
             np.intersect1d(sn_c, sn_sixk)  # type: np.ndarray
 
-        cdata = HDFReadControl(self.bf, control,
+        cdata = HDFReadControl(_bf, control,
                                intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
@@ -1023,7 +1023,7 @@ class TestHDFReadControl(TestBase):
             sn_v = control[2]['sn_valid']
 
             # retrieve control mapping
-            cmap = self.bf.file_map.controls[device]
+            cmap = _bf.file_map.controls[device]
 
             # gather fields that should be in cdata for this control
             # device

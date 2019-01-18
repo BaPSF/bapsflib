@@ -11,8 +11,25 @@
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
+from functools import wraps
 
 from ..file import File
+
+
+def with_bf(func):
+    """
+    Context decorator for managing the opening and closing BaPSF HDF5
+    Files :class:`bapsflib._hdf.utils.file.File`.  Intended for use on
+    test methods.
+    """
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        with File(self.f.filename,
+                  control_path='Raw data + config',
+                  digitizer_path='Raw data + config',
+                  msi_path='MSI') as bf:
+            return func(self, bf, *args, **kwargs)
+    return wrapper
 
 
 class TestBase(ut.TestCase):
@@ -34,9 +51,3 @@ class TestBase(ut.TestCase):
         # cleanup and close HDF5 file
         super().tearDownClass()
         cls.f.cleanup()
-
-    @property
-    def bf(self) -> File:
-        """Opened BaPSF HDF5 File instance."""
-        return File(self.f.filename, control_path='Raw data + config',
-                    digitizer_path='Raw data + config', msi_path='MSI')

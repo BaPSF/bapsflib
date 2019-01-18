@@ -17,7 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
 from numpy.lib import recfunctions as rfn
 
-from . import TestBase
+from . import (TestBase, with_bf)
 from ..file import File
 from ..helpers import (build_shotnum_dset_relation,
                        condition_controls, condition_shotnum,
@@ -245,34 +245,34 @@ class TestConditionControls(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    def test_input_failures(self):
+    @with_bf
+    def test_input_failures(self, _bf: File):
         """Test input failures of `controls`"""
         # `controls` is Null
-        self.assertRaises(ValueError,
-                          condition_controls, self.bf, [])
+        self.assertRaises(ValueError, condition_controls, _bf, [])
 
         # `controls` is not a string or Iterable
-        self.assertRaises(TypeError,
-                          condition_controls, self.bf, True)
+        self.assertRaises(TypeError, condition_controls, _bf, True)
 
         # 'controls` element is not a str or tuple
         self.assertRaises(TypeError,
                           condition_controls,
-                          self.bf, ['Waveform', 8])
+                          _bf, ['Waveform', 8])
 
         # `controls` tuple element has length > 2
         self.assertRaises(ValueError,
                           condition_controls,
-                          self.bf, [('Waveform', 'c1', 'c2')])
+                          _bf, [('Waveform', 'c1', 'c2')])
 
-    def test_file_w_one_control(self):
+    @with_bf
+    def test_file_w_one_control(self, _bf: File):
         """
         Test `controls` conditioning for file with one control device.
         """
         # set one control device
         self.f.add_module('Waveform',
                           mod_args={'n_configs': 1, 'sn_size': 100})
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # ---- Waveform w/ one Configuration                        ----
         # conditions that work
@@ -299,7 +299,7 @@ class TestConditionControls(TestBase):
 
         # ---- Waveform w/ three Configurations                     ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # conditions that work
         con_list = [
@@ -321,7 +321,8 @@ class TestConditionControls(TestBase):
                               condition_controls, _bf,
                               og_con)
 
-    def test_file_w_multiple_controls(self):
+    @with_bf
+    def test_file_w_multiple_controls(self, _bf: File):
         """
         Test `controls` conditioning for file with multiple (2) control
         devices.
@@ -331,9 +332,9 @@ class TestConditionControls(TestBase):
                           {'n_configs': 1, 'sn_size': 100})
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 100})
+        _bf._map_file()  # re-map file
 
         # ---- 1 Waveform Config & 1 6K Config                      ----
-        _bf = self.bf
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
 
         # conditions that work
@@ -382,7 +383,7 @@ class TestConditionControls(TestBase):
 
         # ---- 3 Waveform Config & 1 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         sixk_cspec = self.f.modules['6K Compumotor'].config_names[0]
 
         # conditions that work
@@ -432,7 +433,7 @@ class TestConditionControls(TestBase):
         # ---- 1 Waveform Config & 3 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 1
         self.f.modules['6K Compumotor'].knobs.n_configs = 3
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         sixk_cspec = self.f.modules['6K Compumotor'].config_names
 
         # conditions that work
@@ -477,7 +478,7 @@ class TestConditionControls(TestBase):
 
         # ---- 3 Waveform Config & 3 6K Config                      ----
         self.f.modules['Waveform'].knobs.n_configs = 3
-        _bf = self.bf
+        _bf._map_file()  # re-map file
         sixk_cspec = self.f.modules['6K Compumotor'].config_names
 
         # conditions that work
@@ -522,7 +523,8 @@ class TestConditionControls(TestBase):
                               condition_controls, _bf,
                               og_con)
 
-    def test_controls_w_same_contype(self):
+    @with_bf
+    def test_controls_w_same_contype(self, _bf: File):
         """
         Test `controls` conditioning for multiple devices with the
         same contype.
@@ -532,7 +534,7 @@ class TestConditionControls(TestBase):
                           {'n_configs': 1, 'sn_size': 100})
         self.f.add_module('6K Compumotor',
                           {'n_configs': 1, 'sn_size': 100})
-        _bf = self.bf
+        _bf._map_file()  # re-map file
 
         # fake 6K as contype.waveform
         _bf.file_map.controls['6K Compumotor'].info['contype'] = \

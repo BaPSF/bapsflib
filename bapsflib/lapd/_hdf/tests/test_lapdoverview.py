@@ -17,13 +17,14 @@ import unittest as ut
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_lapdf)
+from ..file import File
 from ..lapdoverview import LaPDOverview
 
 
 class TestLaPDOverview(TestBase):
     """
-    Test case for :class:`~bapsflib.lapd._hdf.lapdoverview.HDFOverview`
+    Test case for :class:`~bapsflib.lapd._hdf.lapdoverview.LaPDOverview`
     """
 
     def setUp(self):
@@ -37,19 +38,14 @@ class TestLaPDOverview(TestBase):
 
     def tearDown(self):
         super().tearDown()
-        del self.f['Raw data + config/Unknown']
-
-    @property
-    def overview(self):
-        return self.create_overview(self.lapdf)
 
     @staticmethod
     def create_overview(file):
         return LaPDOverview(file)
 
-    def test_overview(self):
-        _lapdf = self.lapdf
-        _overview = self.overview
+    @with_lapdf
+    def test_overview(self, _lapdf: File):
+        _overview = self.create_overview(_lapdf)
 
         # LaPDOverview subclasses HDFOverview
         self.assertIsInstance(_overview, LaPDOverview)

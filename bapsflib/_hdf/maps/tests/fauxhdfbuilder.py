@@ -11,6 +11,7 @@
 import h5py
 import inspect
 import os
+import platform
 import tempfile
 
 from ..controls.tests import (
@@ -66,19 +67,32 @@ class FauxHDFBuilder(h5py.File):
         """
         # define file name, directory, and path
         if name is None:
+            # define NamedTemporaryFile delete
+            # - on a Unix platform the file can be opened multiple times
+            # - on a Windows platform it can only be opened once
+            #   * thus, delete=False needs to be set so the file
+            #     persists for play
+            delete = False if platform.system() == 'Windows' else True
+
             # create temporary directory and file
             self._tempdir = \
                 tempfile.TemporaryDirectory(prefix='hdf-test_')
             self._tempfile = \
-                tempfile.NamedTemporaryFile(suffix='.hdf5',
-                                            dir=self.tempdir.name,
-                                            delete=False)
-            self._path = self.tempfile.name
+                tempfile.NamedTemporaryFile(
+                    suffix='.hdf5',
+                    dir=os.path.abspath(self.tempdir.name),
+                    delete=delete)
+            self._path = os.path.abspath(self.tempfile.name)
+
+            if platform.system() == 'Windows':
+                # close the file so h5py can access it on a Windows
+                # platform
+                self._tempfile.close()
         else:
             # use specified directory and file
             self._tempdir = None
             self._tempfile = None
-            self._path = name
+            self._path = os.path.abspath(name)
 
         # initialize
         h5py.File.__init__(self, self.path, 'w')
@@ -141,19 +155,29 @@ class FauxHDFBuilder(h5py.File):
         """Path to HDF5 file"""
         return self._path
 
+    def close(self):
+        """
+        Close the HDF5 file and remove temporary files/directories if
+        the exist.
+        """
+        _path = os.path.abspath(self.filename)
+        super().close()
+
+        # cleanup temporary directory and file
+        if isinstance(self.tempdir, tempfile.TemporaryDirectory):
+            if platform.system() == 'Windows':
+                # tempfile is already closed, need to remove file
+                os.remove(_path)
+            else:
+                self.tempfile.close()
+            self.tempdir.cleanup()
+
     def cleanup(self):
         """
         Close the HDF5 file and cleanup any temporary directories and
         files.
         """
-        # close HDF5 file object
         self.close()
-
-        # cleanup temporary direcotry and file
-        if isinstance(self.tempdir, tempfile.TemporaryDirectory):
-            self.tempfile.close()
-            os.unlink(self.tempfile.name)
-            self.tempdir.cleanup()
 
     def valid_modules(self):
         """

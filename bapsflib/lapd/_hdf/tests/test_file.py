@@ -18,13 +18,13 @@ import unittest as ut
 from bapsflib._hdf.maps.hdfmap import HDFMap
 from unittest import mock
 
-from . import TestBase
+from . import (BaseFile, TestBase, with_bf, with_lapdf)
 from ..file import File
 from ..lapdmap import LaPDMap
 from ..lapdoverview import LaPDOverview
 
 
-class TestLaPDOverview(TestBase):
+class TestLaPDFile(TestBase):
     """
     Test case for :class:`~bapsflib.lapd._hdf.file.File`
     """
@@ -35,9 +35,9 @@ class TestLaPDOverview(TestBase):
     def tearDown(self):
         super().tearDown()
 
-    def test_file(self):
-        _lapdf = self.lapdf
-
+    @with_bf
+    @with_lapdf
+    def test_file(self, _lapdf: File, _bf: BaseFile):
         # must subclass `bapsflib._hdf.utils.file.File`
         self.assertIsInstance(_lapdf, bapsflib._hdf.utils.file.File)
 
@@ -75,7 +75,7 @@ class TestLaPDOverview(TestBase):
         # subclass `_build_info` in appended
         with mock.patch.object(bapsflib._hdf.utils.file.File,
                                '_build_info',
-                               side_effect=self.bf._build_info) \
+                               side_effect=_bf._build_info) \
                 as mock_bi_super:
             _lapdf._build_info()
             self.assertTrue(mock_bi_super.called)

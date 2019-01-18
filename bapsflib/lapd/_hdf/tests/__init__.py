@@ -17,8 +17,7 @@ from functools import wraps
 
 from ..file import File
 
-
-__all__ = ['TestBase', 'with_bf', 'with_lapdf']
+__all__ = ['BaseFile', 'TestBase', 'with_bf', 'with_lapdf']
 
 
 def method_overridden(cls, obj, method: str) -> bool:

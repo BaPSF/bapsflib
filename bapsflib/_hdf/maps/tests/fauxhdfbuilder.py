@@ -167,10 +167,7 @@ class FauxHDFBuilder(h5py.File):
         if isinstance(self.tempdir, tempfile.TemporaryDirectory):
             if platform.system() == 'Windows':
                 # tempfile is already closed, need to remove file
-                # print(self.tempfile.closed)
                 os.remove(_path)
-                print("File '{}'exists ".format(_path)
-                      + "{}".format(os.path.isfile(_path)))
             else:
                 self.tempfile.close()
             self.tempdir.cleanup()

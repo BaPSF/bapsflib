@@ -61,19 +61,6 @@ class TestBase(ut.TestCase):
         super().tearDownClass()
         cls.f.cleanup()
 
-    @property
-    def bf(self) -> BaseFile:
-        """Opened BaPSF HDF5 File instance."""
-        return BaseFile(self.f.filename,
-                        control_path='Raw data + config',
-                        digitizer_path='Raw data + config',
-                        msi_path='MSI')
-
-    @property
-    def lapdf(self) -> File:
-        """Opened LaPD HDF5 File instance."""
-        return File(self.f.filename)
-
     def assertMethodOverride(self, base_class, obj, method):
         """
         Assert the class that instantiated `obj` over-road `base_class`

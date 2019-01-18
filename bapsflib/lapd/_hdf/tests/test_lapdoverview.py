@@ -17,13 +17,14 @@ import unittest as ut
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from unittest import mock
 
-from . import TestBase
+from . import (TestBase, with_lapdf)
+from ..file import File
 from ..lapdoverview import LaPDOverview
 
 
 class TestLaPDOverview(TestBase):
     """
-    Test case for :class:`~bapsflib.lapd._hdf.lapdoverview.HDFOverview`
+    Test case for :class:`~bapsflib.lapd._hdf.lapdoverview.LaPDOverview`
     """
 
     def setUp(self):
@@ -47,9 +48,9 @@ class TestLaPDOverview(TestBase):
     def create_overview(file):
         return LaPDOverview(file)
 
-    def test_overview(self):
-        _lapdf = self.lapdf
-        _overview = self.overview
+    @with_lapdf
+    def test_overview(self, _lapdf: File):
+        _overview = self.create_overview(_lapdf)
 
         # LaPDOverview subclasses HDFOverview
         self.assertIsInstance(_overview, LaPDOverview)

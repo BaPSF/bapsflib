@@ -53,7 +53,7 @@ class TestBase(ut.TestCase):
         cls.f = FauxHDFBuilder()
 
     def tearDown(self):
-        self.f.remove_all_modules()
+        self.f.reset()
 
     @classmethod
     def tearDownClass(cls):

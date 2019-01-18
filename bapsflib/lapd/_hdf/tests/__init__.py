@@ -12,8 +12,13 @@ import unittest as ut
 
 from bapsflib._hdf import File as BaseFile
 from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.utils.tests import with_bf
+from functools import wraps
 
 from ..file import File
+
+
+__all__ = ['TestBase', 'with_bf', 'with_lapdf']
 
 
 def method_overridden(cls, obj, method: str) -> bool:

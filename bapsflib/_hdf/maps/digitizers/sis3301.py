@@ -339,16 +339,21 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
                 # should have fields (specifically the shotnum field)
                 if sn_field not in hdset.dtype.names:
-                    why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(hdset_name)
-                        + " does NOT have expected shot number field "
-                        + "'{}'".format(sn_field)
-                        + "...not adding to `configs` dict"
-                    )
-                    warn(why)
-                    chs_to_remove.append(ch)
-                    continue
+                    if 'Shot number' in hdset.dtype.names:
+                        sn_field = 'Shot number'
+                        self.configs[config_name][
+                            'shotnum']['dset field'] = ('Shot number',)
+                    else:
+                        why = (
+                            "HDF5 structure unexpected..."
+                            + "dataset '{}'".format(hdset_name)
+                            + " does NOT have expected shot number "
+                            + "field '{}'".format(sn_field)
+                            + "...not adding to `configs` dict"
+                        )
+                        warn(why)
+                        chs_to_remove.append(ch)
+                        continue
 
                 # shot number has incorrect shape and type
                 if hdset.dtype[sn_field].shape != () \
@@ -432,6 +437,16 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     self._find_active_adcs(self.group[name])
 
                 # define 'shotnum' entry
+                #
+                # Note:
+                #   The original dataset shot number field was named
+                #   'Shot'.  At some point (mid- to late- 00's) this
+                #   field was renamed to 'Shot number'.
+                #
+                #   When the header dataset is reviewed by
+                #   `_adc_info_second_pass()` the field name will be
+                #   changed when appropriate.
+                #
                 self._configs[config_name]['shotnum'] = {
                     'dset field': ('Shot',),
                     'shape': (),

@@ -143,10 +143,22 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
             # add 'sample average (hardware)' to dict
             splave = None
+            avestr = ''
+            find_splave = False
             if 'Samples to average' in config_group.attrs:
                 avestr = config_group.attrs['Samples to average']
                 avestr = avestr.decode('utf-8')
+                find_splave = True
+            elif 'Unnamed' in config_group.attrs:
+                avestr = config_group.attrs['Unnamed']
+                try:
+                    avestr = avestr.decode('utf-8')
+                    find_splave = True
+                except AttributeError:
+                    avestr = ''
+                    find_splave = False
 
+            if find_splave:
                 if avestr != 'No averaging':
                     _match = re.fullmatch(
                         r'(\bAverage\s)(?P<NAME>.+)(\sSamples\b)',

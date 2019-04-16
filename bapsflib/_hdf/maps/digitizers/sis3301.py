@@ -143,10 +143,22 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
             # add 'sample average (hardware)' to dict
             splave = None
+            avestr = ''
+            find_splave = False
             if 'Samples to average' in config_group.attrs:
                 avestr = config_group.attrs['Samples to average']
                 avestr = avestr.decode('utf-8')
+                find_splave = True
+            elif 'Unnamed' in config_group.attrs:
+                avestr = config_group.attrs['Unnamed']
+                try:
+                    avestr = avestr.decode('utf-8')
+                    find_splave = True
+                except AttributeError:
+                    avestr = ''
+                    find_splave = False
 
+            if find_splave:
                 if avestr != 'No averaging':
                     _match = re.fullmatch(
                         r'(\bAverage\s)(?P<NAME>.+)(\sSamples\b)',
@@ -225,7 +237,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         new_conns = []
 
         # review connections
-        for conn in conns:
+        for iconn, conn in enumerate(conns):
             brd = conn[0]
             chs = conn[1]
 
@@ -339,16 +351,22 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
                 # should have fields (specifically the shotnum field)
                 if sn_field not in hdset.dtype.names:
-                    why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(hdset_name)
-                        + " does NOT have expected shot number field "
-                        + "'{}'".format(sn_field)
-                        + "...not adding to `configs` dict"
-                    )
-                    warn(why)
-                    chs_to_remove.append(ch)
-                    continue
+                    if 'Shot number' in hdset.dtype.names \
+                            and iconn == 0:
+                        sn_field = 'Shot number'
+                        self.configs[config_name][
+                            'shotnum']['dset field'] = ('Shot number',)
+                    else:
+                        why = (
+                            "HDF5 structure unexpected..."
+                            + "dataset '{}'".format(hdset_name)
+                            + " does NOT have expected shot number "
+                            + "field '{}'".format(sn_field)
+                            + "...not adding to `configs` dict"
+                        )
+                        warn(why)
+                        chs_to_remove.append(ch)
+                        continue
 
                 # shot number has incorrect shape and type
                 if hdset.dtype[sn_field].shape != () \
@@ -432,6 +450,16 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     self._find_active_adcs(self.group[name])
 
                 # define 'shotnum' entry
+                #
+                # Note:
+                #   The original dataset shot number field was named
+                #   'Shot'.  At some point (mid- to late- 00's) this
+                #   field was renamed to 'Shot number'.
+                #
+                #   When the header dataset is reviewed by
+                #   `_adc_info_second_pass()` the field name will be
+                #   changed when appropriate.
+                #
                 self._configs[config_name]['shotnum'] = {
                     'dset field': ('Shot',),
                     'shape': (),

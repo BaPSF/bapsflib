@@ -823,7 +823,8 @@ class TestSIS3301(DigitizerTestCase):
         #      `Shots to average`
         #   2. Behavior of digitizer configuration group attribute
         #      `Samples to average`
-        #   3. Identifying header datasets with shot number field name
+        #      - including when attribute is named 'Unnamed' instead
+        #   4. Identifying header datasets with shot number field name
         #      of 'Shot number'
         #
         # setup
@@ -912,6 +913,23 @@ class TestSIS3301(DigitizerTestCase):
         _map = self.map
         for conn in _map.configs[config_name][adc]:
             self.assertEqual(conn[2]['sample average (hardware)'], 5)
+
+        # 'Samples to average' is named 'Unnamed' instead, and valid
+        # (as seen on some SmPD HDF5 files)
+        del self.dgroup[config_path].attrs['Samples to average']
+        self.dgroup[config_path].attrs['Unnamed'] = \
+            np.bytes_('Average 2 Samples'.format(val))
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertEqual(conn[2]['sample average (hardware)'], 2)
+
+        # 'Samples to average' is named 'Unnamed' instead, and is NOT a
+        # byte string (as seen on some SmPD HDF5 files)
+        self.dgroup[config_path].attrs['Unnamed'] = 5
+        _map = self.map
+        for conn in _map.configs[config_name][adc]:
+            self.assertIsNone(conn[2]['sample average (hardware)'])
+        del self.dgroup[config_path].attrs['Unnamed']
 
         # restore original value
         self.dgroup[config_path].attrs['Samples to average'] = sp2a

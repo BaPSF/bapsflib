@@ -15,6 +15,7 @@ import numpy as np
 import unittest as ut
 
 from bapsflib.utils.errors import HDFMappingError
+from numpy.lib import recfunctions as rfn
 from unittest import mock
 
 from .common import DigitizerTestCase
@@ -817,6 +818,14 @@ class TestSIS3301(DigitizerTestCase):
         """
         Test misc behavior the does not fit into other test methods.
         """
+        # What's tested...
+        #   1. Behavior of digitizer configuration group attribute
+        #      `Shots to average`
+        #   2. Behavior of digitizer configuration group attribute
+        #      `Samples to average`
+        #   3. Identifying header datasets with shot number field name
+        #      of 'Shot number'
+        #
         # setup
         config_name = 'config01'
         adc = 'SIS 3301'
@@ -903,6 +912,28 @@ class TestSIS3301(DigitizerTestCase):
         _map = self.map
         for conn in _map.configs[config_name][adc]:
             self.assertEqual(conn[2]['sample average (hardware)'], 5)
+
+        # restore original value
+        self.dgroup[config_path].attrs['Samples to average'] = sp2a
+
+        # -- header dataset with 'Shot number' field                ----
+        # rename field for all board-channel connections
+        for conn in my_bcs:
+            brd = conn[0]
+            for ch in conn[1]:
+                dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+                hdset_name = dset_name + ' headers'
+                hdset = self.dgroup[hdset_name][...]
+                hdset = rfn.rename_fields(hdset, {'Shot': 'Shot number'})
+                del self.dgroup[hdset_name]
+                self.dgroup.create_dataset(hdset_name, data=hdset)
+
+        _map = self.map
+        self.assertEqual(
+            _map.configs[config_name]['shotnum']['dset field'],
+            ('Shot number',))
+
+        # Note: module has NOT been reset to defaults at this point
 
     def test_parse_config_name(self):
         """Test HDFMapDigiSIS3301 method `_parse_config_name`."""

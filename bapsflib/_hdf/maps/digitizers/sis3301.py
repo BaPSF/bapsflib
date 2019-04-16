@@ -225,7 +225,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         new_conns = []
 
         # review connections
-        for conn in conns:
+        for iconn, conn in enumerate(conns):
             brd = conn[0]
             chs = conn[1]
 
@@ -339,7 +339,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
                 # should have fields (specifically the shotnum field)
                 if sn_field not in hdset.dtype.names:
-                    if 'Shot number' in hdset.dtype.names:
+                    if 'Shot number' in hdset.dtype.names \
+                            and iconn == 0:
                         sn_field = 'Shot number'
                         self.configs[config_name][
                             'shotnum']['dset field'] = ('Shot number',)

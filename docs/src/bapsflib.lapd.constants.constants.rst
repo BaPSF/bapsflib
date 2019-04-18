@@ -11,7 +11,7 @@ bapsflib\.lapd\.constants\.constants
     .. autosummary::
         :nosignatures:
 
-        BaPSFConstant
+        LaPDConstant
         SouthCathode
 
     .. rubric:: Constants

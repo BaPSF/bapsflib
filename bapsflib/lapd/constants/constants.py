@@ -18,26 +18,21 @@ from astropy.utils.exceptions import AstropyWarning
 from typing import Tuple
 
 
-class BaPSFConstant(Constant):
-    """BaPSF Constant"""
-    default_reference = 'Basic Plasma Science Facility'
+class LaPDConstant(Constant):
+    """LaPD Constant"""
+    default_reference = 'Large Plasma Device'
     _registry = {}
     _has_incompatible_units = set()
 
-    def __new__(cls, abbrev, name, value, unit, uncertainty,
-                reference=default_reference, system=None):
-        return super().__new__(cls, abbrev, name, value, unit,
-                               uncertainty, reference, system)
 
-
-#: BaPSF Constant: nominal distance between LaPD ports
-port_spacing = BaPSFConstant('port_spacing', 'LaPD port spacing',
-                             31.95, 'cm', 1.0, system='cgs')
+#: LaPD Constant: nominal distance between LaPD ports
+port_spacing = LaPDConstant('port_spacing', 'LaPD port spacing',
+                            31.95, 'cm', 1.0, system='cgs')
 port_spacing.__doc__ += ': nominal distance between LaPD ports'
 
-#: BaPSF Constant: LaPD :math:`z = 0` reference port (most Northern
+#: LaPD Constant: LaPD :math:`z = 0` reference port (most Northern
 #: port and :math:`+z` points South towards south cathode)
-ref_port = BaPSFConstant('ref_port', 'LaPD reference port number', 53,
+ref_port = LaPDConstant('ref_port', 'LaPD reference port number', 53,
                          u.dimensionless_unscaled, 0, system=None)
 ref_port.__doc__ += (": LaPD :math:`z = 0` reference port (most "
                      "Northern port and :math:`+z` points South "
@@ -81,19 +76,19 @@ class SouthCathode(object):
             warnings.simplefilter('ignore', AstropyWarning)
 
             if val.year <= val.year:
-                self._diameter = BaPSFConstant(
+                self._diameter = LaPDConstant(
                     'diameter',
                     "Diameter of LaPD's south 'main' cathode",
                     60.0, 'cm',
                     1.0, system='cgs'
                 )
-                self._z = BaPSFConstant(
+                self._z = LaPDConstant(
                     'z',
                     "Axial location of LaPD's south 'main' cathode",
                     1700.0, 'cm',
                     1.0, system='cgs'
                 )
-                self._anode_z = BaPSFConstant(
+                self._anode_z = LaPDConstant(
                     'anode_z',
                     "Axial location of LaPD's south 'main' anode",
                     1650.0, 'cm',
@@ -103,17 +98,17 @@ class SouthCathode(object):
                 self._lifespan = (NotImplemented, NotImplemented)
 
     @property
-    def anode_z(self) -> BaPSFConstant:
+    def anode_z(self) -> LaPDConstant:
         """LaPD z location of the anode"""
         return self._anode_z
 
     @property
-    def diameter(self) -> BaPSFConstant:
+    def diameter(self) -> LaPDConstant:
         """Diameter of LaPD's south 'main' cathode"""
         return self._diameter
 
     @property
-    def z(self) -> BaPSFConstant:
+    def z(self) -> LaPDConstant:
         """LaPD z location of the cathode"""
         return self._z
 

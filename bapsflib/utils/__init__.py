@@ -9,5 +9,13 @@
 #   license terms and contributor agreement.
 #
 from . import (errors, warnings)
+from astropy.constants import Constant
 
-__all__ = ['errors', 'warnings']
+__all__ = ['BaPSFConstant', 'errors', 'warnings']
+
+
+class BaPSFConstant(Constant):
+    """Factory Class for BaPSF Constants"""
+    default_reference = 'Basic Plasma Facility'
+    _registry = {}
+    _has_incompatible_units = set()

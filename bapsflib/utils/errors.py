@@ -34,3 +34,8 @@ class HDFReadControlError(HDFReadError):
 class HDFReadMSIError(HDFReadError):
     """Exception for failed HDF5 reading of digitizer."""
     pass
+
+
+class PhysicsError(Exception):
+    """Exception for physics errors."""
+    pass

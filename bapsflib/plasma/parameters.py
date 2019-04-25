@@ -23,6 +23,7 @@ import astropy.units as u
 import numpy as np
 
 from . import constants as const
+from bapsflib.utils.errors import PhysicsError
 from plasmapy import utils
 from typing import Union
 

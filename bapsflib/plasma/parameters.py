@@ -167,10 +167,10 @@ def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
 
     :param n_e: electron number density (in :math:`cm^{-3}`)
     :param kwargs:  supports any keywords used by
-        :func:`plasma_frequency_generic`
+        :func:`plasma_frequency`
     """
-    return plasma_frequency_generic(n_e, const.e_gauss, const.m_e.cgs,
-                                    **kwargs['kwargs'])
+    return plasma_frequency(n_e, const.e_gauss, const.m_e.cgs,
+                            **kwargs['kwargs'])
 
 
 @utils.check_quantity({'n_i': {'units': u.cm ** -3,
@@ -190,10 +190,10 @@ def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
     :param Z: charge number
     :param m_i: ion mass (in g)
     :param kwargs:  supports any keywords used by
-        :func:`plasma_frequency_generic`
+        :func:`plasma_frequency`
     """
-    return plasma_frequency_generic(n_i, Z * const.e_gauss, m_i,
-                                    **kwargs['kwargs'])
+    return plasma_frequency(n_i, Z * const.e_gauss, m_i,
+                            **kwargs['kwargs'])
 
 
 def oUH(B: u.Quantity, n_e: u.Quantity,
@@ -212,7 +212,7 @@ def oUH(B: u.Quantity, n_e: u.Quantity,
                              "can_be_negative": True},
                        'm': {'units': u.g,
                              "can_be_negative": False}})
-def plasma_frequency_generic(
+def plasma_frequency(
         n: u.Quantity, q: u.Quantity, m: u.Quantity,
         to_Hz=False, **kwargs) -> u.Quantity:
     """
@@ -287,7 +287,7 @@ def inertial_length(n: u.Quantity, q: u.Quantity, m: u.Quantity,
     :param q: particle charge (in statcoulomb)
     :param m: particle mass (in g)
     """
-    _op = plasma_frequency_generic(n, q, m, **kwargs)
+    _op = plasma_frequency(n, q, m, **kwargs)
     _l = (const.c.cgs.value / _op.value) * u.cm
     return _l
 

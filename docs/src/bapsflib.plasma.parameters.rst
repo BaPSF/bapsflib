@@ -16,7 +16,7 @@ bapsflib\.plasma\.parameters
         oci
         lower_hybrid_frequency
         oLH
-        plasma_frequency_generic
+        plasma_frequency
         ope
         opi
         upper_hybrid_frequency

@@ -266,6 +266,29 @@ def upper_hybrid_frequency(B: u.Quantity, n_e: u.Quantity,
 
 
 # ---- Lengths                                                      ----
+@utils.check_quantity({'kTe': {'units': u.eV,
+                               'can_be_negative': False},
+                       'n': {'units': u.cm ** -3,
+                             'can_be_negative': False}})
+def Debye_length(kTe: u.Quantity, n: u.Quantity,
+                 **kwargs) -> u.Quantity:
+    """
+    Debye length (in cm)
+
+    .. math::
+
+        \\lambda_{D} = \\sqrt{\\frac{k_{B} T_{e}}{4 \\pi n e^{2}}}
+
+    :param kTe: electron temperature (in eV)
+    :param n: number density (in :math:`cm^{-3}`)
+    """
+    # ensure args have correct units
+    kTe = kTe.to(u.erg)
+    n = n.to(u.cm ** -3)
+    _lD = np.sqrt(kTe / (4.0 * const.pi * n * (const.e_gauss ** 2)))
+    return _lD.cgs
+
+
 @utils.check_quantity({'n': {'units': u.cm ** -3,
                              'can_be_negative': False},
                        'q': {'units': u.statcoulomb,
@@ -288,6 +311,13 @@ def inertial_length(n: u.Quantity, q: u.Quantity, m: u.Quantity,
     _op = plasma_frequency(n, q, m, **kwargs)
     _l = (const.c.cgs.value / _op.value) * u.cm
     return _l
+
+
+def lD(kTe: u.Quantity, n: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    Debye length (in cm) -- [alias for :func:`Debye_length`]
+    """
+    return Debye_length(kTe, n, **kwargs)
 
 
 @utils.check_quantity({'n_e': {'units': u.cm ** -3,

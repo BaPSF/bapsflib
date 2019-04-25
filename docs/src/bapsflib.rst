@@ -13,5 +13,4 @@ bapsflib
 
     ./bapsflib._hdf
     ./bapsflib.lapd
-
-.. ./bapsflib.plasma
+    ./bapsflib.plasma

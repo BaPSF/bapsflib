@@ -21,3 +21,12 @@ bapsflib\.plasma\.parameters
         opi
         upper_hybrid_frequency
         oUH
+
+    .. rubric:: Lengths
+
+    .. autosummary::
+        :nosignatures:
+
+        inertial_length
+        lpe
+        lpi

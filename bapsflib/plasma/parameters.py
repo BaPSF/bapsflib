@@ -63,6 +63,46 @@ def cyclotron_frequency(q: u.Quantity, B: u.Quantity, m: u.Quantity,
     return _oc
 
 
+@utils.check_quantity({'B': {'units': u.gauss,
+                             'can_be_negative': False},
+                       'n_i': {'units': u.cm ** -3,
+                               'can_be_negative': False},
+                       'm_i': {'units': u.g,
+                               'can_be_negative': False}})
+def lower_hybrid_frequency(B: u.Quantity, n_i: u.Quantity,
+                           m_i: u.Quantity, Z: Union[int, float],
+                           to_Hz=False, **kwargs) -> u.Quantity:
+    """
+    Lower-Hybrid Resonance Frequency (rad/s)
+
+    .. math::
+        \\frac{1}{\\omega_{LH}^{2}}=
+        \\frac{1}{\\Omega_{ci}^{2}+\\omega_{pi}^{2}}
+        + \\frac{1}{\\lvert \\Omega_{ce}\\Omega_{ci} \\rvert}
+
+    .. note::
+
+        This form is for a quasi-neutral plasma that satisfies
+
+        .. math::
+            \\frac{Z m_{e}}{m_{i}} \\ll
+            1 - \\left(\\frac{V_{A}}{c}\\right)^{2}
+
+    :param B: magnetic field (in Gauss)
+    :param m_i: ion mass (in g)
+    :param n_i: ion number density (in :math:`cm^{-3}`)
+    :param Z: ion charge number
+    :param to_Hz: :code:`False` (DEFAULT). Set to :code:`True` to
+        return frequency in Hz (i.e. divide by :math:`2 * \\pi`)
+    """
+    _oci = oci(Z, B, m_i, to_Hz=to_Hz, **kwargs)
+    _opi = opi(n_i, Z, m_i, to_Hz=to_Hz, **kwargs)
+    _oce = oce(B, to_Hz=to_Hz, **kwargs)
+    first_term = 1.0 / ((_oci ** 2) + (_opi ** 2))
+    second_term = 1.0 / np.abs(_oce * _oci)
+    _olh = np.sqrt(1.0 / (first_term + second_term))
+    return _olh
+
 @utils.check_quantity({'B': {'units': u.Gauss,
                              "can_be_negative": False}})
 def oce(B: u.Quantity, **kwargs) -> u.Quantity:
@@ -104,6 +144,17 @@ def oci(Z: Union[int, float], B: u.Quantity, m_i: u.Quantity,
                                **kwargs['kwargs'])
 
 
+def oLH(B: u.Quantity, n_i: u.Quantity,
+        m_i: u.Quantity, Z: Union[int, float],
+        to_Hz=False, **kwargs) -> u.Quantity:
+    """
+    Lower-Hybrid Resonance Frequency (rad/s)
+
+    [alias for :func:`lower_hybrid_frequency`]
+    """
+    return lower_hybrid_frequency(B, m_i, n_i, Z, to_Hz=to_Hz, **kwargs)
+
+
 @utils.check_quantity({'n_e': {'units': u.cm ** -3,
                                'can_be_negative': False}})
 def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
@@ -114,7 +165,7 @@ def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
 
         \\omega_{pe}^{2} = \\frac{4 \\pi n_{e} e^{2}}{m_e}
 
-    :param n_e: electron number density (in number/cm^3)
+    :param n_e: electron number density (in :math:`cm^{-3}`)
     :param kwargs:  supports any keywords used by
         :func:`plasma_frequency_generic`
     """
@@ -135,7 +186,7 @@ def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
 
         \\omega_{pi}^{2} = \\frac{4 \\pi n_{i} (Z e)^{2}}{m_i}
 
-    :param n_i: ion number density (in number/cm^3)
+    :param n_i: ion number density (in :math:`cm^{-3}`)
     :param Z: charge number
     :param m_i: ion mass (in g)
     :param kwargs:  supports any keywords used by
@@ -161,7 +212,7 @@ def plasma_frequency_generic(
 
         \\omega_{p}^{2} = \\frac{4 \\pi n q^{2}}{m}
 
-    :param n: particle number density (in number/cm^3)
+    :param n: particle number density (in :math:`cm^{-3}`)
     :param q: particle charge (in statcoulombs)
     :param m: particle mass (in g)
     :param to_Hz: :code:`False` (DEFAULT). Set to :code:`True` to

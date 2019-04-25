@@ -14,3 +14,6 @@ bapsflib\.plasma\.parameters
         cyclotron_frequency
         oce
         oci
+        ope
+        opi
+        plasma_frequency_generic

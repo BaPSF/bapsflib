@@ -22,7 +22,7 @@ expressed in eV. (same as the NRL Plasma Formulary)
 import astropy.units as u
 import numpy as np
 
-from . import constants as conts
+from . import constants as const
 from plasmapy import utils
 from typing import Union
 
@@ -55,12 +55,94 @@ def cyclotron_frequency(q: u.Quantity, B: u.Quantity, m: u.Quantity,
     m = m.to(u.g)
 
     # calculate
-    _oc = ((q.value * B.value) / (m.value * conts.c.cgs.value))
+    _oc = ((q.value * B.value) / (m.value * const.c.cgs.value))
     if to_Hz:
-        _oc = (_oc / (2.0 * conts.pi)) * u.Hz
+        _oc = (_oc / (2.0 * const.pi)) * u.Hz
     else:
         _oc = _oc * (u.rad / u.s)
     return _oc
+
+
+@utils.check_quantity({'B': {'units': u.Gauss,
+                             "can_be_negative": False}})
+def oce(B: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    electron-cyclotron frequency (rad/s)
+
+    .. math::
+
+        \\Omega_{ce} = -\\frac{|e| B}{m_{e} c}
+
+    :param B: magnetic-field (in Gauss)
+    :param kwargs: supports any keywords used by
+        :func:`cyclotron_frequency`
+    """
+    return cyclotron_frequency(-const.e_gauss, B, const.m_e,
+                               **kwargs['kwargs'])
+
+
+@utils.check_quantity({'B': {'units': u.Gauss,
+                             "can_be_negative": False},
+                       'm_i': {'units': u.g,
+                               "can_be_negative": False}})
+def oci(Z: Union[int, float], B: u.Quantity, m_i: u.Quantity,
+        **kwargs) -> u.Quantity:
+    """
+    ion-cyclotron frequency (rad/s)
+
+    .. math::
+
+        \\Omega_{ci} = \\frac{Z |e| B}{m_{i} c}
+
+    :param Z: charge number
+    :param B: magnetic-field (in Gauss)
+    :param m_i: ion mass (in grams)
+    :param kwargs: supports any keywords used by
+        :func:`cyclotron_frequency`
+    """
+    return cyclotron_frequency(Z * const.e_gauss, B, m_i,
+                               **kwargs['kwargs'])
+
+
+@utils.check_quantity({'n_e': {'units': u.cm ** -3,
+                               'can_be_negative': False}})
+def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    electron-plasma frequency (in rad/s)
+
+    .. math::
+
+        \\omega_{pe}^{2} = \\frac{4 \\pi n_{e} e^{2}}{m_e}
+
+    :param n_e: electron number density (in number/cm^3)
+    :param kwargs:  supports any keywords used by
+        :func:`plasma_frequency_generic`
+    """
+    return plasma_frequency_generic(n_e, const.e_gauss, const.m_e,
+                                    **kwargs['kwargs'])
+
+
+@utils.check_quantity({'n_i': {'units': u.cm ** -3,
+                               'can_be_negative': False},
+                       'm_i': {'units': u.g,
+                               'can_be_negative': False}})
+def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
+        **kwargs) -> u.Quantity:
+    """
+    ion-plasma frequency (in rad/s)
+
+    .. math::
+
+        \\omega_{pi}^{2} = \\frac{4 \\pi n_{i} (Z e)^{2}}{m_i}
+
+    :param n_i: ion number density (in number/cm^3)
+    :param Z: charge number
+    :param m_i: ion mass (in g)
+    :param kwargs:  supports any keywords used by
+        :func:`plasma_frequency_generic`
+    """
+    return plasma_frequency_generic(n_i, Z * const.e_gauss, m_i,
+                                    **kwargs['kwargs'])
 
 
 @utils.check_quantity({'n': {'units': u.cm ** -3,
@@ -91,51 +173,10 @@ def plasma_frequency_generic(
     m = m.to(u.g)
 
     # calculate
-    _op = np.sqrt((4.0 * conts.pi * n.value * (q.value * q.value))
+    _op = np.sqrt((4.0 * const.pi * n.value * (q.value * q.value))
                   / m.value)
     if to_Hz:
-        _op = (_op / (2.0 * conts.pi)) * u.Hz
+        _op = (_op / (2.0 * const.pi)) * u.Hz
     else:
         _op = _op * (u.rad / u.s)
     return _op
-
-
-@utils.check_quantity({'B': {'units': u.Gauss,
-                             "can_be_negative": False}})
-def oce(B: u.Quantity, **kwargs) -> u.Quantity:
-    """
-    electron-cyclotron frequency (rad/s)
-
-    .. math::
-
-        \\Omega_{ce} = -\\frac{|e| B}{m_{e} c}
-
-    :param B: magnetic-field (in Gauss)
-    :param kwargs: supports any keywords used by
-        :func:`cyclotron_frequency`
-    """
-    return cyclotron_frequency(-conts.e_gauss, B, conts.m_e,
-                               **kwargs['kwargs'])
-
-
-@utils.check_quantity({'B': {'units': u.Gauss,
-                             "can_be_negative": False},
-                       'm_i': {'units': u.g,
-                               "can_be_negative": False}})
-def oci(Z: Union[int, float], B: u.Quantity, m_i: u.Quantity,
-        **kwargs) -> u.Quantity:
-    """
-    ion-cyclotron frequency (rad/s)
-
-    .. math::
-
-        \\Omega_{ci} = \\frac{Z |e| B}{m_{i} c}
-
-    :param Z: charge number
-    :param B: magnetic-field (in Gauss)
-    :param m_i: ion mass (in grams)
-    :param kwargs: supports any keywords used by
-        :func:`cyclotron_frequency`
-    """
-    return cyclotron_frequency(Z * conts.e_gauss, B, m_i,
-                               **kwargs['kwargs'])

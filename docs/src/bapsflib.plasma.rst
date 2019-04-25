@@ -1,33 +1,28 @@
 bapsflib\.plasma
-=================
+================
 
 .. warning:: Package Currently Under Development
 
 .. automodule:: bapsflib.plasma
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-Subpackages
------------
 
 .. toctree::
-    :maxdepth: 1
+    :maxdepth: 2
+    :titlesonly:
+    :caption: Sub-Packages & Modules
 
+    bapsflib.plasma.constants
+    bapsflib.plasma.parameters
 
-Modules
--------
+.. bapsflib.plasma.plasma
 
-.. contents::
-    :depth: 2
-    :local:
+.. .. rubric:: Classes
 
-bapsflib\.plasma\.core
-^^^^^^^^^^^^^^^^^^^^^^
+.. .. autosummary:: bapsflib.Plasma.SimplePlasma
+    :nosignatures:
 
-.. automodule:: bapsflib.plasma.core
+.. .. autoclass:: bapsflib.lapd.SimplePlasma
     :members:
     :undoc-members:
-    :special-members:
-    :exclude-members: __dict__, __init__, __module__, __weakref__
     :show-inheritance:
+    :inherited-members:
+    :exclude-members:

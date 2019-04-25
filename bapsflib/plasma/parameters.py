@@ -148,8 +148,7 @@ def oLH(B: u.Quantity, n_i: u.Quantity,
         m_i: u.Quantity, Z: Union[int, float],
         to_Hz=False, **kwargs) -> u.Quantity:
     """
-    Lower-Hybrid resonance frequency (rad/s)
-
+    Lower-Hybrid resonance frequency (rad/s) --
     [alias for :func:`lower_hybrid_frequency`]
     """
     return lower_hybrid_frequency(B, m_i, n_i, Z, to_Hz=to_Hz, **kwargs)
@@ -199,8 +198,7 @@ def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
 def oUH(B: u.Quantity, n_e: u.Quantity,
         to_Hz=False, **kwargs) -> u.Quantity:
     """
-    Upper-Hybrid resonance frequency (rad/s)
-
+    Upper-Hybrid resonance frequency (rad/s) --
     [alias for :func:`upper_hybrid_frequency`]
     """
     return upper_hybrid_frequency(B, n_e, to_Hz=to_Hz, **kwargs)

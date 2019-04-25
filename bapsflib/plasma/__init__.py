@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from . import core
+from . import constants
+from . import parameters
 
-__all__ = ['core']
+__all__ = ['constants', 'parameters']

@@ -37,7 +37,7 @@ from typing import Union
 def cyclotron_frequency(q: u.Quantity, B: u.Quantity, m: u.Quantity,
                         to_Hz=False, **kwargs) -> u.Quantity:
     """
-    particle cyclotron frequency (rad/s)
+    generalized cyclotron frequency (rad/s)
 
     .. math::
 
@@ -73,7 +73,7 @@ def lower_hybrid_frequency(B: u.Quantity, n_i: u.Quantity,
                            m_i: u.Quantity, Z: Union[int, float],
                            to_Hz=False, **kwargs) -> u.Quantity:
     """
-    Lower-Hybrid Resonance Frequency (rad/s)
+    Lower-Hybrid resonance Frequency (rad/s)
 
     .. math::
         \\frac{1}{\\omega_{LH}^{2}}=
@@ -117,7 +117,7 @@ def oce(B: u.Quantity, **kwargs) -> u.Quantity:
     :param kwargs: supports any keywords used by
         :func:`cyclotron_frequency`
     """
-    return cyclotron_frequency(-const.e_gauss, B, const.m_e,
+    return cyclotron_frequency(-const.e_gauss, B, const.m_e.cgs,
                                **kwargs['kwargs'])
 
 
@@ -148,7 +148,7 @@ def oLH(B: u.Quantity, n_i: u.Quantity,
         m_i: u.Quantity, Z: Union[int, float],
         to_Hz=False, **kwargs) -> u.Quantity:
     """
-    Lower-Hybrid Resonance Frequency (rad/s)
+    Lower-Hybrid resonance frequency (rad/s)
 
     [alias for :func:`lower_hybrid_frequency`]
     """
@@ -169,7 +169,7 @@ def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
     :param kwargs:  supports any keywords used by
         :func:`plasma_frequency_generic`
     """
-    return plasma_frequency_generic(n_e, const.e_gauss, const.m_e,
+    return plasma_frequency_generic(n_e, const.e_gauss, const.m_e.cgs,
                                     **kwargs['kwargs'])
 
 
@@ -199,7 +199,7 @@ def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
 def oUH(B: u.Quantity, n_e: u.Quantity,
         to_Hz=False, **kwargs) -> u.Quantity:
     """
-    Upper-Hybrid Resonance Frequency (rad/s)
+    Upper-Hybrid resonance frequency (rad/s)
 
     [alias for :func:`upper_hybrid_frequency`]
     """
@@ -250,7 +250,7 @@ def plasma_frequency_generic(
 def upper_hybrid_frequency(B: u.Quantity, n_e: u.Quantity,
                            to_Hz=False, **kwargs) -> u.Quantity:
     """
-    Upper-Hybrid Resonance frequency (rad/s)
+    Upper-Hybrid resonance frequency (rad/s)
 
     .. math::
 
@@ -265,3 +265,63 @@ def upper_hybrid_frequency(B: u.Quantity, n_e: u.Quantity,
     _ope = ope(n_e, to_Hz=to_Hz, **kwargs)
     _ouh = np.sqrt((_ope ** 2) + (_oce ** 2))
     return _ouh
+
+
+# ---- Lengths                                                      ----
+@utils.check_quantity({'n': {'units': u.cm ** -3,
+                             'can_be_negative': False},
+                       'q': {'units': u.statcoulomb,
+                             'can_be_negative': True},
+                       'm': {'units': u.g,
+                             'can_be_negative': False}})
+def inertial_length(n: u.Quantity, q: u.Quantity, m: u.Quantity,
+                    **kwargs) -> u.Quantity:
+    """
+    generalized inertial length (cm)
+
+    .. math::
+
+        l =\\frac{c}{\\omega_{p}}
+
+    :param n: particle number density (in :math:`cm^{-3}`)
+    :param q: particle charge (in statcoulomb)
+    :param m: particle mass (in g)
+    """
+    _op = plasma_frequency_generic(n, q, m, **kwargs)
+    _l = (const.c.cgs.value / _op.value) * u.cm
+    return _l
+
+
+@utils.check_quantity({'n_e': {'units': u.cm ** -3,
+                               'can_be_negative': False}})
+def lpe(n_e: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    electron-inertial length (cm)
+
+    .. math::
+
+        l_{pe} =\\frac{c}{\\omega_{pe}}
+
+    :param n_e: electron number density (in :math:`cm^{-3}`)
+    """
+    return inertial_length(n_e, -const.e_gauss, const.m_e, **kwargs)
+
+
+@utils.check_quantity({'n_i': {'units': u.cm ** -3,
+                               'can_be_negative': False},
+                       'm_i': {'units': u.g,
+                               'can_be_negative': False}})
+def lpi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
+        **kwargs) -> u.Quantity:
+    """
+    ion-inertial length (cm)
+
+    .. math::
+
+        l_{pi} =\\frac{c}{\\omega_{pi}}
+
+    :param n_i: ion number density (in :math:`cm^{-3}`)
+    :param Z: charge number
+    :param m_i: ion mass (in g)
+    """
+    return inertial_length(n_i, Z * const.e_gauss, m_i, **kwargs)

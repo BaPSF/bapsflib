@@ -196,6 +196,16 @@ def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
                                     **kwargs['kwargs'])
 
 
+def oUH(B: u.Quantity, n_e: u.Quantity,
+        to_Hz=False, **kwargs) -> u.Quantity:
+    """
+    Upper-Hybrid Resonance Frequency (rad/s)
+
+    [alias for :func:`upper_hybrid_frequency`]
+    """
+    return upper_hybrid_frequency(B, n_e, to_Hz=to_Hz, **kwargs)
+
+
 @utils.check_quantity({'n': {'units': u.cm ** -3,
                              "can_be_negative": False},
                        'q': {'units': u.statcoulomb,
@@ -231,3 +241,27 @@ def plasma_frequency_generic(
     else:
         _op = _op * (u.rad / u.s)
     return _op
+
+
+@utils.check_quantity({'B': {'units': u.gauss,
+                             'can_be_negative': False},
+                       'n_e': {'units': u.cm ** -3,
+                               'can_be_negative': False}})
+def upper_hybrid_frequency(B: u.Quantity, n_e: u.Quantity,
+                           to_Hz=False, **kwargs) -> u.Quantity:
+    """
+    Upper-Hybrid Resonance frequency (rad/s)
+
+    .. math::
+
+        \\omega_{UH}^{2} =\\omega_{pe}^{2} + \\Omega_{ce}^{2}
+
+    :param B: magnetic field (in Gauss)
+    :param n_e: electron number density (in :math:`cm^{-3}`)
+    :param to_Hz: :code:`False` (DEFAULT). Set to :code:`True` to
+        return frequency in Hz (i.e. divide by :math:`2 * \\pi`)
+    """
+    _oce = oce(B, to_Hz=to_Hz, **kwargs)
+    _ope = ope(n_e, to_Hz=to_Hz, **kwargs)
+    _ouh = np.sqrt((_ope ** 2) + (_oce ** 2))
+    return _ouh

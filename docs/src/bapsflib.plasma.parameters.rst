@@ -32,3 +32,11 @@ bapsflib\.plasma\.parameters
         inertial_length
         lpe
         lpi
+
+    .. rubric:: Velocities
+
+    .. autosummary::
+        :nosignatures:
+
+        ion_sound_speed
+        cs

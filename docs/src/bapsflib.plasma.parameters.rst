@@ -12,8 +12,10 @@ bapsflib\.plasma\.parameters
         :nosignatures:
 
         cyclotron_frequency
+        lower_hybrid_frequency
         oce
         oci
+        oLH
         ope
         opi
         plasma_frequency_generic

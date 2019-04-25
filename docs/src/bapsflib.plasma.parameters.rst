@@ -27,6 +27,8 @@ bapsflib\.plasma\.parameters
     .. autosummary::
         :nosignatures:
 
+        Debye_length
+        lD
         inertial_length
         lpe
         lpi

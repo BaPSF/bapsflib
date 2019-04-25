@@ -6,16 +6,18 @@ bapsflib\.plasma\.parameters
     :members:
     :undoc-members:
 
-    .. rubric:: Functions
+    .. rubric:: Frequencies
 
     .. autosummary::
         :nosignatures:
 
         cyclotron_frequency
-        lower_hybrid_frequency
         oce
         oci
+        lower_hybrid_frequency
         oLH
+        plasma_frequency_generic
         ope
         opi
-        plasma_frequency_generic
+        upper_hybrid_frequency
+        oUH

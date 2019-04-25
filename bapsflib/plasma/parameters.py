@@ -354,3 +354,75 @@ def lpi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
     :param m_i: ion mass (in g)
     """
     return inertial_length(n_i, Z * const.e_gauss, m_i, **kwargs)
+
+
+# ---- Velocities                                                   ----
+def cs(kTe: u.Quantity, m_i: u.Quantity,
+       kTi: u.Quantity = None,
+       gamma_e: Union[int, float] = None,
+       gamma_i: Union[int, float] = None,
+       Z: Union[int, float] = None, **kwargs) -> u.Quantity:
+    """
+    ion-sound speed (cm/s) -- [alias for :func:`ion_sound_speed`
+    """
+    for name, val in zip(('kTi', 'gamma_e', 'gamma_i', 'Z'),
+                         (kTi, gamma_e, gamma_i, Z)):
+        if val is not None:
+            kwargs[name] = val
+    print(kwargs)
+
+    return ion_sound_speed(kTe, m_i, **kwargs)
+
+
+@utils.check_relativistic
+@utils.check_quantity({'kTe': {'units': u.eV,
+                               'can_be_negative': False},
+                       'kTi': {'units': u.eV,
+                               'can_be_negative': False},
+                       'm_i': {'units': u.g,
+                               'can_be_negative': False}})
+def ion_sound_speed(kTe: u.Quantity, m_i: u.Quantity,
+                    kTi: u.Quantity = (0.0 * u.eV),
+                    gamma_e: Union[int, float] = 1,
+                    gamma_i: Union[int, float] = 3,
+                    Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
+    """
+    ion sound speed (cm/s)
+
+    .. math::
+
+        c_{s}^{2} = \\frac{\\gamma_{e} Z k_{B} T_{e}
+                           + \\gamma_i k_{B} T_{i}}{m_{i}}
+
+    :param kTe: electron temperature (in eV)
+    :param kTi: ion temperature (in eV)
+    :param m_i: ion mass (in g)
+    :param gamma_e: adiabatic index for electrons
+        (:math:`\\gamma_e=3` DEFAULT)
+    :param gamma_i: adiabatic index for ions
+        (:math:`\\gamma_i=3` DEFAULT)
+    :param Z: ion charge number (:math:`Z=1` DEFAULT)
+    """
+    # condition keywords
+    for name, val in zip(('gamma_i', 'gamma_e', 'Z'),
+                         (gamma_i, gamma_e, Z)):
+        if not isinstance(val, (int, np.integer, float, np.floating)):
+            raise TypeError(name + ' must be of type int or float')
+        elif name == 'Z' and val <= 0:
+            raise PhysicsError(
+                'The ion charge number Z must be greater than 0.')
+        elif val < 1:
+            raise PhysicsError('The adiabatic index ' + name
+                               + ' must be greater than or equal to 1.')
+
+    # convert temperature to required units
+    kTe = kTe.to(u.erg)
+    kTi = kTi.to(u.erg)
+    m_i = m_i.cgs
+
+    # calculate
+    _cs = gamma_e * Z * kTe
+    if kTi != 0:
+        _cs += gamma_i * kTi
+    _cs = np.sqrt(_cs / m_i).to(u.cm / u.s)
+    return _cs

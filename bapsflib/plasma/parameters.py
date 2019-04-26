@@ -28,6 +28,15 @@ from plasmapy import utils
 from typing import Union
 
 
+__all__ = ['cyclotron_frequency', 'oce', 'oci',
+           'lower_hybrid_frequency', 'oLH',
+           'plasma_frequency', 'ope', 'opi',
+           'upper_hybrid_frequency', 'oUH',
+           'Debye_length', 'lD',
+           'inertial_length', 'lpe', 'lpi',
+           'ion_sound_speed', 'cs']
+
+
 # ---- Frequencies                                                  ----
 @utils.check_quantity({'q': {'units': u.statcoulomb,
                              "can_be_negative": True},
@@ -71,7 +80,7 @@ def cyclotron_frequency(q: u.Quantity, B: u.Quantity, m: u.Quantity,
                        'm_i': {'units': u.g,
                                'can_be_negative': False}})
 def lower_hybrid_frequency(B: u.Quantity, n_i: u.Quantity,
-                           m_i: u.Quantity, Z: Union[int, float],
+                           m_i: u.Quantity, Z: Union[int, float] = 1,
                            to_Hz=False, **kwargs) -> u.Quantity:
     """
     Lower-Hybrid resonance Frequency (rad/s)
@@ -92,12 +101,20 @@ def lower_hybrid_frequency(B: u.Quantity, n_i: u.Quantity,
     :param B: magnetic field (in Gauss)
     :param m_i: ion mass (in g)
     :param n_i: ion number density (in :math:`cm^{-3}`)
-    :param Z: ion charge number
+    :param Z: ion charge number (:math:`Z=1` DEFAULT)
     :param to_Hz: :code:`False` (DEFAULT). Set to :code:`True` to
         return frequency in Hz (i.e. divide by :math:`2 * \\pi`)
     """
-    _oci = oci(Z, B, m_i, to_Hz=to_Hz, **kwargs)
-    _opi = opi(n_i, Z, m_i, to_Hz=to_Hz, **kwargs)
+    # condition Z
+    if not isinstance(Z, (int, np.integer, float, np.floating)):
+        raise TypeError('Z must be of type int or float')
+    elif Z <= 0:
+        raise PhysicsError(
+            'The ion charge number Z must be greater than 0.')
+
+    # calculate
+    _oci = oci(B, m_i, Z=Z, to_Hz=to_Hz, **kwargs)
+    _opi = opi(n_i, m_i, Z=Z, to_Hz=to_Hz, **kwargs)
     _oce = oce(B, to_Hz=to_Hz, **kwargs)
     first_term = 1.0 / ((_oci ** 2) + (_opi ** 2))
     second_term = 1.0 / np.abs(_oce * _oci)
@@ -126,7 +143,7 @@ def oce(B: u.Quantity, **kwargs) -> u.Quantity:
                              "can_be_negative": False},
                        'm_i': {'units': u.g,
                                "can_be_negative": False}})
-def oci(Z: Union[int, float], B: u.Quantity, m_i: u.Quantity,
+def oci(B: u.Quantity, m_i: u.Quantity, Z: Union[int, float] = 1,
         **kwargs) -> u.Quantity:
     """
     ion-cyclotron frequency (rad/s)
@@ -135,24 +152,36 @@ def oci(Z: Union[int, float], B: u.Quantity, m_i: u.Quantity,
 
         \\Omega_{ci} = \\frac{Z |e| B}{m_{i} c}
 
-    :param Z: charge number
     :param B: magnetic-field (in Gauss)
     :param m_i: ion mass (in grams)
+    :param Z: ion charge number (:math:`Z=1` DEFAULT)
     :param kwargs: supports any keywords used by
         :func:`cyclotron_frequency`
     """
+    # condition Z
+    if not isinstance(Z, (int, np.integer, float, np.floating)):
+        raise TypeError('Z must be of type int or float')
+    elif Z <= 0:
+        raise PhysicsError(
+            'The ion charge number Z must be greater than 0.')
+
     return cyclotron_frequency(Z * const.e_gauss, B, m_i,
                                **kwargs['kwargs'])
 
 
-def oLH(B: u.Quantity, n_i: u.Quantity,
-        m_i: u.Quantity, Z: Union[int, float],
-        to_Hz=False, **kwargs) -> u.Quantity:
+def oLH(B: u.Quantity, n_i: u.Quantity, m_i: u.Quantity,
+        Z: Union[int, float] = None, to_Hz: bool = False,
+        **kwargs) -> u.Quantity:
     """
     Lower-Hybrid resonance frequency (rad/s) --
     [alias for :func:`lower_hybrid_frequency`]
     """
-    return lower_hybrid_frequency(B, m_i, n_i, Z, to_Hz=to_Hz, **kwargs)
+    # add specified keywords to kwargs
+    for name, val in zip(('Z', 'to_Hz'), (Z, to_Hz)):
+        if val is not None:
+            kwargs[name] = val
+
+    return lower_hybrid_frequency(B, m_i, n_i, **kwargs)
 
 
 @utils.check_quantity({'n_e': {'units': u.cm ** -3,
@@ -177,8 +206,8 @@ def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
                                'can_be_negative': False},
                        'm_i': {'units': u.g,
                                'can_be_negative': False}})
-def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
-        **kwargs) -> u.Quantity:
+def opi(n_i: u.Quantity, m_i: u.Quantity,
+        Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
     """
     ion-plasma frequency (in rad/s)
 
@@ -187,22 +216,34 @@ def opi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
         \\omega_{pi}^{2} = \\frac{4 \\pi n_{i} (Z e)^{2}}{m_i}
 
     :param n_i: ion number density (in :math:`cm^{-3}`)
-    :param Z: charge number
     :param m_i: ion mass (in g)
+    :param Z: ion charge number (:math:`Z=1` DEFAULT)
     :param kwargs:  supports any keywords used by
         :func:`plasma_frequency`
     """
+    # condition Z
+    if not isinstance(Z, (int, np.integer, float, np.floating)):
+        raise TypeError('Z must be of type int or float')
+    elif Z <= 0:
+        raise PhysicsError(
+            'The ion charge number Z must be greater than 0.')
+
     return plasma_frequency(n_i, Z * const.e_gauss, m_i,
                             **kwargs['kwargs'])
 
 
 def oUH(B: u.Quantity, n_e: u.Quantity,
-        to_Hz=False, **kwargs) -> u.Quantity:
+        to_Hz: bool = False, **kwargs) -> u.Quantity:
     """
     Upper-Hybrid resonance frequency (rad/s) --
     [alias for :func:`upper_hybrid_frequency`]
     """
-    return upper_hybrid_frequency(B, n_e, to_Hz=to_Hz, **kwargs)
+    # add specified keywords to kwargs
+    for name, val in zip(('to_Hz', ), (to_Hz, )):
+        if val is not None:
+            kwargs[name] = val
+
+    return upper_hybrid_frequency(B, n_e, **kwargs)
 
 
 @utils.check_quantity({'n': {'units': u.cm ** -3,
@@ -286,6 +327,8 @@ def Debye_length(kTe: u.Quantity, n: u.Quantity,
     # ensure args have correct units
     kTe = kTe.to(u.erg)
     n = n.to(u.cm ** -3)
+
+    # calculate
     _lD = np.sqrt(kTe / (4.0 * const.pi * n * (const.e_gauss ** 2)))
     return _lD.cgs
 
@@ -340,8 +383,8 @@ def lpe(n_e: u.Quantity, **kwargs) -> u.Quantity:
                                'can_be_negative': False},
                        'm_i': {'units': u.g,
                                'can_be_negative': False}})
-def lpi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
-        **kwargs) -> u.Quantity:
+def lpi(n_i: u.Quantity, m_i: u.Quantity,
+        Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
     """
     ion-inertial length (cm)
 
@@ -353,6 +396,13 @@ def lpi(n_i: u.Quantity, Z: Union[int, float], m_i: u.Quantity,
     :param Z: charge number
     :param m_i: ion mass (in g)
     """
+    # condition Z
+    if not isinstance(Z, (int, np.integer, float, np.floating)):
+        raise TypeError('Z must be of type int or float')
+    elif Z <= 0:
+        raise PhysicsError(
+            'The ion charge number Z must be greater than 0.')
+
     return inertial_length(n_i, Z * const.e_gauss, m_i, **kwargs)
 
 
@@ -365,11 +415,11 @@ def cs(kTe: u.Quantity, m_i: u.Quantity,
     """
     ion-sound speed (cm/s) -- [alias for :func:`ion_sound_speed`
     """
+    # add specified keywords to kwargs
     for name, val in zip(('kTi', 'gamma_e', 'gamma_i', 'Z'),
                          (kTi, gamma_e, gamma_i, Z)):
         if val is not None:
             kwargs[name] = val
-    print(kwargs)
 
     return ion_sound_speed(kTe, m_i, **kwargs)
 

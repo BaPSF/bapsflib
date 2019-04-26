@@ -122,8 +122,7 @@ def lower_hybrid_frequency(B: u.Quantity, n_i: u.Quantity,
     _olh = np.sqrt(1.0 / (first_term + second_term))
     return _olh
 
-@utils.check_quantity({'B': {'units': u.Gauss,
-                             "can_be_negative": False}})
+
 def oce(B: u.Quantity, **kwargs) -> u.Quantity:
     """
     electron-cyclotron frequency (rad/s)
@@ -140,10 +139,6 @@ def oce(B: u.Quantity, **kwargs) -> u.Quantity:
                                **kwargs['kwargs'])
 
 
-@utils.check_quantity({'B': {'units': u.Gauss,
-                             "can_be_negative": False},
-                       'm_i': {'units': u.g,
-                               "can_be_negative": False}})
 def oci(B: u.Quantity, m_i: u.Quantity, Z: Union[int, float] = 1,
         **kwargs) -> u.Quantity:
     """
@@ -185,8 +180,6 @@ def oLH(B: u.Quantity, n_i: u.Quantity, m_i: u.Quantity,
     return lower_hybrid_frequency(B, m_i, n_i, **kwargs)
 
 
-@utils.check_quantity({'n_e': {'units': u.cm ** -3,
-                               'can_be_negative': False}})
 def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
     """
     electron-plasma frequency (in rad/s)
@@ -203,10 +196,6 @@ def ope(n_e: u.Quantity, **kwargs) -> u.Quantity:
                             **kwargs['kwargs'])
 
 
-@utils.check_quantity({'n_i': {'units': u.cm ** -3,
-                               'can_be_negative': False},
-                       'm_i': {'units': u.g,
-                               'can_be_negative': False}})
 def opi(n_i: u.Quantity, m_i: u.Quantity,
         Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
     """
@@ -365,8 +354,6 @@ def lD(kTe: u.Quantity, n: u.Quantity, **kwargs) -> u.Quantity:
     return Debye_length(kTe, n, **kwargs)
 
 
-@utils.check_quantity({'n_e': {'units': u.cm ** -3,
-                               'can_be_negative': False}})
 def lpe(n_e: u.Quantity, **kwargs) -> u.Quantity:
     """
     electron-inertial length (cm)
@@ -380,10 +367,6 @@ def lpe(n_e: u.Quantity, **kwargs) -> u.Quantity:
     return inertial_length(n_e, -const.e_gauss, const.m_e, **kwargs)
 
 
-@utils.check_quantity({'n_i': {'units': u.cm ** -3,
-                               'can_be_negative': False},
-                       'm_i': {'units': u.g,
-                               'can_be_negative': False}})
 def lpi(n_i: u.Quantity, m_i: u.Quantity,
         Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
     """
@@ -408,7 +391,7 @@ def lpi(n_i: u.Quantity, m_i: u.Quantity,
 
 
 # ---- Velocities                                                   ----
-#@utils.check_relativistic
+@utils.check_relativistic
 @utils.check_quantity({'B': {'units': u.gauss,
                              'can_be_negative': False},
                        'n_e': {'units': u.cm ** -3,

@@ -35,7 +35,8 @@ __all__ = ['cyclotron_frequency', 'oce', 'oci',
            'Debye_length', 'lD',
            'inertial_length', 'lpe', 'lpi',
            'Alfven_speed', 'VA',
-           'ion_sound_speed', 'cs']
+           'ion_sound_speed', 'cs',
+           'thermal_speed', 'vTe', 'vTi']
 
 
 # ---- Frequencies                                                  ----
@@ -504,6 +505,32 @@ def ion_sound_speed(kTe: u.Quantity, m_i: u.Quantity,
     return _cs
 
 
+@utils.check_relativistic
+@utils.check_quantity({'kT': {'units': u.eV,
+                              'can_be_negative': False},
+                       'm': {'units': u.g,
+                             'can_be_negative': False}})
+def thermal_speed(kT: u.Quantity, m: u.Quantity,
+                  **kwargs) -> u.Quantity:
+    """
+    generalized thermal speed (in cm/s)
+
+    .. math::
+
+        v_{th} = \\sqrt{\\frac{k_{B} T}{m}}
+
+    :param kT: temperature (in eV)
+    :param m: particle mass (in g)
+    """
+    # ensure proper units
+    kT = kT.to(u.erg)
+    m = m.to(u.g)
+
+    # calculate
+    _v = np.sqrt(kT / m)
+    return _v.to(u.cm / u.s)
+
+
 def VA(B: u.Quantity, n_e: u.Quantity, m_i: u.Quantity,
        Z: Union[int, float] = None, **kwargs) -> u.Quantity:
     """
@@ -515,3 +542,30 @@ def VA(B: u.Quantity, n_e: u.Quantity, m_i: u.Quantity,
             kwargs[name] = val
 
     return Alfven_speed(B, n_e, m_i, **kwargs)
+
+
+def vTe(kTe: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    electron thermal speed (in cm/s)
+
+    .. math::
+
+        v_{T_{e}} = \\sqrt{\\frac{k_{B} T_{e}}{m_{e}}}
+
+    :param kTe: electron temperature (in eV)
+    """
+    return thermal_speed(kTe, const.m_e, **kwargs)
+
+
+def vTi(kTi: u.Quantity, m_i: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    ion thermal speed (in cm/s)
+
+    .. math::
+
+        v_{T_{i}} = \\sqrt{\\frac{k_{B} T_{i}}{m_{i}}}
+
+    :param kTi: ion temperature (in eV)
+    :param m_i: ion mass (in g)
+    """
+    return thermal_speed(kTi, m_i, **kwargs)

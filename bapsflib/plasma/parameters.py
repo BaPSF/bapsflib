@@ -34,6 +34,7 @@ __all__ = ['cyclotron_frequency', 'oce', 'oci',
            'upper_hybrid_frequency', 'oUH',
            'Debye_length', 'lD',
            'inertial_length', 'lpe', 'lpi',
+           'Alfven_speed', 'VA',
            'ion_sound_speed', 'cs']
 
 
@@ -407,6 +408,48 @@ def lpi(n_i: u.Quantity, m_i: u.Quantity,
 
 
 # ---- Velocities                                                   ----
+#@utils.check_relativistic
+@utils.check_quantity({'B': {'units': u.gauss,
+                             'can_be_negative': False},
+                       'n_e': {'units': u.cm ** -3,
+                               'can_be_negative': False},
+                       'm_i': {'units': u.g,
+                               'can_be_negative': False}})
+def Alfven_speed(B: u.Quantity, n_e: u.Quantity, m_i: u.Quantity,
+                 Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
+    """
+    Alfvén speed (in cm/s)
+
+    .. math::
+
+        V_{A} &= \\frac{B}
+                 {\\sqrt{4 \\pi (n_{i} m_{i} + n_{e} m_{e})}} \\
+
+              &= \\frac{B}{\\sqrt{4 \\pi n_{e} (\\frac{1}{Z}m_{i} + m_{e})}}
+
+    :param B: magnetic field (in Gauss)
+    :param n_e: electron number density (in :math:`cm^{3}`)
+    :param m_i: ion mass (in g)
+    :param Z: ion charge number (:math:`Z=1` DEFAULT)
+    """
+    # condition Z
+    if not isinstance(Z, (int, np.integer, float, np.floating)):
+        raise TypeError('Z must be of type int or float')
+    elif Z <= 0:
+        raise PhysicsError(
+            'The ion charge number Z must be greater than 0.')
+
+    # ensure correct units
+    B = B.to(u.gauss)
+    n_e = n_e.to(u.cm ** -3)
+    m_i = m_i.to(u.g)
+
+    # calculated
+    _va = B / np.sqrt(4.0 * const.pi * n_e * ((m_i / Z)
+                                              + const.m_e.cgs))
+    return _va.value * (u.cm / u.s)
+
+
 def cs(kTe: u.Quantity, m_i: u.Quantity,
        kTi: u.Quantity = None,
        gamma_e: Union[int, float] = None,
@@ -476,3 +519,16 @@ def ion_sound_speed(kTe: u.Quantity, m_i: u.Quantity,
         _cs += gamma_i * kTi
     _cs = np.sqrt(_cs / m_i).to(u.cm / u.s)
     return _cs
+
+
+def VA(B: u.Quantity, n_e: u.Quantity, m_i: u.Quantity,
+       Z: Union[int, float] = None, **kwargs) -> u.Quantity:
+    """
+    Alfvén speed (in cm/s) -- [alias for :func:`Alfven_speed`]
+    """
+    # add specified keywords to kwargs
+    for name, val in zip(('Z',), (Z,)):
+        if val is not None:
+            kwargs[name] = val
+
+    return Alfven_speed(B, n_e, m_i, **kwargs)

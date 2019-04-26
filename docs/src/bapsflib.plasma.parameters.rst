@@ -38,5 +38,7 @@ bapsflib\.plasma\.parameters
     .. autosummary::
         :nosignatures:
 
+        Alfven_speed
+        VA
         ion_sound_speed
         cs

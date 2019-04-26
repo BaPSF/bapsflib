@@ -42,3 +42,6 @@ bapsflib\.plasma\.parameters
         VA
         ion_sound_speed
         cs
+        thermal_speed
+        vTe
+        vTi

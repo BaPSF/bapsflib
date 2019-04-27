@@ -27,6 +27,9 @@ bapsflib\.plasma\.parameters
     .. autosummary::
         :nosignatures:
 
+        cyclotron_radius
+        rce
+        rci
         Debye_length
         lD
         inertial_length

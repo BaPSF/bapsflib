@@ -48,3 +48,10 @@ bapsflib\.plasma\.parameters
         thermal_speed
         vTe
         vTi
+
+    .. rubric:: Dimensionless
+
+    .. autosummary::
+        :nosignatures:
+
+        beta

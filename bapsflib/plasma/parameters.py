@@ -38,7 +38,8 @@ __all__ = ['cyclotron_frequency', 'oce', 'oci',
            'inertial_length', 'lpe', 'lpi',
            'Alfven_speed', 'VA',
            'ion_sound_speed', 'cs',
-           'thermal_speed', 'vTe', 'vTi']
+           'thermal_speed', 'vTe', 'vTi',
+           'beta']
 
 
 # ---- Frequencies                                                  ----
@@ -482,7 +483,8 @@ def Alfven_speed(B: u.Quantity, n_e: u.Quantity, m_i: u.Quantity,
         V_{A} &= \\frac{B}
                  {\\sqrt{4 \\pi (n_{i} m_{i} + n_{e} m_{e})}} \\
 
-              &= \\frac{B}{\\sqrt{4 \\pi n_{e} (\\frac{1}{Z}m_{i} + m_{e})}}
+              &= \\frac{B}
+                 {\\sqrt{4 \\pi n_{e} (\\frac{1}{Z}m_{i} + m_{e})}}
 
     :param B: magnetic field (in Gauss)
     :param n_e: electron number density (in :math:`cm^{3}`)
@@ -642,3 +644,33 @@ def vTi(kTi: u.Quantity, m_i: u.Quantity, **kwargs) -> u.Quantity:
     :param m_i: ion mass (in g)
     """
     return thermal_speed(kTi, m_i, **kwargs)
+
+
+# ---- Dimensionless                                                ----
+@utils.check_quantity({'n': {'units': u.cm ** -3,
+                             'can_be_negative': False},
+                       'kT': {'units': u.eV,
+                              'can_be_negative': False},
+                       'B': {'units': u.Gauss,
+                             'can_be_negative': False}})
+def beta(n: u.Quantity, kT: u.Quantity, B: u.Quantity,
+         **kwargs) -> u.Quantity:
+    """
+    plasma beta of particle species :math:`s`
+
+    .. math::
+
+        \\beta_{s} = \\frac{n_{s} k_{B} T_{s}}{B^{2} / (8 \\pi)}
+
+    :param n: particle number density (in :math:`cm^{-3}`)
+    :param kT: particle temperature (in eV)
+    :param B: magnetic field (in Gauss)
+    """
+    # ensure proper units
+    n = n.to(u.cm ** -3)
+    kT = kT.to(u.erg)
+    B = B.to(u.Gauss)
+
+    _TP = n * kT
+    _MP = B ** 2 / (8.0 * const.pi)
+    return (_TP.value / _MP.value) * u.dimensionless_unscaled

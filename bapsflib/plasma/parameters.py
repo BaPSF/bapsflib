@@ -12,6 +12,7 @@
 # TODO: add Coulomb Logarithm
 # TODO: add collision frequencies
 # TODO: add mean-free-paths
+# TODO: add examples to docstrings
 #
 """
 Plasma parameters
@@ -32,6 +33,7 @@ __all__ = ['cyclotron_frequency', 'oce', 'oci',
            'lower_hybrid_frequency', 'oLH',
            'plasma_frequency', 'ope', 'opi',
            'upper_hybrid_frequency', 'oUH',
+           'cyclotron_radius', 'rce', 'rci',
            'Debye_length', 'lD',
            'inertial_length', 'lpe', 'lpi',
            'Alfven_speed', 'VA',
@@ -324,6 +326,32 @@ def Debye_length(kTe: u.Quantity, n: u.Quantity,
     return _lD.cgs
 
 
+@utils.check_quantity({'vperp': {'units': u.cm / u.s,
+                                 'can_be_negative': True}})
+def cyclotron_radius(vperp: u.Quantity, q: u.Quantity, B: u.Quantity,
+                     m: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    generalized cyclotron radius (in cm)
+
+    .. math::
+
+        r_{c} = \\frac{m c v_{\\perp}}{|q| B}
+              = \\frac{v_{\\perp}}{\\Omega_{c}}
+
+    :param vperp: velocity component perpendicular to B (in cm/s)
+    :param q: particle charge (in statcoulombs)
+    :param B: magnetic field (in Gauss)
+    :param m: particle mass (in g)
+    """
+    # ensure correct units
+    vperp = np.abs(vperp.to(u.cm / u.s))
+
+    # calculate
+    _oc = np.abs(cyclotron_frequency(q, B, m))  # type: u.Quantity
+    _r = vperp / (_oc.value * (1 / u.s))
+    return _r.to(u.cm)
+
+
 @utils.check_quantity({'n': {'units': u.cm ** -3,
                              'can_be_negative': False},
                        'q': {'units': u.statcoulomb,
@@ -389,6 +417,51 @@ def lpi(n_i: u.Quantity, m_i: u.Quantity,
             'The ion charge number Z must be greater than 0.')
 
     return inertial_length(n_i, Z * const.e_gauss, m_i, **kwargs)
+
+
+def rce(kTe: u.Quantity, B: u.Quantity, **kwargs) -> u.Quantity:
+    """
+    electron-cyclotron radius (cm)
+
+    .. math::
+
+        r_{ce} = \\frac{v_{Te}}{|\\Omega_{ce}|}
+               = \\sqrt{\\frac{k_{B} T_{e}}{m_{e}}}
+                 \\left( \\frac{m_{e} c}{|e| B} \\right)
+
+    :param kTe: electron temperature (in eV)
+    :param B: magnetic field (in Gauss)
+    """
+    _v = vTe(kTe)
+    return cyclotron_radius(_v, const.e_gauss, B, const.m_e)
+
+
+def rci(kTi: u.Quantity, B: u.Quantity, m_i: u.Quantity,
+        Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
+    """
+    ion-cyclotron radius (cm)
+
+    .. math::
+
+        r_{ci} = \\frac{v_{Ti}}{|\\Omega_{ci}|}
+               = \\sqrt{\\frac{k_{B} T_{i}}{m_{i}}}
+                 \\left( \\frac{m_{i} c}{Z |e| B} \\right)
+
+    :param kTi: ion temperature (in eV)
+    :param B: magnetic field (in Gauss)
+    :param m_i: ion mass (in g)
+    :param Z: ion charge number (:math:`Z=1` DEFAULT)
+    """
+    # condition Z
+    if not isinstance(Z, (int, np.integer, float, np.floating)):
+        raise TypeError('Z must be of type int or float')
+    elif Z <= 0:
+        raise PhysicsError(
+            'The ion charge number Z must be greater than 0.')
+
+    # calculate
+    _v = vTi(kTi, m_i)
+    return cyclotron_radius(_v, Z * const.e_gauss, B, m_i)
 
 
 # ---- Velocities                                                   ----

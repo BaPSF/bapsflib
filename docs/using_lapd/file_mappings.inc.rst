@@ -1,23 +1,24 @@
 .. py:currentmodule:: bapsflib.lapd
 
-The main purpose of the :attr:`~File.file_map` object is to (1) identify
-the control devices, digitizers, and MSI diagnostic in the HDF5 file and
-(2) provide the necessary translation info to allow for easy reading of
-data via :meth:`~File.read_controls`, :meth:`~File.read_data`, and
-:meth:`~File.read_msi`.  For the most part, there is not reason to
-directly access the :attr:`~File.file_map` object since its results can
-easily be printed or saved using the :attr:`~File.overview` attribute,
-see :ref:`file_overview` for details.  However, the mapping objects do
-contain useful details that are desirable in certain circumstances and
-can be modified for a special type of control device to augment the
-resulting numpy array when data is read.
+The file mapping is key to :mod:`bapsflib`'s ability to provide a
+consistent user interface to all the possible LaPD HDF5 file
+configurations.  It acts as the translator between the package interface
+and the HDF5 file structure.
 
-The file map object :attr:`~File.file_map` is an instance of
-:class:`~_hdf.lapdmap.LaPDMap`, which subclasses
-:class:`~bapsflib._hdf.HDFMap` (details on
-:class:`~bapsflib._hdf.HDFMap` can be found at :ref:`hdfmap_details`).
-The :class:`~_hdf.lapdmap.LaPDMap` provides a useful set of bound
-methods, see :numref:`LaPDMap_meth_table`.
+The LaPD file mapping is constructed by the
+:class:`~_hdf.lapdmap.LaPDMap` class, which sub-classes
+:class:`~bapsflib._hdf.HDFMap` (see :ref:`hdfmap_details` for
+:class:`~bapsflib._hdf.HDFMap` details), and an instance is bound to
+the file object as :attr:`~File.file_map`.  Except for some select
+cases, the :attr:`~File.file_map` object does not need to be directly
+accessed.  Its results are provide through higher-level user interfaces,
+such as the attributes/methods :attr:`~File.info`,
+:attr:`~File.run_description`, :meth:`~File.read_data`, etc.  The
+results can also be easily printed or saved using the
+:attr:`~File.overview` attribute, see :ref:`file_overview` for details.
+
+:numref:`LaPDMap_meth_table` shows the available attributes and methods
+bound to :attr:`~File.file_map`.
 
 .. _LaPDMap_meth_table:
 

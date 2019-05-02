@@ -30,7 +30,7 @@ be found in the info dictionary.
     | :code:`f['Raw data + config].attrs['Experiment description']`
     "
     :code:`'exp name'`, "
-    | name of the experiment in which the run of the HDF5 file resides
+    | name of the experiment for which the run belongs to
     | :code:`f['Raw data + config].attrs['Experiment Name']`
     "
     :code:`'exp set description'`, "
@@ -38,11 +38,11 @@ be found in the info dictionary.
     | :code:`f['Raw data + config].attrs['Experiment set description']`
     "
     :code:`'exp set name'`, "
-    | name of experiment set the ``'exp name'`` resides
+    | name of experiment set the ``'exp name'`` belongs to
     | :code:`f['Raw data + config].attrs['Experiment set name']`
     "
-    :code:`'filename'`, "
-    | name of HDF5 file
+    :code:`'file'`, "
+    | base name of HDF5 file
     | :code:`os.path.basename(f.filename)`
     "
     :code:`'investigator'`, "

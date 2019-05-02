@@ -22,7 +22,7 @@ bound to :attr:`~File.file_map`.
 
 .. _LaPDMap_meth_table:
 
-.. csv-table:: Bound methods and attributes on :data:`f.file_map`.
+.. csv-table:: Bound methods and attributes on :code:`f.file_map`.
     :header: "method/attribute", "Description"
     :widths: 20, 60
 

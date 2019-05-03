@@ -25,5 +25,9 @@ from . import _hdf
 from . import lapd
 from . import plasma
 
+
+__all__ = ['lapd', 'plasma']
+
+
 # --- Define version ---------------------------------------------------
 __version__ = '1.0.1.dev'

@@ -645,7 +645,7 @@ class TestConditionShotnum(TestBase):
 
     def test_shotnum_ndarray(self):
         # shotnum invalid
-        # 1. is not 1 dimentional
+        # 1. is not 1 dimensional
         # 2. has fields
         # 3. is not np.integer
         # 4. would result in NULL

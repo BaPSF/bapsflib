@@ -14,7 +14,7 @@ related to handling data collected on the LaPD.  The package provides:
    :mod:`bapsflib.lapd.tools`.
 
 .. contents:: Contents
-    :depth: 3
+    :depth: 4
     :local:
 
 Accessing HDF5 Files

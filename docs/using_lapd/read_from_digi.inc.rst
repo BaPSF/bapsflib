@@ -1,15 +1,62 @@
-Digitizer data is read using the
-:meth:`~bapsflib.lapd.File.read_data` method on
-:class:`~bapsflib.lapd.File`.  The method also has the option
-of mating control device data at the time of declaration (see section
+.. py:currentmodule:: bapsflib.lapd
+
+Digitizer data is read using the :meth:`~File.read_data` method on
+:class:`~File`.  The method also has the option of mating control
+device data at the time of declaration (see section
 :ref:`read_digi_adding_controls`) [#]_.
 
-At a minimum the :meth:`~bapsflib.lapd.File.read_data` method
-only needs a board number and channel number to extract data [#]_, but
-there are several additional keyword options:
+At a minimum, the :meth:`~File.read_data` method
+only needs a board number and channel number to extract data.  For
+example, the entire dataset for a signal attached to :code:`board=1` and
+:code:`channel=0` can be extracted as follows:
+
+.. code-block:: python3
+
+    >>> import numpy as np
+    >>> from bapsflib import lapd
+    >>> from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+    >>>
+    >>> f = lapd.File('test.hdf5')
+    >>> board, channel = 1, 0
+    >>> data = f.read_data(board, channel)
+    >>>
+    >>> isinstance(data, HDFReadData)
+    True
+    >>> isinstance(data, np.ndarray)
+    True
+
+where :obj:`data` is an instance of
+:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.  The
+:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class acts as a
+wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
+a :class:`numpy.recarray` object and will have additional
+methods/attributes that describe the data's origin and parameters (e.g.
+:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.info`,
+:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dt`,
+:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dv`, etc.).
+
+By default, :obj:`data` is a structured :mod:`numpy` array with the
+following :data:`dtype`::
+
+    >>> data.dtype
+    dtype([('shotnum', '<u4'),
+           ('signal', '<f4', (12288,)),
+           ('xyz', '<f4', (3,))])
+
+where :code:`'shotnum'` contains the HDF5 shot number, :code:`'signal'`
+contains the signal recorded by the digitizer, and :code:`'xyz'` is a
+3-element array containing the probe position.  In this example,
+the digitized signal is automatically converted from bits to voltage
+and :code:`12288` is the size of the signal's time-array.  The
+:code:`'xyz'` is initialized with :data:`numpy.nan` values, unless
+motion control data is requested at instantiation (see
+:ref:`read_digi_adding_controls`).
+
+There are several additional keyword options to control the read
+behavior of :meth:`~File.read_data`:
 
 .. csv-table:: Optional keywords for
-               :meth:`~bapsflib.lapd.File.read_data`
+               :meth:`~File.read_data`
     :header: "Keyword", "Default", "Description"
     :widths: 10, 5, 40
 
@@ -20,8 +67,8 @@ there are several additional keyword options:
     number (see :ref:`read_digi_subset`)
     "
     :data:`digitizer`, :code:`None`, "
-    | name of the digitizer for which :code:`board` and :code:`channel`
-      belong to
+    | digitizer name for which :code:`board` and :code:`channel` belong
+      to
     | (see :ref:`read_digi_digi`)
     "
     :data:`adc`, :code:`None` , "
@@ -48,52 +95,9 @@ there are several additional keyword options:
       all control device datasets.
     | (see :ref:`read_digi_subset`)
     "
-    :data:`silent`, :code:`False`, "set :code:`True` to suppress command
-    line printout of soft-warnings
+    :data:`silent`, :code:`False`, "set :code:`True` to suppress
+    :code:`UserWarnings`
     "
-
-These keywords are explained in more detail in the following
-subsections.
-
-If the :file:`test.hdf5` file has only one digitizer with one active
-adc and one configuration, then the entire dataset collected from the
-signal attached to :code:`board = 1` and :code:`channel = 0` can be
-extracted as follows::
-
-    >>> from bapsflib import lapd
-    >>> f = lapd.File('test.hdf5')
-    >>> board, channel = 1, 0
-    >>> data = f.read_data(board, channel)
-
-where :obj:`data` is an instance of
-:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.  The
-:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class acts as a
-wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
-a :class:`numpy.recarray` object, but will have additional methods and
-attributes that describe the data's origin and parameters (e.g.
-:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.info`,
-:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dt`,
-:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dv`, etc.).
-
-By default, :obj:`data` is a structured :mod:`numpy` array with the
-following :data:`dtype`::
-
-    >>> data.dtype
-    dtype([('shotnum', '<u4'),
-           ('signal', '<f4', (12288,)),
-           ('xyz', '<f4', (3,))])
-
-where :code:`'shotnum'` contains the HDF5 shot number, :code:`'signal'`
-contains the signal recorded by the digitizer, and :code:`'xyz'` is a
-3-element array containing the probe position.  In this example,
-the digitized signal is automatically converted into voltage before
-being added to the array and :code:`12288` is the size of the signal's
-time-array.  To keep the digitizer :code:`'signal` in bit values, then
-set :code:`keep_bits=True` at execution of
-:meth:`~bapsflib.lapd.File.read_data`.  The field :code:`'xyz'`
-is initialized with :const:`numpy.nan` values, but will be populated if
-a control device of :code:`contype = 'motion'` is added (see
-:ref:`read_digi_adding_controls`).
 
 ------
 
@@ -103,13 +107,12 @@ For details on handling and manipulating :data:`data` see
 .. note::
 
     Since :class:`bapsflib.lapd` leverages the :class:`h5py` package,
-    the data in :file:`test.hdf5` resides on disk until one of the read
-    methods, :meth:`~bapsflib.lapd.File.read_data`,
-    :meth:`~bapsflib.lapd.File.read_msi`, or
-    :meth:`~bapsflib.lapd.File.read_controls` is called.  In
-    calling on of these methods, the requested data is brought into
-    memory as a :class:`numpy.ndarray` and a :class:`numpy.view` onto
-    that :data:`ndarray` is returned to the user.
+    the data in the HDF5 file resides on disk until one of the read
+    methods, :meth:`~File.read_data`, :meth:`~File.read_msi`, or
+    :meth:`~File.read_controls` is called.  In calling one of these
+    methods, the requested data is brought into memory as a
+    :class:`numpy.ndarray` and a :class:`numpy.view` onto that
+    :data:`ndarray` is returned to the user.
 
 ------
 
@@ -320,8 +323,7 @@ fields.
 .. [#] Control device data can also be independently read using
     :meth:`~bapsflib.lapd.File.read_controls`.
     (see :ref:`read_controls` for usage)
-.. [#] Review section :ref:`digi_overview` for how a digitizer is
-    organized and configured.
+
 .. [#] Each control device has its own concept of what constitutes a
     configuration. The configuration has be unique to a block of
     recorded data.  For the :code:`'6K Compumotor'` the receptacle
@@ -329,5 +331,5 @@ fields.
     :code:`'Waveform'` control the confiugration name is the name of the
     configuration group inside the :code:`'Waveform` group.  Since the
     configurations are contain in the
-    :code:`f.file_map.contorols[con_name].configs` dictionary, the
+    :code:`f.file_map.controls[config_name].configs` dictionary, the
     configuration name need not be a string.

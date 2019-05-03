@@ -615,7 +615,7 @@ class TestConditionShotnum(TestBase):
             'c2': 'Shot number',
         }
 
-        # invalid shotnum slices (creats NULL arrays)
+        # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
             _sn = condition_shotnum(slice(-1, -4, 1),
                                     dset_dict, shotnumkey_dict)

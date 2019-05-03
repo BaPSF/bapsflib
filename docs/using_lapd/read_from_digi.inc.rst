@@ -119,7 +119,7 @@ For details on handling and manipulating :data:`data` see
 .. _read_digi_subset:
 
 Extracting a sub-set
-""""""""""""""""""""
+''''''''''''''''''''
 
 .. Sub-setting behavior is determined by three keywords: :data:`index`,
    :data:`shotnum`, and :data:`intersection_set`.
@@ -197,7 +197,7 @@ will be filled with a "NaN" value (:code:`np.nan` for floats,
 .. _read_digi_digi:
 
 Specifying :code:`digitizer`, :code:`adc`, and :code:`config_name`
-""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''
 
 It is possible for a LaPD generated HDF5 file to contain multiple
 digitizers, each of which can have multiple analog-digital-converters
@@ -252,7 +252,7 @@ would use the :data:`'config_name'` keyword as follows::
 .. _read_digi_adding_controls:
 
 Adding Control Device Data
-""""""""""""""""""""""""""
+''''''''''''''''''''''''''
 
 Adding control device data to a digitizer dataset is done with the
 keyword :data:`add_controls`.  Specifying :data:`add_controls` will

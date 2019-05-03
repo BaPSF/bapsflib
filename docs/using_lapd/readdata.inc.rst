@@ -39,20 +39,20 @@ and will return a structured :mod:`numpy` array with the requested data.
 .. _read_digi:
 
 For a Digitizer
-^^^^^^^^^^^^^^^^
+```````````````
 
 .. include:: read_from_digi.inc.rst
 
 .. _read_controls:
 
 For Control Devices
-^^^^^^^^^^^^^^^^^^^
+```````````````````
 
 .. note:: To be written
 
 .. _read_msi:
 
 For a MSI Diagnostic
-^^^^^^^^^^^^^^^^^^^^
+````````````````````
 
 .. include:: read_from_msi.inc.rst

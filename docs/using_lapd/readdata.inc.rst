@@ -6,7 +6,7 @@
 Three classes :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`,
 :class:`~bapsflib._hdf_utils.hdfreadcontrol.HDFReadControl`, and
 :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` are given to read
-data for **digitizers**, **control devices**, and **MSI diagnostics**,
+data from **digitizers**, **control devices**, and **MSI diagnostics**,
 respectively.  Each of these read classes are bound to
 :class:`~bapsflib.lapd.File`, see :numref:`f_read_methods`,
 and will return a structured :mod:`numpy` array with the requested data.

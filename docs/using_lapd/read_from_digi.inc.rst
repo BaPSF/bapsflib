@@ -132,67 +132,77 @@ dataset(s).
 
 :data:`index` refers to the row index of the requested dataset and
 :data:`shotnum` refers to the global HDF5 shot number.  Either indexing
-keyword can be used, but :data:`index` overrides :data:`shotnum`.
-:data:`index` and :data:`shotnum` can be of :func:`type`
-:code:`int`, :code:`list(int)`, or :code:`slice()`.  Sub-setting with
-:data:`index` looks like::
+keywords can be used, but :data:`shotnum` overrides :data:`index`.
+However, there is extra overhead in determining the :data:`shotnum`
+dataset locations, so :data:`index` will often execute quicker than, or
+at least on par with, :data:`shotnum`.  :data:`index` and
+:data:`shotnum` can be of type :code:`int`, :code:`List[int]`,
+:code:`slice()`, :code:`numpy.ndarray`, or :code:`numpy.s_`.
 
+Sub-setting with :data:`index` looks like::
+
+    >>> import numpy as np
+
+    >>> # -- Using int values --
     >>> # read dataset row 10
     >>> data = f.read_data(board, channel, index=9)
     >>> data['shotnum']
-    array([10], dtype=uint32)
+    HDFReadData([10], dtype=uint32)
 
+    >>> # -- using List[int] or numpy.ndarray values --
     >>> # read dataset rows 10, 20, and 30
     >>> data = f.read_data(board, channel, index=[9, 19, 29])
+    >>> data = f.read_data(board, channel, index=np.array([9, 19, 29]))
 
+    >>> # -- Using slice() or numpy.s_ --
     >>> # read dataset rows 10 to 19
     >>> data = f.read_data(board, channel, index=slice(9, 19))
+    >>> data = f.read_data(board, channel, index=np.s_[9:19])
 
     >>> # read every third row in the dataset from row 10 to 19
     >>> data = f.read_data(board, channel, index=slice(9, 19, 3))
+    >>> data = f.read_data(board, channel, index=np.s_[9:19:3])
     >>> data['shotnum']
-    array([10, 13, 16, 19], dtype=uint32)
+    HDFReadData([10, 13, 16, 19], dtype=uint32)
 
 Sub-setting with :data:`shotnum` looks like::
 
+    >>> import numpy as np
+
+    >>> # -- Using int values --
     >>> # read dataset shot number 10
     >>> data = f.read_data(board, channel, shotnum=10)
     >>> data['shotnum']
-    array([10], dtype=uint32)
+    HDFReadData([10], dtype=uint32)
 
+    >>> # -- using List[int] or numpy.ndarray values --
     >>> # read dataset shot numbers 10, 20, and 30
     >>> data = f.read_data(board, channel, shotnum=[10, 20, 30])
+    >>> data = f.read_data(board, channel, shotnum=np.array([10, 20, 30]))
 
+    >>> # -- Using slice() or numpy.s_ --
     >>> # read dataset shot numbers 10 to 19
     >>> data = f.read_data(board, channel, shotnum=slice(10, 20))
+    >>> data = f.read_data(board, channel, shotnum=np.s_[10:20])
 
     >>> # read every 5th dataset shot number from 10 to 19
     >>> data = f.read_data(board, channel, index=slice(10, 20, 5))
+    >>> data = f.read_data(board, channel, index=np.s_[10:20:5])
     >>> data['shotnum']
-    array([10, 15], dtype=uint32)
+    HDFReadData([10, 15], dtype=uint32)
 
 :data:`intersection_set` modifies what shot numbers are returned by
-:meth:`~bapsflib.lapd.File.read_data`.  By default
-:code:`intersection_set=True` and forces the returned data to only
-correspond to shot numbers that exist in the digitizer dataset, any
-specified control device datasets, and those shot numbers represented by
-:data:`index` or :data:`shotnum`.  Setting to :code:`False` will return
-all shot numbers :code:`>=1` associated with :data:`index` or
-:data:`shotnum` and array entries that are not associated with a dataset
-will be filled with a "NaN" value (:code:`np.nan` for floats,
-:code:`-99999` for integers, and :code:`''` for strings).
-
-.. :data:`intersection_set` modifies what shot numbers are returned by
-   :meth:`~bapsflib.lapd.File.read_data`.  If :data:`index` is
-   used and no control device datasets are being mated to the digitizer
-   dataset, then :data:`intersection_set` has no affect on the returned
-   data array.  If :data:`shotnum` is used, then
-   :code:`intersection_set=True` (DEFAULT) will ensure that the returned
-   data array only contains shot numbers that are specified by
-   :code:`shotnum` and are in the digitizer dataset.  If set to
-   :code:`False`, then the returned array will contain all shot numbers
-   specified by :code:`shotnum` and any shot numbers not found in the
-   digitizer dataset will be filled with :code:`numpy.nan` values.
+:meth:`~File.read_data`.  By default :code:`intersection_set=True`
+which forces the returned data to only correspond to shot numbers that
+exist in the digitizer dataset, exist in any specified control device
+datasets, and are requested by either :data:`index` or :data:`shotnum`.
+Setting :data:`intersection_set` to :code:`False` will return a
+:data:`data` array that has all shot numbers (:math:`\ge 1`) specified
+by either :data:`index` or :data:`shotnum`. If a digitizer or control
+device dataset does not have an entry corresponding to a specific shot
+number, then its spot in the data array will be filled with a "NaN"
+value (:data:`numpy.nan` for floats, :code:`-99999` for signed-integers,
+and :code:`numpy.empty()` for any other :data:`numpy.dtype`).
 
 .. _read_digi_digi:
 

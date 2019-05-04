@@ -30,10 +30,28 @@ where :obj:`data` is an instance of
 :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class acts as a
 wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
 a :class:`numpy.recarray` object and will have additional
-methods/attributes that describe the data's origin and parameters (e.g.
-:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.info`,
-:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dt`,
-:attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dv`, etc.).
+methods/attributes that describe the data's origin and parameters
+(see :numref:`table_HDFReadData_methods`).
+
+.. _table_HDFReadData_methods:
+
+.. csv-table:: Useful methods on
+               :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
+    :header: "Method", "Description"
+    :widths: 5, 40
+
+    :attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dt`, "
+    temporal step size (in sec) adjusted for the adc clock rate and
+    sample averaging
+    "
+    :attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.dv`, "
+    voltage step size (in volts) calculated from the adc's
+    bit-resolution and voltage range
+    "
+    :attr:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData.info`, "
+    dictionary of meta-data corresponding to the origin of the
+    extracted data
+    "
 
 By default, :obj:`data` is a structured :mod:`numpy` array with the
 following :data:`dtype`::

@@ -211,16 +211,16 @@ Specifying :code:`digitizer`, :code:`adc`, and :code:`config_name`
 
 It is possible for a LaPD generated HDF5 file to contain multiple
 digitizers, each of which can have multiple analog-digital-converters
-(adc) and multiple configuration settings.  For such a case,
-:meth:`~bapsflib.lapd.File.read_data` has the keywords
-:data:`digitizer`, :data:`adc`, and :data:`config_name` to direct the
-data extraction accordingly.
+(adc's) and multiple configuration settings.  For such a case,
+:meth:`~.File.read_data` has the keywords :data:`digitizer`,
+:data:`adc`, and :data:`config_name` to direct the data extraction
+accordingly.
 
 If :data:`digitizer` is not specified, then it is assumed that the
 desired digitizer is the one defined in
 :attr:`~bapsflib._hdf.maps.hdfmap.HDFMap.main_digitizer`.  Suppose
 the :file:`test.hdf5` has two digitizers, :code:`'SIS 3301'` and
-:code:`'SIS crate'`.  In this case :code:`'SIS 3301'` would be assumed
+:code:`'SIS crate'`, then :code:`'SIS 3301'` would be assumed
 as the :attr:`~bapsflib._hdf.maps.hdfmap.HDFMap.main_digitizer`.  To
 extract data from :code:`'SIS crate'` one would use the
 :data:`digitizer` keyword as follows::
@@ -233,29 +233,29 @@ Digitizer :code:`'SIS crate'` can have multiple active
 adc's, :code:`'SIS 3302'` and :code:`'SIS 3305'`.  By default, if only
 one adc is active then that adc is assumed; however, if multiple adc's
 are active, then the adc with the slower clock rate is assumed.
-:code:`'SIS 3302'` has the slower clock rate in this case.  To extract
+:code:`'SIS 3302'` has the slower clock rate in this case, so to extract
 data from :code:`'SIS 3305'` one would use the :data:`adc` keyword as
 follows::
 
     >>> data = f.read_data(board, channel, digitizer='SIS crate',
-    >>>                    adc='SIS 3305')
+    ...                    adc='SIS 3305')
     >>> data.info['adc']
     'SIS 3305'
 
-A digitizer can have multiple configurations, but typically only one
-configuration is ever active for the HDF5 file.  In the case that
+A digitizer can also have multiple configurations, but typically only
+one configuration is ever active for the HDF5 file.  In the case that
 multiple configurations are active, there is no overlying hierarchy for
 assuming one configuration over another.  Suppose digitizer
 :code:`'SIS crate'` has two configurations, :code:`'config_01'` and
 :code:`'config_02'`.  In this case, one of the configurations has to be
 specified at the time of extraction.  To extract data from
 :code:`'SIS crate'` under the the configuration :code:`'config_02'` one
-would use the :data:`'config_name'` keyword as follows::
+would use the :data:`config_name` keyword as follows::
 
     >>> f.file_map.digitizers['SIS crate'].active_configs
     ['config_01', 'config_02']
     >>> data = f.read_data(board, channel, digitizer='SIS crate',
-    >>>                    config_name='config_02')
+    ...                    config_name='config_02')
     >>> data.info['configuration name']
     'config_02'
 

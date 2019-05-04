@@ -252,7 +252,7 @@ specified at the time of extraction.  To extract data from
 :code:`'SIS crate'` under the the configuration :code:`'config_02'` one
 would use the :data:`config_name` keyword as follows::
 
-    >>> f.file_map.digitizers['SIS crate'].active_configs
+    >>> f.digitizers['SIS crate'].active_configs
     ['config_01', 'config_02']
     >>> data = f.read_data(board, channel, digitizer='SIS crate',
     ...                    config_name='config_02')
@@ -276,29 +276,29 @@ global HDF5 shot number.
 :data:`add_controls` must be a list of strings and/or 2-element tuples
 specifying the desired control device data to be added to the digitizer
 data.  If a control device only controls one configuration, then it is
-sufficient to only name that device.  For example, if a
-:code:`'6K Compumotor'` is only controlling one probe, then the data
-extraction call would look like::
+sufficient to only name that device.  For example, if the
+:code:`'6K Compumotor'` motion control device is only driving one
+probe, then the data extraction call would look like::
 
-    >>> list(f.file_map.controls['6K Compumotor'].configs)
+    >>> list(f.controls['6K Compumotor'].configs)
     [3]
     >>> data = f.read_data(board, channel,
-    >>>                    add_controls=['6K Compumotor'])
+    ...                    add_controls=['6K Compumotor'])
     >>> data.info['added controls']
     [('6K Compumotor', 3)]
 
-In the case the :code:`'6K Compumotor'` has multiple configurations
-(controlling multiple probes), the :data:`add_controls` call must also
-provide the configuration name to direct the extraction.  This is done
-with a 2-element tuple entry for :data:`add_controls`, where the first
-element is the control device name and the second element is the
-configuration name.  For the :code:`'6K Compumotor'` the configuration
-name is the receptacle number of the probe drive [#]_.  Suppose the
-:code:`'6K Compumotor'` is utilizing three probe drives with the
-receptacles 2, 3, and 4.  To mate control device data from receptacle 3,
-the call would look something like::
+In the case the :code:`'6K Compumotor'` control device has multiple
+configurations (driving multiple probes), the :data:`add_controls` call
+must also provide the configuration name to direct the extraction.
+This is done with a 2-element tuple entry for :data:`add_controls`,
+where the first element is the control device name and the second
+element is the configuration name.  For the :code:`'6K Compumotor'` the
+configuration name is the receptacle number of the probe drive [#]_.
+Suppose the :code:`'6K Compumotor'` is utilizing three probe drives
+with the receptacles 2, 3, and 4.  To mate control device data from
+receptacle 3, the call would look something like::
 
-    >>> list(f.file_map.controls['6K Compumotor'].configs)
+    >>> list(f.controls['6K Compumotor'].configs)
     [2, 3, 4]
     >>> control  = [('6K Compumotor', 3)]
     >>> data = f.read_data(board, channel, add_controls=control)
@@ -306,39 +306,46 @@ the call would look something like::
     [('6K Compumotor', 3)]
 
 Multiple control device datasets can be added at once, but only
-one control device for each control type (:code:`'motion'`,
-:code:`'power'`, and :code:`'waveform'`) can be added.  Adding
+one control device for each control type can be added (see
+:class:`~bapsflib._hdf.ConType` for control types).  Adding
 :code:`'6K Compumotor'` data from receptacle 3 and :code:`'Waveform'`
 data would look like::
 
-    >>> list(f.file_map.controls['Waveform'].configs)
+    >>> list(f.controls['Waveform'].configs)
     ['config01']
-    >>> f.file_map.controls['Waveform'].contype
-    'waveform'
-    >>> f.file_map.controls['6K Compumotor'].contype
-    'motion'
+    >>> f.controls['Waveform'].contype
+    contype.waveform
+    >>> f.controls['6K Compumotor'].contype
+    contype.motion
     >>> data = f.read_data(board, channel,
     >>>                    add_controls=[('6K Compumotor', 3),
     >>>                                  'Waveform'])
     >>> data.info['added controls']
     [('6K Compumotor', 3), ('Waveform', 'config01')]
 
-Since :code:`'6K Compumotor'` is a :code:`'motion'` control type it
-fills out the :code:`'xyz'` field in the returned numpy structured
-array; whereas, :code:`'Waveform'` will add field names to the numpy
-structured array according to the fields specified in its mapping
-constructor.  See :ref:`read_controls` for details on these added
-fields.
+    >>> data.dtype
+    dtype([('shotnum', '<u4'),
+           ('signal', '<f4', (12288,)),
+           ('xyz', '<f4', (3,)),
+           ('command', '<U150')])
+
+Since :code:`'6K Compumotor'` is a :attr:`~bapsflib._hdf.ConType.motion`
+control type, it fills out the :code:`'xyz'` field in the returned
+data array; whereas, :code:`'Waveform'` will add field names to the
+data array according to the fields specified in its mapping
+constructor
+:class:`~bapsflib._hdf.maps.controls.waveform.HDFMapControlWaveform`.
+See :ref:`read_controls` for details on these added fields.
 
 .. [#] Control device data can also be independently read using
     :meth:`~bapsflib.lapd.File.read_controls`.
     (see :ref:`read_controls` for usage)
 
 .. [#] Each control device has its own concept of what constitutes a
-    configuration. The configuration has be unique to a block of
+    configuration. The configuration has to be unique to a block of
     recorded data.  For the :code:`'6K Compumotor'` the receptacle
     number is used as the configuration name, whereas, for the
-    :code:`'Waveform'` control the confiugration name is the name of the
+    :code:`'Waveform'` control the configuration name is the name of the
     configuration group inside the :code:`'Waveform` group.  Since the
     configurations are contain in the
     :code:`f.file_map.controls[config_name].configs` dictionary, the

@@ -76,7 +76,7 @@ _lines = [
     'The following constants are available:\n',
     _tb_div,
     '{0:^8} {1:^17} {2:^10} {3:^7} {4}'.format('Name', 'Value', 'Units',
-                                              'System', 'Description'),
+                                               'System', 'Description'),
     _tb_div,
     '{0:^8} {1:^17.12f} {2:^10} {3:^7} {4}'.format(
         'pi', pi, '', '',

@@ -23,21 +23,24 @@ import warnings
 from astropy.units import UnitsWarning
 from plasmapy.utils import check_relativistic
 from textwrap import dedent
-from typing import (Dict, Union)
+from typing import (Dict, List, Union)
 
 
 # this is modified from plasmapy.utils.checks.check_quantity
 # TODO: replace with PlasmaPy version when PlasmaPy v0.2.0 is released
-def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
+def check_quantity(**validations:
+                   Dict[str, Union[bool, List, None, u.Unit]]):
     """
     Verify that the function's arguments have correct units.
     This decorator raises an exception if an annotated argument in the
-    decorated function is an `~astropy.units.Quantity` with incorrect
-    units or of incorrect kind. You can prevent arguments from being
-    input as Nones, NaNs, negatives, infinities and complex numbers.
+    decorated function is an :class:`~astropy.units.Quantity` 
+    with incorrect units or of incorrect kind. You can prevent 
+    arguments from being input as Nones, NaNs, negatives, 
+    infinities, and complex numbers.
 
     If a number (non-Quantity) value is inserted in place of a value
-    with units, assume the input is an SI Quantity and cast it to one.
+    with units, then coerce it to the expected unit (if only one unit
+    type is expected) or raise a TypeError.
 
     This is probably best illustrated with an example:
 
@@ -83,7 +86,9 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
         Arguments to be validated passed in as keyword arguments,
         with values as validation dictionaries, with structure as
         in the example.  Valid keys for each argument are:
-        'units': `astropy.units.Unit`,
+        'units': :class:`astropy.units.Unit`,
+        'equivalencies': :mod:`astropy.units.equivalencies`,
+        'enforce': `bool`,
         'can_be_negative': `bool`,
         'can_be_complex': `bool`,
         'can_be_inf': `bool`,
@@ -92,28 +97,28 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
 
     Raises
     ------
-    `TypeError`
-        If the argument is not a `~astropy.units.Quantity`, units is
-        not entirely units or `argname` does not have a type
+    :class:`TypeError`
+        If the argument is not a :class:`~astropy.units.Quantity`, 
+        units is not entirely units or `argname` does not have a type
         annotation.
 
-    `~astropy.units.UnitConversionError`
+    :class:`~astropy.units.UnitConversionError`
         If the argument is not in acceptable units.
 
-    `~astropy.units.UnitsError`
+    :class:`~astropy.units.UnitsError`
         If after the assumption checks, the argument is still not in
         acceptable units.
 
-    `ValueError`
-        If the argument contains `~numpy.nan` or other invalid values
-        as determined by the keywords.
+    :class:`ValueError`
+        If the argument contains :attr:`~numpy.nan` or other invalid 
+        values as determined by the keywords.
 
     Warns
     -----
-    `~astropy.units.UnitsWarning`
-        If a `~astropy.units.Quantity` is not provided and unique units
-        are provided, a `UnitsWarning` will be raised and the inputted
-        units will be assumed.
+    :class:`~astropy.units.UnitsWarning`
+        If a :class:`~astropy.units.Quantity` is not provided and 
+        unique units are provided, a `UnitsWarning` will be raised 
+        and the inputted units will be assumed.
 
     Notes
     -----
@@ -129,12 +134,14 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
 
     See also
     --------
-    _check_quantity
+    :func:`_check_quantity`
     """
     def decorator(f):
         wrapped_sign = inspect.signature(f)
         fname = f.__name__
 
+        # add '__signature__' to methods that are copied from
+        # wrapped_function onto wrapper
         assigned = list(functools.WRAPPER_ASSIGNMENTS)
         assigned.append('__signature__')
         @functools.wraps(f, assigned=assigned)
@@ -191,8 +198,11 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
 
             return f(**given_params_values)
 
+        # add '__signature__' if it does not exist
+        # - this will preserve parameter hints in IDE's
         if not hasattr(wrapper, '__signature__'):
             wrapper.__signature__ = inspect.signature(f)
+
         return wrapper
     return decorator
 
@@ -201,26 +211,38 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
 # TODO: replace with PlasmaPy version when PlasmaPy v0.2.0 is released
 def _check_quantity(arg, argname, funcname, units,
                     equivalencies=None,
+                    enforce=True,
                     can_be_negative=True, can_be_complex=False,
                     can_be_inf=True, can_be_nan=True,
                     none_shall_pass=False):
     """
-    Raise an exception if an object is not a `~astropy.units.Quantity`
-    with correct units and valid numerical values.
+    To be used with decorator :func:`check_quantity`.
+
+    Raise an exception if an object is not a
+    :class:`~astropy.units.Quantity` with correct units and
+    valid numerical values.
 
     Parameters
     ----------
-    arg : ~astropy.units.Quantity
+    arg : :class:`~astropy.units.Quantity`
         The object to be tested.
 
     argname : str
-        The name of the argument to be printed in error messages.
+        The name of the variable passed in as arg.
+        (used for error messages)
 
     funcname : str
-        The name of the original function to be printed in error
-        messages.
+        The name of the decorated function. (used for error messages)
 
-    units : `~astropy.units.Unit` or list of `~astropy.unit.Unit`
+    equivalencies : Union[None, List[Tuple]]
+        An :mod:`astropy.units.equivalencies` used to help with
+        unit conversion.
+
+    enforce : bool
+        (:code:`True` DEFAULT) Force the input :data:`arg` to be
+        converted into the desired :data:`units`
+
+    units : :class:`~astropy.units.Unit` or list of :class:`~astropy.unit.Unit`
         Acceptable units for `arg`.
 
     can_be_negative : bool, optional
@@ -367,24 +389,20 @@ def _check_quantity(arg, argname, funcname, units,
         else:
             in_acceptable_units.append(True)
 
-    if np.count_nonzero(in_acceptable_units) != 1:
+    nacceptable = np.count_nonzero(in_acceptable_units)
+    if nacceptable == 0:
+        # NO equivalent units
         raise u.UnitConversionError(typeerror_message)
-    else:
+    elif nacceptable == 1 and enforce:
+        # convert to desired unit
         unit = np.array(units)[in_acceptable_units][0]
         equiv = np.array(equivalencies)[in_acceptable_units][0]
         arg = arg.to(unit, equivalencies=equiv)
-    '''
-    for unit in units:
-        try:
-            arg.unit.to(unit, equivalencies=u.temperature_energy())
-        except u.UnitConversionError:
-            in_acceptable_units.append(False)
-        else:
-            in_acceptable_units.append(True)
-
-    if not np.any(in_acceptable_units):
-        raise u.UnitConversionError(typeerror_message)
-    '''
+    elif nacceptable >= 1 and enforce:
+        # too many equivalent units
+        raise u.UnitConversionError(
+            "arg is equivalent to too units and can not be "
+            "coerced into one")
 
     # Make sure that the quantity has valid numerical values
     if np.any(np.isnan(arg.value)) and not can_be_nan:

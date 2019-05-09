@@ -200,6 +200,8 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
                     in validations.items():
                 value_to_check = given_params_values[param_to_check]
 
+                equivalencies = \
+                    validation_settings.get('equivalencies', None)
                 can_be_negative = \
                     validation_settings.get('can_be_negative', True)
                 can_be_complex = \
@@ -216,6 +218,7 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
                     param_to_check,
                     fname,
                     validation_settings['units'],
+                    equivalencies=equivalencies,
                     can_be_negative=can_be_negative,
                     can_be_complex=can_be_complex,
                     can_be_inf=can_be_inf,
@@ -235,6 +238,7 @@ def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):
 # this is modified from plasmapy.utils.checks._check_quantity
 # TODO: replace with PlasmaPy version when PlasmaPy v0.2.0 is released
 def _check_quantity(arg, argname, funcname, units,
+                    equivalencies=None,
                     can_be_negative=True, can_be_complex=False,
                     can_be_inf=True, can_be_nan=True,
                     none_shall_pass=False):
@@ -251,7 +255,8 @@ def _check_quantity(arg, argname, funcname, units,
         The name of the argument to be printed in error messages.
 
     funcname : str
-        The name of the original function to be printed in error messages.
+        The name of the original function to be printed in error
+        messages.
 
     units : `~astropy.units.Unit` or list of `~astropy.unit.Unit`
         Acceptable units for `arg`.
@@ -286,8 +291,8 @@ def _check_quantity(arg, argname, funcname, units,
         If the argument is not in acceptable units.
 
     ~astropy.units.UnitsError
-        If after the assumption checks, the argument is still not in acceptable
-        units.
+        If after the assumption checks, the argument is still not in
+        acceptable units.
 
     ValueError
         If the argument contains any `~numpy.nan` or other invalid
@@ -309,22 +314,34 @@ def _check_quantity(arg, argname, funcname, units,
     >>> with pytest.warns(u.UnitsWarning, match="No units are specified"):
     ...     assert _check_quantity(4, 'B', 'f', u.T) == 4 * u.T
     """
-
-    # TODO: Replace `funcname` with func.__name__?
-
+    # condition units argument
     if not isinstance(units, list):
         units = [units]
-
     for unit in units:
-        if not isinstance(unit, (u.Unit, u.CompositeUnit, u.IrreducibleUnit)):
+        if not isinstance(unit, (u.Unit, u.CompositeUnit,
+                                 u.IrreducibleUnit)):
             raise TypeError(
                 "The keyword 'units' to check_quantity must be "
                 "a unit or a list/tuple containing only units.")
 
-    # Create a generic error message
+    # condition equivalencies argument
+    if equivalencies is None:
+        equivalencies = [None] * len(units)
+    elif isinstance(equivalencies, list):
+        if all(isinstance(el, tuple) for el in equivalencies):
+            equivalencies = [equivalencies]
+        if len(equivalencies) == 1:
+            equivalencies = equivalencies * len(units)
+        elif len(equivalencies) != len(units):
+            raise ValueError(
+                f"The length of specified equivalencies "
+                f"({len(equivalencies)}) must be 1 or equal to the "
+                f"number of specified units ({len(units)})")
 
+    # Create a generic error message
     typeerror_message = (
-        f"The argument {argname} to {funcname} should be a Quantity with "
+        f"The argument {argname} to {funcname} should be a "
+        f"Quantity with "
     )
 
     if len(units) == 1:
@@ -344,21 +361,25 @@ def _check_quantity(arg, argname, funcname, units,
     # Make sure arg is a quantity with correct units
 
     unit_casting_warning = dedent(
-            f"""No units are specified for {argname} = {arg} in {funcname}. Assuming units of {str(units[0])}.
-                To silence this warning, explicitly pass in an Astropy Quantity (from astropy.units)
+            f"""No units are specified for {argname} = {arg} in 
+                {funcname}. Assuming units of {str(units[0])}.
+                To silence this warning, explicitly pass in an Astropy 
+                Quantity (from astropy.units)
                 (see http://docs.astropy.org/en/stable/units/)""")
 
     # TODO include explicit note on how to pass in Astropy Quantity
 
+    # initialize error string
     valueerror_message = (
         f"The argument {argname} to function {funcname} cannot contain"
     )
 
+    # ensure arg is astropy.units.Quantity or return None (if allowed)
     if arg is None and none_shall_pass:
         return arg
     elif arg is None:
         raise ValueError(f"{valueerror_message} Nones.")
-    if not isinstance(arg, (u.Quantity)):
+    elif not isinstance(arg, u.Quantity):
         if len(units) != 1:
             raise TypeError(typeerror_message)
         else:
@@ -368,21 +389,40 @@ def _check_quantity(arg, argname, funcname, units,
                 raise TypeError(typeerror_message)
             else:
                 warnings.warn(UnitsWarning(unit_casting_warning))
+
+    # check arg was converted to an astropy.units.Quantity
     if not isinstance(arg, u.Quantity):
-        raise u.UnitsError("{} is still not a Quantity after checks!".format(arg))
+        raise u.UnitsError(
+            "{} is still not a Quantity after checks!".format(arg))
 
     in_acceptable_units = []
 
+    for unit, equiv in zip(units, equivalencies):
+        try:
+            arg.unit.to(unit, equivalencies=equiv)
+        except u.UnitConversionError:
+            in_acceptable_units.append(False)
+        else:
+            in_acceptable_units.append(True)
+
+    if np.count_nonzero(in_acceptable_units) != 1:
+        raise u.UnitConversionError(typeerror_message)
+    else:
+        unit = np.array(units)[in_acceptable_units][0]
+        equiv = np.array(equivalencies)[in_acceptable_units][0]
+        arg = arg.to(unit, equivalencies=equiv)
+    '''
     for unit in units:
         try:
             arg.unit.to(unit, equivalencies=u.temperature_energy())
-        except Exception:
+        except u.UnitConversionError:
             in_acceptable_units.append(False)
         else:
             in_acceptable_units.append(True)
 
     if not np.any(in_acceptable_units):
         raise u.UnitConversionError(typeerror_message)
+    '''
 
     # Make sure that the quantity has valid numerical values
     if np.any(np.isnan(arg.value)) and not can_be_nan:

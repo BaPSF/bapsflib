@@ -12,7 +12,8 @@
 Helper functions for the :mod:`bapsflib` package.
 """
 
-__all__ = ['check_relativistic', 'check_quantity']
+__all__ = ['check_relativistic', 'check_quantity',
+           'temperature_and_energy']
 
 import astropy.units as u
 import functools

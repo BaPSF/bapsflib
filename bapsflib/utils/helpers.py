@@ -26,6 +26,44 @@ from textwrap import dedent
 from typing import (Dict, Union)
 
 
+def temperature_and_energy():
+    """
+    Convert between Kelvin, Celsius, Fahrenheit, and eV.  (An
+    `astropy.units.equivalencies`)
+    """
+    # combine standard temperature and energy equivalencies
+    equiv = u.temperature()  # type: list
+    equiv.extend(u.temperature_energy())
+
+    # construct functions for non-Kelvin to energy (and visa-versa)
+    # conversions
+    def convert_C_to_eV(x):
+        # convert Celsius to eV
+        x = (x * u.deg_C).to(u.K, equivalencies=equiv)
+        return x.to_value(u.eV, equivalencies=equiv)
+
+    def convert_eV_to_C(x):
+        # convert eV to Celsius
+        x = (x * u.eV).to(u.K, equivalencies=equiv)
+        return x.to_value(u.deg_C, equivalencies=equiv)
+
+    def convert_F_to_eV(x):
+        # convert Fahrenheit to eV
+        x = (x * u.imperial.deg_F).to(u.K, equivalencies=equiv)
+        return x.to_value(u.eV, equivalencies=equiv)
+
+    def convert_eV_to_F(x):
+        # convert eV to Fahrenheit to eV
+        x = (x * u.eV).to(u.K, equivalencies=equiv)
+        return x.to_value(u.imperial.deg_F, equivalencies=equiv)
+
+    # add new equivalencies to the complete list
+    equiv.append((u.deg_C, u.eV, convert_C_to_eV, convert_eV_to_C))
+    equiv.append((u.imperial.deg_F, u.eV,
+                  convert_F_to_eV, convert_eV_to_F))
+    return equiv
+
+
 # this is modified from plasmapy.utils.checks.check_quantity
 # TODO: replace with PlasmaPy version when PlasmaPy v0.2.0 is released
 def check_quantity(**validations: Dict[str, Union[bool, u.Unit]]):

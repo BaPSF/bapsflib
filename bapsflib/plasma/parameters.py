@@ -24,8 +24,9 @@ import astropy.units as u
 import numpy as np
 
 from . import constants as const
+from bapsflib.utils.decorators import (check_quantity,
+                                       check_relativistic)
 from bapsflib.utils.errors import PhysicsError
-from plasmapy import utils
 from typing import Union
 
 
@@ -43,12 +44,12 @@ __all__ = ['cyclotron_frequency', 'oce', 'oci',
 
 
 # ---- Frequencies                                                  ----
-@utils.check_quantity({'q': {'units': u.statcoulomb,
-                             "can_be_negative": True},
-                       'B': {'units': u.Gauss,
-                             "can_be_negative": False},
-                       'm': {'units': u.g,
-                             "can_be_negative": False}})
+@check_quantity(**{'q': {'units': u.statcoulomb,
+                         'can_be_negative': True},
+                   'B': {'units': u.Gauss,
+                         'can_be_negative': False},
+                   'm': {'units': u.g,
+                         'can_be_negative': False}})
 def cyclotron_frequency(q: u.Quantity, B: u.Quantity, m: u.Quantity,
                         to_Hz=False, **kwargs) -> u.Quantity:
     """
@@ -78,12 +79,12 @@ def cyclotron_frequency(q: u.Quantity, B: u.Quantity, m: u.Quantity,
     return _oc
 
 
-@utils.check_quantity({'B': {'units': u.gauss,
-                             'can_be_negative': False},
-                       'n_i': {'units': u.cm ** -3,
-                               'can_be_negative': False},
-                       'm_i': {'units': u.g,
-                               'can_be_negative': False}})
+@check_quantity(**{'B': {'units': u.gauss,
+                         'can_be_negative': False},
+                   'n_i': {'units': u.cm ** -3,
+                           'can_be_negative': False},
+                   'm_i': {'units': u.g,
+                           'can_be_negative': False}})
 def lower_hybrid_frequency(B: u.Quantity, n_i: u.Quantity,
                            m_i: u.Quantity, Z: Union[int, float] = 1,
                            to_Hz=False, **kwargs) -> u.Quantity:
@@ -240,12 +241,12 @@ def oUH(B: u.Quantity, n_e: u.Quantity,
     return upper_hybrid_frequency(B, n_e, **kwargs)
 
 
-@utils.check_quantity({'n': {'units': u.cm ** -3,
-                             "can_be_negative": False},
-                       'q': {'units': u.statcoulomb,
-                             "can_be_negative": True},
-                       'm': {'units': u.g,
-                             "can_be_negative": False}})
+@check_quantity(**{'n': {'units': u.cm ** -3,
+                         'can_be_negative': False},
+                   'q': {'units': u.statcoulomb,
+                         'can_be_negative': True},
+                   'm': {'units': u.g,
+                         'can_be_negative': False}})
 def plasma_frequency(
         n: u.Quantity, q: u.Quantity, m: u.Quantity,
         to_Hz=False, **kwargs) -> u.Quantity:
@@ -277,10 +278,10 @@ def plasma_frequency(
     return _op
 
 
-@utils.check_quantity({'B': {'units': u.gauss,
-                             'can_be_negative': False},
-                       'n_e': {'units': u.cm ** -3,
-                               'can_be_negative': False}})
+@check_quantity(**{'B': {'units': u.gauss,
+                         'can_be_negative': False},
+                   'n_e': {'units': u.cm ** -3,
+                           'can_be_negative': False}})
 def upper_hybrid_frequency(B: u.Quantity, n_e: u.Quantity,
                            to_Hz=False, **kwargs) -> u.Quantity:
     """
@@ -302,10 +303,10 @@ def upper_hybrid_frequency(B: u.Quantity, n_e: u.Quantity,
 
 
 # ---- Lengths                                                      ----
-@utils.check_quantity({'kTe': {'units': u.eV,
-                               'can_be_negative': False},
-                       'n': {'units': u.cm ** -3,
-                             'can_be_negative': False}})
+@check_quantity(**{'kTe': {'units': u.eV,
+                           'can_be_negative': False},
+                   'n': {'units': u.cm ** -3,
+                         'can_be_negative': False}})
 def Debye_length(kTe: u.Quantity, n: u.Quantity,
                  **kwargs) -> u.Quantity:
     """
@@ -327,8 +328,8 @@ def Debye_length(kTe: u.Quantity, n: u.Quantity,
     return _lD.cgs
 
 
-@utils.check_quantity({'vperp': {'units': u.cm / u.s,
-                                 'can_be_negative': True}})
+@check_quantity(**{'vperp': {'units': u.cm / u.s,
+                             'can_be_negative': True}})
 def cyclotron_radius(vperp: u.Quantity, q: u.Quantity, B: u.Quantity,
                      m: u.Quantity, **kwargs) -> u.Quantity:
     """
@@ -353,12 +354,12 @@ def cyclotron_radius(vperp: u.Quantity, q: u.Quantity, B: u.Quantity,
     return _r.to(u.cm)
 
 
-@utils.check_quantity({'n': {'units': u.cm ** -3,
-                             'can_be_negative': False},
-                       'q': {'units': u.statcoulomb,
-                             'can_be_negative': True},
-                       'm': {'units': u.g,
-                             'can_be_negative': False}})
+@check_quantity(**{'n': {'units': u.cm ** -3,
+                         'can_be_negative': False},
+                   'q': {'units': u.statcoulomb,
+                         'can_be_negative': True},
+                   'm': {'units': u.g,
+                         'can_be_negative': False}})
 def inertial_length(n: u.Quantity, q: u.Quantity, m: u.Quantity,
                     **kwargs) -> u.Quantity:
     """
@@ -466,13 +467,13 @@ def rci(kTi: u.Quantity, B: u.Quantity, m_i: u.Quantity,
 
 
 # ---- Velocities                                                   ----
-@utils.check_relativistic
-@utils.check_quantity({'B': {'units': u.gauss,
-                             'can_be_negative': False},
-                       'n_e': {'units': u.cm ** -3,
-                               'can_be_negative': False},
-                       'm_i': {'units': u.g,
-                               'can_be_negative': False}})
+@check_relativistic
+@check_quantity(**{'B': {'units': u.gauss,
+                         'can_be_negative': False},
+                   'n_e': {'units': u.cm ** -3,
+                           'can_be_negative': False},
+                   'm_i': {'units': u.g,
+                           'can_be_negative': False}})
 def Alfven_speed(B: u.Quantity, n_e: u.Quantity, m_i: u.Quantity,
                  Z: Union[int, float] = 1, **kwargs) -> u.Quantity:
     """
@@ -526,13 +527,14 @@ def cs(kTe: u.Quantity, m_i: u.Quantity,
     return ion_sound_speed(kTe, m_i, **kwargs)
 
 
-@utils.check_relativistic
-@utils.check_quantity({'kTe': {'units': u.eV,
-                               'can_be_negative': False},
-                       'kTi': {'units': u.eV,
-                               'can_be_negative': False},
-                       'm_i': {'units': u.g,
-                               'can_be_negative': False}})
+# @utils.check_relativistic
+@check_relativistic
+@check_quantity(**{'kTe': {'units': u.eV,
+                           'can_be_negative': False},
+                   'kTi': {'units': u.eV,
+                           'can_be_negative': False},
+                   'm_i': {'units': u.g,
+                           'can_be_negative': False}})
 def ion_sound_speed(kTe: u.Quantity, m_i: u.Quantity,
                     kTi: u.Quantity = (0.0 * u.eV),
                     gamma_e: Union[int, float] = 1,
@@ -580,11 +582,12 @@ def ion_sound_speed(kTe: u.Quantity, m_i: u.Quantity,
     return _cs
 
 
-@utils.check_relativistic
-@utils.check_quantity({'kT': {'units': u.eV,
-                              'can_be_negative': False},
-                       'm': {'units': u.g,
-                             'can_be_negative': False}})
+# @utils.check_relativistic
+@check_relativistic
+@check_quantity(**{'kT': {'units': u.eV,
+                          'can_be_negative': False},
+                   'm': {'units': u.g,
+                         'can_be_negative': False}})
 def thermal_speed(kT: u.Quantity, m: u.Quantity,
                   **kwargs) -> u.Quantity:
     """
@@ -647,12 +650,12 @@ def vTi(kTi: u.Quantity, m_i: u.Quantity, **kwargs) -> u.Quantity:
 
 
 # ---- Dimensionless                                                ----
-@utils.check_quantity({'n': {'units': u.cm ** -3,
-                             'can_be_negative': False},
-                       'kT': {'units': u.eV,
-                              'can_be_negative': False},
-                       'B': {'units': u.Gauss,
-                             'can_be_negative': False}})
+@check_quantity(**{'n': {'units': u.cm ** -3,
+                         'can_be_negative': False},
+                   'kT': {'units': u.eV,
+                          'can_be_negative': False},
+                   'B': {'units': u.Gauss,
+                         'can_be_negative': False}})
 def beta(n: u.Quantity, kT: u.Quantity, B: u.Quantity,
          **kwargs) -> u.Quantity:
     """

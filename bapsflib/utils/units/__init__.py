@@ -9,10 +9,10 @@
 #   license terms and contributor agreement.
 #
 """
-Helper functions for the :mod:`bapsflib` package.
+Package to help facilitate the use of :mod:`astropy.units` in the
+:mod:`bapsflib` package.
 """
 
+__all__ = ['temperature_and_energy']
 
-
-
-
+from .equivalencies import temperature_and_energy

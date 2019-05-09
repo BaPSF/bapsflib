@@ -8,10 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from . import (errors, warnings)
-from astropy.constants import Constant
+__all__ = ['BaPSFConstant', 'errors', 'temperature_and_energy',
+           'warnings']
 
-__all__ = ['BaPSFConstant', 'errors', 'warnings']
+from . import (errors, warnings)
+from .units import temperature_and_energy
+from astropy.constants import Constant
 
 
 class BaPSFConstant(Constant):

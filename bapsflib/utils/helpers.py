@@ -11,8 +11,3 @@
 """
 Helper functions for the :mod:`bapsflib` package.
 """
-
-
-
-
-

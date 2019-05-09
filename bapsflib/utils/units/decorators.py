@@ -209,12 +209,17 @@ def check_quantity(**validations:
 
 # this is modified from plasmapy.utils.checks._check_quantity
 # TODO: replace with PlasmaPy version when PlasmaPy v0.2.0 is released
-def _check_quantity(arg, argname, funcname, units,
-                    equivalencies=None,
-                    enforce=True,
-                    can_be_negative=True, can_be_complex=False,
-                    can_be_inf=True, can_be_nan=True,
-                    none_shall_pass=False):
+def _check_quantity(val: u.Quantity,
+                    val_name: str,
+                    funcname: str,
+                    units: u.UnitBase,
+                    equivalencies: Union[List, None] = None,
+                    enforce: bool = True,
+                    can_be_negative: bool = True,
+                    can_be_complex: bool = False,
+                    can_be_inf: bool = True,
+                    can_be_nan: bool = True,
+                    none_shall_pass: bool = False):
     """
     To be used with decorator :func:`check_quantity`.
 
@@ -224,11 +229,11 @@ def _check_quantity(arg, argname, funcname, units,
 
     Parameters
     ----------
-    arg : :class:`~astropy.units.Quantity`
+    val : :class:`~astropy.units.Quantity`
         The object to be tested.
 
-    argname : str
-        The name of the variable passed in as arg.
+    val_name: str
+        The name of the variable passed in as :data:`val`.
         (used for error messages)
 
     funcname : str
@@ -239,11 +244,11 @@ def _check_quantity(arg, argname, funcname, units,
         unit conversion.
 
     enforce : bool
-        (:code:`True` DEFAULT) Force the input :data:`arg` to be
+        (:code:`True` DEFAULT) Force the input :data:`val` to be
         converted into the desired :data:`units`
 
     units : :class:`~astropy.units.Unit` or list of :class:`~astropy.unit.Unit`
-        Acceptable units for `arg`.
+        Acceptable units for :data:`val`.
 
     can_be_negative : bool, optional
         `True` if the `~astropy.units.Quantity` can be negative,
@@ -298,36 +303,53 @@ def _check_quantity(arg, argname, funcname, units,
     >>> with pytest.warns(u.UnitsWarning, match="No units are specified"):
     ...     assert _check_quantity(4, 'B', 'f', u.T) == 4 * u.T
     """
-    # condition units argument
+    # -- condition `units` argument --
     if not isinstance(units, list):
         units = [units]
     for unit in units:
-        if not isinstance(unit, (u.Unit, u.CompositeUnit,
-                                 u.IrreducibleUnit)):
+        if not isinstance(unit,
+                          (u.Unit, u.CompositeUnit, u.IrreducibleUnit)):
             raise TypeError(
-                "The keyword 'units' to check_quantity must be "
-                "a unit or a list/tuple containing only units.")
+                "The `units` arg must be a list of astropy units."
+            )
 
-    # condition equivalencies argument
+    # -- condition `equivalencies` keyword --
     if equivalencies is None:
         equivalencies = [None] * len(units)
     elif isinstance(equivalencies, list):
         if all(isinstance(el, tuple) for el in equivalencies):
             equivalencies = [equivalencies]
+
+        # ensure passed equivalencies list is structured properly
+        #   [[(), ...], ...]
+        for equivs in equivalencies:
+            for equiv in equivs:
+                err_str = (
+                    "All equivalencies must be a list of 4 element "
+                    "tuples structured like (unit1, unit2, "
+                    "func_unit1_to_unit2, func_unit2_to_unit1)"
+                )
+                if not isinstance(equiv, tuple):
+                    raise TypeError(err_str)
+                elif len(equiv) != 4:
+                    raise TypeError(err_str)
+
+        # ensure number of equivalencies lists match the number of
+        # equivalent units to check
         if len(equivalencies) == 1:
             equivalencies = equivalencies * len(units)
         elif len(equivalencies) != len(units):
             raise ValueError(
-                f"The length of specified equivalencies "
+                f"The length of the specified equivalencies list "
                 f"({len(equivalencies)}) must be 1 or equal to the "
                 f"number of specified units ({len(units)})")
 
-    # Create a generic error message
+    # -- condition `val` argument --
+    # create a TypeError message
     typeerror_message = (
-        f"The argument {argname} to {funcname} should be a "
+        f"The argument {val_name} to {funcname} should be a "
         f"Quantity with "
     )
-
     if len(units) == 1:
         typeerror_message += f"the following units: {str(units[0])}"
     else:
@@ -339,56 +361,49 @@ def _check_quantity(arg, argname, funcname, units,
     if none_shall_pass:
         typeerror_message += "or None "
 
-    if isinstance(arg, (u.Unit, u.CompositeUnit, u.IrreducibleUnit)):
-        raise TypeError(typeerror_message)
-
-    # Make sure arg is a quantity with correct units
-
-    unit_casting_warning = dedent(
-            f"""No units are specified for {argname} = {arg} in 
-                {funcname}. Assuming units of {str(units[0])}.
-                To silence this warning, explicitly pass in an Astropy 
-                Quantity (from astropy.units)
-                (see http://docs.astropy.org/en/stable/units/)""")
-
-    # TODO include explicit note on how to pass in Astropy Quantity
-
-    # initialize error string
+    # initialize a ValueError meassage
     valueerror_message = (
-        f"The argument {argname} to function {funcname} cannot contain"
+        f"The argument {val_name} to function {funcname} can "
+        f"not contain"
     )
 
-    # ensure arg is astropy.units.Quantity or return None (if allowed)
-    if arg is None and none_shall_pass:
-        return arg
-    elif arg is None:
+    # ensure `val` is astropy.units.Quantity or return None (if allowed)
+    if val is None and none_shall_pass:
+        return val
+    elif val is None:
         raise ValueError(f"{valueerror_message} Nones.")
-    elif not isinstance(arg, u.Quantity):
+    elif not isinstance(val, u.Quantity):
         if len(units) != 1:
             raise TypeError(typeerror_message)
         else:
             try:
-                arg = arg * units[0]
-            except (u.UnitsError, ValueError):
+                val = val * units[0]
+            except TypeError:
                 raise TypeError(typeerror_message)
             else:
-                warnings.warn(UnitsWarning(unit_casting_warning))
+                if not isinstance(val, u.Quantity):
+                    raise TypeError(typeerror_message)
 
-    # check arg was converted to an astropy.units.Quantity
-    if not isinstance(arg, u.Quantity):
-        raise u.UnitsError(
-            "{} is still not a Quantity after checks!".format(arg))
+                warnings.warn(UnitsWarning(
+                    f"No units are specified for {val_name} = {val} "
+                    f"in {funcname}. Assuming units of "
+                    f"{str(units[0])}. To silence this warning, "
+                    f"explicitly pass in an Astropy Quantity "
+                    f"(e.g. 5. * astropy.units.cm) "
+                    f"(see http://docs.astropy.org/en/stable/units/)"
+                ))
 
+    # Look for unit equivalencies for `val`
     in_acceptable_units = []
-
     for unit, equiv in zip(units, equivalencies):
         try:
-            arg.unit.to(unit, equivalencies=equiv)
+            val.unit.to(unit, equivalencies=equiv)
         except u.UnitConversionError:
             in_acceptable_units.append(False)
         else:
             in_acceptable_units.append(True)
 
+    # convert `val` to desired units if enforce=True
     nacceptable = np.count_nonzero(in_acceptable_units)
     if nacceptable == 0:
         # NO equivalent units
@@ -397,25 +412,25 @@ def _check_quantity(arg, argname, funcname, units,
         # convert to desired unit
         unit = np.array(units)[in_acceptable_units][0]
         equiv = np.array(equivalencies)[in_acceptable_units][0]
-        arg = arg.to(unit, equivalencies=equiv)
+        val = val.to(unit, equivalencies=equiv)
     elif nacceptable >= 1 and enforce:
         # too many equivalent units
         raise u.UnitConversionError(
-            "arg is equivalent to too units and can not be "
-            "coerced into one")
+            "`val`'s units is equivalent to too many units in "
+            "`units`, `val` can not be coerced into one")
 
-    # Make sure that the quantity has valid numerical values
-    if np.any(np.isnan(arg.value)) and not can_be_nan:
+    # ensure `val` has valid numerical values
+    if np.any(np.isnan(val.value)) and not can_be_nan:
         raise ValueError(f"{valueerror_message} NaNs.")
-    elif np.any(np.iscomplex(arg.value)) and not can_be_complex:
+    elif np.any(np.iscomplex(val.value)) and not can_be_complex:
         raise ValueError(f"{valueerror_message} complex numbers.")
     elif not can_be_negative:
         # Allow NaNs through without raising a warning
         with np.errstate(invalid='ignore'):
-            isneg = np.any(arg.value < 0)
+            isneg = np.any(val.value < 0)
         if isneg:
             raise ValueError(f"{valueerror_message} negative numbers.")
-    elif not can_be_inf and np.any(np.isinf(arg.value)):
+    elif not can_be_inf and np.any(np.isinf(val.value)):
         raise ValueError(f"{valueerror_message} infs.")
 
-    return arg
+    return val

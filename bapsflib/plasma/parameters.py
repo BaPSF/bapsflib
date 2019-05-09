@@ -20,15 +20,6 @@ Plasma parameters
 All units are in Gaussian cgs except for temperature, which is
 expressed in eV. (same as the NRL Plasma Formulary)
 """
-import astropy.units as u
-import numpy as np
-
-from . import constants as const
-from bapsflib.utils.decorators import (check_quantity,
-                                       check_relativistic)
-from bapsflib.utils.errors import PhysicsError
-from typing import Union
-
 
 __all__ = ['cyclotron_frequency', 'oce', 'oci',
            'lower_hybrid_frequency', 'oLH',
@@ -41,6 +32,15 @@ __all__ = ['cyclotron_frequency', 'oce', 'oci',
            'ion_sound_speed', 'cs',
            'thermal_speed', 'vTe', 'vTi',
            'beta']
+
+import astropy.units as u
+import numpy as np
+
+from . import constants as const
+from bapsflib.utils.decorators import (check_quantity,
+                                       check_relativistic)
+from bapsflib.utils.errors import PhysicsError
+from typing import Union
 
 
 # ---- Frequencies                                                  ----

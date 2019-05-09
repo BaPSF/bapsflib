@@ -381,7 +381,10 @@ def _check_quantity(val: u.Quantity,
             except TypeError:
                 raise TypeError(typeerror_message)
             else:
-                if not isinstance(val, u.Quantity):
+                if not isinstance(val, u.Quantity):  # pragma: no cover
+                    # this should never be reached...if so, except
+                    # is not setup correctly
+                    #
                     raise TypeError(typeerror_message)
 
                 warnings.warn(UnitsWarning(

@@ -13,6 +13,8 @@ Package to help facilitate the use of :mod:`astropy.units` in the
 :mod:`bapsflib` package.
 """
 
-__all__ = ['temperature_and_energy']
+__all__ = ['check_quantity', 'check_relativistic',
+           'temperature_and_energy']
 
+from .decorators import (check_quantity, check_relativistic)
 from .equivalencies import temperature_and_energy

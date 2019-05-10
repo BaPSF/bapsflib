@@ -169,6 +169,8 @@ def check_quantity(**validations:
                     in validations.items():
                 value_to_check = given_params_values[param_to_check]
 
+                enforce = \
+                    validation_settings.get('enforce', True)
                 equivalencies = \
                     validation_settings.get('equivalencies', None)
                 can_be_negative = \
@@ -187,6 +189,7 @@ def check_quantity(**validations:
                     param_to_check,
                     fname,
                     validation_settings['units'],
+                    enforce=enforce,
                     equivalencies=equivalencies,
                     can_be_negative=can_be_negative,
                     can_be_complex=can_be_complex,

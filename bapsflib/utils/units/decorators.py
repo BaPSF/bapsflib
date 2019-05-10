@@ -209,17 +209,17 @@ def check_quantity(**validations:
 
 # this is modified from plasmapy.utils.checks._check_quantity
 # TODO: replace with PlasmaPy version when PlasmaPy v0.2.0 is released
-def _check_quantity(val: u.Quantity,
+def _check_quantity(val: Union[u.Quantity, None, float, np.ndarray],
                     val_name: str,
                     funcname: str,
-                    units: u.UnitBase,
+                    units: Union[u.UnitBase, List[u.UnitBase]],
                     equivalencies: Union[List, None] = None,
                     enforce: bool = True,
                     can_be_negative: bool = True,
                     can_be_complex: bool = False,
                     can_be_inf: bool = True,
                     can_be_nan: bool = True,
-                    none_shall_pass: bool = False):
+                    none_shall_pass: bool = False) -> u.Quantity:
     """
     To be used with decorator :func:`check_quantity`.
 

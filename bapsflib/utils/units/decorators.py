@@ -22,7 +22,6 @@ import warnings
 
 from astropy.units import UnitsWarning
 from plasmapy.utils import check_relativistic
-from textwrap import dedent
 from typing import (Dict, List, Union)
 
 

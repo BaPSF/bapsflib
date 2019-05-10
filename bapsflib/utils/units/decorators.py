@@ -425,7 +425,7 @@ def _check_quantity(val: u.Quantity,
     # ensure `val` has valid numerical values
     if np.any(np.isnan(val.value)) and not can_be_nan:
         raise ValueError(f"{valueerror_message} NaNs.")
-    elif np.any(np.iscomplex(val.value)) and not can_be_complex:
+    elif np.any(np.iscomplexobj(val.value)) and not can_be_complex:
         raise ValueError(f"{valueerror_message} complex numbers.")
     elif not can_be_negative:
         # Allow NaNs through without raising a warning

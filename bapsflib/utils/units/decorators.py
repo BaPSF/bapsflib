@@ -378,7 +378,7 @@ def _check_quantity(val: u.Quantity,
         else:
             try:
                 val = val * units[0]
-            except TypeError:
+            except (ValueError, TypeError):
                 raise TypeError(typeerror_message)
             else:
                 if not isinstance(val, u.Quantity):  # pragma: no cover

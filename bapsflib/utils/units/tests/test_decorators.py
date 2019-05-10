@@ -13,6 +13,8 @@ import inspect
 import numpy as np
 import unittest as ut
 
+from unittest import mock
+
 from ..decorators import (_check_quantity, check_quantity)
 
 
@@ -291,6 +293,74 @@ class TestCheckQuantity(ut.TestCase):
         with self.assertWarns(u.UnitsWarning):
             check_val = _check_quantity(val, 'val', 'foo', u.cm)
             self.assertEqual(val * u.cm, check_val)
+
+    @mock.patch(_check_quantity.__module__ + '._check_quantity',
+                side_effect=_check_quantity, autospec=True)
+    def test_check_quantity_decorator(self, mock_cq):
+
+        # create mock function (mock_func) and function to mock (foo)
+        def foo(x):
+            return x
+        mock_func = mock.Mock(side_effect=foo, name='mock_func',
+                              autospec=True)
+        mock_func.__name__ = 'mock_func'
+        mock_func.__signature__ = inspect.signature(foo)
+
+        # -- Examine various validations and pass-through --
+        validations = [
+            {'units': u.cm,
+             'enforce': True,
+             'equivalencies': None,
+             'can_be_negative': True,
+             'can_be_complex': False,
+             'can_be_inf': True,
+             'can_be_nan': True,
+             'none_shall_pass': False},
+            {'units': u.cm,
+             'enforce': False,
+             'equivalencies': u.temperature(),
+             'can_be_negative': False,
+             'can_be_complex': True,
+             'can_be_inf': False,
+             'can_be_nan': False,
+             'none_shall_pass': True},
+        ]
+        for validation in validations:
+            func = check_quantity(**{'x': validation})(mock_func)
+            self.assertTrue(hasattr(func, '__signature__'))
+
+            val_in = 5. * u.km
+            val = func(val_in)
+            self.assertEqual(val, 500000. * u.cm)
+            self.assertTrue(mock_cq.called)
+            self.assertTrue(mock_func.called)
+
+            # correct args passed to _check_quantity
+            self.assertEqual(len(mock_cq.call_args[0]), 4)
+            self.assertEqual(mock_cq.call_args[0][0], val_in)
+            self.assertEqual(mock_cq.call_args[0][1], 'x')
+            self.assertEqual(mock_cq.call_args[0][2], 'mock_func')
+            self.assertEqual(mock_cq.call_args[0][3],
+                             validation['units'])
+
+            # correct kwargs passed to _check_quantity
+            for key, val in validation.items():
+                if key == 'units':
+                    continue
+                self.assertIn(key, mock_cq.call_args[1])
+                self.assertEqual(val, mock_cq.call_args[1][key])
+
+            # reset mocks
+            mock_cq.reset_mock()
+            mock_func.reset_mock()
+
+        # -- TypeError if function is missing validation parameters --
+        func = check_quantity(**{'y': {'units': u.cm}})(foo)
+        self.assertTrue(hasattr(func, '__signature__'))
+        self.assertRaises(TypeError, func, 5.*u.cm)
+
+
+
 
 
 if __name__ == '__main__':

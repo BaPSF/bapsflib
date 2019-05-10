@@ -344,6 +344,10 @@ def _check_quantity(val: Union[u.Quantity, None, float, np.ndarray],
                 f"The length of the specified equivalencies list "
                 f"({len(equivalencies)}) must be 1 or equal to the "
                 f"number of specified units ({len(units)})")
+    else:
+        raise ValueError(
+            f"The specified equivalencies {equivalencies} is not"
+            f"valid for astropy.unit.to()")
 
     # -- condition `val` argument --
     # create a TypeError message

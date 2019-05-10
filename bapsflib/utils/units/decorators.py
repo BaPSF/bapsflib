@@ -325,13 +325,14 @@ def _check_quantity(val: Union[u.Quantity, None, float, np.ndarray],
         for equivs in equivalencies:
             for equiv in equivs:
                 err_str = (
-                    "All equivalencies must be a list of 4 element "
-                    "tuples structured like (unit1, unit2, "
+                    "All equivalencies must be a list of 2 or 4 "
+                    "element tuples structured like (unit1, unit2) "
+                    "or (unit1, unit2, "
                     "func_unit1_to_unit2, func_unit2_to_unit1)"
                 )
                 if not isinstance(equiv, tuple):
                     raise TypeError(err_str)
-                elif len(equiv) != 4:
+                elif len(equiv) not in (2, 4):
                     raise TypeError(err_str)
 
         # ensure number of equivalencies lists match the number of

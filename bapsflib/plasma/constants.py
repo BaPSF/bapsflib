@@ -12,6 +12,15 @@
 
 Constants are imported from :mod:`astropy.constants.codata2014`.
 """
+__all__ = ['c',
+           'e', 'e_gauss',
+           'eps0',
+           'g0',
+           'k_B',
+           'm_e', 'm_n', 'm_p', 'u',
+           'mu0',
+           'pi']
+
 from astropy.constants.codata2014 import (
     c,
     e, e_gauss,
@@ -23,16 +32,6 @@ from astropy.constants.codata2014 import (
 )
 from bapsflib.utils import BaPSFConstant
 from numpy import pi
-
-
-__all__ = ['c',
-           'e', 'e_gauss',
-           'eps0',
-           'g0',
-           'k_B',
-           'm_e', 'm_n', 'm_p', 'u',
-           'mu0',
-           'pi']
 
 # rename some attributes for clarity
 e = BaPSFConstant(**{

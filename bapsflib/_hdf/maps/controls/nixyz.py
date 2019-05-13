@@ -18,7 +18,7 @@ from .contype import ConType
 from .templates import HDFMapControlTemplate
 
 
-class HDFMapControlNIXZ(HDFMapControlTemplate):
+class HDFMapControlNIXYZ(HDFMapControlTemplate):
     """
     Mapping module for control device 'NI_XYZ'.
 

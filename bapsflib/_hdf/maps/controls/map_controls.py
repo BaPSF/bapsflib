@@ -42,6 +42,7 @@ class HDFMapControls(dict):
     """
     _defined_mapping_classes = {
         'N5700_PS': HDFMapControlN5700PS,
+        'NI_XYZ': HDFMapControlNIXYZ,
         'NI_XZ': HDFMapControlNIXZ,
         '6K Compumotor': HDFMapControl6K,
         'Waveform': HDFMapControlWaveform,

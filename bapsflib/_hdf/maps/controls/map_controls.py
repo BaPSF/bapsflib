@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017-2018 Erik T. Everson and contributors
+# Copyright 2017-2019 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -14,6 +14,7 @@ from bapsflib.utils.errors import HDFMappingError
 from typing import (Dict, Tuple, Union)
 
 from .n5700ps import HDFMapControlN5700PS
+from .nixyz import HDFMapControlNIXYZ
 from .nixz import HDFMapControlNIXZ
 from .sixk import HDFMapControl6K
 from .templates import (HDFMapControlTemplate, HDFMapControlCLTemplate)

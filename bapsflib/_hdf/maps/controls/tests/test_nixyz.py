@@ -110,18 +110,18 @@ class TestNIXYZ(ControlTestCase):
 
         # dataset 'Run time list' is missing one of 'x', 'y'         (3)
         # or 'z' fields
-        for ff in ['x', 'y']:
-            self.mod.move('Run time list', 'NIXYZ data')
-            odata = self.mod['NIXYZ data'][...]
-            fields = list(odata.dtype.names)
-            fields.remove(ff)  ####
-            data = odata[fields]
-            self.mod.create_dataset('Run time list', data=data)
-            del self.mod['NIXYZ data']
-            with self.assertWarns(UserWarning):
-                _map = self.map
-                self.assertNIXYZDetails(_map, self.dgroup)
-            self.mod.knobs.reset()
+        self.mod.move('Run time list', 'NIXYZ data')
+        odata = self.mod['NIXYZ data'][...]
+        fields = list(odata.dtype.names)
+        fields.remove('x')
+        fields.remove('y')
+        data = odata[fields]
+        self.mod.create_dataset('Run time list', data=data)
+        del self.mod['NIXYZ data']
+        with self.assertWarns(UserWarning):
+            _map = self.map
+            self.assertNIXYZDetails(_map, self.dgroup)
+        self.mod.knobs.reset()
 
     def test_misc(self):
         """Test miscellaneous behavior"""

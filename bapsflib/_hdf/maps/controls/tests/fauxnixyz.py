@@ -272,14 +272,14 @@ class FauxNIXYZ(h5py.Group):
             #     self._motionlist_names
 
     def _set_xyz_attrs(self):
-        """Set the 'NI_XyZ' group attributes"""
+        """Set the 'NI_XYZ' group attributes"""
         self.attrs.update({
             'Device name': np.bytes_('NI_XYZ'),
             'Type': np.bytes_('Experimental control'),
             'Description': np.bytes_(
                 'The NI_XYZ device provides accurate probe position '
-                'control on the central horizontal plane on LaPD.\n'
-                'Uses  National Instruments motion hardware.'),
+                'control on the central horizontal plane on LAPD.\n'
+                'Uses National Instruments motion hardware.'),
             'Module IP address': np.bytes_('192.168.7.32'),
             'Module VI path': np.bytes_('Modules\\NI_XYZ\\NI_XYZ.vi'),
             'Created data': np.bytes_('1/28/2015 3:03:58 PM'),

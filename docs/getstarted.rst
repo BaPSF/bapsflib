@@ -1,6 +1,9 @@
 Getting Started
 ===============
 
+Structure of the bapsflib package
+---------------------------------
+
 The :mod:`bapsflib` package has four key sub-packages:
 
 * :mod:`bapsflib._hdf`

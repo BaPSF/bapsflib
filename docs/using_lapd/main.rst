@@ -1,8 +1,8 @@
 .. _using_bapsflib_lapd:
 
-==========================
-Using :mod:`bapsflib.lapd`
-==========================
+===============================
+How to use :mod:`bapsflib.lapd`
+===============================
 
 The :mod:`bapsflib.lapd` is a one-stop-shop for everything specifically
 related to handling data collected on the LaPD.  The package provides:

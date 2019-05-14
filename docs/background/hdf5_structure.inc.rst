@@ -1,7 +1,7 @@
-Every plasma device at BaPSF is governed by a DAQ Controller. This DAQ
-Controller is tasked with operating and monitoring the plasma device,
-controlling the order of operations for an experimental run, recording
-data for the run, and generating the HDF5 file.
+Every plasma device at BaPSF is governed by a data acquisition (DAQ)
+Controller. This DAQ Controller is tasked with operating and monitoring 
+the plasma device, controlling the order of operations for an experimental 
+run, recording data for the run, and generating the HDF5 file.
 
 Types of Recorded Data
 ----------------------

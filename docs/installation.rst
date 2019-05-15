@@ -1,5 +1,34 @@
-Installation
-============
+Installing :mod:`bapsflib`
+==========================
+
+:mod:`bapsflib` is a Python package that can immediately be used after 
+importing the package from the local Python library. If you are using ethanol 
+or midas, a copy of :mod:`bapsflib` may have already been installed in the
+local library. To begin using it, simply have the following command 
+at the start of your code:
+
+.. code-block:: bash
+
+    import bapsflib
+
+If for some reason the package cannot be found (i.e. server has a new Python
+version, different user configurations, etc.), the following error message 
+may appear:
+
+.. code-block:: bash
+
+	ImportError: No module named bapsflib
+
+As a result, you may have to install a copy of the package from an online
+source such as from `PyPI <https://pypi.org/project/bapsflib/>`_ or
+`GitHub <https://github.com/BaPSF/bapsflib>`_ in order to get the package
+to work.
+
+The following lists some options for installing a copy of :mod:`bapsflib` onto
+a local directory. Note that it is possible for different copies of 
+:mod:`bapsflib` to exist on the same computer (i.e. a 'global' copy and a copy
+for the local user). Python will typically read the local version of the package
+before searching for a global one.
 
 .. Package Requirements
    --------------------

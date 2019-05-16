@@ -273,7 +273,7 @@ class FauxNIXYZ(h5py.Group):
                 'fan_XYZ':
                     np.bytes_('FALSE') if bool(i % 2)
                     else np.bytes_('TRUE'),
-                'min_zdrive_steps': np.float64(16491),
+                'min_zdrive_steps': np.float64(-2000000),
                 'max_zdrive_steps': np.float64(-22833),
                 'min_ydrive_steps': np.float64(16491),
                 'max_ydrive_steps': np.float64(-22833),

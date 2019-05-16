@@ -1,5 +1,5 @@
 bapsflib\.\_hdf\.maps\.controls\.nixyz
-=====================================
+======================================
 
 .. automodule:: bapsflib._hdf.maps.controls.nixyz
     :show-inheritance:

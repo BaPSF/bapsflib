@@ -324,7 +324,8 @@ class FauxNIXYZ(h5py.Group):
         self._ml.clear()
 
         # re-initialize key dicts
-        self.configs = {'config01': {}}
+        self.configs.clear()
+        self.configs['config01'] = {}
 
         # add sub-groups
         self._add_motionlist_groups()

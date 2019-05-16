@@ -275,7 +275,7 @@ class FauxNIXYZ(h5py.Group):
                     else np.bytes_('TRUE'),
                 'min_zdrive_steps': np.float64(-2000000),
                 'max_zdrive_steps': np.float64(2000000),
-                'min_ydrive_steps': np.float64(16491),
+                'min_ydrive_steps': np.float64(-2469350),
                 'max_ydrive_steps': np.float64(-22833),
                 'probe_name': np.bytes_('probe1'),
             })

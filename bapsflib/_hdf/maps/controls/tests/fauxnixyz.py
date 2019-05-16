@@ -126,9 +126,11 @@ class FauxNIXYZ(h5py.Group):
 
         # store number on configurations
         self._knobs = self.Knobs(self, n_motionlists, sn_size)
+        
         # initialize some attributes
         self._ml = []  # list of motion lists
         self.configs = {}  # configurations dictionary
+        
         # set root attributes
         self._set_xyz_attrs()
 
@@ -212,6 +214,8 @@ class FauxNIXYZ(h5py.Group):
             sn_size_for_ml.append(sn_remainder)
 
         # build NN of each motion list
+        # NN = [(Nx, Ny, Nz), ...]
+        # Nx * Ny * Nz = number of shot numbers used for ML
         for i in range(self.knobs.n_motionlists):
             # find divisible numbers
             sn_div = []
@@ -219,7 +223,6 @@ class FauxNIXYZ(h5py.Group):
                 if sn_size_for_ml[i] % (j + 1) == 0:
                     sn_div.append(j + 1)
 
-            # -- build NN = [(Nx, Ny, Nz), ..,] --
             # define Nx
             sn_div_index = random.randint(0, len(sn_div) - 1)
             Nx = sn_div[sn_div_index]
@@ -236,12 +239,6 @@ class FauxNIXYZ(h5py.Group):
             # define Nz
             Nz = int(sn_left / Ny)
             NN.append((Nx, Ny, Nz))
-            sn_div_index = random.randint(0, len(sn_div) - 1)
-            Nx = sn_div[sn_div_index]
-            sn_div_index = random.randint(0, len(sn_div) - 1) # rerun RNG
-            Ny = sn_div[sn_div_index]
-            Nz = int(sn_size_for_ml[i] / (Nx*Ny) )
-            NN.append((Nx, Ny, Nz))
 
         # add motionlist sub-groups
         # - define motionlist names
@@ -252,7 +249,6 @@ class FauxNIXYZ(h5py.Group):
             ml_name = 'ml-{:04}'.format(i + 1)
             self._ml.append({'name': ml_name,
                              'size': sn_size_for_ml[i]})
-            # self._motionlist_names.append(ml_name)
 
             # create motionlist group
             ml_gname = ml_name
@@ -286,8 +282,6 @@ class FauxNIXYZ(h5py.Group):
             self.configs[config_name]['motion lists'] = \
                 [self._ml[i]['name']
                  for i in range(self.knobs.n_motionlists)]
-            # self._configs[config_name]['motion lists'] = \
-            #     self._motionlist_names
 
     def _set_xyz_attrs(self):
         """Set the 'NI_XYZ' group attributes"""

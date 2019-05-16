@@ -126,7 +126,9 @@ class FauxNIXYZ(h5py.Group):
 
         # store number on configurations
         self._knobs = self.Knobs(self, n_motionlists, sn_size)
-
+        # initialize some attributes
+        self._ml = []  # list of motion lists
+        self.configs = {}  # configurations dictionary
         # set root attributes
         self._set_xyz_attrs()
 

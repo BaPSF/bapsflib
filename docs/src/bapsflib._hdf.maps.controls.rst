@@ -14,6 +14,7 @@ bapsflib\.\_hdf\.maps\.controls
     bapsflib._hdf.maps.controls.contype
     bapsflib._hdf.maps.controls.map_controls
     bapsflib._hdf.maps.controls.n5700ps
+    bapsflib._hdf.maps.controls.nixyz
     bapsflib._hdf.maps.controls.nixz
     bapsflib._hdf.maps.controls.sixk
     bapsflib._hdf.maps.controls.templates

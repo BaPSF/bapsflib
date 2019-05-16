@@ -205,7 +205,7 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
                   + "' missing fields 'x', 'y' and 'z'"
             raise HDFMappingError(self.info['group path'], why=why)
         elif fx or fy or fz:
-            mlist = ('x', fx), ('y', fy), ('z', fz)
+            mlist = [('x', fx), ('y', fy), ('z', fz)]
             missf = ', '.join([val for val, bol in mlist if bol])
             why = " Dataset '" + dset.name \
                   + "' missing field '" + missf + "'"

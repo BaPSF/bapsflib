@@ -299,10 +299,6 @@ class FauxNIXYZ(h5py.Group):
                 'ethernet motors (repackaged Applied Motion '
                 'Systems drives)'),
             'Module IP address': np.bytes_('192.168.7.76'),
-                'The NI_XYZ device provides accurate probe position '
-                'control on the central horizontal plane on LAPD.\n'
-                'Uses National Instruments motion hardware.'),
-            'Module IP address': np.bytes_('192.168.7.32'),
             'Module VI path': np.bytes_('Modules\\NI_XYZ\\NI_XYZ.vi'),
             'Created data': np.bytes_('9/9/2018 2:49:51 PM'),
         })

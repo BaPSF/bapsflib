@@ -79,7 +79,17 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
             raise HDFMappingError(self.info['group path'], why=why)
 
         # ---- define general config values                         ----
-        # none exist
+        self.configs[cname].update({
+            'Note': "The 'r', 'theta', and 'phi' fields in the "
+                    "NI_XYZ data set are suppose to represent "
+                    "spherical coordinates of the probe tip with "
+                    "respect to the pivot point of the probe drive, "
+                    "but the current calculation and population of the"
+                    "fields is inaccurate.  For user reference, the "
+                    "distance between the probe drive pivot point and"
+                    "LaPD axis is (Lpp =) 58.771 cm.",
+            'Lpp': 58.771 * u.cm,
+        })
 
         # ---- define motion list values                            ----
         self.configs[cname]['motion lists'] = {}

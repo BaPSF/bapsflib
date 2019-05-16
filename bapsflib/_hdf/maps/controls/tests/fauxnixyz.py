@@ -295,6 +295,10 @@ class FauxNIXYZ(h5py.Group):
             'Device name': np.bytes_('NI_XYZ'),
             'Type': np.bytes_('Experimental control'),
             'Description': np.bytes_(
+                '3D Drive from SMPD using National Instruments '
+                'ethernet motors (repackaged Applied Motion '
+                'Systems drives)'),
+            'Module IP address': np.bytes_('192.168.7.76'),
                 'The NI_XYZ device provides accurate probe position '
                 'control on the central horizontal plane on LAPD.\n'
                 'Uses National Instruments motion hardware.'),

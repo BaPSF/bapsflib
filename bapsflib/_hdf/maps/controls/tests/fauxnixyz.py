@@ -304,7 +304,7 @@ class FauxNIXYZ(h5py.Group):
                 'Uses National Instruments motion hardware.'),
             'Module IP address': np.bytes_('192.168.7.32'),
             'Module VI path': np.bytes_('Modules\\NI_XYZ\\NI_XYZ.vi'),
-            'Created data': np.bytes_('1/28/2015 3:03:58 PM'),
+            'Created data': np.bytes_('9/9/2018 2:49:51 PM'),
         })
 
     @property

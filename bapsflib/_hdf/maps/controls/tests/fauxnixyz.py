@@ -321,7 +321,7 @@ class FauxNIXYZ(h5py.Group):
         self.clear()
 
         # re-initialize key lists
-        self._ml = []
+        self._ml.clear()
 
         # re-initialize key dicts
         self.configs = {'config01': {}}

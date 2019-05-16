@@ -11,6 +11,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import astropy.units as u
 import h5py
 import unittest as ut
 
@@ -68,7 +69,7 @@ class TestNIXYZ(ControlTestCase):
         del self.mod['Run time list']
         self.mod.move('NIXYZ data', 'Run time list')
 
-        # dataset missing 'x', 'y' and 'z' fields                         (3)
+        # dataset missing 'x', 'y' and 'z' fields                    (3)
         self.mod.move('Run time list', 'NIXYZ data')
         odata = self.mod['NIXYZ data'][...]
         fields = list(odata.dtype.names)
@@ -89,7 +90,8 @@ class TestNIXYZ(ControlTestCase):
         #
         # 1. No motion list group is found
         # 2. motion list group is missing an attribute
-        # 3. dataset 'Run time list' is missing one of 'x', 'y' or 'z' fields
+        # 3. dataset 'Run time list' is missing one of 'x', 'y' or
+        #    'z' fields
         #
         # make a default/clean 'NI_XYZ' module
         self.mod.knobs.reset()
@@ -143,7 +145,8 @@ class TestNIXYZ(ControlTestCase):
         # motion list group is missing all key attributes            (2)
         # key attributes: Nx, Ny, Nz, dx, dy, dz, x0, y0, z0
         self.mod.knobs.n_motionlists = 2
-        for key in ('Nx', 'Ny', 'Nz', 'dx', 'dy', 'dz', 'x0', 'y0', 'z0'):
+        for key in ('Nx', 'Ny', 'Nz', 'dx', 'dy', 'dz', 'x0', 'y0',
+                    'z0'):
             del self.mod['ml-0001'].attrs[key]
         _map = self.map
         self.assertNIXYZDetails(_map, self.dgroup)
@@ -153,8 +156,8 @@ class TestNIXYZ(ControlTestCase):
                       _map.configs['config01']['motion lists'])
 
     def assertNIXYZDetails(self,
-                          _map: HDFMapControlNIXYZ,
-                          _group: h5py.Group):
+                           _map: HDFMapControlNIXYZ,
+                           _group: h5py.Group):
         """Assert details of the 'NI_XYZ' mapping."""
         # confirm basics
         self.assertControlMapBasics(_map, _group)
@@ -181,6 +184,10 @@ class TestNIXYZ(ControlTestCase):
         config = _map.configs['config01']
         self.assertIn('motion lists', config)
         self.assertIsInstance(config['motion lists'], dict)
+        self.assertIn('Note', config)
+        self.assertIsInstance(config['Note'], str)
+        self.assertIn('Lpp', config)
+        self.assertEqual(config['Lpp'], 58.771 * u.cm)
 
 
 if __name__ == '__main__':

@@ -16,7 +16,7 @@ __all__ = ['clparse', 'contype', 'ConType', 'HDFMapControls',
            'map_controls', 'n5700ps', 'nixyz', 'nixz', 'sixk', 
            'templates', 'waveform']
 
-from . import (clparse, contype, map_controls, n5700ps, nixz, nixyz, 
+from . import (clparse, contype, map_controls, n5700ps, nixyz, nixz, 
                sixk, templates, waveform)
 from .contype import ConType
 from .map_controls import HDFMapControls

@@ -219,7 +219,23 @@ class FauxNIXYZ(h5py.Group):
                 if sn_size_for_ml[i] % (j + 1) == 0:
                     sn_div.append(j + 1)
 
-            # build (Nx, Ny, Nz)
+            # -- build NN = [(Nx, Ny, Nz), ..,] --
+            # define Nx
+            sn_div_index = random.randint(0, len(sn_div) - 1)
+            Nx = sn_div[sn_div_index]
+
+            # define Ny
+            sn_div.clear()
+            sn_left = int(sn_size_for_ml[i] / Nx)
+            for j in range(sn_left):
+                if sn_left % (j + 1) == 0:
+                    sn_div.append(j + 1)
+            sn_div_index = random.randint(0, len(sn_div) - 1)
+            Ny = sn_div[sn_div_index]
+
+            # define Nz
+            Nz = int(sn_left / Ny)
+            NN.append((Nx, Ny, Nz))
             sn_div_index = random.randint(0, len(sn_div) - 1)
             Nx = sn_div[sn_div_index]
             sn_div_index = random.randint(0, len(sn_div) - 1) # rerun RNG

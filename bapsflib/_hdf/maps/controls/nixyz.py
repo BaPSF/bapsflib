@@ -105,7 +105,8 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
         names_to_remove = []
         for name in _ml_names:
             if all(attr not in self.group[name].attrs
-                   for attr in ('Nx', 'Ny', 'Nz', 'dx', 'dy', 'dz', 'x0', 'y0', 'z0')):
+                   for attr in ('Nx', 'Ny', 'Nz', 'dx', 'dy', 'dz',
+                                'x0', 'y0', 'z0')):
                 names_to_remove.append(name)
         if bool(names_to_remove):
             for name in names_to_remove:

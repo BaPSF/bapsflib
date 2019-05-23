@@ -10,7 +10,7 @@ bapsflib\.\_hdf\.utils
 
     bapsflib._hdf.utils.file
     bapsflib._hdf.utils.hdfoverview
-    bapsflib._hdf.utils.hdfreadcontrol
+    bapsflib._hdf.utils.hdfreadcontrols
     bapsflib._hdf.utils.hdfreaddata
     bapsflib._hdf.utils.hdfreadmsi
     bapsflib._hdf.utils.helpers

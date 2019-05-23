@@ -561,7 +561,8 @@ def condition_shotnum(shotnum: Any,
                              'array would be NULL')
 
     elif isinstance(shotnum, np.ndarray):
-        shotnum = shotnum.squeeze()
+        if shotnum.ndim != 1:
+            shotnum = shotnum.squeeze()
         if shotnum.ndim != 1 \
                 or not np.issubdtype(shotnum.dtype, np.integer) \
                 or bool(shotnum.dtype.names):

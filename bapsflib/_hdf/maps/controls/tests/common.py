@@ -162,7 +162,7 @@ class ControlTestCase(ut.TestCase):
         #
         # - The `configs` dictionary contains the translation info
         #   in-order to translate the data stored in the HDF5 datasets
-        #   to the structure numpy array constructed by HDFReadControl
+        #   to the structure numpy array constructed by HDFReadControls
         #
         # - Each item in `configs` must be structured as:
         #     Key == name of configuration
@@ -172,7 +172,7 @@ class ControlTestCase(ut.TestCase):
         #   1. translation keys
         #      ('shotnum' and 'state values')
         #
-        #      ~ these keys are used by HDFReadControl and contain the
+        #      ~ these keys are used by HDFReadControls and contain the
         #        the necessary info to translate the data from the HDF5
         #        datasets to the structured numpy array
         #
@@ -180,11 +180,11 @@ class ControlTestCase(ut.TestCase):
         #      ('dset paths')
         #
         #      ~ these keys are used to support the data translation by
-        #        HDFReadControl and are also considered meta-info for
+        #        HDFReadControls and are also considered meta-info for
         #        the Control Device
         #      ~ meta-info keys are added to the `info` dictionary
         #        attribute that is bound to the numpy array data object
-        #        constructed by HDFReadControl
+        #        constructed by HDFReadControls
         #
         #   3. meta-info keys
         #
@@ -192,7 +192,7 @@ class ControlTestCase(ut.TestCase):
         #        for the Control Device
         #      ~ meta-info keys are added to the `info` dictionary
         #        attribute that is bound to the numpy array data object
-        #        constructed by HDFReadControl
+        #        constructed by HDFReadControls
         #
         self.assertIsInstance(_map.configs, dict)
         for config_name, config in _map.configs.items():

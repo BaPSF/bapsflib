@@ -8,4 +8,4 @@ bapsflib\.\_hdf\.utils\.hdfreadcontrol
 
     .. rubric:: Classes
 
-    .. autosummary:: HDFReadControl
+    .. autosummary:: HDFReadControls

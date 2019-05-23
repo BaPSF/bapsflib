@@ -22,7 +22,7 @@ from warnings import warn
 from .file import File
 from .helpers import (build_sndr_for_simple_dset, condition_controls,
                       condition_shotnum, do_shotnum_intersection)
-from .hdfreadcontrol import HDFReadControls
+from .hdfreadcontrols import HDFReadControls
 
 
 # noinspection PyInitNewSignature
@@ -30,7 +30,7 @@ class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
     device data is extracted using
-    :class:`~.hdfreadcontrol.HDFReadControls` and combined with the
+    :class:`~.hdfreadcontrols.HDFReadControls` and combined with the
     digitizer data.
 
     This class constructs and returns a structured numpy array.  The
@@ -41,7 +41,7 @@ class HDFReadData(np.ndarray):
     #. control device data which is represented by the remaining fields
        in the numpy array.  These field names are polymorphic and are
        defined by the control device mapping class. (see
-       :class:`~.hdfreadcontrol.HDFReadControls` for more detail)
+       :class:`~.hdfreadcontrols.HDFReadControls` for more detail)
 
     Data that is not shot number specific is stored in the :attr:`info`
     attribute.

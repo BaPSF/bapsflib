@@ -21,7 +21,7 @@ from unittest import mock
 from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfoverview import HDFOverview
-from ..hdfreadcontrol import HDFReadControls
+from ..hdfreadcontrols import HDFReadControls
 from ..hdfreaddata import HDFReadData
 from ..hdfreadmsi import HDFReadMSI
 

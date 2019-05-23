@@ -23,7 +23,7 @@ from unittest import mock
 
 from . import (TestBase, with_bf)
 from ..file import File
-from ..hdfreadcontrol import HDFReadControls
+from ..hdfreadcontrols import HDFReadControls
 from ..hdfreaddata import (build_sndr_for_simple_dset,
                            condition_shotnum,
                            do_shotnum_intersection,

@@ -142,7 +142,7 @@ class File(h5py.File):
                       silent=False, **kwargs):
         """
         Reads data from control device datasets.  See
-        :class:`~.hdfreadcontrol.HDFReadControls` for more detail.
+        :class:`~.hdfreadcontrols.HDFReadControls` for more detail.
 
         :param controls:
 
@@ -168,8 +168,8 @@ class File(h5py.File):
             to be the intersection of :data:`shotnum` and the shot
             numbers contained in each control device dataset.
             :code:`False` will return the union instead of the
-            intersection, minus :math:`shotnum \le 0`. (see
-            :class:`~.hdfreadcontrol.HDFReadControls`
+            intersection, minus :math:`shotnum \\le 0`. (see
+            :class:`~.hdfreadcontrols.HDFReadControls`
             for details)
 
         :param bool silent:
@@ -177,7 +177,7 @@ class File(h5py.File):
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
             UserWarnings (soft-warnings)
 
-        :rtype: :class:`~.hdfreadcontrol.HDFReadControls`
+        :rtype: :class:`~.hdfreadcontrols.HDFReadControls`
 
         :Example:
 
@@ -195,7 +195,7 @@ class File(h5py.File):
             >>> # extract all '6k Compumotor' data for configuration 3
             >>> cdata = f.read_controls([('6K Compumotor', 3)])
             >>> type(cdata)
-            bapsflib._hdf.utils.hdfreadcontrol.HDFReadControls
+            bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls
             >>>
             >>> # list 'Waveform' configurations
             >>> list(f.file_map.controls['Waveform'].configs)
@@ -213,7 +213,7 @@ class File(h5py.File):
             ['6K Compumotor', 'Waveform']
 
         """
-        from .hdfreadcontrol import HDFReadControls
+        from .hdfreadcontrols import HDFReadControls
 
         warn_filter = 'ignore' if silent else 'default'
         with warnings.catch_warnings():

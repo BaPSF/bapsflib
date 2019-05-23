@@ -531,7 +531,7 @@ class TestHDFReadControl(TestBase):
         dset_name = self.f.modules['6K Compumotor']._configs[
             sixk_cspec]['dset name']
         dset = self.f.modules['6K Compumotor'][dset_name]
-        sn_arr = dset['Shot number']
+        sn_arr = dset['Shot number']  # type: np.ndarray
         sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         _bf._map_file()  # re-map file
@@ -791,7 +791,7 @@ class TestHDFReadControl(TestBase):
         dset_name = self.f.modules['Waveform']._configs[
             'config01']['dset name']
         dset = self.f.modules['Waveform'][dset_name]
-        sn_arr = dset['Shot number']
+        sn_arr = dset['Shot number']  # type: np.ndarray
         sn_arr[20::] = np.arange(31, 61, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         sn_wave = sn_arr
@@ -800,7 +800,7 @@ class TestHDFReadControl(TestBase):
         dset_name = self.f.modules['6K Compumotor']._configs[
             sixk_cspec]['dset name']
         dset = self.f.modules['6K Compumotor'][dset_name]
-        sn_arr = dset['Shot number']
+        sn_arr = dset['Shot number']  # type: np.ndarray
         sn_arr[30::] = np.arange(38, 58, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         sn_sixk = sn_arr

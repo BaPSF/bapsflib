@@ -13,7 +13,7 @@
 # TODO: add collision frequencies
 # TODO: add mean-free-paths
 #
-"""Core plasma paramters in (cgs)."""
+"""Core plasma parameters in (cgs)."""
 
 import math
 

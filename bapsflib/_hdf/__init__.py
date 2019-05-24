@@ -13,7 +13,7 @@ This package contains the mapping classes (in :mod:`~.maps`) and file
 access classes (in :mod:`~.utils`) used to map and interface with the
 HDF5 files generated at BaPSF.
 """
+__all__ = ['ConType', 'File', 'HDFMap']
+
 from .maps import (ConType, HDFMap)
 from .utils.file import File
-
-__all__ = ['ConType', 'File', 'HDFMap']

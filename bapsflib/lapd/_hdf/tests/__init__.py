@@ -8,6 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+__all__ = ['BaseFile', 'TestBase', 'with_bf', 'with_lapdf']
+
 import unittest as ut
 
 from bapsflib._hdf import File as BaseFile
@@ -16,8 +18,6 @@ from bapsflib._hdf.utils.tests import with_bf
 from functools import wraps
 
 from ..file import File
-
-__all__ = ['BaseFile', 'TestBase', 'with_bf', 'with_lapdf']
 
 
 def method_overridden(cls, obj, method: str) -> bool:

@@ -36,7 +36,7 @@ def build_shotnum_dset_relation(
     Compares the **shotnum** numpy array to the specified dataset,
     **dset**, to determine which indices contain the desired shot
     number(s)
-    [for :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`].
+    [for :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
     As a results, two numpy arrays are returned which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
@@ -357,7 +357,7 @@ def condition_controls(hdf_file: File,
                        controls: Any) -> List[Tuple[str, Any]]:
     """
     Conditions the **controls** argument for
-    :class:`~.hdfreadcontrol.HDFReadControl` and
+    :class:`~.hdfreadcontrols.HDFReadControls` and
     :class:`~.hdfreaddata.HDFReadData`.
 
     :param hdf_file: HDF5 object instance
@@ -478,7 +478,7 @@ def condition_shotnum(shotnum: Any,
                       shotnumkey_dict: Dict[str, str]) -> np.ndarray:
     """
     Conditions the **shotnum** argument for
-    :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl` and
+    :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
     :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
 
     :param shotnum: desired HDF5 shot numbers
@@ -561,7 +561,8 @@ def condition_shotnum(shotnum: Any,
                              'array would be NULL')
 
     elif isinstance(shotnum, np.ndarray):
-        shotnum = shotnum.squeeze()
+        if shotnum.ndim != 1:
+            shotnum = shotnum.squeeze()
         if shotnum.ndim != 1 \
                 or not np.issubdtype(shotnum.dtype, np.integer) \
                 or bool(shotnum.dtype.names):

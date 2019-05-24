@@ -21,7 +21,7 @@ from unittest import mock
 from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfoverview import HDFOverview
-from ..hdfreadcontrol import HDFReadControl
+from ..hdfreadcontrols import HDFReadControls
 from ..hdfreaddata import HDFReadData
 from ..hdfreadmsi import HDFReadMSI
 
@@ -100,8 +100,8 @@ class TestFile(TestBase):
 
         # calling `read_controls`
         with mock.patch(
-                HDFReadControl.__module__ + '.'
-                + HDFReadControl.__qualname__,
+                HDFReadControls.__module__ + '.'
+                + HDFReadControls.__qualname__,
                 return_value='read control') as mock_rc:
             extras = {
                 'shotnum': 2,

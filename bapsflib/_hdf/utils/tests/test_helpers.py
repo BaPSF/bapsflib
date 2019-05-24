@@ -663,6 +663,8 @@ class TestConditionShotnum(TestBase):
 
         # shotnum valid
         sn = [
+            (np.array([12], np.int32),
+             np.array([12], np.uint32)),
             (np.array([-5, 0, 10], np.int32),
              np.array([10], np.uint32)),
             (np.array([20, 30], np.int32),

@@ -13,8 +13,6 @@ Decorators for the :mod:`bapsflib` package.
 """
 __all__ = ['with_bf', 'with_lapdf']
 
-from bapsflib._hdf import File as BaseFile
-from bapsflib.lapd import File as LaPDFile
 from functools import wraps
 
 
@@ -24,12 +22,15 @@ def with_bf(func):
     Files :class:`bapsflib._hdf.utils.file.File`.  Intended for use on
     test methods.
     """
+    # TODO: let with_bf args define control_path, digitzer_path, msi_path
+    from bapsflib._hdf import File
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        with BaseFile(self.f.filename,
-                      control_path='Raw data + config',
-                      digitizer_path='Raw data + config',
-                      msi_path='MSI') as bf:
+        with File(self.f.filename,
+                  control_path='Raw data + config',
+                  digitizer_path='Raw data + config',
+                  msi_path='MSI') as bf:
             return func(self, bf, *args, **kwargs)
     return wrapper
 
@@ -40,8 +41,10 @@ def with_lapdf(func):
     Files :class:`bapsflib.lapd._hdf.file.File`.  Intended for use on
     test methods.
     """
+    from bapsflib.lapd import File
+
     @wraps(func)
     def wrapper(self, *args, **kwargs):
-        with LaPDFile(self.f.filename) as lapdf:
+        with File(self.f.filename) as lapdf:
             return func(self, lapdf, *args, *kwargs)
     return wrapper

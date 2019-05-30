@@ -65,3 +65,19 @@ class TestBase(ut.TestCase):
         :param str method: method that should have NOT been over-written
         """
         self.assertTrue(method_overridden(base_class, obj, method))
+
+    @property
+    def filename(self) -> str:
+        return self.f.filename
+
+    @property
+    def control_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def digitizer_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def msi_path(self) -> str:
+        return 'MSI'

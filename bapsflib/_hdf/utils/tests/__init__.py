@@ -35,3 +35,19 @@ class TestBase(ut.TestCase):
         # cleanup and close HDF5 file
         super().tearDownClass()
         cls.f.cleanup()
+
+    @property
+    def filename(self) -> str:
+        return self.f.filename
+
+    @property
+    def control_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def digitizer_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def msi_path(self) -> str:
+        return 'MSI'

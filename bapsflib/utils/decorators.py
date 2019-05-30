@@ -26,7 +26,7 @@ def with_bf(wfunc=None, *,
             msi_path: Union[str, None] = None):
     """
     Context decorator for managing the opening and closing BaPSF HDF5
-    Files (:class:`bapsflib._hdf.utils.file.File`0.  An instance of the
+    Files (:class:`bapsflib._hdf.utils.file.File`).  An instance of the
     BaPSF HDF5 file is injected into the decorated function at the end of
     the positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.

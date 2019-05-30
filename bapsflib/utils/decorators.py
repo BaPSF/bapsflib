@@ -105,7 +105,6 @@ def with_bf(wfunc=None, *,
             >>> # function keywords will still take precedence
             >>> foo(filename='test_2.hdf5')
             'test_2.hdf5'
-
     """
     # How to pass in file settings (listed in priority):
     # 1. function keywords
@@ -146,14 +145,20 @@ def with_bf(wfunc=None, *,
             for name in fsettings.keys():
                 if name in bound_args.arguments:
                     # look for setting in passed arguments
+                    if bound_args.arguments[name] is None:
+                        continue
                     fsettings[name] = bound_args.arguments[name]
                 elif name in bound_args.kwargs:
                     # look for setting in passed kwargs (if not in arguments)
+                    if bound_args.kwargs[name] is None:
+                        continue
                     fsettings[name] = bound_args.kwargs[name]
                 elif self is not None:
                     # if wrapped function is a method, and setting not passed
                     # as function argument then look to self
                     try:
+                        if self.__getattribute__(name) is None:
+                            continue
                         fsettings[name] = self.__getattribute__(name)
                     except KeyError:
                         pass
@@ -180,16 +185,148 @@ def with_bf(wfunc=None, *,
         return decorator
 
 
-def with_lapdf(func):
+def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
     """
     Context decorator for managing the opening and closing LaPD HDF5
-    Files :class:`bapsflib.lapd._hdf.file.File`.  Intended for use on
-    test methods.
-    """
-    from bapsflib.lapd import File
+    Files (:class:`bapsflib.lapd._hdf.file.File`).  An instance of the
+    LaPD HDF5 file is injected into the decorated function at the end of
+    the positional arguments.  The decorator is primarily designed for use
+    on test methods, but can also be used as a function decorator.
 
-    @functools.wraps(func)
-    def wrapper(self, *args, **kwargs):
-        with File(self.f.filename) as lapdf:
-            return func(self, lapdf, *args, *kwargs)
-    return wrapper
+    :param wfunc: function or method to be wrapped
+    :param filename: name of the BaPSF HDF5 file
+
+    :example:
+        The HDF5 :data:`filename` can be passed to the decorator in three
+        ways (listed by predominance):
+
+        #. The wrapped function arguments.
+        #. If the wrapped function is a method, then through the
+           appropriately named :data:`self` attributes.
+        #. The decorator keywords.
+
+        **Defined with wrapped function arguments**::
+
+            >>> # as function keywords
+            >>> @with_lapdf
+            ... def foo(lapdf, **kwargs):
+            ...     # * bf will be the HDF5 file object
+            ...     # * do whatever is needed with bf and @with_bf will close
+            ...     #   the file at the end
+            ...     return lapdf.filename
+            >>> foo(filename='test.hdf5')
+            'test.hdf5'
+            >>>
+            >>> # as a function argument
+            >>> @with_lapdf
+            ... def foo(filename, lapdf, **kwargs):
+            ...     # use bf
+            ...     return lapdf.filename
+            ... foo('test.hdf5')
+            'test.hdf5'
+
+        **Defined with wrapped method attributes**::
+
+            >>> # use `self` to pass file settings
+            >>> class BehaveOnFile:
+            ...     def __init__(self):
+            ...         super().__init__()
+            ...         self.filename = 'test.hdf5'
+            ...
+            ...     @with_bf
+            ...     def foo(self, lapdf, **kwargs):
+            ...         return lapdf.filename
+            >>> a = BehaveOnFile()
+            >>> a.foo()
+            'test.hdf5'
+            >>>
+            >>> # but keywords will still take precedence
+            >>> a.foo(filename='test_2.hdf5')
+            'test_2.hdf5'
+
+        **Defined with decorator keywords**:
+
+            >>> # as function keywords
+            >>> @with_bf(filename='test.hdf5')
+            ... def foo(lapdf, **kwargs):
+            ...     return lapdf.filename
+            >>> foo()
+            'test.hdf5'
+            >>>
+            >>> # function keywords will still take precedence
+            >>> foo(filename='test_2.hdf5')
+            'test_2.hdf5'
+    """
+    # How to pass in file settings (listed in priority):
+    # 1. function keywords
+    # 2. self attributes
+    # 3. decorator keywords
+    #
+    # define decorator set file settings
+    settings = {'filename': filename}
+
+    def decorator(func):
+        # import File here to avoid cyclical imports
+        from bapsflib.lapd import File
+
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            # is decorated function a method
+            # - this relies on the convention that a method's first argument
+            #   is self
+            # - inspect.ismethod only works on bound methods, so it does
+            #   not work at time of decorating in class
+            #
+            func_sig = inspect.signature(func)
+            bound_args = func_sig.bind_partial(*args, **kwargs)
+            self = None  # type: Union[None, object]
+            if 'self' in func_sig.parameters:
+                try:
+                    if hasattr(args[0], func.__name__):
+                        self = args[0]
+                except IndexError:
+                    pass
+
+            # update settings
+            fsettings = settings.copy()
+            for name in fsettings.keys():
+                if name in bound_args.arguments:
+                    # look for setting in passed arguments
+                    if bound_args.arguments[name] is None:
+                        continue
+                    fsettings[name] = bound_args.arguments[name]
+                elif name in bound_args.kwargs:
+                    # look for setting in passed kwargs (if not in arguments)
+                    if bound_args.kwargs[name] is None:
+                        continue
+                    fsettings[name] = bound_args.kwargs[name]
+                elif self is not None:
+                    # if wrapped function is a method, and setting not passed
+                    # as function argument then look to self
+                    try:
+                        if self.__getattribute__(name) is None:
+                            continue
+                        fsettings[name] = self.__getattribute__(name)
+                    except KeyError:
+                        pass
+            for name in list(fsettings.keys()):
+                if fsettings[name] is None:
+                    if name == 'filename':
+                        raise ValueError("No valid file name specified.")
+                    else:
+                        del fsettings[name]
+            fname = fsettings.pop('filename')
+
+            # run function with in if statement
+            with File(fname) as lapdf:
+                args += (lapdf,)
+                return func(*args, *kwargs)
+
+        return wrapper
+
+    if wfunc is not None:
+        # This is a decorator call without arguments, e.g. @with_lapdf
+        return decorator(wfunc)
+    else:
+        # This is a factory call, e.g. @with_lapdf()
+        return decorator

@@ -119,7 +119,7 @@ def with_bf(wfunc=None, *,
 
     def decorator(func):
         # import File here to avoid cyclical imports
-        from bapsflib._hdf import File
+        from bapsflib._hdf.utils.file import File
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
@@ -267,7 +267,7 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
 
     def decorator(func):
         # import File here to avoid cyclical imports
-        from bapsflib.lapd import File
+        from bapsflib.lapd._hdf.file import File
 
         @functools.wraps(func)
         def wrapper(*args, **kwargs):

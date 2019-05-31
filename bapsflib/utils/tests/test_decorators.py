@@ -209,8 +209,57 @@ class TestWithBF(ut.TestCase):
 
     @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
                 side_effect=BaPSFFile, autospec=True)
-    def test_settings_by_function(self, mock_bf_class):
-        pass
+    def test_settings_by_function_args(self, mock_bf_class):
+        # BaPSF file settings can also be pass by either function args or
+        # kwargs
+        #
+        # define file settings to be based to decorator
+        settings = {'filename': self.filename,
+                    'control_path': 'Raw data + config',
+                    'digitizer_path': 'Raw data + config',
+                    'msi_path': 'MSI'}
+
+        # create a function to mock
+        def foo(filename: str, bf: BaPSFFile, **kwargs):
+            self.assertIsInstance(bf, BaPSFFile)
+            bapsf_settings = {
+                'filename': bf.filename,
+                'control_path': bf.CONTROL_PATH,
+                'digitizer_path': bf.DIGITIZER_PATH,
+                'msi_path': bf.MSI_PATH,
+            }
+            return bapsf_settings
+
+        # define function mock
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+        mock_foo.__signature__ = inspect.signature(foo)
+
+        # wrap and test
+        # - this is equivalent to writing
+        #
+        #     @with_bf
+        #     def foo(filename, bf, **kwargs):
+        #         pass
+        #
+        fname = settings.pop('filename')
+        func = with_bf(mock_foo)
+        bf_settings = func(fname, **settings)
+        for name in bf_settings:
+            if name == 'filename':
+                self.assertEqual(bf_settings[name], fname)
+            else:
+                self.assertEqual(bf_settings[name], settings[name])
+
+        # settings defines 'control_path'=None
+        settings['control_path'] = None
+        bf_settings = func(fname, **settings)
+        self.assertEqual(
+            bf_settings['control_path'],
+            inspect.signature(BaPSFFile).parameters['control_path'].default
+        )
+
+        # settings defines 'filename'=None
+        self.assertRaises(ValueError, func, None)
 
 
 if __name__ == '__main__':

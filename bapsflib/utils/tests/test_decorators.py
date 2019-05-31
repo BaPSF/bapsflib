@@ -59,8 +59,8 @@ class TestWithBF(ut.TestCase):
 
     @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
                 side_effect=BaPSFFile, autospec=True)
-    def test_settings_by_decorator(self, mock_bf_class):
-        # define file settings to be bassed to decorator
+    def test_settings_by_decorator_kwargs(self, mock_bf_class):
+        # define file settings to be based to decorator
         settings = {'filename': self.filename,
                     'control_path': 'Raw data + config',
                     'digitizer_path': 'Raw data + config',
@@ -79,7 +79,8 @@ class TestWithBF(ut.TestCase):
         mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
         mock_foo.__signature__ = inspect.signature(foo)
 
-        # -- set file settings with decorator parameters --
+        # -- use decorator like a function --
+        # wrapped_func = with_bf(func, **settings)
         func = with_bf(mock_foo, **settings)
         bf_settings = func()
         self.assertTrue(mock_bf_class.called)
@@ -87,10 +88,12 @@ class TestWithBF(ut.TestCase):
         for name in settings:
             self.assertEqual(settings[name], bf_settings[name])
 
+        # reset mocks
         mock_foo.reset_mock()
         mock_bf_class.reset_mock()
 
-        # traditional decorator call, like
+        # -- mimic sugar syntax use of the decorator --
+        #
         # @with_bf(**settings)
         #     def foo(bf):
         #         pass
@@ -102,6 +105,7 @@ class TestWithBF(ut.TestCase):
         for name in settings:
             self.assertEqual(settings[name], bf_settings[name])
 
+        # reset mocks
         mock_foo.reset_mock()
         mock_bf_class.reset_mock()
 
@@ -115,14 +119,71 @@ class TestWithBF(ut.TestCase):
                 continue
             self.assertEqual(settings[name], bf_settings[name])
 
+        # reset mocks
         mock_foo.reset_mock()
         mock_bf_class.reset_mock()
 
         # -- function arguments also override decorator settings --
-        del mock_foo
-
         # create a function to mock
         def foo(filename: str, bf: BaPSFFile):
+            self.assertIsInstance(bf, BaPSFFile)
+            bapsf_settings = {
+                'filename': bf.filename,
+                'control_path': bf.CONTROL_PATH,
+                'digitizer_path': bf.DIGITIZER_PATH,
+                'msi_path': bf.MSI_PATH,
+            }
+            return bapsf_settings
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+        mock_foo.__signature__ = inspect.signature(foo)
+
+        # wrap and test
+        fname = settings.pop('filename')
+        settings['filename'] = 'not a real file'
+        func = with_bf(**settings)(mock_foo)
+        bf_settings = func(fname)
+        self.assertTrue(mock_bf_class.called)
+        self.assertTrue(mock_foo.called)
+        self.assertEqual(bf_settings['filename'], fname)
+        for name in settings:
+            if name == 'filename':
+                continue
+            self.assertEqual(settings[name], bf_settings[name])
+
+        # reset mocks
+        mock_foo.reset_mock()
+        mock_bf_class.reset_mock()
+
+        # -- ValueError if filename never passed --
+        # update settings s.t. no filename is specifiec
+        if 'filename' in settings:
+            del settings['filename']
+
+        # create a function to mock
+        def foo(bf: BaPSFFile):
+            self.assertIsInstance(bf, BaPSFFile)
+            bapsf_settings = {
+                'filename': bf.filename,
+                'control_path': bf.CONTROL_PATH,
+                'digitizer_path': bf.DIGITIZER_PATH,
+                'msi_path': bf.MSI_PATH,
+            }
+            return bapsf_settings
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+        mock_foo.__signature__ = inspect.signature(foo)
+
+        # wrap and test
+        func = with_bf(**settings)(foo)
+        self.assertRaises(ValueError, func)
+
+        # -- if path not specified then class default is assumed --
+        # update settings s.t. no filename is specified
+        settings['filename'] = self.filename
+        if 'control_path' in settings:
+            del settings['control_path']
+
+        # create a function to mock
+        def foo(bf: BaPSFFile):
             self.assertIsInstance(bf, BaPSFFile)
             bapsf_settings = {
                 'filename': bf.filename,
@@ -135,24 +196,21 @@ class TestWithBF(ut.TestCase):
         mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
         mock_foo.__signature__ = inspect.signature(foo)
 
-        filename = settings.pop('filename')
-        settings['filename'] = 'not a real file'
-        func = with_bf(**settings)(mock_foo)
-        bf_settings = func(filename)
-        self.assertTrue(mock_bf_class.called)
-        self.assertTrue(mock_foo.called)
-        self.assertEqual(bf_settings['filename'], filename)
-        for name in settings:
-            if name == 'filename':
-                continue
-            self.assertEqual(settings[name], bf_settings[name])
+        # wrap and test
+        func = with_bf(**settings)(foo)
+        bf_settings = func()
+        for name in bf_settings:
+            if name == 'control_path':
+                cp_default = inspect.signature(BaPSFFile).parameters[
+                    'control_path'].default
+                self.assertEqual(bf_settings[name], cp_default)
+            else:
+                self.assertEqual(bf_settings[name], settings[name])
 
-        mock_foo.reset_mock()
-        mock_bf_class.reset_mock()
-
-
-
-
+    @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
+                side_effect=BaPSFFile, autospec=True)
+    def test_settings_by_function(self, mock_bf_class):
+        pass
 
 
 if __name__ == '__main__':

@@ -244,19 +244,31 @@ class TestWithBF(ut.TestCase):
         fname = settings.pop('filename')
         func = with_bf(mock_foo)
         bf_settings = func(fname, **settings)
+        self.assertTrue(mock_bf_class.called)
+        self.assertTrue(mock_foo.called)
         for name in bf_settings:
             if name == 'filename':
                 self.assertEqual(bf_settings[name], fname)
             else:
                 self.assertEqual(bf_settings[name], settings[name])
 
+        # reset mocks
+        mock_bf_class.reset_mock()
+        mock_foo.reset_mock()
+
         # settings defines 'control_path'=None
         settings['control_path'] = None
         bf_settings = func(fname, **settings)
+        self.assertTrue(mock_bf_class.called)
+        self.assertTrue(mock_foo.called)
         self.assertEqual(
             bf_settings['control_path'],
             inspect.signature(BaPSFFile).parameters['control_path'].default
         )
+
+        # reset mocks
+        mock_bf_class.reset_mock()
+        mock_foo.reset_mock()
 
         # settings defines 'filename'=None
         self.assertRaises(ValueError, func, None)

@@ -167,7 +167,6 @@ class TestWithBF(ut.TestCase):
                              autospec=True)
         mock_foo.__signature__ = inspect.signature(foo)
 
-
         fname = settings.pop('filename')
         settings['filename'] = 'not a real file'
 
@@ -334,6 +333,117 @@ class TestWithLaPDF(ut.TestCase):
         # cleanup and close HDF5 file
         super().tearDownClass()
         cls.f.cleanup()
+
+    @property
+    def filename(self) -> str:
+        return self.f.filename
+
+    @mock.patch(LaPDFile.__module__ + '.' + LaPDFile.__qualname__,
+                side_effect=LaPDFile, autospec=True)
+    def test_settings_by_decorator_kwargs(self, mock_lapdf_class):
+        # create a function to mock
+        def foo(lapdf: LaPDFile, **kwargs):
+            self.assertIsInstance(lapdf, LaPDFile)
+            f_settings = {
+                'filename': lapdf.filename,
+                'control_path': lapdf.CONTROL_PATH,
+                'digitizer_path': lapdf.DIGITIZER_PATH,
+                'msi_path': lapdf.MSI_PATH,
+            }
+            return f_settings
+
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+        mock_foo.__signature__ = inspect.signature(foo)
+
+        # define file settings to be based to decorator
+        settings = {'filename': self.filename}
+
+        # -- use decorator like a function --
+        # wrapped_func = with_lapdf(func, **settings)
+        func = with_lapdf(mock_foo, **settings)
+        lapdf_settings = func()
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(mock_foo.called)
+        for name in settings:
+            self.assertEqual(settings[name], lapdf_settings[name])
+
+        # reset mocks
+        mock_foo.reset_mock()
+        mock_lapdf_class.reset_mock()
+
+        # -- mimic sugar syntax use of the decorator --
+        #
+        # @with_lapdf(**settings)
+        #     def foo(bf):
+        #         pass
+        #
+        func = with_lapdf(**settings)(mock_foo)
+        lapdf_settings = func()
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(mock_foo.called)
+        for name in settings:
+            self.assertEqual(settings[name], lapdf_settings[name])
+
+        # reset mocks
+        mock_foo.reset_mock()
+        mock_lapdf_class.reset_mock()
+
+        # -- function keywords override decorator settings --
+        fname = settings.pop('filename')
+        settings['filename'] = 'not a real file'
+        func = with_lapdf(**settings)(mock_foo)
+        lapdf_settings = func(filename=fname)
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(mock_foo.called)
+        self.assertEqual(lapdf_settings['filename'], fname)
+
+        # reset mocks
+        settings['filename'] = fname
+        mock_foo.reset_mock()
+        mock_lapdf_class.reset_mock()
+
+        # -- ValueError if filename never passed --
+        # update settings s.t. no filename is specified
+        fname = settings.pop('filename')
+
+        # wrap and test
+        func = with_lapdf(**settings)(mock_foo)
+        self.assertRaises(ValueError, func)
+
+        # reset
+        settings['filename'] = fname
+        mock_foo.reset_mock()
+        mock_lapdf_class.reset_mock()
+
+        # -- function arguments also override decorator settings --
+        # create a function to mock
+        def foo(filename: str, lapdf: LaPDFile):
+            self.assertIsInstance(lapdf, LaPDFile)
+            f_settings = {
+                'filename': lapdf.filename,
+                'control_path': lapdf.CONTROL_PATH,
+                'digitizer_path': lapdf.DIGITIZER_PATH,
+                'msi_path': lapdf.MSI_PATH,
+            }
+            return f_settings
+
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+        mock_foo.__signature__ = inspect.signature(foo)
+
+        fname = settings.pop('filename')
+        settings['filename'] = 'not a real file'
+
+        # wrap and test
+        func = with_lapdf(**settings)(mock_foo)
+        lapdf_settings = func(fname)
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(mock_foo.called)
+        self.assertEqual(lapdf_settings['filename'], fname)
+
+        # reset mocks
+        settings['filename'] = fname
+        mock_foo.reset_mock()
+        mock_lapdf_class.reset_mock()
 
 
 if __name__ == '__main__':

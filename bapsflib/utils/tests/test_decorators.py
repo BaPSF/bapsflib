@@ -445,6 +445,52 @@ class TestWithLaPDF(ut.TestCase):
         mock_foo.reset_mock()
         mock_lapdf_class.reset_mock()
 
+    @mock.patch(LaPDFile.__module__ + '.' + LaPDFile.__qualname__,
+                side_effect=LaPDFile, autospec=True)
+    def test_settings_by_function_args(self, mock_lapdf_class):
+        # LaPD file settings can also be pass by either function args or
+        # kwargs
+        #
+        # define file settings to be based to decorator
+        settings = {'filename': self.filename}
+
+        # create a function to mock
+        def foo(filename: str, lapdf: LaPDFile, **kwargs):
+            self.assertIsInstance(lapdf, LaPDFile)
+            f_settings = {
+                'filename': lapdf.filename,
+                'control_path': lapdf.CONTROL_PATH,
+                'digitizer_path': lapdf.DIGITIZER_PATH,
+                'msi_path': lapdf.MSI_PATH,
+            }
+            return f_settings
+
+        # define function mock
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+        mock_foo.__signature__ = inspect.signature(foo)
+
+        # wrap and test
+        # - this is equivalent to writing
+        #
+        #     @with_bf
+        #     def foo(filename, bf, **kwargs):
+        #         pass
+        #
+        fname = settings.pop('filename')
+        func = with_lapdf(mock_foo)
+        lapdf_settings = func(fname, **settings)
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(mock_foo.called)
+        self.assertEqual(lapdf_settings['filename'], fname)
+
+        # reset mocks
+        settings['filename'] = fname
+        mock_lapdf_class.reset_mock()
+        mock_foo.reset_mock()
+
+        # settings defines 'filename'=None
+        self.assertRaises(ValueError, func, None)
+
 
 if __name__ == '__main__':
     ut.main()

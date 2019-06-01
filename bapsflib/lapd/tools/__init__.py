@@ -12,7 +12,7 @@
 This package contains a variety of tools (functions, classes, etc.)
 relevant to the LaPD and its configuration.
 """
+__all__ = ['tools', 'portnum_to_z', 'z_to_portnum']
+
 from . import tools
 from .tools import (portnum_to_z, z_to_portnum)
-
-__all__ = ['tools', 'portnum_to_z', 'z_to_portnum']

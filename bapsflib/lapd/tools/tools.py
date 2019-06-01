@@ -8,14 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+__all__ = ['portnum_to_z', 'z_to_portnum']
+
 import astropy.units as u
 import numpy as np
 
 from typing import Union
 
 from .. import constants as const
-
-__all__ = ['portnum_to_z', 'z_to_portnum']
 
 
 def portnum_to_z(portnum: Union[int, float]) -> u.Quantity:

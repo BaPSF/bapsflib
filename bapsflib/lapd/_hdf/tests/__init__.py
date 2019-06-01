@@ -8,16 +8,13 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+__all__ = ['BaseFile', 'TestBase', 'with_bf', 'with_lapdf']
+
 import unittest as ut
 
+from bapsflib.utils.decorators import (with_bf, with_lapdf)
 from bapsflib._hdf import File as BaseFile
 from bapsflib._hdf.maps import FauxHDFBuilder
-from bapsflib._hdf.utils.tests import with_bf
-from functools import wraps
-
-from ..file import File
-
-__all__ = ['BaseFile', 'TestBase', 'with_bf', 'with_lapdf']
 
 
 def method_overridden(cls, obj, method: str) -> bool:
@@ -25,19 +22,6 @@ def method_overridden(cls, obj, method: str) -> bool:
     obj_method = method in obj.__class__.__dict__.keys()
     base_method = method in cls.__dict__.keys()
     return obj_method and base_method
-
-
-def with_lapdf(func):
-    """
-    Context decorator for managing the opening and closing LaPD HDF5
-    Files :class:`bapsflib.lapd._hdf.file.File`.  Intended for use on
-    test methods.
-    """
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        with File(self.f.filename) as lapdf:
-            return func(self, lapdf, *args, *kwargs)
-    return wrapper
 
 
 class TestBase(ut.TestCase):
@@ -81,3 +65,19 @@ class TestBase(ut.TestCase):
         :param str method: method that should have NOT been over-written
         """
         self.assertTrue(method_overridden(base_class, obj, method))
+
+    @property
+    def filename(self) -> str:
+        return self.f.filename
+
+    @property
+    def control_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def digitizer_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def msi_path(self) -> str:
+        return 'MSI'

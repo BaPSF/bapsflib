@@ -8,6 +8,6 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from . import core
-
 __all__ = ['core']
+
+from . import core

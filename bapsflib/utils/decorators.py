@@ -135,9 +135,11 @@ def with_bf(wfunc=None, *,
             self = None  # type: Union[None, object]
             if 'self' in func_sig.parameters:
                 try:
-                    if hasattr(args[0], func.__name__):
+                    if hasattr(args[0], func.__name__):  # pragma: no branch
+                        # arg[0] is an object with method of the same name
+                        # as the decorated function
                         self = args[0]
-                except IndexError:
+                except IndexError:  # pragma: no cover
                     pass
 
             # update settings
@@ -160,7 +162,7 @@ def with_bf(wfunc=None, *,
                         if self.__getattribute__(name) is None:
                             continue
                         fsettings[name] = self.__getattribute__(name)
-                    except KeyError:
+                    except KeyError:  # pragma: no cover
                         pass
             for name in list(fsettings.keys()):
                 if fsettings[name] is None:

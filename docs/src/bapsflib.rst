@@ -13,5 +13,6 @@ bapsflib
 
     ./bapsflib._hdf
     ./bapsflib.lapd
+    ./bapsflib.utils
 
 .. ./bapsflib.plasma

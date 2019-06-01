@@ -19,12 +19,12 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 :mod:`~.msi` contains routines for mapping
 :ibf:`MSI Diagnostic` HDF5 groups.
 """
+__all__ = ['ConType', 'FauxHDFBuilder', 'hdfmap', 'HDFMap',
+           'HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']
+
 from . import hdfmap
 from .controls import (ConType, HDFMapControls)
 from .digitizers import HDFMapDigitizers
 from .hdfmap import HDFMap
 from .msi import HDFMapMSI
 from .tests.fauxhdfbuilder import FauxHDFBuilder
-
-__all__ = ['ConType', 'FauxHDFBuilder', 'hdfmap', 'HDFMap',
-           'HDFMapControls', 'HDFMapDigitizers', 'HDFMapMSI']

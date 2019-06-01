@@ -11,7 +11,7 @@
 """
 A package of relevant LaPD parameters and constants.
 """
+__all__ = ['constants', 'port_spacing', 'ref_port']
+
 from . import constants
 from .constants import (port_spacing, ref_port)
-
-__all__ = ['constants', 'port_spacing', 'ref_port']

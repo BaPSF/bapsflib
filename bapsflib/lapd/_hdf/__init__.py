@@ -12,6 +12,6 @@
 The :mod:`bapsflib.lapd._hdf` package contains an assortment of tools
 to access and read out data written to HDF5 files by the LaPD.
 """
-from . import (file, lapdmap, lapdoverview)
-
 __all__ = ['file', 'lapdmap', 'lapdoverview']
+
+from . import (file, lapdmap, lapdoverview)

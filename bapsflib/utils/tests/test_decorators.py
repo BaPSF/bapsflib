@@ -273,6 +273,54 @@ class TestWithBF(ut.TestCase):
         # settings defines 'filename'=None
         self.assertRaises(ValueError, func, None)
 
+    @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
+                side_effect=BaPSFFile, autospec=True)
+    def test_settings_by_method_self(self, mock_bf_class):
+        # create class/method to mock
+        class Something(object):
+            def __init__(self, **kwargs):
+                super().__init__()
+                self.filename = kwargs.get('filename', None)
+                self.control_path = kwargs.get('control_path', None)
+                self.digitizer_path = kwargs.get('digitizer_path', None)
+                self.msi_path = kwargs.get('msi_path', None)
+
+            @with_bf
+            def foo(self, bf: BaPSFFile, **kwargs):
+                bapsf_settings = {
+                    'filename': bf.filename,
+                    'control_path': bf.CONTROL_PATH,
+                    'digitizer_path': bf.DIGITIZER_PATH,
+                    'msi_path': bf.MSI_PATH,
+                }
+                return isinstance(bf, BaPSFFile), bapsf_settings
+
+        # define file settings
+        settings = {'filename': self.filename,
+                    'control_path': 'Raw data + config',
+                    'digitizer_path': 'Raw data + config',
+                    'msi_path': 'MSI'}
+
+        # functional call
+        sthing = Something(**settings)
+        bf_settings = sthing.foo()
+        self.assertTrue(mock_bf_class.called)
+        self.assertTrue(bf_settings[0])
+        for name in bf_settings[1]:
+            self.assertEqual(bf_settings[1][name], settings[name])
+        mock_bf_class.reset_mock()
+
+        # missing 'control_path'
+        cp = settings.pop('control_path')
+        sthing = Something(**settings)
+        bf_settings = sthing.foo()
+        self.assertTrue(mock_bf_class.called)
+        self.assertTrue(bf_settings[0])
+        self.assertEqual(
+            bf_settings[1]['control_path'],
+            inspect.signature(BaPSFFile).parameters['control_path'].default)
+        mock_bf_class.reset_mock()
+
 
 if __name__ == '__main__':
     ut.main()

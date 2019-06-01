@@ -284,9 +284,9 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
             self = None  # type: Union[None, object]
             if 'self' in func_sig.parameters:
                 try:
-                    if hasattr(args[0], func.__name__):
+                    if hasattr(args[0], func.__name__):  # pragma: no branch
                         self = args[0]
-                except IndexError:
+                except IndexError:  # pragma: no cover
                     pass
 
             # update settings
@@ -299,23 +299,28 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
                     fsettings[name] = bound_args.arguments[name]
                 elif name in bound_args.kwargs:
                     # look for setting in passed kwargs (if not in arguments)
-                    if bound_args.kwargs[name] is None:
+                    if bound_args.kwargs[name] is None:  # pragma: no cover
+                        # currently with_lapdf only takes filename as an
+                        # argument, this need to be tested if that changes
                         continue
                     fsettings[name] = bound_args.kwargs[name]
                 elif self is not None:
                     # if wrapped function is a method, and setting not passed
                     # as function argument then look to self
                     try:
-                        if self.__getattribute__(name) is None:
+                        if self.__getattribute__(
+                                name) is None:  # pragma: no cover
+                            # currently with_lapdf only takes filename as an
+                            # argument, this need to be tested if that changes
                             continue
                         fsettings[name] = self.__getattribute__(name)
-                    except KeyError:
+                    except KeyError:  # pragma: no cover
                         pass
             for name in list(fsettings.keys()):
                 if fsettings[name] is None:
                     if name == 'filename':
                         raise ValueError("No valid file name specified.")
-                    else:
+                    else:  # pragma: no cover
                         del fsettings[name]
             fname = fsettings.pop('filename')
 

@@ -32,7 +32,6 @@ class TestWithBF(ut.TestCase):
         super().setUpClass()
         cls.f = FauxHDFBuilder()
 
-
     def setUp(self) -> None:
         super().setUp()
 
@@ -49,13 +48,6 @@ class TestWithBF(ut.TestCase):
     @property
     def filename(self) -> str:
         return self.f.filename
-
-    @staticmethod
-    def foo_func():
-        pass
-
-    def foo_method(self):
-        pass
 
     @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
                 side_effect=BaPSFFile, autospec=True)

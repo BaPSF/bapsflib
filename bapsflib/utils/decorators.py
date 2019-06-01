@@ -322,7 +322,7 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
             # run function with in if statement
             with File(fname) as lapdf:
                 args += (lapdf,)
-                return func(*args, *kwargs)
+                return func(*args, **kwargs)
 
         return wrapper
 

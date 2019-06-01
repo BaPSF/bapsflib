@@ -310,6 +310,13 @@ class TestWithBF(ut.TestCase):
             self.assertEqual(bf_settings[1][name], settings[name])
         mock_bf_class.reset_mock()
 
+        # keywords still override self
+        bf_settings = sthing.foo(control_path='a new path')
+        self.assertTrue(mock_bf_class.called)
+        self.assertTrue(bf_settings[0])
+        self.assertEqual(bf_settings[1]['control_path'], 'a new path')
+        mock_bf_class.reset_mock()
+
         # missing 'control_path'
         cp = settings.pop('control_path')
         sthing = Something(**settings)
@@ -320,6 +327,8 @@ class TestWithBF(ut.TestCase):
             bf_settings[1]['control_path'],
             inspect.signature(BaPSFFile).parameters['control_path'].default)
         mock_bf_class.reset_mock()
+
+
 
 
 if __name__ == '__main__':

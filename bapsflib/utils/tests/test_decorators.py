@@ -491,6 +491,49 @@ class TestWithLaPDF(ut.TestCase):
         # settings defines 'filename'=None
         self.assertRaises(ValueError, func, None)
 
+    @mock.patch(LaPDFile.__module__ + '.' + LaPDFile.__qualname__,
+                side_effect=LaPDFile, autospec=True)
+    def test_settings_by_method_self(self, mock_lapdf_class):
+        # create class/method to mock
+        class Something(object):
+            def __init__(self, **kwargs):
+                super().__init__()
+                self.filename = kwargs.get('filename', None)
+                self.control_path = kwargs.get('control_path', None)
+                self.digitizer_path = kwargs.get('digitizer_path', None)
+                self.msi_path = kwargs.get('msi_path', None)
+
+            @with_lapdf
+            def foo(self, lapdf: LaPDFile, **kwargs):
+                f_settings = {
+                    'filename': lapdf.filename,
+                    'control_path': lapdf.CONTROL_PATH,
+                    'digitizer_path': lapdf.DIGITIZER_PATH,
+                    'msi_path': lapdf.MSI_PATH,
+                }
+                return isinstance(lapdf, LaPDFile), f_settings
+
+        # define file settings
+        settings = {'filename': self.filename}
+
+        # functional call
+        sthing = Something(**settings)
+        lapdf_settings = sthing.foo()
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(lapdf_settings[0])
+        self.assertEqual(lapdf_settings[1]['filename'], settings['filename'])
+        mock_lapdf_class.reset_mock()
+
+        # keywords still override self
+        fname = settings.pop('filename')
+        sthing = Something(**settings)
+        lapdf_settings = sthing.foo(filename=fname)
+        self.assertTrue(mock_lapdf_class.called)
+        self.assertTrue(lapdf_settings[0])
+        self.assertEqual(lapdf_settings[1]['filename'], fname)
+        settings['filename'] = fname
+        mock_lapdf_class.reset_mock()
+
 
 if __name__ == '__main__':
     ut.main()

@@ -52,12 +52,6 @@ class TestWithBF(ut.TestCase):
     @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
                 side_effect=BaPSFFile, autospec=True)
     def test_settings_by_decorator_kwargs(self, mock_bf_class):
-        # define file settings to be based to decorator
-        settings = {'filename': self.filename,
-                    'control_path': 'Raw data + config',
-                    'digitizer_path': 'Raw data + config',
-                    'msi_path': 'MSI'}
-
         # create a function to mock
         def foo(bf: BaPSFFile, **kwargs):
             self.assertIsInstance(bf, BaPSFFile)
@@ -68,8 +62,15 @@ class TestWithBF(ut.TestCase):
                 'msi_path': bf.MSI_PATH,
             }
             return bapsf_settings
+
         mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
         mock_foo.__signature__ = inspect.signature(foo)
+
+        # define file settings to be based to decorator
+        settings = {'filename': self.filename,
+                    'control_path': 'Raw data + config',
+                    'digitizer_path': 'Raw data + config',
+                    'msi_path': 'MSI'}
 
         # -- use decorator like a function --
         # wrapped_func = with_bf(func, **settings)
@@ -115,6 +116,41 @@ class TestWithBF(ut.TestCase):
         mock_foo.reset_mock()
         mock_bf_class.reset_mock()
 
+        # -- ValueError if filename never passed --
+        # update settings s.t. no filename is specified
+        fname = settings.pop('filename')
+
+        # wrap and test
+        func = with_bf(**settings)(mock_foo)
+        self.assertRaises(ValueError, func)
+
+        # reset
+        settings['filename'] = fname
+        mock_foo.reset_mock()
+        mock_bf_class.reset_mock()
+
+        # -- if path not specified then class default is assumed --
+        # update settings s.t. no filename is specified
+        cp = settings.pop('control_path')
+
+        # wrap and test
+        func = with_bf(**settings)(mock_foo)
+        bf_settings = func()
+        self.assertTrue(mock_foo.called)
+        self.assertTrue(mock_bf_class.called)
+        for name in bf_settings:
+            if name == 'control_path':
+                cp_default = inspect.signature(BaPSFFile).parameters[
+                    'control_path'].default
+                self.assertEqual(bf_settings[name], cp_default)
+            else:
+                self.assertEqual(bf_settings[name], settings[name])
+
+        # reset
+        settings['control_path'] = cp
+        mock_foo.reset_mock()
+        mock_bf_class.reset_mock()
+
         # -- function arguments also override decorator settings --
         # create a function to mock
         def foo(filename: str, bf: BaPSFFile):
@@ -126,12 +162,16 @@ class TestWithBF(ut.TestCase):
                 'msi_path': bf.MSI_PATH,
             }
             return bapsf_settings
-        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
+
+        mock_foo = mock.Mock(side_effect=foo, name='mock_foo',
+                             autospec=True)
         mock_foo.__signature__ = inspect.signature(foo)
 
-        # wrap and test
+
         fname = settings.pop('filename')
         settings['filename'] = 'not a real file'
+
+        # wrap and test
         func = with_bf(**settings)(mock_foo)
         bf_settings = func(fname)
         self.assertTrue(mock_bf_class.called)
@@ -143,61 +183,9 @@ class TestWithBF(ut.TestCase):
             self.assertEqual(settings[name], bf_settings[name])
 
         # reset mocks
+        settings['filename'] = fname
         mock_foo.reset_mock()
         mock_bf_class.reset_mock()
-
-        # -- ValueError if filename never passed --
-        # update settings s.t. no filename is specifiec
-        if 'filename' in settings:
-            del settings['filename']
-
-        # create a function to mock
-        def foo(bf: BaPSFFile):
-            self.assertIsInstance(bf, BaPSFFile)
-            bapsf_settings = {
-                'filename': bf.filename,
-                'control_path': bf.CONTROL_PATH,
-                'digitizer_path': bf.DIGITIZER_PATH,
-                'msi_path': bf.MSI_PATH,
-            }
-            return bapsf_settings
-        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
-        mock_foo.__signature__ = inspect.signature(foo)
-
-        # wrap and test
-        func = with_bf(**settings)(foo)
-        self.assertRaises(ValueError, func)
-
-        # -- if path not specified then class default is assumed --
-        # update settings s.t. no filename is specified
-        settings['filename'] = self.filename
-        if 'control_path' in settings:
-            del settings['control_path']
-
-        # create a function to mock
-        def foo(bf: BaPSFFile):
-            self.assertIsInstance(bf, BaPSFFile)
-            bapsf_settings = {
-                'filename': bf.filename,
-                'control_path': bf.CONTROL_PATH,
-                'digitizer_path': bf.DIGITIZER_PATH,
-                'msi_path': bf.MSI_PATH,
-            }
-            return bapsf_settings
-
-        mock_foo = mock.Mock(side_effect=foo, name='mock_foo', autospec=True)
-        mock_foo.__signature__ = inspect.signature(foo)
-
-        # wrap and test
-        func = with_bf(**settings)(foo)
-        bf_settings = func()
-        for name in bf_settings:
-            if name == 'control_path':
-                cp_default = inspect.signature(BaPSFFile).parameters[
-                    'control_path'].default
-                self.assertEqual(bf_settings[name], cp_default)
-            else:
-                self.assertEqual(bf_settings[name], settings[name])
 
     @mock.patch(BaPSFFile.__module__ + '.' + BaPSFFile.__qualname__,
                 side_effect=BaPSFFile, autospec=True)
@@ -321,6 +309,31 @@ class TestWithBF(ut.TestCase):
         mock_bf_class.reset_mock()
 
 
+class TestWithLaPDF(ut.TestCase):
+    """
+    Test case for decorator :func:`~bapsflib.utils.decorators.with_lapdf`.
+    """
+
+    f = NotImplemented  # type: FauxHDFBuilder
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        # create HDF5 file
+        super().setUpClass()
+        cls.f = FauxHDFBuilder()
+
+    def setUp(self) -> None:
+        super().setUp()
+
+    def tearDown(self) -> None:
+        super().tearDown()
+        self.f.reset()
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        # cleanup and close HDF5 file
+        super().tearDownClass()
+        cls.f.cleanup()
 
 
 if __name__ == '__main__':

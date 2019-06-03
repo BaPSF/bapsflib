@@ -37,7 +37,7 @@ class TestLaPDFile(TestBase):
 
     @with_bf
     @with_lapdf
-    def test_file(self, _lapdf: File, _bf: BaseFile):
+    def test_file(self, _bf: BaseFile, _lapdf: File):
         # must subclass `bapsflib._hdf.utils.file.File`
         self.assertIsInstance(_lapdf, bapsflib._hdf.utils.file.File)
 

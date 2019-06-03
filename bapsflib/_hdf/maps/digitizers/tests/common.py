@@ -169,7 +169,7 @@ class DigitizerTestCase(ut.TestCase):
         #        for the Digitizer
         #      ~ meta-info keys are added to the `info` dictionary
         #        attribute that is bound to the numpy array data object
-        #        constructed by HDFReadControl
+        #        constructed by HDFReadControls
         #
         self.assertIsInstance(_map.configs, dict)
         for cname, config in _map.configs.items():

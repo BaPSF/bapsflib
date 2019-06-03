@@ -31,7 +31,7 @@ ControlsType = Union[str, Iterable[Union[str, Tuple[str, Any]]]]
 IndexDict = Dict[str, np.ndarray]
 
 
-class HDFReadControl(np.ndarray):
+class HDFReadControls(np.ndarray):
     """
     Reads control device data from the HDF5 file.
 
@@ -73,7 +73,7 @@ class HDFReadControl(np.ndarray):
         >>> # read control data
         >>> # - this is equivalent to 
         >>> #   f.read_control(['Waveform', 'config01'])
-        >>> data = HDFReadControl(f, ['Waveform', 'config01'])
+        >>> data = HDFReadControls(f, ['Waveform', 'config01'])
         >>> data.dtype
         dtype([('shotnum', '<u4'), ('command', '<U18')])
         >>>
@@ -548,6 +548,6 @@ class HDFReadControl(np.ndarray):
 
 
 # add example to __new__ docstring
-HDFReadControl.__new__.__doc__ += "\n"
-for line in HDFReadControl.__example_doc__.splitlines():
-    HDFReadControl.__new__.__doc__ += "    " + line + "\n"
+HDFReadControls.__new__.__doc__ += "\n"
+for line in HDFReadControls.__example_doc__.splitlines():
+    HDFReadControls.__new__.__doc__ += "    " + line + "\n"

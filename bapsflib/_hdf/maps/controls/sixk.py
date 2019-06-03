@@ -60,7 +60,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
         # TODO: HOW TO ADD MOTION LIST TO DICT
         # - right now, the dataset has to be read which has the
         #   potential for creating long mapping times
-        # - this is probably best left to HDFReadControl
+        # - this is probably best left to HDFReadControls
         #
 
         # build 'motion list' and 'probe list'

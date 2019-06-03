@@ -77,7 +77,7 @@ class HDFMapControlTemplate(ABC):
         """
         Dictionary containing all the relevant mapping information to
         translate the HDF5 data into a numpy array by
-        :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`.
+        :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`.
 
         **-- Constructing** :code:`configs` **--**
 
@@ -92,7 +92,7 @@ class HDFMapControlTemplate(ABC):
         required keys (:code:`'dset paths'`, :code:`'shotnum'`, and
         :code:`'state values'`) and optional keys.  Any optional key is
         considered as meta-info for the device and is added to the
-        :attr:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl.info`
+        :attr:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls.info`
         dictionary when the numpy array is constructed.  The required
         keys constitute the mapping for constructing the numpy array
         and are explained in the table below.
@@ -134,7 +134,7 @@ class HDFMapControlTemplate(ABC):
             is the numpy :code:`dtype` of the data.  This all defines
             the numpy :code:`dtype` of the :code:`'shotnum'` field in
             the
-            :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`
+            :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
             constructed numpy array.
             "
             "::
@@ -153,7 +153,7 @@ class HDFMapControlTemplate(ABC):
                 }
 
             will tell
-            :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`
+            :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
             to construct a numpy array with a the :code:`'xyz'` field.
             This field would be a 3-element array of
             :code:`numpy.float32`, where the :code:`'x'` field of the

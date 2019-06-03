@@ -18,6 +18,7 @@ To open a LaPD generated HDF5 file do
 
 .. code-block:: python3
 
+    >>> import h5py
     >>> from bapsflib import lapd
     >>> f = lapd.File('test.hdf5')
     >>> f

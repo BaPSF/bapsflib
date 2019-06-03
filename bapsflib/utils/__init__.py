@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from . import (errors, warnings)
+"""
+Package of developer utilities.
+"""
+__all__ = ['decorators', 'errors', 'warnings']
 
-__all__ = ['errors', 'warnings']
+from . import (decorators, errors, warnings)

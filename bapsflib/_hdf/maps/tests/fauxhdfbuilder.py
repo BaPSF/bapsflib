@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017-2018 Erik T. Everson and contributors
+# Copyright 2017-2019 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -16,6 +16,7 @@ import tempfile
 
 from ..controls.tests import (
     FauxN5700PS,
+    FauxNIXYZ,
     FauxNIXZ,
     FauxSixK,
     FauxWaveform,
@@ -52,6 +53,7 @@ class FauxHDFBuilder(h5py.File):
     _KNOWN_CONTROLS = {
         '6K Compumotor': FauxSixK,
         'N5700_PS': FauxN5700PS,
+        'NI_XYZ': FauxNIXYZ,
         'NI_XZ': FauxNIXZ,
         'Waveform': FauxWaveform,
     }

@@ -4,7 +4,7 @@ branch = true
 omit =
     # omit all test files
     */tests/*
-    # omit documentaiton files
+    # omit documentation files
     docs/
     # omit license files
     LICENSES/
@@ -14,6 +14,12 @@ omit =
 [report]
 # Regexes for lines to exclude from consideration
 exclude_lines =
+    # Re-enable pragma's:
     pragma: no cover
+    pragma: no branch
+
+    # Do not complain if test do not hit defensive assertion code:
     raise NotImplementedError
+
+    # Do not complain if non-runnable code is not run"
     if __name__ = .__main__.:

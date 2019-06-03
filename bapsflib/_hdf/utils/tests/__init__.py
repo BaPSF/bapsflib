@@ -8,28 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+__all__ = ['TestBase', 'with_bf']
+
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-from functools import wraps
-
-from ..file import File
-
-
-def with_bf(func):
-    """
-    Context decorator for managing the opening and closing BaPSF HDF5
-    Files :class:`bapsflib._hdf.utils.file.File`.  Intended for use on
-    test methods.
-    """
-    @wraps(func)
-    def wrapper(self, *args, **kwargs):
-        with File(self.f.filename,
-                  control_path='Raw data + config',
-                  digitizer_path='Raw data + config',
-                  msi_path='MSI') as bf:
-            return func(self, bf, *args, **kwargs)
-    return wrapper
+from bapsflib.utils.decorators import with_bf
 
 
 class TestBase(ut.TestCase):
@@ -51,3 +35,19 @@ class TestBase(ut.TestCase):
         # cleanup and close HDF5 file
         super().tearDownClass()
         cls.f.cleanup()
+
+    @property
+    def filename(self) -> str:
+        return self.f.filename
+
+    @property
+    def control_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def digitizer_path(self) -> str:
+        return 'Raw data + config'
+
+    @property
+    def msi_path(self) -> str:
+        return 'MSI'

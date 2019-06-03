@@ -68,7 +68,7 @@ attributes for th user to interface with, see :numref:`f_meth_table`.
     :meth:`~File.read_controls`, "
     | high-level method for reading control device data contained in the
       HDF5 file (instance of
-      :class:`~bapsflib._hdf.utils.hdfreadcontrol.HDFReadControl`)
+      :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`)
     | (see :ref:`read_controls` for details)
     "
     :meth:`~File.read_data`, "

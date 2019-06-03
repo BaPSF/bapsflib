@@ -12,9 +12,9 @@ Welcome to bapsflib's documentation!
 
     about
     installation
-    getstarted
-    ./background/main
+    structure
     using_lapd/main
+    ./background/main
     ./hdfmap/main
 
 

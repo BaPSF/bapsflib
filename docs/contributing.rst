@@ -3,17 +3,18 @@
 Contributing to bapsflib
 ========================
 
-:mod:`bapsflib` is an open-sourced Python package for the Basic Plasma Science Facility (BaPSF) and is built upon the contribution of the users it serves. It is dependent on user feedback to make improvements to the package and these contributions, no matter how small, are integral to the development of new features and tools for the convinience of its users. ...
+:mod:`bapsflib` is an open-sourced Python package for the Basic Plasma Science Facility (BaPSF) and is built upon the contribution of the users it serves. It is dependent on user feedback to make improvements to the package and these contributions, no matter how small, are integral to the development of new features and tools for the convinience of its users.
 
 In short, we want your help improving the :mod:`bapsflib` package.
 
-(insert fancy preamble)
+For a start, check out our `list of issues <https://github.com/BaPSF/bapsflib/issues>`_ if you wish to begin working on something. You'll need to have a GitHub account and you `can make one for free <https://github.com/join?source=header-home>`_ if you do not already have one. 
 
-For a start, check out our `list of issues <https://github.com/BaPSF/bapsflib/issues>`_ if you wish to begin working on something. If you have you have an issue which is not on the list and you would like to bring it up to the development team, you can contact one of them here:
+If you are new to `git <https://git-scm.com/>`_, some helpful resources include documentation on `git basics <https://git-scm.com/book/en/v2/Getting-Started-Git-Basics>`_ and an `interactive git tutorial <https://try.github.io/levels/1/challenges/1>`_.  You would also need a way to manipulate the source files, either by `installing git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_ or working through the `GitHub GUI <https://desktop.github.com/>`_ locally on your computer.
 
-* Erik T. Everson (eteverson@gmail.com, GitHub:@rocco8773)
+Alternatively, if you have an issue which you would like to raise directly to the development team, you can contact:
 
-Alternatively, you can be more involved in the development of the :mod:`bapsflib` package and work directly with the source files on GitHub. (insert resources on GitHub basics)
+* Erik T. Everson (eteverson@gmail.com, GitHub: `rocco8773 <https://github.com/rocco8773>`_)
+* Stephen Vincena (vincena@physics.ucla.edu, GitHub: `svincena <https://github.com/svincena>`_)
 
 
 General Guidelines and Workflow

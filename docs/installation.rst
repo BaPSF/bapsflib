@@ -1,45 +1,46 @@
+**************************
 Installing :mod:`bapsflib`
-==========================
+**************************
 
-:mod:`bapsflib` is a Python package that can immediately be used after 
-importing the package from the local Python library. If you are using ethanol 
-or midas, a copy of :mod:`bapsflib` may have already been installed in the
-local library. To begin using it, simply have the following command 
-at the start of your code:
+Is :mod:`bapsflib` already installed?
+=====================================
+
+Users of ethanol or midas may already have a copy of :mod:`bapsflib` installed in the local library.  To check if the package is installed correctly, import the package and look up the version number:
 
 .. code-block:: bash
 
     import bapsflib
+    bapsflib.__version__
 
-If for some reason the package cannot be found (i.e. server has a new Python
-version, different user configurations, etc.), the following error message 
-may appear:
+If the package does not exist or if the lastest version is not installed, you may wish to (re)install a copy of the package from an online source such as from `PyPI <https://pypi.org/project/bapsflib/>`_ or
+`GitHub <https://github.com/BaPSF/bapsflib>`_.
 
-.. code-block:: bash
+.. note::
+	It is possible for multiple copies of :mod:`bapsflib` to exist on the same computer (e.g. a global copy for all users on the network and a different copy for the local user).  The local copy will take precedence over the global one and users are encouraged to update the local copy for both development and personal use.
 
-	ImportError: No module named bapsflib
+Package Requirements
+====================
 
-As a result, you may have to install a copy of the package from an online
-source such as from `PyPI <https://pypi.org/project/bapsflib/>`_ or
-`GitHub <https://github.com/BaPSF/bapsflib>`_ in order to get the package
-to work.
+:mod:`bapsflib` requires Python 3.5 or newer to work, and may not be compatible older versions (e.g. Python 2.7).  The following packages are required for installation:
 
-The following lists some options for installing a copy of :mod:`bapsflib` onto
-a local directory. Note that it is possible for different copies of 
-:mod:`bapsflib` to exist on the same computer (i.e. a 'global' copy and a copy
-for the local user). Python will typically read the local version of the package
-before searching for a global one.
+* `NumPy <http://www.numpy.org/>`_ 1.13 or newer
+* `SciPy <https://www.scipy.org/>`_ 0.19 or newer
+* `Astropy <http://www.astropy.org/>`_ 2.0 or newer
 
-.. Package Requirements
-   --------------------
+The package also has the following optional dependencies which may be required when running certain features in the package:
 
+* `matplotlib <https://matplotlib.org/>`_ 2.0 or newer
+* `h5py <https://www.h5py.org/>`_ 2.8 or newer
+
+How to Install
+==============
+
+.. install-pip:
 
 Installing from :code:`pip`
 ---------------------------
 
-The :mod:`bapsflib` package is registered with
-`PyPI <https://pypi.org/project/bapsflib/>`_ and can be installed with
-:mod:`pip` via
+The :mod:`bapsflib` package is registered with `PyPI <https://pypi.org/project/bapsflib/>`_ and can be installed (from the command line) with :mod:`pip` via
 
 .. code-block:: bash
 
@@ -47,6 +48,8 @@ The :mod:`bapsflib` package is registered with
 
 For the most recent development version, :mod:`bapsflib` can be
 installed from `GitHub <https://github.com/BaPSF/bapsflib>`_.
+
+.. install-github-direct:
 
 Installing Directly from GitHub
 -------------------------------
@@ -68,6 +71,8 @@ If an alternate branch :code:`BranchName` is desired, then invoke
 .. code-block:: bash
 
     pip install git+https://github.com/BaPSF/bapsflib.git@BranchName#egg=bapsflib
+
+.. install-github-clone:
 
 Installing from a GitHub Clone or Download
 ------------------------------------------
@@ -105,11 +110,11 @@ or
     python setup.py install
 
 Useful Installation Links
--------------------------
+=========================
 
 * bapsflib repository: https://github.com/BaPSF/bapsflib
 * bapsflib on PyPI: https://pypi.org/project/bapsflib/
 * setuptools documentation: https://setuptools.readthedocs.io/en/latest/index.html
 * pip documentation: https://pip.pypa.io/en/stable/
 * git installation: https://git-scm.com/book/en/v2/Getting-Started-Installing-Git
-* cloning and downloading form GitHub: https://help.github.com/articles/cloning-a-repository/
+* cloning and downloading from GitHub: https://help.github.com/articles/cloning-a-repository/

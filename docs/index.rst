@@ -12,9 +12,9 @@ Welcome to bapsflib's documentation!
 
     about
     installation
-    getstarted
-    ./background/main
+    structure
     using_lapd/main
+    ./background/main
     ./hdfmap/main
 
 
@@ -22,6 +22,7 @@ Welcome to bapsflib's documentation!
     :maxdepth: 1
     :caption: Developer Documentation:
 
+    ./contributing/main
     changelog
 
 .. toctree::

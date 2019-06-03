@@ -1,5 +1,5 @@
-Getting Started
-===============
+Structure of the :mod:`bapsflib` package
+========================================
 
 The :mod:`bapsflib` package has four key sub-packages:
 

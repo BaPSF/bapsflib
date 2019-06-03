@@ -12,3 +12,8 @@ not-so-lower "lower level" functionality of the
 
 As the package develops, additional data visualization and plasma
 analysis tools will be incorporated.
+
+Development team:
+
+* Erik T. Everson (eteverson@gmail.com, GitHub: `rocco8773 <https://github.com/rocco8773>`_)
+* Stephen Vincena (vincena@physics.ucla.edu, GitHub: `svincena <https://github.com/svincena>`_)

@@ -22,7 +22,7 @@ Welcome to bapsflib's documentation!
     :maxdepth: 1
     :caption: Developer Documentation:
 
-    contributing
+    ./contributing/main
     changelog
 
 .. toctree::

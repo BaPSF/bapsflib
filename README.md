@@ -2,6 +2,7 @@
 
 [![PyPI](https://img.shields.io/pypi/v/bapsflib.svg)](https://pypi.org/project/bapsflib)
 [![License](https://img.shields.io/badge/License-BSD-blue.svg)](./LICENSES/LICENSE.txt)
+[![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bapsflib.svg)](https://pypi.org/project/bapsflib)
 
 [![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/)](https://bapsflib.readthedocs.io/en/latest)
 [![Build Status](https://img.shields.io/travis/BaPSF/bapsflib/master.svg?label=Travis%20CI)](https://travis-ci.org/BaPSF/bapsflib)

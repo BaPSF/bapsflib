@@ -22,21 +22,21 @@ from unittest import mock
 
 from . import (TestBase, with_bf)
 from ..file import File
-from ..hdfreadcontrol import HDFReadControl
+from ..hdfreadcontrols import HDFReadControls
 
 
 class TestHDFReadControl(TestBase):
-    """Test Case for HDFReadControl class."""
+    """Test Case for HDFReadControls class."""
     # Note:
-    # - Key code segments of HDFReadControl are tested by:
+    # - Key code segments of HDFReadControls are tested by:
     #   1. TestConditionControls
     #   2. TestConditionShotnum
     #   3. TestBuildShotnumDsetRelation
     #   4. TestDoShotnumIntersection
-    # - TestBuildShotnumDsetRelation tests HDFReadControl's ability to
+    # - TestBuildShotnumDsetRelation tests HDFReadControls's ability to
     #   properly identify the dataset indices corresponding to the
     #   desired shot numbers (it checks against an original dataset)
-    # - TestDoIntersection tests HDFReadControl's ability to intersect
+    # - TestDoIntersection tests HDFReadControls's ability to intersect
     #   all shot numbers between the datasets and shotnum
     # - Thus, testing here should focus on the construction and
     #   basic population of cdata and not so much ensuring the exact
@@ -77,10 +77,10 @@ class TestHDFReadControl(TestBase):
         #   condition_shotnum() and TestConditionShotnum
         #
         # `hdf_fil` is NOT a bapsflib._hdf.utils.file.File
-        self.assertRaises(TypeError, HDFReadControl, self.f, [])
+        self.assertRaises(TypeError, HDFReadControls, self.f, [])
 
         # HDF5 file object has no mapped control devices
-        self.assertRaises(ValueError, HDFReadControl, _bf, [])
+        self.assertRaises(ValueError, HDFReadControls, _bf, [])
 
     @with_bf
     def test_misc_behavior(self, _bf: File):
@@ -97,8 +97,8 @@ class TestHDFReadControl(TestBase):
                          {'sn_requested': sn,
                           'sn_correct': sn,
                           'sn_valid': sn})]
-        data = HDFReadControl(_bf, controls, shotnum=sn,
-                              assume_controls_conditioned=False)
+        data = HDFReadControls(_bf, controls, shotnum=sn,
+                               assume_controls_conditioned=False)
         self.assertCDataObj(data, _bf, control_plus)
 
     @with_bf
@@ -208,9 +208,9 @@ class TestHDFReadControl(TestBase):
         sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
         sn_v = np.array([8, 9, 10], dtype=np.uint32)
         controls = [('Sample', 'config01')]
-        cdata = HDFReadControl(_bf, controls,
-                               shotnum=sn,
-                               assume_controls_conditioned=True)
+        cdata = HDFReadControls(_bf, controls,
+                                shotnum=sn,
+                                assume_controls_conditioned=True)
         self.assertTrue(np.array_equal(cdata['shotnum'], sn_v))
         self.assertTrue(np.array_equal(
             cdata['xyz'][..., 1],
@@ -243,9 +243,9 @@ class TestHDFReadControl(TestBase):
         sn_v = np.array([8, 9, 10], dtype=np.uint32)
         controls = [('Sample', 'config01')]
         with self.assertWarns(UserWarning):
-            cdata = HDFReadControl(_bf, controls,
-                                   shotnum=sn,
-                                   assume_controls_conditioned=True)
+            cdata = HDFReadControls(_bf, controls,
+                                    shotnum=sn,
+                                    assume_controls_conditioned=True)
 
             self.assertTrue(np.array_equal(cdata['shotnum'], sn_v))
             self.assertTrue(np.all(np.isnan(cdata['xyz'][..., 0])))
@@ -284,9 +284,9 @@ class TestHDFReadControl(TestBase):
         sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
         controls = [('Sample', 'config01')]
         with self.assertRaises(ValueError):
-            cdata = HDFReadControl(_bf, controls,
-                                   shotnum=sn,
-                                   assume_controls_conditioned=True)
+            cdata = HDFReadControls(_bf, controls,
+                                    shotnum=sn,
+                                    assume_controls_conditioned=True)
 
     @with_bf
     @mock.patch.object(HDFMap, 'controls',
@@ -391,11 +391,11 @@ class TestHDFReadControl(TestBase):
                              {'sn_requested': sn,
                               'sn_correct': sn,
                               'sn_valid': sn_v})]
-            data = HDFReadControl(_bf,
-                                  controls,
-                                  shotnum=sn,
-                                  intersection_set=False,
-                                  assume_controls_conditioned=True)
+            data = HDFReadControls(_bf,
+                                   controls,
+                                   shotnum=sn,
+                                   intersection_set=False,
+                                   assume_controls_conditioned=True)
             self.assertCDataObj(data, _bf, control_plus,
                                 intersection_set=False)
 
@@ -464,7 +464,7 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
+            cdata = HDFReadControls(_bf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus)
@@ -501,9 +501,9 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control,
-                                   shotnum=sn_r,
-                                   intersection_set=False)
+            cdata = HDFReadControls(_bf, control,
+                                    shotnum=sn_r,
+                                    intersection_set=False)
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus,
                                 intersection_set=False)
@@ -517,12 +517,12 @@ class TestHDFReadControl(TestBase):
         control_plus[0][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(_bf, control)
+        cdata = HDFReadControls(_bf, control)
         self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
-        cdata = HDFReadControl(_bf, control,
-                               intersection_set=False)
+        cdata = HDFReadControls(_bf, control,
+                                intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
@@ -531,7 +531,7 @@ class TestHDFReadControl(TestBase):
         dset_name = self.f.modules['6K Compumotor']._configs[
             sixk_cspec]['dset name']
         dset = self.f.modules['6K Compumotor'][dset_name]
-        sn_arr = dset['Shot number']
+        sn_arr = dset['Shot number']  # type: np.ndarray
         sn_arr[30::] = np.arange(41, 61, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         _bf._map_file()  # re-map file
@@ -562,7 +562,7 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
+            cdata = HDFReadControls(_bf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus)
@@ -599,9 +599,9 @@ class TestHDFReadControl(TestBase):
             control_plus[0][2]['sn_valid'] = sn_v
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control,
-                                   shotnum=sn_r,
-                                   intersection_set=False)
+            cdata = HDFReadControls(_bf, control,
+                                    shotnum=sn_r,
+                                    intersection_set=False)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus,
@@ -616,13 +616,13 @@ class TestHDFReadControl(TestBase):
         control_plus[0][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(_bf, control)
+        cdata = HDFReadControls(_bf, control)
         self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
         sn_c = np.arange(1, 61, 1)
         control_plus[0][2]['sn_correct'] = sn_c
-        cdata = HDFReadControl(_bf, control, intersection_set=False)
+        cdata = HDFReadControls(_bf, control, intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
@@ -706,7 +706,7 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
+            cdata = HDFReadControls(_bf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus)
@@ -751,8 +751,8 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control, shotnum=sn_r,
-                                   intersection_set=False)
+            cdata = HDFReadControls(_bf, control, shotnum=sn_r,
+                                    intersection_set=False)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus,
@@ -774,12 +774,12 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(_bf, control)
+        cdata = HDFReadControls(_bf, control)
         self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
-        cdata = HDFReadControl(_bf, control,
-                               intersection_set=False)
+        cdata = HDFReadControls(_bf, control,
+                                intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
@@ -791,7 +791,7 @@ class TestHDFReadControl(TestBase):
         dset_name = self.f.modules['Waveform']._configs[
             'config01']['dset name']
         dset = self.f.modules['Waveform'][dset_name]
-        sn_arr = dset['Shot number']
+        sn_arr = dset['Shot number']  # type: np.ndarray
         sn_arr[20::] = np.arange(31, 61, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         sn_wave = sn_arr
@@ -800,7 +800,7 @@ class TestHDFReadControl(TestBase):
         dset_name = self.f.modules['6K Compumotor']._configs[
             sixk_cspec]['dset name']
         dset = self.f.modules['6K Compumotor'][dset_name]
-        sn_arr = dset['Shot number']
+        sn_arr = dset['Shot number']  # type: np.ndarray
         sn_arr[30::] = np.arange(38, 58, 1, dtype=sn_arr.dtype)
         dset['Shot number'] = sn_arr
         sn_sixk = sn_arr
@@ -840,7 +840,7 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control, shotnum=sn_r)
+            cdata = HDFReadControls(_bf, control, shotnum=sn_r)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus)
@@ -891,8 +891,8 @@ class TestHDFReadControl(TestBase):
             control_plus[1][2]['sn_valid'] = sn_sk
 
             # grab requested control data
-            cdata = HDFReadControl(_bf, control, shotnum=sn_r,
-                                   intersection_set=False)
+            cdata = HDFReadControls(_bf, control, shotnum=sn_r,
+                                    intersection_set=False)
 
             # assert cdata format
             self.assertCDataObj(cdata, _bf, control_plus,
@@ -914,7 +914,7 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = sn_c
 
         # grab & test data for intersection_set=True
-        cdata = HDFReadControl(_bf, control)
+        cdata = HDFReadControls(_bf, control)
         self.assertCDataObj(cdata, _bf, control_plus)
 
         # grab & test data for intersection_set=False
@@ -926,19 +926,19 @@ class TestHDFReadControl(TestBase):
         control_plus[1][2]['sn_valid'] = \
             np.intersect1d(sn_c, sn_sixk)  # type: np.ndarray
 
-        cdata = HDFReadControl(_bf, control,
-                               intersection_set=False)
+        cdata = HDFReadControls(_bf, control,
+                                intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus,
                             intersection_set=False)
 
     def assertCDataObj(
             self,
-            cdata: HDFReadControl,
+            cdata: HDFReadControls,
             _bf: File,
             control_plus: List[Tuple[str, Any, Dict[str, Any]]],
             intersection_set=True):
         """Assertion for detailed format of returned data object."""
-        # cdata            - returned data object of HDFReadControl()
+        # cdata            - returned data object of HDFReadControls()
         # control_plus     - control name, control configuration, and
         #                    expected shot numbers ('sn_valid')
         # intersection_set - whether cdata is generated w/
@@ -952,13 +952,13 @@ class TestHDFReadControl(TestBase):
         self.assertTrue(hasattr(cdata, 'info'))
         self.assertIsInstance(cdata.info, dict)
 
-        # examine HDFReadControl defined keys
+        # examine HDFReadControls defined keys
         self.assertIn('source file', cdata.info)
         self.assertIn('controls', cdata.info)
         self.assertIn('probe name', cdata.info)
         self.assertIn('port', cdata.info)
 
-        # examine values of HDFReadControl defined keys
+        # examine values of HDFReadControls defined keys
         self.assertEqual(cdata.info['source file'],
                          os.path.abspath(_bf.filename))
         self.assertIsInstance(cdata.info['controls'], dict)

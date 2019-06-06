@@ -8,13 +8,18 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-__all__ = ['BaPSFConstant', 'check_quantity', 'check_relativistic',
-           'errors', 'temperature_and_energy', 'warnings']
+"""
+Package of developer utilities.
+"""
+__all__ = ['decorators', 'errors', 'warnings']
+__all__ += ['BaPSFConstant', 'check_quantity', 'check_relativistic',
+            'temperature_and_energy']
 
-from . import (errors, warnings)
+from astropy.constants import Constant
+
+from . import (decorators, errors, warnings)
 from .decorators import (check_quantity, check_relativistic)
 from .units import temperature_and_energy
-from astropy.constants import Constant
 
 
 class BaPSFConstant(Constant):

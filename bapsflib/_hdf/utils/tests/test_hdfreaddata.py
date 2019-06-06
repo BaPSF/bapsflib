@@ -23,7 +23,7 @@ from unittest import mock
 
 from . import (TestBase, with_bf)
 from ..file import File
-from ..hdfreadcontrol import HDFReadControl
+from ..hdfreadcontrols import HDFReadControls
 from ..hdfreaddata import (build_sndr_for_simple_dset,
                            condition_shotnum,
                            do_shotnum_intersection,
@@ -46,7 +46,7 @@ class TestHDFReadData(TestBase):
         super().tearDown()
 
     @with_bf
-    @mock.patch('bapsflib._hdf.utils.hdfreaddata.HDFReadControl')
+    @mock.patch('bapsflib._hdf.utils.hdfreaddata.HDFReadControls')
     @mock.patch('bapsflib._hdf.utils.hdfreaddata.condition_controls')
     @mock.patch.object(HDFMap, 'controls',
                        new_callable=mock.PropertyMock,
@@ -102,9 +102,9 @@ class TestHDFReadData(TestBase):
                 }
             }
         }
-        m_cdata = np.reshape(cdata[4], 1).view(HDFReadControl)
+        m_cdata = np.reshape(cdata[4], 1).view(HDFReadControls)
         m_cdata._info = m_info
-        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        mock_cdata.return_value = m_cdata.view(HDFReadControls)
         data = HDFReadData(_bf, brd, ch, config_name=config_name,
                            adc=adc, digitizer=digi, shotnum=shotnum,
                            add_controls=[('control', 'config01')],
@@ -136,9 +136,9 @@ class TestHDFReadData(TestBase):
         fields = list(cdata.dtype.names)
         fields.remove('xyz')
         m_cdata = np.reshape(cdata[fields][4], (1,))
-        m_cdata = m_cdata.view(HDFReadControl)
+        m_cdata = m_cdata.view(HDFReadControls)
         m_cdata._info = m_info
-        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        mock_cdata.return_value = m_cdata.view(HDFReadControls)
         data = HDFReadData(_bf, brd, ch, config_name=config_name,
                            adc=adc, digitizer=digi, shotnum=shotnum,
                            add_controls=[('control', 'config01')],
@@ -167,9 +167,9 @@ class TestHDFReadData(TestBase):
                 }
             }
         }
-        m_cdata = np.reshape(cdata[4], 1).view(HDFReadControl)
+        m_cdata = np.reshape(cdata[4], 1).view(HDFReadControls)
         m_cdata._info = m_info
-        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        mock_cdata.return_value = m_cdata.view(HDFReadControls)
         data = HDFReadData(_bf, brd, ch, config_name=config_name,
                            adc=adc, digitizer=digi, shotnum=shotnum,
                            add_controls=[('control', 'config01')],
@@ -199,14 +199,14 @@ class TestHDFReadData(TestBase):
                 }
             }
         }
-        m_cdata = np.empty(1, dtype=cdata.dtype).view(HDFReadControl)
+        m_cdata = np.empty(1, dtype=cdata.dtype).view(HDFReadControls)
         m_cdata[0]['shotnum'] = 20
         m_cdata[0]['xyz'] = np.nan
         m_cdata[0]['freq'] = np.nan
         m_cdata = np.append(m_cdata, np.reshape(cdata[4], 1))
-        m_cdata = m_cdata.view(HDFReadControl)
+        m_cdata = m_cdata.view(HDFReadControls)
         m_cdata._info = m_info
-        mock_cdata.return_value = m_cdata.view(HDFReadControl)
+        mock_cdata.return_value = m_cdata.view(HDFReadControls)
         data = HDFReadData(_bf, brd, ch, config_name=config_name,
                            adc=adc, digitizer=digi, shotnum=shotnum,
                            add_controls=[('control', 'config01')],
@@ -971,7 +971,7 @@ class TestHDFReadData(TestBase):
         mock_inter.reset_mock()
 
     def assertControlInData(self,
-                            cdata: HDFReadControl,
+                            cdata: HDFReadControls,
                             data: HDFReadData,
                             shotnum: np.ndarray):
 

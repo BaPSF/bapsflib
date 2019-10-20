@@ -16,6 +16,7 @@ Welcome to bapsflib's documentation!
     ./background/main
     using_lapd/main
     ./hdfmap/main
+    ./aps_examples
 
 
 .. toctree::

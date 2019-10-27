@@ -15,6 +15,7 @@ codecov >= 2.0.15
 coverage >= 4.5.1
 h5py >= 2.6
 numpy >= 1.12
+plasmapy >= 0.1.0
 scipy >= 1.0.0
 #
 # Add Sphinx/Documentation requirements

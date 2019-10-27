@@ -16,7 +16,7 @@ import unittest as ut
 
 from astropy.constants import Constant
 from bapsflib.lapd.constants import (port_spacing, ref_port)
-from bapsflib.lapd.constants.constants import BaPSFConstant
+from bapsflib.lapd.constants.constants import LaPDConstant
 
 
 class TestConstants(ut.TestCase):
@@ -24,19 +24,19 @@ class TestConstants(ut.TestCase):
     Test LaPD constants. (:mod:`bapsflib.lapd.constants.constants`)
     """
 
-    def test_BaPSFConstant(self):
-        self.assertTrue(issubclass(BaPSFConstant, Constant))
-        self.assertEqual(BaPSFConstant.default_reference,
-                         "Basic Plasma Science Facility")
+    def test_LaPDConstant(self):
+        self.assertTrue(issubclass(LaPDConstant, Constant))
+        self.assertEqual(LaPDConstant.default_reference,
+                         "Large Plasma Device")
 
     def test_port_spacing(self):
-        self.assertIsInstance(port_spacing, BaPSFConstant)
+        self.assertIsInstance(port_spacing, LaPDConstant)
         self.assertEqual(port_spacing.value, 31.95)
         self.assertEqual(port_spacing.unit, u.cm)
         self.assertEqual(port_spacing.uncertainty, 1.0)
 
     def test_ref_port(self):
-        self.assertIsInstance(ref_port, BaPSFConstant)
+        self.assertIsInstance(ref_port, LaPDConstant)
         self.assertEqual(ref_port.value, 53)
         self.assertEqual(ref_port.unit, u.dimensionless_unscaled)
 

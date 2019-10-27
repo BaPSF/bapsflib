@@ -11,12 +11,15 @@
 """
 Decorators for the :mod:`bapsflib` package.
 """
-__all__ = ['with_bf', 'with_lapdf']
+__all__ = ['check_quantity', 'check_relativistic',
+           'with_bf', 'with_lapdf']
 
 import functools
 import inspect
 
 from typing import Union
+
+from .units.decorators import (check_quantity, check_relativistic)
 
 
 def with_bf(wfunc=None, *,

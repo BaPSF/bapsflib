@@ -42,9 +42,16 @@ autoclass_content = "both"
 extensions = ['sphinx.ext.autodoc',
               'sphinx.ext.githubpages',
               'sphinx.ext.mathjax',
-              'sphinx.ext.autosummary']
+              'sphinx.ext.autosummary',
+              'sphinx.ext.intersphinx']
 numfig = True  # enable figure and table numbering
 autosummary_generate = True
+intersphinx_mapping = {
+    'python': ('https://docs.python.org/3/', None),
+    'astropy': ('http://docs.astropy.org/en/stable/', None),
+    'h5py': ('http://docs.h5py.org/en/stable/', None),
+    'numpy': ('https://docs.scipy.org/doc/numpy', None),
+}
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

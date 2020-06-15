@@ -14,3 +14,7 @@ Package of developer utilities.
 __all__ = ['decorators', 'errors', 'warnings']
 
 from . import (decorators, errors, warnings)
+
+
+def foo(x):
+    return x

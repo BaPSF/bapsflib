@@ -16,5 +16,11 @@ __all__ = ['decorators', 'errors', 'warnings']
 from . import (decorators, errors, warnings)
 
 
-def foo(x):
+def NdarrayToXarray(data, name={}):
+    names = list(data.dtype.names)
+    names.remove('signal')
+    i=0
+    while i<len(names):
+        print(names[i])
+        i = i+1
     return x

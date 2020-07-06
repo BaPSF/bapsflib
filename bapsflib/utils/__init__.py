@@ -31,4 +31,5 @@ def ndarray_to_xarray(data, arr_name={}):
             coords_dict[name] = ("shotnum", data[name])
 
     # coords_test={names[0]:("shot_index",data[names[0]]),"x":("shot_index",data[names[1]][:,0]),"y":("shot_index",data[names[1]][:,1]),"z":("shot_index",data[names[1]][:,2]),names[2]:("shot_index",data[names[2]]),names[3]:("shot_index",data[names[3]])}
-    data_array = xr.DataArray(data['signal'], dims=('shot_index', 'time_index'), coords=coords_dict,name=arr_name)
+    data_array = xr.DataArray(data['signal'], dims=('shotnum', 'time_index'), coords=coords_dict, name=arr_name)
+    return data_array

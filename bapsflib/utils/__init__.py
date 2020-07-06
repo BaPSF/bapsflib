@@ -13,11 +13,12 @@ Package of developer utilities.
 """
 __all__ = ['decorators', 'errors', 'warnings', 'NdarrayToXarray']
 
+import xarray as xr
+
 from . import (decorators, errors, warnings)
 
 
 def NdarrayToXarray(data, arr_name={}):
-    import xarray as xr
     names = list(data.dtype.names)
     names.remove('signal')
     coords_dict = {}

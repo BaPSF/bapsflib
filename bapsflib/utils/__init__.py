@@ -16,7 +16,7 @@ __all__ = ['decorators', 'errors', 'warnings', 'NdarrayToXarray']
 from . import (decorators, errors, warnings)
 
 
-def NdarrayToXarray(data, arr_name={}):
+def ndarray_to_xarray(data, arr_name={}):
     import xarray as xr
     names = list(data.dtype.names)
     names.remove('signal')

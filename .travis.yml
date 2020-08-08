@@ -20,8 +20,6 @@ python:
 
 os:
   - linux
-  - osx
-  - windows
 
 # The number of commits cloned.  Setting to false will clone all commits.
 # Since __version__ is defined with setuptools_scm, the default depth of 50

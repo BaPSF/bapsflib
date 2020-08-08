@@ -5,7 +5,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017-2018 Erik T. Everson and contributors
+# Copyright 2017-2020 Erik T. Everson and BaPSF Contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.

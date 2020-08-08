@@ -1,0 +1,5 @@
+[build-system]
+requires = [
+    "setuptools >= 41.2",
+    "wheel >= 0.29.0",
+]  # ought to mirror 'requirements/build.txt'

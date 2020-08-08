@@ -19,11 +19,11 @@ http://plasma.physics.ucla.edu/
 bapsflib Repository:
 https://github.com/rocco8773/bapsflib
 """
-# --- Public API -------------------------------------------------------
+__all__ = ["lapd"]
 
-from . import _hdf
-from . import lapd
-from . import plasma
+import pkg_resources
+
+from bapsflib import (_hdf, lapd, plasma, utils)
 
 # --- Define version ---------------------------------------------------
 __version__ = '1.0.1'

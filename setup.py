@@ -10,9 +10,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import codecs
 import os
-import re
 
 from setuptools import setup
 

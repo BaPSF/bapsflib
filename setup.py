@@ -14,35 +14,14 @@ import codecs
 import os
 import re
 
-from setuptools import setup, find_packages
+from setuptools import setup
+from setuptools.config import read_configuration
 
 # find here
 here = os.path.abspath(os.path.dirname(__file__))
 
-# define CLASSIFIERS
-CLASSIFIERS = [
-    "Development Status :: 5 - Production/Stable",
-    "Intended Audience :: Developers",
-    "Intended Audience :: Education",
-    "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: BSD License",
-    "Natural Language :: English",
-    "Operating System :: MacOS",
-    "Operating System :: Microsoft :: Windows",
-    "Operating System :: POSIX :: Linux",
-    "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.5",
-    "Programming Language :: Python :: 3.6",
-    "Programming Language :: Python :: 3.7",
-    "Topic :: Education",
-    "Topic :: Scientific/Engineering",
-    "Topic :: Scientific/Engineering :: Physics",
-    "Topic :: Software Development",
-    "Topic :: Software Development :: Libraries :: Python Modules",
-]
 
-
-# ---- Define helpers for version-ing                               ----
+# ---- Define helpers for version-ing                                       ----
 # - following 'Single-sourcing the package version' from 'Python
 #   Packaging User Guide'
 #   https://packaging.python.org/guides/single-sourcing-package-version/
@@ -61,39 +40,7 @@ def find_version(*file_paths):
     raise RuntimeError("Unable to find version string.")
 
 
-# ---- Define long description                                      ----
-with open('README.md', 'r') as fh:
-    LONG_DESCRIPTION = fh.read()
-
-# ---- Perform setup                                                ----
-setup(
-    name='bapsflib',
-    version=find_version("bapsflib", "__init__.py"),
-    description='A toolkit for handling data collected at BaPSF.',
-    long_description=LONG_DESCRIPTION,
-    long_description_content_type='text/markdown',
-    scripts=[],
-    setup_requires=['astropy>=2.0',
-                    'h5py>=2.6',
-                    'numpy>=1.7',
-                    'scipy>=1.0.0'],
-    install_requires=['astropy>=2.0',
-                      'h5py>=2.6',
-                      'numpy>=1.7',
-                      'scipy>=1.0.0'],
-    python_requires='>=3.5',
-    author='Erik T. Everson',
-    author_email='eteveson@gmail.com',
-    license='3-clause BSD',
-    url='https://github.com/BaPSF/bapsflib',
-    keywords=['bapsf', 'HDF5', 'lapd', 'physics', 'plasma', 'science'],
-    classifiers=CLASSIFIERS,
-    packages=find_packages(),
-    zip_safe=False,
-    include_package_data=True,
-    package_urls={
-        "BaPSF": "http://plasma.physics.ucla.edu/",
-        "Documentation": "https://bapsflib.readthedocs.io/en/latest/",
-        "GitHub": "https://github.com/BaPSF/bapsflib",
-    }
-)
+# ---- Perform setup                                                        ----
+setup_params = read_configuration("setup.cfg")["options"]["extras_require"]
+setup_params["metadata"]["version"] = find_version("bapsflib", "__init__.py")
+setup(**setup_params)

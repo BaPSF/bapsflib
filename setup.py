@@ -15,7 +15,6 @@ import os
 import re
 
 from setuptools import setup
-from setuptools.config import read_configuration
 
 # find here
 here = os.path.abspath(os.path.dirname(__file__))
@@ -41,6 +40,4 @@ def find_version(*file_paths):
 
 
 # ---- Perform setup                                                        ----
-setup_params = read_configuration("setup.cfg")["options"]["extras_require"]
-setup_params["metadata"]["version"] = find_version("bapsflib", "__init__.py")
-setup(**setup_params)
+setup(version=find_version("bapsflib", "__init__.py"))

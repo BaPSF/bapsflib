@@ -1,26 +1,9 @@
-/* override table width restrictions */
-@media screen and (min-width: 767px) {
 
-    .wy-table-responsive table td {
-        /* !important prevents the common CSS stylesheets from overriding
-           this as on RTD they are loaded after this stylesheet */
-        white-space: normal !important;
-    }
 
-    .wy-table-responsive {
-        overflow: visible !important;
-    }}
+/* -----------------------------------------------------------------------------
+ * Font Styles
+ */
 
-/* Override RTD theme bottom margin for line blocks in a table */
-.rst-content table.docutils td .line-block {
-    margin-bottom: 0px
-}
-
-/* Override RTD theme bottom margin for code highlights in a table */
-.rst-content table.docutils td div[class^='highlight-default'] {
-    margin-bottom: 12px;
-}
-/* --- Font Styles                                                --- */
 /* text coloring */
 .red {
     color: red;
@@ -46,19 +29,37 @@
     font-weight: bold;
 }
 
-/* --- RTD theme fixes since readthedocs.org theme does not match    ---
-   --- the sphinx_rtd_theme                                          ---
-*/
-/* Override RTD theme margin-left indent */
-.rst-content .line-block {
-    margin-left: 0px
+/* -----------------------------------------------------------------------------
+ * RTD Overrides
+ */
+
+/* override table width restrictions */
+@media screen and (min-width: 767px) {
+
+    .wy-table-responsive table td {
+        white-space: normal !important;
+    }
+
+    .wy-table-responsive {
+        overflow: visible !important;
+    }}
+
+/* Bottom margin for line blocks in a table */
+.rst-content table.docutils td .line-block {
+    margin-bottom: 0;
 }
-/*
-.rst-content .line-block .line-block {
-    margin-left: $base-line-height
+
+/* Bottom margin for code highlights in a table */
+.rst-content table.docutils td div[class^='highlight-default'] {
+    margin-bottom: 12px;
 }
-*/
-/* Override RTD .highlight background color */
+
+/* .highlight background color */
 div[class^="highlight"] {
-    background: #eeffcc
+    background: #eeffcc;
+}
+
+/* Margin-left indent */
+.rst-content .line-block {
+    margin-left: 0;
 }

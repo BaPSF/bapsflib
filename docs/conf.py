@@ -50,6 +50,7 @@ intersphinx_mapping = {
     "astropy": ("http://docs.astropy.org/en/stable/", None),
     "h5py": ("https://docs.h5py.org/en/latest/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
+    "plasmapy": ("https://docs.plasmapy.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
 }

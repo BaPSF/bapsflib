@@ -45,7 +45,6 @@ extensions = [
     'sphinx.ext.autosummary',
 ]
 
-
 # Setup intersphinx
 intersphinx_mapping = {
     "astropy": ("http://docs.astropy.org/en/stable/", None),

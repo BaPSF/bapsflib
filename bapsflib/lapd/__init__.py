@@ -20,7 +20,5 @@ contains functions and classes relevant for calculating LaPD parameters
 """
 __all__ = ['_hdf', 'constants', 'File', 'tools']
 
-from . import _hdf
-from . import constants
-from . import tools
-from ._hdf.file import File
+from bapsflib.lapd import (_hdf, constants, tools)
+from bapsflib.lapd._hdf.file import File

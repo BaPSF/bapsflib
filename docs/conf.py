@@ -20,12 +20,9 @@
 #
 import os
 import sys
-from sphinx.ext.autodoc import between
-# from unittest.mock import MagicMock
 
 sys.path.insert(0, os.path.abspath('..'))
 
-# autodoc_mock_imports = ['PyQt5']
 autoclass_content = "both"
 
 # -- General configuration ---------------------------------------------
@@ -236,28 +233,6 @@ rst_prolog = """
 
 
 def setup(app):
-    # Register a sphinx.ext.autodoc.between listener to ignore
-    # everything between lines that contain the word IGNORE
-    #
-    # Usage:
-    #    """
-    #    IGNORE:
-    #        everything here is ignored
-    #    IGNORE
-    #    """
-    app.connect('autodoc-process-docstring', between('^.*IGNORE.*$',
-                                                     exclude=True))
-
-    # prevent horizontal scrolling in readthedoc themed tables
+    # custom CSS overrides
     app.add_stylesheet('rtd_theme_overrides.css')
     return app
-
-
-#class Mock(MagicMock):
-#    @classmethod
-#    def __getattr__(cls, name):
-#            return MagicMock()
-#
-#MOCK_MODULES = ['PyQt5', 'PyQt5.uic', 'numpy', 'pandas', 'h5py',
-#                'viewers']
-#sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)

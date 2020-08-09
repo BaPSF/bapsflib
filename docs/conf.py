@@ -34,11 +34,23 @@ autoclass_content = "both"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-# 'sphinx.ext.imgmath'
-# 'sphinx.ext.mathjax'
-extensions = ['sphinx.ext.autodoc',
-              'sphinx.ext.mathjax',
-              'sphinx.ext.autosummary']
+extensions = [
+    'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.mathjax',
+    'sphinx.ext.autosummary',
+]
+
+
+# Setup intersphinx
+intersphinx_mapping = {
+    "astropy": ("http://docs.astropy.org/en/stable/", None),
+    "h5py": ("https://docs.h5py.org/en/latest/", None),
+    "numpy": ("https://numpy.org/doc/stable/", None),
+    "python": ("https://docs.python.org/3", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+}
+
 numfig = True  # enable figure and table numbering
 autosummary_generate = True
 

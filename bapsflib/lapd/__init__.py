@@ -9,7 +9,7 @@
 #   license terms and contributor agreement.
 #
 """
-The :mod:`bapsflib.lapd` package contains the necessary tools to access
+The :mod:`bapsflib.lapd` sub-package contains the necessary tools to access
 data relevant to and collected on the LaPD.  The
 :mod:`~bapsflib.lapd._hdf` package focuses on accessing and reading
 data written to HDF5 files. The :mod:`~bapsflib.lapd.constants` package

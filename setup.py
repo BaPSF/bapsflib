@@ -10,34 +10,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import codecs
 import os
-import re
 
 from setuptools import setup
 
 # find here
 here = os.path.abspath(os.path.dirname(__file__))
 
-
-# ---- Define helpers for version-ing                                       ----
-# - following 'Single-sourcing the package version' from 'Python
-#   Packaging User Guide'
-#   https://packaging.python.org/guides/single-sourcing-package-version/
-#
-def read(*parts):
-    with codecs.open(os.path.join(here, *parts), 'r') as fp:
-        return fp.read()
-
-
-def find_version(*file_paths):
-    version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]",
-                              version_file, re.M)
-    if version_match:
-        return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
-
-
 # ---- Perform setup                                                        ----
-setup(version=find_version("bapsflib", "__init__.py"))
+setup(use_scm_version=True)

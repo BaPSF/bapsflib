@@ -3,7 +3,7 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017-2018 Erik T. Everson and contributors
+# Copyright 2017-2020 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
@@ -14,16 +14,21 @@
 # languages
 language: python
 python:
-  - "3.5"
   - "3.6"
-# Enable 3.7 without globally enabling sudo and dist: xenial for other
-# build jobs
-# workaround https://github.com/travis-ci/travis-ci/issues/9815
-matrix:
-  include:
-    - python: "3.7"
-      dist: xenial
-      sudo: true
+  - "3.7"
+  - "3.8"
+
+os:
+  - linux
+
+# The number of commits cloned.  Setting to false will clone all commits.
+# Since __version__ is defined with setuptools_scm, the default depth of 50
+# could be insufficient.
+git:
+  depth: false
+
+jobs:
+  fast_finish: true
 
 # install dependencies
 install:

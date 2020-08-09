@@ -10,7 +10,7 @@ Welcome to bapsflib's documentation!
     :maxdepth: 1
     :caption: Contents:
 
-    about
+    About <about>
     installation
     getstarted
     ./background/main

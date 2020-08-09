@@ -55,6 +55,7 @@ intersphinx_mapping = {
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class
 numfig = True  # enable figure and table numbering
 autosummary_generate = True  # generate stub files from all found autosummary directives
+default_role = "py:obj"  # default role for reST role (i.e. `` defaults to :py:obj:``)
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

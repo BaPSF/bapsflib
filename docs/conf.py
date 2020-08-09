@@ -23,6 +23,7 @@ import sys
 
 from datetime import datetime
 from pkg_resources import parse_version
+from sphinx.application import Sphinx
 
 sys.path.insert(0, os.path.abspath('..'))
 
@@ -261,10 +262,9 @@ rst_prolog = """
 """
 
 
-def setup(app):
+def setup(app: Sphinx) -> None:
     # custom config values
     app.add_config_value("revision", "", True)
 
     # custom CSS overrides
     app.add_stylesheet('rtd_theme_overrides.css')
-    return app

@@ -8,6 +8,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Sub-package for constructing an object for representing a plasma environment,
+especially its physical parameters.
+"""
 __all__ = ['core']
 
-from . import core
+from bapsflib.plasma import core

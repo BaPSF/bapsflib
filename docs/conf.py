@@ -23,8 +23,6 @@ import sys
 
 sys.path.insert(0, os.path.abspath('..'))
 
-autoclass_content = "both"
-
 # -- General configuration ---------------------------------------------
 
 # If your documentation needs a minimal Sphinx version, state it here.
@@ -51,8 +49,10 @@ intersphinx_mapping = {
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
 }
 
+# Various sphinx configuration variables
+autoclass_content = "both"  # for classes insert docstrings from __init__ and class
 numfig = True  # enable figure and table numbering
-autosummary_generate = True
+autosummary_generate = True  # generate stub files from all found autosummary directives
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

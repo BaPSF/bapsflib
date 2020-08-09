@@ -1,5 +1,4 @@
 
-
 /* -----------------------------------------------------------------------------
  * Font Styles
  */
@@ -27,6 +26,37 @@
 /* bold test [mimic latex] */
 .textbf {
     font-weight: bold;
+}
+
+/* -----------------------------------------------------------------------------
+ * RTD Layout styling
+ */
+
+/* Style for module/index links in sidebar below the search field. */
+div.pkgnav {
+    text-align: center;
+    font-size: 1em;
+    color: white;
+    margin-top: 12px;
+}
+
+div.pkgnav ul {
+    list-style: none;
+}
+
+div.pkgnav ul li {
+    display: inline;
+}
+
+div.pkgnav ul li a {
+    margin: 0;
+    color: #f9f9f0;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+div.pkgnav ul li a:hover {
+    color: white;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
 }
 
 /* -----------------------------------------------------------------------------

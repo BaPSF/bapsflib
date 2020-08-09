@@ -9,9 +9,8 @@
 #   license terms and contributor agreement.
 #
 """
-This package contains the mapping classes (in :mod:`~.maps`) and file
-access classes (in :mod:`~.utils`) used to map and interface with the
-HDF5 files generated at BaPSF.
+Sub-package containing the "low-level" core architecture for accessing and
+mapping the HDF5 files generated at BaPSF.
 """
 __all__ = ['ConType', 'File', 'HDFMap']
 

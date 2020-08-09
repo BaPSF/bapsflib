@@ -26,14 +26,6 @@ Welcome to bapsflib's documentation!
 
 .. toctree::
     :maxdepth: 1
-    :caption: Package Navigation:
-
-    ./src/bapsflib
-    genindex
-    py-modindex
-
-.. toctree::
-    :maxdepth: 1
     :caption: Appendix:
 
     glossary

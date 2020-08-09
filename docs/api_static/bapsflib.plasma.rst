@@ -3,33 +3,17 @@
 bapsflib\.plasma
 ================
 
-.. warning:: Package Currently Under Development
+.. py:currentmodule:: bapsflib.plasma
+
+.. warning::
+    This sub-package is in active development.  For the foreseeable future, the api
+    will be in continuous flux as functionality is added an modified.
 
 .. automodule:: bapsflib.plasma
-    :members:
-    :undoc-members:
-    :show-inheritance:
 
-Subpackages
------------
+Sub-Packages and Modules
+------------------------
 
-.. toctree::
-    :maxdepth: 1
+.. autosummary::
 
-
-Modules
--------
-
-.. contents::
-    :depth: 2
-    :local:
-
-bapsflib\.plasma\.core
-^^^^^^^^^^^^^^^^^^^^^^
-
-.. automodule:: bapsflib.plasma.core
-    :members:
-    :undoc-members:
-    :special-members:
-    :exclude-members: __dict__, __init__, __module__, __weakref__
-    :show-inheritance:
+    core

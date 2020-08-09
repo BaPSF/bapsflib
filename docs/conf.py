@@ -21,6 +21,8 @@
 import os
 import sys
 
+from datetime import datetime
+
 sys.path.insert(0, os.path.abspath('..'))
 
 # -- General configuration ---------------------------------------------
@@ -68,8 +70,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = 'bapsflib'
-copyright = '2017-2018, Erik T. Everson'
-author = 'Erik T. Everson'
+author = 'Erik T. Everson & the BaPSF Community'
+copyright = f'2017-{datetime.utcnow().year}, {author}'
 
 # The version info for the project you're documenting, acts as
 # replacement for |version| and |release|, also used in various other

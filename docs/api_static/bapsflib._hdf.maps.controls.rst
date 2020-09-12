@@ -5,36 +5,24 @@ bapsflib\.\_hdf\.maps\.controls
 
 .. automodule:: bapsflib._hdf.maps.controls
 
-.. toctree::
-    :maxdepth: 1
-    :titlesonly:
-    :caption: Sub-Packages & Modules
-
-    bapsflib._hdf.maps.controls.clparse
-    bapsflib._hdf.maps.controls.contype
-    bapsflib._hdf.maps.controls.map_controls
-    bapsflib._hdf.maps.controls.n5700ps
-    bapsflib._hdf.maps.controls.nixyz
-    bapsflib._hdf.maps.controls.nixz
-    bapsflib._hdf.maps.controls.sixk
-    bapsflib._hdf.maps.controls.templates
-    bapsflib._hdf.maps.controls.waveform
-
-
-.. rubric:: Classes
+Sub-Packages & Modules
+----------------------
 
 .. autosummary::
-    :nosignatures:
+    :toctree:
 
-    ConType
-    HDFMapControls
+    clparse
+    contype
+    map_controls
+    n5700ps
+    nixyz
+    nixz
+    sixk
+    templates
+    waveform
 
-.. autoclass:: ConType
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass:: HDFMapControls
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodapi:: bapsflib._hdf.maps.controls
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

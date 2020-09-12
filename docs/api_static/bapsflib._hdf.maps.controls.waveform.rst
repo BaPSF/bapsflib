@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.controls\.waveform
 =========================================
 
-.. automodule:: bapsflib._hdf.maps.controls.waveform
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.controls.waveform
+
+.. automodapi:: bapsflib._hdf.maps.controls.waveform
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapControlWaveform
-        :nosignatures:
+    :headings: "-^"

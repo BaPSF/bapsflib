@@ -12,9 +12,7 @@
 Package of control device mapping classes and their constructor
 (:class:`~.map_controls.HDFMapControls`).
 """
-__all__ = ['clparse', 'contype', 'ConType', 'HDFMapControls',
-           'map_controls', 'n5700ps', 'nixyz', 'nixz', 'sixk', 
-           'templates', 'waveform']
+__all__ = ['ConType', 'HDFMapControls']
 
 from . import (clparse, contype, map_controls, n5700ps, nixyz, nixz, 
                sixk, templates, waveform)

@@ -1,13 +1,9 @@
 bapsflib\.\_hdf\.maps\.controls\.clparse
 ========================================
 
-.. automodule:: bapsflib._hdf.maps.controls.clparse
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.maps.controls.clparse
 
-    .. rubric:: Classes
-
-    .. autosummary:: CLParse
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.controls.clparse
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

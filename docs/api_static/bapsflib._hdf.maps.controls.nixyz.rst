@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.controls\.nixyz
 ======================================
 
-.. automodule:: bapsflib._hdf.maps.controls.nixyz
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.controls.nixyz
+
+.. automodapi:: bapsflib._hdf.maps.controls.nixyz
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapControlNIXYZ
-        :nosignatures:
+    :headings: "-^"

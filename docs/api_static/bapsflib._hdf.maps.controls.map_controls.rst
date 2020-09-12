@@ -1,13 +1,9 @@
 bapsflib\.\_hdf\.maps\.controls\.map\_controls
 ==============================================
 
-.. automodule:: bapsflib._hdf.maps.controls.map_controls
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.maps.controls.map_controls
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapControls
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.controls.map_controls
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

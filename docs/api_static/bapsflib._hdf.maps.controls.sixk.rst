@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.controls\.sixk
 =====================================
 
-.. automodule:: bapsflib._hdf.maps.controls.sixk
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.controls.sixk
+
+.. automodapi:: bapsflib._hdf.maps.controls.sixk
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapControl6K
-        :nosignatures:
+    :headings: "-^"

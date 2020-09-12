@@ -1,12 +1,9 @@
 bapsflib\.\_hdf\.maps\.controls\.contype
 ========================================
 
-.. automodule:: bapsflib._hdf.maps.controls.contype
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.maps.controls.contype
 
-    .. rubric:: Classes
-
-    .. autosummary:: ConType
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.controls.contype
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

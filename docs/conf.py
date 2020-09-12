@@ -43,6 +43,8 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.autosummary',
+    "sphinx_automodapi.automodapi",
+    "sphinx_automodapi.smart_resolver",
 ]
 
 # Setup intersphinx

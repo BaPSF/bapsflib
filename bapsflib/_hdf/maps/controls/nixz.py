@@ -8,6 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the NIXZ motion control mapper
+`~bapsflib._hdf.maps.controls.nixz.HDFMapControlNIXZ`.
+"""
+__all__ = ["HDFMapControlNIXZ"]
+
 import h5py
 import numpy as np
 

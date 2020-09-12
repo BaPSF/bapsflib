@@ -8,6 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the 6K Compumotor motion control mapper
+`~bapsflib._hdf.maps.controls.sixk.HDFMapControl6K`.
+"""
+__all__ = ["HDFMapControl6K"]
+
 import h5py
 import numpy as np
 import re

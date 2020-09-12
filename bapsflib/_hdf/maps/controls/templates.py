@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for the template control mappers."""
+__all__ = ["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
+
 import h5py
 import numpy as np
 import os

@@ -11,6 +11,7 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
+    :toctree:
 
     _hdf
     lapd

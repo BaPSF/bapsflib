@@ -24,4 +24,4 @@ Variables
 .. autosummary::
     :toctree: ../api
 
-    ~bapsflib.__version__
+    __version__

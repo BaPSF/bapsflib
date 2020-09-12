@@ -8,10 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for defining the main control mapper `HDFMapControls`."""
+__all__ = ["HDFMapControls"]
+
 import h5py
 
-from bapsflib.utils.errors import HDFMappingError
 from typing import (Dict, Tuple, Union)
+
+from bapsflib.utils.errors import HDFMappingError
 
 from .n5700ps import HDFMapControlN5700PS
 from .nixyz import HDFMapControlNIXYZ

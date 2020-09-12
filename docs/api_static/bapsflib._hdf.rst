@@ -1,36 +1,23 @@
+:orphan:
+
 bapsflib\.\_hdf
 ===============
 
+.. py:currentmodule:: bapsflib._hdf
+
 .. automodule:: bapsflib._hdf
 
-.. toctree::
-    :maxdepth: 2
-    :titlesonly:
-    :caption: Sub-Packages & Modules
 
-    bapsflib._hdf.maps
-    bapsflib._hdf.utils
-
-.. rubric:: Classes
+Sub-Packages & Modules
+----------------------
 
 .. autosummary::
-    :nosignatures:
 
-    ConType
-    File
-    HDFMap
+    maps
+    utils
 
-.. autoclass:: ConType
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass:: File
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass:: HDFMap
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodapi:: bapsflib._hdf
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

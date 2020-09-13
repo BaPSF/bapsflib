@@ -1,7 +1,7 @@
 Architecture
 ------------
 
-:class:`~bapsflib._hdf.maps.hdfmap.HDFMap` takes a modular approach to
+:class:`~bapsflib._hdf.maps.core.HDFMap` takes a modular approach to
 mapping a HDF5 file.  It contains a dictionary of known modules with
 known layouts.  If one or more of these layouts are discovered inside
 the HDF5 file, then the associated mappings are added to the mapping
@@ -31,7 +31,7 @@ object.  There are five module categories:
 **unknown**
     This is any group or dataset in :code:`'/'`, :code:`'/MSI/'`, or
     :code:`'/Raw data + config/'` groups that is not known by
-    :class:`~bapsflib._hdf.maps.hdfmap.HDFMap` or is unsuccessfully
+    :class:`~bapsflib._hdf.maps.core.HDFMap` or is unsuccessfully
     mapped.
 
 Basic Usage

@@ -113,7 +113,7 @@ class File(h5py.File):
 
     @property
     def file_map(self) -> HDFMap:
-        """HDF5 file map (:class:`~bapsflib._hdf.maps.hdfmap.HDFMap`)"""
+        """HDF5 file map (:class:`~bapsflib._hdf.maps.core.HDFMap`)"""
         return self._file_map
 
     @property

@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.msi\.gaspressure
 =======================================
 
-.. automodule:: bapsflib._hdf.maps.msi.gaspressure
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.msi.gaspressure
+
+.. automodapi:: bapsflib._hdf.maps.msi.gaspressure
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSIGasPressure
-        :nosignatures:
+    :headings: "-^"

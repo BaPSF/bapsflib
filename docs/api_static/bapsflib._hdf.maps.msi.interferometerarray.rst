@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.msi\.interferometerarray
 ===============================================
 
-.. automodule:: bapsflib._hdf.maps.msi.interferometerarray
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.msi.interferometerarray
+
+.. automodapi:: bapsflib._hdf.maps.msi.interferometerarray
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSIInterferometerArray
-        :nosignatures:
+    :headings: "-^"

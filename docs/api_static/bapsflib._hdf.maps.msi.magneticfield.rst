@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.msi\.magneticfield
 =========================================
 
-.. automodule:: bapsflib._hdf.maps.msi.magneticfield
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.msi.magneticfield
+
+.. automodapi:: bapsflib._hdf.maps.msi.magneticfield
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSIMagneticField
-        :nosignatures:
+    :headings: "-^"

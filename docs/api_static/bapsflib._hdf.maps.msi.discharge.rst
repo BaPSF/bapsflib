@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.msi\.discharge
 =====================================
 
-.. automodule:: bapsflib._hdf.maps.msi.discharge
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.msi.discharge
+
+.. automodapi:: bapsflib._hdf.maps.msi.discharge
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSIDischarge
-        :nosignatures:
+    :headings: "-^"

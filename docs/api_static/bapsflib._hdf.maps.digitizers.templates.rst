@@ -1,15 +1,10 @@
 bapsflib\.\_hdf\.maps\.digitizers\.templates
 ============================================
 
-.. automodule:: bapsflib._hdf.maps.digitizers.templates
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
-    :exclude-members: _abc_cache, _abc_negative_cache,
-        _abc_negative_cache_version, _abc_registry
+.. py:currentmodule:: bapsflib._hdf.maps.digitizers.templates
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapDigiTemplate
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.digitizers.templates
+    :no-heading:
+    :include-all-objects:
+    :inherited-members:
+    :headings: "-^"

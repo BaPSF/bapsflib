@@ -8,6 +8,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module containing the main `~bapsflib._hdf.utils.hdfoverview.HDFOverview` class.
+"""
+__all__ = ["HDFOverview", "status_print"]
+
 import os
 import platform
 import pprint as pp

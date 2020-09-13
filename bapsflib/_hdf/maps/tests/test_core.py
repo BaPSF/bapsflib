@@ -25,7 +25,7 @@ from ..msi.templates import HDFMapMSITemplate
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.hdfmap.HDFMap`
+    Test Case for :class:`~bapsflib._hdf.maps.core.HDFMap`
     """
 
     f = NotImplemented  # type: FauxHDFBuilder

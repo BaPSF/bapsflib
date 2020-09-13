@@ -14,7 +14,7 @@ Package of control device mapping classes and their constructor
 """
 __all__ = ['ConType', 'HDFMapControls']
 
-from . import (parsers, contype, map_controls, n5700ps, nixyz, nixz,
+from . import (parsers, types, map_controls, n5700ps, nixyz, nixz,
                sixk, templates, waveform)
-from .contype import ConType
+from .types import ConType
 from .map_controls import HDFMapControls

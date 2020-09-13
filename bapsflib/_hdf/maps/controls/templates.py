@@ -20,7 +20,7 @@ from typing import (Iterable, List, Union)
 from warnings import warn
 
 from .parsers import CLParse
-from .contype import ConType
+from .types import ConType
 
 
 class HDFMapControlTemplate(ABC):

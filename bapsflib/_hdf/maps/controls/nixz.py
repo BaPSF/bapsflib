@@ -20,7 +20,7 @@ import numpy as np
 from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from .contype import ConType
+from .types import ConType
 from .templates import HDFMapControlTemplate
 
 

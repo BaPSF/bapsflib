@@ -11,7 +11,6 @@ Sub-Packages & Modules
 .. autosummary::
     :toctree:
 
-    contype
     map_controls
     n5700ps
     nixyz
@@ -19,6 +18,7 @@ Sub-Packages & Modules
     parsers
     sixk
     templates
+    types
     waveform
 
 .. automodapi:: bapsflib._hdf.maps.controls

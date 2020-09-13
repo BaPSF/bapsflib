@@ -18,7 +18,7 @@ from ..controls import HDFMapControls
 from ..controls.templates import HDFMapControlTemplate
 from ..digitizers import HDFMapDigitizers
 from ..digitizers.templates import HDFMapDigiTemplate
-from ..hdfmap import HDFMap
+from ..core import HDFMap
 from ..msi import HDFMapMSI
 from ..msi.templates import HDFMapMSITemplate
 

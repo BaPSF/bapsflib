@@ -13,7 +13,7 @@ Sub-Packages & Modules
 
     controls
     digitizers
-    hdfmap
+    core
     msi
 
 .. automodapi:: bapsflib._hdf.maps

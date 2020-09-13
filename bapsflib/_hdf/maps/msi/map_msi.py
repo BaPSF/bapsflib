@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for defining the main MSI mapper `HDFMapMSI`."""
+__all__ = ["HDFMapMSI"]
+
 import h5py
 
 from bapsflib.utils.errors import HDFMappingError

@@ -8,6 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the Cathode Heater MSI Diagnostic mapper
+`~bapsflib._hdf.maps.msi.heater.HDFMapMSIHeater`.
+"""
+__all__ = ["HDFMapMSIHeater"]
+
 import h5py
 import numpy as np
 

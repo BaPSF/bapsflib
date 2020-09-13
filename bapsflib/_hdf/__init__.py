@@ -9,7 +9,7 @@
 #   license terms and contributor agreement.
 #
 """
-Sub-package containing the "low-level" core architecture for accessing and
+Sub-package containing the "high-level" architecture for accessing and
 mapping the HDF5 files generated at BaPSF.
 """
 __all__ = ['ConType', 'File', 'HDFMap']

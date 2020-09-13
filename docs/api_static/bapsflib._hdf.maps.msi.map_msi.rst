@@ -1,13 +1,9 @@
 bapsflib\.\_hdf\.maps\.msi\.map\_msi
 ====================================
 
-.. automodule:: bapsflib._hdf.maps.msi.map_msi
-    :members:
-    :undoc-members:
-    :show-inheritance:
-    :private-members:
+.. py:currentmodule:: bapsflib._hdf.maps.msi.map_msi
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSI
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.msi.map_msi
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

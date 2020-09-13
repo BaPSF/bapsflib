@@ -1,15 +1,10 @@
 bapsflib\.\_hdf\.maps\.msi\.templates
 =====================================
 
-.. automodule:: bapsflib._hdf.maps.msi.templates
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
-    :exclude-members: _abc_cache, _abc_negative_cache,
-        _abc_negative_cache_version, _abc_registry
+.. py:currentmodule:: bapsflib._hdf.maps.msi.templates
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSITemplate
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.msi.templates
+    :no-heading:
+    :include-all-objects:
+    :inherited-members:
+    :headings: "-^"

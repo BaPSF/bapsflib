@@ -18,7 +18,7 @@ import unittest as ut
 
 from typing import Tuple
 
-from ..clparse import CLParse
+from ..parsers import CLParse
 
 
 class TestCLParse(ut.TestCase):
@@ -50,7 +50,7 @@ class TestCLParse(ut.TestCase):
     def test_apply_patterns(self):
         """
         Test functionality of
-        :meth:`bapsflib.lapd.controls.clparse.CLParse.apply_patterns`
+        :meth:`bapsflib.lapd.controls.parsers.CLParse.apply_patterns`
         """
         # What to test:
         # 1. output is always a (bool, dict)

@@ -8,6 +8,10 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for defining the main HDF5 file mapper
+`~bapsflib._hdf.maps.hdfmap.HDFMap`.
+"""
 __all__ = ["HDFMap"]
 
 import h5py

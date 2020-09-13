@@ -1,17 +1,9 @@
 bapsflib\.\_hdf\.utils\.hdfoverview
 ===================================
 
-.. automodule:: bapsflib._hdf.utils.hdfoverview
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.utils.hdfoverview
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFOverview
-        :nosignatures:
-
-    .. rubric:: Functions
-
-    .. autosummary:: status_print
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.utils.hdfoverview
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

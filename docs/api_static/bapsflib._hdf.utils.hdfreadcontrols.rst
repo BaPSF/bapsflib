@@ -1,11 +1,9 @@
 bapsflib\.\_hdf\.utils\.hdfreadcontrols
 =======================================
 
-.. automodule:: bapsflib._hdf.utils.hdfreadcontrols
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.utils.hdfreadcontrols
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFReadControls
+.. automodapi:: bapsflib._hdf.utils.hdfreadcontrols
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

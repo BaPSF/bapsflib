@@ -1,12 +1,10 @@
 bapsflib\.\_hdf\.maps\.digitizers\.siscrate
 ===========================================
 
-.. automodule:: bapsflib._hdf.maps.digitizers.siscrate
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.maps.digitizers.siscrate
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapDigiSISCrate
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.digitizers.siscrate
+    :no-heading:
+    :include-all-objects:
+    :inherited-members:
+    :headings: "-^"

@@ -1,24 +1,23 @@
 bapsflib\.\_hdf\.maps\.digitizers
 =================================
 
+.. py:currentmodule:: bapsflib._hdf.maps.digitizers
+
 .. automodule:: bapsflib._hdf.maps.digitizers
 
-.. toctree::
-    :maxdepth: 1
-    :titlesonly:
-    :caption: Sub-Packages & Modules
+Sub-Packages & Modules
+----------------------
 
-    bapsflib._hdf.maps.digitizers.map_digis
-    bapsflib._hdf.maps.digitizers.sis3301
-    bapsflib._hdf.maps.digitizers.siscrate
-    bapsflib._hdf.maps.digitizers.templates
+.. autosummary::
+   :toctree:
 
-.. rubric:: Classes
+    map_digis
+    sis3301
+    siscrate
+    templates
 
-.. autosummary:: HDFMapDigitizers
-    :nosignatures:
-
-.. autoclass:: HDFMapDigitizers
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodapi:: bapsflib._hdf.maps.digitizers
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

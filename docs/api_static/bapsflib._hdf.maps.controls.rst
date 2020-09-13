@@ -11,12 +11,12 @@ Sub-Packages & Modules
 .. autosummary::
     :toctree:
 
-    clparse
     contype
     map_controls
     n5700ps
     nixyz
     nixz
+    parsers
     sixk
     templates
     waveform

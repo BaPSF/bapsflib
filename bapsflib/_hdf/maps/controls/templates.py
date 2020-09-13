@@ -19,7 +19,7 @@ from abc import (ABC, abstractmethod)
 from typing import (Iterable, List, Union)
 from warnings import warn
 
-from .clparse import CLParse
+from .parsers import CLParse
 from .contype import ConType
 
 
@@ -458,7 +458,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
     def clparse(self, config_name: str) -> CLParse:
         """
         Return instance of
-        :class:`~bapsflib.lapd.controls.clparse.CLParse`
+        :class:`~bapsflib.lapd.controls.parsers.CLParse`
         for `config_name`.
 
         :param str config_name: configuration name

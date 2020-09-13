@@ -1,12 +1,9 @@
 bapsflib\.\_hdf\.maps\.hdfmap
 =============================
 
-.. automodule:: bapsflib._hdf.maps.hdfmap
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.maps.hdfmap
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMap
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.hdfmap
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for the template MSI mappers."""
+__all__ = ["HDFMapMSITemplate"]
+
 import os
 import h5py
 

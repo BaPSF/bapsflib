@@ -8,6 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module containing the main
+`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` class.
+"""
+__all__ = ["HDFReadControls"]
+
 import copy
 import h5py
 import numpy as np

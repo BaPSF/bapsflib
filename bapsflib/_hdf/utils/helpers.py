@@ -12,6 +12,15 @@
 Helper functions that are utilized by the the HDF5 utility classes
 defined in module :mod:`bapsflib._hdf.utils`.
 """
+__all__ = [
+    "build_shotnum_dset_relation",
+    "build_sndr_for_simple_dset",
+    "build_sndr_for_complex_dset",
+    "condition_controls",
+    "condition_shotnum",
+    "do_shotnum_intersection",
+]
+
 import h5py
 import numpy as np
 

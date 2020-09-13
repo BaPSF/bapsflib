@@ -9,6 +9,11 @@
 #   license terms and contributor agreement.
 #
 #
+"""
+Module containing the main `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` class.
+"""
+__all__ = ["HDFReadMSI"]
+
 import bapsflib
 import copy
 import numpy as np

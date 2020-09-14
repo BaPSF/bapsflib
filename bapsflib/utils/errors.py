@@ -8,6 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Exceptions specific to `bapsflib`."""
+__all__ = [
+    "HDFMappingError",
+    "HDFReadControlError",
+    "HDFReadDigiError",
+    "HDFReadMSIError",
+    "HDFReadError"
+]
 
 
 class HDFMappingError(Exception):

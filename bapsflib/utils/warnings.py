@@ -8,6 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Warnings specific to `bapsflib`."""
+__all__ = ["HDFMappingWarning"]
 
 
 class HDFMappingWarning(UserWarning):

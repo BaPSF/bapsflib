@@ -15,7 +15,7 @@ import astropy.units as u
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from typing import (List, Tuple)
 from unittest import mock
 

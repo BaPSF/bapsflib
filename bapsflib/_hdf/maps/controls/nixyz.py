@@ -18,7 +18,7 @@ import astropy.units as u
 import h5py
 import numpy as np
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
 from .types import ConType

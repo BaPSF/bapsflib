@@ -14,7 +14,7 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 
 from ..magneticfield import HDFMapMSIMagneticField
 from .common import MSIDiagnosticTestCase

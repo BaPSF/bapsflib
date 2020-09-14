@@ -15,7 +15,7 @@ import h5py
 
 from typing import (Dict, Tuple, Union)
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 
 from .n5700ps import HDFMapControlN5700PS
 from .nixyz import HDFMapControlNIXYZ

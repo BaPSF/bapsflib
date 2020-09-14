@@ -1,5 +1,3 @@
-:orphan:
-
 bapsflib\.plasma\.core
 ======================
 
@@ -12,54 +10,7 @@ bapsflib\.plasma\.core
     Please use the `plasmapy.formulary` instead.  The functionality defined here will
     either be replaced by the `plasmapy.formulary` or dropped altogether.
 
-.. automodule:: bapsflib.plasma.core
-
-Functions
----------
-
-.. autosummary::
-    :toctree: ../api
-
-    cs
-    fce
-    fci
-    fLH
-    fpe
-    fpi
-    fUH
-    lD
-    lpe
-    lpi
-    oce
-    oci
-    oLH
-    ope
-    opi
-    oUH
-    rce
-    rci
-    VA
-    vTe
-    vTi
-
-Classes
--------
-
-.. autosummary::
-    :toctree: ../api
-
-    FloatUnit
-    IntUnit
-
-Variables
----------
-
-.. autosummary::
-    :toctree: ../api
-
-    AMU
-    C
-    E
-    KB
-    ME
-    MP
+.. automodapi:: bapsflib.plasma.core
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

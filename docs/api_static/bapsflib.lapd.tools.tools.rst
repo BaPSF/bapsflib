@@ -1,15 +1,9 @@
 bapsflib\.lapd\.tools\.tools
 ============================
 
-.. automodule:: bapsflib.lapd.tools.tools
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib.lapd.tools.tools
 
-    .. rubric:: Functions
-
-    .. autosummary::
-        :nosignatures:
-
-        portnum_to_z
-        z_to_portnum
+.. automodapi:: bapsflib.lapd.tools.tools
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

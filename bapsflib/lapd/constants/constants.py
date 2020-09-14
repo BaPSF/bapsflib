@@ -23,14 +23,12 @@ from typing import Tuple
 
 class BaPSFConstant(Constant):
     """BaPSF Constant"""
+
+    #: Default reference for the value of a constant.
     default_reference = 'Basic Plasma Science Facility'
+
     _registry = {}
     _has_incompatible_units = set()
-
-    def __new__(cls, abbrev, name, value, unit, uncertainty,
-                reference=default_reference, system=None):
-        return super().__new__(cls, abbrev, name, value, unit,
-                               uncertainty, reference, system)
 
 
 #: BaPSF Constant: nominal distance between LaPD ports
@@ -48,7 +46,13 @@ ref_port.__doc__ += (": LaPD :math:`z = 0` reference port (most "
 
 
 class SouthCathode(object):
-    """Constants related to the South 'main' LaPD cathode."""
+    """
+    .. warning::
+       The class is currently in development and only contains info on the NiO
+       cathode, no LaB6 data or upgrade data.
+
+    Constants related to the South 'main' LaPD cathode.
+    """
 
     def __init__(self, operation_date=datetime.datetime.now()):
         """

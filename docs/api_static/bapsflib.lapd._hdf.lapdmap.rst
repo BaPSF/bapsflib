@@ -1,13 +1,10 @@
 bapsflib\.lapd\.\_hdf\.lapdmap
 ==============================
 
-.. automodule:: bapsflib.lapd._hdf.lapdmap
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib.lapd._hdf.lapdmap
+
+.. automodapi:: bapsflib.lapd._hdf.lapdmap
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: LaPDMap
-        :nosignatures:
+    :headings: "-^"

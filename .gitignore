@@ -9,6 +9,7 @@
 
 # Sphinx build directory
 /docs/_build/
+/docs/api/
 
 # PyCharm specifics
 .idea/*

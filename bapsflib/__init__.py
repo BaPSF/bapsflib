@@ -9,15 +9,10 @@
 #   license terms and contributor agreement.
 #
 """
-This is the bapsflib package, a Python toolkit designed for the Basic
+The `bapsflib` package is an open-source Python packaged designed by the Basic
 Plasma Science Facility (BaPSF) group at the University of California,
-Los Angeles (UCLA).
-
-BaPSF Home:
-http://plasma.physics.ucla.edu/
-
-bapsflib Repository:
-https://github.com/rocco8773/bapsflib
+Los Angeles (UCLA).  It is a toolkit for reading, manipulating, and analyzing
+data collected at BaPSF.
 """
 __all__ = ["lapd"]
 

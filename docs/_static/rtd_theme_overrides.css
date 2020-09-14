@@ -1,26 +1,8 @@
-/* override table width restrictions */
-@media screen and (min-width: 767px) {
 
-    .wy-table-responsive table td {
-        /* !important prevents the common CSS stylesheets from overriding
-           this as on RTD they are loaded after this stylesheet */
-        white-space: normal !important;
-    }
+/* -----------------------------------------------------------------------------
+ * Font Styles
+ */
 
-    .wy-table-responsive {
-        overflow: visible !important;
-    }}
-
-/* Override RTD theme bottom margin for line blocks in a table */
-.rst-content table.docutils td .line-block {
-    margin-bottom: 0px
-}
-
-/* Override RTD theme bottom margin for code highlights in a table */
-.rst-content table.docutils td div[class^='highlight-default'] {
-    margin-bottom: 12px;
-}
-/* --- Font Styles                                                --- */
 /* text coloring */
 .red {
     color: red;
@@ -46,19 +28,68 @@
     font-weight: bold;
 }
 
-/* --- RTD theme fixes since readthedocs.org theme does not match    ---
-   --- the sphinx_rtd_theme                                          ---
-*/
-/* Override RTD theme margin-left indent */
-.rst-content .line-block {
-    margin-left: 0px
+/* -----------------------------------------------------------------------------
+ * RTD Layout styling
+ */
+
+/* Style for module/index links in sidebar below the search field. */
+div.pkgnav {
+    text-align: center;
+    font-size: 1em;
+    color: white;
+    margin-top: 12px;
 }
-/*
-.rst-content .line-block .line-block {
-    margin-left: $base-line-height
+
+div.pkgnav ul {
+    list-style: none;
 }
-*/
-/* Override RTD .highlight background color */
+
+div.pkgnav ul li {
+    display: inline;
+}
+
+div.pkgnav ul li a {
+    margin: 0;
+    color: #f9f9f0;
+    text-shadow: 0 0 1px rgba(0, 0, 0, 0.5);
+}
+
+div.pkgnav ul li a:hover {
+    color: white;
+    text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+}
+
+/* -----------------------------------------------------------------------------
+ * RTD Overrides
+ */
+
+/* override table width restrictions */
+@media screen and (min-width: 767px) {
+
+    .wy-table-responsive table td {
+        white-space: normal !important;
+    }
+
+    .wy-table-responsive {
+        overflow: visible !important;
+    }}
+
+/* Bottom margin for line blocks in a table */
+.rst-content table.docutils td .line-block {
+    margin-bottom: 0;
+}
+
+/* Bottom margin for code highlights in a table */
+.rst-content table.docutils td div[class^='highlight-default'] {
+    margin-bottom: 12px;
+}
+
+/* .highlight background color */
 div[class^="highlight"] {
-    background: #eeffcc
+    background: #eeffcc;
+}
+
+/* Margin-left indent */
+.rst-content .line-block {
+    margin-left: 0;
 }

@@ -8,6 +8,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module containing the LaPD overview class.
+"""
+__all__ = ["LaPDOverview"]
+
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 
 from .file import File

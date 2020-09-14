@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""LaPD constants/parameters."""
+__all__ = ["port_spacing", "ref_port", "BaPSFConstant", "SouthCathode"]
+
 import datetime
 import warnings
 

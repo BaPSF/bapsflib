@@ -8,6 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for defining the LaPD HDF5 file mapper
+`~bapsflib.lapd._hdf.lapdmap.LaPDMap`.
+"""
+__all__ = ["LaPDMap"]
+
 import h5py
 import numpy as np
 

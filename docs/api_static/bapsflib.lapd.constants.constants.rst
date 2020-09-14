@@ -1,23 +1,9 @@
 bapsflib\.lapd\.constants\.constants
 ====================================
 
-.. automodule:: bapsflib.lapd.constants.constants
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib.lapd.constants.constants
 
-    .. rubric:: Classes
-
-    .. autosummary::
-        :nosignatures:
-
-        BaPSFConstant
-        SouthCathode
-
-    .. rubric:: Constants
-
-    .. autosummary::
-        :nosignatures:
-
-        port_spacing
-        ref_port
+.. automodapi:: bapsflib.lapd.constants.constants
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

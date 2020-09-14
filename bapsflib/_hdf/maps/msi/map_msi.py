@@ -13,7 +13,7 @@ __all__ = ["HDFMapMSI"]
 
 import h5py
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from typing import Dict
 
 from .discharge import HDFMapMSIDischarge

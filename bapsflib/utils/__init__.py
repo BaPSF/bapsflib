@@ -13,4 +13,4 @@ Package of developer utilities.
 """
 __all__ = []
 
-from . import (decorators, errors, warnings)
+from . import (decorators, exceptions, warnings)

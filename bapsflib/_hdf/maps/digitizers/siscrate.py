@@ -19,7 +19,7 @@ import h5py
 import numpy as np
 import re
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from typing import (Any, Dict, Tuple, Union)
 from warnings import warn
 

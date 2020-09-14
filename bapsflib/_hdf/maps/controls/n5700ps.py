@@ -17,7 +17,7 @@ import h5py
 import numpy as np
 import warnings
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
 from .types import ConType

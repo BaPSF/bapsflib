@@ -1,13 +1,22 @@
 bapsflib\.lapd\.\_hdf
 =====================
 
+.. py:currentmodule:: bapsflib.lapd._hdf
+
 .. automodule:: bapsflib.lapd._hdf
 
-.. toctree::
-    :maxdepth: 1
-    :titlesonly:
-    :caption: Sub-Packages & Modules
+Sub-Packages & Modules
+----------------------
 
-    bapsflib.lapd._hdf.file
-    bapsflib.lapd._hdf.lapdmap
-    bapsflib.lapd._hdf.lapdoverview
+.. autosummary::
+    :toctree:
+
+    file
+    lapdmap
+    lapdoverview
+
+.. automodapi:: bapsflib.lapd._hdf
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

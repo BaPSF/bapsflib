@@ -1,23 +1,20 @@
 bapsflib\.lapd\.\tools
 ======================
 
+.. py:currentmodule:: bapsflib.lapd.tools
+
 .. automodule:: bapsflib.lapd.tools
 
-.. toctree::
-    :maxdepth: 1
-    :titlesonly:
-    :caption: Sub-Packages & Modules
-
-    bapsflib.lapd.tools.tools
-
-
-.. rubric:: Functions
+Sub-Packages & Modules
+----------------------
 
 .. autosummary::
-    :nosignatures:
+    :toctree:
 
-    portnum_to_z
-    z_to_portnum
+    tools
 
-.. autofunction:: bapsflib.lapd.tools.portnum_to_z
-.. autofunction:: bapsflib.lapd.tools.z_to_portnum
+.. automodapi:: bapsflib.lapd.tools
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

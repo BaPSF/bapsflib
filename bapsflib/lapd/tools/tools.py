@@ -8,6 +8,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Main sub-module for LaPD tool functionality."""
 __all__ = ['portnum_to_z', 'z_to_portnum']
 
 import astropy.units as u

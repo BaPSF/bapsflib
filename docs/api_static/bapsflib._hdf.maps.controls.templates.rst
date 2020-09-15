@@ -1,18 +1,10 @@
 bapsflib\.\_hdf\.maps\.controls\.templates
 ==========================================
 
-.. automodule:: bapsflib._hdf.maps.controls.templates
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
-    :exclude-members: _abc_cache, _abc_negative_cache,
-         _abc_negative_cache_version, _abc_registry
+.. py:currentmodule:: bapsflib._hdf.maps.controls.templates
 
-    .. rubric:: Classes
-
-    .. autosummary::
-        :nosignatures:
-
-        HDFMapControlCLTemplate
-        HDFMapControlTemplate
+.. automodapi:: bapsflib._hdf.maps.controls.templates
+    :no-heading:
+    :include-all-objects:
+    :inherited-members:
+    :headings: "-^"

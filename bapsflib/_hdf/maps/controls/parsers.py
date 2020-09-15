@@ -8,6 +8,14 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for defining functionality that parses command lists.  Command lists
+are a list of strings used by control devices to indicate what is changed from
+shot-to-shot.  This usually represents a command string that is sent to a
+device to tell it to change an output.
+"""
+__all__ = ["CLParse"]
+
 import numpy as np
 import re
 

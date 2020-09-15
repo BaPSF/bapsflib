@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for the template control mappers."""
+__all__ = ["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
+
 import h5py
 import numpy as np
 import os
@@ -16,8 +19,8 @@ from abc import (ABC, abstractmethod)
 from typing import (Iterable, List, Union)
 from warnings import warn
 
-from .clparse import CLParse
-from .contype import ConType
+from .parsers import CLParse
+from .types import ConType
 
 
 class HDFMapControlTemplate(ABC):
@@ -455,7 +458,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
     def clparse(self, config_name: str) -> CLParse:
         """
         Return instance of
-        :class:`~bapsflib.lapd.controls.clparse.CLParse`
+        :class:`~bapsflib.lapd.controls.parsers.CLParse`
         for `config_name`.
 
         :param str config_name: configuration name

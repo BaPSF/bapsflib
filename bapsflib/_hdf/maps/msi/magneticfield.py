@@ -8,10 +8,16 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the Discharge MSI Diagnostic mapper
+`~bapsflib._hdf.maps.msi.magneticfield.HDFMapMSIMagneticField`.
+"""
+__all__ = ["HDFMapMSIMagneticField"]
+
 import h5py
 import numpy as np
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
 from .templates import HDFMapMSITemplate

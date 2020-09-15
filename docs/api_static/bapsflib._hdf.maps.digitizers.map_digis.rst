@@ -1,13 +1,9 @@
 bapsflib\.\_hdf\.maps\.digitizers\.map\_digis
 =============================================
 
-.. automodule:: bapsflib._hdf.maps.digitizers.map_digis
-    :members:
-    :undoc-members:
-    :private-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.maps.digitizers.map_digis
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapDigitizers
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.maps.digitizers.map_digis
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

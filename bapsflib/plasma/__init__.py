@@ -12,6 +12,6 @@
 Sub-package for constructing an object for representing a plasma environment,
 especially its physical parameters.
 """
-__all__ = ['core']
+__all__ = []
 
 from bapsflib.plasma import core

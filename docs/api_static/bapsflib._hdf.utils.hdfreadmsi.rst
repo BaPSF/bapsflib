@@ -1,11 +1,9 @@
 bapsflib\.\_hdf\.utils\.hdfreadmsi
 ==================================
 
-.. automodule:: bapsflib._hdf.utils.hdfreadmsi
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.utils.hdfreadmsi
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFReadMSI
+.. automodapi:: bapsflib._hdf.utils.hdfreadmsi
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

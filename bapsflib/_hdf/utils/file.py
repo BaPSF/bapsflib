@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module containing the main HDF5 `~bapsflib._hdf.utils.file.File` class."""
+__all__ = ["File"]
+
 import h5py
 import os
 import warnings
@@ -110,7 +113,7 @@ class File(h5py.File):
 
     @property
     def file_map(self) -> HDFMap:
-        """HDF5 file map (:class:`~bapsflib._hdf.maps.hdfmap.HDFMap`)"""
+        """HDF5 file map (:class:`~bapsflib._hdf.maps.core.HDFMap`)"""
         return self._file_map
 
     @property

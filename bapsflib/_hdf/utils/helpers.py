@@ -12,6 +12,15 @@
 Helper functions that are utilized by the the HDF5 utility classes
 defined in module :mod:`bapsflib._hdf.utils`.
 """
+__all__ = [
+    "build_shotnum_dset_relation",
+    "build_sndr_for_simple_dset",
+    "build_sndr_for_complex_dset",
+    "condition_controls",
+    "condition_shotnum",
+    "do_shotnum_intersection",
+]
+
 import h5py
 import numpy as np
 
@@ -379,7 +388,7 @@ def condition_controls(hdf_file: File,
         #. Input **controls** should be
            :code:`Union[str, Iterable[Union[str, Tuple[str, Any]]]]`
         #. There can only be one control for each
-           :class:`~bapsflib._hdf.maps.controls.contype.ConType`.
+           :class:`~bapsflib._hdf.maps.controls.types.ConType`.
         #. If a control has multiple configurations, then one must be
            specified.
         #. If a control has ONLY ONE configuration, then that will be

@@ -15,7 +15,7 @@ import astropy.units as u
 import h5py
 import unittest as ut
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 
 from .common import ControlTestCase
 from .. import ConType

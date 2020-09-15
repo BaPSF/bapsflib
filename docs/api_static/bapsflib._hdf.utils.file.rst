@@ -1,12 +1,9 @@
 bapsflib\.\_hdf\.utils\.file
 ============================
 
-.. automodule:: bapsflib._hdf.utils.file
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.utils.file
 
-    .. rubric:: Classes
-
-    .. autosummary:: File
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.utils.file
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

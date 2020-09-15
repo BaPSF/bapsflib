@@ -15,7 +15,7 @@ import io
 import bapsflib
 import unittest as ut
 
-from bapsflib._hdf.maps.hdfmap import HDFMap
+from bapsflib._hdf.maps.core import HDFMap
 from unittest import mock
 
 from . import (BaseFile, TestBase, with_bf, with_lapdf)

@@ -8,14 +8,24 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for defining `ConType`."""
+__all__ = ["ConType"]
+
 from enum import Enum
 
 
 class ConType(Enum):
     """Enum of Control Device Types"""
+    #: type for motion control devices
     motion = 'motion'
+
+    #: type for power control devices
     power = 'power'
+
+    #: type for timing control devices
     timing = 'timing'
+
+    #: type for waveform control devices
     waveform = 'waveform'
 
     def __repr__(self):  # pragma: no cover

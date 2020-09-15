@@ -1,5 +1,3 @@
-:orphan:
-
 bapsflib\.plasma
 ================
 
@@ -11,9 +9,16 @@ bapsflib\.plasma
 
 .. automodule:: bapsflib.plasma
 
-Sub-Packages and Modules
-------------------------
+Sub-Packages & Modules
+----------------------
 
 .. autosummary::
+    :toctree:
 
     core
+
+.. automodapi:: bapsflib.plasma
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

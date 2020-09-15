@@ -8,9 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for defining the main digitizer mapper `HDFMapDigitizers`."""
+__all__ = ["HDFMapDigitizers"]
+
 import h5py
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from typing import (Dict, Tuple)
 
 from .sis3301 import HDFMapDigiSIS3301

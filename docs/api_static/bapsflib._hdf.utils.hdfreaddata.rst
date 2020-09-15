@@ -1,12 +1,9 @@
 bapsflib\.\_hdf\.utils\.hdfreaddata
 ===================================
 
-.. automodule:: bapsflib._hdf.utils.hdfreaddata
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib._hdf.utils.hdfreaddata
 
-    .. rubric:: Classes
-
-    .. autosummary:: HDFReadData
-        :nosignatures:
+.. automodapi:: bapsflib._hdf.utils.hdfreaddata
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

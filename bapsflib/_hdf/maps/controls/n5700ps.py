@@ -7,15 +7,20 @@
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
-#
+"""
+Module for the N5700PS power supply mapper
+`~bapsflib._hdf.maps.controls.n5700ps.HDFMapControlN5700PS`.
+"""
+__all__ = ["HDFMapControlN5700PS"]
+
 import h5py
 import numpy as np
 import warnings
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
-from .contype import ConType
+from .types import ConType
 from .templates import HDFMapControlCLTemplate
 
 

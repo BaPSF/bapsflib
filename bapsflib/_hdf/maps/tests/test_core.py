@@ -18,14 +18,14 @@ from ..controls import HDFMapControls
 from ..controls.templates import HDFMapControlTemplate
 from ..digitizers import HDFMapDigitizers
 from ..digitizers.templates import HDFMapDigiTemplate
-from ..hdfmap import HDFMap
+from ..core import HDFMap
 from ..msi import HDFMapMSI
 from ..msi.templates import HDFMapMSITemplate
 
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.hdfmap.HDFMap`
+    Test Case for :class:`~bapsflib._hdf.maps.core.HDFMap`
     """
 
     f = NotImplemented  # type: FauxHDFBuilder

@@ -1,56 +1,23 @@
 bapsflib\.\_hdf\.maps
 =====================
 
+.. py:currentmodule:: bapsflib._hdf.maps
+
 .. automodule:: bapsflib._hdf.maps
 
-.. toctree::
-    :maxdepth: 2
-    :titlesonly:
-    :caption: Sub-Packages & Modules
-
-    bapsflib._hdf.maps.controls
-    bapsflib._hdf.maps.digitizers
-    bapsflib._hdf.maps.hdfmap
-    bapsflib._hdf.maps.msi
-
-.. rubric:: Classes
+Sub-Packages & Modules
+----------------------
 
 .. autosummary::
-    :nosignatures:
+    :toctree:
 
-    ConType
-    FauxHDFBuilder
-    HDFMap
-    HDFMapControls
-    HDFMapDigitizers
-    HDFMapMSI
+    controls
+    digitizers
+    core
+    msi
 
-.. autoclass::  ConType
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass::  FauxHDFBuilder
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass::  HDFMap
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass::  HDFMapControls
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass::  HDFMapDigitizers
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
-.. autoclass::  HDFMapMSI
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. automodapi:: bapsflib._hdf.maps
+    :no-main-docstr:
+    :no-heading:
+    :include-all-objects:
+    :headings: "-^"

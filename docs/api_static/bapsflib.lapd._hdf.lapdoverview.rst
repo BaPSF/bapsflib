@@ -1,13 +1,10 @@
 bapsflib\.lapd\.\_hdf\.lapdoverview
 ===================================
 
-.. automodule:: bapsflib.lapd._hdf.lapdoverview
-    :members:
-    :undoc-members:
-    :show-inheritance:
+.. py:currentmodule:: bapsflib.lapd._hdf.lapdoverview
+
+.. automodapi:: bapsflib.lapd._hdf.lapdoverview
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: LaPDOverview
-        :nosignatures:
+    :headings: "-^"

@@ -1,13 +1,10 @@
 bapsflib\.\_hdf\.maps\.msi\.heater
 ==================================
 
-.. automodule:: bapsflib._hdf.maps.msi.heater
-    :show-inheritance:
-    :members:
-    :undoc-members:
+.. py:currentmodule:: bapsflib._hdf.maps.msi.heater
+
+.. automodapi:: bapsflib._hdf.maps.msi.heater
+    :no-heading:
+    :include-all-objects:
     :inherited-members:
-
-    .. rubric:: Classes
-
-    .. autosummary:: HDFMapMSIHeater
-        :nosignatures:
+    :headings: "-^"

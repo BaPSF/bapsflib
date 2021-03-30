@@ -29,7 +29,7 @@ The :mod:`bapsflib` package has four key sub-packages:
 
     .. warning:: package currently in development
 
-    This package plasma constants and functions.
+    This subpackage provides plasma constants and functions.
 
 * :mod:`bapsflib.utils`
 
@@ -38,5 +38,5 @@ The :mod:`bapsflib` package has four key sub-packages:
 
 In the future, packages for the Small Plasma Device (SmPD)
 :mod:`bapsflib.smpd` and the Enormous Toroidal Device (ETPD)
-:mod:`bapsflib.etpd` will be added, as well as, some
+:mod:`bapsflib.etpd` will be added, as well as some
 fundamental analysis and plasma diagnostic packages.

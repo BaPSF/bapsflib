@@ -248,7 +248,7 @@ class TestSixK(ControlTestCase):
         pl_stuff = self.map._analyze_probelist(
             os.path.basename(plg.name))
         self.assertIsInstance(pl_stuff, dict)
-        self.assertEqual(pl_stuff['name'], 'probe01')
+        self.assertEqual(pl_stuff['probe-id'], f'probe01 - {rnum}')
         self.assertIsInstance(pl_stuff['config'], dict)
         self.assertProbeConfigDict(pl_stuff['config'])
 
@@ -260,14 +260,14 @@ class TestSixK(ControlTestCase):
         with self.assertWarns(UserWarning):
             pl_stuff = self.map._analyze_probelist(
                 os.path.basename(plg.name))
-            self.assertEqual(pl_stuff['name'], 'probe01')
+            self.assertEqual(pl_stuff['probe-id'], f'probe01 - {rnum}')
 
         # 'Probe' attribute does NOT exist
         del plg.attrs['Probe']
         with self.assertWarns(UserWarning):
             pl_stuff = self.map._analyze_probelist(
                 os.path.basename(plg.name))
-            self.assertEqual(pl_stuff['name'], 'probe01')
+            self.assertEqual(pl_stuff['probe-id'], f'probe01 - {rnum}')
 
         # return to default
         plg.attrs['Probe'] = default

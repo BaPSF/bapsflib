@@ -82,7 +82,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 pl_stuff = self._analyze_probelist(name)
                 if bool(pl_stuff):
                     # build 'probe list'
-                    _probe_lists[pl_stuff['name']] = pl_stuff['config']
+                    _probe_lists[pl_stuff['probe-id']] = pl_stuff['config']
 
         # ensure a PL item (config group) is found
         if len(_probe_lists) == 0:
@@ -340,7 +340,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
         name.  If yes, then it gathers the probe info.
 
         :param str gname: name of potential probe list group
-        :return: dictionary with `'name'` and `'config'` keys
+        :return: dictionary with `'probe-id'` and `'config'` keys
         """
         # Define RE pattern
         # - A probe list group follows the naming scheme of:
@@ -363,7 +363,9 @@ class HDFMapControl6K(HDFMapControlTemplate):
         #
         if _match is not None:
             # define probe list dict
-            pl = {'name': _match.group('NAME'),
+            probe_name = _match.group('NAME')
+            receptacle_str = _match.group("RNUM")
+            pl = {'probe-id': f'{probe_name} - {receptacle_str}',
                   'config': {}}
 
             # get pl group
@@ -373,7 +375,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
             # -- define 'group name', 'group path', and 'probe name' --
             pl['config']['group name'] = gname
             pl['config']['group path'] = plg.name
-            pl['config']['probe name'] = pl['name']
+            pl['config']['probe name'] = probe_name
 
             # -- check PL name --
             try:
@@ -384,14 +386,12 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     pl_name = pl_name.decode('utf-8')
 
                 # check against discovered probe name
-                if pl['name'] != pl_name:
-                    warn_str = (pl['config']['group name']
-                                + "Discovered probe list name '"
-                                + pl['name'] + "' does not match the "
-                                + "name defined in attributes '"
-                                + str(pl_name)
-                                + "', using discovered name")
-                    warn(warn_str)
+                if probe_name != pl_name:
+                    warn(
+                        f"{pl['config']['group name']} Discovered probe list name "
+                        f"'{probe_name}' does not match the name defined in "
+                        f"attributes '{pl_name}', using discovered name."
+                    )
             except KeyError:
                 warn_str = (pl['config']['group name']
                             + ": Probe list attribute 'Probe' "

@@ -855,8 +855,12 @@ class TestHDFReadData(TestBase):
         data = HDFReadData(_bf, brd, ch, config_name=config_name,
                            adc=adc, digitizer=digi, index=[10, -2])
         self.assertDataObj(data, _bf)
-        self.assertTrue(np.array_equal(data['shotnum'],
-                                       dheader[[-2, 10], shotnumkey]))
+        self.assertTrue(
+            np.array_equal(
+                data['shotnum'],
+                [dheader[10, shotnumkey], dheader[-2, shotnumkey]]
+            ),
+        )
 
         # invalid negative index
         with self.assertRaises(ValueError):

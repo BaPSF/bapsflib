@@ -15,6 +15,7 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf import HDFMap
+from bapsflib.utils import _bytes_to_str
 from unittest import mock
 
 from . import (TestBase, with_lapdf)
@@ -62,8 +63,7 @@ class TestLaPDMap(TestBase):
         #
         # By defualt, FauxHDFBuilder adds the
         # 'LaPD HDF5 software version' attribute to the test file.
-        lapd_version = \
-            self.f.attrs['LaPD HDF5 software version'].decode('utf-8')
+        lapd_version = _bytes_to_str(self.f.attrs['LaPD HDF5 software version'])
         self.assertTrue(_map.is_lapd)
         self.assertEqual(_map.lapd_version, lapd_version)
 
@@ -93,7 +93,7 @@ class TestLaPDMap(TestBase):
                 self.f[path].attrs[aname] = old_val
 
             if isinstance(old_val, (np.bytes_, bytes)):
-                old_val = old_val.decode('utf-8')
+                old_val = _bytes_to_str(old_val)
 
             # equality
             self.assertEqual(_map.exp_info[iname], old_val)
@@ -127,7 +127,7 @@ class TestLaPDMap(TestBase):
                 self.f[path].attrs[aname] = old_val
 
             if isinstance(old_val, (np.bytes_, bytes)):
-                old_val = old_val.decode('utf-8')
+                old_val = _bytes_to_str(old_val)
 
             # equality
             self.assertEqual(_map.run_info[iname], old_val)

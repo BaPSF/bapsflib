@@ -21,6 +21,8 @@ import os
 from typing import (List, Union)
 from warnings import warn
 
+from bapsflib.utils import _bytes_to_str
+
 from .controls import HDFMapControls
 from .controls.templates import (HDFMapControlTemplate,
                                  HDFMapControlCLTemplate)
@@ -90,7 +92,7 @@ class HDFMap(object):
     def __repr__(self):
         filename = self._hdf_obj.filename
         if isinstance(filename, (bytes, np.bytes_)):
-            filename = filename.decode('utf-8')
+            filename = _bytes_to_str(filename)
         filename = os.path.basename(filename)
         rstr = ("<" + self.__class__.__name__
                 + " of HDF5 file '" + filename + "'>")

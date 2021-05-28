@@ -20,6 +20,7 @@ import numpy as np
 import os
 import re
 
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from typing import (Any, Dict, Tuple, Union)
 from warnings import warn
@@ -153,14 +154,14 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             find_splave = False
             if 'Samples to average' in config_group.attrs:
                 avestr = config_group.attrs['Samples to average']
-                avestr = avestr.decode('utf-8')
+                avestr = _bytes_to_str(avestr)
                 find_splave = True
             elif 'Unnamed' in config_group.attrs:
                 avestr = config_group.attrs['Unnamed']
                 try:
-                    avestr = avestr.decode('utf-8')
+                    avestr = _bytes_to_str(avestr)
                     find_splave = True
-                except AttributeError:
+                except TypeError:
                     avestr = ''
                     find_splave = False
 

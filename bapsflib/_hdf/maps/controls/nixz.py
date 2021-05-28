@@ -17,6 +17,7 @@ __all__ = ["HDFMapControlNIXZ"]
 import h5py
 import numpy as np
 
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
@@ -137,7 +138,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
                     # condition value
                     if np.issubdtype(type(val), np.bytes_):
                         # - val is a np.bytes_ string
-                        val = val.decode('utf-8')
+                        val = _bytes_to_str(val)
                     if pair[1] == 'fan_XZ':
                         # convert to boolean
                         if val == 'TRUE':

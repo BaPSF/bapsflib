@@ -18,6 +18,7 @@ import h5py
 import numpy as np
 import re
 
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
@@ -249,7 +250,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 ml_name = mlg.attrs['Motion list']
                 if np.issubdtype(type(ml_name), np.bytes_):
                     # decode to 'utf-8'
-                    ml_name = ml_name.decode('utf-8')
+                    ml_name = _bytes_to_str(ml_name)
 
                 if ml['name'] != ml_name:
                     warn_str = ("Discovered motion list name '"
@@ -276,7 +277,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     # condition value
                     if np.issubdtype(type(val), np.bytes_):
                         # - val is a np.bytes_ string
-                        val = val.decode('utf-8')
+                        val = _bytes_to_str(val)
 
                     # assign val
                     ml['config'][pair[0]] = val
@@ -383,7 +384,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 pl_name = plg.attrs['Probe']
                 if np. issubdtype(type(pl_name), np.bytes_):
                     # decode to 'utf-8'
-                    pl_name = pl_name.decode('utf-8')
+                    pl_name = _bytes_to_str(pl_name)
 
                 # check against discovered probe name
                 if probe_name != pl_name:
@@ -439,7 +440,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     # condition value
                     if np.issubdtype(type(val), np.bytes_):
                         # - val is a np.bytes_ string
-                        val = val.decode('utf-8')
+                        val = _bytes_to_str(val)
 
                     # assign val
                     pl['config'][pair[0]] = val

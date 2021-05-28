@@ -17,6 +17,7 @@ import h5py
 import numpy as np
 import warnings
 
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
@@ -105,7 +106,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                         # - split line returns
                         # - remove trailing/leading whitespace
                         #
-                        val = val.decode('utf-8').splitlines()
+                        val = _bytes_to_str(val).splitlines()
                         val = tuple([cls.strip() for cls in val])
                     else:
                         # pair[0] in ('IP address',
@@ -113,7 +114,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                         #             'initial state'):
                         # - val is a np.bytes_ string
                         #
-                        val = val.decode('utf-8')
+                        val = _bytes_to_str(val)
 
                     # assign val to _configs
                     self._configs[name][pair[0]] = val

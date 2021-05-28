@@ -234,8 +234,7 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         with self.assertWarns(UserWarning):
             _map = self.map
             self.assertIn('n interferometer', _map.configs)
-            self.assertEqual(_map.configs['n interferometer'],
-                             [b'none'])
+            self.assertEqual(_map.configs['n interferometer'], [b'none'])
         self.mod.knobs.reset()
 
         # check warnings if 'Interferometer count' is integer array

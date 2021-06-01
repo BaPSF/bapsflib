@@ -22,5 +22,3 @@ jobs:
           towncrier check --compare-with origin/${BASE_BRANCH}
         env:
           BASE_BRANCH: ${{ github.base_ref }}
-
-

@@ -21,7 +21,7 @@ from bapsflib._hdf.maps import FauxHDFBuilder
 from enum import Enum
 from unittest import mock
 
-from ..clparse import CLParse
+from ..parsers import CLParse
 from ..templates import (HDFMapControlTemplate,
                          HDFMapControlCLTemplate)
 

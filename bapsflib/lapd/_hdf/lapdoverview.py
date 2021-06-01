@@ -8,6 +8,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module containing the LaPD overview class.
+"""
+__all__ = ["LaPDOverview"]
+
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 
 from .file import File
@@ -20,7 +25,7 @@ class LaPDOverview(HDFOverview):
     def __init__(self, hdf_obj: File):
         """
         :param hdf_obj: HDF5 file object
-        :type hdf_obj: :class:`~.file.File`
+        :type hdf_obj: :class:`~bapsflib.lapd._hdf.file.File`
         """
         super().__init__(hdf_obj)
 

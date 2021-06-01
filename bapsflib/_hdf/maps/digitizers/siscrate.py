@@ -8,12 +8,18 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the "SIS crate" digitizer mapper
+`~bapsflib._hdf.maps.digitizers.siscrate.HDFMapDigiSISCrate`.
+"""
+__all__ = ["HDFMapDigiSISCrate"]
+
 import astropy.units as u
 import h5py
 import numpy as np
 import re
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from typing import (Any, Dict, Tuple, Union)
 from warnings import warn
 

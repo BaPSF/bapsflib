@@ -10,11 +10,9 @@
 #
 """
 Package of MSI diagnostic mapping classes and their constructor
-(:class:`~.map_msi.HDFMapMSI`).
+(`~.map_msi.HDFMapMSI`).
 """
-__all__ = ['discharge', 'gaspressure', 'heater', 'HDFMapMSI',
-           'interferometerarray', 'magneticfield', 'map_msi',
-           'templates']
+__all__ = ['HDFMapMSI']
 
 from . import (discharge, gaspressure, heater, interferometerarray,
                magneticfield, map_msi, templates)

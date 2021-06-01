@@ -14,7 +14,7 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from unittest import mock
 
 from .common import ControlTestCase

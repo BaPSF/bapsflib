@@ -8,10 +8,16 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the Gas Pressure MSI Diagnostic mapper
+`~bapsflib._hdf.maps.msi.gaspressure.HDFMapMSIGasPressure`.
+"""
+__all__ = ["HDFMapMSIGasPressure"]
+
 import h5py
 import numpy as np
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
 from .templates import HDFMapMSITemplate

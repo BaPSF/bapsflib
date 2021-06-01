@@ -5,3 +5,4 @@ h5py >= 2.6
 numpy >= 1.14
 scipy >= 0.19
 setuptools >= 41.2
+setuptools_scm

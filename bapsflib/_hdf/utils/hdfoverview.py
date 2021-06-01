@@ -8,6 +8,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module containing the main `~bapsflib._hdf.utils.hdfoverview.HDFOverview` class.
+"""
+__all__ = ["HDFOverview", "status_print"]
+
 import os
 import platform
 import pprint as pp
@@ -28,7 +33,7 @@ class HDFOverview(object):
     def __init__(self, hdf_obj: File):
         """
         :param hdf_obj: HDF5 file object
-        :type hdf_obj: :class:`~.file.File`
+        :type hdf_obj: :class:`~bapsflib._hdf.utils.file.File`
         """
         super().__init__()
 

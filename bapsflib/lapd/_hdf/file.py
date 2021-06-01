@@ -8,6 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module containing the HDF5 reader for LaPD generated files."""
+__all__ = ["File"]
+
 import bapsflib
 import h5py
 

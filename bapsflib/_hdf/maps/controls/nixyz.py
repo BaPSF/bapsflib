@@ -8,14 +8,20 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the NIXYZ motion control mapper
+`~bapsflib._hdf.maps.controls.nixyz.HDFMapControlNIXYZ`.
+"""
+__all__ = ["HDFMapControlNIXYZ"]
+
 import astropy.units as u
 import h5py
 import numpy as np
 
-from bapsflib.utils.errors import HDFMappingError
+from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
-from .contype import ConType
+from .types import ConType
 from .templates import HDFMapControlTemplate
 
 

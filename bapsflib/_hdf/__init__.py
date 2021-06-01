@@ -3,17 +3,17 @@
 #
 # http://plasma.physics.ucla.edu/
 #
-# Copyright 2017-2018 Erik T. Everson and contributors
+# Copyright 2017-2020 Erik T. Everson and contributors
 #
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
 """
-This package contains the mapping classes (in :mod:`~.maps`) and file
-access classes (in :mod:`~.utils`) used to map and interface with the
-HDF5 files generated at BaPSF.
+Sub-package containing the "high-level" architecture for accessing and
+mapping the HDF5 files generated at BaPSF.
 """
 __all__ = ['ConType', 'File', 'HDFMap']
 
-from .maps import (ConType, HDFMap)
-from .utils.file import File
+from bapsflib._hdf import (maps, utils)
+from bapsflib._hdf.maps import (ConType, HDFMap)
+from bapsflib._hdf.utils.file import File

@@ -45,6 +45,7 @@ extensions = [
     'sphinx.ext.autosummary',
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
+    "sphinx_changelog",
 ]
 
 # Setup intersphinx

@@ -14,12 +14,13 @@ jobs:
         with:
           python-version: 3.7
       - name: Check for Change Log entry
-        env:
-          BASE_BRANCH: ${{ github.base_ref }}
         run: |
           # Fetch the pull request' base branch so towncrier will be able to
           # compare the current branch with the base branch.
           # Source: https://github.com/actions/checkout/#fetch-all-branches.
           # git fetch --no-tags origin +refs/heads/${BASE_BRANCH}:refs/remotes/origin/${BASE_BRANCH}
           # towncrier check --compare-with origin/${BASE_BRANCH}
+          echo "BASE_BRANCH == ${{ github.base_ref }}"
           echo "BASE_BRANCH == ${{ BASE_BRANCH }}"
+        env:
+          BASE_BRANCH: ${{ github.base_ref }}

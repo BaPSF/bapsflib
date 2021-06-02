@@ -11,7 +11,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-   :toctree:
 
     map_digis
     sis3301

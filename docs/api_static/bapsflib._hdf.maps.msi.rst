@@ -11,7 +11,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-   :toctree:
 
     discharge
     gaspressure

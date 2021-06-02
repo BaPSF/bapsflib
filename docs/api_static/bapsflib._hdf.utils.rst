@@ -12,7 +12,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-    :toctree:
 
     file
     hdfoverview

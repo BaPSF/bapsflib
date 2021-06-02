@@ -44,6 +44,9 @@ build-backend = "setuptools.build_meta"
       showcontent = true
 
 [tool.gilesbot]
+  [tool.gilesbot.pushes]
+    enabled = true
+
   [tool.gilesbot.pull_requests]
     enabled = true
 

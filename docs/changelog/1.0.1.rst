@@ -3,10 +3,10 @@ v1.0.1
 
 * Added Control Device mapping modules for:
 
-  * :doc:`NI_XZ <../src/bapsflib._hdf.maps.controls.nixz>` - a probe drive that
+  * :doc:`NI_XZ <../api_static/bapsflib._hdf.maps.controls.nixz>` - a probe drive that
     moves a probe in the XZ-plane
     (`PR 22 <https://github.com/BaPSF/bapsflib/pull/22>`_)
-  * :doc:`NI_XYZ <../src/bapsflib._hdf.maps.controls.nixyz>` - a probe drive
+  * :doc:`NI_XYZ <../api_static/bapsflib._hdf.maps.controls.nixyz>` - a probe drive
     that moves a probe withing an XYZ volume
     (`PR 39 <https://github.com/BaPSF/bapsflib/pull/39>`_)
 

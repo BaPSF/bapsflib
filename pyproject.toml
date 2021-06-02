@@ -42,3 +42,10 @@ build-backend = "setuptools.build_meta"
       directory = "trivial"
       name = "Trivial/Internal Changes"
       showcontent = true
+
+[tool.gilesbot]
+    [tool.gilesbot.pull_request]
+        enable = true
+
+    [tool.gilesbot.towncrier_changelog]
+        encable = true

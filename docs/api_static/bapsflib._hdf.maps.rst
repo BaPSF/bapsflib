@@ -1,3 +1,5 @@
+:orphan:
+
 bapsflib\.\_hdf\.maps
 =====================
 
@@ -9,7 +11,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-    :toctree:
 
     controls
     digitizers

@@ -10,8 +10,8 @@ formats:
 python:
   version: 3.7
   install:
-    - method: pip
+    - requirements: requirements/install.txt
+    - requirements: requirements/docs.txt
+    - method: setuptools
       path: .
-      extra_requirements:
-        - docs
   system_packages: true

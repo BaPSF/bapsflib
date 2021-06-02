@@ -1,3 +1,5 @@
+:orphan:
+
 bapsflib\.plasma
 ================
 
@@ -13,7 +15,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-    :toctree:
 
     core
 

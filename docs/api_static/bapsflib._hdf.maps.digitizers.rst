@@ -1,3 +1,5 @@
+:orphan:
+
 bapsflib\.\_hdf\.maps\.digitizers
 =================================
 
@@ -9,7 +11,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-   :toctree:
 
     map_digis
     sis3301

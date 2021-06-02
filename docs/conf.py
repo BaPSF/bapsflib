@@ -45,6 +45,7 @@ extensions = [
     'sphinx.ext.autosummary',
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
+    "sphinx_changelog",
 ]
 
 # Setup intersphinx
@@ -261,4 +262,4 @@ def setup(app: Sphinx) -> None:
     app.add_config_value("revision", "", True)
 
     # custom CSS overrides
-    app.add_stylesheet('rtd_theme_overrides.css')
+    app.add_css_file('rtd_theme_overrides.css')

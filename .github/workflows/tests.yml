@@ -16,19 +16,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        do-coverage: [false]
         python: [3.6, 3.7, 3.8]
         os: [ubuntu-latest, macos-latest, windows-latest]
+        do-coverage: [false]
 
         include:
-          - if: ${{ matrix.python == 3.7 && matrix.os == 'ubuntu-latest' }}
-            do-coverage: [true]
+          - python: 3.7
+            os: ubuntu-latest
+            do-coverage: true
 
     steps:
-      - name: play
+      - name: Select test for coverage
         run: |
           echo "Python ${{ matrix.python }} is 3.7 ${{ matrix.python == 3.7 }}"
           echo "os ${{ matrix.os }} is ubuntu-latest ${{ matrix.os == 'ubuntu-latest' }}"
+          echo "${{ matrix.do-coverage }}"
       - name: Checkout code
         uses: actions/checkout@v2.3.4
         with:

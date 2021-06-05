@@ -5,6 +5,7 @@ on:
 
 jobs:
   changelog_checker:
+    # the gilesbot configuration is defined in pyproject.toml
     name: Check for 'towncrier' Change Log Entries
     runs-on: ubuntu-latest
     steps:

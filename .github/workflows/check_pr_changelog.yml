@@ -10,9 +10,6 @@ jobs:
     name: Check for 'towncrier' Change Log Entries
     runs-on: ubuntu-latest
     steps:
-      - name: play
-        run: |
-          echo "do something"
       - name: Look for change log entry
         uses: pllim/actions-towncrier-changelog@main
         env:

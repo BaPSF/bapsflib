@@ -44,13 +44,14 @@ build-backend = "setuptools.build_meta"
     showcontent = true
 
 [tool.gilesbot]
-  [tool.gilesbot.pull_requests]
-    enabled = true
+    [tool.gilesbot.pull_requests]
+        enabled = true
 
-  [tool.gilesbot.towncrier_changelog]
-    enabled = true
-    verify_pr_number= true
-    changelog_skip_label = "No changelog entry needed"
+    [tool.gilesbot.towncrier_changelog]
+        enabled = true
+        verify_pr_number= true
+        changelog_skip_label = "No changelog entry needed"
+
 #    help_url = "https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst"
 #    changelog_missing = "Missing changelog entry"
 #    changelog_missing_long = """

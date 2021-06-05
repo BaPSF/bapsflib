@@ -1,0 +1,14 @@
+name: Check PR Change Log
+on:
+  pull_request_target:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  changelog_checker:
+    name: Check for 'towncrier' Change Log Entries
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pllim/actions-towncrier-changelog@main
+        env:
+          BOT_USERNAME: gilesbot
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

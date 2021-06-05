@@ -43,11 +43,11 @@ build-backend = "setuptools.build_meta"
     name = "Trivial/Internal Changes"
     showcontent = true
 
-[tool.gilesbot]
-  [tool.gilesbot.pull_request]
+[ tool.gilesbot ]
+  [ tool.gilesbot.pull_requests ]
     enable = true
 
-  [tool.gilesbot.towncrier_changelog]
+  [ tool.gilesbot.towncrier_changelog ]
     encable = true
     changelog_skip_label = "No changelog entry needed"
     help_url = "https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst"

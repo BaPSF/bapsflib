@@ -9,7 +9,11 @@ jobs:
     name: Check for 'towncrier' Change Log Entries
     runs-on: ubuntu-latest
     steps:
-      - uses: pllim/actions-towncrier-changelog@main
+      - name: play
+        run: |
+          echo "do something"
+      - name: Look for change log entry
+        uses: pllim/actions-towncrier-changelog@main
         env:
-          BOT_USERNAME: gilesbot
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BOT_USERNAME: gilesbot

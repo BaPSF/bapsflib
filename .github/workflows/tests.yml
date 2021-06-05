@@ -1,6 +1,9 @@
 name: Tests
 
 on:
+  schedule:
+    # run every Sunday at 10:13 am UTC (3:13 am PT)
+    - cron: '13 10 * * 0'
   push:
     branches:
       - master

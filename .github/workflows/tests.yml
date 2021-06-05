@@ -55,7 +55,7 @@ jobs:
 
   test-mins:
     # test min versions of key dependencies
-#    needs: tests
+    needs: tests
     name: Min Vers | py-${{ matrix.python }} | ${{ matrix.spec-name }}
     runs-on: ubuntu-latest
 

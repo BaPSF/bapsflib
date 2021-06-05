@@ -51,19 +51,19 @@ build-backend = "setuptools.build_meta"
     enabled = true
     verify_pr_number= true
     changelog_skip_label = "No changelog entry needed"
-    help_url = "https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst"
-    changelog_missing = "Missing changelog entry"
-    changelog_missing_long = """
-    This pull request needs a changelog entry file in `changelog/NUMBER.TYPE.rst`.
-    For more information, consult
-    https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst . \
-    """
-    number_incorrect = "Incorrect changelog entry number (match PR!)"
-    number_incorrect_long = """
-    The changelog entry's number does not match this pull request's number. \
-    """
-    type_incorrect = "Incorrect changelog entry type (see list in changelog README)"
-    type_incorrect_long = """
-    The changelog entry for this PR must have one of the types
-    (as in NUMBER.TYPE.rst) as described in the changelog README). \
-    """
+#    help_url = "https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst"
+#    changelog_missing = "Missing changelog entry"
+#    changelog_missing_long = """
+#    This pull request needs a changelog entry file in `changelog/NUMBER.TYPE.rst`.
+#    For more information, consult
+#    https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst . \
+#    """
+#    number_incorrect = "Incorrect changelog entry number (match PR!)"
+#    number_incorrect_long = """
+#    The changelog entry's number does not match this pull request's number. \
+#    """
+#    type_incorrect = "Incorrect changelog entry type (see list in changelog README)"
+#    type_incorrect_long = """
+#    The changelog entry for this PR must have one of the types
+#    (as in NUMBER.TYPE.rst) as described in the changelog README). \
+#    """

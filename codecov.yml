@@ -1,3 +1,5 @@
+codecov:
+  token: ${{ secrets.CODECOV_TOKEN }}
 coverage:
   status:
     project:

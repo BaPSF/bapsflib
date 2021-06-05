@@ -18,6 +18,8 @@ jobs:
       fail-fast: false
       matrix:
         do-coverage: [false]
+        python: [3.6]
+        os: [ubuntu-latest, macos-latest, windows-latest]
 
         include:
 

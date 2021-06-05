@@ -20,13 +20,6 @@ jobs:
         python: [3.6, 3.7, 3.8, 3.9]
         os: [ubuntu-latest, macos-latest, windows-latest]
 
-        include:
-
-          - name: Python 3.7 - on ubuntu-latest
-            os: ubuntu-latest
-            python: 3.7
-            do-coverage: [true]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.3.4
@@ -53,3 +46,6 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
+      - name: play
+        run: |
+          echo "${{ matrix.python }} is 3.7 ${{ matrix.python == 3.7 }}"

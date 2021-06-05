@@ -10,11 +10,9 @@ jobs:
     name: Check for 'towncrier' Change Log Entries
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2.3.4
-        with:
-          fetch-depth: 0
-      - uses: rocco8773/actions-towncrier-changelog@vRoc
+      - name: Look for Change Log Entry
+#        uses: rocco8773/actions-towncrier-changelog@vRoc
+        uses: pllim/actions-towncrier-changelog@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BOT_USERNAME: gilesbot

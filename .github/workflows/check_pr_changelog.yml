@@ -10,7 +10,7 @@ jobs:
     name: Check for 'towncrier' Change Log Entries
     runs-on: ubuntu-latest
     steps:
-      - uses: pllim/actions-towncrier-changelog@main
+      - uses: rocco8773/actions-towncrier-changelog@vRoc
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BOT_USERNAME: gilesbot

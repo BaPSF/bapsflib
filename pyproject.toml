@@ -48,7 +48,7 @@ build-backend = "setuptools.build_meta"
     enable = true
 
   [ tool.gilesbot.towncrier_changelog ]
-    encable = true
+    enable = true
     changelog_skip_label = "No changelog entry needed"
     help_url = "https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst"
     changelog_missing = "Missing changelog entry"

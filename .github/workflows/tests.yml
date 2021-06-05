@@ -35,4 +35,4 @@ jobs:
           python -m pip install -r requirements.txt
           python -m pip install pytest
       - name: Run test
-        run: pytest --pyargs bapsflib
+        run: pytest tests --pyargs bapsflib

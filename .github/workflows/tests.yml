@@ -13,14 +13,18 @@ jobs:
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
 
+
     strategy:
       fail-fast: false
       matrix:
+        do-coverage: [false]
+
         include:
 
           - name: Python 3.7 - on ubuntu-latest
             os: ubuntu-latest
             python: 3.7
+            do-coverage: true
 
           - name: Python 3.7 - on macos-latest
             os: macos-latest
@@ -44,3 +48,5 @@ jobs:
           python -m pip install -r requirements.txt
       - name: Run test
         run: python -m unittest discover
+      - name: Report coverage
+        run: echo "do coverage is ${{ matrix.do-coverage }}"

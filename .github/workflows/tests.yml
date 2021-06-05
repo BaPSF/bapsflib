@@ -64,7 +64,7 @@ jobs:
       matrix:
 #        python: [3.6, 3.7, 3.8]
 
-        includes:
+        include:
           - spec-name: h5py==v2.6.0
             min-install: h5py==2.6.0
             python: 3.6

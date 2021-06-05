@@ -62,7 +62,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python: [3.6, 3.7, 3.8]
+        python: [3.6]
 
         include:
           - spec-name: h5py v2.8

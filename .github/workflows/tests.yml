@@ -56,18 +56,20 @@ jobs:
   test-mins:
     # test min versions of key dependencies
 #    needs: tests
-    name: Python ${{ matrix.python }} - ${{ matrix.spec-name }}
+    name: Min Vers | py-${{ matrix.python }} | ${{ matrix.spec-name }}
     runs-on: ubuntu-latest
 
     strategy:
       fail-fast: true
       matrix:
-#        python: [3.6, 3.7, 3.8]
+        python: [3.6, 3.7, 3.8]
 
         include:
+          - spec-name: h5py v2.8
+            min-install: h5py==2.8.0
+
           - spec-name: h5py v2.8 numpy v1.14
             min-install: h5py==2.8.0 numpy==1.14
-            python: 3.6
 
     steps:
       - name: play

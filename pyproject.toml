@@ -44,9 +44,6 @@ build-backend = "setuptools.build_meta"
     showcontent = true
 
 [tool.gilesbot]
-    [tool.gilesbot.pull_requests]
-        enabled = true
-
     [tool.gilesbot.towncrier_changelog]
         enabled = true
         verify_pr_number= true

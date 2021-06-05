@@ -62,14 +62,14 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        python: [3.6]
-
         include:
           - spec-name: h5py v2.8
             min-install: h5py==2.8.0
+            python: 3.6
 
           - spec-name: h5py v2.8 numpy v1.14
             min-install: h5py==2.8.0 numpy==1.14
+            python: 3.6
 
     steps:
       - name: play

@@ -45,10 +45,10 @@ build-backend = "setuptools.build_meta"
 
 [tool.gilesbot]
   [tool.gilesbot.pull_requests]
-    enable = true
+    enabled = true
 
   [tool.gilesbot.towncrier_changelog]
-    enable = true
+    enabled = true
     verify_pr_number= true
     changelog_skip_label = "No changelog entry needed"
     help_url = "https://github.com/BaPSF/bapsflib/blob/master/changelog/README.rst"

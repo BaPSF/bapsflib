@@ -55,4 +55,8 @@ jobs:
           fi
         shell: bash
       - name: Report coverage
-        run: echo "do coverage is ${{ matrix.do-coverage }}"
+        if: ${{ matrix.do-coverage }}"
+        run: |
+          import pathlib
+          print(pathlib.Path("coverage.xml").is_file())
+        shell: python

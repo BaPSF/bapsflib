@@ -1,4 +1,4 @@
-name: Check PR Change Log
+name: Check for PR Change Log Entry
 
 on:
   pull_request:

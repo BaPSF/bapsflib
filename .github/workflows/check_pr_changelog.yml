@@ -13,4 +13,4 @@ jobs:
       - uses: pllim/actions-towncrier-changelog@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          BOT_USERNAME: gilesbot2
+          BOT_USERNAME: gilesbot

@@ -24,7 +24,7 @@ jobs:
       - name: play
         run: |
           echo "Python ${{ matrix.python }} is 3.7 ${{ matrix.python == 3.7 }}"
-          echo "os ${{ matrix.os }} is 3.7 ${{ matrix.os == "ubuntu-latest" }}"
+          echo "os ${{ matrix.os }} is ubuntu-latest ${{ matrix.os == ubuntu-latest }}"
       - name: Checkout code
         uses: actions/checkout@v2.3.4
         with:

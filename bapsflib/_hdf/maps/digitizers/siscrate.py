@@ -510,7 +510,6 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             else:
                 config['adc'] = tuple(adcs)
 
-
     @staticmethod
     def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:
         """

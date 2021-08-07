@@ -1,4 +1,4 @@
-Update "Sis Crate" digitizers mapper
+Update "SIS Crate" digitizers mapper
 (`~bapsflib._hdf.maps.digitizers.siscrate.HDFMapDigiSISCrate`) so the
 analog-digital-converters can have enabled/active boards without
 enabled/active channels.

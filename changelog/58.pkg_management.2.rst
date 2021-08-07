@@ -1,0 +1,5 @@
+Add GitHub Action (``.github/workflows/tests.yml``) for testing of pushes to
+``master``, version tags, pull requests, and cron jobs every Sunday at 3:13 am
+PT.  Tests are setup to run on the latest versions of ubuntu, MacOS, and
+Windows.  Tests are setup to run on Python 3.6, 3.7, and 3.8.  Tests are
+also run on min versions of `h5p`y (``v2.8.0``) and `numpy` (``v1.14``).

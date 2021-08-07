@@ -75,9 +75,6 @@ jobs:
             python: 3.6
 
     steps:
-      - name: play
-        run: |
-          echo "python -m pip install ${{ matrix.min-install }}"
       - name: Checkout code
         uses: actions/checkout@v2.3.4
         with:

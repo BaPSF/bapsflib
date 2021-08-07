@@ -35,6 +35,9 @@ than one entry for a given ``<TYPE>>``.
   session or adding missing docs.
 * ``removal``: Feature deprecation and/or feature removal.
 * ``trivial``: A change which has no user facing effect or is tiny change.
+* ``pkg_management``:  A change related to package management, like updates
+  to continuous integration (CI).  A change should only be placed in this
+  category if it does not fit in any of the other categories.
 
 So for example: ``123.feature.rst``, ``456.bugfix.rst``, ``111.feature.1.rst``,
 ``111.feature.2.rst``, etc.

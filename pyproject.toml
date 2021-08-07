@@ -63,3 +63,8 @@ build-backend = "setuptools.build_meta"
     The changelog entry for this PR must have one of the types
     (as in NUMBER.TYPE.rst) as described in the changelog README). \
     """
+
+[tool.changelog_bot]
+  [tool.changelog_bot.towncrier_changelog]
+    enabled = true
+    changelog_skip_label = "No changelog needed"

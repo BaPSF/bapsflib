@@ -43,7 +43,12 @@ build-backend = "setuptools.build_meta"
     name = "Trivial/Internal Changes"
     showcontent = true
 
-  [[tools.towncrier.type]]
+  [[tool.towncrier.type]]
+    directory = "pkg_management"
+    name = "Package Management"
+    showcontent = true
+
+  [[tool.towncrier.type]]
     directory = "pkg_management"
     name = "Package Management"
     showcontent = true

@@ -1,4 +1,4 @@
-name: Run Linters (Code Style Checks)
+name: Linters (Code Style Checks)
 
 on:
   pull_request:
@@ -15,3 +15,5 @@ jobs:
         with:
           python-version: 3.8
       - uses: isort/isort-action@master
+        with:
+          configuration: "-check-only --diff --color"

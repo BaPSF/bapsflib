@@ -496,13 +496,19 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     "active configuration '{}'".format(config_name)
                     + " has no active adc's")
 
+            adcs = list(config['adc'])
             for adc in config['adc']:  # pragma: no branch
                 if len(config[adc]) == 0:  # pragma: no branch
-                    raise HDFMappingError(
-                        self.info['group path'],
-                        "active configuration '{}'".format(config_name)
-                        + " has no mapped connections for adc "
-                        + "{}".format(adc))
+                    del config[adc]
+                    adcs.remove(adc)
+            if len(adcs) == 0:
+                raise HDFMappingError(
+                    self.info['group path'],
+                    "active configuration '{}'".format(config_name)
+                    + " has no mapped connections for any adc"
+                )
+            else:
+                config['adc'] = tuple(adcs)
 
     @staticmethod
     def _find_active_adcs(config_group: h5py.Group) -> Tuple[str, ...]:

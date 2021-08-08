@@ -26,6 +26,10 @@ from ..siscrate import HDFMapDigiSISCrate
 class TestSISCrate(DigitizerTestCase):
     """Test class for HDFMapDigiSISCrate"""
 
+    # TODO: write a test for an active board with no active channels
+    #       will likely need modification to
+    #       `bapsflib._hdf.maps.digitizers.tests.fauxsiscrate.FauxSISCrate`.
+
     DEVICE_NAME = 'SIS crate'
     DEVICE_PATH = '/Raw data + config/' + DEVICE_NAME
     MAP_CLASS = HDFMapDigiSISCrate

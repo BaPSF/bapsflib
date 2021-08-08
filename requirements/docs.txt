@@ -2,7 +2,9 @@
 # ought to mirror 'docs' under options.extras_require in config.cfg
 -r install.txt
 -r extras.txt
-sphinx <= 2.4.4
-sphinx-automodapi
+sphinx >= 3.2.0
+sphinx-automodapi >= 0.13
+sphinx-changelog
 sphinx-gallery
 sphinx_rtd_theme
+towncrier >= 19.2.0

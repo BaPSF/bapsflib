@@ -1,3 +1,5 @@
+:orphan:
+
 bapsflib\.\_hdf
 ===============
 
@@ -10,7 +12,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-    :toctree:
 
     maps
     utils

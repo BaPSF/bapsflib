@@ -1,3 +1,5 @@
+:orphan:
+
 bapsflib\.\_hdf\.maps\.digitizers\.sis3301
 ==========================================
 

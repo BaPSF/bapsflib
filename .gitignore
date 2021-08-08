@@ -1,23 +1,49 @@
 # Compiled python modules.
-*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.a
+*.o
+*.so
+MANIFEST
 
 # Setuptools distribution folder.
-/dist/
-
-# Python egg metadata, regenerated from source files by setuptools.
-/*.egg-info
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
 # Sphinx build directory
 /docs/_build/
-/docs/api/
+docs/api
+docs/gen_modules
 
-# PyCharm specifics
+# IDE specific files/directoties
 .idea/*
-# /.idea/workspace.xml
+.vscode
+
+# Jupyter Notebook
+.ipynb_checkpoints
+notebooks_for_proto
 
 # macOS Files
 .DS_Store
 
-# venv
+# virtualenv
+.env
+.venv
 venv/
-build/
+ENV/

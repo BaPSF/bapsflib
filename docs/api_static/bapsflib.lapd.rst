@@ -1,3 +1,5 @@
+:orphan:
+
 bapsflib\.lapd
 ==============
 
@@ -9,7 +11,6 @@ Sub-Packages & Modules
 ----------------------
 
 .. autosummary::
-    :toctree:
 
     _hdf
     constants

@@ -122,7 +122,7 @@ class HDFReadData(np.ndarray):
         keep_bits=False,
         add_controls=None,
         intersection_set=True,
-        **kwargs
+        **kwargs,
     ):
         """
         :param hdf_file: HDF5 file object
@@ -186,7 +186,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - `hdf_file` conditioning: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - `hdf_file` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Examine file map object                              ----
         # grab instance of `HDFMap`
@@ -206,10 +206,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print(
-                "tt - `add_controls` conditioning: "
-                "{} ms".format((tt[-1] - tt[-2]) * 1.0e3)
-            )
+            print(f"tt - `add_controls` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition `digitizer` keyword                        ----
         if not bool(_fmap.digitizers):
@@ -222,10 +219,8 @@ class HDFReadData(np.ndarray):
                 )
 
             why = (
-                "Digitizer not specified so assuming the "
-                "'main_digitizer' "
-                "({})".format(_fmap.main_digitizer.device_name)
-                + " defined in the mappings."
+                f"Digitizer not specified so assuming the 'main_digitizer' "
+                f"({_fmap.main_digitizer.device_name}) defined in the mappings."
             )
             warn(why)
             _dmap = _fmap.main_digitizer
@@ -234,9 +229,8 @@ class HDFReadData(np.ndarray):
                 _dmap = _fmap.digitizers[digitizer]
             except KeyError:
                 raise ValueError(
-                    "Specified Digitizer '{}'".format(digitizer)
-                    + " is not among known digitizers "
-                    "({})".format(list(_fmap.digitizers))
+                    f"Specified Digitizer '{digitizer}' is not among known "
+                    f"digitizers ({list(_fmap.digitizers)})"
                 )
 
         # ---- Gather Digi Dataset Info                             ----
@@ -275,7 +269,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - get dset and dheader: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - get dset and dheader: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition shots, index, and shotnum ----
         # index   -- row index of digitizer dataset
@@ -378,7 +372,7 @@ class HDFReadData(np.ndarray):
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print("tt - condition index: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+                print(f"tt - condition index: {(tt[-1] - tt[-2]) * 1.0e3} ms")
         else:
             # Condition `shotnum` keyword
             #
@@ -451,7 +445,7 @@ class HDFReadData(np.ndarray):
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print("tt - condition shotnum: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+                print(f"tt - condition shotnum: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Retrieve Control Data                                ----
         # 1. retrieve the numpy array for control data
@@ -476,8 +470,7 @@ class HDFReadData(np.ndarray):
             if timeit:  # pragma: no cover
                 tt.append(time.time())
                 print(
-                    "tt - read in cdata (control data): "
-                    "{} ms".format((tt[-1] - tt[-2]) * 1.0e3)
+                    f"tt - read in cdata (control data): {(tt[-1] - tt[-2]) * 1.0e3} ms"
                 )
 
             # re-filter index, shotnum, and sni
@@ -514,7 +507,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - define dtype: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - define dtype: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Initialize data array
         data = np.empty(shape, dtype=dtype)
@@ -522,10 +515,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print(
-                "tt - initialize data np.ndarray: "
-                "{} ms".format((tt[-1] - tt[-2]) * 1.0e3)
-            )
+            print(f"tt - initialize data np.ndarray: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # fill 'shotnum' field of data array
         data["shotnum"] = shotnum
@@ -570,7 +560,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - fill data array: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - fill data array: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Define obj to be returned
         obj = data.view(cls)
@@ -642,7 +632,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - execution time: {} ms".format((tt[-1] - tt[0]) * 1.0e3))
+            print(f"tt - execution time: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # return obj
         return obj

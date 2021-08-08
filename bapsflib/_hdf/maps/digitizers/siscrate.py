@@ -249,12 +249,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 for dset_name in names:
                     if dset_name not in self.group:
                         why = (
-                            "HDF5 structure unexpected...dataset "
-                            + "'{}' ".format(dset_name)
-                            + "not found for "
-                            + "board {} ".format(brd)
-                            + "and channel {}".format(ch)
-                            + " ...removing combo from map"
+                            f"HDF5 structure unexpected...dataset '{dset_name}' "
+                            f"not found for board {brd} and channel {ch}..."
+                            f"removing combo from map"
                         )
                         warn(why)
                         chs_to_remove.append(ch)
@@ -265,10 +262,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 new_chs.remove(ch)
             if len(new_chs) == 0:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'Board number {}'".format(brd)
-                    + " does not define any valid channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'Board number {brd}' does not "
+                    f"define any valid channel numbers...not adding to `configs` "
+                    f"dict"
                 )
                 warn(why)
 
@@ -289,10 +285,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # dataset should not have fields
                 if dset.dtype.names is not None:
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(dset_name)
-                        + " has fields...not adding to "
-                        + "`configs` dict"
+                        f"HDF5 structure unexpected...dataset '{dset_name}' has "
+                        f"fields...not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -302,10 +296,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 if len(dset.shape) != 2:
                     # dataset not 2D array
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(dset_name)
-                        + " is NOT a 2D array...not adding to "
-                        + "`configs` dict"
+                        f"HDF5 structure unexpected...dataset '{dset_name}' is "
+                        f"NOT a 2D array...not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -320,11 +312,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 else:
                     if nt != dset.shape[1]:
                         why = (
-                            "HDF5 structure unexpected..."
-                            + "number of time sample inconsistent"
-                            + " across all channels for "
-                            + "board {}".format(brd)
-                            + "...setting nt = -1"
+                            f"HDF5 structure unexpected...number of time sample "
+                            f"inconsistent across all channels for board {brd}..."
+                            f"setting nt = -1"
                         )
                         warn(why)
                         nt = -1
@@ -339,11 +329,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 else:
                     if nshotnum != dset.shape[0]:
                         why = (
-                            "HDF5 structure unexpected..."
-                            + "number of shot numbers inconsistent"
-                            + " across all channels for "
-                            + "board {}".format(brd)
-                            + "...setting nshotnum = -1"
+                            f"HDF5 structure unexpected...number of shot numbers "
+                            f"inconsistent across all channels for board {brd}..."
+                            f"setting nshotnum = -1"
                         )
                         warn(why)
                         nshotnum = -1
@@ -359,11 +347,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # should have fields (specifically the shotnum field)
                 if sn_field not in hdset.dtype.names:
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}' does ".format(hdset_name)
-                        + "NOT have expected shot number field "
-                        + "'{}'".format(sn_field)
-                        + "...not adding to `configs` dict"
+                        f"HDF5 structure unexpected...dataset '{hdset_name}' does "
+                        f"NOT have expected shot number field '{sn_field}'..."
+                        f"not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -373,14 +359,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 if hdset.dtype[sn_field].shape != () or not np.issubdtype(
                     hdset.dtype[sn_field], np.integer
                 ):
-                    why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(hdset_name)
-                        + " does NOT have expected shape and dtype"
-                        + "for a shot numbers...not adding to "
-                        + "`configs` dict"
-                    )
                     warn(why)
+                    why = (
+                        f"HDF5 structure unexpected...dataset '{hdset_name}' does "
+                        f"NOT have expected shape and dtype for a shot numbers"
+                        f"...not adding to `configs` dict"
+                    )
                     chs_to_remove.append(ch)
                     continue
 
@@ -388,12 +372,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # number of shot numbers
                 if dset.shape[0] != hdset.shape[0]:
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset and header dataset for "
-                        + "board {}".format(brd)
-                        + "and channel {}".format(ch)
-                        + "do NOT have th same number of shot "
-                        + "numbers...not adding to `configs` dict"
+                        f"HDF5 structure unexpected...dataset and header dataset "
+                        f"for board {brd} and channel {ch} do NOT have th same "
+                        f"number of shot numbers...not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -404,10 +385,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 new_chs.remove(ch)
             if len(new_chs) == 0:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'Board number {}'".format(brd)
-                    + " does not define any valid channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'Board number {brd}' does not "
+                    f"define any valid channel numbers...not adding to "
+                    f"`configs` dict"
                 )
                 warn(why)
 
@@ -526,8 +506,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             if len(config["adc"]) == 0:
                 raise HDFMappingError(
                     self.info["group path"],
-                    "active configuration '{}'".format(config_name)
-                    + " has no active adc's",
+                    f"active configuration '{config_name}' has no active adc's",
                 )
 
             adcs = list(config["adc"])
@@ -538,8 +517,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             if len(adcs) == 0:
                 raise HDFMappingError(
                     self.info["group path"],
-                    "active configuration '{}'".format(config_name)
-                    + " has no mapped connections for any adc",
+                    f"active configuration '{config_name}' has no mapped "
+                    f"connections for any adc",
                 )
             else:
                 config["adc"] = tuple(adcs)
@@ -618,7 +597,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # define _helpers
         if adc_name not in ("SIS 3302", "SIS 3305"):  # pragma: no cover
             # this should never happen
-            warn("Invalid adc name '{}'".format(adc_name))
+            warn(f"Invalid adc name '{adc_name}'")
             return ()
         _helpers = {
             "SIS 3302": {
@@ -669,9 +648,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     adc_pairs.append((slot, index, brd, adc))
                 except KeyError:
                     why = (
-                        "HDF5 structure unexpected...defined slot"
-                        + "number {} is unexpected".format(slot)
-                        + "...not adding to `configs` mapping"
+                        f"HDF5 structure unexpected...defined slot number {slot} "
+                        f"is unexpected...not adding to `configs` mapping"
                     )
                     warn(why)
 
@@ -710,10 +688,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             # ensure board number was found
             if brd is None:
                 why = (
-                    "Board not found since group name "
-                    + "determined `config_index` "
-                    + "{} not".format(config_index)
-                    + " defined in top-level configuration group"
+                    f"Board not found since group name determined "
+                    f"`config_index` {config_index} not defined in top-level "
+                    f"configuration group"
                 )
                 warn(why)
                 continue
@@ -745,10 +722,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             # ensure chs is not NULL
             if len(chs) == 0:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'{}'".format(config_name + "/" + name)
-                    + " does not define any valid channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'{config_name}/{name}' does "
+                    f"not define any valid channel numbers...not adding to "
+                    f"`configs` dict"
                 )
                 warn(why)
 
@@ -787,10 +763,9 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     cr_mode = int(cr_mode)
                 except (KeyError, ValueError):
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "'{}'".format(config_name + "/" + name)
-                        + " does not define a clock rate mode"
-                        + "...setting to None in the `configs` dict"
+                        f"HDF5 structure unexpected...'{config_name}/{name}' does "
+                        f"not define a clock rate mode...setting to None in the "
+                        f"`configs` dict"
                     )
                     warn(why)
                     cr_mode = -1
@@ -965,8 +940,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
             if len(self.configs[config_name]["adc"]) == 1:
                 adc = self.configs[config_name]["adc"][0]
                 warn(
-                    "No `adc` specified, but only one adc used..."
-                    "assuming adc '{}'".format(adc)
+                    f"No `adc` specified, but only one adc used..."
+                    f"assuming adc '{adc}'"
                 )
             else:
                 # there should never be a case where there are NO active
@@ -977,8 +952,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 warn("No `adc` specified...assuming adc 'SIS 3302'")
         elif adc not in self._configs[config_name]["adc"]:
             raise ValueError(
-                "Specified adc ({}) is not in specified ".format(adc)
-                + "configuration ({}).".format(config_name)
+                f"Specified adc ({adc}) is not in specified configuration "
+                f"({config_name})."
             )
 
         # search if (board, channel) combo is connected
@@ -1006,9 +981,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # checks passed, build dataset_name
         slot = self.get_slot(board, adc)
         if adc == "SIS 3302":
-            dataset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(
-                config_name, slot, channel
-            )
+            dataset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {channel}]"
         else:
             # this is 'SIS 3305'
             if channel in range(1, 5):
@@ -1018,9 +991,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 fpga = 2
                 ch = channel - 4
 
-            dataset_name = "{0} [Slot {1}: ".format(
-                config_name, slot
-            ) + "SIS 3305 FPGA {0} ch {1}]".format(fpga, ch)
+            dataset_name = f"{config_name} [Slot {slot}: SIS 3305 FPGA {fpga} ch {ch}]"
 
         # return
         if return_info is True:

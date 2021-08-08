@@ -119,7 +119,7 @@ class FauxNIXZ(h5py.Group):
     def __init__(self, id, n_motionlists=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         gid = h5py.h5g.create(id, b"NI_XZ")
@@ -226,7 +226,7 @@ class FauxNIXZ(h5py.Group):
         # - define motionlist group attributes
         for i in range(self.knobs.n_motionlists):
             # define motionlist name
-            ml_name = "ml-{:04}".format(i + 1)
+            ml_name = f"ml-{i+1:04}"
             self._ml.append({"name": ml_name, "size": sn_size_for_ml[i]})
             # self._motionlist_names.append(ml_name)
 

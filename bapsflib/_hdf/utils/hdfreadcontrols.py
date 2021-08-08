@@ -106,7 +106,7 @@ class HDFReadControls(np.ndarray):
         controls: ControlsType,
         shotnum=slice(None),
         intersection_set=True,
-        **kwargs
+        **kwargs,
     ):
         """
         :param hdf_file: HDF5 file object
@@ -164,7 +164,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - hdf_file conditioning: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - hdf_file conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Examine file map object                              ----
         # grab instance of _fmap
@@ -190,7 +190,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - condition controls: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - condition controls: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition shotnum                                    ----
         # shotnum -- global HDF5 file shot number
@@ -289,7 +289,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - condition shotnum: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - condition shotnum: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Build obj                                            ----
         # Define dtype and shape for numpy array
@@ -314,7 +314,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - define dtype: {} ms".format((tt[-1] - tt[-2]) * 1.0e3))
+            print(f"tt - define dtype: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Initialize Control Data
         data = np.empty(shape, dtype=dtype)
@@ -323,10 +323,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print(
-                "tt - initialize data np.ndarray: "
-                "{} ms".format((tt[-1] - tt[-2]) * 1.0e3)
-            )
+            print(f"tt - initialize data np.ndarray: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Assign Control Data to Numpy array
         for control in controls:
@@ -432,9 +429,8 @@ class HDFReadControls(np.ndarray):
                                     # no real NaN concept exists
                                     # - this shouldn't happen though
                                     warn(
-                                        "dtype ({}) of ".format(dtype)
-                                        + "{} has no NaN ".format(nf_name)
-                                        + "concept...no NaN fill done"
+                                        f"dtype ({dtype}) of {nf_name} has no NaN "
+                                        f"concept...no NaN fill done"
                                     )
                             else:
                                 # expected field df_name is missing
@@ -478,28 +474,22 @@ class HDFReadControls(np.ndarray):
                             # no real NaN concept exists
                             # - this shouldn't happen though
                             warn(
-                                "dtype ({}) of ".format(dtype)
-                                + "{} has no NaN ".format(nf_name)
-                                + "concept...no NaN fill done"
+                                f"dtype ({dtype}) of {nf_name} has no NaN concept"
+                                f"...no NaN fill done"
                             )
 
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print(
-                    "tt - fill data - "
-                    + "{}: ".format(cname)
-                    + "{} ms".format((tt[-1] - tt[-2]) * 1.0e3)
-                )
+                print(f"tt - fill data - {cname}: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # print execution timing
         if timeit:  # pragma: no cover
             n_controls = len(controls)
             tt.append(time.time())
             print(
-                "tt - fill data array: "
-                "{} ms".format((tt[-1] - tt[-n_controls - 2]) * 1.0e3)
-                + " (intersection_set={})".format(intersection_set)
+                f"tt - fill data array: {(tt[-1] - tt[-n_controls - 2]) * 1.0e3} ms "
+                f"(intersection_set={intersection_set})"
             )
 
         # -- Define `obj`                                           ----
@@ -538,7 +528,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print("tt - total execution time: {} ms".format((tt[-1] - tt[0]) * 1.0e3))
+            print(f"tt - total execution time: {(tt[-1] - tt[0]) * 1.0e3} ms")
 
         # return obj
         return obj

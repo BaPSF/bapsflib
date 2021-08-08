@@ -179,10 +179,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                                 splave = None
                         except ValueError:
                             warn(
-                                "Found sample averaging of "
-                                + "'{}'".format(_match.group("NAME"))
-                                + " but can not convert to int..."
-                                + "using a value of None instead"
+                                f"Found sample averaging of '{_match.group('NAME')}' "
+                                f"but can not convert to int...using a value of "
+                                f"None instead"
                             )
             conn[2]["sample average (hardware)"] = splave
 
@@ -262,12 +261,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 for dset_name in names:
                     if dset_name not in self.group:
                         why = (
-                            "HDF5 structure unexpected...dataset "
-                            + "'{}' ".format(dset_name)
-                            + "not found for "
-                            + "board {} ".format(brd)
-                            + "and channel {}".format(ch)
-                            + " ...removing combo from map"
+                            f"HDF5 structure unexpected...dataset '{dset_name}' "
+                            f"not found for board {brd} and channel {ch}"
+                            f"...removing combo from map"
                         )
                         warn(why)
                         chs_to_remove.append(ch)
@@ -278,10 +274,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 new_chs.remove(ch)
             if len(new_chs) == 0:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'Board number {}'".format(brd)
-                    + " does not define any valid channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'Board number {brd}' does not "
+                    f"define any valid channel numbers...not adding to "
+                    f"`configs` dict"
                 )
                 warn(why)
 
@@ -300,10 +295,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 # dataset should not have fields
                 if dset.dtype.names is not None:
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(dset_name)
-                        + " has fields...not adding to "
-                        + "`configs` dict"
+                        f"HDF5 structure unexpected...dataset '{dset_name}' has "
+                        f"fields...not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -313,10 +306,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 if len(dset.shape) != 2:
                     # dataset not 2D array
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(dset_name)
-                        + " is NOT a 2D array...not adding to "
-                        + "`configs` dict"
+                        f"HDF5 structure unexpected...dataset '{dset_name}' is "
+                        f"NOT a 2D array...not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -331,11 +322,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 else:
                     if nt != dset.shape[1]:
                         why = (
-                            "HDF5 structure unexpected..."
-                            + "number of time sample inconsistent"
-                            + " across all channels for "
-                            + "board {}".format(brd)
-                            + "...setting nt = -1"
+                            f"HDF5 structure unexpected...number of time "
+                            f"sample inconsistent across all channels for "
+                            f"board {brd}...setting nt = -1"
                         )
                         warn(why)
                         nt = -1
@@ -350,11 +339,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 else:
                     if nshotnum != dset.shape[0]:
                         why = (
-                            "HDF5 structure unexpected..."
-                            + "number of shot numbers inconsistent"
-                            + " across all channels for "
-                            + "board {}".format(brd)
-                            + "...setting nshotnum = -1"
+                            f"HDF5 structure unexpected...number of shot "
+                            f"numbers inconsistent across all channels for "
+                            f"board {brd}...setting nshotnum = -1"
                         )
                         warn(why)
                         nshotnum = -1
@@ -376,11 +363,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                         )
                     else:
                         why = (
-                            "HDF5 structure unexpected..."
-                            + "dataset '{}'".format(hdset_name)
-                            + " does NOT have expected shot number "
-                            + "field '{}'".format(sn_field)
-                            + "...not adding to `configs` dict"
+                            f"HDF5 structure unexpected...dataset '{hdset_name}' "
+                            f"does NOT have expected shot number field "
+                            f"'{sn_field}'...not adding to `configs` dict"
                         )
                         warn(why)
                         chs_to_remove.append(ch)
@@ -391,11 +376,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     hdset.dtype[sn_field], np.integer
                 ):
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset '{}'".format(hdset_name)
-                        + " does NOT have expected shape and dtype"
-                        + "for a shot numbers...not adding to "
-                        + "`configs` dict"
+                        f"HDF5 structure unexpected...dataset '{hdset_name}' "
+                        f"does NOT have expected shape and dtype for a shot "
+                        f"numbers...not adding to `configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -405,12 +388,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 # number of shot numbers
                 if dset.shape[0] != hdset.shape[0]:
                     why = (
-                        "HDF5 structure unexpected..."
-                        + "dataset and header dataset for "
-                        + "board {}".format(brd)
-                        + "and channel {}".format(ch)
-                        + "do NOT have th same number of shot "
-                        + "numbers...not adding to `configs` dict"
+                        f"HDF5 structure unexpected...dataset and header "
+                        f"dataset for board {brd} and channel {ch} do NOT have "
+                        f"the same number of shot numbers...not adding to "
+                        f"`configs` dict"
                     )
                     warn(why)
                     chs_to_remove.append(ch)
@@ -421,10 +402,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 new_chs.remove(ch)
             if len(new_chs) == 0:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'Board number {}'".format(brd)
-                    + " does not define any valid channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'Board number {brd}' does not "
+                    f"define any valid channel numbers...not adding to "
+                    f"`configs` dict"
                 )
                 warn(why)
 
@@ -535,8 +515,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             if len(config["SIS 3301"]) == 0:
                 raise HDFMappingError(
                     self.info["group path"],
-                    "active configuration '{}'".format(config_name)
-                    + " has no connected board and channels",
+                    f"active configuration '{config_name}' has no connected "
+                    f"board and channels",
                 )
 
     @staticmethod
@@ -586,8 +566,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             # Is it a board group?
             if not bool(re.fullmatch(r"Boards\[\d+\]", board)):
                 warn(
-                    "'{}' does not match expected ".format(board)
-                    + "board group name...not adding to mapping"
+                    f"'{board}' does not match expected board group name..."
+                    f"not adding to mapping"
                 )
                 continue
 
@@ -611,9 +591,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             # ensure there's no duplicate board numbers
             if brd in [sconn[0] for sconn in conn]:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'{}'".format(config_group.name)
-                    + " defines duplicate board numbers"
+                    f"HDF5 structure unexpected...'{config_group.name}' defines "
+                    f"duplicate board numbers"
                 )
 
                 # error if active, else warn
@@ -631,8 +610,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 # Is it a channel group?
                 if not bool(re.fullmatch(r"Channels\[\d+\]", ch_key)):
                     warn(
-                        "'{}' does not match expected ".format(board)
-                        + "channel group name...not adding to mapping"
+                        f"'{board}' does not match expected channel group name"
+                        f"...not adding to mapping"
                     )
                     continue
 
@@ -660,10 +639,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             # ensure connected channels are unique
             if len(chs) != len(set(chs)):
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'{}'".format(brd_group.name)
-                    + " does not define a unique set of channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'{brd_group.name}' does not "
+                    f"define a unique set of channel numbers...not adding to "
+                    f"`configs` dict"
                 )
                 warn(why)
 
@@ -673,10 +651,9 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             # ensure chs is not NULL
             if len(chs) == 0:
                 why = (
-                    "HDF5 structure unexpected..."
-                    + "'{}'".format(brd_group.name)
-                    + " does not define any valid channel "
-                    + "numbers...not adding to `configs` dict"
+                    f"HDF5 structure unexpected...'{brd_group.name}' does not "
+                    f"define any valid channel numbers...not adding to "
+                    f"`configs` dict"
                 )
                 warn(why)
 
@@ -790,8 +767,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         # Condition adc keyword
         if adc != "SIS 3301":
             raise ValueError(
-                "Specified adc ({}) is not in specified ".format(adc)
-                + "configuration ({}).".format(config_name)
+                f"Specified adc ({adc}) is not in specified configuration "
+                f"({config_name})."
             )
 
         # search if (board, channel) combo is connected
@@ -817,7 +794,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             )
 
         # checks passed, build dataset_name
-        dataset_name = "{0} [{1}:{2}]".format(config_name, board, channel)
+        dataset_name = f"{config_name} [{board}:{channel}]"
 
         # return
         if return_info is True:

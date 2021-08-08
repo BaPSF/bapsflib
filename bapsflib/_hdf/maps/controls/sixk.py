@@ -127,9 +127,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 #             constructed
                 #
                 why = (
-                    "Dataset for configuration "
-                    + "'{}'".format(pname)
-                    + "  could not be determined or found"
+                    f"Dataset for configuration '{pname}' could not be "
+                    f"determined or found."
                 )
                 raise HDFMappingError(self._info["group path"], why=why)
 
@@ -192,7 +191,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 err = False
         if err:
             raise ValueError(
-                "A valid receptacle number needs to be passed: {}".format(_receptacles)
+                f"A valid receptacle number needs to be passed: {_receptacles}"
             )
 
         # Find matching probe to receptacle
@@ -203,7 +202,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
         pname = self._configs[rnum]["probe"]["probe name"]
 
         # Construct dataset name
-        dname = "XY[{0}]: {1}".format(rnum, pname)
+        dname = f"XY[{rnum}]: {pname}"
 
         # return
         return dname
@@ -419,12 +418,10 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 # check against discovered receptacle number
                 if pl["config"]["receptacle"] != rnum:
                     warn_str = (
-                        pl["config"]["group name"]
-                        + ": Discovered receptacle number "
-                        + "'{}' ".format(pl["config"]["receptacle"])
-                        + "does not match the number defined in"
-                        + " attributes '{}'".format(rnum)
-                        + "', using discovered name"
+                        f"{pl['config']['group name']}: Discovered receptacle "
+                        f"number '{pl['config']['receptacle']}' does not match "
+                        f"the number defined in attributes '{rnum}', using "
+                        f"discovered name."
                     )
                     warn(warn_str)
             except KeyError:

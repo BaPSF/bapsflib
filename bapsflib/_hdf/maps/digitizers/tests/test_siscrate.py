@@ -66,7 +66,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[0][1]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(config_name, slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         with self.assertWarns(UserWarning):
             self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
 
@@ -128,7 +128,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[0][1]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(config_name, slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         with self.assertWarns(UserWarning):
             self.assertEqual(_map.construct_dataset_name(brd, ch), dset_name)
 
@@ -149,7 +149,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[0][1]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(config_name, slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         with self.assertWarns(UserWarning):
             self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
 
@@ -164,7 +164,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[2][1]
         brd = my_sabc[2][2]
         ch = my_sabc[2][3][0]
-        dset_name = "{0} [Slot {1}: SIS 3305 FPGA 1 ch {2}]".format(config_name, slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3305 FPGA 1 ch {ch}]"
         self.assertEqual(
             self.map.construct_dataset_name(brd, ch, config_name=config_name, adc=adc),
             dset_name,
@@ -175,9 +175,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[2][1]
         brd = my_sabc[2][2]
         ch = my_sabc[2][3][-1]
-        dset_name = "{0} [Slot {1}: SIS 3305 FPGA 2 ch {2}]".format(
-            config_name, slot, ch - 4
-        )
+        dset_name = f"{config_name} [Slot {slot}: SIS 3305 FPGA 2 ch {ch-4}]"
         self.assertEqual(
             self.map.construct_dataset_name(brd, ch, config_name=config_name, adc=adc),
             dset_name,
@@ -188,7 +186,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[0][1]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(config_name, slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         _map = self.map
         d_info = {}
         for conn in _map.configs[config_name][adc]:
@@ -256,7 +254,7 @@ class TestSISCrate(DigitizerTestCase):
         adc = my_sabc[0][1]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = "{0} [Slot {1}: SIS 3302 ch {2}]".format(config_name, slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         hdset_name = dset_name + " headers"
         _map = self.map
         with mock.patch.object(
@@ -485,7 +483,7 @@ class TestSISCrate(DigitizerTestCase):
         adc_group = cgroup[adc_config_name]
         save = []
         for ii in range(1, 9):
-            attr_name = "Enabled {}".format(ii)
+            attr_name = f"Enabled {ii}"
             save.append(adc_group.attrs[attr_name])
             adc_group.attrs[attr_name] = np.bytes_("FALSE")
         with self.assertWarns(UserWarning):
@@ -495,7 +493,7 @@ class TestSISCrate(DigitizerTestCase):
                 all(brd != conn[0] for conn in _map.configs[config_name][adc])
             )
         for ii in range(1, 9):
-            attr_name = "Enabled {}".format(ii)
+            attr_name = f"Enabled {ii}"
             adc_group.attrs[attr_name] = save[ii - 1]
 
         # setup a 'SIS 3305' connection
@@ -574,7 +572,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         with self.assertWarns(UserWarning):
@@ -596,7 +594,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         chs = my_sabc[0][3]
         for ch in chs:
-            dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+            dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
             new_name = dset_name + "Q"
             self.dgroup.move(dset_name, new_name)
         with self.assertWarns(UserWarning):
@@ -604,7 +602,7 @@ class TestSISCrate(DigitizerTestCase):
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for ch in chs:
-            dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+            dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
             new_name = dset_name + "Q"
             self.dgroup.move(new_name, dset_name)
 
@@ -612,7 +610,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         data = np.empty(3, dtype=[("f1", np.int16), ("f2", np.int16)])
@@ -636,7 +634,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         data = np.empty((3, 100, 3), dtype=np.int16)
@@ -661,7 +659,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         dset = self.dgroup[new_name]
@@ -692,7 +690,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         hdset_name = dset_name + " headers"
         data = self.dgroup[dset_name][...]
         hdata = self.dgroup[hdset_name][...]
@@ -727,7 +725,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         hdset_name = dset_name + " headers"
         hdata = self.dgroup[hdset_name][...]
         names = list(hdata.dtype.names)
@@ -756,7 +754,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         hdset_name = dset_name + " headers"
         hdata = self.dgroup[hdset_name][...]
         self.dgroup.move(hdset_name, hdset_name + "Q")
@@ -803,7 +801,7 @@ class TestSISCrate(DigitizerTestCase):
         slot = my_sabc[0][0]
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
-        dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         hdset_name = dset_name + " headers"
         hdata = self.dgroup[hdset_name][...]
         hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
@@ -833,7 +831,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         chs = my_sabc[0][3]
         for ch in chs:
-            dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+            dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
             hdset_name = dset_name + " headers"
 
             hdata = self.dgroup[hdset_name][...]
@@ -848,7 +846,7 @@ class TestSISCrate(DigitizerTestCase):
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for ch in chs:
-            dset_name = config_name + " [Slot {}: SIS 3302 ch {}]".format(slot, ch)
+            dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
             hdset_name = dset_name + " headers"
             del self.dgroup[hdset_name]
             self.dgroup.move(hdset_name + "Q", hdset_name)

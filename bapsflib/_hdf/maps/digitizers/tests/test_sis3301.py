@@ -54,7 +54,7 @@ class TestSIS3301(DigitizerTestCase):
         # not specified, and only ONE active config
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         with self.assertWarns(UserWarning):
             self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
 
@@ -114,7 +114,7 @@ class TestSIS3301(DigitizerTestCase):
         # -- return when `return_info=True`                         ----
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         _map = self.map
         d_info = {}
         for conn in _map.configs[config_name][adc]:
@@ -175,7 +175,7 @@ class TestSIS3301(DigitizerTestCase):
         # `return_info` does NOT return extra info
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         hdset_name = dset_name + " headers"
         _map = self.map
         with mock.patch.object(
@@ -203,7 +203,7 @@ class TestSIS3301(DigitizerTestCase):
         # setup group
         config_name = "config01"
         # adc = 'SIS 3301'
-        config_path = "Configuration: {}".format(config_name)
+        config_path = f"Configuration: {config_name}"
         my_bcs = [(0, (0, 3, 5)), (3, (0, 1, 2, 3)), (5, (5, 6, 7))]
         bc_arr = self.mod.knobs.active_brdch
         bc_arr[...] = False
@@ -223,8 +223,8 @@ class TestSIS3301(DigitizerTestCase):
 
         # the same board number is defined multiple times for an active
         # configuration
-        path = config_path + "/Boards[0]"
-        path2 = config_path + "/Boards[{}]".format(len(my_bcs))
+        path = f"{config_path}/Boards[0]"
+        path2 = f"{config_path}/Boards[{len(my_bcs)}]"
         brd = self.dgroup[path].attrs["Board"]
         self.dgroup.create_group(path2)
         self.dgroup[path2].attrs["Board"] = brd
@@ -303,7 +303,7 @@ class TestSIS3301(DigitizerTestCase):
         # setup group
         config_name = "config01"
         adc = "SIS 3301"
-        config_path = "Configuration: {}".format(config_name)
+        config_path = f"Configuration: {config_name}"
         my_bcs = [(0, (0, 3, 5)), (3, (0, 1, 2, 3)), (5, (5, 6, 7))]
         bc_arr = self.mod.knobs.active_brdch
         bc_arr[...] = False
@@ -451,7 +451,7 @@ class TestSIS3301(DigitizerTestCase):
         #      does not have an existing dataset
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         with self.assertWarns(UserWarning):
@@ -472,7 +472,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         chs = my_bcs[0][1]
         for ch in chs:
-            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            dset_name = f"{config_name} [{brd}:{ch}]"
             new_name = dset_name + "Q"
             self.dgroup.move(dset_name, new_name)
         with self.assertWarns(UserWarning):
@@ -480,14 +480,14 @@ class TestSIS3301(DigitizerTestCase):
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for ch in chs:
-            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            dset_name = f"{config_name} [{brd}:{ch}]"
             new_name = dset_name + "Q"
             self.dgroup.move(new_name, dset_name)
 
         # datasets has fields                                       (13)
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         data = np.empty(3, dtype=[("f1", np.int16), ("f2", np.int16)])
@@ -510,7 +510,7 @@ class TestSIS3301(DigitizerTestCase):
         # dataset is not a 2D array                                 (14)
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         data = np.empty((3, 100, 3), dtype=np.int16)
@@ -534,7 +534,7 @@ class TestSIS3301(DigitizerTestCase):
         # all channels connected to board
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
         dset = self.dgroup[new_name]
@@ -564,7 +564,7 @@ class TestSIS3301(DigitizerTestCase):
         # with their associated header dataset
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         hdset_name = dset_name + " headers"
         data = self.dgroup[dset_name][...]
         hdata = self.dgroup[hdset_name][...]
@@ -598,7 +598,7 @@ class TestSIS3301(DigitizerTestCase):
         # header dataset missing expected shot number field         (17)
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         hdset_name = dset_name + " headers"
         hdata = self.dgroup[hdset_name][...]
         names = list(hdata.dtype.names)
@@ -626,7 +626,7 @@ class TestSIS3301(DigitizerTestCase):
         # expected shape and/or dtype
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         hdset_name = dset_name + " headers"
         hdata = self.dgroup[hdset_name][...]
         self.dgroup.move(hdset_name, hdset_name + "Q")
@@ -672,7 +672,7 @@ class TestSIS3301(DigitizerTestCase):
         # number of shot numbers
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
-        dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         hdset_name = dset_name + " headers"
         hdata = self.dgroup[hdset_name][...]
         hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
@@ -701,7 +701,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         chs = my_bcs[0][1]
         for ch in chs:
-            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            dset_name = f"{config_name} [{brd}:{ch}]"
             hdset_name = dset_name + " headers"
 
             hdata = self.dgroup[hdset_name][...]
@@ -716,7 +716,7 @@ class TestSIS3301(DigitizerTestCase):
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for ch in chs:
-            dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+            dset_name = f"{config_name} [{brd}:{ch}]"
             hdset_name = dset_name + " headers"
             del self.dgroup[hdset_name]
             self.dgroup.move(hdset_name + "Q", hdset_name)
@@ -798,7 +798,7 @@ class TestSIS3301(DigitizerTestCase):
         # setup
         config_name = "config01"
         adc = "SIS 3301"
-        config_path = "Configuration: {}".format(config_name)
+        config_path = f"Configuration: {config_name}"
         my_bcs = [(0, (0, 3, 5)), (3, (0, 1, 2, 3)), (5, (5, 6, 7))]
         bc_arr = self.mod.knobs.active_brdch
         bc_arr[...] = False
@@ -866,7 +866,7 @@ class TestSIS3301(DigitizerTestCase):
         # and is converted to an int of 0 or 1
         for val in (0, 1):
             self.dgroup[config_path].attrs["Samples to average"] = np.bytes_(
-                "Average {} Samples".format(val)
+                f"Average {val} Samples"
             )
             _map = self.map
             for conn in _map.configs[config_name][adc]:
@@ -875,7 +875,7 @@ class TestSIS3301(DigitizerTestCase):
         # 'Samples to average' does match string 'Average {} Samples',
         # and is converted to an int >1
         self.dgroup[config_path].attrs["Samples to average"] = np.bytes_(
-            "Average 5 Samples".format(val)
+            "Average 5 Samples"
         )
         _map = self.map
         for conn in _map.configs[config_name][adc]:
@@ -884,9 +884,7 @@ class TestSIS3301(DigitizerTestCase):
         # 'Samples to average' is named 'Unnamed' instead, and valid
         # (as seen on some SmPD HDF5 files)
         del self.dgroup[config_path].attrs["Samples to average"]
-        self.dgroup[config_path].attrs["Unnamed"] = np.bytes_(
-            "Average 2 Samples".format(val)
-        )
+        self.dgroup[config_path].attrs["Unnamed"] = np.bytes_("Average 2 Samples")
         _map = self.map
         for conn in _map.configs[config_name][adc]:
             self.assertEqual(conn[2]["sample average (hardware)"], 2)
@@ -907,7 +905,7 @@ class TestSIS3301(DigitizerTestCase):
         for conn in my_bcs:
             brd = conn[0]
             for ch in conn[1]:
-                dset_name = "{0} [{1}:{2}]".format(config_name, brd, ch)
+                dset_name = f"{config_name} [{brd}:{ch}]"
                 hdset_name = dset_name + " headers"
                 hdset = self.dgroup[hdset_name][...]
                 hdset = rfn.rename_fields(hdset, {"Shot": "Shot number"})

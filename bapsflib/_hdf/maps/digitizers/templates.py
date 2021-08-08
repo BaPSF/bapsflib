@@ -387,10 +387,7 @@ class HDFMapDigiTemplate(ABC):
             else:
                 raise ValueError("A valid `config_name` needs to be specified")
         elif self.configs[config_name]["active"] is False:
-            warn(
-                "Digitizer configuration '{}'".format(config_name)
-                + " is not actively used."
-            )
+            warn(f"Digitizer configuration '{config_name}' is not actively used.")
 
         # look for `adc`
         if adc is None:
@@ -409,13 +406,11 @@ class HDFMapDigiTemplate(ABC):
                 found = True
                 break
         if not found or not bool(board):
-            raise ValueError("Board number ({}) ".format(board) + "not found in setup")
+            raise ValueError(f"Board number ({board}) not found in setup")
 
         # look for `channel`
         if channel not in conn[1] or not bool(channel):
-            raise ValueError(
-                "Channel number ({}) ".format(channel) + " not found in setup"
-            )
+            raise ValueError(f"Channel number ({channel})  not found in setup")
 
         # get dictionary and add keys
         # - 'board', 'channel', 'adc', 'digitizer', and

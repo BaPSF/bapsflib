@@ -53,7 +53,7 @@ class FauxInterferometerArray(h5py.Group):
     def __init__(self, id, n_interferometers=7, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         # noinspection PyUnresolvedReferences
@@ -126,7 +126,7 @@ class FauxInterferometerArray(h5py.Group):
         #      associated with each interferometer trace
         #
         # Create group
-        gname = "Interferometer [{}]".format(inter_num)
+        gname = f"Interferometer [{inter_num}]"
         self.create_group(gname)
 
         # Set group attributes

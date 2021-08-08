@@ -313,7 +313,7 @@ class TestHDFReadControl(TestBase):
         data["bits"] = np.arange(21, 31, 1, dtype=np.uint32)
         data["signal"] = np.arange(-5.0, 9.0, 1.5, dtype=np.float32)
         for ii in range(data.size):
-            data["command"][ii] = "VOLT {:5.1f}".format(data["signal"][ii])
+            data["command"][ii] = f"VOLT {data['signal'][ii]:5.1f}"
         data["valid"][[1, 8]] = True
         self.f.create_group("Raw data + config/Sample")
         self.f.create_dataset("Raw data + config/Sample/Dataset", data=data)

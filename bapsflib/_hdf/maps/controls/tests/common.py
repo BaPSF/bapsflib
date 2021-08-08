@@ -356,11 +356,8 @@ class ControlTestCase(ut.TestCase):
                 np.dtype(sv_config["dtype"])
             except TypeError as err:
                 self.fail(
-                    "({})".format(err)
-                    + "\nconfigs['state values']"
-                    + "['']".format(sv_name)
-                    + "['dtype']' needs to be convertible by "
-                    + "numpy.dtype"
+                    f"({err})\nconfigs['state values']['{sv_name}']['dtype']' needs "
+                    f"to be convertible by numpy.dtype"
                 )
 
         # -- check absolutely required elements                     ----

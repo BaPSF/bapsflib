@@ -37,15 +37,16 @@ class LaPDOverview(HDFOverview):
         super().report_general()
 
         # add more print basic file info
-        print("LaPD version: {}".format(self._file.info["lapd version"]))
-        print("Investigator: {}".format(self._file.info["investigator"]))
-        print("Run Date:     {}".format(self._file.info["run date"]))
-
-        # exp. and run structure
-        print("\nExp. and Run Structure:")
-        print("  (set)  {}".format(self._file.info["exp set name"]))
-        print("  (exp)  +-- {}".format(self._file.info["exp name"]))
-        print("  (run)  |   +-- {}".format(self._file.info["run name"]))
+        print(
+            f"LaPD version: {self._file.info['lapd version']}\n"
+            f"Investigator: {self._file.info['investigator']}\n"
+            f"Run Date:     {self._file.info['run date']}\n"
+            f"\n"
+            f"Exp. and Run Structure:\n"
+            f"  (set)  {self._file.info['exp set name']}\n"
+            f"  (exp)  +-- {self._file.info['exp name']}\n"
+            f"  (run)  |   +-- {self._file.info['run name']}"
+        )
 
         # print run description
         print("\nRun Description:")

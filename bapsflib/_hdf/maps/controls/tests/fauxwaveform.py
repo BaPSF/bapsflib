@@ -73,7 +73,7 @@ class FauxWaveform(h5py.Group):
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         gid = h5py.h5g.create(id, b"Waveform")
@@ -112,7 +112,7 @@ class FauxWaveform(h5py.Group):
         # add configuration sub-groups
         # self._config_names = []
         for i in range(self._n_configs):
-            config_name = "config{:02}".format(i + 1)
+            config_name = f"config{i+1:02}"
             # self._config_names.append(config_name)
             self._configs[config_name] = {}
             self.create_group(config_name)
@@ -153,7 +153,7 @@ class FauxWaveform(h5py.Group):
             {
                 "GPIB address": np.uint32(0),
                 "Generator type": np.bytes_("Agilent 33220A - LAN"),
-                "IP address": np.bytes_("192.168.1.{}".format(config_number)),
+                "IP address": np.bytes_(f"192.168.1.{config_number}"),
                 "Initial state": np.bytes_(
                     "*RST;"
                     ":FUNC:SQU:DCYC +5.0000000000000E+01;"

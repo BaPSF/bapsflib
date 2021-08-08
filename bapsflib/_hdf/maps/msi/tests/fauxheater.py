@@ -34,7 +34,7 @@ class FauxHeater(h5py.Group):
     def __init__(self, id, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         # noinspection PyUnresolvedReferences

@@ -250,8 +250,8 @@ def build_sndr_for_complex_dset(
             break
     if configkey == "":
         raise ValueError(
-            "Can NOT find a configuration field in the control"
-            + " ({}) dataset".format(cmap.device_name)
+            f"Can NOT find a configuration field in the control "
+            f"({cmap.device_name}) dataset"
         )
 
     # find index
@@ -440,8 +440,7 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
             # ensure proper control and configuration name are defined
             if name in [cc[0] for cc in new_controls]:
                 raise ValueError(
-                    "Control device ({})".format(control)
-                    + " can only have one occurrence in controls"
+                    f"Control device ({control}) can only have one occurrence in controls"
                 )
             elif name in _fmap.controls:
                 if config_name in _fmap.controls[name].configs:
@@ -451,12 +450,11 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
                     config_name = list(_fmap.controls[name].configs)[0]
                 else:
                     raise ValueError(
-                        "'{}' is not a valid ".format(config_name)
-                        + "configuration name for control device "
-                        + "'{}'".format(name)
+                        f"'{config_name}' is not a valid configuration name for "
+                        f"control device '{name}'"
                     )
             else:
-                raise ValueError("Control device ({})".format(name) + " not in HDF5 file")
+                raise ValueError(f"Control device ({name}) not in HDF5 file")
 
             # add control to new_controls
             new_controls.append((name, config_name))
@@ -514,8 +512,7 @@ def condition_shotnum(
     if isinstance(shotnum, int):
         if shotnum <= 0 or isinstance(shotnum, bool):
             raise ValueError(
-                "Valid `shotnum` ({})".format(shotnum)
-                + " not passed. Resulting array would be NULL."
+                f"Valid `shotnum` ({shotnum}) not passed. Resulting array would be NULL."
             )
 
         # convert

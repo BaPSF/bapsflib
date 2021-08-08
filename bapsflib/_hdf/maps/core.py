@@ -103,11 +103,7 @@ class HDFMap(object):
         if control_path in self._hdf_obj:
             self.__controls = HDFMapControls(self._hdf_obj[control_path])
         else:
-            warn(
-                "Group for control devices "
-                + "('{}')".format(control_path)
-                + " does NOT exist."
-            )
+            warn(f"Group for control devices ('{control_path}') does NOT exist.")
             self.__controls = {}
 
     def __attach_digitizers(self):
@@ -120,9 +116,7 @@ class HDFMap(object):
         if digi_path in self._hdf_obj:
             self.__digitizers = HDFMapDigitizers(self._hdf_obj[digi_path])
         else:
-            warn(
-                "Group for digitizers " + "('{}')".format(digi_path) + " does NOT exist."
-            )
+            warn(f"Group for digitizers ('{digi_path}') does NOT exist.")
             self.__digitizers = {}
 
     def __attach_msi(self):
@@ -135,7 +129,7 @@ class HDFMap(object):
         if msi_path in self._hdf_obj:
             self.__msi = HDFMapMSI(self._hdf_obj[msi_path])
         else:
-            warn("MSI ('{}') does NOT exist.".format(msi_path))
+            warn(f"MSI ('{msi_path}') does NOT exist.")
             self.__msi = {}
 
     def __attach_unknowns(self):

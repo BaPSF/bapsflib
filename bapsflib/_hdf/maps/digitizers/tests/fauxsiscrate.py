@@ -179,7 +179,7 @@ class FauxSISCrate(h5py.Group):
     def __init__(self, id, n_configs=1, sn_size=100, nt=10000, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         # noinspection PyUnresolvedReferences
@@ -244,7 +244,7 @@ class FauxSISCrate(h5py.Group):
                 # determine slot number
                 slot = self.get_slot(brd + 1, field)
                 if slot is None:
-                    warn("Got no slot number for board number {}".format(brd + 1))
+                    warn(f"Got no slot number for board number {brd+1}")
                     continue
 
                 # update lists
@@ -282,7 +282,7 @@ class FauxSISCrate(h5py.Group):
         Create and set attributes for a SIS 3302 configuration group.
         """
         # create group
-        gname = "SIS crate 3302 configurations[{}]".format(index)
+        gname = f"SIS crate 3302 configurations[{index}]"
         gpath = config_name + "/" + gname
         self.create_group(gpath)
 
@@ -301,23 +301,23 @@ class FauxSISCrate(h5py.Group):
         )
         for ii in range(1, 9):
             # 'Ch #' fields
-            field = "Ch {}".format(ii)
+            field = f"Ch {ii}"
             self[gpath].attrs[field] = np.int32(ii)
 
             # 'Comment #' fields
-            field = "Comment {}".format(ii)
+            field = f"Comment {ii}"
             self[gpath].attrs[field] = np.bytes_("")
 
             # 'DC offset #' fields
-            field = "DC offset {}".format(ii)
+            field = f"DC offset {ii}"
             self[gpath].attrs[field] = np.float64(0.0)
 
             # 'Data type #' fields
-            field = "Data type {}".format(ii)
-            self[gpath].attrs[field] = np.bytes_("probe name {}".format(ii))
+            field = f"Data type {ii}"
+            self[gpath].attrs[field] = np.bytes_(f"probe name {ii}")
 
             # 'Enabled #' fields
-            field = "Enabled {}".format(ii)
+            field = f"Enabled {ii}"
             self[gpath].attrs[field] = np.bytes_("TRUE" if sis_arr[ii - 1] else "FALSE")
 
     def _build_config_sis3305_subgroup(self, config_name: str, slot: int, index: int):
@@ -325,8 +325,8 @@ class FauxSISCrate(h5py.Group):
         Create and set attributes for a SIS 3305 configuration group.
         """
         # create group
-        gname = "SIS crate 3305 configurations[{}]".format(index)
-        gpath = config_name + "/" + gname
+        gname = f"SIS crate 3305 configurations[{index}]"
+        gpath = f"{config_name}/{gname}"
         self.create_group(gpath)
 
         # get channel array
@@ -359,23 +359,23 @@ class FauxSISCrate(h5py.Group):
                 mode = "FALSE"
             else:
                 mode = "TRUE"
-            field = fpga_str + "Avail {}".format(ch)
+            field = f"{fpga_str}Avail {ch}"
             self[gpath].attrs[field] = np.bytes_(mode)
 
             # 'FPGA # Ch #' fields
-            field = fpga_str + "Ch {}".format(ch)
+            field = f"{fpga_str}Ch {ch}"
             self[gpath].attrs[field] = np.int32(ii)
 
             # 'FPGA # Comment #' fields
-            field = fpga_str + "Comment {}".format(ch)
+            field = f"{fpga_str}Comment {ch}"
             self[gpath].attrs[field] = np.bytes_("")
 
             # 'FPGA # Data type #' fields
-            field = fpga_str + "Data type {}".format(ch)
-            self[gpath].attrs[field] = np.bytes_("probe name {}".format(ii))
+            field = f"{fpga_str}Data type {ch}"
+            self[gpath].attrs[field] = np.bytes_(f"probe name {ii}")
 
             # 'FPGA # Enabled #' fields
-            field = fpga_str + "Enabled {}".format(ch)
+            field = f"{fpga_str}Enabled {ch}"
             self[gpath].attrs[field] = np.bytes_("TRUE" if sis_arr[ii - 1] else "FALSE")
 
     def _build_config_sis3820_subgroup(self, config_name: str, slot: int, index: int):
@@ -383,7 +383,7 @@ class FauxSISCrate(h5py.Group):
         Create and set attributes for a SIS 3820 configuration group.
         """
         # create group
-        gname = "SIS crate 3820 configurations[{}]".format(index)
+        gname = f"SIS crate 3820 configurations[{index}]"
         gpath = config_name + "/" + gname
         self.create_group(gpath)
 
@@ -415,9 +415,7 @@ class FauxSISCrate(h5py.Group):
 
             for cname in self._active_config:
                 # create main dataset
-                dset_name = (
-                    cname + " [Slot {}: ".format(slot) + "SIS 3302 ch {}]".format(ch)
-                )
+                dset_name = f"{cname} [Slot {slot}: SIS 3302 ch {ch}]"
                 shape = (self._sn_size, self._nt)
                 data = np.empty(shape=shape, dtype=np.int16)
                 self.create_dataset(dset_name, data=data)
@@ -462,12 +460,7 @@ class FauxSISCrate(h5py.Group):
 
             for cname in self._active_config:
                 # create main dataset
-                dset_name = (
-                    cname
-                    + " [Slot {}: SIS 3305 ".format(slot)
-                    + fpga_str
-                    + " ch {}]".format(ch)
-                )
+                dset_name = f"{cname} [Slot {slot}: SIS 3305 {fpga_str} ch {ch}]"
                 shape = (self._sn_size, self._nt)
                 data = np.empty(shape=shape, dtype=np.int16)
                 self.create_dataset(dset_name, data=data)
@@ -546,7 +539,7 @@ class FauxSISCrate(h5py.Group):
         # build configuration groups
         self._config_names = []
         for i in range(self._n_configs):
-            config_name = "config{:02}".format(i + 1)
+            config_name = f"config{i+1:02}"
             self._config_names.append(config_name)
             self._build_config_group(config_name)
 

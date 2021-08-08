@@ -132,7 +132,7 @@ class FauxSIS3301(h5py.Group):
     def __init__(self, id, n_configs=1, sn_size=100, nt=10000, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         # noinspection PyUnresolvedReferences
@@ -204,7 +204,7 @@ class FauxSIS3301(h5py.Group):
         # build configuration groups
         self._config_names = []
         for i in range(self._n_configs):
-            config_name = "config{:02}".format(i + 1)
+            config_name = f"config{i+1:02}"
             self._config_names.append(config_name)
             self._build_config_group(config_name)
 
@@ -246,8 +246,8 @@ class FauxSIS3301(h5py.Group):
         brd_index = np.where(brd_bool_arr)[0]
         for brd in brd_index:
             # create Board[] group
-            brd_name = "Boards[{}]".format(brd_count)
-            brd_path = gname + "/" + brd_name
+            brd_name = f"Boards[{brd_count}]"
+            brd_path = f"{gname}/{brd_name}"
             self[gname].create_group(brd_name)
             brd_count += 1
 
@@ -264,8 +264,8 @@ class FauxSIS3301(h5py.Group):
             ch_count = 0
             for ch in ch_index:
                 # create Channels[] group
-                ch_name = "Channels[{}]".format(ch_count)
-                ch_path = brd_path + "/" + ch_name
+                ch_name = f"Channels[{ch_count}]"
+                ch_path = f"{brd_path}/{ch_name}"
                 self[brd_path].create_group(ch_name)
                 ch_count += 1
 
@@ -290,7 +290,7 @@ class FauxSIS3301(h5py.Group):
                 # create "main" data set
                 # dset_name = (self._active_config
                 #              + ' [{}:{}]'.format(brd, ch))
-                dset_name = cname + " [{}:{}]".format(brd, ch)
+                dset_name = f"{cname} [{brd}:{ch}]"
                 shape = (self._sn_size, self._nt)
                 data = np.empty(shape=shape, dtype=np.int16)
                 self.create_dataset(dset_name, data=data)

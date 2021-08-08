@@ -99,7 +99,7 @@ class FauxSixK(h5py.Group):
     def __init__(self, id, n_configs=1, n_motionlists=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         gid = h5py.h5g.create(id, b"6K Compumotor")
@@ -184,7 +184,7 @@ class FauxSixK(h5py.Group):
         # - define probe group attributes
         for i in range(self._n_configs):
             # define probe name
-            pname = "probe{:02}".format(i + 1)
+            pname = f"probe{i+1:02}"
             self._probe_names.append(pname)
 
             # define receptacle number
@@ -194,7 +194,7 @@ class FauxSixK(h5py.Group):
                 receptacle = i + 1
 
             # create probe group
-            probe_gname = "Probe: XY[{}]: ".format(receptacle) + pname
+            probe_gname = f"Probe: XY[{receptacle}]: {pname}"
             self.create_group(probe_gname)
             self.create_group(probe_gname + "/Axes[0]")
             self.create_group(probe_gname + "/Axes[1]")
@@ -290,7 +290,7 @@ class FauxSixK(h5py.Group):
         # - define motionlist group attributes
         for i in range(self._n_motionlists):
             # define motionlist name
-            ml_name = "ml-{:04}".format(i + 1)
+            ml_name = f"ml-{i+1:04}"
             self._motionlist_names.append(ml_name)
 
             # create motionlist group
@@ -357,8 +357,9 @@ class FauxSixK(h5py.Group):
         # create dataset
         for cname in self._configs:
             # construct dataset name
-            dset_name = "XY[{0}]: {1}".format(
-                self._configs[cname]["receptacle"], self._configs[cname]["probe name"]
+            dset_name = (
+                f"XY[{self._configs[cname]['receptacle']}]: "
+                f"{self._configs[cname]['probe name']}"
             )
             self._configs[cname]["dset name"] = dset_name
 

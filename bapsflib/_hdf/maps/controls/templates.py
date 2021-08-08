@@ -420,9 +420,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
         # ensure 'Command index' is a field
         if "Command index" not in dset.dtype.names:
-            warn(
-                "Dataset '{}' does NOT have ".format(dset_path) + "'Command index' field"
-            )
+            warn(f"Dataset '{dset_path}' does NOT have 'Command index' field")
             return {}
 
         # ensure 'Command index' is a field of scalars
@@ -430,8 +428,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             dset.dtype["Command index"].type, np.integer
         ):
             warn(
-                "Dataset '{}' 'Command index' ".format(dset_path)
-                + "field is NOT a column of integers"
+                f"Dataset '{dset_path}' 'Command index' field is NOT a column of integers"
             )
             return {}
 

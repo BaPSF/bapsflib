@@ -70,7 +70,7 @@ class TestHDFReadData(TestBase):
         ch = bc_indices[1][0]
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
-        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         dset_path = digi_path + "/" + dset_name
         dset = _bf.get(dset_path)
         dheader = _bf.get(dset_path + " headers")
@@ -488,7 +488,7 @@ class TestHDFReadData(TestBase):
         ch = bc_indices[1][0]
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
-        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         dset_path = digi_path + "/" + dset_name
         dset = _bf.get(dset_path)
         dheader = _bf.get(dset_path + " headers")
@@ -577,7 +577,7 @@ class TestHDFReadData(TestBase):
         ch = bc_indices[1][0]
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
-        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         dset_path = digi_path + "/" + dset_name
         dset = _bf.get(dset_path)
         dheader = _bf.get(dset_path + " headers")
@@ -709,7 +709,7 @@ class TestHDFReadData(TestBase):
         ch = bc_indices[1][0]
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
-        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         dset_path = digi_path + "/" + dset_name
         dset = _bf.get(dset_path)
         dheader = _bf.get(dset_path + " headers")
@@ -905,7 +905,7 @@ class TestHDFReadData(TestBase):
         ch = bc_indices[1][0]
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
-        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         dset_path = digi_path + "/" + dset_name
         dheader = _bf.get(dset_path + " headers")
         shotnumkey = "Shot"
@@ -1030,7 +1030,7 @@ class TestHDFReadData(TestBase):
         ch = bc_indices[1][0]
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
-        dset_name = config_name + " [{}:{}]".format(brd, ch)
+        dset_name = f"{config_name} [{brd}:{ch}]"
         dset_path = digi_path + "/" + dset_name
         dset = _bf.get(dset_path)
         dheader = _bf.get(dset_path + " headers")

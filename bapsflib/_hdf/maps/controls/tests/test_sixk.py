@@ -51,7 +51,7 @@ class TestSixK(ControlTestCase):
         # -- no PL items (config groups) found                      ----
         # remove PL group instance
         rnum = self.mod.config_names[0]
-        name = "Probe: XY[{}]: probe01".format(rnum)
+        name = f"Probe: XY[{rnum}]: probe01"
         del self.dgroup[name]
         with self.assertRaises(HDFMappingError):
             _map = self.map
@@ -62,7 +62,7 @@ class TestSixK(ControlTestCase):
         # -- dataset name missing in HDF5 file                      ----
         # rename dataset
         rnum = self.mod.config_names[0]
-        name = "XY[{}]: probe01".format(rnum)
+        name = f"XY[{rnum}]: probe01"
         self.dgroup.move(name, "Wrong name")
         with self.assertRaises(HDFMappingError):
             _map = self.map
@@ -98,7 +98,7 @@ class TestSixK(ControlTestCase):
         # 6K has one config
         self.mod.knobs.n_configs = 1
         dset_name = self.map.construct_dataset_name()
-        self.assertEqual(dset_name, "XY[{}]: probe01".format(self.mod.config_names[0]))
+        self.assertEqual(dset_name, f"XY[{self.mod.config_names[0]}]: probe01")
 
         # 6K has >1 config
         self.mod.knobs.n_configs = 3
@@ -227,7 +227,7 @@ class TestSixK(ControlTestCase):
 
         # get PL group instance
         rnum = self.mod.config_names[0]
-        name = "Probe: XY[{}]: probe01".format(rnum)
+        name = f"Probe: XY[{rnum}]: probe01"
         plg = self.dgroup[name]
 
         # -- RE does NOT match against `gname`                      ----

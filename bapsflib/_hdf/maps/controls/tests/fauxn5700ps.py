@@ -71,7 +71,7 @@ class FauxN5700PS(h5py.Group):
     def __init__(self, id, n_configs=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError("{} is not a GroupID".format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         gid = h5py.h5g.create(id, b"N5700_PS")
@@ -112,7 +112,7 @@ class FauxN5700PS(h5py.Group):
 
         # add configuration sub-groups
         for i in range(self._n_configs):
-            config_name = "config{:02}".format(i + 1)
+            config_name = f"config{i+1:02}"
             self._configs[config_name] = {}
             self.create_group(config_name)
             self._set_subgroup_attrs(config_name, i + 1)
@@ -180,7 +180,7 @@ class FauxN5700PS(h5py.Group):
         """
         self[config_name].attrs.update(
             {
-                "IP address": np.bytes_("192.168.7.{}".format(config_number)),
+                "IP address": np.bytes_(f"192.168.7.{config_number}"),
                 "Initialization commands": np.bytes_(
                     "*RST;*WAI;OUTPUT ON;VOLTAGE 0.0;CURRENT 1.0"
                 ),

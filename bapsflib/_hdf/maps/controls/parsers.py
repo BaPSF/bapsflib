@@ -122,13 +122,10 @@ class CLParse(object):
                 # check symbolic group is not already defined
                 if name in cls_dict:
                     raise ValueError(
-                        "Symbolic group ({}) defined".format(name)
-                        + " in multiple RE patterns"
+                        f"Symbolic group ({name}) defined in multiple RE patterns"
                     )
                 elif name.lower() == "remainder":
-                    raise ValueError(
-                        "Can NOT use {} as a ".format(name) + "symbolic group name"
-                    )
+                    raise ValueError(f"Can NOT use {name} as a symbolic group name")
 
                 # initialize cls dict entry
                 cls_dict[name] = {"re pattern": rpat, "command list": [], "cl str": []}
@@ -223,9 +220,8 @@ class CLParse(object):
 
                 # issue warning
                 warn(
-                    "Symbolic group ({}) removed since ".format(name)
-                    + "some or all of the 'command list' has None "
-                    + "values"
+                    f"Symbolic group ({name}) removed since some or all of the "
+                    f"'command list' has None values"
                 )
             elif not all(
                 isinstance(val, type(cls_dict[name]["command list"][0]))
@@ -237,9 +233,8 @@ class CLParse(object):
 
                 # issue warning
                 warn(
-                    "Symbolic group ({}) removed ".format(name)
-                    + "since all entries in 'command list' do NOT "
-                    + "have the same type"
+                    f"Symbolic group ({name}) removed since all entries in "
+                    f"'command list' do NOT have the same type"
                 )
             else:
                 # condition 'command list' value and determine 'dtype'

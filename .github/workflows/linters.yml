@@ -13,4 +13,4 @@ jobs:
           python-version: 3.8
       - uses: isort/isort-action@master
         with:
-          requirmentsFiles: "requirements.txt"
+          requirementsFiles: "requirements.txt"

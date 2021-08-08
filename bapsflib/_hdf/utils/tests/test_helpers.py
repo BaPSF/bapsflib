@@ -14,6 +14,7 @@
 import numpy as np
 import unittest as ut
 
+from bapsflib.utils import _bytes_to_str
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
 from numpy.lib import recfunctions as rfn
 
@@ -217,7 +218,7 @@ class TestBuildShotnumDsetRelation(TestBase):
         if index.size != 0:
             cname_arr = cdset[index.tolist(), configkey]
             for name in cname_arr:
-                self.assertEqual(name.decode('utf-8'), cconfn)
+                self.assertEqual(_bytes_to_str(name), cconfn)
 
 
 class TestConditionControls(TestBase):

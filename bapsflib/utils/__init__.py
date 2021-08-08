@@ -13,4 +13,19 @@ Package of developer utilities.
 """
 __all__ = []
 
+from typing import Union
+
 from . import (decorators, exceptions, warnings)
+
+
+def _bytes_to_str(string: Union[bytes, str]) -> str:
+    """Helper to convert a bytes literal to a utf-8 string."""
+    if isinstance(string, str):
+        return string
+
+    if isinstance(string, bytes):
+        return str(string, "utf-8")
+
+    raise TypeError(
+        f"Argument 'string' is not of type str or bytes, got {type(string)}."
+    )

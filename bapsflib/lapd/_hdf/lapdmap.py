@@ -18,6 +18,7 @@ import h5py
 import numpy as np
 
 from bapsflib._hdf import HDFMap
+from bapsflib.utils import _bytes_to_str
 from typing import Union
 from warnings import warn
 
@@ -74,8 +75,7 @@ class LaPDMap(HDFMap):
     def lapd_version(self) -> Union[None, str]:
         """LaPD HDF5 version string."""
         try:
-            vers = self._hdf_obj.attrs[
-                'LaPD HDF5 software version'].decode('utf-8')
+            vers = _bytes_to_str(self._hdf_obj.attrs['LaPD HDF5 software version'])
         except KeyError:
             vers = None
 
@@ -98,7 +98,7 @@ class LaPDMap(HDFMap):
                 self._hdf_obj[
                     self.DEVICE_PATHS['digitizer']].attrs.items():
             if isinstance(val, (np.bytes_, bytes)):
-                val = val.decode('utf-8')
+                val = _bytes_to_str(val)
 
             if key == 'Investigator':
                 exp_info['investigator'] = val
@@ -130,7 +130,7 @@ class LaPDMap(HDFMap):
                 self._hdf_obj[
                     self.DEVICE_PATHS['digitizer']].attrs.items():
             if isinstance(val, (np.bytes_, bytes)):
-                val = val.decode('utf-8')
+                val = _bytes_to_str(val)
 
             if key == 'Data run':
                 run_info['run name'] = val

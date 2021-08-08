@@ -18,6 +18,7 @@ import h5py
 import numpy as np
 import warnings
 
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
@@ -106,14 +107,14 @@ class HDFMapControlWaveform(HDFMapControlCLTemplate):
                         # - split line returns
                         # - remove trailing/leading whitespace
                         #
-                        val = val.decode('utf-8').splitlines()
+                        val = _bytes_to_str(val).splitlines()
                         val = tuple([cls.strip() for cls in val])
                     elif pair[0] in ('IP address',
                                      'generator device',
                                      'initial state'):
                         # - val is a np.bytes_ string
                         #
-                        val = val.decode('utf-8')
+                        val = _bytes_to_str(val)
                     else:
                         # no conditioning is needed
                         # 'GPIB address' val is np.uint32

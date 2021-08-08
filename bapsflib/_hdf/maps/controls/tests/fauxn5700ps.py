@@ -14,6 +14,8 @@ import numpy as np
 
 from warnings import warn
 
+from bapsflib.utils import _bytes_to_str
+
 
 class FauxN5700PS(h5py.Group):
     """
@@ -182,6 +184,6 @@ class FauxN5700PS(h5py.Group):
 
         # add command list to _configs
         cl = self[config_name].attrs['N5700 power supply command list']
-        cl = cl.decode('utf-8').splitlines()
+        cl = _bytes_to_str(cl).splitlines()
         cl = [command.strip() for command in cl]
         self._configs[config_name]['command list'] = cl

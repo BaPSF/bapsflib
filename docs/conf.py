@@ -25,7 +25,7 @@ from datetime import datetime
 from pkg_resources import parse_version
 from sphinx.application import Sphinx
 
-sys.path.insert(0, os.path.abspath('..'))
+sys.path.insert(0, os.path.abspath(".."))
 
 from bapsflib import __version__ as release
 
@@ -39,10 +39,10 @@ from bapsflib import __version__ as release
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.autodoc',
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.autosummary',
+    "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
+    "sphinx.ext.mathjax",
+    "sphinx.ext.autosummary",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
     "sphinx_changelog",
@@ -65,21 +65,21 @@ autosummary_generate = True  # generate stub files from all found autosummary di
 default_role = "py:obj"  # default role for reST role (i.e. `` defaults to :py:obj:``)
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ["_templates"]
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
 #
 # source_suffix = ['.rst', '.md']
-source_suffix = '.rst'
+source_suffix = ".rst"
 
 # The master toctree document.
-master_doc = 'index'
+master_doc = "index"
 
 # General information about the project.
-project = 'bapsflib'
-author = 'Erik T. Everson & the BaPSF Community'
-copyright = f'2017-{datetime.utcnow().year}, {author}'
+project = "bapsflib"
+author = "Erik T. Everson & the BaPSF Community"
+copyright = f"2017-{datetime.utcnow().year}, {author}"
 
 # The version info for the project you're documenting, acts as
 # replacement for |version| and |release|, also used in various other
@@ -111,10 +111,10 @@ language = None
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 # The name of the Pygments (syntax highlighting) style to use.
-pygments_style = 'sphinx'
+pygments_style = "sphinx"
 
 # If true, `todo` and `todoList` produce output, else they produce
 # nothing.
@@ -126,14 +126,14 @@ todo_include_todos = False
 # The theme to use for HTML and HTML Help pages.  See the documentation
 # for a list of builtin themes.
 #
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see
 # the documentation.
 #
 html_theme_options = {
-    'navigation_depth': 8,  # depth of readthedocs sidebar
+    "navigation_depth": 8,  # depth of readthedocs sidebar
 }
 
 # Add any paths that contain custom static files (such as style sheets)
@@ -145,7 +145,7 @@ html_theme_options = {
 # - see issue #1776 on rtfd/readthedocs.org
 #   (https://github.com/rtfd/readthedocs.org/issues/1776)
 #
-html_static_path = ['_static']
+html_static_path = ["_static"]
 # html_static_path = []
 
 # Custom sidebar templates, must be a dictionary that maps document
@@ -155,12 +155,12 @@ html_static_path = ['_static']
 # refs:
 #  http://alabaster.readthedocs.io/en/latest/installation.html#sidebars
 html_sidebars = {
-    '**': [
-        'about.html',
-        'navigation.html',
-        'relations.html',  # needs 'show_related': True theme option to display
-        'searchbox.html',
-        'donate.html',
+    "**": [
+        "about.html",
+        "navigation.html",
+        "relations.html",  # needs 'show_related': True theme option to display
+        "searchbox.html",
+        "donate.html",
     ]
 }
 
@@ -168,7 +168,7 @@ html_sidebars = {
 # -- Options for HTMLHelp output ---------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'bapsflibdocs'
+htmlhelp_basename = "bapsflibdocs"
 
 
 # -- Options for LaTeX output ------------------------------------------
@@ -177,15 +177,12 @@ latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     #
     # 'papersize': 'letterpaper',
-
     # The font size ('10pt', '11pt' or '12pt').
     #
     # 'pointsize': '10pt',
-
     # Additional stuff for the LaTeX preamble.
     #
     # 'preamble': '',
-
     # Latex figure (float) alignment
     #
     # 'figure_align': 'htbp',
@@ -195,8 +192,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'bapsflib.tex', 'bapsflib Documentation',
-     'Erik T. Everson', 'manual'),
+    (master_doc, "bapsflib.tex", "bapsflib Documentation", "Erik T. Everson", "manual"),
 ]
 
 
@@ -204,10 +200,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [
-    (master_doc, 'bapsflib', 'bapsflib Documentation',
-     [author], 1)
-]
+man_pages = [(master_doc, "bapsflib", "bapsflib Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------
@@ -216,16 +209,23 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'bapsflib', 'bapsflib Documentation',
-     author, 'bapsflib', 'One line description of project.',
-     'Miscellaneous'), ]
+    (
+        master_doc,
+        "bapsflib",
+        "bapsflib Documentation",
+        author,
+        "bapsflib",
+        "One line description of project.",
+        "Miscellaneous",
+    ),
+]
 
 # -- My Added Extras ---------------------------------------------------
 
 # A list of prefixes that are ignored for sorting the Python module
 # index (e.g., if this is set to ['foo.'], then foo.bar is shown under
 # B, not F).
-modindex_common_prefix = ['bapsflib.']
+modindex_common_prefix = ["bapsflib."]
 
 # prevents files that match these patterns from being included in source
 # files
@@ -233,9 +233,7 @@ modindex_common_prefix = ['bapsflib.']
 #   included as a source file and second when it's inserted into another
 #   .rst file with .. include
 #
-exclude_patterns.extend([
-    '**.inc.rst'
-])
+exclude_patterns.extend(["**.inc.rst"])
 
 # add a pycode role for inline markup e.g. :pycode:`'mycode'`
 rst_prolog = """
@@ -262,4 +260,4 @@ def setup(app: Sphinx) -> None:
     app.add_config_value("revision", "", True)
 
     # custom CSS overrides
-    app.add_css_file('rtd_theme_overrides.css')
+    app.add_css_file("rtd_theme_overrides.css")

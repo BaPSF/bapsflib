@@ -73,4 +73,3 @@ lines_between_types = 1
 
 [tool.black]
 line-length = 90  # needs to be the same as in tool.isort
-target-version = ["py38"]

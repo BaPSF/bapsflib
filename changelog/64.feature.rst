@@ -1,0 +1,2 @@
+Create helper function `bapsflib.utils._bytes_to_str` to convert
+byte literals to utf-8 strings.

@@ -16,4 +16,4 @@ jobs:
           python-version: 3.8
       - uses: isort/isort-action@master
         with:
-          configuration: "-check-only --diff --color"
+          configuration: "--check-only --diff --color"

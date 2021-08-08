@@ -15,8 +15,8 @@ import h5py
 import numpy as np
 import os
 
-from abc import (ABC, abstractmethod)
-from typing import (Iterable, List, Union)
+from abc import ABC, abstractmethod
+from typing import Iterable, List, Union
 from warnings import warn
 
 from .parsers import CLParse

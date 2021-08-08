@@ -13,7 +13,7 @@ __all__ = ["HDFMapControls"]
 
 import h5py
 
-from typing import (Dict, Tuple, Union)
+from typing import Dict, Tuple, Union
 
 from bapsflib.utils.exceptions import HDFMappingError
 
@@ -21,7 +21,7 @@ from .n5700ps import HDFMapControlN5700PS
 from .nixyz import HDFMapControlNIXYZ
 from .nixz import HDFMapControlNIXZ
 from .sixk import HDFMapControl6K
-from .templates import (HDFMapControlTemplate, HDFMapControlCLTemplate)
+from .templates import HDFMapControlCLTemplate, HDFMapControlTemplate
 from .waveform import HDFMapControlWaveform
 
 # define type aliases

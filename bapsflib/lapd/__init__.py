@@ -21,5 +21,5 @@ contains functions and classes relevant for calculating LaPD parameters
 __all__ = ["ConType", "File"]
 
 from bapsflib._hdf.maps.controls.types import ConType
-from bapsflib.lapd import (_hdf, constants, tools)
+from bapsflib.lapd import _hdf, constants, tools
 from bapsflib.lapd._hdf.file import File

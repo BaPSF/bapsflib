@@ -11,9 +11,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import re
-
 import numpy as np
+import re
 import unittest as ut
 
 from typing import Tuple

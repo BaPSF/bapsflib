@@ -14,17 +14,10 @@ import os
 import platform
 import tempfile
 
-from ..controls.tests import (
-    FauxN5700PS,
-    FauxNIXYZ,
-    FauxNIXZ,
-    FauxSixK,
-    FauxWaveform,
-)
-from ..digitizers.tests import (
-    FauxSIS3301,
-    FauxSISCrate,
-)
+from typing import Any, Dict
+
+from ..controls.tests import FauxN5700PS, FauxNIXYZ, FauxNIXZ, FauxSixK, FauxWaveform
+from ..digitizers.tests import FauxSIS3301, FauxSISCrate
 from ..msi.tests import (
     FauxDischarge,
     FauxGasPressure,
@@ -32,7 +25,6 @@ from ..msi.tests import (
     FauxInterferometerArray,
     FauxMagneticField,
 )
-from typing import (Dict, Any)
 
 
 class FauxHDFBuilder(h5py.File):

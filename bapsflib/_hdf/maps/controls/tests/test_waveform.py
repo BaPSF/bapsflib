@@ -14,12 +14,13 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.exceptions import HDFMappingError
 from unittest import mock
 
-from .common import ControlTestCase
+from bapsflib.utils.exceptions import HDFMappingError
+
 from .. import ConType
 from ..waveform import HDFMapControlWaveform
+from .common import ControlTestCase
 
 
 class TestWaveform(ControlTestCase):

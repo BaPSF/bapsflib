@@ -13,8 +13,9 @@ __all__ = ["HDFMapDigitizers"]
 
 import h5py
 
+from typing import Dict, Tuple
+
 from bapsflib.utils.exceptions import HDFMappingError
-from typing import (Dict, Tuple)
 
 from .sis3301 import HDFMapDigiSIS3301
 from .siscrate import HDFMapDigiSISCrate

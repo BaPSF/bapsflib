@@ -20,16 +20,22 @@ import numpy as np
 import os
 import time
 
-from bapsflib._hdf.maps.controls.templates import \
-    (HDFMapControlTemplate, HDFMapControlCLTemplate)
 from functools import reduce
-from typing import (Any, Dict, Iterable, List, Tuple, Union)
+from typing import Any, Dict, Iterable, List, Tuple, Union
 from warnings import warn
 
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
+
 from .file import File
-from .helpers import (build_shotnum_dset_relation,
-                      condition_controls, condition_shotnum,
-                      do_shotnum_intersection)
+from .helpers import (
+    build_shotnum_dset_relation,
+    condition_controls,
+    condition_shotnum,
+    do_shotnum_intersection,
+)
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]

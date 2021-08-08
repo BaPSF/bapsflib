@@ -17,8 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps import FauxHDFBuilder
 
 from ..map_controls import HDFMapControls
-from ..templates import (HDFMapControlTemplate,
-                         HDFMapControlCLTemplate)
+from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
 
 
 class TestHDFMapControls(ut.TestCase):

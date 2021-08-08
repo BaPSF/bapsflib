@@ -11,10 +11,9 @@
 """LaPD constants/parameters."""
 __all__ = ["port_spacing", "ref_port", "BaPSFConstant", "SouthCathode"]
 
+import astropy.units as u
 import datetime
 import warnings
-
-import astropy.units as u
 
 from astropy.constants import Constant
 from astropy.utils.exceptions import AstropyWarning

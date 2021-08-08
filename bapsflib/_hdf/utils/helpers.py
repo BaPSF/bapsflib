@@ -24,9 +24,12 @@ __all__ = [
 import h5py
 import numpy as np
 
-from bapsflib._hdf.maps.controls.templates import \
-    (HDFMapControlTemplate, HDFMapControlCLTemplate)
-from typing import (Any, Dict, Iterable, List, Tuple, Union)
+from typing import Any, Dict, Iterable, List, Tuple, Union
+
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
 
 from .file import File
 

@@ -17,13 +17,13 @@ import os
 import re
 import unittest as ut
 
-from bapsflib._hdf.maps import FauxHDFBuilder
 from enum import Enum
 from unittest import mock
 
+from bapsflib._hdf.maps import FauxHDFBuilder
+
 from ..parsers import CLParse
-from ..templates import (HDFMapControlTemplate,
-                         HDFMapControlCLTemplate)
+from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
 
 
 class DummyTemplates(Enum):

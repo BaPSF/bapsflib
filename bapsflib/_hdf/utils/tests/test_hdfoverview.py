@@ -15,12 +15,13 @@ import io
 import os
 import unittest as ut
 
-from bapsflib._hdf.maps import HDFMap
 from unittest import mock
 
-from . import (TestBase, with_bf)
+from bapsflib._hdf.maps import HDFMap
+
 from ..file import File
 from ..hdfoverview import HDFOverview
+from . import TestBase, with_bf
 
 
 class TestHDFOverview(TestBase):

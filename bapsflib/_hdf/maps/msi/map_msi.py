@@ -13,8 +13,9 @@ __all__ = ["HDFMapMSI"]
 
 import h5py
 
-from bapsflib.utils.exceptions import HDFMappingError
 from typing import Dict
+
+from bapsflib.utils.exceptions import HDFMappingError
 
 from .discharge import HDFMapMSIDischarge
 from .gaspressure import HDFMapMSIGasPressure

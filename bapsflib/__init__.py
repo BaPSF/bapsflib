@@ -18,7 +18,7 @@ __all__ = ["lapd"]
 
 import pkg_resources
 
-from bapsflib import (_hdf, lapd, plasma, utils)
+from bapsflib import _hdf, lapd, plasma, utils
 
 # --- Define version -----------------------------------------------------------
 try:

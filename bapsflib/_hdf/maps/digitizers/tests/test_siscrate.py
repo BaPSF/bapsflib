@@ -15,12 +15,13 @@ import astropy.units as u
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.exceptions import HDFMappingError
-from typing import (List, Tuple)
+from typing import List, Tuple
 from unittest import mock
 
-from .common import DigitizerTestCase
+from bapsflib.utils.exceptions import HDFMappingError
+
 from ..siscrate import HDFMapDigiSISCrate
+from .common import DigitizerTestCase
 
 
 class TestSISCrate(DigitizerTestCase):

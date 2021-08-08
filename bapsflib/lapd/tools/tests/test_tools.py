@@ -12,11 +12,12 @@
 #   license terms and contributor agreement.
 #
 import astropy.units as u
-import bapsflib.lapd.constants as const
 import numpy as np
 import unittest as ut
 
-from bapsflib.lapd.tools import (portnum_to_z, z_to_portnum)
+import bapsflib.lapd.constants as const
+
+from bapsflib.lapd.tools import portnum_to_z, z_to_portnum
 
 
 class TestTools(ut.TestCase):

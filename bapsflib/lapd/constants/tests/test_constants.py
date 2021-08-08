@@ -15,7 +15,8 @@ import astropy.units as u
 import unittest as ut
 
 from astropy.constants import Constant
-from bapsflib.lapd.constants import (port_spacing, ref_port)
+
+from bapsflib.lapd.constants import port_spacing, ref_port
 from bapsflib.lapd.constants.constants import BaPSFConstant
 
 

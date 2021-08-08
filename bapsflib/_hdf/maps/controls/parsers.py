@@ -19,7 +19,7 @@ __all__ = ["CLParse"]
 import numpy as np
 import re
 
-from typing import (Iterable, Union)
+from typing import Iterable, Union
 from warnings import warn
 
 

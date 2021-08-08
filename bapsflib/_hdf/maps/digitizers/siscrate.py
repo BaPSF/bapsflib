@@ -19,9 +19,10 @@ import h5py
 import numpy as np
 import re
 
-from bapsflib.utils.exceptions import HDFMappingError
-from typing import (Any, Dict, Tuple, Union)
+from typing import Any, Dict, Tuple, Union
 from warnings import warn
+
+from bapsflib.utils.exceptions import HDFMappingError
 
 from .templates import HDFMapDigiTemplate
 

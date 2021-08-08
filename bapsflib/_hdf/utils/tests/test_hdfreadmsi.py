@@ -15,9 +15,9 @@ import numpy as np
 import os
 import unittest as ut
 
-from . import (TestBase, with_bf)
 from ..file import File
 from ..hdfreadmsi import HDFReadMSI
+from . import TestBase, with_bf
 
 
 class TestHDFReadMSI(TestBase):

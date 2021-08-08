@@ -15,9 +15,9 @@ import h5py
 import os
 import warnings
 
-from bapsflib._hdf.maps import (HDFMap, HDFMapControls,
-                                HDFMapDigitizers, HDFMapMSI)
-from typing import (Any, Dict, List, Tuple, Union)
+from typing import Any, Dict, List, Tuple, Union
+
+from bapsflib._hdf.maps import HDFMap, HDFMapControls, HDFMapDigitizers, HDFMapMSI
 
 
 class File(h5py.File):

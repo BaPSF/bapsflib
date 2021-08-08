@@ -12,16 +12,18 @@
 #   license terms and contributor agreement.
 #
 import io
-import bapsflib
 import unittest as ut
 
-from bapsflib._hdf.maps.core import HDFMap
 from unittest import mock
 
-from . import (BaseFile, TestBase, with_bf, with_lapdf)
+import bapsflib
+
+from bapsflib._hdf.maps.core import HDFMap
+
 from ..file import File
 from ..lapdmap import LaPDMap
 from ..lapdoverview import LaPDOverview
+from . import BaseFile, TestBase, with_bf, with_lapdf
 
 
 class TestLaPDFile(TestBase):

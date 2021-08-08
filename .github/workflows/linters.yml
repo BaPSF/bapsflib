@@ -2,6 +2,9 @@ name: Run Linters (Code Style Checks)
 
 on:
   pull_request:
+  push:
+    branches:
+      - master
 
 jobs:
   isort:

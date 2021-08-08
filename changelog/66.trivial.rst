@@ -1,0 +1,2 @@
+Refactor `bapsflib` module imports to be consistent with the style
+enforced by `isort`.

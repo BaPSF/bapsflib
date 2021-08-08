@@ -22,6 +22,7 @@ from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
 
 class TestHDFMapControls(ut.TestCase):
     """Test class for HDFMapControls"""
+
     # What to test?
     # X  1. returned object is a dictionary
     # X  2. if input is not h5py.Group instance, then TypeError is
@@ -54,7 +55,7 @@ class TestHDFMapControls(ut.TestCase):
     @property
     def data_group(self):
         """MSI group"""
-        return self.f['Raw data + config']
+        return self.f["Raw data + config"]
 
     @staticmethod
     def map_control(group):
@@ -79,60 +80,59 @@ class TestHDFMapControls(ut.TestCase):
 
         # the control group has all mappable devices                ----
         self.f.remove_all_modules()
-        self.f.add_module('6K Compumotor', {})
-        self.f.add_module('Waveform', {})
+        self.f.add_module("6K Compumotor", {})
+        self.f.add_module("Waveform", {})
         _map = self.map
         self.assertBasics(_map)
 
         # check all controls were mapped
         self.assertEqual(len(_map), 2)
-        self.assertIn('6K Compumotor', _map)
-        self.assertIn('Waveform', _map)
+        self.assertIn("6K Compumotor", _map)
+        self.assertIn("Waveform", _map)
 
         # the data group has mappable and unknown controls          ----
         self.f.remove_all_modules()
-        self.f.add_module('6K Compumotor', {})
-        self.f.add_module('Waveform', {})
-        self.f['Raw data + config'].create_group('Not known')
+        self.f.add_module("6K Compumotor", {})
+        self.f.add_module("Waveform", {})
+        self.f["Raw data + config"].create_group("Not known")
         _map = self.map
         self.assertBasics(_map)
 
         # check correct diagnostics were mapped
         self.assertEqual(len(_map), 2)
-        self.assertIn('6K Compumotor', _map)
-        self.assertIn('Waveform', _map)
-        self.assertNotIn('Not known', _map)
+        self.assertIn("6K Compumotor", _map)
+        self.assertIn("Waveform", _map)
+        self.assertNotIn("Not known", _map)
 
         # delete unknown group
-        del self.f['Raw data + config/Not known']
+        del self.f["Raw data + config/Not known"]
 
         # the data group has a dataset                              ----
         self.f.remove_all_modules()
-        self.f.add_module('Waveform', {})
+        self.f.add_module("Waveform", {})
         data = np.empty((2, 100), dtype=np.float32)
-        self.f['Raw data + config'].create_dataset('A dataset',
-                                                   data=data)
+        self.f["Raw data + config"].create_dataset("A dataset", data=data)
         _map = self.map
         self.assertBasics(_map)
 
         # check correct diagnostics were mapped
         self.assertEqual(len(_map), 1)
-        self.assertIn('Waveform', _map)
-        self.assertNotIn('A dataset', _map)
+        self.assertIn("Waveform", _map)
+        self.assertNotIn("A dataset", _map)
 
         # delete dataset
-        del self.f['Raw data + config/A dataset']
+        del self.f["Raw data + config/A dataset"]
 
         # the data group has a mappable control devices             ----
         # but mapping fails                                         ----
         self.f.remove_all_modules()
-        self.f.add_module('6K Compumotor', {})
-        self.f.add_module('Waveform', {})
+        self.f.add_module("6K Compumotor", {})
+        self.f.add_module("Waveform", {})
 
         # remove a dataset from 'Waveform'
         # - this will cause mapping of 'Waveform' to fail
         #
-        del self.f['Raw data + config/Waveform/config01']
+        del self.f["Raw data + config/Waveform/config01"]
 
         # check map
         _map = self.map
@@ -140,8 +140,8 @@ class TestHDFMapControls(ut.TestCase):
 
         # check correct controls were mapped
         self.assertEqual(len(_map), 1)
-        self.assertIn('6K Compumotor', _map)
-        self.assertNotIn('Waveform', _map)
+        self.assertIn("6K Compumotor", _map)
+        self.assertNotIn("Waveform", _map)
 
     def assertBasics(self, _map: HDFMapControls):
         # mapped object is a dictionary
@@ -149,17 +149,14 @@ class TestHDFMapControls(ut.TestCase):
 
         # all dict items are a mapping class
         for val in _map.values():
-            self.assertIsInstance(val, (HDFMapControlTemplate,
-                                        HDFMapControlCLTemplate))
+            self.assertIsInstance(val, (HDFMapControlTemplate, HDFMapControlCLTemplate))
 
         # look for map attributes
-        self.assertTrue(
-            hasattr(_map, 'mappable_devices'))
+        self.assertTrue(hasattr(_map, "mappable_devices"))
 
         # check attribute types
-        self.assertIsInstance(_map.mappable_devices,
-                              tuple)
+        self.assertIsInstance(_map.mappable_devices, tuple)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

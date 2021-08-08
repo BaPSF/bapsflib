@@ -12,7 +12,7 @@
 Package of MSI diagnostic mapping classes and their constructor
 (`~.map_msi.HDFMapMSI`).
 """
-__all__ = ['HDFMapMSI']
+__all__ = ["HDFMapMSI"]
 
 from . import (
     discharge,

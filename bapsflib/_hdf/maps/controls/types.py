@@ -16,17 +16,18 @@ from enum import Enum
 
 class ConType(Enum):
     """Enum of Control Device Types"""
+
     #: type for motion control devices
-    motion = 'motion'
+    motion = "motion"
 
     #: type for power control devices
-    power = 'power'
+    power = "power"
 
     #: type for timing control devices
-    timing = 'timing'
+    timing = "timing"
 
     #: type for waveform control devices
-    waveform = 'waveform'
+    waveform = "waveform"
 
     def __repr__(self):  # pragma: no cover
-        return 'contype.' + self.name
+        return "contype." + self.name

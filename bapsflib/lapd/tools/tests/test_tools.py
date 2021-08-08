@@ -34,12 +34,11 @@ class TestTools(ut.TestCase):
             self.assertEqual(p2z.value, val.value)
 
     def test_z_to_portnum(self):
-        zs = (1051.155, 875.43, 447.3, 1214,
-              u.Quantity(875.43, unit='cm'))
+        zs = (1051.155, 875.43, 447.3, 1214, u.Quantity(875.43, unit="cm"))
         for z in zs:
             portnum = z_to_portnum(z)
             if not isinstance(z, u.Quantity):
-                z = u.Quantity(z, unit='cm')
+                z = u.Quantity(z, unit="cm")
             val = const.ref_port - (z / const.port_spacing)
             self.assertIsInstance(portnum, u.Quantity)
             self.assertEqual(portnum.unit, u.dimensionless_unscaled)
@@ -49,7 +48,7 @@ class TestTools(ut.TestCase):
         for z in zs:
             portnum = z_to_portnum(z, round_to_nearest=True)
             if not isinstance(z, u.Quantity):
-                z = u.Quantity(z, unit='cm')
+                z = u.Quantity(z, unit="cm")
             val = const.ref_port - (z / const.port_spacing)
             val = np.round(val).astype(np.int8)
             self.assertIsInstance(portnum, u.Quantity)
@@ -57,7 +56,7 @@ class TestTools(ut.TestCase):
             self.assertEqual(portnum.value, val.value)
 
         # pass a z in not in 'com'
-        z = u.Quantity(8.7, unit='m')
+        z = u.Quantity(8.7, unit="m")
         portnum = z_to_portnum(z)
         val = const.ref_port - (z.cgs / const.port_spacing)
         self.assertIsInstance(portnum, u.Quantity)
@@ -65,5 +64,5 @@ class TestTools(ut.TestCase):
         self.assertEqual(portnum.value, val.value)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

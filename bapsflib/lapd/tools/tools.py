@@ -9,7 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Main sub-module for LaPD tool functionality."""
-__all__ = ['portnum_to_z', 'z_to_portnum']
+__all__ = ["portnum_to_z", "z_to_portnum"]
 
 import astropy.units as u
 import numpy as np
@@ -32,8 +32,9 @@ def portnum_to_z(portnum: Union[int, float]) -> u.Quantity:
     return val.cgs
 
 
-def z_to_portnum(z: Union[int, float, u.Quantity], unit='cm',
-                 round_to_nearest=False) -> u.Quantity:
+def z_to_portnum(
+    z: Union[int, float, u.Quantity], unit="cm", round_to_nearest=False
+) -> u.Quantity:
     """
     Converts LaPD axial z location to port number.
 

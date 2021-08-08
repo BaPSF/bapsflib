@@ -22,6 +22,7 @@ class FauxMagneticField(h5py.Group):
         A class that contains all the controls (knobs) for specifying
         the MSI diagnostic group structure.
         """
+
         def __init__(self, val):
             super().__init__()
             self._faux = val
@@ -33,11 +34,11 @@ class FauxMagneticField(h5py.Group):
     def __init__(self, id, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError('{} is not a GroupID'.format(id))
+            raise ValueError("{} is not a GroupID".format(id))
 
         # create control group
         # noinspection PyUnresolvedReferences
-        gid = h5py.h5g.create(id, b'Magnetic field')
+        gid = h5py.h5g.create(id, b"Magnetic field")
         h5py.Group.__init__(self, gid)
 
         # define key values
@@ -64,33 +65,33 @@ class FauxMagneticField(h5py.Group):
         self._set_attrs()
 
         # ------ build 'Magnetic power supply currents' dataset    -----
-        dset_name = 'Magnet power supply currents'
+        dset_name = "Magnet power supply currents"
         shape = (2, 10)
         data = np.zeros(shape, dtype=np.float32)
         self.create_dataset(dset_name, data=data)
 
         # ------ build 'Magnetic field profile' dataset            -----
-        dset_name = 'Magnetic field profile'
+        dset_name = "Magnetic field profile"
         shape = (2, 1024)
         data = np.zeros(shape, dtype=np.float32)
         self.create_dataset(dset_name, data=data)
 
         # ------ build 'Magnetic field summary' dataset            -----
-        dset_name = 'Magnetic field summary'
-        shape = (2, )
-        dtype = np.dtype([
-            ('Shot number', np.int32),
-            ('Timestamp', np.float64),
-            ('Data valid', np.int8),
-            ('Peak magnetic field', np.float32)
-        ])
+        dset_name = "Magnetic field summary"
+        shape = (2,)
+        dtype = np.dtype(
+            [
+                ("Shot number", np.int32),
+                ("Timestamp", np.float64),
+                ("Data valid", np.int8),
+                ("Peak magnetic field", np.float32),
+            ]
+        )
         data = np.empty(shape, dtype=dtype)
-        data['Shot number'] = np.array([0, 19251])
-        data['Timestamp'] = np.array([3.4658681569157567E9,
-                                      3.4658922665056167E9])
-        data['Data valid'] = np.array([1, 1])
-        data['Peak magnetic field'] = np.array([1092.8969,
-                                                1092.8975])
+        data["Shot number"] = np.array([0, 19251])
+        data["Timestamp"] = np.array([3.4658681569157567e9, 3.4658922665056167e9])
+        data["Data valid"] = np.array([1, 1])
+        data["Peak magnetic field"] = np.array([1092.8969, 1092.8975])
         self.create_dataset(dset_name, data=data)
 
     def _set_attrs(self):
@@ -100,7 +101,6 @@ class FauxMagneticField(h5py.Group):
         zlocs = -300.0 + (zlocs * (2325.3 / 1023.0))
 
         # assign attributes
-        self.attrs.update({
-            'Calibration tag': b'08/27/2013',
-            'Profile z locations': zlocs
-        })
+        self.attrs.update(
+            {"Calibration tag": b"08/27/2013", "Profile z locations": zlocs}
+        )

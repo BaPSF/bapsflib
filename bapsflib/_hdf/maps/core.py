@@ -50,11 +50,9 @@ class HDFMap(object):
         * :class:`~.msi.map_msi.HDFMapMSI`.
     """
 
-    def __init__(self,
-                 hdf_obj: h5py.File,
-                 control_path: str,
-                 digitizer_path: str,
-                 msi_path: str):
+    def __init__(
+        self, hdf_obj: h5py.File, control_path: str, digitizer_path: str, msi_path: str
+    ):
         """
         :param hdf_obj: the HDF5 file object
         :type hdf_obj: :class:`h5py.File`
@@ -73,13 +71,13 @@ class HDFMap(object):
 
         # define paths
         self.DEVICE_PATHS = {
-            'control': control_path,
-            'digitizer': digitizer_path,
-            'msi': msi_path,
+            "control": control_path,
+            "digitizer": digitizer_path,
+            "msi": msi_path,
         }
         for device, path in self.DEVICE_PATHS.items():
-            if path == '':
-                self.DEVICE_PATHS[device] = '/'
+            if path == "":
+                self.DEVICE_PATHS[device] = "/"
 
         # attach the mapping dictionaries
         self.__attach_msi()
@@ -92,8 +90,7 @@ class HDFMap(object):
         if isinstance(filename, (bytes, np.bytes_)):
             filename = _bytes_to_str(filename)
         filename = os.path.basename(filename)
-        rstr = ("<" + self.__class__.__name__
-                + " of HDF5 file '" + filename + "'>")
+        rstr = "<" + self.__class__.__name__ + " of HDF5 file '" + filename + "'>"
         return rstr
 
     def __attach_controls(self):
@@ -102,14 +99,15 @@ class HDFMap(object):
         the control device mapping objects constructed by
         :class:`~.controls.map_controls.HDFMapControls`.
         """
-        control_path = self.DEVICE_PATHS['control']
+        control_path = self.DEVICE_PATHS["control"]
         if control_path in self._hdf_obj:
-            self.__controls = HDFMapControls(
-                self._hdf_obj[control_path])
+            self.__controls = HDFMapControls(self._hdf_obj[control_path])
         else:
-            warn("Group for control devices "
-                 + "('{}')".format(control_path)
-                 + " does NOT exist.")
+            warn(
+                "Group for control devices "
+                + "('{}')".format(control_path)
+                + " does NOT exist."
+            )
             self.__controls = {}
 
     def __attach_digitizers(self):
@@ -118,14 +116,13 @@ class HDFMap(object):
         all the digitizer mapping objects constructed by
         :class:`~.digitizers.map_digis.HDFMapDigitizers`.
         """
-        digi_path = self.DEVICE_PATHS['digitizer']
+        digi_path = self.DEVICE_PATHS["digitizer"]
         if digi_path in self._hdf_obj:
-            self.__digitizers = HDFMapDigitizers(
-                self._hdf_obj[digi_path])
+            self.__digitizers = HDFMapDigitizers(self._hdf_obj[digi_path])
         else:
-            warn("Group for digitizers "
-                 + "('{}')".format(digi_path)
-                 + " does NOT exist.")
+            warn(
+                "Group for digitizers " + "('{}')".format(digi_path) + " does NOT exist."
+            )
             self.__digitizers = {}
 
     def __attach_msi(self):
@@ -134,7 +131,7 @@ class HDFMap(object):
         diagnostic mapping objects constructed by
         :class:`~.msi.map_msi.HDFMapMSI`.
         """
-        msi_path = self.DEVICE_PATHS['msi']
+        msi_path = self.DEVICE_PATHS["msi"]
         if msi_path in self._hdf_obj:
             self.__msi = HDFMapMSI(self._hdf_obj[msi_path])
         else:
@@ -155,14 +152,15 @@ class HDFMap(object):
         # 4. MSI group -- '/MSI' (typical)
         #
         self.__unknowns = []
-        device_paths = [self.DEVICE_PATHS['control'],
-                        self.DEVICE_PATHS['digitizer'],
-                        self.DEVICE_PATHS['msi']]
-        mapped_devices = [list(self.controls), list(self.digitizers),
-                          list(self.msi)]
+        device_paths = [
+            self.DEVICE_PATHS["control"],
+            self.DEVICE_PATHS["digitizer"],
+            self.DEVICE_PATHS["msi"],
+        ]
+        mapped_devices = [list(self.controls), list(self.digitizers), list(self.msi)]
 
         # scan through root, Control, Digitizer, and MSI groups
-        devices_known = {'/': device_paths.copy()}
+        devices_known = {"/": device_paths.copy()}
         for path, mapped in zip(device_paths, mapped_devices):
             if path in devices_known:
                 devices_known[path].extend(mapped)
@@ -172,8 +170,7 @@ class HDFMap(object):
             if path in self._hdf_obj:
                 for item in self._hdf_obj[path]:
                     if item not in devices:
-                        self.__unknowns.append(
-                            self._hdf_obj[path][item].name)
+                        self.__unknowns.append(self._hdf_obj[path][item].name)
 
     @property
     def controls(self) -> Union[dict, HDFMapControls]:
@@ -251,7 +248,7 @@ class HDFMap(object):
         # possible_candidates is a hierarchical tuple of all digitizers
         # such that the first found digitizer is assumed to be the main
         # digitizer
-        possible_candidates = ('SIS 3301', 'SIS crate')
+        possible_candidates = ("SIS 3301", "SIS crate")
         digi = None
         if len(self.digitizers) == 1:
             digi = self.digitizers[list(self.digitizers)[0]]

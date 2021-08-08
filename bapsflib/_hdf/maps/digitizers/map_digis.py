@@ -39,9 +39,11 @@ class HDFMapDigitizers(dict):
         >>> digi_map['SIS 3301']
         <bapsflib._hdf.maps.digitizers.sis3301.HDFMapDigiSIS3301>
     """
+
     _defined_mapping_classes = {
-        'SIS 3301': HDFMapDigiSIS3301,
-        'SIS crate': HDFMapDigiSISCrate}
+        "SIS 3301": HDFMapDigiSIS3301,
+        "SIS crate": HDFMapDigiSISCrate,
+    }
     """
     Dictionary containing references to the defined (known) digitizer 
     mapping classes.
@@ -53,7 +55,7 @@ class HDFMapDigitizers(dict):
         """
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
-            raise TypeError('data_group is not of type h5py.Group')
+            raise TypeError("data_group is not of type h5py.Group")
 
         # store HDF5 data group instance
         self.__data_group = data_group
@@ -98,9 +100,9 @@ class HDFMapDigitizers(dict):
             if name in self._defined_mapping_classes:
                 # only add mappings that succeed
                 try:
-                    digi_dict[name] = \
-                        self._defined_mapping_classes[name](
-                            self.__data_group[name])
+                    digi_dict[name] = self._defined_mapping_classes[name](
+                        self.__data_group[name]
+                    )
                 except HDFMappingError:
                     # mapping failed
                     pass

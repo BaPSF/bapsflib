@@ -55,6 +55,7 @@ class HDFMapControlTemplate(ABC):
           :class:`~.templates.HDFMapControlTemplate`,
           but adds methods for parsing/handling a command list.
     '''
+
     def __init__(self, group: h5py.Group):
         """
         :param group: the control device HDF5 group object
@@ -63,13 +64,13 @@ class HDFMapControlTemplate(ABC):
         if isinstance(group, h5py.Group):
             self._control_group = group
         else:
-            raise TypeError('arg `group` is not of type h5py.Group')
+            raise TypeError("arg `group` is not of type h5py.Group")
 
         # define _info attribute
         self._info = {
-            'group name': os.path.basename(group.name),
-            'group path': group.name,
-            'contype': NotImplemented,
+            "group name": os.path.basename(group.name),
+            "group path": group.name,
+            "contype": NotImplemented,
         }
 
         # initialize configuration dictionary
@@ -236,14 +237,14 @@ class HDFMapControlTemplate(ABC):
     @property
     def contype(self) -> ConType:
         """control device type"""
-        return self._info['contype']
+        return self._info["contype"]
 
     @property
     def dataset_names(self) -> List[str]:
         """list of names of the HDF5 datasets in the control group"""
-        dnames = [name
-                  for name in self.group
-                  if isinstance(self.group[name], h5py.Dataset)]
+        dnames = [
+            name for name in self.group if isinstance(self.group[name], h5py.Dataset)
+        ]
         return dnames
 
     @property
@@ -258,7 +259,7 @@ class HDFMapControlTemplate(ABC):
         """
         has_cl = False
         for config_name in self._configs:
-            if 'command list' in self._configs[config_name]:
+            if "command list" in self._configs[config_name]:
                 has_cl = True
                 break
         return has_cl
@@ -288,15 +289,15 @@ class HDFMapControlTemplate(ABC):
     @property
     def subgroup_names(self) -> List[str]:
         """list of names of the HDF5 sub-groups in the control group"""
-        sgroup_names = [name
-                        for name in self.group
-                        if isinstance(self.group[name], h5py.Group)]
+        sgroup_names = [
+            name for name in self.group if isinstance(self.group[name], h5py.Group)
+        ]
         return sgroup_names
 
     @property
     def device_name(self) -> str:
         """Name of Control device"""
-        return self._info['group name']
+        return self._info["group name"]
 
     @abstractmethod
     def construct_dataset_name(self, *args) -> str:
@@ -352,6 +353,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
           intended to be overwritten by the inheriting class.
         * :code:`from bapsflib._hdf.maps.controls import ConType`
     '''
+
     def __init__(self, group: h5py.Group):
         """
         :param group: the control device HDF5 group object
@@ -400,8 +402,8 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         raise NotImplementedError
 
     def _construct_state_values_dict(
-            self, config_name: str,
-            patterns: Union[str, Iterable[str]]) -> dict:
+        self, config_name: str, patterns: Union[str, Iterable[str]]
+    ) -> dict:
         """
         Returns a dictionary for
         :code:`configs[config_name]['state values']` based on the
@@ -413,26 +415,28 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         """
         # -- check requirements exist before continuing             ----
         # get dataset
-        dset_path = self._configs[config_name]['dset paths'][0]
+        dset_path = self._configs[config_name]["dset paths"][0]
         dset = self.group.get(dset_path)
 
         # ensure 'Command index' is a field
-        if 'Command index' not in dset.dtype.names:
-            warn("Dataset '{}' does NOT have ".format(dset_path)
-                 + "'Command index' field")
+        if "Command index" not in dset.dtype.names:
+            warn(
+                "Dataset '{}' does NOT have ".format(dset_path) + "'Command index' field"
+            )
             return {}
 
         # ensure 'Command index' is a field of scalars
-        if dset.dtype['Command index'].shape != () or \
-                not np.issubdtype(dset.dtype['Command index'].type,
-                                  np.integer):
-            warn("Dataset '{}' 'Command index' ".format(dset_path)
-                 + "field is NOT a column of integers")
+        if dset.dtype["Command index"].shape != () or not np.issubdtype(
+            dset.dtype["Command index"].type, np.integer
+        ):
+            warn(
+                "Dataset '{}' 'Command index' ".format(dset_path)
+                + "field is NOT a column of integers"
+            )
             return {}
 
         # -- apply RE patterns to 'command list'                    ----
-        success, sv_dict = \
-            self.clparse(config_name).apply_patterns(patterns)
+        success, sv_dict = self.clparse(config_name).apply_patterns(patterns)
 
         # regex was unsuccessful, return alt_dict
         if not success:
@@ -447,10 +451,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         #
         for state in sv_dict:
             # add additional keys
-            sv_dict[state]['dset paths'] = \
-                self._configs[config_name]['dset paths']
-            sv_dict[state]['dset field'] = ('Command index',)
-            sv_dict[state]['shape'] = ()
+            sv_dict[state]["dset paths"] = self._configs[config_name]["dset paths"]
+            sv_dict[state]["dset field"] = ("Command index",)
+            sv_dict[state]["shape"] = ()
 
         # return
         return sv_dict
@@ -464,13 +467,12 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         :param str config_name: configuration name
         """
         # retrieve command list
-        cl = self._configs[config_name]['command list']
+        cl = self._configs[config_name]["command list"]
 
         # define clparse and return
         return CLParse(cl)
 
-    def reset_state_values_config(self, config_name: str,
-                                  apply_patterns=False):
+    def reset_state_values_config(self, config_name: str, apply_patterns=False):
         """
         Reset the :code:`configs[config_name]['state values']`
         dictionary.
@@ -484,7 +486,8 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         if apply_patterns:
             # get sv_dict dict
             sv_dict = self._construct_state_values_dict(
-                config_name, self._default_re_patterns)
+                config_name, self._default_re_patterns
+            )
             if not bool(sv_dict):
                 sv_dict = self._default_state_values_dict(config_name)
         else:
@@ -492,11 +495,11 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             sv_dict = self._default_state_values_dict(config_name)
 
         # reset config
-        self._configs[config_name]['state values'] = sv_dict
+        self._configs[config_name]["state values"] = sv_dict
 
     def set_state_values_config(
-            self, config_name: str,
-            patterns: Union[str, Iterable[str]]):
+        self, config_name: str, patterns: Union[str, Iterable[str]]
+    ):
         """
         Rebuild and set
         :code:`configs[config_name]['state values']` based on the
@@ -506,13 +509,11 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         :param patterns: list of RE strings
         """
         # construct dict for 'state values' dict
-        sv_dict = self._construct_state_values_dict(config_name,
-                                                    patterns)
+        sv_dict = self._construct_state_values_dict(config_name, patterns)
 
         # update 'state values' dict
         if not bool(sv_dict):
             # do nothing since default parsing was unsuccessful
-            warn("RE parsing of 'command list' was unsuccessful, "
-                 "doing nothing")
+            warn("RE parsing of 'command list' was unsuccessful, doing nothing")
         else:
-            self._configs[config_name]['state values'] = sv_dict
+            self._configs[config_name]["state values"] = sv_dict

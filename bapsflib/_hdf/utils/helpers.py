@@ -141,7 +141,8 @@ def build_sndr_for_simple_dset(
             if True in sni else np.empty(shape=0, dtype=np.uint32)
     else:
         # get 1st and last shot number
-        first_sn, last_sn = dset[[-1, 0], shotnumkey]
+        first_sn = dset[0, shotnumkey]
+        last_sn = dset[-1, shotnumkey]
 
         if last_sn - first_sn + 1 == dset.shape[0]:
             # shot numbers are sequential
@@ -284,7 +285,8 @@ def build_sndr_for_complex_dset(
                     "routines assumptions of a complex dataset")
     else:
         # get 1st and last shot number
-        first_sn, last_sn = dset[[-1, 0], shotnumkey]
+        first_sn = dset[0, shotnumkey]
+        last_sn = dset[-1, shotnumkey]
 
         # find sub-group index corresponding to the requested device
         # configuration

@@ -36,3 +36,4 @@ jobs:
         uses: psf/black@stable
         with:
           options: "--check --diff --color"
+        run: python -m black --version

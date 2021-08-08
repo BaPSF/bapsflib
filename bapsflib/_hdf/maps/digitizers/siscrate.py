@@ -359,12 +359,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 if hdset.dtype[sn_field].shape != () or not np.issubdtype(
                     hdset.dtype[sn_field], np.integer
                 ):
-                    warn(why)
                     why = (
                         f"HDF5 structure unexpected...dataset '{hdset_name}' does "
                         f"NOT have expected shape and dtype for a shot numbers"
                         f"...not adding to `configs` dict"
                     )
+                    warn(why)
                     chs_to_remove.append(ch)
                     continue
 

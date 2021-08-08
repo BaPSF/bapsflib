@@ -11,8 +11,9 @@
 """Module containing the HDF5 reader for LaPD generated files."""
 __all__ = ["File"]
 
-import bapsflib
 import h5py
+
+import bapsflib
 
 from bapsflib._hdf.utils.file import File as BaseFile
 

@@ -20,14 +20,19 @@ import numpy as np
 import os
 import time
 
-from bapsflib.plasma import core
 from typing import Union
 from warnings import warn
 
+from bapsflib.plasma import core
+
 from .file import File
-from .helpers import (build_sndr_for_simple_dset, condition_controls,
-                      condition_shotnum, do_shotnum_intersection)
 from .hdfreadcontrols import HDFReadControls
+from .helpers import (
+    build_sndr_for_simple_dset,
+    condition_controls,
+    condition_shotnum,
+    do_shotnum_intersection,
+)
 
 
 # noinspection PyInitNewSignature

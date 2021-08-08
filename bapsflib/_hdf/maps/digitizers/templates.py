@@ -16,7 +16,7 @@ import h5py
 import os
 
 from abc import ABC, abstractmethod
-from typing import (Any, Dict, List, Tuple, Union)
+from typing import Any, Dict, List, Tuple, Union
 from warnings import warn
 
 

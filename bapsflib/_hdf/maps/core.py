@@ -18,19 +18,17 @@ import h5py
 import numpy as np
 import os
 
-from typing import (List, Union)
+from typing import List, Union
 from warnings import warn
 
 from bapsflib.utils import _bytes_to_str
 
 from .controls import HDFMapControls
-from .controls.templates import (HDFMapControlTemplate,
-                                 HDFMapControlCLTemplate)
+from .controls.templates import HDFMapControlCLTemplate, HDFMapControlTemplate
 from .digitizers import HDFMapDigitizers
 from .digitizers.templates import HDFMapDigiTemplate
 from .msi import HDFMapMSI
 from .msi.templates import HDFMapMSITemplate
-
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]

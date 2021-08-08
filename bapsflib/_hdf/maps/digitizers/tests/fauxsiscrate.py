@@ -11,7 +11,7 @@
 import h5py
 import numpy as np
 
-from typing import (Dict, Iterable, Tuple, Union)
+from typing import Dict, Iterable, Tuple, Union
 from warnings import warn
 
 

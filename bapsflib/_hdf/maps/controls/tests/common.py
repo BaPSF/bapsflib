@@ -17,8 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps import FauxHDFBuilder
 
 from .. import ConType
-from ..templates import (HDFMapControlTemplate,
-                         HDFMapControlCLTemplate)
+from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
 
 
 def method_overridden(cls, obj, method: str) -> bool:

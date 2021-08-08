@@ -11,12 +11,13 @@
 import inspect
 import unittest as ut
 
+from unittest import mock
+
 from bapsflib._hdf import File as BaPSFFile
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib.lapd import File as LaPDFile
-from unittest import mock
 
-from ..decorators import (with_bf, with_lapdf)
+from ..decorators import with_bf, with_lapdf
 
 
 class TestWithBF(ut.TestCase):

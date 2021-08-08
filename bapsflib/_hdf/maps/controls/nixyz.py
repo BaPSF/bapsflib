@@ -18,12 +18,13 @@ import astropy.units as u
 import h5py
 import numpy as np
 
-from bapsflib.utils import _bytes_to_str
-from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
 
-from .types import ConType
+from bapsflib.utils import _bytes_to_str
+from bapsflib.utils.exceptions import HDFMappingError
+
 from .templates import HDFMapControlTemplate
+from .types import ConType
 
 
 class HDFMapControlNIXYZ(HDFMapControlTemplate):

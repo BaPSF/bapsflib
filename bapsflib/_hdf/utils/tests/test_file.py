@@ -15,15 +15,16 @@ import h5py
 import os
 import unittest as ut
 
-from bapsflib._hdf import HDFMap
 from unittest import mock
 
-from . import (TestBase, with_bf)
+from bapsflib._hdf import HDFMap
+
 from ..file import File
 from ..hdfoverview import HDFOverview
 from ..hdfreadcontrols import HDFReadControls
 from ..hdfreaddata import HDFReadData
 from ..hdfreadmsi import HDFReadMSI
+from . import TestBase, with_bf
 
 
 class TestFile(TestBase):

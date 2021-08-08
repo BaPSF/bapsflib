@@ -14,13 +14,14 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib._hdf import HDFMap
-from bapsflib.utils import _bytes_to_str
 from unittest import mock
 
-from . import (TestBase, with_lapdf)
+from bapsflib._hdf import HDFMap
+from bapsflib.utils import _bytes_to_str
+
 from ..file import File
 from ..lapdmap import LaPDMap
+from . import TestBase, with_lapdf
 
 
 class TestLaPDMap(TestBase):

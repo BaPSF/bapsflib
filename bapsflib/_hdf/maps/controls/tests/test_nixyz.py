@@ -17,9 +17,9 @@ import unittest as ut
 
 from bapsflib.utils.exceptions import HDFMappingError
 
-from .common import ControlTestCase
 from .. import ConType
 from ..nixyz import HDFMapControlNIXYZ
+from .common import ControlTestCase
 
 
 class TestNIXYZ(ControlTestCase):

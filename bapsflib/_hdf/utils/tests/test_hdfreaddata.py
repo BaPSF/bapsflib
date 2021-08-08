@@ -17,17 +17,20 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib._hdf.maps import HDFMap
-from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from unittest import mock
 
-from . import (TestBase, with_bf)
+from bapsflib._hdf.maps import HDFMap
+from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
+
 from ..file import File
 from ..hdfreadcontrols import HDFReadControls
-from ..hdfreaddata import (build_sndr_for_simple_dset,
-                           condition_shotnum,
-                           do_shotnum_intersection,
-                           HDFReadData)
+from ..hdfreaddata import (
+    build_sndr_for_simple_dset,
+    condition_shotnum,
+    do_shotnum_intersection,
+    HDFReadData,
+)
+from . import TestBase, with_bf
 
 
 class TestHDFReadData(TestBase):

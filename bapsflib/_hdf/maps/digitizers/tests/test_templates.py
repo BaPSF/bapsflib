@@ -18,8 +18,9 @@ import os
 import unittest as ut
 import warnings
 
-from bapsflib._hdf.maps import FauxHDFBuilder
 from unittest import mock
+
+from bapsflib._hdf.maps import FauxHDFBuilder
 
 from ..templates import HDFMapDigiTemplate
 

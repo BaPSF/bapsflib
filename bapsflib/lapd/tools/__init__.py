@@ -14,4 +14,4 @@ relevant to the LaPD and its configuration.
 """
 __all__ = ['portnum_to_z', 'z_to_portnum']
 
-from .tools import (portnum_to_z, z_to_portnum)
+from .tools import portnum_to_z, z_to_portnum

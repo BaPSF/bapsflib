@@ -15,14 +15,15 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib._hdf.maps import (ConType, HDFMap)
-from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
-from typing import (Any, Dict, List, Tuple)
+from typing import Any, Dict, List, Tuple
 from unittest import mock
 
-from . import (TestBase, with_bf)
+from bapsflib._hdf.maps import ConType, HDFMap
+from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
+
 from ..file import File
 from ..hdfreadcontrols import HDFReadControls
+from . import TestBase, with_bf
 
 
 class TestHDFReadControl(TestBase):

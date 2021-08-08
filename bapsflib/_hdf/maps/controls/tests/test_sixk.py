@@ -15,12 +15,13 @@ import numpy as np
 import os
 import unittest as ut
 
-from bapsflib.utils.exceptions import HDFMappingError
 from unittest import mock
 
-from .common import ControlTestCase
+from bapsflib.utils.exceptions import HDFMappingError
+
 from .. import ConType
 from ..sixk import HDFMapControl6K
+from .common import ControlTestCase
 
 
 class TestSixK(ControlTestCase):

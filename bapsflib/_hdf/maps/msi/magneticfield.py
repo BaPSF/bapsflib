@@ -17,8 +17,9 @@ __all__ = ["HDFMapMSIMagneticField"]
 import h5py
 import numpy as np
 
-from bapsflib.utils.exceptions import HDFMappingError
 from warnings import warn
+
+from bapsflib.utils.exceptions import HDFMappingError
 
 from .templates import HDFMapMSITemplate
 

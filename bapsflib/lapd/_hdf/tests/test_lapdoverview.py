@@ -14,12 +14,13 @@
 import io
 import unittest as ut
 
-from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from unittest import mock
 
-from . import (TestBase, with_lapdf)
+from bapsflib._hdf.utils.hdfoverview import HDFOverview
+
 from ..file import File
 from ..lapdoverview import LaPDOverview
+from . import TestBase, with_lapdf
 
 
 class TestLaPDOverview(TestBase):

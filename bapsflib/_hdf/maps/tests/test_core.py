@@ -13,14 +13,14 @@
 #
 import unittest as ut
 
-from .fauxhdfbuilder import FauxHDFBuilder
 from ..controls import HDFMapControls
 from ..controls.templates import HDFMapControlTemplate
+from ..core import HDFMap
 from ..digitizers import HDFMapDigitizers
 from ..digitizers.templates import HDFMapDigiTemplate
-from ..core import HDFMap
 from ..msi import HDFMapMSI
 from ..msi.templates import HDFMapMSITemplate
+from .fauxhdfbuilder import FauxHDFBuilder
 
 
 class TestHDFMap(ut.TestCase):

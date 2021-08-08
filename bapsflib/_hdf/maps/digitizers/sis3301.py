@@ -20,10 +20,11 @@ import numpy as np
 import os
 import re
 
+from typing import Any, Dict, Tuple, Union
+from warnings import warn
+
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
-from typing import (Any, Dict, Tuple, Union)
-from warnings import warn
 
 from .templates import HDFMapDigiTemplate
 

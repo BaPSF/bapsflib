@@ -14,12 +14,13 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.exceptions import HDFMappingError
 from numpy.lib import recfunctions as rfn
 from unittest import mock
 
-from .common import DigitizerTestCase
+from bapsflib.utils.exceptions import HDFMappingError
+
 from ..sis3301 import HDFMapDigiSIS3301
+from .common import DigitizerTestCase
 
 
 class TestSIS3301(DigitizerTestCase):

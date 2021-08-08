@@ -17,10 +17,11 @@ __all__ = ["LaPDMap"]
 import h5py
 import numpy as np
 
-from bapsflib._hdf import HDFMap
-from bapsflib.utils import _bytes_to_str
 from typing import Union
 from warnings import warn
+
+from bapsflib._hdf import HDFMap
+from bapsflib.utils import _bytes_to_str
 
 
 class LaPDMap(HDFMap):

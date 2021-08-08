@@ -20,10 +20,10 @@ import pprint as pp
 from contextlib import redirect_stdout
 from datetime import datetime
 
-from .file import File
 from ..maps.controls.templates import HDFMapControlTemplate
 from ..maps.digitizers.templates import HDFMapDigiTemplate
 from ..maps.msi.templates import HDFMapMSITemplate
+from .file import File
 
 
 class HDFOverview(object):
@@ -52,6 +52,7 @@ class HDFOverview(object):
         # TODO: add reporting of motion device's 'motion list'
         #
         from bapsflib import __version__
+
         # ------ Print Header                                     ------
         time_format = '%-m/%-d/%Y %-I:%M:%S %p'
         if platform.system() == 'Windows':

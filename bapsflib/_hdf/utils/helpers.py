@@ -39,11 +39,12 @@ IndexDict = Dict[str, np.ndarray]
 
 
 def build_shotnum_dset_relation(
-        shotnum: np.ndarray,
-        dset: h5py.Dataset,
-        shotnumkey: str,
-        cmap: ControlMap,
-        cconfn: Any) -> Tuple[np.ndarray, np.ndarray]:
+    shotnum: np.ndarray,
+    dset: h5py.Dataset,
+    shotnumkey: str,
+    cmap: ControlMap,
+    cconfn: Any,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** numpy array to the specified dataset,
     **dset**, to determine which indices contain the desired shot
@@ -92,22 +93,18 @@ def build_shotnum_dset_relation(
     # Calc. index, shotnum, and sni
     if cmap.one_config_per_dset:
         # the dataset only saves data for one configuration
-        index, sni = build_sndr_for_simple_dset(shotnum, dset,
-                                                shotnumkey)
+        index, sni = build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
     else:
         # the dataset saves data for multiple configurations
-        index, sni = build_sndr_for_complex_dset(shotnum, dset,
-                                                 shotnumkey, cmap,
-                                                 cconfn)
+        index, sni = build_sndr_for_complex_dset(shotnum, dset, shotnumkey, cmap, cconfn)
 
     # return calculated arrays
     return index.view(), sni.view()
 
 
 def build_sndr_for_simple_dset(
-        shotnum: np.ndarray,
-        dset: h5py.Dataset,
-        shotnumkey: str) -> Tuple[np.ndarray, np.ndarray]:
+    shotnum: np.ndarray, dset: h5py.Dataset, shotnumkey: str
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
@@ -140,8 +137,7 @@ def build_sndr_for_simple_dset(
         # only one possible shot number
         only_sn = dset[0, shotnumkey]
         sni = np.where(shotnum == only_sn, True, False)
-        index = np.array([0]) \
-            if True in sni else np.empty(shape=0, dtype=np.uint32)
+        index = np.array([0]) if True in sni else np.empty(shape=0, dtype=np.uint32)
     else:
         # get 1st and last shot number
         first_sn = dset[0, shotnumkey]
@@ -159,8 +155,7 @@ def build_sndr_for_simple_dset(
             step_front_read = shotnum[-1] - first_sn
             step_end_read = last_sn - shotnum[0]
 
-            if dset.shape[0] <= 1 + min(step_front_read,
-                                        step_end_read):
+            if dset.shape[0] <= 1 + min(step_front_read, step_end_read):
                 # dset.shape is smaller than the theoretical reads from
                 # either end of the array
                 #
@@ -172,17 +167,16 @@ def build_sndr_for_simple_dset(
             elif step_front_read <= step_end_read:
                 # extracting from the beginning of the array is the
                 # smallest
-                some_dset_sn = dset[0:step_front_read + 1, shotnumkey]
+                some_dset_sn = dset[0 : step_front_read + 1, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
                 # define index
                 index = np.where(np.isin(some_dset_sn, shotnum))[0]
             else:
                 # extracting from the end of the array is the smallest
-                start, stop, step = \
-                    slice(-step_end_read.astype(np.int32) - 1,
-                          None,
-                          None).indices(dset.shape[0])
+                start, stop, step = slice(
+                    -step_end_read.astype(np.int32) - 1, None, None
+                ).indices(dset.shape[0])
                 some_dset_sn = dset[start::, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
 
@@ -197,11 +191,12 @@ def build_sndr_for_simple_dset(
 
 
 def build_sndr_for_complex_dset(
-        shotnum: np.ndarray,
-        dset: h5py.Dataset,
-        shotnumkey: str,
-        cmap: ControlMap,
-        cconfn: Any) -> Tuple[np.ndarray, np.ndarray]:
+    shotnum: np.ndarray,
+    dset: h5py.Dataset,
+    shotnumkey: str,
+    cmap: ControlMap,
+    cconfn: Any,
+) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** numpy array to the specified "complex"
     dataset, **dset**, to determine which indices contain the desired
@@ -248,15 +243,16 @@ def build_sndr_for_complex_dset(
     # - configkey is the dataset field name for the column that contains
     #   the associated configuration name
     #
-    configkey = ''
+    configkey = ""
     for df in dset.dtype.names:
-        if 'configuration' in df.casefold():
+        if "configuration" in df.casefold():
             configkey = df
             break
-    if configkey == '':
+    if configkey == "":
         raise ValueError(
-            'Can NOT find a configuration field in the control'
-            + ' ({}) dataset'.format(cmap.device_name))
+            f"Can NOT find a configuration field in the control "
+            f"({cmap.device_name}) dataset"
+        )
 
     # find index
     if dset.shape[0] == n_configs:
@@ -285,7 +281,8 @@ def build_sndr_for_complex_dset(
                 # the format of the dataset
                 raise ValueError(
                     "The specified dataset is NOT consistent with the"
-                    "routines assumptions of a complex dataset")
+                    "routines assumptions of a complex dataset"
+                )
     else:
         # get 1st and last shot number
         first_sn = dset[0, shotnumkey]
@@ -302,8 +299,9 @@ def build_sndr_for_complex_dset(
             # are found or the routine's assumptions do not
             # match the format of the dataset
             raise ValueError(
-                    "The specified dataset is NOT consistent with the"
-                    "routines assumptions of a complex dataset")
+                "The specified dataset is NOT consistent with the"
+                "routines assumptions of a complex dataset"
+            )
 
         # construct index for remaining scenarios
         if n_configs * (last_sn - first_sn + 1) == dset.shape[0]:
@@ -325,8 +323,7 @@ def build_sndr_for_complex_dset(
             step_end_read = last_sn - shotnum[0]
 
             # construct index and sni
-            if dset.shape[0] <= n_configs * (
-                    min(step_front_read, step_end_read) + 1):
+            if dset.shape[0] <= n_configs * (min(step_front_read, step_end_read) + 1):
                 # dset.shape is smaller than the theoretical
                 # sequential array
                 dset_sn = dset[config_subindex::n_configs, shotnumkey]
@@ -351,10 +348,9 @@ def build_sndr_for_complex_dset(
             else:
                 # extracting from the end of the array is the
                 # smallest
-                start, stop, step = \
-                    slice(-n_configs * (step_end_read + 1),
-                          None,
-                          n_configs).indices(dset.shape[0])
+                start, stop, step = slice(
+                    -n_configs * (step_end_read + 1), None, n_configs
+                ).indices(dset.shape[0])
                 start += config_subindex
                 some_dset_sn = dset[start:stop:step, shotnumkey]
                 sni = np.isin(shotnum, some_dset_sn)
@@ -367,8 +363,7 @@ def build_sndr_for_complex_dset(
     return index.view(), sni.view()
 
 
-def condition_controls(hdf_file: File,
-                       controls: Any) -> List[Tuple[str, Any]]:
+def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
     """
     Conditions the **controls** argument for
     :class:`~.hdfreadcontrols.HDFReadControls` and
@@ -412,7 +407,7 @@ def condition_controls(hdf_file: File,
     # check if NULL
     if not bool(controls):
         # catch a null controls
-        raise ValueError('controls argument is NULL')
+        raise ValueError("controls argument is NULL")
 
     # make string a list
     if isinstance(controls, str):
@@ -422,8 +417,7 @@ def condition_controls(hdf_file: File,
     if isinstance(controls, Iterable):
         # all list items have to be strings or tuples
         if not all(isinstance(con, (str, tuple)) for con in controls):
-            raise TypeError('all elements of `controls` must be of '
-                            'type string or tuple')
+            raise TypeError("all elements of `controls` must be of type string or tuple")
 
         # condition controls
         new_controls = []
@@ -437,7 +431,8 @@ def condition_controls(hdf_file: File,
                     raise ValueError(
                         "a `controls` tuple element must be specified "
                         "as ('control name') or, "
-                        "('control name', config_name)")
+                        "('control name', config_name)"
+                    )
 
                 name = control[0]
                 config_name = None if len(control) == 1 else control[1]
@@ -445,28 +440,26 @@ def condition_controls(hdf_file: File,
             # ensure proper control and configuration name are defined
             if name in [cc[0] for cc in new_controls]:
                 raise ValueError(
-                    'Control device ({})'.format(control)
-                    + ' can only have one occurrence in controls')
+                    f"Control device ({control}) can only have one occurrence in controls"
+                )
             elif name in _fmap.controls:
                 if config_name in _fmap.controls[name].configs:
                     # all is good
                     pass
-                elif len(_fmap.controls[name].configs) == 1 \
-                        and config_name is None:
+                elif len(_fmap.controls[name].configs) == 1 and config_name is None:
                     config_name = list(_fmap.controls[name].configs)[0]
                 else:
                     raise ValueError(
-                        "'{}' is not a valid ".format(config_name)
-                        + "configuration name for control device "
-                        + "'{}'".format(name))
+                        f"'{config_name}' is not a valid configuration name for "
+                        f"control device '{name}'"
+                    )
             else:
-                raise ValueError('Control device ({})'.format(name)
-                                 + ' not in HDF5 file')
+                raise ValueError(f"Control device ({name}) not in HDF5 file")
 
             # add control to new_controls
             new_controls.append((name, config_name))
     else:
-        raise TypeError('`controls` argument is not Iterable')
+        raise TypeError("`controls` argument is not Iterable")
 
     # re-assign `controls`
     controls = new_controls
@@ -478,8 +471,7 @@ def condition_controls(hdf_file: File,
         contype = _fmap.controls[control[0]].contype
 
         if contype in checked:
-            raise TypeError('`controls` has multiple devices per '
-                            'contype')
+            raise TypeError("`controls` has multiple devices per contype")
         else:
             checked.append(contype)
 
@@ -487,9 +479,9 @@ def condition_controls(hdf_file: File,
     return controls
 
 
-def condition_shotnum(shotnum: Any,
-                      dset_dict: Dict[str, h5py.Dataset],
-                      shotnumkey_dict: Dict[str, str]) -> np.ndarray:
+def condition_shotnum(
+    shotnum: Any, dset_dict: Dict[str, h5py.Dataset], shotnumkey_dict: Dict[str, str]
+) -> np.ndarray:
     """
     Conditions the **shotnum** argument for
     :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
@@ -520,8 +512,8 @@ def condition_shotnum(shotnum: Any,
     if isinstance(shotnum, int):
         if shotnum <= 0 or isinstance(shotnum, bool):
             raise ValueError(
-                "Valid `shotnum` ({})".format(shotnum)
-                + " not passed. Resulting array would be NULL.")
+                f"Valid `shotnum` ({shotnum}) not passed. Resulting array would be NULL."
+            )
 
         # convert
         shotnum = np.array([shotnum], dtype=np.uint32)
@@ -529,8 +521,7 @@ def condition_shotnum(shotnum: Any,
     elif isinstance(shotnum, list):
         # ensure all elements are int
         if not all(isinstance(sn, int) for sn in shotnum):
-            raise ValueError('Valid `shotnum` not passed. All values '
-                             'NOT int.')
+            raise ValueError("Valid `shotnum` not passed. All values NOT int.")
 
         # remove shot numbers <= 0
         shotnum.sort()
@@ -543,8 +534,7 @@ def condition_shotnum(shotnum: Any,
 
         # ensure not NULL
         if len(shotnum) == 0:
-            raise ValueError('Valid `shotnum` not passed. Resulting '
-                             'array would be NULL')
+            raise ValueError("Valid `shotnum` not passed. Resulting array would be NULL")
 
         # convert
         shotnum = np.array(shotnum, dtype=np.uint32)
@@ -552,8 +542,7 @@ def condition_shotnum(shotnum: Any,
     elif isinstance(shotnum, slice):
         # determine largest possible shot number
         last_sn = [
-            dset_dict[cname][-1, shotnumkey_dict[cname]] + 1
-            for cname in dset_dict
+            dset_dict[cname][-1, shotnumkey_dict[cname]] + 1 for cname in dset_dict
         ]
         if shotnum.stop is not None:
             last_sn.append(shotnum.stop)
@@ -571,16 +560,17 @@ def condition_shotnum(shotnum: Any,
 
         # ensure not NULL
         if shotnum.size == 0:
-            raise ValueError('Valid `shotnum` not passed. Resulting '
-                             'array would be NULL')
+            raise ValueError("Valid `shotnum` not passed. Resulting array would be NULL")
 
     elif isinstance(shotnum, np.ndarray):
         if shotnum.ndim != 1:
             shotnum = shotnum.squeeze()
-        if shotnum.ndim != 1 \
-                or not np.issubdtype(shotnum.dtype, np.integer) \
-                or bool(shotnum.dtype.names):
-            raise ValueError('Valid `shotnum` not passed')
+        if (
+            shotnum.ndim != 1
+            or not np.issubdtype(shotnum.dtype, np.integer)
+            or bool(shotnum.dtype.names)
+        ):
+            raise ValueError("Valid `shotnum` not passed")
 
         # remove shot numbers <= 0
         shotnum.sort()
@@ -589,20 +579,17 @@ def condition_shotnum(shotnum: Any,
 
         # ensure not NULL
         if shotnum.size == 0:
-            raise ValueError('Valid `shotnum` not passed. Resulting '
-                             'array would be NULL')
+            raise ValueError("Valid `shotnum` not passed. Resulting array would be NULL")
     else:
-        raise ValueError('Valid `shotnum` not passed')
+        raise ValueError("Valid `shotnum` not passed")
 
     # return
     return shotnum
 
 
 def do_shotnum_intersection(
-        shotnum: np.ndarray,
-        sni_dict: IndexDict,
-        index_dict: IndexDict) -> Tuple[np.ndarray, IndexDict,
-                                        IndexDict]:
+    shotnum: np.ndarray, sni_dict: IndexDict, index_dict: IndexDict
+) -> Tuple[np.ndarray, IndexDict, IndexDict]:
     """
     Calculates intersection of **shotnum** and all existing dataset
     shot numbers, **shotnum[sni]**.
@@ -622,11 +609,11 @@ def do_shotnum_intersection(
     # intersect shot numbers
     shotnum_intersect = shotnum
     for sni in sni_dict.values():
-        shotnum_intersect = np.intersect1d(shotnum_intersect,
-                                           shotnum[sni],
-                                           assume_unique=True)
+        shotnum_intersect = np.intersect1d(
+            shotnum_intersect, shotnum[sni], assume_unique=True
+        )
     if shotnum_intersect.shape[0] == 0:
-        raise ValueError('Input `shotnum` would result in a NULL array')
+        raise ValueError("Input `shotnum` would result in a NULL array")
 
     # now filter
     for cname in index_dict:

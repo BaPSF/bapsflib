@@ -25,6 +25,7 @@ class FauxInterferometerArray(h5py.Group):
         A class that contains all the controls (knobs) for specifying
         the MSI diagnostic group structure.
         """
+
         def __init__(self, val):
             super().__init__()
             self._faux = val
@@ -42,7 +43,7 @@ class FauxInterferometerArray(h5py.Group):
                     self._faux._n_interferometers = val
                     self._faux._update()
             else:
-                warn('`val` not valid, no update performed')
+                warn("`val` not valid, no update performed")
 
         def reset(self):
             """Reset 'Interferometer array' group to defaults."""
@@ -52,18 +53,17 @@ class FauxInterferometerArray(h5py.Group):
     def __init__(self, id, n_interferometers=7, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError('{} is not a GroupID'.format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
         # noinspection PyUnresolvedReferences
-        gid = h5py.h5g.create(id, b'Interferometer array')
+        gid = h5py.h5g.create(id, b"Interferometer array")
         h5py.Group.__init__(self, gid)
 
         # define key values
         # - (1 <= n_interferometers <= 7)
         #
-        if isinstance(n_interferometers, int) \
-                and 1 <= n_interferometers <= 7:
+        if isinstance(n_interferometers, int) and 1 <= n_interferometers <= 7:
             self._n_interferometers = n_interferometers
         else:
             self._n_interferometers = 7
@@ -96,16 +96,18 @@ class FauxInterferometerArray(h5py.Group):
 
     def _set_interarr_attrs(self):
         """Sets the 'Interferometer array' group attributes"""
-        bar_arr = [7.9999999E13] + ([1.17000001E14] * 6)
+        bar_arr = [7.9999999e13] + ([1.17000001e14] * 6)
         zloc = [958.5, 1501.65, 1214.1, 958.5, 670.95, 415.35, 127.8]
-        self.attrs.update({
-            'Calibration tag': b'12/07/2009',
-            'Interferometer count': self._n_interferometers,
-            'Start times': [-0.0249846] * self._n_interferometers,
-            'Timesteps': [4.88E-5] * self._n_interferometers,
-            'n_bar_L': bar_arr[:self._n_interferometers:],
-            'z locations': zloc[:self._n_interferometers:]
-        })
+        self.attrs.update(
+            {
+                "Calibration tag": b"12/07/2009",
+                "Interferometer count": self._n_interferometers,
+                "Start times": [-0.0249846] * self._n_interferometers,
+                "Timesteps": [4.88e-5] * self._n_interferometers,
+                "n_bar_L": bar_arr[: self._n_interferometers :],
+                "z locations": zloc[: self._n_interferometers :],
+            }
+        )
 
     def _build_interferometer_group(self, inter_num):
         """
@@ -124,16 +126,18 @@ class FauxInterferometerArray(h5py.Group):
         #      associated with each interferometer trace
         #
         # Create group
-        gname = 'Interferometer [{}]'.format(inter_num)
+        gname = f"Interferometer [{inter_num}]"
         self.create_group(gname)
 
         # Set group attributes
-        self[gname].attrs.update({
-            'Start time': self.attrs['Start times'][inter_num],
-            'Timestep': self.attrs['Timesteps'][inter_num],
-            'n_bar_L': self.attrs['n_bar_L'][inter_num],
-            'z location': self.attrs['z locations'][inter_num]
-        })
+        self[gname].attrs.update(
+            {
+                "Start time": self.attrs["Start times"][inter_num],
+                "Timestep": self.attrs["Timesteps"][inter_num],
+                "n_bar_L": self.attrs["n_bar_L"][inter_num],
+                "z location": self.attrs["z locations"][inter_num],
+            }
+        )
 
         # Create datasets
         self._build_interferometer_datasets(gname)
@@ -146,25 +150,25 @@ class FauxInterferometerArray(h5py.Group):
         :param str inter_gname: name of interferometer group
         """
         # ------ Build trace dataset                              ------
-        dname = 'Interferometer trace'
+        dname = "Interferometer trace"
         shape = (2, 100)
         data = np.zeros(shape, dtype=np.float32)
         self[inter_gname].create_dataset(dname, data=data)
 
         # ------ Build summary dataset                            ------
-        dname = 'Interferometer summary list'
-        shape = (2, )
-        dtype = np.dtype([
-            ('Shot number', np.int32),
-            ('Timestamp', np.float64),
-            ('Data valid', np.int8),
-            ('Peak density', np.float32)
-        ])
+        dname = "Interferometer summary list"
+        shape = (2,)
+        dtype = np.dtype(
+            [
+                ("Shot number", np.int32),
+                ("Timestamp", np.float64),
+                ("Data valid", np.int8),
+                ("Peak density", np.float32),
+            ]
+        )
         data = np.empty(shape, dtype=dtype)
-        data['Shot number'] = np.array([0, 19251])
-        data['Timestamp'] = np.array([3.4658681569157567E9,
-                                      3.4658922665056167E9])
-        data['Data valid'] = np.array([0, 0])
-        data['Peak density'] = np.array([6.542343E12,
-                                         6.4398804E12])
+        data["Shot number"] = np.array([0, 19251])
+        data["Timestamp"] = np.array([3.4658681569157567e9, 3.4658922665056167e9])
+        data["Data valid"] = np.array([0, 0])
+        data["Peak density"] = np.array([6.542343e12, 6.4398804e12])
         self[inter_gname].create_dataset(dname, data=data)

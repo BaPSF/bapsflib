@@ -30,11 +30,12 @@ def method_overridden(cls, obj, method: str) -> bool:
 
 class DigitizerTestCase(ut.TestCase):
     """Base TestCase for testing digitizer mapping classes."""
+
     # TODO: DESIGN A FAILURES TEST 'test_map_failures'
     # - These are required scenarios where the mapping class should
     #   raise a HDFMappingError
 
-    f = NotImplemented    # type: FauxHDFBuilder
+    f = NotImplemented  # type: FauxHDFBuilder
     DEVICE_NAME = NotImplemented  # type: str
     DEVICE_PATH = NotImplemented  # type: str
     MAP_CLASS = NotImplemented
@@ -43,8 +44,7 @@ class DigitizerTestCase(ut.TestCase):
     def setUpClass(cls):
         # skip tests if in MSIDiagnosticTestCase
         if cls is DigitizerTestCase:
-            raise ut.SkipTest("In DigitizerTestCase, "
-                              "skipping base tests")
+            raise ut.SkipTest("In DigitizerTestCase, skipping base tests")
         super().setUpClass()
 
         # create HDF5 file
@@ -52,8 +52,7 @@ class DigitizerTestCase(ut.TestCase):
 
     def setUp(self):
         # setup HDF5 file
-        if not (self.DEVICE_NAME in self.f.modules
-                and len(self.f.modules) == 1):
+        if not (self.DEVICE_NAME in self.f.modules and len(self.f.modules) == 1):
             # clear HDF5 file and add module
             self.f.remove_all_modules()
             self.f.add_module(self.DEVICE_NAME)
@@ -94,23 +93,22 @@ class DigitizerTestCase(ut.TestCase):
         with self.assertRaises(TypeError):
             self.map_device(None)
 
-    def assertDigitizerMapBasics(self, _map: HDFMapDigiTemplate,
-                                 _group: h5py.Group):
+    def assertDigitizerMapBasics(self, _map: HDFMapDigiTemplate, _group: h5py.Group):
         # check instance
         self.assertIsInstance(_map, HDFMapDigiTemplate)
 
         # assert attribute existence
-        self.assertTrue(hasattr(_map, '_build_configs'))
-        self.assertTrue(hasattr(_map, 'active_configs'))
-        self.assertTrue(hasattr(_map, 'configs'))
-        self.assertTrue(hasattr(_map, 'construct_dataset_name'))
-        self.assertTrue(hasattr(_map, 'construct_header_dataset_name'))
-        self.assertTrue(hasattr(_map, 'deduce_config_active_status'))
-        self.assertTrue(hasattr(_map, 'device_adcs'))
-        self.assertTrue(hasattr(_map, 'device_name'))
-        self.assertTrue(hasattr(_map, 'get_adc_info'))
-        self.assertTrue(hasattr(_map, 'group'))
-        self.assertTrue(hasattr(_map, 'info'))
+        self.assertTrue(hasattr(_map, "_build_configs"))
+        self.assertTrue(hasattr(_map, "active_configs"))
+        self.assertTrue(hasattr(_map, "configs"))
+        self.assertTrue(hasattr(_map, "construct_dataset_name"))
+        self.assertTrue(hasattr(_map, "construct_header_dataset_name"))
+        self.assertTrue(hasattr(_map, "deduce_config_active_status"))
+        self.assertTrue(hasattr(_map, "device_adcs"))
+        self.assertTrue(hasattr(_map, "device_name"))
+        self.assertTrue(hasattr(_map, "get_adc_info"))
+        self.assertTrue(hasattr(_map, "group"))
+        self.assertTrue(hasattr(_map, "info"))
 
         # ---- test general attributes (part 1 of 2)                ----
         # 'device_adcs'
@@ -120,11 +118,10 @@ class DigitizerTestCase(ut.TestCase):
         # check `device_adcs`
         self.assertIsInstance(_map.device_adcs, tuple)
         self.assertTrue(bool(_map.device_adcs))
-        self.assertTrue(all(isinstance(adc, str)
-                            for adc in _map.device_adcs))
+        self.assertTrue(all(isinstance(adc, str) for adc in _map.device_adcs))
 
         # check `device_name`
-        self.assertEqual(_map.device_name, _map.info['group name'])
+        self.assertEqual(_map.device_name, _map.info["group name"])
 
         # check `group`
         self.assertIsInstance(_map.group, h5py.Group)
@@ -135,13 +132,12 @@ class DigitizerTestCase(ut.TestCase):
         self.assertIsInstance(_map.info, dict)
 
         # key existence
-        self.assertIn('group name', _map.info)
-        self.assertIn('group path', _map.info)
+        self.assertIn("group name", _map.info)
+        self.assertIn("group path", _map.info)
 
         # values
-        self.assertEqual(_map.info['group name'],
-                         os.path.basename(_group.name))
-        self.assertEqual(_map.info['group path'], _group.name)
+        self.assertEqual(_map.info["group name"], os.path.basename(_group.name))
+        self.assertEqual(_map.info["group path"], _group.name)
 
         # ---- test map.configs                                     ----
         #
@@ -181,48 +177,44 @@ class DigitizerTestCase(ut.TestCase):
             # - polymorphic keys are examined below in the section
             #   "examine polymorphic "adc" keys"
             #
-            self.assertIn('active', config)
-            self.assertIn('adc', config)
-            self.assertIn('config group path', config)
-            self.assertIn('shotnum', config)
+            self.assertIn("active", config)
+            self.assertIn("adc", config)
+            self.assertIn("config group path", config)
+            self.assertIn("shotnum", config)
 
             # examine 'active' key
-            self.assertIsInstance(config['active'], bool)
+            self.assertIsInstance(config["active"], bool)
 
             # examine 'adc' key
-            self.assertIsInstance(config['adc'], tuple)
-            for adc in config['adc']:
+            self.assertIsInstance(config["adc"], tuple)
+            for adc in config["adc"]:
                 self.assertIsInstance(adc, str)
                 self.assertIn(adc, _map.device_adcs)
 
             # examine 'config group path' key
-            self.assertIsInstance(config['config group path'], str)
-            self.assertIsNotNone(
-                _group.get(config['config group path']))
+            self.assertIsInstance(config["config group path"], str)
+            self.assertIsNotNone(_group.get(config["config group path"]))
 
             # -- examine 'shotnum' key --
             # required keys
-            self.assertIsInstance(config['shotnum'], dict)
-            self.assertIn('dset field', config['shotnum'])
-            self.assertIn('shape', config['shotnum'])
-            self.assertIn('dtype', config['shotnum'])
+            self.assertIsInstance(config["shotnum"], dict)
+            self.assertIn("dset field", config["shotnum"])
+            self.assertIn("shape", config["shotnum"])
+            self.assertIn("dtype", config["shotnum"])
 
             # ['shotnum']['dset field']
-            self.assertIsInstance(
-                config['shotnum']['dset field'], tuple)
-            self.assertEqual(len(config['shotnum']['dset field']), 1)
-            self.assertIsInstance(
-                config['shotnum']['dset field'][0], str)
+            self.assertIsInstance(config["shotnum"]["dset field"], tuple)
+            self.assertEqual(len(config["shotnum"]["dset field"]), 1)
+            self.assertIsInstance(config["shotnum"]["dset field"][0], str)
 
             # ['shotnum']['shape']
-            self.assertEqual(config['shotnum']['shape'], ())
+            self.assertEqual(config["shotnum"]["shape"], ())
 
             # ['shotnum']['dtype']
-            self.assertTrue(np.issubdtype(
-                config['shotnum']['dtype'], np.integer))
+            self.assertTrue(np.issubdtype(config["shotnum"]["dtype"], np.integer))
 
             # -- examine polymorphic "adc" keys --
-            for adc in config['adc']:
+            for adc in config["adc"]:
                 # is a tuple of 3-element tuples
                 self.assertIsInstance(config[adc], tuple)
                 self.assertTrue(bool(config[adc]))
@@ -236,48 +228,40 @@ class DigitizerTestCase(ut.TestCase):
                     # 2nd element is tuple of active channels on board
                     self.assertIsInstance(conn[1], tuple)
                     self.assertTrue(bool(conn[1]))
-                    self.assertTrue(all(
-                        isinstance(ch, (int, np.integer))
-                        for ch in conn[1]))
+                    self.assertTrue(
+                        all(isinstance(ch, (int, np.integer)) for ch in conn[1])
+                    )
 
                     # 3rd element is dict of setup parameters
                     self.assertIsInstance(conn[2], dict)
-                    self.assertIn('bit', conn[2])
-                    self.assertIn('clock rate', conn[2])
-                    self.assertIn('nshotnum', conn[2])
-                    self.assertIn('nt', conn[2])
-                    self.assertIn('shot average (software)', conn[2])
-                    self.assertIn('sample average (hardware)', conn[2])
+                    self.assertIn("bit", conn[2])
+                    self.assertIn("clock rate", conn[2])
+                    self.assertIn("nshotnum", conn[2])
+                    self.assertIn("nt", conn[2])
+                    self.assertIn("shot average (software)", conn[2])
+                    self.assertIn("sample average (hardware)", conn[2])
 
                     # check 'bit'
-                    self.assertIsInstance(conn[2]['bit'],
-                                          (int, np.integer))
-                    self.assertTrue(conn[2]['bit'] > 0)
+                    self.assertIsInstance(conn[2]["bit"], (int, np.integer))
+                    self.assertTrue(conn[2]["bit"] > 0)
 
                     # check 'clock rate'
-                    self.assertIsInstance(conn[2]['clock rate'],
-                                          u.Quantity)
+                    self.assertIsInstance(conn[2]["clock rate"], u.Quantity)
                     # noinspection PyUnresolvedReferences
-                    self.assertTrue(
-                        conn[2]['clock rate'].unit.is_equivalent(
-                            u.Hertz))
+                    self.assertTrue(conn[2]["clock rate"].unit.is_equivalent(u.Hertz))
 
                     # check 'nshotnum' and 'nt'
-                    for key in ('nshotnum', 'nt'):
-                        self.assertIsInstance(conn[2][key],
-                                              (int, np.integer))
-                        self.assertTrue(conn[2][key] > 0
-                                        or conn[2][key] == -1)
+                    for key in ("nshotnum", "nt"):
+                        self.assertIsInstance(conn[2][key], (int, np.integer))
+                        self.assertTrue(conn[2][key] > 0 or conn[2][key] == -1)
 
                     # check 'shot average' and 'sample average'
-                    for key in ('shot average (software)',
-                                'sample average (hardware)'):
-                        self.assertIsInstance(
-                            conn[2][key], (type(None), int, np.integer))
+                    for key in ("shot average (software)", "sample average (hardware)"):
+                        self.assertIsInstance(conn[2][key], (type(None), int, np.integer))
                         if conn[2][key] is not None:
                             self.assertFalse(conn[2][key] <= 1)
 
-        '''
+        """
         # ------ Basic construct_dataset_name() Behavior ------
         #
         # 1. board is invalid (board = -1)
@@ -330,7 +314,7 @@ class DigitizerTestCase(ut.TestCase):
         self.assertIn('adc', dname[1])
         self.assertIn('configuration name', dname[1])
         self.assertIn('digitizer', dname[1])
-        '''
+        """
 
         # ---- test general attributes (part 2 of 2)                ----
         # 'active_configs'
@@ -344,7 +328,7 @@ class DigitizerTestCase(ut.TestCase):
         self.assertTrue(bool(_map.active_configs))
         for active in _map.active_configs:
             self.assertIsInstance(active, str)
-            self.assertTrue(_map.configs[active]['active'])
+            self.assertTrue(_map.configs[active]["active"])
 
         # check `construct_dataset_name`
         self.assertConstructDatasetName(_map, _group)
@@ -356,38 +340,37 @@ class DigitizerTestCase(ut.TestCase):
         for cname in _map.configs:
             active_status = _map.deduce_config_active_status(cname)
             self.assertIsInstance(active_status, bool)
-            self.assertEqual(active_status,
-                             _map.configs[cname]['active'])
+            self.assertEqual(active_status, _map.configs[cname]["active"])
 
         # check `get_adc_info`
-        self.assertFalse(method_overridden(
-            HDFMapDigiTemplate, _map, 'get_adc_info'),
-            msg="Overriding HDFMapDigiTemplate method 'get_adc_info' "
-                "is NOT allowed"
+        self.assertFalse(
+            method_overridden(HDFMapDigiTemplate, _map, "get_adc_info"),
+            msg="Overriding HDFMapDigiTemplate method 'get_adc_info' is NOT allowed",
         )
 
-    def assertConstructDatasetName(
-            self, _map: HDFMapDigiTemplate, _group: h5py.Group):
+    def assertConstructDatasetName(self, _map: HDFMapDigiTemplate, _group: h5py.Group):
         """Assert all expected datasets exist"""
         # build kwargs groupings
         kwargs_list = []
         for cname, config in _map.configs.items():
-            for adc in config['adc']:
+            for adc in config["adc"]:
                 for conn in config[adc]:
                     brd = conn[0]
                     chs = conn[1]
 
                     for ch in chs:
-                        kwargs_list.append({
-                            'board': brd,
-                            'channel': ch,
-                            'config_name': cname,
-                            'adc': adc,
-                            'return_info': False,
-                        })
+                        kwargs_list.append(
+                            {
+                                "board": brd,
+                                "channel": ch,
+                                "config_name": cname,
+                                "adc": adc,
+                                "return_info": False,
+                            }
+                        )
 
         for kwargs in kwargs_list:
-            if kwargs['config_name'] not in _map.active_configs:
+            if kwargs["config_name"] not in _map.active_configs:
                 with self.assertRaises(ValueError):
                     _map.construct_dataset_name(**kwargs)
             else:
@@ -397,7 +380,7 @@ class DigitizerTestCase(ut.TestCase):
                 self.assertIsNotNone(_group.get(dset_name))
 
                 # -- usage with setup info dict --
-                kwargs['return_info'] = True
+                kwargs["return_info"] = True
                 stuff = _map.construct_dataset_name(**kwargs)
                 self.assertIsInstance(stuff, tuple)
                 self.assertEqual(len(stuff), 2)
@@ -405,26 +388,29 @@ class DigitizerTestCase(ut.TestCase):
                 self.assertIsInstance(stuff[1], dict)
 
     def assertConstructHeaderDatasetName(
-            self, _map: HDFMapDigiTemplate, _group: h5py.Group):
+        self, _map: HDFMapDigiTemplate, _group: h5py.Group
+    ):
         """Assert all expected header datasets exist"""
         # build kwargs groupings
         kwargs_list = []
         for cname, config in _map.configs.items():
-            for adc in config['adc']:
+            for adc in config["adc"]:
                 for conn in config[adc]:
                     brd = conn[0]
                     chs = conn[1]
 
                     for ch in chs:
-                        kwargs_list.append({
-                            'board': brd,
-                            'channel': ch,
-                            'config_name': cname,
-                            'adc': adc,
-                        })
+                        kwargs_list.append(
+                            {
+                                "board": brd,
+                                "channel": ch,
+                                "config_name": cname,
+                                "adc": adc,
+                            }
+                        )
 
         for kwargs in kwargs_list:
-            if kwargs['config_name'] not in _map.active_configs:
+            if kwargs["config_name"] not in _map.active_configs:
                 with self.assertRaises(ValueError):
                     _map.construct_dataset_name(**kwargs)
             else:
@@ -434,11 +420,12 @@ class DigitizerTestCase(ut.TestCase):
                 self.assertIsNotNone(_group.get(dset_name))
 
     def assertConnectionsEqual(
-            self,
-            _map: HDFMapDigiTemplate,
-            connections: Tuple[Tuple[int, Tuple[int, ...]], ...],
-            adc: str,
-            config_name: str):
+        self,
+        _map: HDFMapDigiTemplate,
+        connections: Tuple[Tuple[int, Tuple[int, ...]], ...],
+        adc: str,
+        config_name: str,
+    ):
         """
         Test equality of mapped adc connections and expected
         adc connections.

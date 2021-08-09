@@ -12,7 +12,7 @@
 Package of control device mapping classes and their constructor
 (:class:`~.map_controls.HDFMapControls`).
 """
-__all__ = ['ConType', 'HDFMapControls']
+__all__ = ["ConType", "HDFMapControls"]
 
 from . import (
     map_controls,

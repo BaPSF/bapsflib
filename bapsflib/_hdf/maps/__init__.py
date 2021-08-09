@@ -20,12 +20,12 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 :ibf:`MSI Diagnostic` HDF5 groups.
 """
 __all__ = [
-    'ConType',
-    'FauxHDFBuilder',
-    'HDFMap',
-    'HDFMapControls',
-    'HDFMapDigitizers',
-    'HDFMapMSI',
+    "ConType",
+    "FauxHDFBuilder",
+    "HDFMap",
+    "HDFMapControls",
+    "HDFMapDigitizers",
+    "HDFMapMSI",
 ]
 
 from .controls import ConType, HDFMapControls

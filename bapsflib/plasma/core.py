@@ -14,9 +14,37 @@
 # TODO: add mean-free-paths
 #
 """Core plasma parameters in (cgs)."""
-__all__ = ["AMU", "C", "cs", "E", "fce", "fci", "fLH", "FloatUnit", "fpe",
-           "fpi", "fUH", "IntUnit", "KB", "lD", "lpe", "lpi", "ME", "MP", "oce",
-           "oci", "oLH", "ope", "opi", "oUH", "rce", "rci", "VA", "vTe", "vTi"]
+__all__ = [
+    "AMU",
+    "C",
+    "cs",
+    "E",
+    "fce",
+    "fci",
+    "fLH",
+    "FloatUnit",
+    "fpe",
+    "fpi",
+    "fUH",
+    "IntUnit",
+    "KB",
+    "lD",
+    "lpe",
+    "lpi",
+    "ME",
+    "MP",
+    "oce",
+    "oci",
+    "oLH",
+    "ope",
+    "opi",
+    "oUH",
+    "rce",
+    "rci",
+    "VA",
+    "vTe",
+    "vTi",
+]
 
 import math
 
@@ -72,22 +100,22 @@ class IntUnit(int):
 
 
 #: atomic mass unit (g)
-AMU = FloatUnit(1000.0 * constants.m_u, 'g')
+AMU = FloatUnit(1000.0 * constants.m_u, "g")
 
 #: speed of light (cm/s)
-C = FloatUnit(100.0 * constants.c, 'cm s^-1')
+C = FloatUnit(100.0 * constants.c, "cm s^-1")
 
 #: fundamental charge (statcoul)
-E = FloatUnit(4.8032e-10, 'statcoul')
+E = FloatUnit(4.8032e-10, "statcoul")
 
 #: Boltzmann constant (erg/K)
-KB = FloatUnit(1.3807e-16, 'erg k^-1')
+KB = FloatUnit(1.3807e-16, "erg k^-1")
 
 #: electron mass (g)
-ME = FloatUnit(1000.0 * constants.m_e, 'g')
+ME = FloatUnit(1000.0 * constants.m_e, "g")
 
 #: proton mass (g)
-MP = FloatUnit(1000.0 * constants.m_p, 'g')
+MP = FloatUnit(1000.0 * constants.m_p, "g")
 
 
 # ---- frequency constants ----
@@ -105,7 +133,7 @@ def fce(Bo, **kwargs):
     .. note:: see function :func:`oce`
     """
     _fce = oce(Bo) / (2.0 * math.pi)
-    return FloatUnit(_fce, 'Hz')
+    return FloatUnit(_fce, "Hz")
 
 
 def fci(Bo, m_i, Z, **kwargs):
@@ -124,7 +152,7 @@ def fci(Bo, m_i, Z, **kwargs):
     .. note:: see function :func:`oci`
     """
     _fci = oci(Bo, m_i, Z) / (2.0 * constants.pi)
-    return FloatUnit(_fci, 'Hz')
+    return FloatUnit(_fci, "Hz")
 
 
 def fLH(Bo, m_i, n_i, Z, **kwargs):
@@ -142,7 +170,7 @@ def fLH(Bo, m_i, n_i, Z, **kwargs):
     .. note:: for details see function :func:`oLH`
     """
     _fLH = oLH(Bo, m_i, n_i, Z) / (2.0 * math.pi)
-    return FloatUnit(_fLH, 'Hz')
+    return FloatUnit(_fLH, "Hz")
 
 
 def fpe(n_e, **kwargs):
@@ -159,7 +187,7 @@ def fpe(n_e, **kwargs):
     .. note:: see function :func:`ope`
     """
     _fpe = ope(n_e) / (2.0 * math.pi)
-    return FloatUnit(_fpe, 'Hz')
+    return FloatUnit(_fpe, "Hz")
 
 
 def fpi(m_i, n_i, Z, **kwargs):
@@ -178,7 +206,7 @@ def fpi(m_i, n_i, Z, **kwargs):
     .. note:: see function :func:`opi`
     """
     _fpi = opi(m_i, n_i, Z) / (2.0 * math.pi)
-    return FloatUnit(_fpi, 'Hz')
+    return FloatUnit(_fpi, "Hz")
 
 
 def fUH(Bo, n_e, **kwargs):
@@ -195,7 +223,7 @@ def fUH(Bo, n_e, **kwargs):
     .. note:: see function :func:`oUH`
     """
     _fUH = oUH(Bo, n_e) / (2.0 * math.pi)
-    return FloatUnit(_fUH, 'Hz')
+    return FloatUnit(_fUH, "Hz")
 
 
 def oce(Bo, **kwargs):
@@ -209,7 +237,7 @@ def oce(Bo, **kwargs):
     :param float Bo: magnetic-field (in Gauss)
     """
     _oce = (-E * Bo) / (ME * C)
-    return FloatUnit(_oce, 'rad s^-1')
+    return FloatUnit(_oce, "rad s^-1")
 
 
 def oci(Bo, m_i, Z, **kwargs):
@@ -225,7 +253,7 @@ def oci(Bo, m_i, Z, **kwargs):
     :param int Z: charge number
     """
     _oci = (Z * E * Bo) / (m_i * C)
-    return FloatUnit(_oci, 'rad s^-1')
+    return FloatUnit(_oci, "rad s^-1")
 
 
 def oLH(Bo, m_i, n_i, Z, **kwargs):
@@ -250,14 +278,14 @@ def oLH(Bo, m_i, n_i, Z, **kwargs):
     :param float n_i: ion number density (in :math:`cm^{-3}`)
     :param int Z: ion charge number
     """
-    _args = {'Bo': Bo, 'm_i': m_i, 'n_i': n_i, 'Z': Z}
+    _args = {"Bo": Bo, "m_i": m_i, "n_i": n_i, "Z": Z}
     _opi = opi(**_args)
     _oce = oce(**_args)
     _oci = oci(**_args)
     first_term = 1.0 / ((_oci ** 2) + (_opi ** 2))
     second_term = 1.0 / math.fabs(_oce * _oci)
     _olh = math.sqrt(1.0 / (first_term + second_term))
-    return FloatUnit(_olh, 'rad s^-1')
+    return FloatUnit(_olh, "rad s^-1")
 
 
 def ope(n_e, **kwargs):
@@ -271,7 +299,7 @@ def ope(n_e, **kwargs):
     :param float n_e: electron number density (in :math:`cm^{-3}`)
     """
     _ope = math.sqrt(4 * math.pi * n_e * E * E / ME)
-    return FloatUnit(_ope, 'rad s^-1')
+    return FloatUnit(_ope, "rad s^-1")
 
 
 def opi(m_i, n_i, Z, **kwargs):
@@ -287,7 +315,7 @@ def opi(m_i, n_i, Z, **kwargs):
     :param int Z: ion charge number
     """
     _opi = math.sqrt(4 * math.pi * n_i * (Z * E) * (Z * E) / m_i)
-    return FloatUnit(_opi, 'rad s^-1')
+    return FloatUnit(_opi, "rad s^-1")
 
 
 def oUH(Bo, n_e, **kwargs):
@@ -304,7 +332,7 @@ def oUH(Bo, n_e, **kwargs):
     _ope = ope(n_e)
     _oce = oce(Bo)
     _ouh = math.sqrt((_ope ** 2) + (_oce ** 2))
-    return FloatUnit(_ouh, 'rad s^-1')
+    return FloatUnit(_ouh, "rad s^-1")
 
 
 # ---- length constants ----
@@ -319,9 +347,9 @@ def lD(kT, n, **kwargs):
     :param float kT: temperature (in eV)
     :param float n: number density (in :math:`cm^{-3}`)
     """
-    kT = kT * constants.e * 1.e7  # eV to ergs
+    kT = kT * constants.e * 1.0e7  # eV to ergs
     _lD = math.sqrt(kT / (4.0 * math.pi * n)) / E
-    return FloatUnit(_lD, 'cm')
+    return FloatUnit(_lD, "cm")
 
 
 def lpe(n_e, **kwargs):
@@ -337,7 +365,7 @@ def lpe(n_e, **kwargs):
     .. note:: see function :func:`ope`
     """
     _lpe = C / ope(n_e)
-    return FloatUnit(_lpe, 'cm')
+    return FloatUnit(_lpe, "cm")
 
 
 def lpi(m_i, n_i, Z, **kwargs):
@@ -355,7 +383,7 @@ def lpi(m_i, n_i, Z, **kwargs):
     .. note:: see function :func:`opi`
     """
     _lpi = C / opi(m_i, n_i, Z)
-    return FloatUnit(_lpi, 'cm')
+    return FloatUnit(_lpi, "cm")
 
 
 def rce(Bo, kTe, **kwargs):
@@ -372,7 +400,7 @@ def rce(Bo, kTe, **kwargs):
     .. note:: see functions :func:`vTe` and :func:`oce`
     """
     _rce = vTe(kTe) / abs(oce(Bo))
-    return FloatUnit(_rce, 'cm')
+    return FloatUnit(_rce, "cm")
 
 
 def rci(Bo, kTi, m_i, Z, **kwargs):
@@ -391,7 +419,7 @@ def rci(Bo, kTi, m_i, Z, **kwargs):
     .. note:: see functions :func:`vTi` and :func:`oci`
     """
     _rci = vTi(kTi, m_i) / oci(Bo, m_i, Z)
-    return FloatUnit(_rci, 'cm')
+    return FloatUnit(_rci, "cm")
 
 
 # ---- velocity constants ----
@@ -414,9 +442,9 @@ def cs(kTe, m_i, Z, gamma=1.0, **kwargs):
     :param float gamma: adiabatic index
     """
     # TODO: double check adiabatic index default value
-    kTe = kTe * constants.e * 1.e7 # eV to ergs
+    kTe = kTe * constants.e * 1.0e7  # eV to ergs
     _cs = math.sqrt(gamma * Z * kTe / m_i)
-    return FloatUnit(_cs, 'cm s^-1')
+    return FloatUnit(_cs, "cm s^-1")
 
 
 def VA(Bo, m_i, n_i, **kwargs):
@@ -432,7 +460,7 @@ def VA(Bo, m_i, n_i, **kwargs):
     :param float n_i: ion number density (in :math:`cm^{-3}`)
     """
     _VA = Bo / math.sqrt(4.0 * math.pi * n_i * m_i)
-    return FloatUnit(_VA, 'cm s^-1')
+    return FloatUnit(_VA, "cm s^-1")
 
 
 def vTe(kTe, **kwargs):
@@ -445,9 +473,9 @@ def vTe(kTe, **kwargs):
 
     :param float kTe: electron temperature (in eV)
     """
-    kTe = kTe * constants.e * 1.e7  # eV to erg
+    kTe = kTe * constants.e * 1.0e7  # eV to erg
     _vTe = math.sqrt(kTe / ME)
-    return FloatUnit(_vTe, 'cm s^-1')
+    return FloatUnit(_vTe, "cm s^-1")
 
 
 def vTi(kTi, m_i, **kwargs):
@@ -461,6 +489,6 @@ def vTi(kTi, m_i, **kwargs):
     :param float kTi: ion temperature (in eV)
     :param float m_i: ion mass (in g)
     """
-    kTi = kTi * constants.e * 1.e7 # eV to erg
+    kTi = kTi * constants.e * 1.0e7  # eV to erg
     _vTi = math.sqrt(kTi / m_i)
-    return FloatUnit(_vTi, 'cm s^-1')
+    return FloatUnit(_vTi, "cm s^-1")

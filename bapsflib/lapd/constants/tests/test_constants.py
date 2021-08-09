@@ -27,8 +27,7 @@ class TestConstants(ut.TestCase):
 
     def test_BaPSFConstant(self):
         self.assertTrue(issubclass(BaPSFConstant, Constant))
-        self.assertEqual(BaPSFConstant.default_reference,
-                         "Basic Plasma Science Facility")
+        self.assertEqual(BaPSFConstant.default_reference, "Basic Plasma Science Facility")
 
     def test_port_spacing(self):
         self.assertIsInstance(port_spacing, BaPSFConstant)
@@ -42,5 +41,5 @@ class TestConstants(ut.TestCase):
         self.assertEqual(ref_port.unit, u.dimensionless_unscaled)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

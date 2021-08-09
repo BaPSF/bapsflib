@@ -40,6 +40,7 @@ class HDFMapMSITemplate(ABC):
         Any method that raises a :exc:`NotImplementedError` is intended
         to be overwritten by the inheriting class.
     '''
+
     def __init__(self, group: h5py.Group):
         """
         :param group: the MSI diagnostic HDF5 group
@@ -48,12 +49,12 @@ class HDFMapMSITemplate(ABC):
         if isinstance(group, h5py.Group):
             self._diag_group = group
         else:
-            raise TypeError('arg `group` is not of type h5py.Group')
+            raise TypeError("arg `group` is not of type h5py.Group")
 
         # define info attribute
         self._info = {
-            'group name': os.path.basename(group.name),
-            'group path': group.name,
+            "group name": os.path.basename(group.name),
+            "group path": group.name,
         }
 
         # initialize self.configs
@@ -180,7 +181,7 @@ class HDFMapMSITemplate(ABC):
     @property
     def device_name(self) -> str:
         """Name of MSI diagnostic (device)"""
-        return self._info['group name']
+        return self._info["group name"]
 
     @property
     def group(self) -> h5py.Group:

@@ -27,8 +27,8 @@ class TestN5700PS(ControlTestCase):
     """Test class for HDFMapControlN5700PS"""
 
     # define setup variables
-    DEVICE_NAME = 'N5700_PS'
-    DEVICE_PATH = 'Raw data + config/N5700_PS'
+    DEVICE_NAME = "N5700_PS"
+    DEVICE_PATH = "Raw data + config/N5700_PS"
     MAP_CLASS = HDFMapControlN5700PS
 
     def setUp(self):
@@ -38,7 +38,7 @@ class TestN5700PS(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info['contype'], ConType.power)
+        self.assertEqual(self.map.info["contype"], ConType.power)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
@@ -49,27 +49,24 @@ class TestN5700PS(ControlTestCase):
 
         # expected dataset does not exist
         # - rename 'Run time list' dataset
-        self.mod.move('Run time list', 'N5700 data')
+        self.mod.move("Run time list", "N5700 data")
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        self.mod.move('N5700 data', 'Run time list')
+        self.mod.move("N5700 data", "Run time list")
 
         # 'N5700 power supply command list' attribute does not exist
         #
         config_name = self.mod.config_names[0]
-        cl = self.mod[config_name].attrs[
-            'N5700 power supply command list']
-        self.mod[config_name].attrs['Wrong command list'] = cl
-        del self.mod[config_name].attrs[
-            'N5700 power supply command list']
+        cl = self.mod[config_name].attrs["N5700 power supply command list"]
+        self.mod[config_name].attrs["Wrong command list"] = cl
+        del self.mod[config_name].attrs["N5700 power supply command list"]
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        self.mod[config_name].attrs[
-            'N5700 power supply command list'] = cl
-        del self.mod[config_name].attrs['Wrong command list']
+        self.mod[config_name].attrs["N5700 power supply command list"] = cl
+        del self.mod[config_name].attrs["Wrong command list"]
 
         # there are no configuration groups to map
-        del self.f['Raw data + config/N5700_PS/config01']
+        del self.f["Raw data + config/N5700_PS/config01"]
         with self.assertRaises(HDFMappingError):
             _map = self.map
         self.mod.knobs.reset()
@@ -83,9 +80,8 @@ class TestN5700PS(ControlTestCase):
         # 'command list'
         #
         config_name = self.mod.config_names[0]
-        cl = np.bytes_('AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n')
-        self.mod[config_name].attrs[
-            'N5700 power supply command list'] = cl
+        cl = np.bytes_("AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n")
+        self.mod[config_name].attrs["N5700 power supply command list"] = cl
         self.assertControlMapBasics(self.map, self.dgroup)
         self.mod.knobs.reset()
 
@@ -93,7 +89,7 @@ class TestN5700PS(ControlTestCase):
         # - a warning is thrown, but mapping continues
         # - remove attribute 'IP address'
         config_name = self.mod.config_names[0]
-        del self.mod[config_name].attrs['IP address']
+        del self.mod[config_name].attrs["IP address"]
         with self.assertWarns(UserWarning):
             _map = self.map
         self.mod.knobs.reset()
@@ -103,14 +99,13 @@ class TestN5700PS(ControlTestCase):
         # - default dict is used for state values
         #
         with mock.patch.object(
-                self.MAP_CLASS,
-                '_construct_state_values_dict',
-                side_effect=KeyError):
+            self.MAP_CLASS, "_construct_state_values_dict", side_effect=KeyError
+        ):
             _map = self.map
             for cname, config in _map.configs.items():
                 self.assertEqual(
-                    config['state values'],
-                    _map._default_state_values_dict(cname))
+                    config["state values"], _map._default_state_values_dict(cname)
+                )
 
     def test_one_config(self):
         """
@@ -148,10 +143,10 @@ class TestN5700PS(ControlTestCase):
         self.assertControlMapBasics(_map, self.dgroup)
 
         # test dataset names
-        self.assertEqual(_map.dataset_names, ['Run time list'])
+        self.assertEqual(_map.dataset_names, ["Run time list"])
 
         # test construct_dataset_names
-        self.assertEqual(_map.construct_dataset_name(), 'Run time list')
+        self.assertEqual(_map.construct_dataset_name(), "Run time list")
 
         # test for command list
         self.assertTrue(_map.has_command_list)
@@ -171,18 +166,17 @@ class TestN5700PS(ControlTestCase):
         `configs` mapping dictionary.
         """
         # only asserts 'N5700_PS' specific attributes
-        self.assertEqual(len(_map.configs),
-                         self.mod.knobs.n_configs)
+        self.assertEqual(len(_map.configs), self.mod.knobs.n_configs)
 
         for cname, config in _map.configs.items():
             # Note: 'command list' is not included since it is
             #         covered by assertControlMapBasics()
             #
             self.assertIn(cname, self.mod.config_names)
-            self.assertIn('IP address', config)
-            self.assertIn('power supply device', config)
-            self.assertIn('initial state', config)
+            self.assertIn("IP address", config)
+            self.assertIn("power supply device", config)
+            self.assertIn("initial state", config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

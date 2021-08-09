@@ -40,6 +40,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
         |   |   +--
 
     """
+
     def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 control device group
@@ -48,12 +49,11 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
         HDFMapControlCLTemplate.__init__(self, group)
 
         # define control type
-        self._info['contype'] = ConType.power
+        self._info["contype"] = ConType.power
 
         # define known command list RE patterns
         self._default_re_patterns = (
-            r'(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)'
-            + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
+            r"(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
         )
 
         # populate self.configs
@@ -63,8 +63,8 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
         """Builds the :attr:`configs` dictionary."""
         # check there are configurations to map
         if len(self.subgroup_names) == 0:
-            why = 'has no mappable configurations'
-            raise HDFMappingError(self._info['group path'], why=why)
+            why = "has no mappable configurations"
+            raise HDFMappingError(self._info["group path"], why=why)
 
         # build configuration dictionaries
         # - assume every sub-group represents a unique configuration
@@ -81,20 +81,21 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
             try:
                 dset = self.group[self.construct_dataset_name()]
             except KeyError:
-                why = ("Dataset '" + self.construct_dataset_name()
-                       + "' not found configuration group '"
-                       + name + "'")
-                raise HDFMappingError(self._info['group path'], why=why)
+                why = (
+                    f"Dataset '{self.construct_dataset_name()}' not found "
+                    f"configuration group '{name}'"
+                )
+                raise HDFMappingError(self._info["group path"], why=why)
 
             # initialize _configs
             self._configs[name] = {}
 
             # ---- define general info values                       ----
             pairs = [
-                ('IP address', 'IP address'),
-                ('power supply device', 'Model Number'),
-                ('initial state', 'Initialization commands'),
-                ('command list', 'N5700 power supply command list')
+                ("IP address", "IP address"),
+                ("power supply device", "Model Number"),
+                ("initial state", "Initialization commands"),
+                ("command list", "N5700 power supply command list"),
             ]
             for pair in pairs:
                 try:
@@ -102,7 +103,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                     val = cong.attrs[pair[1]]
 
                     # condition value
-                    if pair[0] == 'command list':
+                    if pair[0] == "command list":
                         # - val gets returned as a np.bytes_ string
                         # - split line returns
                         # - remove trailing/leading whitespace
@@ -122,31 +123,29 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                 except KeyError:
                     self._configs[name][pair[0]] = None
                     warn_str = (
-                        "Attribute '" + pair[1]
-                        + "' not found in control device '"
-                        + self.device_name + "' configuration group '"
-                        + name + "'"
+                        f"Attribute '{pair[1]}' not found in control device "
+                        f"'{self.device_name}' configuration group '{name}'"
                     )
-                    if pair[0] != 'command list':
+                    if pair[0] != "command list":
                         warn_str += ", continuing with mapping"
                         warn(warn_str)
                     else:
-                        why = ("Attribute '" + pair[1]
-                               + "' not found for configuration group '"
-                               + name + "'")
-                        raise HDFMappingError(self._info['group path'],
-                                              why=why)
+                        why = (
+                            f"Attribute '{pair[1]}' not found for configuration "
+                            f"group '{name}'"
+                        )
+                        raise HDFMappingError(self._info["group path"], why=why)
 
             # ---- define 'dset paths'                              ----
-            self._configs[name]['dset paths'] = (dset.name,)
+            self._configs[name]["dset paths"] = (dset.name,)
 
             # ---- define 'shotnum'                                 ----
             # initialize
-            self._configs[name]['shotnum'] = {
-                'dset paths': self._configs[name]['dset paths'],
-                'dset field': ('Shot number',),
-                'shape': dset.dtype['Shot number'].shape,
-                'dtype': np.int32,
+            self._configs[name]["shotnum"] = {
+                "dset paths": self._configs[name]["dset paths"],
+                "dset field": ("Shot number",),
+                "shape": dset.dtype["Shot number"].shape,
+                "dtype": np.int32,
             }
 
             # ---- define 'state values'                            ----
@@ -155,31 +154,31 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                 warnings.simplefilter("ignore")
                 try:
                     sv_dict = self._construct_state_values_dict(
-                        name, self._default_re_patterns)
+                        name, self._default_re_patterns
+                    )
                 except KeyError:
                     sv_dict = {}
 
             # initialize
-            self._configs[name]['state values'] = sv_dict \
-                if bool(sv_dict) \
-                else self._default_state_values_dict(name)
+            self._configs[name]["state values"] = (
+                sv_dict if bool(sv_dict) else self._default_state_values_dict(name)
+            )
 
     def _default_state_values_dict(self, config_name: str) -> dict:
         # define default dict
         default_dict = {
-            'command': {
-                'dset paths': self._configs[config_name]['dset paths'],
-                'dset field': ('Command index',),
-                're pattern': None,
-                'command list':
-                    self._configs[config_name]['command list'],
-                'cl str':
-                    self._configs[config_name]['command list'],
-                'shape': (),
+            "command": {
+                "dset paths": self._configs[config_name]["dset paths"],
+                "dset field": ("Command index",),
+                "re pattern": None,
+                "command list": self._configs[config_name]["command list"],
+                "cl str": self._configs[config_name]["command list"],
+                "shape": (),
             }
         }
-        default_dict['command']['dtype'] = \
-            np.array(default_dict['command']['command list']).dtype
+        default_dict["command"]["dtype"] = np.array(
+            default_dict["command"]["command list"]
+        ).dtype
 
         # return
         return default_dict
@@ -188,4 +187,4 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
         """
         Constructs name of dataset containing control state value data.
         """
-        return 'Run time list'
+        return "Run time list"

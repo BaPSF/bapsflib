@@ -14,4 +14,5 @@ __all__ = ["HDFMappingWarning"]
 
 class HDFMappingWarning(UserWarning):
     """Warning for HDF5 mappings."""
+
     pass

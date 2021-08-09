@@ -10,10 +10,33 @@ jobs:
   isort:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: SEtup Python
+        uses: actions/setup-python@v2
         with:
           python-version: 3.8
-      - uses: isort/isort-action@master
+      - name: Run isort checks
+        uses: isort/isort-action@master
         with:
           configuration: "--check-only --diff --color"
+
+  black:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.8
+      - name: Install black
+        run: python -m pip install -r requirements/extras.txt
+      - name: Which black version
+        uses: psf/black@stable
+        with:
+          options: "--version"
+      - name: Run black checks
+        uses: psf/black@stable
+        with:
+          options: "--check --diff --color"

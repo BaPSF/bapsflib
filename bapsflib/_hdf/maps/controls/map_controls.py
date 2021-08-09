@@ -45,12 +45,13 @@ class HDFMapControls(dict):
         >>> control_map['6K Compumotor']
         <bapsflib._hdf.maps.controls.sixk.HDFMapControl6K>
     """
+
     _defined_mapping_classes = {
-        'N5700_PS': HDFMapControlN5700PS,
-        'NI_XYZ': HDFMapControlNIXYZ,
-        'NI_XZ': HDFMapControlNIXZ,
-        '6K Compumotor': HDFMapControl6K,
-        'Waveform': HDFMapControlWaveform,
+        "N5700_PS": HDFMapControlN5700PS,
+        "NI_XYZ": HDFMapControlNIXYZ,
+        "NI_XZ": HDFMapControlNIXZ,
+        "6K Compumotor": HDFMapControl6K,
+        "Waveform": HDFMapControlWaveform,
     }
     """
     Dictionary containing references to the defined (known) control
@@ -63,7 +64,7 @@ class HDFMapControls(dict):
         """
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
-            raise TypeError('data_group is not of type h5py.Group')
+            raise TypeError("data_group is not of type h5py.Group")
 
         # store HDF5 data group
         self.__data_group = data_group
@@ -107,8 +108,7 @@ class HDFMapControls(dict):
             if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
                 try:
-                    _map = self._defined_mapping_classes[name](
-                        self.__data_group[name])
+                    _map = self._defined_mapping_classes[name](self.__data_group[name])
                     control_dict[name] = _map
                 except HDFMappingError:
                     # mapping failed

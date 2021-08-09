@@ -26,6 +26,7 @@ class FauxNIXYZ(h5py.Group):
         A class that contains all the controls for specifying the
         digitizer group structure.
         """
+
         def __init__(self, faux, n_motionlists, sn_size):
             super().__init__()
             self._faux = faux
@@ -51,7 +52,7 @@ class FauxNIXYZ(h5py.Group):
         def n_motionlists(self, val: int):
             """Set number of motion lists"""
             # check if self._n_motionlists has been defined
-            if hasattr(self, '_n_motionlists'):
+            if hasattr(self, "_n_motionlists"):
                 old_val = self._n_motionlists
             else:
                 old_val = 1
@@ -66,7 +67,7 @@ class FauxNIXYZ(h5py.Group):
 
             # only update if self._n_motionlists had been defined once
             # prior
-            if hasattr(self, '_n_motionlists'):
+            if hasattr(self, "_n_motionlists"):
                 self._n_motionlists = val
                 self._faux.populate()
             else:
@@ -87,7 +88,7 @@ class FauxNIXYZ(h5py.Group):
         def sn_size(self, val: int):
             """Set shot number size"""
             # check if self._sn_size has been defined
-            if hasattr(self, '_sn_size'):
+            if hasattr(self, "_sn_size"):
                 old_val = self._sn_size
             else:
                 old_val = 100
@@ -101,7 +102,7 @@ class FauxNIXYZ(h5py.Group):
                 val = old_val
 
             # only update if self._sn_size had been defined once prior
-            if hasattr(self, '_sn_size'):
+            if hasattr(self, "_sn_size"):
                 self._sn_size = val
                 self._faux.populate()
             else:
@@ -118,19 +119,19 @@ class FauxNIXYZ(h5py.Group):
     def __init__(self, id, n_motionlists=1, sn_size=100, **kwargs):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
-            raise ValueError('{} is not a GroupID'.format(id))
+            raise ValueError(f"{id} is not a GroupID")
 
         # create control group
-        gid = h5py.h5g.create(id, b'NI_XYZ')
+        gid = h5py.h5g.create(id, b"NI_XYZ")
         h5py.Group.__init__(self, gid)
 
         # store number on configurations
         self._knobs = self.Knobs(self, n_motionlists, sn_size)
-        
+
         # initialize some attributes
         self._ml = []  # list of motion lists
         self.configs = {}  # configurations dictionary
-        
+
         # set root attributes
         self._set_xyz_attrs()
 
@@ -140,38 +141,40 @@ class FauxNIXYZ(h5py.Group):
     def _add_dataset(self):
         """Create dataset"""
         # create numpy array
-        dset_name = 'Run time list'
-        shape = (self.knobs.sn_size, )
-        dtype = np.dtype([
-            ('Shot number', np.int32),
-            ('Configuration name', np.bytes_, 120),
-            ('motion_index', np.int32),
-            ('x', np.float64),
-            ('y', np.float64),
-            ('z', np.float64),
-            ('r', np.float64),
-            ('phi', np.float64),
-            ('theta', np.float64),
-        ])
+        dset_name = "Run time list"
+        shape = (self.knobs.sn_size,)
+        dtype = np.dtype(
+            [
+                ("Shot number", np.int32),
+                ("Configuration name", np.bytes_, 120),
+                ("motion_index", np.int32),
+                ("x", np.float64),
+                ("y", np.float64),
+                ("z", np.float64),
+                ("r", np.float64),
+                ("phi", np.float64),
+                ("theta", np.float64),
+            ]
+        )
         data = np.ndarray(shape=shape, dtype=dtype)
 
         # assign shot numbers
-        data['Shot number'] = \
-            np.arange(1, shape[0] + 1, 1,
-                      dtype=data.dtype['Shot number'].type)
+        data["Shot number"] = np.arange(
+            1, shape[0] + 1, 1, dtype=data.dtype["Shot number"].type
+        )
 
         # assign motion lists (aka 'Configuration name')
         # assign motion_index
         start = 0
         for ml in self._ml:
             # determine stop index
-            stop = start + ml['size']
+            stop = start + ml["size"]
 
             # insert values
-            data['Configuration name'][start:stop:1] = ml['name']
-            data['motion_index'][start:stop:1] = \
-                np.arange(0, ml['size'], 1,
-                          dtype=data.dtype['motion_index'].type)
+            data["Configuration name"][start:stop:1] = ml["name"]
+            data["motion_index"][start:stop:1] = np.arange(
+                0, ml["size"], 1, dtype=data.dtype["motion_index"].type
+            )
 
             # move start index
             start = stop
@@ -179,18 +182,18 @@ class FauxNIXYZ(h5py.Group):
         # fill position fields
         # TODO: create a real fill, opposed to zeros
         #
-        data['x'].fill(0.0)
-        data['y'].fill(1.0)
-        data['z'].fill(2.0)
-        data['r'].fill(3.0)
-        data['phi'].fill(np.pi/10.0)
-        data['theta'].fill(np.pi/20.0)
+        data["x"].fill(0.0)
+        data["y"].fill(1.0)
+        data["z"].fill(2.0)
+        data["r"].fill(3.0)
+        data["phi"].fill(np.pi / 10.0)
+        data["theta"].fill(np.pi / 20.0)
 
         # create dataset
         self.create_dataset(dset_name, data=data)
 
         # add to configs
-        self.configs['config01']['dset name'] = dset_name
+        self.configs["config01"]["dset name"] = dset_name
 
     def _add_motionlist_groups(self):
         """Add motion list groups"""
@@ -204,13 +207,11 @@ class FauxNIXYZ(h5py.Group):
             sn_size_for_ml.append(self.knobs.sn_size)
         else:
             # set shot number size per for each motion list
-            sn_per_ml = int(math.floor(
-                self.knobs.sn_size / self.knobs.n_motionlists))
-            sn_remainder = (self.knobs.sn_size
-                            - ((self.knobs.n_motionlists - 1)
-                               * sn_per_ml))
-            sn_size_for_ml.extend([sn_per_ml]
-                                  * (self.knobs.n_motionlists - 1))
+            sn_per_ml = int(math.floor(self.knobs.sn_size / self.knobs.n_motionlists))
+            sn_remainder = self.knobs.sn_size - (
+                (self.knobs.n_motionlists - 1) * sn_per_ml
+            )
+            sn_size_for_ml.extend([sn_per_ml] * (self.knobs.n_motionlists - 1))
             sn_size_for_ml.append(sn_remainder)
 
         # build NN of each motion list
@@ -246,56 +247,58 @@ class FauxNIXYZ(h5py.Group):
         # - define motionlist group attributes
         for i in range(self.knobs.n_motionlists):
             # define motionlist name
-            ml_name = 'ml-{:04}'.format(i + 1)
-            self._ml.append({'name': ml_name,
-                             'size': sn_size_for_ml[i]})
+            ml_name = f"ml-{i+1:04}"
+            self._ml.append({"name": ml_name, "size": sn_size_for_ml[i]})
 
             # create motionlist group
             ml_gname = ml_name
             self.create_group(ml_gname)
 
             # set motionlist attributes
-            self[ml_gname].attrs.update({
-                'z_port': np.float64(35.0),
-                'x0': np.float64(0.0),
-                'Nx': np.float64(NN[i][0]),
-                'dx': np.float64(0.5),
-                'y0': np.float64(0.0),
-                'Ny': np.float64(NN[i][1]),
-                'dy': np.float64(0.5),
-                'z0': np.float64(0.0),
-                'Nz': np.float64(NN[i][2]),
-                'dz': np.float64(0.5),
-                'fan_XYZ':
-                    np.bytes_('FALSE') if bool(i % 2)
-                    else np.bytes_('TRUE'),
-                'min_zdrive_steps': np.float64(-2000000),
-                'max_zdrive_steps': np.float64(2000000),
-                'min_ydrive_steps': np.float64(-2469350),
-                'max_ydrive_steps': np.float64(2546296),
-                'probe_name': np.bytes_('probe1'),
-            })
+            self[ml_gname].attrs.update(
+                {
+                    "z_port": np.float64(35.0),
+                    "x0": np.float64(0.0),
+                    "Nx": np.float64(NN[i][0]),
+                    "dx": np.float64(0.5),
+                    "y0": np.float64(0.0),
+                    "Ny": np.float64(NN[i][1]),
+                    "dy": np.float64(0.5),
+                    "z0": np.float64(0.0),
+                    "Nz": np.float64(NN[i][2]),
+                    "dz": np.float64(0.5),
+                    "fan_XYZ": np.bytes_("FALSE") if bool(i % 2) else np.bytes_("TRUE"),
+                    "min_zdrive_steps": np.float64(-2000000),
+                    "max_zdrive_steps": np.float64(2000000),
+                    "min_ydrive_steps": np.float64(-2469350),
+                    "max_ydrive_steps": np.float64(2546296),
+                    "probe_name": np.bytes_("probe1"),
+                }
+            )
 
         # fill configs dict
         # there's one config and all ml's are in it
         for config_name in self.configs:
-            self.configs[config_name]['motion lists'] = \
-                [self._ml[i]['name']
-                 for i in range(self.knobs.n_motionlists)]
+            self.configs[config_name]["motion lists"] = [
+                self._ml[i]["name"] for i in range(self.knobs.n_motionlists)
+            ]
 
     def _set_xyz_attrs(self):
         """Set the 'NI_XYZ' group attributes"""
-        self.attrs.update({
-            'Device name': np.bytes_('NI_XYZ'),
-            'Type': np.bytes_('Experimental control'),
-            'Description': np.bytes_(
-                '3D Drive from SMPD using National Instruments '
-                'ethernet motors (repackaged Applied Motion '
-                'Systems drives)'),
-            'Module IP address': np.bytes_('192.168.7.76'),
-            'Module VI path': np.bytes_('Modules\\NI_XYZ\\NI_XYZ.vi'),
-            'Created data': np.bytes_('9/9/2018 2:49:51 PM'),
-        })
+        self.attrs.update(
+            {
+                "Device name": np.bytes_("NI_XYZ"),
+                "Type": np.bytes_("Experimental control"),
+                "Description": np.bytes_(
+                    "3D Drive from SMPD using National Instruments "
+                    "ethernet motors (repackaged Applied Motion "
+                    "Systems drives)"
+                ),
+                "Module IP address": np.bytes_("192.168.7.76"),
+                "Module VI path": np.bytes_("Modules\\NI_XYZ\\NI_XYZ.vi"),
+                "Created data": np.bytes_("9/9/2018 2:49:51 PM"),
+            }
+        )
 
     @property
     def knobs(self):
@@ -315,7 +318,7 @@ class FauxNIXYZ(h5py.Group):
 
         # re-initialize key dicts
         self.configs.clear()
-        self.configs['config01'] = {}
+        self.configs["config01"] = {}
 
         # add sub-groups
         self._add_motionlist_groups()

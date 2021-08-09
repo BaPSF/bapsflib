@@ -42,26 +42,23 @@ class TestControlTemplates(ut.TestCase):
         self.f = FauxHDFBuilder()
 
         # fill the MSI group for testing
-        self.f['MSI'].create_group('g1')
-        self.f['MSI'].create_group('g2')
+        self.f["MSI"].create_group("g1")
+        self.f["MSI"].create_group("g2")
 
         # correct 'command list' dataset
-        dtype = np.dtype([('Shot number', np.int32),
-                          ('Command index', np.int8)])
+        dtype = np.dtype([("Shot number", np.int32), ("Command index", np.int8)])
         data = np.empty((5,), dtype=dtype)
-        self.f['MSI'].create_dataset('d1', data=data)
+        self.f["MSI"].create_dataset("d1", data=data)
 
         # dataset missing 'Command index'
-        dtype = np.dtype([('Shot number', np.int32),
-                          ('Not command index', np.int8)])
+        dtype = np.dtype([("Shot number", np.int32), ("Not command index", np.int8)])
         data = np.empty((5,), dtype=dtype)
-        self.f['MSI'].create_dataset('d2', data=data)
+        self.f["MSI"].create_dataset("d2", data=data)
 
         # dataset missing 'Command index' wrong shape and size
-        dtype = np.dtype([('Shot number', np.int32),
-                          ('Command index', np.float16, (2,))])
+        dtype = np.dtype([("Shot number", np.int32), ("Command index", np.float16, (2,))])
         data = np.empty((5,), dtype=dtype)
-        self.f['MSI'].create_dataset('d3', data=data)
+        self.f["MSI"].create_dataset("d3", data=data)
 
     def tearDown(self):
         """Cleanup temporary HDF5 file"""
@@ -69,7 +66,7 @@ class TestControlTemplates(ut.TestCase):
 
     def group(self):
         """HDF5 group for testing"""
-        return self.f['MSI']
+        return self.f["MSI"]
 
     @staticmethod
     def dummy_map(template, group):
@@ -90,9 +87,9 @@ class TestControlTemplates(ut.TestCase):
             new_dict[abstractmethod] = lambda *args: NotImplemented
 
         # define new template class
-        new_template_class = type("dummy_%s" % template_cls.__name__,
-                                  (template_cls,),
-                                  new_dict)
+        new_template_class = type(
+            "dummy_%s" % template_cls.__name__, (template_cls,), new_dict
+        )
 
         # return map
         return new_template_class(group)
@@ -100,29 +97,34 @@ class TestControlTemplates(ut.TestCase):
     def test_not_h5py_group(self):
         """Test error if object to map is not h5py.Group"""
         with self.assertRaises(TypeError):
-            self.dummy_map('default', None)
-            self.dummy_map('cl', None)
+            self.dummy_map("default", None)
+            self.dummy_map("cl", None)
 
     def test_structure(self):
         # test HDFMapControlTemplate
-        self.assertControlTemplate(
-            self.dummy_map('default', self.group()),
-            self.group())
+        self.assertControlTemplate(self.dummy_map("default", self.group()), self.group())
 
         # test HDFMapControlCLTemplate
-        self.assertControlCLTemplate(
-            self.dummy_map('cl', self.group()),
-            self.group())
+        self.assertControlCLTemplate(self.dummy_map("cl", self.group()), self.group())
 
     def assertControlTemplate(self, _map, _group: h5py.Group):
         # check instance
         self.assertIsInstance(_map, HDFMapControlTemplate)
 
         # check attribute existence
-        attrs = ('info', 'configs', 'contype', 'dataset_names',
-                 'group', 'has_command_list', 'one_config_per_dset',
-                 'subgroup_names', 'device_name',
-                 'construct_dataset_name', '_build_configs')
+        attrs = (
+            "info",
+            "configs",
+            "contype",
+            "dataset_names",
+            "group",
+            "has_command_list",
+            "one_config_per_dset",
+            "subgroup_names",
+            "device_name",
+            "construct_dataset_name",
+            "_build_configs",
+        )
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
 
@@ -131,15 +133,14 @@ class TestControlTemplates(ut.TestCase):
         self.assertIsInstance(_map.info, dict)
 
         # assert required keys
-        self.assertIn('group name', _map.info)
-        self.assertIn('group path', _map.info)
-        self.assertIn('contype', _map.info)
+        self.assertIn("group name", _map.info)
+        self.assertIn("group path", _map.info)
+        self.assertIn("contype", _map.info)
 
         # assert values
-        self.assertEqual(_map.info['group name'],
-                         os.path.basename(_group.name))
-        self.assertEqual(_map.info['group path'], _group.name)
-        self.assertEqual(_map.info['contype'], NotImplemented)
+        self.assertEqual(_map.info["group name"], os.path.basename(_group.name))
+        self.assertEqual(_map.info["group path"], _group.name)
+        self.assertEqual(_map.info["contype"], NotImplemented)
 
         # -- check 'configs'                                        ----
         self.assertIsInstance(_map.configs, dict)
@@ -150,14 +151,13 @@ class TestControlTemplates(ut.TestCase):
         self.assertFalse(_map.one_config_per_dset)
 
         # one config for three datasets
-        with mock.patch.dict(_map._configs, {'config1': {}}):
+        with mock.patch.dict(_map._configs, {"config1": {}}):
             self.assertFalse(_map.one_config_per_dset)
 
         # 3 configs for 3 datasets
-        with mock.patch.dict(_map._configs,
-                             {'config1': {},
-                              'config2': {},
-                              'config3': {}}):
+        with mock.patch.dict(
+            _map._configs, {"config1": {}, "config2": {}, "config3": {}}
+        ):
             self.assertTrue(_map.one_config_per_dset)
 
         # -- check 'has_command_list'                               ----
@@ -166,19 +166,16 @@ class TestControlTemplates(ut.TestCase):
 
         # add artificial 'command list'
         with mock.patch.dict(
-                _map.configs,
-                {'config1': {},
-                 'config2': {'command list': ('start',)}}):
+            _map.configs, {"config1": {}, "config2": {"command list": ("start",)}}
+        ):
             self.assertTrue(_map.has_command_list)
 
         # -- check other attributes                                 ----
-        self.assertEqual(_map.contype, _map.info['contype'])
+        self.assertEqual(_map.contype, _map.info["contype"])
         self.assertEqual(_map.group, _group)
-        self.assertEqual(_map.device_name, _map.info['group name'])
-        self.assertEqual(sorted(_map.dataset_names),
-                         sorted(['d1', 'd2', 'd3']))
-        self.assertEqual(sorted(_map.subgroup_names),
-                         sorted(['g1', 'g2']))
+        self.assertEqual(_map.device_name, _map.info["group name"])
+        self.assertEqual(sorted(_map.dataset_names), sorted(["d1", "d2", "d3"]))
+        self.assertEqual(sorted(_map.subgroup_names), sorted(["g1", "g2"]))
 
         # -- check abstract methods                                 ----
         # Note: `self.dummy_map` overrides all abstract methods to
@@ -195,12 +192,14 @@ class TestControlTemplates(ut.TestCase):
         self.assertControlTemplate(_map, _group)
 
         # check attribute existence
-        attrs = ('_default_re_patterns',
-                 'clparse',
-                 '_construct_state_values_dict',
-                 'reset_state_values_config',
-                 'set_state_values_config',
-                 '_default_state_values_dict',)
+        attrs = (
+            "_default_re_patterns",
+            "clparse",
+            "_construct_state_values_dict",
+            "reset_state_values_config",
+            "set_state_values_config",
+            "_default_state_values_dict",
+        )
         for attr in attrs:
             self.assertTrue(hasattr(_map, attr))
 
@@ -210,193 +209,179 @@ class TestControlTemplates(ut.TestCase):
 
         # -- check 'clparse'                                        ----
         with mock.patch.dict(
-                _map._configs,
-                {'config1': {'command list': ('VOLT 25.0',)}}):
-            self.assertIsInstance(_map.clparse('config1'), CLParse)
+            _map._configs, {"config1": {"command list": ("VOLT 25.0",)}}
+        ):
+            self.assertIsInstance(_map.clparse("config1"), CLParse)
 
         # -- check '_construct_state_values_dict'                   ----
-        cl = ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0',)
-        config_name = 'config1'
-        configs_dict = {
-            config_name: {'command list': cl,
-                          'dset paths': ('/MSI/d1',)}
+        cl = (
+            "VOLT 20.0",
+            "VOLT 25.0",
+            "VOLT 30.0",
+        )
+        config_name = "config1"
+        configs_dict = {config_name: {"command list": cl, "dset paths": ("/MSI/d1",)}}
+        clparse_dict = {
+            "VOLT": {
+                "command list": (20.0, 25.0, 30.0),
+                "cl str": cl,
+                "dtype": np.float64,
+            }
         }
-        clparse_dict = {'VOLT': {'command list': (20.0, 25.0, 30.0),
-                                 'cl str': cl,
-                                 'dtype': np.float64}}
-        pattern = \
-            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
+        pattern = r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
 
         # run tests on a mock _map._configs
         with mock.patch.dict(_map._configs, configs_dict):
             # mock CLParse attribute 'apply_patterns'
-            with mock.patch.object(CLParse, 'apply_patterns', ) as \
-                    mock_apply_pat:
+            with mock.patch.object(
+                CLParse,
+                "apply_patterns",
+            ) as mock_apply_pat:
                 # 'apply_patterns' is unsuccessful
                 mock_apply_pat.return_value = (False, {})
-                sv_dict = _map._construct_state_values_dict(config_name,
-                                                            [pattern])
+                sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                 self.assertFalse(bool(sv_dict))
 
                 # 'apply_patterns' is successful
                 mock_apply_pat.return_value = (True, clparse_dict)
-                sv_dict = _map._construct_state_values_dict(config_name,
-                                                            [pattern])
+                sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                 self.assertTrue(bool(sv_dict))
                 self.assertIsInstance(sv_dict, dict)
                 self.assertEqual(len(sv_dict), 1)
                 self.assertEqual(
-                    sv_dict['VOLT']['dset paths'],
-                    configs_dict[config_name]['dset paths'])
+                    sv_dict["VOLT"]["dset paths"], configs_dict[config_name]["dset paths"]
+                )
+                self.assertEqual(sv_dict["VOLT"]["dset field"], ("Command index",))
+                self.assertEqual(sv_dict["VOLT"]["shape"], ())
+                self.assertEqual(sv_dict["VOLT"]["dtype"], clparse_dict["VOLT"]["dtype"])
                 self.assertEqual(
-                    sv_dict['VOLT']['dset field'],
-                    ('Command index',))
+                    sv_dict["VOLT"]["command list"], clparse_dict["VOLT"]["command list"]
+                )
                 self.assertEqual(
-                    sv_dict['VOLT']['shape'],
-                    ())
-                self.assertEqual(
-                    sv_dict['VOLT']['dtype'],
-                    clparse_dict['VOLT']['dtype'])
-                self.assertEqual(
-                    sv_dict['VOLT']['command list'],
-                    clparse_dict['VOLT']['command list'])
-                self.assertEqual(
-                    sv_dict['VOLT']['cl str'],
-                    clparse_dict['VOLT']['cl str'])
+                    sv_dict["VOLT"]["cl str"], clparse_dict["VOLT"]["cl str"]
+                )
 
                 # the 'dset_paths' dataset does NOT have 'Command index'
-                configs_dict[config_name]['dset paths'] = ('/MSI/d2',)
+                configs_dict[config_name]["dset paths"] = ("/MSI/d2",)
                 with self.assertWarns(UserWarning):
-                    sv_dict = _map._construct_state_values_dict(
-                        config_name,
-                        [pattern])
+                    sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                     self.assertFalse(bool(sv_dict))
 
                 # the 'dset_paths' dataset 'Command index' field does
                 # NOT have correct shape or dtype
-                configs_dict[config_name]['dset paths'] = ('/MSI/d3',)
+                configs_dict[config_name]["dset paths"] = ("/MSI/d3",)
                 with self.assertWarns(UserWarning):
-                    sv_dict = _map._construct_state_values_dict(
-                        config_name,
-                        [pattern])
+                    sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                     self.assertFalse(bool(sv_dict))
 
         # -- check 'reset_state_values_config'                      ----
-        cl = ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0')
-        pattern = \
-            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
-        config_name = 'config1'
+        cl = ("VOLT 20.0", "VOLT 25.0", "VOLT 30.0")
+        pattern = r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
+        config_name = "config1"
         configs_dict = {
-            config_name: {'command list': cl,
-                          'dset paths': ('/MSI/d1',),
-                          'shotnum': {},
-                          'state values': {}}
+            config_name: {
+                "command list": cl,
+                "dset paths": ("/MSI/d1",),
+                "shotnum": {},
+                "state values": {},
+            }
         }
         dsv_dict = {
-            'command': {
-                'command list': cl,
-                'cl str': cl,
-                're pattern': None,
-                'dset paths': configs_dict[config_name]['dset paths'],
-                'dset field': ('Command index',),
-                'shape': (),
-                'dtype': np.dtype((np.unicode_, 10))}
+            "command": {
+                "command list": cl,
+                "cl str": cl,
+                "re pattern": None,
+                "dset paths": configs_dict[config_name]["dset paths"],
+                "dset field": ("Command index",),
+                "shape": (),
+                "dtype": np.dtype((np.unicode_, 10)),
+            }
         }
         sv_dict = {
-            'VOLT': {
-                'command list': (20.0, 25.0, 30.0),
-                'cl str': cl,
-                're pattern': re.compile(pattern),
-                'dset paths': configs_dict[config_name]['dset paths'],
-                'dset field': ('Command index',),
-                'shape': (),
-                'dtype': np.float64}
+            "VOLT": {
+                "command list": (20.0, 25.0, 30.0),
+                "cl str": cl,
+                "re pattern": re.compile(pattern),
+                "dset paths": configs_dict[config_name]["dset paths"],
+                "dset field": ("Command index",),
+                "shape": (),
+                "dtype": np.float64,
+            }
         }
 
         # mock _map._configs
         # mock the '_default_state_values_dict' method
-        with mock.patch.dict(_map._configs, configs_dict), \
-             mock.patch.object(_map, '_default_state_values_dict') \
-                as mock_dsvdict:
+        with mock.patch.dict(_map._configs, configs_dict), mock.patch.object(
+            _map, "_default_state_values_dict"
+        ) as mock_dsvdict:
             mock_dsvdict.return_value = dsv_dict
 
             # kwarg apply_patterns=False (default behavior)
-            _map.reset_state_values_config(config_name,
-                                           apply_patterns=False)
-            self.assertEqual(_map._configs[config_name]['state values'],
-                             dsv_dict)
+            _map.reset_state_values_config(config_name, apply_patterns=False)
+            self.assertEqual(_map._configs[config_name]["state values"], dsv_dict)
 
             # kwarg apply_patterns=True
             # mock '_construct_state_values_dict'
-            with mock.patch.object(
-                    _map, '_construct_state_values_dict') as mock_csvd:
+            with mock.patch.object(_map, "_construct_state_values_dict") as mock_csvd:
                 # '_construct_state_values_dict' returns {}
                 mock_csvd.return_value = {}
-                _map._configs[config_name]['state values'] = {}
-                _map.reset_state_values_config(config_name,
-                                               apply_patterns=True)
-                self.assertEqual(
-                    _map._configs[config_name]['state values'],
-                    dsv_dict)
+                _map._configs[config_name]["state values"] = {}
+                _map.reset_state_values_config(config_name, apply_patterns=True)
+                self.assertEqual(_map._configs[config_name]["state values"], dsv_dict)
 
                 # '_construct_state_values_dict' returns sv_dict
                 mock_csvd.return_value = sv_dict
-                _map._configs[config_name]['state values'] = {}
-                _map.reset_state_values_config(config_name,
-                                               apply_patterns=True)
-                self.assertEqual(
-                    _map._configs[config_name]['state values'],
-                    sv_dict)
+                _map._configs[config_name]["state values"] = {}
+                _map.reset_state_values_config(config_name, apply_patterns=True)
+                self.assertEqual(_map._configs[config_name]["state values"], sv_dict)
 
         # -- check 'set_state_values_config'                        ----
-        cl = ('VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0')
-        pattern = \
-            r'(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))'
-        config_name = 'config1'
+        cl = ("VOLT 20.0", "VOLT 25.0", "VOLT 30.0")
+        pattern = r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
+        config_name = "config1"
         configs_dict = {
-            config_name: {'command list': cl,
-                          'dset paths': ('/MSI/d1',),
-                          'shotnum': {},
-                          'state values': {}}
+            config_name: {
+                "command list": cl,
+                "dset paths": ("/MSI/d1",),
+                "shotnum": {},
+                "state values": {},
+            }
         }
         sv_dict = {
-            'VOLT': {
-                'command list': (20.0, 25.0, 30.0),
-                'cl str': cl,
-                're pattern': re.compile(pattern),
-                'dset paths': configs_dict[config_name]['dset paths'],
-                'dset field': ('Command index',),
-                'shape': (),
-                'dtype': np.float64}
+            "VOLT": {
+                "command list": (20.0, 25.0, 30.0),
+                "cl str": cl,
+                "re pattern": re.compile(pattern),
+                "dset paths": configs_dict[config_name]["dset paths"],
+                "dset field": ("Command index",),
+                "shape": (),
+                "dtype": np.float64,
+            }
         }
 
         # mock _map._configs
         # mock the '_construct_state_values_dict' method
-        with mock.patch.dict(_map._configs, configs_dict), \
-             mock.patch.object(_map, '_construct_state_values_dict') \
-                as mock_csvd:
+        with mock.patch.dict(_map._configs, configs_dict), mock.patch.object(
+            _map, "_construct_state_values_dict"
+        ) as mock_csvd:
             # '_construct_state_values_dict' fails and returns {}
             mock_csvd.return_value = {}
             with self.assertWarns(UserWarning):
                 _map.set_state_values_config(config_name, [pattern])
-                self.assertEqual(
-                    _map._configs[config_name]['state values'], {})
+                self.assertEqual(_map._configs[config_name]["state values"], {})
 
             # '_construct_state_values_dict' fails and returns sv_dict
             mock_csvd.return_value = sv_dict
-            _map._configs[config_name]['state values'] = {}
+            _map._configs[config_name]["state values"] = {}
             _map.set_state_values_config(config_name, [pattern])
-            self.assertEqual(
-                _map._configs[config_name]['state values'],
-                sv_dict)
+            self.assertEqual(_map._configs[config_name]["state values"], sv_dict)
 
         # -- check abstract methods                                 ----
         # Note: `self.dummy_map` overrides all abstract methods to
         #       return NotImplemented values
         #
-        self.assertEqual(_map._default_state_values_dict(''),
-                         NotImplemented)
+        self.assertEqual(_map._default_state_values_dict(""), NotImplemented)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

@@ -75,6 +75,7 @@ class HDFReadControls(np.ndarray):
           order for shot number 1, then that order is preserved for all
           recorded shot numbers.
     """
+
     __example_doc__ = """
     :Example: Here the control device :code:`'Waveform'` is used as a
         basic example:
@@ -99,12 +100,14 @@ class HDFReadControls(np.ndarray):
               dtype='<U18')
     """
 
-    def __new__(cls,
-                hdf_file: File,
-                controls: ControlsType,
-                shotnum=slice(None),
-                intersection_set=True,
-                **kwargs):
+    def __new__(
+        cls,
+        hdf_file: File,
+        controls: ControlsType,
+        shotnum=slice(None),
+        intersection_set=True,
+        **kwargs,
+    ):
         """
         :param hdf_file: HDF5 file object
         :param controls: a list indicating the desired control device
@@ -137,8 +140,8 @@ class HDFReadControls(np.ndarray):
         """
         # initialize timing
         tt = []
-        if 'timeit' in kwargs:  # pragma: no cover
-            timeit = kwargs['timeit']
+        if "timeit" in kwargs:  # pragma: no cover
+            timeit = kwargs["timeit"]
             if timeit:
                 tt.append(time.time())
             else:
@@ -151,14 +154,13 @@ class HDFReadControls(np.ndarray):
         #
         if not isinstance(hdf_file, File):
             raise TypeError(
-                "`hdf_file` is NOT type `"
-                + File.__module__ + "." + File.__qualname__ + "`")
+                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
+            )
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - hdf_file conditioning: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - hdf_file conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Examine file map object                              ----
         # grab instance of _fmap
@@ -166,8 +168,7 @@ class HDFReadControls(np.ndarray):
 
         # Check for non-empty controls
         if not bool(_fmap.controls):
-            raise ValueError(
-                'There are no control devices in the HDF5 file.')
+            raise ValueError("There are no control devices in the HDF5 file.")
 
         # ---- Condition 'controls' Argument                        ----
         # - some calling routines (such as, lapd.File.read_data)
@@ -177,7 +178,7 @@ class HDFReadControls(np.ndarray):
         #
         try:
             # check if `controls` was already conditioned
-            if not kwargs['assume_controls_conditioned']:
+            if not kwargs["assume_controls_conditioned"]:
                 controls = condition_controls(hdf_file, controls)
         except KeyError:
             controls = condition_controls(hdf_file, controls)
@@ -185,8 +186,7 @@ class HDFReadControls(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - condition controls: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - condition controls: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition shotnum                                    ----
         # shotnum -- global HDF5 file shot number
@@ -241,16 +241,14 @@ class HDFReadControls(np.ndarray):
 
             # gather control datasets and shotnumkey's
             cmap = _fmap.controls[cname]
-            cdset_path = cmap.configs[cconfn]['dset paths'][0]
+            cdset_path = cmap.configs[cconfn]["dset paths"][0]
             cdset_dict[cname] = hdf_file.get(cdset_path)
-            shotnumkey = \
-                cmap.configs[cconfn]['shotnum']['dset field'][0]
+            shotnumkey = cmap.configs[cconfn]["shotnum"]["dset field"][0]
             shotnumkey_dict[cname] = shotnumkey
 
         # perform `shotnum` conditioning
         # - `shotnum` is returned as a numpy array
-        shotnum = condition_shotnum(shotnum, cdset_dict,
-                                    shotnumkey_dict)
+        shotnum = condition_shotnum(shotnum, cdset_dict, shotnumkey_dict)
 
         # ---- Build `index` and `sni` arrays for each dataset      ----
         #
@@ -273,27 +271,26 @@ class HDFReadControls(np.ndarray):
             cmap = _fmap.controls[cname]
 
             # build `index` and `sni` for each dataset
-            index_dict[cname], sni_dict[cname] = \
-                build_shotnum_dset_relation(shotnum, cdset_dict[cname],
-                                            shotnumkey_dict[cname],
-                                            cmap, cconfn)
+            index_dict[cname], sni_dict[cname] = build_shotnum_dset_relation(
+                shotnum, cdset_dict[cname], shotnumkey_dict[cname], cmap, cconfn
+            )
 
         # re-filter `index`, `shotnum`, and `sni` if intersection_set
         # requested
         if intersection_set:
-            shotnum, sni_dict, index_dict = \
-                do_shotnum_intersection(shotnum, sni_dict, index_dict)
+            shotnum, sni_dict, index_dict = do_shotnum_intersection(
+                shotnum, sni_dict, index_dict
+            )
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - condition shotnum: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - condition shotnum: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Build obj                                            ----
         # Define dtype and shape for numpy array
         shape = shotnum.shape
-        dtype = [('shotnum', np.uint32, 1)]
+        dtype = [("shotnum", np.uint32, 1)]
         for control in controls:
             # control name (cname) and configuration name (cconfn)
             cname = control[0]
@@ -301,29 +298,28 @@ class HDFReadControls(np.ndarray):
 
             # add fields
             cconfig = _fmap.controls[cname].configs[cconfn]
-            for field_name, fconfig in \
-                    cconfig['state values'].items():
-                dtype.append((
-                    field_name,
-                    fconfig['dtype'],
-                    fconfig['shape'],
-                ))
+            for field_name, fconfig in cconfig["state values"].items():
+                dtype.append(
+                    (
+                        field_name,
+                        fconfig["dtype"],
+                        fconfig["shape"],
+                    )
+                )
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - define dtype: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - define dtype: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Initialize Control Data
         data = np.empty(shape, dtype=dtype)
-        data['shotnum'] = shotnum
+        data["shotnum"] = shotnum
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - initialize data np.ndarray: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - initialize data np.ndarray: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Assign Control Data to Numpy array
         for control in controls:
@@ -345,12 +341,11 @@ class HDFReadControls(np.ndarray):
             # 3. split between a command list fill or a direct fill
             # 4. NaN fill if intersection_set = False
             #
-            for nf_name, fconfig \
-                    in cconfig['state values'].items():
+            for nf_name, fconfig in cconfig["state values"].items():
                 # nf_name = the numpy field name
                 # fconfig = the mapping dictionary for nf_name
                 #
-                for npi, df_name in enumerate(fconfig['dset field']):
+                for npi, df_name in enumerate(fconfig["dset field"]):
                     # df_name
                     #   the dset field name that will fill the numpy
                     #   field
@@ -362,7 +357,7 @@ class HDFReadControls(np.ndarray):
                     if cmap.has_command_list:
                         # command list fill
                         # get command list
-                        cl = fconfig['command list']
+                        cl = fconfig["command list"]
 
                         # retrieve the array of command indices
                         ci_arr = cdset[index, df_name]
@@ -389,11 +384,10 @@ class HDFReadControls(np.ndarray):
                         try:
                             arr = cdset[index, df_name]
                         except ValueError as err:
-                            mlist = [1] \
-                                    + list(data.dtype[nf_name].shape)
-                            size = reduce(lambda x, y: x*y, mlist)
+                            mlist = [1] + list(data.dtype[nf_name].shape)
+                            size = reduce(lambda x, y: x * y, mlist)
                             dtype = data.dtype[nf_name].base
-                            if df_name == '':
+                            if df_name == "":
                                 # a mapping module gives an empty string
                                 # '' when the dataset does not have a
                                 # necessary field but you want the read
@@ -403,21 +397,18 @@ class HDFReadControls(np.ndarray):
                                 #   (the NI_XZ module)
                                 #
                                 # create zero array
-                                arr = np.zeros((len(index),),
-                                               dtype=dtype)
+                                arr = np.zeros((len(index),), dtype=dtype)
                             elif size > 1:
                                 # expected field df_name is missing but
                                 # belongs to an array
-                                warn("Dataset missing field '"
-                                     + df_name
-                                     + "', applying NaN fill to to "
-                                     + "data array")
-                                arr = np.zeros((len(index),),
-                                               dtype=dtype)
+                                warn(
+                                    f"Dataset missing field '{df_name}', applying "
+                                    f"NaN fill to to data array"
+                                )
+                                arr = np.zeros((len(index),), dtype=dtype)
 
                                 # NaN fill
-                                if np.issubdtype(dtype,
-                                                 np.signedinteger):
+                                if np.issubdtype(dtype, np.signedinteger):
                                     # any signed-integer
                                     # unsigned has a 0 fill
                                     arr[:] = -99999
@@ -431,10 +422,10 @@ class HDFReadControls(np.ndarray):
                                 else:  # pragma: no cover
                                     # no real NaN concept exists
                                     # - this shouldn't happen though
-                                    warn('dtype ({}) of '.format(dtype)
-                                         + '{} has no NaN '.format(
-                                        nf_name)
-                                         + 'concept...no NaN fill done')
+                                    warn(
+                                        f"dtype ({dtype}) of {nf_name} has no NaN "
+                                        f"concept...no NaN fill done"
+                                    )
                             else:
                                 # expected field df_name is missing
                                 raise err
@@ -472,28 +463,28 @@ class HDFReadControls(np.ndarray):
                             data[nf_name][ii] = np.nan
                         elif np.issubdtype(dtype, np.flexible):
                             # string, unicode, void
-                            data[nf_name][ii] = ''
+                            data[nf_name][ii] = ""
                         else:
                             # no real NaN concept exists
                             # - this shouldn't happen though
-                            warn('dtype ({}) of '.format(dtype)
-                                 + '{} has no NaN '.format(nf_name)
-                                 + 'concept...no NaN fill done')
+                            warn(
+                                f"dtype ({dtype}) of {nf_name} has no NaN concept"
+                                f"...no NaN fill done"
+                            )
 
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print('tt - fill data - '
-                      + '{}: '.format(cname)
-                      + '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+                print(f"tt - fill data - {cname}: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # print execution timing
         if timeit:  # pragma: no cover
             n_controls = len(controls)
             tt.append(time.time())
-            print('tt - fill data array: '
-                  '{} ms'.format((tt[-1] - tt[-n_controls-2]) * 1.E3)
-                  + ' (intersection_set={})'.format(intersection_set))
+            print(
+                f"tt - fill data array: {(tt[-1] - tt[-n_controls - 2]) * 1.0e3} ms "
+                f"(intersection_set={intersection_set})"
+            )
 
         # -- Define `obj`                                           ----
         obj = data.view(cls)
@@ -501,10 +492,10 @@ class HDFReadControls(np.ndarray):
         # -- Populate `_info`                                      ----
         # initialize `_info`
         obj._info = {
-            'source file': os.path.abspath(hdf_file.filename),
-            'controls': {},
-            'probe name': None,
-            'port': (None, None),
+            "source file": os.path.abspath(hdf_file.filename),
+            "controls": {},
+            "probe name": None,
+            "port": (None, None),
         }
 
         # add control meta-info
@@ -518,22 +509,20 @@ class HDFReadControls(np.ndarray):
             cconfig = cmap.configs[cconfn]  # type: dict
 
             # populate
-            obj._info['controls'][cname] = {
-                'device group path': cmap.info['group path'],
-                'device dataset path': cconfig['dset paths'][0],
-                'contype': cmap.contype,
-                'configuration name': cconfn,
+            obj._info["controls"][cname] = {
+                "device group path": cmap.info["group path"],
+                "device dataset path": cconfig["dset paths"][0],
+                "contype": cmap.contype,
+                "configuration name": cconfn,
             }
             for key, val in cconfig.items():
-                if key not in ['dset paths', 'shotnum', 'state values']:
-                    obj._info['controls'][cname][key] = \
-                        copy.deepcopy(val)
+                if key not in ["dset paths", "shotnum", "state values"]:
+                    obj._info["controls"][cname][key] = copy.deepcopy(val)
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - total execution time: '
-                  '{} ms'.format((tt[-1] - tt[0]) * 1.E3))
+            print(f"tt - total execution time: {(tt[-1] - tt[0]) * 1.0e3} ms")
 
         # return obj
         return obj
@@ -546,12 +535,16 @@ class HDFReadControls(np.ndarray):
 
         # Define info attribute
         # (for view casting and new from template)
-        self._info = getattr(obj, '_info', {
-            'source file': None,
-            'controls': None,
-            'probe name': None,
-            'port': (None, None),
-        })
+        self._info = getattr(
+            obj,
+            "_info",
+            {
+                "source file": None,
+                "controls": None,
+                "probe name": None,
+                "port": (None, None),
+            },
+        )
 
     @property
     def info(self) -> dict:
@@ -562,4 +555,4 @@ class HDFReadControls(np.ndarray):
 # add example to __new__ docstring
 HDFReadControls.__new__.__doc__ += "\n"
 for line in HDFReadControls.__example_doc__.splitlines():
-    HDFReadControls.__new__.__doc__ += "    " + line + "\n"
+    HDFReadControls.__new__.__doc__ += f"    {line}\n"

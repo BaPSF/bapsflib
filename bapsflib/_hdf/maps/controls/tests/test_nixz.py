@@ -25,8 +25,8 @@ class TestNIXZ(ControlTestCase):
     """Test class for HDFMapControlNIXZ"""
 
     # define setup variables
-    DEVICE_NAME = 'NI_XZ'
-    DEVICE_PATH = 'Raw data + config/NI_XZ'
+    DEVICE_NAME = "NI_XZ"
+    DEVICE_PATH = "Raw data + config/NI_XZ"
     MAP_CLASS = HDFMapControlNIXZ
 
     def setUp(self):
@@ -36,7 +36,7 @@ class TestNIXZ(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info['contype'], ConType.motion)
+        self.assertEqual(self.map.info["contype"], ConType.motion)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
@@ -51,35 +51,35 @@ class TestNIXZ(ControlTestCase):
 
         # dataset 'Run time list' missing                            (1)
         # - rename 'Run time list' dataset
-        self.mod.move('Run time list', 'NIXZ data')
+        self.mod.move("Run time list", "NIXZ data")
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        self.mod.move('NIXZ data', 'Run time list')
+        self.mod.move("NIXZ data", "Run time list")
 
         # dataset missing 'Shot number' field                        (2)
-        self.mod.move('Run time list', 'NIXZ data')
-        odata = self.mod['NIXZ data'][...]
+        self.mod.move("Run time list", "NIXZ data")
+        odata = self.mod["NIXZ data"][...]
         fields = list(odata.dtype.names)
-        fields.remove('Shot number')
+        fields.remove("Shot number")
         data = odata[fields]
-        self.mod.create_dataset('Run time list', data=data)
+        self.mod.create_dataset("Run time list", data=data)
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        del self.mod['Run time list']
-        self.mod.move('NIXZ data', 'Run time list')
+        del self.mod["Run time list"]
+        self.mod.move("NIXZ data", "Run time list")
 
         # dataset missing 'x' and 'z' fields                         (3)
-        self.mod.move('Run time list', 'NIXZ data')
-        odata = self.mod['NIXZ data'][...]
+        self.mod.move("Run time list", "NIXZ data")
+        odata = self.mod["NIXZ data"][...]
         fields = list(odata.dtype.names)
-        fields.remove('x')
-        fields.remove('z')
+        fields.remove("x")
+        fields.remove("z")
         data = odata[fields]
-        self.mod.create_dataset('Run time list', data=data)
+        self.mod.create_dataset("Run time list", data=data)
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        del self.mod['Run time list']
-        self.mod.move('NIXZ data', 'Run time list')
+        del self.mod["Run time list"]
+        self.mod.move("NIXZ data", "Run time list")
 
     def test_map_warnings(self):
         """Test conditions that issue a UserWarning"""
@@ -94,14 +94,14 @@ class TestNIXZ(ControlTestCase):
         self.mod.knobs.reset()
 
         # no motion list group is found                              (1)
-        del self.mod['ml-0001']
+        del self.mod["ml-0001"]
         with self.assertWarns(UserWarning):
             _map = self.map
             self.assertNIXZDetails(_map, self.dgroup)
         self.mod.knobs.reset()
 
         # motion list group is missing an attribute                  (2)
-        del self.mod['ml-0001'].attrs['Nx']
+        del self.mod["ml-0001"].attrs["Nx"]
         with self.assertWarns(UserWarning):
             _map = self.map
             self.assertNIXZDetails(_map, self.dgroup)
@@ -109,13 +109,13 @@ class TestNIXZ(ControlTestCase):
 
         # dataset 'Run time list' is missing one of 'x' or 'z'       (3)
         # fields
-        self.mod.move('Run time list', 'NIXZ data')
-        odata = self.mod['NIXZ data'][...]
+        self.mod.move("Run time list", "NIXZ data")
+        odata = self.mod["NIXZ data"][...]
         fields = list(odata.dtype.names)
-        fields.remove('x')
+        fields.remove("x")
         data = odata[fields]
-        self.mod.create_dataset('Run time list', data=data)
-        del self.mod['NIXZ data']
+        self.mod.create_dataset("Run time list", data=data)
+        del self.mod["NIXZ data"]
         with self.assertWarns(UserWarning):
             _map = self.map
             self.assertNIXZDetails(_map, self.dgroup)
@@ -133,39 +133,34 @@ class TestNIXZ(ControlTestCase):
         self.mod.knobs.n_motionlists = 2
         _map = self.map
         self.assertNIXZDetails(_map, self.dgroup)
-        for name in self.mod.configs['config01']['motion lists']:
-            self.assertIn(name,
-                          _map.configs['config01']['motion lists'])
+        for name in self.mod.configs["config01"]["motion lists"]:
+            self.assertIn(name, _map.configs["config01"]["motion lists"])
         self.mod.knobs.reset()
 
         # motion list group is missing all key attributes            (2)
         # key attributes: Nx, Nz, dx, dz, x0, z0
         self.mod.knobs.n_motionlists = 2
-        for key in ('Nx', 'Nz', 'dx', 'dz', 'x0', 'z0'):
-            del self.mod['ml-0001'].attrs[key]
+        for key in ("Nx", "Nz", "dx", "dz", "x0", "z0"):
+            del self.mod["ml-0001"].attrs[key]
         _map = self.map
         self.assertNIXZDetails(_map, self.dgroup)
-        self.assertNotIn('ml-0001',
-                         _map.configs['config01']['motion lists'])
-        self.assertIn('ml-0002',
-                      _map.configs['config01']['motion lists'])
+        self.assertNotIn("ml-0001", _map.configs["config01"]["motion lists"])
+        self.assertIn("ml-0002", _map.configs["config01"]["motion lists"])
 
-    def assertNIXZDetails(self,
-                          _map: HDFMapControlNIXZ,
-                          _group: h5py.Group):
+    def assertNIXZDetails(self, _map: HDFMapControlNIXZ, _group: h5py.Group):
         """Assert details of the 'NI_XZ' mapping."""
         # confirm basics
         self.assertControlMapBasics(_map, _group)
 
         # check dataset names
-        self.assertEqual(_map.construct_dataset_name(), 'Run time list')
+        self.assertEqual(_map.construct_dataset_name(), "Run time list")
 
         # no command list
         self.assertFalse(_map.has_command_list)
 
         # there only ever one configuration
         self.assertEqual(len(_map.configs), 1)
-        self.assertEqual(list(_map.configs), ['config01'])
+        self.assertEqual(list(_map.configs), ["config01"])
         self.assertTrue(_map.one_config_per_dset)
 
         # test general item sin configs
@@ -176,10 +171,10 @@ class TestNIXZ(ControlTestCase):
         Test structure of the general, polymorphic elements of the
         `configs` mapping dictionary
         """
-        config = _map.configs['config01']
-        self.assertIn('motion lists', config)
-        self.assertIsInstance(config['motion lists'], dict)
+        config = _map.configs["config01"]
+        self.assertIn("motion lists", config)
+        self.assertIsInstance(config["motion lists"], dict)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

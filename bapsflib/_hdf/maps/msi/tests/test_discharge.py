@@ -22,9 +22,10 @@ from .common import MSIDiagnosticTestCase
 
 class TestDischarge(MSIDiagnosticTestCase):
     """Test class for HDFMapMSIDischarge"""
+
     # define setup variables
-    DEVICE_NAME = 'Discharge'
-    DEVICE_PATH = '/MSI/Discharge'
+    DEVICE_NAME = "Discharge"
+    DEVICE_PATH = "/MSI/Discharge"
     MAP_CLASS = HDFMapMSIDischarge
 
     def setUp(self):
@@ -44,7 +45,7 @@ class TestDischarge(MSIDiagnosticTestCase):
         #   ~ 'Discharge current'
         # - removed 'Discharge summary' from faux HDF file
         #
-        del self.mod['Discharge summary']
+        del self.mod["Discharge summary"]
         with self.assertRaises(HDFMappingError):
             _map = self.map
         self.mod.knobs.reset()
@@ -52,12 +53,12 @@ class TestDischarge(MSIDiagnosticTestCase):
         # 'Discharge summary' does NOT match expected format        ----
         #
         # define dataset name
-        dset_name = 'Discharge summary'
+        dset_name = "Discharge summary"
 
         # 'Discharge summary' is missing a required field
         data = self.mod[dset_name][:]
         fields = list(data.dtype.names)
-        fields.remove('Pulse length')
+        fields.remove("Pulse length")
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data[fields])
         with self.assertRaises(HDFMappingError):
@@ -75,11 +76,12 @@ class TestDischarge(MSIDiagnosticTestCase):
         # 'Cathode-anode voltage' does NOT match expected format    ----
         #
         # define dataset name
-        dset_name = 'Cathode-anode voltage'
+        dset_name = "Cathode-anode voltage"
 
         # dataset has fields
-        data = np.empty((2,), dtype=np.dtype([('field1', np.float64),
-                                              ('field2', np.float64)]))
+        data = np.empty(
+            (2,), dtype=np.dtype([("field1", np.float64), ("field2", np.float64)])
+        )
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
         with self.assertRaises(HDFMappingError):
@@ -96,8 +98,7 @@ class TestDischarge(MSIDiagnosticTestCase):
 
         # number of rows is NOT consistent with 'Discharge summary'
         dtype = self.mod[dset_name].dtype
-        shape = (self.mod[dset_name].shape[0] + 1,
-                 self.mod[dset_name].shape[1])
+        shape = (self.mod[dset_name].shape[0] + 1, self.mod[dset_name].shape[1])
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
@@ -108,11 +109,12 @@ class TestDischarge(MSIDiagnosticTestCase):
         # 'Discharge current' does NOT match expected format        ----
         #
         # define dataset name
-        dset_name = 'Discharge current'
+        dset_name = "Discharge current"
 
         # dataset has fields
-        data = np.empty((2,), dtype=np.dtype([('field1', np.float64),
-                                              ('field2', np.float64)]))
+        data = np.empty(
+            (2,), dtype=np.dtype([("field1", np.float64), ("field2", np.float64)])
+        )
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
         with self.assertRaises(HDFMappingError):
@@ -129,8 +131,7 @@ class TestDischarge(MSIDiagnosticTestCase):
 
         # number of rows is NOT consistent with 'Discharge summary'
         dtype = self.mod[dset_name].dtype
-        shape = (self.mod[dset_name].shape[0] + 1,
-                 self.mod[dset_name].shape[1])
+        shape = (self.mod[dset_name].shape[0] + 1, self.mod[dset_name].shape[1])
         data = np.empty(shape, dtype=dtype)
         del self.mod[dset_name]
         self.mod.create_dataset(dset_name, data=data)
@@ -147,35 +148,33 @@ class TestDischarge(MSIDiagnosticTestCase):
         _map = self.map
 
         # ensure general items are present
-        self.assertIn('current conversion factor', _map.configs)
-        self.assertIn('voltage conversion factor', _map.configs)
-        self.assertIn('t0', _map.configs)
-        self.assertIn('dt', _map.configs)
+        self.assertIn("current conversion factor", _map.configs)
+        self.assertIn("voltage conversion factor", _map.configs)
+        self.assertIn("t0", _map.configs)
+        self.assertIn("dt", _map.configs)
 
         # ensure general items have expected values
         self.assertEqual(
-            [self.dgroup.attrs['Current conversion factor']],
-            _map.configs['current conversion factor'])
+            [self.dgroup.attrs["Current conversion factor"]],
+            _map.configs["current conversion factor"],
+        )
         self.assertEqual(
-            [self.dgroup.attrs['Voltage conversion factor']],
-            _map.configs['voltage conversion factor'])
-        self.assertEqual(
-            [self.dgroup.attrs['Start time']],
-            _map.configs['t0'])
-        self.assertEqual(
-            [self.dgroup.attrs['Timestep']],
-            _map.configs['dt'])
+            [self.dgroup.attrs["Voltage conversion factor"]],
+            _map.configs["voltage conversion factor"],
+        )
+        self.assertEqual([self.dgroup.attrs["Start time"]], _map.configs["t0"])
+        self.assertEqual([self.dgroup.attrs["Timestep"]], _map.configs["dt"])
 
         # check warning if an item is missing
         # - a warning is thrown, but mapping continues
         # - remove attribute 'Timestep'
-        del self.dgroup.attrs['Timestep']
+        del self.dgroup.attrs["Timestep"]
         with self.assertWarns(UserWarning):
             _map = self.map
-            self.assertIn('dt', _map.configs)
-            self.assertEqual(_map.configs['dt'], [])
+            self.assertIn("dt", _map.configs)
+            self.assertEqual(_map.configs["dt"], [])
         self.mod.knobs.reset()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

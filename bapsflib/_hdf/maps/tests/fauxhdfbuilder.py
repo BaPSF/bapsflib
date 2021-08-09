@@ -31,23 +31,24 @@ class FauxHDFBuilder(h5py.File):
     """
     Builds a Faux HDF5 file that simulates a HDF5 constructed at BaPSF.
     """
+
     _KNOWN_MSI = {
-        'Discharge': FauxDischarge,
-        'Gas pressure': FauxGasPressure,
-        'Heater': FauxHeater,
-        'Interferometer array': FauxInterferometerArray,
-        'Magnetic field': FauxMagneticField
+        "Discharge": FauxDischarge,
+        "Gas pressure": FauxGasPressure,
+        "Heater": FauxHeater,
+        "Interferometer array": FauxInterferometerArray,
+        "Magnetic field": FauxMagneticField,
     }
     _KNOWN_DIGITIZERS = {
-        'SIS 3301': FauxSIS3301,
-        'SIS crate': FauxSISCrate,
+        "SIS 3301": FauxSIS3301,
+        "SIS crate": FauxSISCrate,
     }
     _KNOWN_CONTROLS = {
-        '6K Compumotor': FauxSixK,
-        'N5700_PS': FauxN5700PS,
-        'NI_XYZ': FauxNIXYZ,
-        'NI_XZ': FauxNIXZ,
-        'Waveform': FauxWaveform,
+        "6K Compumotor": FauxSixK,
+        "N5700_PS": FauxN5700PS,
+        "NI_XYZ": FauxNIXYZ,
+        "NI_XZ": FauxNIXZ,
+        "Waveform": FauxWaveform,
     }
     _KNOWN_MODULES = _KNOWN_CONTROLS.copy()  # type: Dict[Any]
     _KNOWN_MODULES.update(_KNOWN_MSI)
@@ -66,19 +67,16 @@ class FauxHDFBuilder(h5py.File):
             # - on a Windows platform it can only be opened once
             #   * thus, delete=False needs to be set so the file
             #     persists for play
-            delete = False if platform.system() == 'Windows' else True
+            delete = False if platform.system() == "Windows" else True
 
             # create temporary directory and file
-            self._tempdir = \
-                tempfile.TemporaryDirectory(prefix='hdf-test_')
-            self._tempfile = \
-                tempfile.NamedTemporaryFile(
-                    suffix='.hdf5',
-                    dir=os.path.abspath(self.tempdir.name),
-                    delete=delete)
+            self._tempdir = tempfile.TemporaryDirectory(prefix="hdf-test_")
+            self._tempfile = tempfile.NamedTemporaryFile(
+                suffix=".hdf5", dir=os.path.abspath(self.tempdir.name), delete=delete
+            )
             self._path = os.path.abspath(self.tempfile.name)
 
-            if platform.system() == 'Windows':
+            if platform.system() == "Windows":
                 # close the file so h5py can access it on a Windows
                 # platform
                 self._tempfile.close()
@@ -89,19 +87,18 @@ class FauxHDFBuilder(h5py.File):
             self._path = os.path.abspath(name)
 
         # initialize
-        h5py.File.__init__(self, self.path, 'w')
+        h5py.File.__init__(self, self.path, "w")
 
         # create root groups
-        self.create_group('MSI')
-        self.create_group('Raw data + config/')
+        self.create_group("MSI")
+        self.create_group("Raw data + config/")
 
         # create file attributes
-        self.attrs['LaPD HDF5 software version'] = b'0.0.0'
+        self.attrs["LaPD HDF5 software version"] = b"0.0.0"
 
         # create MSI attributes
         # - none at the moment
-        self['Raw data + config'].attrs['Description'] = \
-            b'some description'
+        self["Raw data + config"].attrs["Description"] = b"some description"
 
         # create 'Raw data + config' attributes
 
@@ -118,7 +115,8 @@ class FauxHDFBuilder(h5py.File):
             self.cleanup()
             raise ValueError(
                 "add_modules must be a dictionary of dictionaries..."
-                "{'mod_name': mod_inputs}")
+                "{'mod_name': mod_inputs}"
+            )
 
     @property
     def modules(self):
@@ -159,7 +157,7 @@ class FauxHDFBuilder(h5py.File):
 
         # cleanup temporary directory and file
         if isinstance(self.tempdir, tempfile.TemporaryDirectory):
-            if platform.system() == 'Windows':
+            if platform.system() == "Windows":
                 # tempfile is already closed, need to remove file
                 os.remove(_path)
             else:
@@ -189,15 +187,13 @@ class FauxHDFBuilder(h5py.File):
         for mod_name in self._KNOWN_MODULES:
             sign = inspect.signature(self._KNOWN_MODULES[mod_name])
             for arg_name in sign.parameters:
-                if arg_name != 'id' and arg_name != 'kwargs':
+                if arg_name != "id" and arg_name != "kwargs":
                     # do not add h5py.GroupID and kwargs arguments to
                     # dictionary
-                    mod_args[arg_name] = \
-                        sign.parameters[arg_name].default
+                    mod_args[arg_name] = sign.parameters[arg_name].default
 
             # build dict
-            vmods.append({'name': mod_name,
-                          'args': mod_args.copy()})
+            vmods.append({"name": mod_name, "args": mod_args.copy()})
             mod_args.clear()
 
         # return valid modules
@@ -224,38 +220,37 @@ class FauxHDFBuilder(h5py.File):
             # determine appropriate root directory for module type
             if mod_name in self._KNOWN_MSI:
                 # for MSI diagnostics
-                root_dir = 'MSI'
+                root_dir = "MSI"
             else:
                 # for digitizers and control devices
-                root_dir = 'Raw data + config'
+                root_dir = "Raw data + config"
 
             # condition arguments for the module adder
             if isinstance(mod_args, dict):
-                mod_args.update({'id': self[root_dir].id})
+                mod_args.update({"id": self[root_dir].id})
             else:
-                mod_args = {'id': self[root_dir].id}
+                mod_args = {"id": self[root_dir].id}
 
             # add requested module
-            self._modules[mod_name] = \
-                self._KNOWN_MODULES[mod_name](**mod_args)
+            self._modules[mod_name] = self._KNOWN_MODULES[mod_name](**mod_args)
 
     def clear_control_modules(self):
         """Remove all control device modules"""
-        data_mod_names = list(self['Raw data + config'].keys())
+        data_mod_names = list(self["Raw data + config"].keys())
         for mod_name in data_mod_names:
             if mod_name in self._KNOWN_CONTROLS:
                 self.remove_module(mod_name)
 
     def clear_digi_modules(self):
         """Remove all digitizer modules"""
-        data_mod_names = list(self['Raw data + config'].keys())
+        data_mod_names = list(self["Raw data + config"].keys())
         for mod_name in data_mod_names:
             if mod_name in self._KNOWN_DIGITIZERS:
                 self.remove_module(mod_name)
 
     def clear_msi_modules(self):
         """Remove all MSI modules"""
-        msi_mod_names = list(self['MSI'].keys())
+        msi_mod_names = list(self["MSI"].keys())
         for mod_name in msi_mod_names:
             self.remove_module(mod_name)
 
@@ -278,7 +273,7 @@ class FauxHDFBuilder(h5py.File):
         'Raw data + config' group exist.
         """
         self.remove_all_modules()
-        for name in self['MSI']:
-            del self['MSI/' + name]
-        for name in self['Raw data + config']:
-            del self['Raw data + config/' + name]
+        for name in self["MSI"]:
+            del self[f"MSI/{name}"]
+        for name in self["Raw data + config"]:
+            del self[f"Raw data + config/{name}"]

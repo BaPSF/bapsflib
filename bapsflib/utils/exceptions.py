@@ -22,7 +22,7 @@ class HDFMappingError(Exception):
     """Exception for failed HDF5 mappings"""
 
     def __init__(self, device_name: str, why=""):
-        super().__init__("'" + device_name + "' mapping failed: " + why)
+        super().__init__(f"'{device_name}' mapping failed: {why}")
 
 
 class HDFReadError(Exception):

@@ -916,7 +916,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         if config_name is None:
             if len(self.active_configs) == 1:
                 config_name = self.active_configs[0]
-                warn("`config_name` not specified, assuming '" + config_name + "'.")
+                warn(f"`config_name` not specified, assuming '{config_name}'.")
             elif len(self.active_configs) > 1:
                 raise ValueError(
                     "There are multiple active digitizer "
@@ -1031,7 +1031,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         )
 
         # build and return header name
-        dheader_name = dset_name + " headers"
+        dheader_name = f"{dset_name} headers"
         return dheader_name
 
     def get_slot(self, brd: int, adc: str) -> Union[None, int]:

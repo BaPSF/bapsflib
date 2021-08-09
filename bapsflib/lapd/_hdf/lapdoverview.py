@@ -51,9 +51,9 @@ class LaPDOverview(HDFOverview):
         # print run description
         print("\nRun Description:")
         for line in self._file.info["run description"].splitlines():
-            print("    " + line)
+            print(f"    {line}")
 
         # print exp description
         print("\nExp. Description:")
         for line in self._file.info["exp description"].splitlines():
-            print("    " + line)
+            print(f"    {line}")

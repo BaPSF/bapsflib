@@ -32,7 +32,7 @@ class TestSISCrate(DigitizerTestCase):
     #       `bapsflib._hdf.maps.digitizers.tests.fauxsiscrate.FauxSISCrate`.
 
     DEVICE_NAME = "SIS crate"
-    DEVICE_PATH = "/Raw data + config/" + DEVICE_NAME
+    DEVICE_PATH = f"/Raw data + config/{DEVICE_NAME}"
     MAP_CLASS = HDFMapDigiSISCrate
 
     def setUp(self):
@@ -255,7 +255,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         _map = self.map
         with mock.patch.object(
             HDFMapDigiSISCrate,
@@ -691,7 +691,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         data = self.dgroup[dset_name][...]
         hdata = self.dgroup[hdset_name][...]
         data2 = np.append(data, data[-2::, ...], axis=0)
@@ -726,7 +726,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         hdata = self.dgroup[hdset_name][...]
         names = list(hdata.dtype.names)
         names.remove("Shot number")
@@ -755,7 +755,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         hdata = self.dgroup[hdset_name][...]
         self.dgroup.move(hdset_name, hdset_name + "Q")
 
@@ -802,7 +802,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         hdata = self.dgroup[hdset_name][...]
         hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
         self.dgroup.move(hdset_name, hdset_name + "Q")
@@ -832,7 +832,7 @@ class TestSISCrate(DigitizerTestCase):
         chs = my_sabc[0][3]
         for ch in chs:
             dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-            hdset_name = dset_name + " headers"
+            hdset_name = f"{dset_name} headers"
 
             hdata = self.dgroup[hdset_name][...]
             names = list(hdata.dtype.names)
@@ -847,7 +847,7 @@ class TestSISCrate(DigitizerTestCase):
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for ch in chs:
             dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-            hdset_name = dset_name + " headers"
+            hdset_name = f"{dset_name} headers"
             del self.dgroup[hdset_name]
             self.dgroup.move(hdset_name + "Q", hdset_name)
 
@@ -1028,7 +1028,7 @@ class TestSISCrate(DigitizerTestCase):
         # -- not match an expected pattern                          ----
         # everything is done as normal
         adc_config_name = "SIS crate 3302 configurations[0]"
-        adc_group = self.dgroup[config_path + "/" + adc_config_name]
+        adc_group = self.dgroup[f"{config_path}/{adc_config_name}"]
         adc_group.attrs["Enabled B"] = np.bytes_("TRUE")
         self.assertDigitizerMapBasics(self.map, self.dgroup)
         del adc_group.attrs["Enabled B"]
@@ -1036,7 +1036,7 @@ class TestSISCrate(DigitizerTestCase):
         # -- config group attribute `Shot averaging (software)`     ----
         shot_key = "Shot averaging (software)"
         adc_config_name = "SIS crate 3302 configurations[0]"
-        adc_config_path = config_path + "/" + adc_config_name
+        adc_config_path = f"{config_path}/{adc_config_name}"
         sh2a = self.dgroup[adc_config_path].attrs[shot_key]
 
         # `Shot averaging (software)' missing
@@ -1065,7 +1065,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         sp2a_key = "Sample averaging (hardware)"
         adc_config_name = "SIS crate 3302 configurations[0]"
-        adc_config_path = config_path + "/" + adc_config_name
+        adc_config_path = f"{config_path}/{adc_config_name}"
         sp2a = self.dgroup[adc_config_path].attrs[sp2a_key]
 
         # 'Sample averaging (hardware)' is missing
@@ -1113,7 +1113,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         adc = my_sabc[0][1]
         adc_config_name = "SIS crate 3305 configurations[0]"
-        adc_config_path = config_path + "/" + adc_config_name
+        adc_config_path = f"{config_path}/{adc_config_name}"
         cr_mode = self.dgroup[adc_config_path].attrs["Channel mode"]
 
         # mode set to 0

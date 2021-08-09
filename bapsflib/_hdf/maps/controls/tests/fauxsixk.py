@@ -196,8 +196,8 @@ class FauxSixK(h5py.Group):
             # create probe group
             probe_gname = f"Probe: XY[{receptacle}]: {pname}"
             self.create_group(probe_gname)
-            self.create_group(probe_gname + "/Axes[0]")
-            self.create_group(probe_gname + "/Axes[1]")
+            self.create_group(f"{probe_gname}/Axes[0]")
+            self.create_group(f"{probe_gname}/Axes[1]")
 
             # set probe group attributes
             self[probe_gname].attrs.update(
@@ -216,7 +216,7 @@ class FauxSixK(h5py.Group):
             )
 
             # add attributes to Axes[0] group
-            self[probe_gname + "/Axes[0]"].attrs.update(
+            self[f"{probe_gname}/Axes[0]"].attrs.update(
                 {
                     "6K #": np.uint8(1),
                     "Axis": np.uint8((2 * (receptacle - 1)) + 1),
@@ -225,7 +225,7 @@ class FauxSixK(h5py.Group):
             )
 
             # add attributes to Axes[1] group
-            self[probe_gname + "/Axes[1]"].attrs.update(
+            self[f"{probe_gname}/Axes[1]"].attrs.update(
                 {
                     "6K #": np.uint8(1),
                     "Axis": np.uint8((2 * (receptacle - 1)) + 2),
@@ -294,7 +294,7 @@ class FauxSixK(h5py.Group):
             self._motionlist_names.append(ml_name)
 
             # create motionlist group
-            ml_gname = "Motion list: " + ml_name
+            ml_gname = f"Motion list: {ml_name}"
             self.create_group(ml_gname)
 
             # set motionlist attributes
@@ -369,7 +369,7 @@ class FauxSixK(h5py.Group):
             else:
                 start = 0
                 for ml in self._motionlist_names:
-                    ml_gname = "Motion list: " + ml
+                    ml_gname = f"Motion list: {ml}"
                     ml_sn_size = self[ml_gname].attrs["Data motion count"]
                     stop = start + ml_sn_size
                     data["Motion list"][start:stop:] = ml

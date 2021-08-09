@@ -100,11 +100,7 @@ class HDFReadMSI(np.ndarray):
         #
         if not isinstance(hdf_file, File):
             raise TypeError(
-                "`hdf_file` is NOT type `"
-                + File.__module__
-                + "."
-                + File.__qualname__
-                + "`"
+                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
             )
 
         # ---- Condition `dname`                                    ----
@@ -327,4 +323,4 @@ class HDFReadMSI(np.ndarray):
 # add example to __new__ docstring
 HDFReadMSI.__new__.__doc__ += "\n"
 for line in HDFReadMSI.__example_doc__.splitlines():
-    HDFReadMSI.__new__.__doc__ += "    " + line + "\n"
+    HDFReadMSI.__new__.__doc__ += f"    {line}\n"

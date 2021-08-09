@@ -76,13 +76,13 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
 
         # check there are existing motion lists
         if len(self.subgroup_names) == 0:
-            warn(self.info["group path"] + ": no defining motion list groups exist")
+            warn(f"{self.info['group path']}: no defining motion list groups exist")
 
         # get dataset
         try:
             dset = self.group[self.construct_dataset_name()]
         except KeyError:
-            why = "Dataset '" + self.construct_dataset_name() + "' not found"
+            why = f"Dataset '{self.construct_dataset_name()}' not found"
             raise HDFMappingError(self.info["group path"], why=why)
 
         # ---- define general config values                         ----
@@ -172,11 +172,8 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
                     self.configs[cname]["motion lists"][name][pair[0]] = None
 
                     why = (
-                        "Motion List attribute '"
-                        + pair[1]
-                        + "' not found for ML group '"
-                        + name
-                        + "'"
+                        f"Motion List attribute '{pair[1]}' not found for "
+                        f"ML group '{name}'"
                     )
                     warn(why)
 
@@ -186,7 +183,7 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
         # ---- define 'shotnum'                                     ----
         # check dset for 'Shot number' field
         if "Shot number" not in dset.dtype.names:
-            why = "Dataset '" + dset.name + "' is missing 'Shot number' field"
+            why = f"Dataset '{dset.name}' is missing 'Shot number' field"
             raise HDFMappingError(self.info["group path"], why=why)
 
         # initialize
@@ -212,12 +209,12 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
         fy = "y" not in dset.dtype.names
         fz = "z" not in dset.dtype.names
         if fx and fy and fz:
-            why = "Dataset '" + dset.name + "' missing fields 'x', 'y' and 'z'"
+            why = f"Dataset '{dset.name}' missing fields 'x', 'y' and 'z'"
             raise HDFMappingError(self.info["group path"], why=why)
         elif fx or fy or fz:
             mlist = [("x", fx), ("y", fy), ("z", fz)]
             missf = ", ".join([val for val, bol in mlist if bol])
-            why = " Dataset '" + dset.name + "' missing field '" + missf + "'"
+            why = f" Dataset '{dset.name}' missing field '{missf}'"
             warn(why)
 
     def construct_dataset_name(self, *args) -> str:

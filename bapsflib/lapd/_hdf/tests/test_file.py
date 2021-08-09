@@ -54,7 +54,7 @@ class TestLaPDFile(TestBase):
 
         # `_map_file` should call LaPDMap
         with mock.patch(
-            File.__module__ + "." + LaPDMap.__qualname__, return_value="mapped"
+            f"{File.__module__}.{LaPDMap.__qualname__}", return_value="mapped"
         ) as mock_map:
 
             _lapdf._map_file()

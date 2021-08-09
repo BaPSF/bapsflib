@@ -253,20 +253,15 @@ class HDFMapControl6K(HDFMapControlTemplate):
 
                 if ml["name"] != ml_name:
                     warn_str = (
-                        "Discovered motion list name '"
-                        + ml["name"]
-                        + "' does not match the "
-                        + "name defined in attributes '"
-                        + str(ml_name)
-                        + "', using discovered name"
+                        f"Discovered motion list name '{ml['name']}' does not "
+                        f"match the name defined in attributes '{ml_name}', "
+                        f"using discovered name"
                     )
                     warn(warn_str)
             except KeyError:
                 warn_str = (
-                    "Motion list attribute 'Motion list' "
-                    + "not found for ML '"
-                    + ml["config"]["group name"]
-                    + "'"
+                    f"Motion list attribute 'Motion list' not found for ML "
+                    f"'{ml['config']['group name']}'"
                 )
                 warn(warn_str)
 
@@ -291,11 +286,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 except KeyError:
                     ml["config"][pair[0]] = None
                     warn_str = (
-                        "Motion list attribute '"
-                        + pair[1]
-                        + "' not found for ML '"
-                        + ml["name"]
-                        + "'"
+                        f"Motion list attribute '{pair[1]}' not found for ML "
+                        f"'{ml['name']}'"
                     )
                     warn(warn_str)
 
@@ -306,8 +298,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
             except KeyError:
                 ml["config"]["delta"] = np.array([None, None, None])
                 warn_str = (
-                    "Motion list attributes 'Delta x' and/or "
-                    "'Delta y' not found for ML '" + ml["name"] + "'"
+                    f"Motion list attributes 'Delta x' and/or 'Delta y' not "
+                    f"found for ML '{ml['name']}'"
                 )
                 warn(warn_str)
 
@@ -320,8 +312,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
             except KeyError:
                 ml["config"]["center"] = np.array([None, None, None])
                 warn_str = (
-                    "Motion list attributes 'Grid center x' "
-                    "and/or 'Grid center y' not found for ML '" + ml["name"] + "'"
+                    f"Motion list attributes 'Grid center x' and/or 'Grid "
+                    f"center y' not found for ML '{ml['name']}'"
                 )
                 warn(warn_str)
 
@@ -332,8 +324,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
             except KeyError:
                 ml["config"]["npoints"] = np.array([None, None, None])
                 warn_str = (
-                    "Motion list attributes 'Nx' and/or 'Ny' not "
-                    "found for ML '" + ml["name"] + "'"
+                    f"Motion list attributes 'Nx' and/or 'Ny' not found "
+                    f"for ML '{ml['name']}'"
                 )
                 warn(warn_str)
 
@@ -401,9 +393,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     )
             except KeyError:
                 warn_str = (
-                    pl["config"]["group name"]
-                    + ": Probe list attribute 'Probe' "
-                    + "not found"
+                    f"{pl['config']['group name']}: Probe list attribute 'Probe' "
+                    f"not found"
                 )
                 warn(warn_str)
 
@@ -426,9 +417,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     warn(warn_str)
             except KeyError:
                 warn_str = (
-                    pl["config"]["group name"]
-                    + ": Probe list attribute 'Receptacle' "
-                    + "not found"
+                    f"{pl['config']['group name']}: Probe list attribute 'Receptacle' "
+                    f"not found"
                 )
                 warn(warn_str)
 
@@ -458,10 +448,8 @@ class HDFMapControl6K(HDFMapControlTemplate):
                 except KeyError:
                     pl["config"][pair[0]] = None
                     warn_str = (
-                        pl["config"]["group name"]
-                        + ": attribute '"
-                        + pair[1]
-                        + "' not found"
+                        f"{pl['config']['group name']}: attribute '{pair[1]}' "
+                        f"not found"
                     )
                     warn(warn_str)
 

@@ -222,7 +222,7 @@ class FauxSIS3301(h5py.Group):
         :param config_name: name of digitizer configuration
         """
         # create configuration group
-        gname = "Configuration: " + config_name
+        gname = f"Configuration: {config_name}"
         self.create_group(gname)
 
         # set attributes for configuration group
@@ -296,7 +296,7 @@ class FauxSIS3301(h5py.Group):
                 self.create_dataset(dset_name, data=data)
 
                 # create & populate header dataset
-                dheader_name = dset_name + " headers"
+                dheader_name = f"{dset_name} headers"
                 shape = (self._sn_size,)
                 dtype = np.dtype(
                     [

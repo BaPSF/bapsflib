@@ -90,7 +90,7 @@ class HDFMap(object):
         if isinstance(filename, (bytes, np.bytes_)):
             filename = _bytes_to_str(filename)
         filename = os.path.basename(filename)
-        rstr = "<" + self.__class__.__name__ + " of HDF5 file '" + filename + "'>"
+        rstr = f"<{self.__class__.__name__} of HDF5 file '{filename}'>"
         return rstr
 
     def __attach_controls(self):

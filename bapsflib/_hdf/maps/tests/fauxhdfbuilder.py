@@ -274,6 +274,6 @@ class FauxHDFBuilder(h5py.File):
         """
         self.remove_all_modules()
         for name in self["MSI"]:
-            del self["MSI/" + name]
+            del self[f"MSI/{name}"]
         for name in self["Raw data + config"]:
-            del self["Raw data + config/" + name]
+            del self[f"Raw data + config/{name}"]

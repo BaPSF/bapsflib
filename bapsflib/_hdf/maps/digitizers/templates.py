@@ -383,7 +383,7 @@ class HDFMapDigiTemplate(ABC):
         if config_name is None:
             if len(self.active_configs) == 1:
                 config_name = self.active_configs[0]
-                warn("`config_name` not specified, assuming '" + config_name + "'")
+                warn(f"`config_name` not specified, assuming '{config_name}'")
             else:
                 raise ValueError("A valid `config_name` needs to be specified")
         elif self.configs[config_name]["active"] is False:
@@ -393,7 +393,7 @@ class HDFMapDigiTemplate(ABC):
         if adc is None:
             if len(self.configs[config_name]["adc"]) == 1:
                 adc = self.configs[config_name]["adc"][0]
-                warn("`adc` not specified, assuming '" + adc + "'")
+                warn(f"`adc` not specified, assuming '{adc}'")
             else:
                 raise ValueError("A valid `adc` needs to be specified")
 

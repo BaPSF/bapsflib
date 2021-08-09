@@ -66,7 +66,7 @@ class TestFile(TestBase):
 
         # `_map_file` should call HDFMap
         with mock.patch(
-            File.__module__ + "." + HDFMap.__qualname__, return_value="mapped"
+            f"{File.__module__}.{HDFMap.__qualname__}", return_value="mapped"
         ) as mock_map:
 
             _bf._map_file()
@@ -100,7 +100,7 @@ class TestFile(TestBase):
 
         # calling `read_controls`
         with mock.patch(
-            HDFReadControls.__module__ + "." + HDFReadControls.__qualname__,
+            f"{HDFReadControls.__module__}.{HDFReadControls.__qualname__}",
             return_value="read control",
         ) as mock_rc:
             extras = {
@@ -114,7 +114,7 @@ class TestFile(TestBase):
 
         # calling `read_data`
         with mock.patch(
-            HDFReadData.__module__ + "." + HDFReadData.__qualname__,
+            f"{HDFReadData.__module__}.{HDFReadData.__qualname__}",
             return_value="read data",
         ) as mock_rd:
             extras = {
@@ -134,7 +134,7 @@ class TestFile(TestBase):
 
         # calling `read_msi`
         with mock.patch(
-            HDFReadMSI.__module__ + "." + HDFReadMSI.__qualname__, return_value="read msi"
+            f"{HDFReadMSI.__module__}.{HDFReadMSI.__qualname__}", return_value="read msi"
         ) as mock_rm:
             mdata = _bf.read_msi("Discharge", silent=False)
             self.assertTrue(mock_rm.called)

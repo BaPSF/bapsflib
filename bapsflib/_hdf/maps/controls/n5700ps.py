@@ -53,7 +53,7 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
 
         # define known command list RE patterns
         self._default_re_patterns = (
-            r"(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)" + r"(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
+            r"(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
         )
 
         # populate self.configs
@@ -82,11 +82,8 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                 dset = self.group[self.construct_dataset_name()]
             except KeyError:
                 why = (
-                    "Dataset '"
-                    + self.construct_dataset_name()
-                    + "' not found configuration group '"
-                    + name
-                    + "'"
+                    f"Dataset '{self.construct_dataset_name()}' not found "
+                    f"configuration group '{name}'"
                 )
                 raise HDFMappingError(self._info["group path"], why=why)
 
@@ -126,24 +123,16 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
                 except KeyError:
                     self._configs[name][pair[0]] = None
                     warn_str = (
-                        "Attribute '"
-                        + pair[1]
-                        + "' not found in control device '"
-                        + self.device_name
-                        + "' configuration group '"
-                        + name
-                        + "'"
+                        f"Attribute '{pair[1]}' not found in control device "
+                        f"'{self.device_name}' configuration group '{name}'"
                     )
                     if pair[0] != "command list":
                         warn_str += ", continuing with mapping"
                         warn(warn_str)
                     else:
                         why = (
-                            "Attribute '"
-                            + pair[1]
-                            + "' not found for configuration group '"
-                            + name
-                            + "'"
+                            f"Attribute '{pair[1]}' not found for configuration "
+                            f"group '{name}'"
                         )
                         raise HDFMappingError(self._info["group path"], why=why)
 

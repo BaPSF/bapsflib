@@ -51,7 +51,7 @@ class TestWithBF(ut.TestCase):
         return self.f.filename
 
     @mock.patch(
-        BaPSFFile.__module__ + "." + BaPSFFile.__qualname__,
+        f"{BaPSFFile.__module__}.{BaPSFFile.__qualname__}",
         side_effect=BaPSFFile,
         autospec=True,
     )
@@ -193,7 +193,7 @@ class TestWithBF(ut.TestCase):
         mock_bf_class.reset_mock()
 
     @mock.patch(
-        BaPSFFile.__module__ + "." + BaPSFFile.__qualname__,
+        f"{BaPSFFile.__module__}.{BaPSFFile.__qualname__}",
         side_effect=BaPSFFile,
         autospec=True,
     )
@@ -264,7 +264,7 @@ class TestWithBF(ut.TestCase):
         self.assertRaises(ValueError, func, None)
 
     @mock.patch(
-        BaPSFFile.__module__ + "." + BaPSFFile.__qualname__,
+        f"{BaPSFFile.__module__}.{BaPSFFile.__qualname__}",
         side_effect=BaPSFFile,
         autospec=True,
     )
@@ -356,7 +356,7 @@ class TestWithLaPDF(ut.TestCase):
         return self.f.filename
 
     @mock.patch(
-        LaPDFile.__module__ + "." + LaPDFile.__qualname__,
+        f"{LaPDFile.__module__}.{LaPDFile.__qualname__}",
         side_effect=LaPDFile,
         autospec=True,
     )
@@ -466,7 +466,7 @@ class TestWithLaPDF(ut.TestCase):
         mock_lapdf_class.reset_mock()
 
     @mock.patch(
-        LaPDFile.__module__ + "." + LaPDFile.__qualname__,
+        f"{LaPDFile.__module__}.{LaPDFile.__qualname__}",
         side_effect=LaPDFile,
         autospec=True,
     )
@@ -515,7 +515,7 @@ class TestWithLaPDF(ut.TestCase):
         self.assertRaises(ValueError, func, None)
 
     @mock.patch(
-        LaPDFile.__module__ + "." + LaPDFile.__qualname__,
+        f"{LaPDFile.__module__}.{LaPDFile.__qualname__}",
         side_effect=LaPDFile,
         autospec=True,
     )

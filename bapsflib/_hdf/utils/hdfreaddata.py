@@ -176,11 +176,7 @@ class HDFReadData(np.ndarray):
         #
         if not isinstance(hdf_file, File):
             raise TypeError(
-                "`hdf_file` is NOT type `"
-                + File.__module__
-                + "."
-                + File.__qualname__
-                + "`"
+                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
             )
 
         # print execution timing
@@ -255,7 +251,7 @@ class HDFReadData(np.ndarray):
         # Get datasets
         dname, d_info = _dmap.construct_dataset_name(board, channel, **kwargs)
         dhname = _dmap.construct_header_dataset_name(board, channel, **kwargs)
-        dpath = _dmap.info["group path"] + "/"
+        dpath = f"{_dmap.info['group path']}/"
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
 
@@ -996,7 +992,7 @@ class HDFReadData(np.ndarray):
 # add example to __new__ docstring
 HDFReadData.__new__.__doc__ += "\n"
 for line in HDFReadData.__example_doc__.splitlines():
-    HDFReadData.__new__.__doc__ += "    " + line + "\n"
+    HDFReadData.__new__.__doc__ += f"    {line}\n"
 
 
 '''

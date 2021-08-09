@@ -249,7 +249,7 @@ class HDFOverview(object):
             status_print(_map.device_name, "", "")
 
             # print path to diagnostic
-            item = "path:  " + _map.info["group path"]
+            item = f"path:  {_map.info['group path']}"
             status_print(item, "", "", indent=1)
 
             # print the configs dict
@@ -336,18 +336,18 @@ class HDFOverview(object):
                 status_print(item, "", "", indent=3)
 
                 # print path for config
-                item = "path: " + config["config group path"]
+                item = f"path: {config['config group path']}"
                 status_print(item, "", "", indent=3)
 
                 # print adc details for configuration
                 for adc in config["adc"]:
                     # adc name
-                    item = adc + " adc connections"
+                    item = f"{adc} adc connections"
                     status_print(item, "", "", indent=3)
 
                     # print adc header
                     line_indent = ("|   " * 4) + "+-- "
-                    line = line_indent + "(brd, [ch, ...])"
+                    line = f"{line_indent}(brd, [ch, ...])"
                     line = line.ljust(51)
                     line += "bit".ljust(5)
                     line += "clock rate".ljust(13)
@@ -405,7 +405,7 @@ class HDFOverview(object):
             status_print(_map.device_name, "", "")
 
             # print path to control
-            item = "path:     " + _map.info["group path"]
+            item = f"path:     {_map.info['group path']}"
             status_print(item, "", "", indent=1)
 
             # print path to contype
@@ -477,7 +477,7 @@ def status_print(
         str_print = "+-- "
     else:
         str_print = ("|   " * (indent - 1)) + "+-- "
-    str_print += str(first) + " "
+    str_print += f"{first} "
     str_print = str_print.ljust(second_tab - 1, onetwo_pad) + " "
     str_print += str(second).ljust(note_tab) + str(third)
 

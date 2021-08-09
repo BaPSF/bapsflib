@@ -27,7 +27,7 @@ class TestSIS3301(DigitizerTestCase):
     """Test class for HDFMapDigiSIS3301"""
 
     DEVICE_NAME = "SIS 3301"
-    DEVICE_PATH = "/Raw data + config/" + DEVICE_NAME
+    DEVICE_PATH = f"/Raw data + config/{DEVICE_NAME}"
     MAP_CLASS = HDFMapDigiSIS3301
 
     def setUp(self):
@@ -176,7 +176,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
         dset_name = f"{config_name} [{brd}:{ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         _map = self.map
         with mock.patch.object(
             HDFMapDigiSIS3301, "construct_dataset_name", wraps=_map.construct_dataset_name
@@ -213,7 +213,7 @@ class TestSIS3301(DigitizerTestCase):
 
         # -- failures that occur in `_find_adc_connections`         ----
         # attribute 'Board' missing in board config group
-        path = config_path + "/Boards[0]"
+        path = f"{config_path}/Boards[0]"
         brd_group = self.dgroup[path]
         brd = brd_group.attrs["Board"]
         del brd_group.attrs["Board"]
@@ -233,8 +233,8 @@ class TestSIS3301(DigitizerTestCase):
         del self.dgroup[path2]
 
         # attribute 'Channel' missing in channel config group
-        brd_path = config_path + "/Boards[0]"
-        ch_path = brd_path + "/Channels[0]"
+        brd_path = f"{config_path}/Boards[0]"
+        ch_path = f"{brd_path}/Channels[0]"
         ch_group = self.dgroup[ch_path]
         ch = ch_group.attrs["Channel"]
         del ch_group.attrs["Channel"]
@@ -258,7 +258,7 @@ class TestSIS3301(DigitizerTestCase):
         # adc connections for active config are NULL
         brd_config_names = list(self.dgroup[config_path])
         for name in brd_config_names:
-            path = config_path + "/" + name
+            path = f"{config_path}/{name}"
             del self.dgroup[path]
         with self.assertRaises(HDFMappingError):
             _map = self.map
@@ -315,8 +315,8 @@ class TestSIS3301(DigitizerTestCase):
         # -- warnings that occur in `_find_adc_connections`         ----
         # configuration group sub-group does not match board group   (1)
         # name
-        brd_path = config_path + "/Boards[0]"
-        new_path = config_path + "/Not a board"
+        brd_path = f"{config_path}/Boards[0]"
+        new_path = f"{config_path}/Not a board"
         self.dgroup.move(brd_path, new_path)
         with self.assertWarns(UserWarning):
             _map = self.map
@@ -324,7 +324,7 @@ class TestSIS3301(DigitizerTestCase):
 
         # 'Board' attribute for a board config group is not an int   (2)
         # or np.integer
-        brd_path = config_path + "/Boards[0]"
+        brd_path = f"{config_path}/Boards[0]"
         brd_group = self.dgroup[brd_path]
         brd = brd_group.attrs["Board"]
         brd_group.attrs["Board"] = "five"
@@ -356,9 +356,9 @@ class TestSIS3301(DigitizerTestCase):
 
         # a board config group sub-group does not match naming       (5)
         # scheme for a channel group
-        brd_path = config_path + "/Boards[0]"
-        ch_path = brd_path + "/Channels[0]"
-        new_path = brd_path + "/Not a channel"
+        brd_path = f"{config_path}/Boards[0]"
+        ch_path = f"{brd_path}/Channels[0]"
+        new_path = f"{brd_path}/Not a channel"
         self.dgroup.move(ch_path, new_path)
         with self.assertWarns(UserWarning):
             _map = self.map
@@ -366,8 +366,8 @@ class TestSIS3301(DigitizerTestCase):
 
         # 'Channel' attribute for a channel config group is not an   (6)
         # int or np.integer
-        brd_path = config_path + "/Boards[0]"
-        ch_path = brd_path + "/Channels[0]"
+        brd_path = f"{config_path}/Boards[0]"
+        ch_path = f"{brd_path}/Channels[0]"
         ch_group = self.dgroup[ch_path]
         brd = self.dgroup[brd_path].attrs["Board"]
         ch = ch_group.attrs["Channel"]
@@ -403,8 +403,8 @@ class TestSIS3301(DigitizerTestCase):
         ch_group.attrs["Channel"] = ch
 
         # two channel config groups define the same channel number   (8)
-        path = brd_path + "/Channels[0]"
-        path2 = brd_path + "/Channels[1]"
+        path = f"{brd_path}/Channels[0]"
+        path2 = f"{brd_path}/Channels[1]"
         brd = self.dgroup[brd_path].attrs["Board"]
         ch = self.dgroup[path2].attrs["Channel"]
         self.dgroup[path2].attrs["Channel"] = self.dgroup[path].attrs["Channel"]
@@ -416,11 +416,11 @@ class TestSIS3301(DigitizerTestCase):
 
         # the list of discovered channel numbers is NULL             (9)
         # - this could happen if there are no channel config groups
-        brd_path = config_path + "/Boards[0]"
+        brd_path = f"{config_path}/Boards[0]"
         brd = self.dgroup[brd_path].attrs["Board"]
         ch_group_names = list(self.dgroup[brd_path])
         for name in ch_group_names:
-            old_path = brd_path + "/" + name
+            old_path = f"{brd_path}/{name}"
             new_path = old_path + "Q"
             self.dgroup.move(old_path, new_path)
         with self.assertWarns(UserWarning):
@@ -428,7 +428,7 @@ class TestSIS3301(DigitizerTestCase):
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for name in ch_group_names:
-            old_path = brd_path + "/" + name
+            old_path = f"{brd_path}/{name}"
             new_path = old_path + "Q"
             self.dgroup.move(new_path, old_path)
 
@@ -565,7 +565,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
         dset_name = f"{config_name} [{brd}:{ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         data = self.dgroup[dset_name][...]
         hdata = self.dgroup[hdset_name][...]
         data2 = np.append(data, data[-2::, ...], axis=0)
@@ -599,7 +599,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
         dset_name = f"{config_name} [{brd}:{ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         hdata = self.dgroup[hdset_name][...]
         names = list(hdata.dtype.names)
         names.remove("Shot")
@@ -627,7 +627,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
         dset_name = f"{config_name} [{brd}:{ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         hdata = self.dgroup[hdset_name][...]
         self.dgroup.move(hdset_name, hdset_name + "Q")
 
@@ -673,7 +673,7 @@ class TestSIS3301(DigitizerTestCase):
         brd = my_bcs[0][0]
         ch = my_bcs[0][1][0]
         dset_name = f"{config_name} [{brd}:{ch}]"
-        hdset_name = dset_name + " headers"
+        hdset_name = f"{dset_name} headers"
         hdata = self.dgroup[hdset_name][...]
         hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
         self.dgroup.move(hdset_name, hdset_name + "Q")
@@ -702,7 +702,7 @@ class TestSIS3301(DigitizerTestCase):
         chs = my_bcs[0][1]
         for ch in chs:
             dset_name = f"{config_name} [{brd}:{ch}]"
-            hdset_name = dset_name + " headers"
+            hdset_name = f"{dset_name} headers"
 
             hdata = self.dgroup[hdset_name][...]
             names = list(hdata.dtype.names)
@@ -717,7 +717,7 @@ class TestSIS3301(DigitizerTestCase):
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
         for ch in chs:
             dset_name = f"{config_name} [{brd}:{ch}]"
-            hdset_name = dset_name + " headers"
+            hdset_name = f"{dset_name} headers"
             del self.dgroup[hdset_name]
             self.dgroup.move(hdset_name + "Q", hdset_name)
 
@@ -906,7 +906,7 @@ class TestSIS3301(DigitizerTestCase):
             brd = conn[0]
             for ch in conn[1]:
                 dset_name = f"{config_name} [{brd}:{ch}]"
-                hdset_name = dset_name + " headers"
+                hdset_name = f"{dset_name} headers"
                 hdset = self.dgroup[hdset_name][...]
                 hdset = rfn.rename_fields(hdset, {"Shot": "Shot number"})
                 del self.dgroup[hdset_name]

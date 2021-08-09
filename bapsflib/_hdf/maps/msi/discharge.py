@@ -59,7 +59,7 @@ class HDFMapMSIDischarge(HDFMapMSITemplate):
             "Discharge summary",
         ]:
             if dset_name not in self.group:
-                why = "dataset '" + dset_name + "' not found "
+                why = f"dataset '{dset_name}' not found "
                 raise HDFMappingError(self.info["group path"], why=why)
 
         # initialize general info values
@@ -75,11 +75,8 @@ class HDFMapMSIDischarge(HDFMapMSITemplate):
             except KeyError:
                 self._configs[pair[0]] = []
                 warn(
-                    "Attribute '"
-                    + pair[1]
-                    + "' not found for MSI diagnostic '"
-                    + self.device_name
-                    + "', continuing with mapping"
+                    f"Attribute '{pair[1]}' not found for MSI diagnostic "
+                    f"'{self.device_name}', continuing with mapping"
                 )
 
         # initialize 'shape'

@@ -71,9 +71,9 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
         dset_name = f"{config_name} [{brd}:{ch}]"
-        dset_path = digi_path + "/" + dset_name
+        dset_path = f"{digi_path}/{dset_name}"
         dset = _bf.get(dset_path)
-        dheader = _bf.get(dset_path + " headers")
+        dheader = _bf.get(f"{dset_path} headers")
         shotnumkey = "Shot"
 
         # setup mock control data
@@ -489,9 +489,9 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
         dset_name = f"{config_name} [{brd}:{ch}]"
-        dset_path = digi_path + "/" + dset_name
+        dset_path = f"{digi_path}/{dset_name}"
         dset = _bf.get(dset_path)
-        dheader = _bf.get(dset_path + " headers")
+        dheader = _bf.get(f"{dset_path} headers")
         shotnumkey = "Shot"
 
         # -- `keep_bits=False` (DEFAULT)                            ----
@@ -578,9 +578,9 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
         dset_name = f"{config_name} [{brd}:{ch}]"
-        dset_path = digi_path + "/" + dset_name
+        dset_path = f"{digi_path}/{dset_name}"
         dset = _bf.get(dset_path)
-        dheader = _bf.get(dset_path + " headers")
+        dheader = _bf.get(f"{dset_path} headers")
         shotnumkey = "Shot"
 
         # -- examine `intersection_set=True` (DEFAULT)              ----
@@ -710,9 +710,9 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
         dset_name = f"{config_name} [{brd}:{ch}]"
-        dset_path = digi_path + "/" + dset_name
+        dset_path = f"{digi_path}/{dset_name}"
         dset = _bf.get(dset_path)
-        dheader = _bf.get(dset_path + " headers")
+        dheader = _bf.get(f"{dset_path} headers")
         shotnumkey = "Shot"
 
         # -- `index` and `shotnum` are both defined                   --
@@ -737,10 +737,10 @@ class TestHDFReadData(TestBase):
         index = [2, 3]
         shotnum = [45, 50]
         hdata = dheader[...]
-        _bf.move(dset_path + " headers", dset_path + " headers_")
+        _bf.move(f"{dset_path} headers", f"{dset_path} headers_")
         fields = list(hdata.dtype.names)
         fields.remove("Offset")
-        _bf.create_dataset(dset_path + " headers", data=hdata[fields])
+        _bf.create_dataset(f"{dset_path} headers", data=hdata[fields])
         with self.assertWarns(UserWarning):
             data = HDFReadData(
                 _bf,
@@ -756,8 +756,8 @@ class TestHDFReadData(TestBase):
             self.assertIsNone(data.dv)
             self.assertEqual(data.info["signal units"], u.bit)
             self.assertTrue(np.issubdtype(data.dtype["signal"].base, np.floating))
-        del _bf[dset_path + " headers"]
-        _bf.move(dset_path + " headers_", dset_path + " headers")
+        del _bf[f"{dset_path} headers"]
+        _bf.move(f"{dset_path} headers_", f"{dset_path} headers")
 
         # -- test property `dv`                                       --
         index = [2, 3]
@@ -906,8 +906,8 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
         dset_name = f"{config_name} [{brd}:{ch}]"
-        dset_path = digi_path + "/" + dset_name
-        dheader = _bf.get(dset_path + " headers")
+        dset_path = f"{digi_path}/{dset_name}"
+        dheader = _bf.get(f"{dset_path} headers")
         shotnumkey = "Shot"
 
         # -- examine the various `index` types                      ----
@@ -1031,9 +1031,9 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
         digi_path = "Raw data + config/SIS 3301"
         dset_name = f"{config_name} [{brd}:{ch}]"
-        dset_path = digi_path + "/" + dset_name
+        dset_path = f"{digi_path}/{dset_name}"
         dset = _bf.get(dset_path)
-        dheader = _bf.get(dset_path + " headers")
+        dheader = _bf.get(f"{dset_path} headers")
         shotnumkey = "Shot"
 
         # -- examine the various `shotnum` types                    ----

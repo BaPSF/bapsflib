@@ -30,7 +30,7 @@ class TestDigiTemplates(ut.TestCase):
 
     f = NotImplemented  # type: FauxHDFBuilder
     DEVICE_NAME = "Digitizer"
-    DEVICE_PATH = "Raw data + config/" + DEVICE_NAME
+    DEVICE_PATH = f"Raw data + config/{DEVICE_NAME}"
     MAP_CLASS = HDFMapDigiTemplate
 
     @classmethod
@@ -91,7 +91,7 @@ class TestDigiTemplates(ut.TestCase):
 
         # datasets exist
         data = np.empty((3, 100), dtype=np.int32)
-        self.group.create_dataset(config_name + ": 01", data=data)
+        self.group.create_dataset(f"{config_name}: 01", data=data)
         self.group.create_dataset("config02: 01", data=data)
         self.assertTrue(self.map.deduce_config_active_status(config_name))
         self.assertFalse(self.map.deduce_config_active_status("hello"))

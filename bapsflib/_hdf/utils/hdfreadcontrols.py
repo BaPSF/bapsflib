@@ -154,11 +154,7 @@ class HDFReadControls(np.ndarray):
         #
         if not isinstance(hdf_file, File):
             raise TypeError(
-                "`hdf_file` is NOT type `"
-                + File.__module__
-                + "."
-                + File.__qualname__
-                + "`"
+                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
             )
 
         # print execution timing
@@ -406,10 +402,8 @@ class HDFReadControls(np.ndarray):
                                 # expected field df_name is missing but
                                 # belongs to an array
                                 warn(
-                                    "Dataset missing field '"
-                                    + df_name
-                                    + "', applying NaN fill to to "
-                                    + "data array"
+                                    f"Dataset missing field '{df_name}', applying "
+                                    f"NaN fill to to data array"
                                 )
                                 arr = np.zeros((len(index),), dtype=dtype)
 
@@ -561,4 +555,4 @@ class HDFReadControls(np.ndarray):
 # add example to __new__ docstring
 HDFReadControls.__new__.__doc__ += "\n"
 for line in HDFReadControls.__example_doc__.splitlines():
-    HDFReadControls.__new__.__doc__ += "    " + line + "\n"
+    HDFReadControls.__new__.__doc__ += f"    {line}\n"

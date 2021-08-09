@@ -109,11 +109,8 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
             except KeyError:
                 self._configs[pair[0]] = []
                 warn(
-                    "Attribute '"
-                    + pair[1]
-                    + "' not found for MSI diagnostic '"
-                    + self.device_name
-                    + "', continuing with mapping"
+                    f"Attribute '{pair[1]}' not found for MSI diagnostic "
+                    f"'{self.device_name}', continuing with mapping"
                 )
 
         # more handling of general info value 'n interferometer'
@@ -122,20 +119,14 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
         if len(self._configs[pair[0]]) != 1:
             check_n_inter = False
             warn(
-                "Attribute '"
-                + pair[1]
-                + "' for MSI diagnostic '"
-                + self.device_name
-                + "' not an integer, continuing with mapping"
+                f"Attribute '{pair[1]}' for MSI diagnostic "
+                f"'{self.device_name}' not an integer, continuing with mapping"
             )
         elif not isinstance(self._configs[pair[0]][0], (int, np.integer)):
             check_n_inter = False
             warn(
-                "Attribute '"
-                + pair[1]
-                + "' for MSI diagnostic '"
-                + self.device_name
-                + "' not an integer, continuing with mapping"
+                f"Attribute '{pair[1]}' for MSI diagnostic "
+                f"'{self.device_name}' not an integer, continuing with mapping"
             )
 
         # initialize 'shape'
@@ -202,12 +193,8 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                 for dset_name in ["Interferometer summary list", "Interferometer trace"]:
                     if dset_name not in self.group[name]:
                         why = (
-                            "dataset '"
-                            + dset_name
-                            + "' not found "
-                            + "for 'Interferometer/"
-                            + name
-                            + "'"
+                            f"dataset '{dset_name}' not found for "
+                            f"'Interferometer/{name}'"
                         )
                         raise HDFMappingError(self.info["group path"], why=why)
 
@@ -219,13 +206,8 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                     except KeyError:
                         self._configs[pair[0]].append(None)
                         warn(
-                            "Attribute '"
-                            + pair[1]
-                            + "' not found for MSI diagnostic '"
-                            + self.device_name
-                            + "/"
-                            + name
-                            + "', continuing with mapping"
+                            f"Attribute '{pair[1]}' not found for MSI diagnostic "
+                            f"'{self.device_name}/{name}', continuing with mapping"
                         )
 
                 # define values to ensure dataset sizes are consistent
@@ -244,7 +226,7 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                 #
                 if n_inter_count == 1:
                     # define sn_size
-                    dset_name = name + "/Interferometer summary list"
+                    dset_name = f"{name}/Interferometer summary list"
                     dset = self.group[dset_name]
                     if dset.ndim == 1:
                         sn_size = self.group[dset_name].shape[0]
@@ -256,16 +238,14 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                         raise HDFMappingError(self.info["group path"], why=why)
 
                     # define sig_size
-                    dset_name = name + "/Interferometer trace"
+                    dset_name = f"{name}/Interferometer trace"
                     dset = self.group[dset_name]
                     shape = self.group[dset_name].shape
                     if dset.dtype.names is not None:
                         # dataset has fields (it should not have fields)
                         why = (
-                            "can not handle a 'signal' dataset"
-                            + "("
-                            + dset_name
-                            + ") with fields"
+                            f"can not handle a 'signal' dataset "
+                            f"({dset_name}) with fields"
                         )
                         raise HDFMappingError(self.info["group path"], why=why)
                     elif dset.ndim == 2:
@@ -292,7 +272,7 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                 #   1. 'shotnum'
                 #   2. all of 'meta'
                 #
-                dset_name = name + "/Interferometer summary list"
+                dset_name = f"{name}/Interferometer summary list"
                 dset = self.group[dset_name]
                 path = dset.name
 
@@ -343,7 +323,7 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                 # - dependent configs are:
                 #   1. 'signals/signal'
                 #
-                dset_name = name + "/Interferometer trace"
+                dset_name = f"{name}/Interferometer trace"
                 dset = self.group[dset_name]
 
                 # check 'shape'
@@ -404,10 +384,8 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                         self._configs[subfield][field]["shape"] = shapes[0]
                     else:
                         why = (
-                            "dataset shape for field '"
-                            + field
-                            + "' is not consistent for all "
-                            + "interferometers"
+                            f"dataset shape for field '{field}' is not consistent "
+                            f"for all interferometers"
                         )
                         raise HDFMappingError(self.info["group path"], why=why)
 

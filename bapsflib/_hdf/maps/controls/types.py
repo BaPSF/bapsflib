@@ -30,4 +30,4 @@ class ConType(Enum):
     waveform = "waveform"
 
     def __repr__(self):  # pragma: no cover
-        return "contype." + self.name
+        return f"contype.{self.name}"

@@ -283,7 +283,7 @@ class FauxSISCrate(h5py.Group):
         """
         # create group
         gname = f"SIS crate 3302 configurations[{index}]"
-        gpath = config_name + "/" + gname
+        gpath = f"{config_name}/{gname}"
         self.create_group(gpath)
 
         # get channel array
@@ -384,7 +384,7 @@ class FauxSISCrate(h5py.Group):
         """
         # create group
         gname = f"SIS crate 3820 configurations[{index}]"
-        gpath = config_name + "/" + gname
+        gpath = f"{config_name}/{gname}"
         self.create_group(gpath)
 
         # populate attributes
@@ -421,7 +421,7 @@ class FauxSISCrate(h5py.Group):
                 self.create_dataset(dset_name, data=data)
 
                 # create header dataset
-                hdset_name = dset_name + " headers"
+                hdset_name = f"{dset_name} headers"
                 shape = (self._sn_size,)
                 dtype = np.dtype(
                     [
@@ -466,7 +466,7 @@ class FauxSISCrate(h5py.Group):
                 self.create_dataset(dset_name, data=data)
 
                 # create header dataset
-                hdset_name = dset_name + " headers"
+                hdset_name = f"{dset_name} headers"
                 shape = (self._sn_size,)
                 dtype = np.dtype(
                     [

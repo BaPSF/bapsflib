@@ -1,0 +1,2 @@
+Add `.git-blame-ignore-revs` to package so `git blame` ignores the major
+refactoring commits from `isort` PR #66 and `black` PR #67.

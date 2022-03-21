@@ -3,4 +3,4 @@
 -r install.txt
 -r extras.txt
 codecov >= 2.0.15
-coverage >= 4.5.1
+coverage[toml] >= 4.5.1

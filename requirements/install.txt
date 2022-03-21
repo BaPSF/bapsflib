@@ -2,6 +2,6 @@
 # ought to mirror 'instal_requires' under 'options' in config.cfg
 astropy >= 4.3.1
 h5py >= 3.0
-numpy >= 1.14.5
+numpy >= 1.17
 scipy >= 0.19
 setuptools_scm

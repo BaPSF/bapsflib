@@ -75,8 +75,14 @@ lines_between_types = 1
 line-length = 90  # needs to be the same as in tool.isort
 
 [tool.coverage]
-  run.omit = [
+#  run.omit = [
+#    "*/tests/*",
+#    "bapsflib/plasma/*",
+#  ]
+  report.exclude_lines = ["coverage: ignore"]
+
+[tool.coverage.run]
+  omit = [
     "*/tests/*",
     "bapsflib/plasma/*",
   ]
-  report.exclude_lines = ["coverage: ignore"]

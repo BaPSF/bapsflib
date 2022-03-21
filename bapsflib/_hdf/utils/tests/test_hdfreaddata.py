@@ -991,7 +991,7 @@ class TestHDFReadData(TestBase):
         )
 
         # invalid negative index
-        with self.assertRaises(ValueError):
+        with self.assertRaises(IndexError):
             data = HDFReadData(
                 _bf,
                 brd,

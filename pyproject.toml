@@ -80,9 +80,9 @@ line-length = 90  # needs to be the same as in tool.isort
 ##    "bapsflib/plasma/*",
 ##  ]
 #  report.exclude_lines = ["coverage: ignore"]
-#
-#[tool.coverage.run]
-#  omit = [
-#    "*/tests/*",
-#    "bapsflib/plasma/*",
-#  ]
+
+[tool.coverage.run]
+  omit = [
+    "*/tests/*",
+    "bapsflib/plasma/*",
+  ]

@@ -54,6 +54,8 @@ jobs:
         if: ${{ matrix.do-coverage && !failure() }}
         uses: codecov/codecov-action@v2.1.0
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          directory: ./
           fail_ci_if_error: true
 
   test-mins:

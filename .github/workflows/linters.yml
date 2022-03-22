@@ -34,7 +34,7 @@ jobs:
         run: |
           python -m pip install -r requirements/extras.txt
           BLACKVERSION=$(python -c "import black; print(black.__version__)")
-          echo #BLACKVERSION
+          echo $BLACKVERSION
       - name: Which black version
         uses: psf/black@stable
         with:

@@ -37,7 +37,7 @@ jobs:
         run: |
           BLACKVERSION=$(python -c "import black; print(black.__version__)")
           echo "black_version=$BLACKVERSION"
-          echo "black_version=$BLACKVERSION" >> $GITHUB_ENV
+          echo "black_version=${BLACKVERSION}" >> $GITHUB_ENV
           echo "${{ env.black_version }}"
       - name: Which black version
         uses: psf/black@stable

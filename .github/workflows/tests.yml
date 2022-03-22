@@ -12,37 +12,37 @@ on:
   pull_request:
 
 jobs:
-  tests:
-    name: Python ${{ matrix.python }} - on ${{ matrix.os }}
+  base-tests:
+    name: py${{ matrix.python }} ${{ matrix.name-modifier }} - on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
-        python: [3.6, 3.7, 3.8]
-        os: [ubuntu-latest, macos-latest, windows-latest]
-
         include:
           # mark default
-          - do-coverage: false
+          - python: '3.8'
+            os: ubuntu-latest
+            do-coverage: false
+            name-modifier: ''
 
           # mark case for coverage reporting
-          - python: 3.7
+          - python: '3.6'
             os: ubuntu-latest
             do-coverage: true
-
+            name-modifier: 'with Coverage'
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Setup Python
-        uses: actions/setup-python@v2.2.2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
       - name: Install 'bapsflib' dependencies
         run: python -m pip install -r requirements/tests.txt
-      - name: Run tests
+      - name: Run tests ${{ matrix.name-modifier }}
         run: |
           if ${{ matrix.do-coverage }}; then
             coverage run -m unittest discover
@@ -52,9 +52,45 @@ jobs:
         shell: bash
       - name: Report coverage
         if: ${{ matrix.do-coverage && !failure() }}
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@v2.1.0
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: .coverage
           fail_ci_if_error: true
+
+  tests:
+    needs: base-tests
+    name: py${{ matrix.python }} - on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.6', '3.7', '3.8']
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+        exclude:
+          # these were done in base-tests
+          - python: '3.8'
+            os: ubuntu-latest
+          - python: '3.6'
+            os: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install 'bapsflib' dependencies
+        run: python -m pip install -r requirements/tests.txt
+      - name: Run tests
+        run: |
+            python -m unittest discover
+        shell: bash
 
   test-mins:
     # test min versions of key dependencies
@@ -76,11 +112,11 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
       - name: Setup Python
-        uses: actions/setup-python@v2.2.2
+        uses: actions/setup-python@v3
         with:
           python-version: ${{ matrix.python }}
       - name: Install 'bapsflib' dependencies

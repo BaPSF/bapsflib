@@ -1,0 +1,20 @@
+# as per
+#     https://docs.github.com/en/code-security/supply-chain-security/enabling-and-disabling-version-updates
+# configuration options
+#     https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+#
+version: 2
+updates:
+
+  # Maintain dependencies for GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    reviewers:
+      - "rocco8773"
+    assignees:
+      - "rocco8773"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      # Check for npm updates at 4am PST
+      time: "23:00"

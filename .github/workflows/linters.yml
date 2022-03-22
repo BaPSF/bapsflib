@@ -40,10 +40,10 @@ jobs:
       - name: Which black version
         uses: psf/black@stable
         with:
-          version: "${{ env.black_version }}"
+          version: "${{ env.BLACK_VERSION }}"
           options: "--version"
       - name: Run black checks
         uses: psf/black@stable
         with:
-          version: "${{ env.black_version }}"
+          version: "${{ env.BLACK_VERSION }}"
           options: "--check --diff --color"

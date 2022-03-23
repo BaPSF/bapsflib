@@ -1,0 +1,2 @@
+Dropped support for ``h5py < 3.0``, and set minimum dependency of
+`h5py` to ``>= 3.0``.

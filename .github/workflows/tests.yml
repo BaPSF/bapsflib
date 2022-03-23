@@ -103,12 +103,12 @@ jobs:
       matrix:
         include:
           - spec-name: h5py v3.0
-            min-install: h5py==3.0.0
-            python: 3.7
+            min-install: h5py==3.0
+            python: '3.7'
 
           - spec-name: h5py v3.0 numpy v1.17
-            min-install: h5py==3.0.0 numpy==1.17
-            python: 3.7
+            min-install: h5py==3.0 numpy==1.17
+            python: '3.7'
 
     steps:
       - name: Checkout code

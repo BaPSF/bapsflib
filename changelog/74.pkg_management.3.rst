@@ -1,0 +1,3 @@
+Removed `setuptools` and `setuptools_scm` from the :file:`setup.cfg`
+install dependencies since they are already list and build dependencies
+in the :file:`pyproject.toml`.

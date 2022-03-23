@@ -753,7 +753,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     if sample_ave == 0:
                         sample_ave = None
                     else:
-                        sample_ave = 2**sample_ave
+                        sample_ave = 2 ** sample_ave
 
             # determine clock rate
             if adc_name == "SIS 3305":

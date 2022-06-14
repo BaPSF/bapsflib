@@ -1087,7 +1087,7 @@ class TestSISCrate(DigitizerTestCase):
         _map = self.map
         for conn in _map.configs[config_name][adc]:
             if conn[0] == brd:
-                self.assertEqual(conn[2]["sample average (hardware)"], 2 ** 5)
+                self.assertEqual(conn[2]["sample average (hardware)"], 2**5)
 
         self.dgroup[adc_config_path].attrs[sp2a_key] = sp2a
 

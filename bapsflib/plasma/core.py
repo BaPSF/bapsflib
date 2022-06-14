@@ -282,7 +282,7 @@ def oLH(Bo, m_i, n_i, Z, **kwargs):
     _opi = opi(**_args)
     _oce = oce(**_args)
     _oci = oci(**_args)
-    first_term = 1.0 / ((_oci ** 2) + (_opi ** 2))
+    first_term = 1.0 / ((_oci**2) + (_opi**2))
     second_term = 1.0 / math.fabs(_oce * _oci)
     _olh = math.sqrt(1.0 / (first_term + second_term))
     return FloatUnit(_olh, "rad s^-1")
@@ -331,7 +331,7 @@ def oUH(Bo, n_e, **kwargs):
     """
     _ope = ope(n_e)
     _oce = oce(Bo)
-    _ouh = math.sqrt((_ope ** 2) + (_oce ** 2))
+    _ouh = math.sqrt((_ope**2) + (_oce**2))
     return FloatUnit(_ouh, "rad s^-1")
 
 

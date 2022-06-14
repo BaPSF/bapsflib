@@ -1,4 +1,4 @@
 # these are "extra" dependencies to run advanced package features
 # ought to mirror 'extras' under options.extras_require in config.cfg
-black==21.7b0
+black==22.3.0
 isort

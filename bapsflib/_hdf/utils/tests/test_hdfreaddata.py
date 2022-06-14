@@ -786,7 +786,7 @@ class TestHDFReadData(TestBase):
         old_offset = data.info["voltage offset"]
         data.info["bit"] = 10
         data.info["voltage offset"] = -1.0 * u.volt
-        dv = 2.0 * abs(-1.0) / ((2.0 ** 10) - 1.0)
+        dv = 2.0 * abs(-1.0) / ((2.0**10) - 1.0)
         self.assertIsInstance(data.dv, u.Quantity)
         self.assertEqual(data.dv.value, dv)
         self.assertEqual(data.dv.unit, u.volt)

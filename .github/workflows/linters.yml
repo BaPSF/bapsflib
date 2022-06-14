@@ -56,7 +56,7 @@ jobs:
       - name: Which black version
         uses: psf/black@stable
         with:
-          version: "${{ env.BLACK_VERSION }}"
+          version: "${{ env.BLACK_VERSION }} click==${{ CLICK_VERSION }}"
           options: "--version"
       - name: Run black checks
         uses: psf/black@stable

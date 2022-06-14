@@ -45,6 +45,7 @@ jobs:
           python-version: 3.8
       - name: Install black
         run: |
+          echo ${{ env.GITHUB_ACTION_PATH }}
           python -m pip install -r requirements/extras.txt
       - name: Retrieve black version
         run: |

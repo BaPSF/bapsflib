@@ -52,7 +52,7 @@ jobs:
           echo "BLACK_VERSION=${BLACKVERSION}" >> $GITHUB_ENV
           CLICKVERSION=$(python -c "import click; print(click.__version__)")
           echo "CLICK_VERSION=${CLICKVERSION}" >> $GITHUB_ENV
-          echo ${BLACKVERSION}
+          echo ${BLACKVERSION} click==${CLICKVERSION}
       - name: Which black version
         uses: psf/black@stable
         with:

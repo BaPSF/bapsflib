@@ -3,5 +3,5 @@
 -r build.txt
 astropy >= 3.1, <= 4.1
 h5py >= 2.8, <= 2.10.0
-numpy >= 1.15
+numpy >= 1.15, < 1.23
 scipy >= 0.19

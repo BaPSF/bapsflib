@@ -1,3 +1,0 @@
-Added a `GitHub Dependabot
-<https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file>`__
-to keep versions of GitHub Actions up to date.

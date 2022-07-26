@@ -1,2 +1,0 @@
-Added GitHub Action :file:`check_pr_changelog.yml` to check for valid
-change log entries on a pull request.

@@ -1,4 +1,0 @@
-Reworked testing GitHub Action workflow such that: two base tests are
-initially run; if the base tests pass, then the full matrix of tests
-are run; and if the full matrix of tests passes, then the tests on
-minimum versions are run.

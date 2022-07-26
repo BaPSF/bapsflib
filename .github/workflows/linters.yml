@@ -77,6 +77,7 @@ jobs:
         python-version: 3.8
     - name: Install Python dependencies
       run: |
+        python -m pip install --progress-bar off pip --upgrade
         python -m pip install --progress-bar off -r requirements/extras.txt
     - name: Codespell README
       run: |
@@ -85,11 +86,11 @@ jobs:
         echo "matches a dictionary entry, it looks for a set of common misspellings"
         echo "in order to reduce the number of false positives."
         echo
-        echo
         echo "After codespell has been installed locally (`pip install codespell`),"
         echo "running the command `codespell -i 2 -w` will interactively go through"
         echo "misspellings and suggest one or more replacements. Add any false"
         echo "positives under ignore-words-list under [codespell] in setup.cfg."
+        echo
     - name: Run test
       run: |
         codespell .

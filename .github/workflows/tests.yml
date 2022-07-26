@@ -10,6 +10,7 @@ on:
     tags:
       - "v*"
   pull_request:
+  workflow_dispatch:
 
 jobs:
   base-tests:
@@ -127,6 +128,7 @@ jobs:
 
   import-bapsflib:
     name: Importing bapsflib
+    needs: base-tests
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

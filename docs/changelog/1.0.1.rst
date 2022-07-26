@@ -1,5 +1,5 @@
-v1.0.1
-======
+v1.0.1 (2019-06-01)
+===================
 
 * Added Control Device mapping modules for:
 

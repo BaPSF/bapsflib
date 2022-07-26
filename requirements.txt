@@ -1,4 +1,4 @@
-# all dependencies required to build, install, test, and doucment bapsflib
+# all dependencies required to build, install, test, and document bapsflib
 # * look to the specific requirements/*.txt for specific needs
 # * this will mimic `pip install bapsflib[developer]` (excluding bapsflib)
 -r requirements/build.txt

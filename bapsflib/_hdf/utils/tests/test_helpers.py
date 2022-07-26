@@ -594,7 +594,7 @@ class TestConditionShotnum(TestBase):
             "c2": "Shot number",
         }
 
-        # invalid shotnum slices (creats NULL arrays)
+        # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
             _sn = condition_shotnum(slice(-1, -4, 1), dset_dict, shotnumkey_dict)
 
@@ -618,7 +618,7 @@ class TestConditionShotnum(TestBase):
 
     def test_shotnum_ndarray(self):
         # shotnum invalid
-        # 1. is not 1 dimentional
+        # 1. is not 1 dimensional
         # 2. has fields
         # 3. is not np.integer
         # 4. would result in NULL

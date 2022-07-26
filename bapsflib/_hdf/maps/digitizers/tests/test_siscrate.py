@@ -465,7 +465,7 @@ class TestSISCrate(DigitizerTestCase):
             )
         cgroup.attrs["SIS crate config indices"] = indices
 
-        # adc configuration group has a configuration indes that     (4)
+        # adc configuration group has a configuration index that     (4)
         # is NOT defined in the top-level configuration group
         # - same code-block is triggered by #3
         cgroup = self.dgroup[config_path]
@@ -1164,7 +1164,7 @@ class TestSISCrate(DigitizerTestCase):
         )
         self.assertIsNone(_map._parse_config_name(dset_name))
 
-        # config group is missing key attributs
+        # config group is missing key attributes
         attrs = (
             "SIS crate board types",
             "SIS crate config indices",

@@ -147,3 +147,39 @@ jobs:
       - name: Import 'bapsflib'
         run: |
           python -c 'import bapsflib'
+
+  build-bapsflib:
+    name: Packaging
+    runs-on: ubuntu-latest
+    needs:
+      - test-mins
+      - import-bapsflib
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Get history and tags for SCM versioning to work
+        run: |
+          git fetch --prune --unshallow
+          git fetch --depth=1 origin +refs/tags/*:refs/tags/*
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.8
+      - name: Install requirements
+        run: |
+          pip install --progress-bar off --upgrade pip
+          pip install --progress-bar off -r requirements/install.txt
+      - name: Build a binary wheel
+        run: |
+          python setup.py bdist_wheel
+      - name: Build a source tarball
+        run: |
+          python setup.py sdist
+      - name: Twine check
+        run: |
+          twine check dist/*
+      - name: Install bapsflib in all variants
+        run: |
+          pip install --progress-bar off .[developer]
+          pip install --progress-bar off -e .[developer]
+          python setup.py develop

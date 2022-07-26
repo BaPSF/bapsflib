@@ -15,14 +15,13 @@ import h5py
 
 from typing import Dict
 
+from bapsflib._hdf.maps.msi.discharge import HDFMapMSIDischarge
+from bapsflib._hdf.maps.msi.gaspressure import HDFMapMSIGasPressure
+from bapsflib._hdf.maps.msi.heater import HDFMapMSIHeater
+from bapsflib._hdf.maps.msi.interferometerarray import HDFMapMSIInterferometerArray
+from bapsflib._hdf.maps.msi.magneticfield import HDFMapMSIMagneticField
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .discharge import HDFMapMSIDischarge
-from .gaspressure import HDFMapMSIGasPressure
-from .heater import HDFMapMSIHeater
-from .interferometerarray import HDFMapMSIInterferometerArray
-from .magneticfield import HDFMapMSIMagneticField
-from .templates import HDFMapMSITemplate
 
 
 class HDFMapMSI(dict):

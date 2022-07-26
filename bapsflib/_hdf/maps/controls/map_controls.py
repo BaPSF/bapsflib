@@ -15,14 +15,16 @@ import h5py
 
 from typing import Dict, Tuple, Union
 
+from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS
+from bapsflib._hdf.maps.controls.nixyz import HDFMapControlNIXYZ
+from bapsflib._hdf.maps.controls.nixz import HDFMapControlNIXZ
+from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
+from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .n5700ps import HDFMapControlN5700PS
-from .nixyz import HDFMapControlNIXYZ
-from .nixz import HDFMapControlNIXZ
-from .sixk import HDFMapControl6K
-from .templates import HDFMapControlCLTemplate, HDFMapControlTemplate
-from .waveform import HDFMapControlWaveform
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]

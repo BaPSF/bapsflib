@@ -23,10 +23,9 @@ import re
 from typing import Any, Dict, Tuple, Union
 from warnings import warn
 
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .templates import HDFMapDigiTemplate
 
 
 class HDFMapDigiSIS3301(HDFMapDigiTemplate):

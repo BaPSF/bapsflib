@@ -86,8 +86,8 @@ jobs:
         echo "matches a dictionary entry, it looks for a set of common misspellings"
         echo "in order to reduce the number of false positives."
         echo
-        echo "After codespell has been installed locally (`pip install codespell`),"
-        echo "running the command `codespell -i 2 -w` will interactively go through"
+        echo "After codespell has been installed locally ('pip install codespell'),"
+        echo "running the command 'codespell -i 2 -w' will interactively go through"
         echo "misspellings and suggest one or more replacements. Add any false"
         echo "positives under ignore-words-list under [codespell] in setup.cfg."
         echo

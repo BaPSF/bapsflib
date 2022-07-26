@@ -15,7 +15,7 @@ __all__ = []
 
 from typing import Union
 
-from . import decorators, exceptions, warnings
+from bapsflib.utils import decorators, exceptions, warnings
 
 
 def _bytes_to_str(string: Union[bytes, str]) -> str:
@@ -26,4 +26,6 @@ def _bytes_to_str(string: Union[bytes, str]) -> str:
     if isinstance(string, bytes):
         return str(string, "utf-8")
 
-    raise TypeError(f"Argument 'string' is not of type str or bytes, got {type(string)}.")
+    raise TypeError(
+        f"Argument 'string' is not of type str or bytes, got {type(string)}."
+    )

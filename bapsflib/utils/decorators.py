@@ -123,7 +123,7 @@ def with_bf(
     }
 
     def decorator(func):
-        # import File here to avoid cyclical imports
+        # to avoid cyclical imports
         from bapsflib._hdf.utils.file import File
 
         @functools.wraps(func)
@@ -273,7 +273,7 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
     settings = {"filename": filename}
 
     def decorator(func):
-        # import File here to avoid cyclical imports
+        # to avoid cyclical imports
         from bapsflib.lapd._hdf.file import File
 
         @functools.wraps(func)

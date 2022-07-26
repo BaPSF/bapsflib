@@ -18,9 +18,7 @@ import copy
 import numpy as np
 import os
 
-import bapsflib
-
-from .file import File
+from bapsflib._hdf.utils.file import File
 
 
 class HDFReadMSI(np.ndarray):

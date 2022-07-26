@@ -23,16 +23,15 @@ import time
 from typing import Union
 from warnings import warn
 
-from bapsflib.plasma import core
-
-from .file import File
-from .hdfreadcontrols import HDFReadControls
-from .helpers import (
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
+from bapsflib._hdf.utils.helpers import (
     build_sndr_for_simple_dset,
     condition_controls,
     condition_shotnum,
     do_shotnum_intersection,
 )
+from bapsflib.plasma import core
 
 
 # noinspection PyInitNewSignature

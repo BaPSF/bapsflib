@@ -12,7 +12,7 @@ build-backend = "setuptools.build_meta"
   filename = "CHANGELOG.rst"
   directory = "changelog/"
   issue_format = "`#{issue} <https://github.com/BaPSF/bapsflib/pull/{issue}>`_"
-  title_format = "{name} v{version} ({project_date})"
+  title_format = "v{version} ({project_date})"
 
   [[tool.towncrier.type]]
   directory = "breaking"

@@ -16,11 +16,10 @@ import unittest as ut
 
 from unittest import mock
 
+from bapsflib._hdf.maps.controls import ConType
+from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS
+from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .. import ConType
-from ..n5700ps import HDFMapControlN5700PS
-from .common import ControlTestCase
 
 
 class TestN5700PS(ControlTestCase):

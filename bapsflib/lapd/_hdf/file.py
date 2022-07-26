@@ -13,11 +13,8 @@ __all__ = ["File"]
 
 import h5py
 
-import bapsflib
-
 from bapsflib._hdf.utils.file import File as BaseFile
-
-from .lapdmap import LaPDMap
+from bapsflib.lapd._hdf.lapdmap import LaPDMap
 
 
 class File(BaseFile):
@@ -87,7 +84,8 @@ class File(BaseFile):
         """
         LaPD HDF5 file overview. (:class:`~.lapdoverview.LaPDOverview`)
         """
-        from .lapdoverview import LaPDOverview
+        # to avoid cyclical imports
+        from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
 
         return LaPDOverview(self)
 

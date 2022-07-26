@@ -18,13 +18,13 @@ import unittest as ut
 from unittest import mock
 
 from bapsflib._hdf import HDFMap
-
-from ..file import File
-from ..hdfoverview import HDFOverview
-from ..hdfreadcontrols import HDFReadControls
-from ..hdfreaddata import HDFReadData
-from ..hdfreadmsi import HDFReadMSI
-from . import TestBase, with_bf
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfoverview import HDFOverview
+from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
+from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils.decorators import with_bf
 
 
 class TestFile(TestBase):

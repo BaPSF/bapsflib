@@ -17,10 +17,10 @@ import unittest as ut
 from unittest import mock
 
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
-
-from ..file import File
-from ..lapdoverview import LaPDOverview
-from . import TestBase, with_lapdf
+from bapsflib.lapd._hdf.file import File
+from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
+from bapsflib.lapd._hdf.tests import TestBase
+from bapsflib.utils.decorators import with_lapdf
 
 
 class TestLaPDOverview(TestBase):

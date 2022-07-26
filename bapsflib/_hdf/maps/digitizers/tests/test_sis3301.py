@@ -17,10 +17,9 @@ import unittest as ut
 from numpy.lib import recfunctions as rfn
 from unittest import mock
 
+from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
+from bapsflib._hdf.maps.digitizers.tests.common import DigitizerTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from ..sis3301 import HDFMapDigiSIS3301
-from .common import DigitizerTestCase
 
 
 class TestSIS3301(DigitizerTestCase):

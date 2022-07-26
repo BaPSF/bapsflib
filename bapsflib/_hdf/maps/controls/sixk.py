@@ -20,11 +20,10 @@ import re
 
 from warnings import warn
 
+from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .templates import HDFMapControlTemplate
-from .types import ConType
 
 
 class HDFMapControl6K(HDFMapControlTemplate):

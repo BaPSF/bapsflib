@@ -21,14 +21,16 @@ import os
 from typing import List, Union
 from warnings import warn
 
+from bapsflib._hdf.maps.controls import HDFMapControls
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
+from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.msi import HDFMapMSI
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib.utils import _bytes_to_str
-
-from .controls import HDFMapControls
-from .controls.templates import HDFMapControlCLTemplate, HDFMapControlTemplate
-from .digitizers import HDFMapDigitizers
-from .digitizers.templates import HDFMapDigiTemplate
-from .msi import HDFMapMSI
-from .msi.templates import HDFMapMSITemplate
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]

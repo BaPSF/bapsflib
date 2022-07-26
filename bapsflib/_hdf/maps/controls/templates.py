@@ -19,8 +19,8 @@ from abc import ABC, abstractmethod
 from typing import Iterable, List, Union
 from warnings import warn
 
-from .parsers import CLParse
-from .types import ConType
+from bapsflib._hdf.maps.controls.parsers import CLParse
+from bapsflib._hdf.maps.controls.types import ConType
 
 
 class HDFMapControlTemplate(ABC):

@@ -14,10 +14,9 @@
 import numpy as np
 import unittest as ut
 
+from bapsflib._hdf.maps.msi.magneticfield import HDFMapMSIMagneticField
+from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from ..magneticfield import HDFMapMSIMagneticField
-from .common import MSIDiagnosticTestCase
 
 
 class TestMagneticField(MSIDiagnosticTestCase):

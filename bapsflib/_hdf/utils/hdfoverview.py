@@ -20,10 +20,10 @@ import pprint as pp
 from contextlib import redirect_stdout
 from datetime import datetime
 
-from ..maps.controls.templates import HDFMapControlTemplate
-from ..maps.digitizers.templates import HDFMapDigiTemplate
-from ..maps.msi.templates import HDFMapMSITemplate
-from .file import File
+from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
+from bapsflib._hdf.utils.file import File
 
 
 class HDFOverview(object):

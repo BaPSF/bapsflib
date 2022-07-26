@@ -20,10 +20,10 @@ from unittest import mock
 
 from bapsflib._hdf.maps import ConType, HDFMap
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
-
-from ..file import File
-from ..hdfreadcontrols import HDFReadControls
-from . import TestBase, with_bf
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils.decorators import with_bf
 
 
 class TestHDFReadControl(TestBase):

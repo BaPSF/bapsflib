@@ -28,9 +28,8 @@ from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
-
-from .file import File
-from .helpers import (
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
     condition_controls,
     condition_shotnum,

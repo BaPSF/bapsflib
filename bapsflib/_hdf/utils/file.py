@@ -143,7 +143,8 @@ class File(h5py.File):
         """
         HDF5 file overview. (:class:`~.hdfoverview.HDFOverview`)
         """
-        from .hdfoverview import HDFOverview
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfoverview import HDFOverview
 
         return HDFOverview(self)
 
@@ -228,7 +229,8 @@ class File(h5py.File):
             ['6K Compumotor', 'Waveform']
 
         """
-        from .hdfreadcontrols import HDFReadControls
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
@@ -348,7 +350,8 @@ class File(h5py.File):
             >>> #       which prints to screen a report of the
             >>> #       digitizer hookup
         """
-        from .hdfreaddata import HDFReadData
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfreaddata import HDFReadData
 
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():

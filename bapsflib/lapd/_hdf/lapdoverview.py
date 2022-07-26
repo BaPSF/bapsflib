@@ -14,8 +14,7 @@ Module containing the LaPD overview class.
 __all__ = ["LaPDOverview"]
 
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
-
-from .file import File
+from bapsflib.lapd._hdf.file import File
 
 
 class LaPDOverview(HDFOverview):

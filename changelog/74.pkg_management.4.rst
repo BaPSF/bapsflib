@@ -1,3 +1,0 @@
-Exposed :file:`requirements/build.txt` into
-:file:`requirements/install.txt` since `setuptools` and `setuptools_scm`
-are both build and install dependencies.

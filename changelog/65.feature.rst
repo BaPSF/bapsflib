@@ -1,3 +1,0 @@
-Made indexing of datasets more robust in a few locations in anticipation
-of allowing `h5py >= 3.0`, and thus accounting for `h5py`'s change in
-indexing behavior.

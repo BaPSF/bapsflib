@@ -1,4 +1,0 @@
-Set package dependency ``coverage[toml] >= 4.5.1``.  The ``[toml]``
-option allows for the coverage configuration to be defined in
-:file:`pyproject.toml`, and `v4.5.1` is the first release with this
-functionality.

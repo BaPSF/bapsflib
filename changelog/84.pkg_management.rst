@@ -1,4 +1,0 @@
-Added workflow :file:`python-publish.yml` to GitHub Actions that builds
-and publishes a release to `PyPI <https://pypi.org/>`_ when using
-`GitHub's Releases functionality
-<https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_\ .

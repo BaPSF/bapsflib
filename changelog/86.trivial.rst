@@ -1,2 +1,0 @@
-Added `codespell <https://github.com/codespell-project/codespell>`_
-as a package "extras" dependency.

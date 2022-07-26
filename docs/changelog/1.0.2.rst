@@ -1,0 +1,108 @@
+v1.0.2 (2022-07-26)
+===================
+
+Backwards Incompatible Changes
+------------------------------
+
+- Dropped support for Python 3.6. (`#73 <https://github.com/BaPSF/bapsflib/pull/73>`_)
+
+
+Features
+--------
+
+- Updated "SIS Crate" digitizers mapper
+  (`~bapsflib._hdf.maps.digitizers.siscrate.HDFMapDigiSISCrate`) so the
+  analog-digital-converters can have enabled/active boards without
+  enabled/active channels. (`#61 <https://github.com/BaPSF/bapsflib/pull/61>`_)
+- Updated `~bapsflib._hdf.maps.controls.sizk.HDFMapControl6K` so the
+  identification and mapping of probe configurations uses the combination
+  of the receptacle number and probe name as an unique id, opposed to
+  just the probe name. (`#63 <https://github.com/BaPSF/bapsflib/pull/63>`_)
+- Created helper function `bapsflib.utils._bytes_to_str` to convert
+  byte literals to utf-8 strings. (`#64 <https://github.com/BaPSF/bapsflib/pull/64>`_)
+- Made indexing of datasets more robust in a few locations in anticipation
+  of allowing `h5py >= 3.0`, and thus accounting for `h5py`'s change in
+  indexing behavior. (`#65 <https://github.com/BaPSF/bapsflib/pull/65>`_)
+
+
+Documentation Improvements
+--------------------------
+
+- Incorporated `towncrier <https://towncrier.readthedocs.io/en/actual-freaking-docs/>`_
+  and `sphinx-changelog <https://sphinx-changelog.readthedocs.io/en/latest/>`_ for
+  better change log tracking and continuous change log rending in the documentation. (`#56 <https://github.com/BaPSF/bapsflib/pull/56>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Refactored `bapsflib` module imports to be consistent with the style
+  enforced by `isort`. (`#66 <https://github.com/BaPSF/bapsflib/pull/66>`_)
+- Refactored `bapsflib` using `black==21.7b0` styling formatter, and
+  converted many string concatenations and format strings into
+  `f-strings
+  <https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals>`_ . (`#67 <https://github.com/BaPSF/bapsflib/pull/67>`_)
+- Added :file:`.git-blame-ignore-revs` to package so `git blame` ignores
+  the major refactoring commits from
+  `isort` PR `#66 <https://github.com/BaPSF/bapsflib/pull/66>`_
+  and `black` PR `#67 <https://github.com/BaPSF/bapsflib/pull/67>`_\ . (`#68 <https://github.com/BaPSF/bapsflib/pull/68>`_)
+- Converted all remaining relative imports to absolute imports. (`#83 <https://github.com/BaPSF/bapsflib/pull/83>`_)
+- Added `codespell <https://github.com/codespell-project/codespell>`_
+  as a package "extras" dependency. (`#86 <https://github.com/BaPSF/bapsflib/pull/86>`_)
+
+
+Package Management
+------------------
+
+- Added GitHub Action :file:`check_pr_changelog.yml` to check for valid
+  change log entries on a pull request. (`#58 <https://github.com/BaPSF/bapsflib/pull/58>`_)
+- Added GitHub Action :file:`tests.yml` for testing of pushes to
+  ``master``, version tags, pull requests, and cron jobs every Sunday
+  at 3:13 am PT.  Tests are setup to run on the latest versions of
+  ubuntu, MacOS, and Windows.  Tests are setup to run on
+  Python 3.6, 3.7, and 3.8.  Tests also run on min versions of
+  `h5py` (``v2.8.0``) and `numpy` (``v1.14``). (`#58 <https://github.com/BaPSF/bapsflib/pull/58>`_)
+- Added ``isort`` configuration to ``pyproject.toml``. (`#66 <https://github.com/BaPSF/bapsflib/pull/66>`_)
+- Created GitHub Action :file:`linters.yml` with the
+  `isort/isort-action <https://github.com/isort/isort-action>`_ to check
+  that module imports are properly styled. (`#66 <https://github.com/BaPSF/bapsflib/pull/66>`_)
+- Added ``black==21.7b0`` to the "extras" dependencies and add its
+  configuration to ``pyproject.toml``. (`#67 <https://github.com/BaPSF/bapsflib/pull/67>`_)
+- Added to GitHub Action :file:`linters.yml`` the
+  `psf/black <https://black.readthedocs.io/en/stable/integrations/github_actions.html>`_
+  action to check that new code is formatted properly. (`#67 <https://github.com/BaPSF/bapsflib/pull/67>`_)
+- Deleted `.pep8speaks.yml` and disconnect CI from repo since package is
+  adopting `black` and associated GitHub Action. (`#67 <https://github.com/BaPSF/bapsflib/pull/67>`_)
+- Added a `GitHub Dependabot
+  <https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file>`__
+  to keep versions of GitHub Actions up to date. (`#72 <https://github.com/BaPSF/bapsflib/pull/72>`_)
+- Reworked testing GitHub Action workflow such that: two base tests are
+  initially run; if the base tests pass, then the full matrix of tests
+  are run; and if the full matrix of tests passes, then the tests on
+  minimum versions are run. (`#72 <https://github.com/BaPSF/bapsflib/pull/72>`_)
+- Updated GitHub Actions for linters ``isort`` and ``black`` such that
+  the associated package versions used are taken from `bapsflib`'s
+  requirements files. (`#72 <https://github.com/BaPSF/bapsflib/pull/72>`_)
+- Set `numpy` dependency to ``>= 1.15``. (`#73 <https://github.com/BaPSF/bapsflib/pull/73>`_)
+- Set package dependency ``coverage[toml] >= 4.5.1``.  The ``[toml]``
+  option allows for the coverage configuration to be defined in
+  :file:`pyproject.toml`, and `v4.5.1` is the first release with this
+  functionality. (`#74 <https://github.com/BaPSF/bapsflib/pull/74>`_)
+- Moved the coverage configuration from :file:`.coveragerc` to
+  :file:`pyproject.toml`. (`#74 <https://github.com/BaPSF/bapsflib/pull/74>`_)
+- Removed `setuptools` and `setuptools_scm` from :file:`setup.cfg`
+  install dependencies since they are already listed as build dependencies
+  in :file:`pyproject.toml`. (`#74 <https://github.com/BaPSF/bapsflib/pull/74>`_)
+- Exposed :file:`requirements/build.txt` into
+  :file:`requirements/install.txt` since `setuptools` and `setuptools_scm`
+  are both build and install dependencies. (`#74 <https://github.com/BaPSF/bapsflib/pull/74>`_)
+- Added workflow :file:`python-publish.yml` to GitHub Actions that builds
+  and publishes a release to `PyPI <https://pypi.org/>`_ when using
+  `GitHub's Releases functionality
+  <https://docs.github.com/en/repositories/releasing-projects-on-github/about-releases>`_\ . (`#84 <https://github.com/BaPSF/bapsflib/pull/84>`_)
+- Added an ``import bapsflib`` test to the :file:`test.yml` GitHub
+  Action workflow. (`#85 <https://github.com/BaPSF/bapsflib/pull/85>`_)
+- Added a package build and install test to the :file:`test.yml` GitHub
+  Action workflow. (`#85 <https://github.com/BaPSF/bapsflib/pull/85>`_)
+- Added a `codespell <https://github.com/codespell-project/codespell>`_
+  test to the :file:`linters.yml` GitHub Action workflow. (`#86 <https://github.com/BaPSF/bapsflib/pull/86>`_)

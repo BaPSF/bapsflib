@@ -16,9 +16,15 @@ import tempfile
 
 from typing import Any, Dict
 
-from ..controls.tests import FauxN5700PS, FauxNIXYZ, FauxNIXZ, FauxSixK, FauxWaveform
-from ..digitizers.tests import FauxSIS3301, FauxSISCrate
-from ..msi.tests import (
+from bapsflib._hdf.maps.controls.tests import (
+    FauxN5700PS,
+    FauxNIXYZ,
+    FauxNIXZ,
+    FauxSixK,
+    FauxWaveform,
+)
+from bapsflib._hdf.maps.digitizers.tests import FauxSIS3301, FauxSISCrate
+from bapsflib._hdf.maps.msi.tests import (
     FauxDischarge,
     FauxGasPressure,
     FauxHeater,

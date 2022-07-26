@@ -8,7 +8,6 @@ This document lists the changes made for each release of `bapsflib`.
 
 .. toctree::
     :titlesonly:
-    :glob:
 
     1.0.2
     1.0.1

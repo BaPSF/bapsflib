@@ -1,4 +1,4 @@
-Refactor `bapsflib` using `black==21.7b0` styling formatter and convert
-many string concatenations and format strings into
+Refactored `bapsflib` using `black==21.7b0` styling formatter, and
+converted many string concatenations and format strings into
 `f-strings
 <https://docs.python.org/3/tutorial/inputoutput.html#formatted-string-literals>`_ .

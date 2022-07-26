@@ -15,9 +15,11 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from ..map_controls import HDFMapControls
-from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.map_controls import HDFMapControls
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
 
 
 class TestHDFMapControls(ut.TestCase):

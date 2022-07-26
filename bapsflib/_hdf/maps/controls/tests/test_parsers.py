@@ -17,7 +17,7 @@ import unittest as ut
 
 from typing import Tuple
 
-from ..parsers import CLParse
+from bapsflib._hdf.maps.controls.parsers import CLParse
 
 
 class TestCLParse(ut.TestCase):

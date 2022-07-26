@@ -21,9 +21,11 @@ from enum import Enum
 from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from ..parsers import CLParse
-from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.parsers import CLParse
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
 
 
 class DummyTemplates(Enum):

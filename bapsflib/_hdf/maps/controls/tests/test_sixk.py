@@ -17,11 +17,10 @@ import unittest as ut
 
 from unittest import mock
 
+from bapsflib._hdf.maps.controls import ConType
+from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
+from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .. import ConType
-from ..sixk import HDFMapControl6K
-from .common import ControlTestCase
 
 
 class TestSixK(ControlTestCase):

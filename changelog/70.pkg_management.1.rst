@@ -1,1 +1,2 @@
-Extended CI testing to Python 3.9 and 3.10.
+Extended GitHub Action workflow :file:`tests.yml` to include testing on
+Python 3.9 and 3.10.

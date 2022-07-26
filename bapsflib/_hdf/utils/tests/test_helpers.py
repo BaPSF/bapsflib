@@ -17,16 +17,16 @@ import unittest as ut
 from numpy.lib import recfunctions as rfn
 
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
-from bapsflib.utils import _bytes_to_str
-
-from ..file import File
-from ..helpers import (
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
     condition_controls,
     condition_shotnum,
     do_shotnum_intersection,
 )
-from . import TestBase, with_bf
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils import _bytes_to_str
+from bapsflib.utils.decorators import with_bf
 
 
 class TestBuildShotnumDsetRelation(TestBase):

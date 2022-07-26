@@ -1,2 +1,0 @@
-Delete `.pep8speaks.yml` and disconnect CI from repo since package is adopting
-`black` and associated GitHub Action.

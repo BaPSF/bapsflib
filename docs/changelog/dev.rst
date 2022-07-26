@@ -1,3 +1,4 @@
+:orphan:
 
 .. changelog::
    :towncrier: ../../

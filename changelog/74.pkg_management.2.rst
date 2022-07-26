@@ -1,2 +1,0 @@
-Moved the coverage configuration from :file:`.coveragerc` to
-:file:`pyproject.toml`.

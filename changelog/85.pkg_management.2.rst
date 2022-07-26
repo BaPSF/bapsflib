@@ -1,2 +1,0 @@
-Added a package build and install test to the :file:`test.yml` GitHub
-Action workflow.

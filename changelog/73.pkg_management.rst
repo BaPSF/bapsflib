@@ -1,1 +1,0 @@
-Set `numpy` dependency to ``>= 1.15``.

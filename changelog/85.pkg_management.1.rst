@@ -1,2 +1,0 @@
-Added an ``import bapsflib`` test to the :file:`test.yml` GitHub
-Action workflow.

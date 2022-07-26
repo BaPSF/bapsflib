@@ -1,3 +1,0 @@
-Create GitHub Action ``.github/workflows/linters.yml`` with the
-`isort/isort-action <https://github.com/isort/isort-action>`_ to check
-that module imports are properly styled.

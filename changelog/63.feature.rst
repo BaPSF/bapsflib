@@ -1,4 +1,0 @@
-Update `~bapsflib._hdf.maps.controls.sizk.HDFMapControl6K` so the
-identification and mapping of probe configurations uses the combination
-of the receptacle number and probe name as an unique id, opposed to
-just the probe name.

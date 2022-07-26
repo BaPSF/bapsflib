@@ -62,7 +62,7 @@ select :ibf:`Download ZIP`, save the zip file to the desired directory,
 and unpack.
 
 After getting a copy of the :mod:`bapsflib` package (via clone or
-downlaod), navigate to the main package directory, where the package
+download), navigate to the main package directory, where the package
 :file:`setup.py` file is located, and execute
 
 .. code-block:: bash

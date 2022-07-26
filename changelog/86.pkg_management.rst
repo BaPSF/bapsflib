@@ -1,0 +1,2 @@
+Added a `codespell <https://github.com/codespell-project/codespell>`_
+test to the :file:`linters.yml` GitHub Action workflow.

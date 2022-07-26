@@ -60,7 +60,7 @@ class TestLaPDMap(TestBase):
 
         # -- examine `is_lapd` and `lapd_version`                   ----
         #
-        # By defualt, FauxHDFBuilder adds the
+        # By default, FauxHDFBuilder adds the
         # 'LaPD HDF5 software version' attribute to the test file.
         lapd_version = _bytes_to_str(self.f.attrs["LaPD HDF5 software version"])
         self.assertTrue(_map.is_lapd)
@@ -142,7 +142,7 @@ class TestLaPDMap(TestBase):
             self.f[path].attrs[aname] = old_val
         del self.f[path].attrs["z"]
 
-        # -- `__init__` waring                                      ----
+        # -- `__init__` warning                                     ----
         with mock.patch.object(
             LaPDMap, "is_lapd", new_callable=mock.PropertyMock, return_value=False
         ) as mock_il:

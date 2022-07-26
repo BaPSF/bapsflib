@@ -18,10 +18,10 @@ import unittest as ut
 from unittest import mock
 
 from bapsflib._hdf.maps import HDFMap
-
-from ..file import File
-from ..hdfoverview import HDFOverview
-from . import TestBase, with_bf
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfoverview import HDFOverview
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils.decorators import with_bf
 
 
 class TestHDFOverview(TestBase):

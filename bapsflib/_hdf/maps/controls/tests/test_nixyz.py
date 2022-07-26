@@ -15,11 +15,10 @@ import astropy.units as u
 import h5py
 import unittest as ut
 
+from bapsflib._hdf.maps.controls import ConType
+from bapsflib._hdf.maps.controls.nixyz import HDFMapControlNIXYZ
+from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .. import ConType
-from ..nixyz import HDFMapControlNIXYZ
-from .common import ControlTestCase
 
 
 class TestNIXYZ(ControlTestCase):

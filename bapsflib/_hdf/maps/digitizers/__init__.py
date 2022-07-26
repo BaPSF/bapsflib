@@ -14,5 +14,5 @@ Package of digitizer mapping classes and their constructor
 """
 __all__ = ["HDFMapDigitizers"]
 
-from . import map_digis, sis3301, siscrate, templates
-from .map_digis import HDFMapDigitizers
+from bapsflib._hdf.maps.digitizers import map_digis, sis3301, siscrate, templates
+from bapsflib._hdf.maps.digitizers.map_digis import HDFMapDigitizers

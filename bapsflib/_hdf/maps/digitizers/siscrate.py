@@ -22,9 +22,8 @@ import re
 from typing import Any, Dict, Tuple, Union
 from warnings import warn
 
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .templates import HDFMapDigiTemplate
 
 
 class HDFMapDigiSISCrate(HDFMapDigiTemplate):
@@ -753,7 +752,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     if sample_ave == 0:
                         sample_ave = None
                     else:
-                        sample_ave = 2 ** sample_ave
+                        sample_ave = 2**sample_ave
 
             # determine clock rate
             if adc_name == "SIS 3305":

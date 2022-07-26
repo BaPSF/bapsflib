@@ -1,2 +1,0 @@
-Add ``black==21.7b0`` to the "extras" dependencies and add its
-configuration to ``pyproject.toml``.

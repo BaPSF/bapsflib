@@ -15,11 +15,10 @@ import h5py
 
 from typing import Dict, Tuple
 
+from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
+from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .sis3301 import HDFMapDigiSIS3301
-from .siscrate import HDFMapDigiSISCrate
-from .templates import HDFMapDigiTemplate
 
 
 class HDFMapDigitizers(dict):

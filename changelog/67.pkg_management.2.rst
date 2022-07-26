@@ -1,3 +1,0 @@
-Add to GitHub Action ``.github/workflows/linters.yml`` the
-`psf/black <https://black.readthedocs.io/en/stable/integrations/github_actions.html>`_
-action to check that new code is formatted properly.

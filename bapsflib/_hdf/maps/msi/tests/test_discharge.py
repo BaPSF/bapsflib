@@ -14,10 +14,9 @@
 import numpy as np
 import unittest as ut
 
+from bapsflib._hdf.maps.msi.discharge import HDFMapMSIDischarge
+from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from ..discharge import HDFMapMSIDischarge
-from .common import MSIDiagnosticTestCase
 
 
 class TestDischarge(MSIDiagnosticTestCase):

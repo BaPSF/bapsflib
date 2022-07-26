@@ -28,9 +28,8 @@ from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
-
-from .file import File
-from .helpers import (
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
     condition_controls,
     condition_shotnum,
@@ -393,7 +392,7 @@ class HDFReadControls(np.ndarray):
                                 # necessary field but you want the read
                                 # out to still function
                                 # - e.g. 'xyz' but the dataset only
-                                #   contains values fo 'x' and 'z'
+                                #   contains values of 'x' and 'z'
                                 #   (the NI_XZ module)
                                 #
                                 # create zero array

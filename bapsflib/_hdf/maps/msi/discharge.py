@@ -19,9 +19,8 @@ import numpy as np
 
 from warnings import warn
 
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .templates import HDFMapMSITemplate
 
 
 class HDFMapMSIDischarge(HDFMapMSITemplate):

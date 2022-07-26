@@ -21,16 +21,16 @@ from unittest import mock
 
 from bapsflib._hdf.maps import HDFMap
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
-
-from ..file import File
-from ..hdfreadcontrols import HDFReadControls
-from ..hdfreaddata import (
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
+from bapsflib._hdf.utils.hdfreaddata import (
     build_sndr_for_simple_dset,
     condition_shotnum,
     do_shotnum_intersection,
     HDFReadData,
 )
-from . import TestBase, with_bf
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils.decorators import with_bf
 
 
 class TestHDFReadData(TestBase):
@@ -786,7 +786,7 @@ class TestHDFReadData(TestBase):
         old_offset = data.info["voltage offset"]
         data.info["bit"] = 10
         data.info["voltage offset"] = -1.0 * u.volt
-        dv = 2.0 * abs(-1.0) / ((2.0 ** 10) - 1.0)
+        dv = 2.0 * abs(-1.0) / ((2.0**10) - 1.0)
         self.assertIsInstance(data.dv, u.Quantity)
         self.assertEqual(data.dv.value, dv)
         self.assertEqual(data.dv.unit, u.volt)

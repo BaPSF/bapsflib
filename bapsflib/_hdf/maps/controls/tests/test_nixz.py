@@ -14,11 +14,10 @@
 import h5py
 import unittest as ut
 
+from bapsflib._hdf.maps.controls import ConType
+from bapsflib._hdf.maps.controls.nixz import HDFMapControlNIXZ
+from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from .. import ConType
-from ..nixz import HDFMapControlNIXZ
-from .common import ControlTestCase
 
 
 class TestNIXZ(ControlTestCase):

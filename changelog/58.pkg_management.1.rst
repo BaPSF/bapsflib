@@ -1,2 +1,0 @@
-Add GitHub Action (``.github/workflows/check_pr_changelog.yml``) to
-check for valid change log entries on a pull request.

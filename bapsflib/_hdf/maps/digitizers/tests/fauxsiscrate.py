@@ -63,7 +63,7 @@ class FauxSISCrate(h5py.Group):
                 warn("`val` not valid, no update performed")
                 return
 
-            # check agains 'SIS 3305' mode
+            # check against 'SIS 3305' mode
             # - prevent enabling channels that can't be enabled for
             #   the SIS 3305 mode
             if self.sis3305_mode == 2:

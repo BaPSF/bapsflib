@@ -16,9 +16,8 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from ..map_digis import HDFMapDigitizers
-from ..templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.digitizers.map_digis import HDFMapDigitizers
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 
 class TestHDFMapDigitizers(ut.TestCase):

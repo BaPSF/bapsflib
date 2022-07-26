@@ -115,7 +115,7 @@ class SouthCathode(object):
                     1.0,
                     system="cgs",
                 )
-                self._cathode_descr = "barium-oxide coated nickle"
+                self._cathode_descr = "barium-oxide coated nickel"
                 self._lifespan = (NotImplemented, NotImplemented)
 
     @property

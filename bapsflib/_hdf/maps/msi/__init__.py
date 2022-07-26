@@ -14,7 +14,7 @@ Package of MSI diagnostic mapping classes and their constructor
 """
 __all__ = ["HDFMapMSI"]
 
-from . import (
+from bapsflib._hdf.maps.msi import (
     discharge,
     gaspressure,
     heater,
@@ -23,4 +23,4 @@ from . import (
     map_msi,
     templates,
 )
-from .map_msi import HDFMapMSI
+from bapsflib._hdf.maps.msi.map_msi import HDFMapMSI

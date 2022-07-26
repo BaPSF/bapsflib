@@ -19,11 +19,11 @@ from unittest import mock
 import bapsflib
 
 from bapsflib._hdf.maps.core import HDFMap
-
-from ..file import File
-from ..lapdmap import LaPDMap
-from ..lapdoverview import LaPDOverview
-from . import BaseFile, TestBase, with_bf, with_lapdf
+from bapsflib.lapd._hdf.file import File
+from bapsflib.lapd._hdf.lapdmap import LaPDMap
+from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
+from bapsflib.lapd._hdf.tests import BaseFile, TestBase
+from bapsflib.utils.decorators import with_bf, with_lapdf
 
 
 class TestLaPDFile(TestBase):

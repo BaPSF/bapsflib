@@ -14,8 +14,7 @@ import os
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from ..templates import HDFMapMSITemplate
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 
 
 class MSIDiagnosticTestCase(ut.TestCase):
@@ -155,7 +154,7 @@ class MSIDiagnosticTestCase(ut.TestCase):
         )
 
         # ['shotnum']['dset field']
-        # - is a tuple of stings
+        # - is a tuple of strings
         # - length 1 or length of 'dset paths'
         self.assertIsInstance(_map.configs["shotnum"]["dset field"], tuple)
         self.assertTrue(

@@ -21,8 +21,7 @@ import warnings
 from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from ..templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 
 class TestDigiTemplates(ut.TestCase):

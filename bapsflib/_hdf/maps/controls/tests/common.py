@@ -15,9 +15,11 @@ import re
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from .. import ConType
-from ..templates import HDFMapControlCLTemplate, HDFMapControlTemplate
+from bapsflib._hdf.maps.controls import ConType
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
 
 
 def method_overridden(cls, obj, method: str) -> bool:

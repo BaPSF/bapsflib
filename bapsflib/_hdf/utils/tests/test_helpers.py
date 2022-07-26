@@ -17,16 +17,16 @@ import unittest as ut
 from numpy.lib import recfunctions as rfn
 
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
-from bapsflib.utils import _bytes_to_str
-
-from ..file import File
-from ..helpers import (
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
     condition_controls,
     condition_shotnum,
     do_shotnum_intersection,
 )
-from . import TestBase, with_bf
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils import _bytes_to_str
+from bapsflib.utils.decorators import with_bf
 
 
 class TestBuildShotnumDsetRelation(TestBase):
@@ -594,7 +594,7 @@ class TestConditionShotnum(TestBase):
             "c2": "Shot number",
         }
 
-        # invalid shotnum slices (creats NULL arrays)
+        # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
             _sn = condition_shotnum(slice(-1, -4, 1), dset_dict, shotnumkey_dict)
 
@@ -618,7 +618,7 @@ class TestConditionShotnum(TestBase):
 
     def test_shotnum_ndarray(self):
         # shotnum invalid
-        # 1. is not 1 dimentional
+        # 1. is not 1 dimensional
         # 2. has fields
         # 3. is not np.integer
         # 4. would result in NULL

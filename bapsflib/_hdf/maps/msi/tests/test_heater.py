@@ -14,10 +14,9 @@
 import numpy as np
 import unittest as ut
 
+from bapsflib._hdf.maps.msi.heater import HDFMapMSIHeater
+from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from ..heater import HDFMapMSIHeater
-from .common import MSIDiagnosticTestCase
 
 
 class TestHeater(MSIDiagnosticTestCase):

@@ -14,10 +14,9 @@
 import numpy as np
 import unittest as ut
 
+from bapsflib._hdf.maps.msi.gaspressure import HDFMapMSIGasPressure
+from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from ..gaspressure import HDFMapMSIGasPressure
-from .common import MSIDiagnosticTestCase
 
 
 class TestGasPressure(MSIDiagnosticTestCase):

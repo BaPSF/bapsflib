@@ -28,8 +28,8 @@ __all__ = [
     "HDFMapMSI",
 ]
 
-from .controls import ConType, HDFMapControls
-from .core import HDFMap
-from .digitizers import HDFMapDigitizers
-from .msi import HDFMapMSI
-from .tests.fauxhdfbuilder import FauxHDFBuilder
+from bapsflib._hdf.maps.controls import ConType, HDFMapControls
+from bapsflib._hdf.maps.core import HDFMap
+from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
+from bapsflib._hdf.maps.msi import HDFMapMSI
+from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder

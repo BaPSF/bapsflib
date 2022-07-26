@@ -1,3 +1,0 @@
-Updated GitHub Actions for linters ``isort`` and ``black`` such that
-the associated package versions used are taken from `bapsflib`'s
-requirements files.

@@ -16,7 +16,7 @@ import numpy as np
 
 from typing import Union
 
-from .. import constants as const
+from bapsflib.lapd import constants as const
 
 
 def portnum_to_z(portnum: Union[int, float]) -> u.Quantity:

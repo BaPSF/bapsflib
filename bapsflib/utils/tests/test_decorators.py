@@ -16,8 +16,7 @@ from unittest import mock
 from bapsflib._hdf import File as BaPSFFile
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib.lapd import File as LaPDFile
-
-from ..decorators import with_bf, with_lapdf
+from bapsflib.utils.decorators import with_bf, with_lapdf
 
 
 class TestWithBF(ut.TestCase):

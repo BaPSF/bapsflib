@@ -392,7 +392,7 @@ class HDFReadControls(np.ndarray):
                                 # necessary field but you want the read
                                 # out to still function
                                 # - e.g. 'xyz' but the dataset only
-                                #   contains values fo 'x' and 'z'
+                                #   contains values of 'x' and 'z'
                                 #   (the NI_XZ module)
                                 #
                                 # create zero array

@@ -57,7 +57,7 @@ class CLParse(object):
         Applies a the REs defined in `patterns` to parse the command
         list.
 
-        :param patterns: list or raw stings defining REs for parsing
+        :param patterns: list or raw strings defining REs for parsing
             the command list
         :type patterns: str or list of strings
         :return: (bool, dict)
@@ -271,7 +271,7 @@ class CLParse(object):
         Prints to the results of applying the REs in patterns to the
         command list.  Pretty print of :meth:`apply_patterns`.
 
-        :param patterns: list or raw stings defining REs for parsing
+        :param patterns: list or raw strings defining REs for parsing
             the command list
         :type patterns: str or list of strings
         """

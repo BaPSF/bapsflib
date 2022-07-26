@@ -7,7 +7,7 @@ v1.0.1 (2019-06-01)
     moves a probe in the XZ-plane
     (`PR 22 <https://github.com/BaPSF/bapsflib/pull/22>`_)
   * :doc:`NI_XYZ <../api_static/bapsflib._hdf.maps.controls.nixyz>` - a probe drive
-    that moves a probe withing an XYZ volume
+    that moves a probe within an XYZ volume
     (`PR 39 <https://github.com/BaPSF/bapsflib/pull/39>`_)
 
 * Update mapping module :mod:`~bapsflib._hdf.maps.digitizers.sis3301` to

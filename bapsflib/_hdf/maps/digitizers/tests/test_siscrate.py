@@ -18,10 +18,9 @@ import unittest as ut
 from typing import List, Tuple
 from unittest import mock
 
+from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
+from bapsflib._hdf.maps.digitizers.tests.common import DigitizerTestCase
 from bapsflib.utils.exceptions import HDFMappingError
-
-from ..siscrate import HDFMapDigiSISCrate
-from .common import DigitizerTestCase
 
 
 class TestSISCrate(DigitizerTestCase):

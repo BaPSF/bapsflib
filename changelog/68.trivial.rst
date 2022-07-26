@@ -1,4 +1,4 @@
-Add `.git-blame-ignore-revs` to package so `git blame` ignores the major
-refactoring commits from
+Added :file:`.git-blame-ignore-revs` to package so `git blame` ignores
+the major refactoring commits from
 `isort` PR `#66 <https://github.com/BaPSF/bapsflib/pull/66>`_
-and `black` PR`#67 <https://github.com/BaPSF/bapsflib/pull/67>`_.
+and `black` PR `#67 <https://github.com/BaPSF/bapsflib/pull/67>`_\ .

@@ -1,1 +1,1 @@
-Add ``isort`` configuration to ``pyproject.toml``.
+Added ``isort`` configuration to ``pyproject.toml``.

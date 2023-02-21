@@ -29,4 +29,6 @@ def _bytes_to_str(string: Union[bytes, str]) -> str:
         except UnicodeDecodeError:
             return str(string, "cp1252")
 
-    raise TypeError(f"Argument 'string' is not of type str or bytes, got {type(string)}.")
+    raise TypeError(
+        f"Argument 'string' is not of type str or bytes, got {type(string)}."
+    )

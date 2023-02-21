@@ -7,4 +7,4 @@ sphinx-automodapi >= 0.13
 sphinx-changelog
 sphinx-gallery
 sphinx_rtd_theme
-towncrier >= 22.8.0
+towncrier == 22.8.0

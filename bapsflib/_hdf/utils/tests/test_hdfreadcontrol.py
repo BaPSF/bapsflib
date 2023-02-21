@@ -305,7 +305,7 @@ class TestHDFReadControl(TestBase):
                 ("bits", np.uint32),
                 ("signal", np.float32),
                 ("command", np.bytes_, 10),
-                ("valid", np.bool),
+                ("valid", bool),
             ],
         )
         data["Shot number"] = np.arange(1, 11, 1, dtype=np.uint32)
@@ -372,7 +372,7 @@ class TestHDFReadControl(TestBase):
                             "dset paths": dset_paths,
                             "dset field": ("valid",),
                             "shape": (),
-                            "dtype": np.bool,
+                            "dtype": bool,
                         },
                     },
                 }

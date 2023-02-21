@@ -107,8 +107,8 @@ jobs:
             min-install: h5py==3.0
             python: '3.7'
 
-          - spec-name: h5py v3.0 numpy v1.17
-            min-install: h5py==3.0 numpy==1.17
+          - spec-name: h5py v3.0 numpy v1.20
+            min-install: h5py==3.0 numpy==1.20
             python: '3.7'
 
     steps:

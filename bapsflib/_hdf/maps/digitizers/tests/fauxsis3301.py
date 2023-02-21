@@ -47,7 +47,7 @@ class FauxSIS3301(h5py.Group):
             if isinstance(val, np.ndarray):
                 if (
                     val.shape == (13, 8)
-                    and np.issubdtype(val.dtype, np.bool)
+                    and np.issubdtype(val.dtype, bool)
                     and np.any(val)
                 ):
                     self._faux._active_brdch = val

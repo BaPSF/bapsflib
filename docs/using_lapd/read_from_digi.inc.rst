@@ -326,7 +326,7 @@ fields.
     configuration. The configuration has be unique to a block of
     recorded data.  For the :code:`'6K Compumotor'` the receptacle
     number is used as the configuration name, whereas, for the
-    :code:`'Waveform'` control the confiugration name is the name of the
+    :code:`'Waveform'` control the configuration name is the name of the
     configuration group inside the :code:`'Waveform` group.  Since the
     configurations are contain in the
     :code:`f.file_map.contorols[con_name].configs` dictionary, the

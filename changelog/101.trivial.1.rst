@@ -1,1 +1,2 @@
-Removed deprecated instances of `numpy.bool` and replaced with `bool`.
+Replaced several instances of `numpy` deprecated functionality: `numpy.bool` to
+`bool` and `numpy.bytes0` to `numpy.bytes_`.

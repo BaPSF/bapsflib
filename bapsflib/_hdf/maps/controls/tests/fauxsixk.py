@@ -341,8 +341,8 @@ class FauxSixK(h5py.Group):
                 ("z", np.float64),
                 ("theta", np.float64),
                 ("phi", np.float64),
-                ("Motion list", np.bytes0, 120),
-                ("Probe name", np.bytes0, 120),
+                ("Motion list", np.bytes_, 120),
+                ("Probe name", np.bytes_, 120),
             ]
         )
 

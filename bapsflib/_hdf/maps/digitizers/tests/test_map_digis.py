@@ -46,7 +46,7 @@ class TestHDFMapDigitizers(ut.TestCase):
 
     @property
     def group(self) -> h5py.Group:
-        """Data group holding digitizer gorups."""
+        """Data group holding digitizer groups."""
         return self.f[self.DIGI_ROOT]
 
     @property

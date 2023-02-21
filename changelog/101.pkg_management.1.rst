@@ -1,0 +1,1 @@
+Updated `numpy` dependency to ``>=1.20``.

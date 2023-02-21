@@ -1,0 +1,1 @@
+Fixed `towncrier` dependency to `towncrier==22.8.0`.

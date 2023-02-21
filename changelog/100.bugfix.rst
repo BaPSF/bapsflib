@@ -1,3 +1,3 @@
-Updated :func:`~bapsflib.utils._bytes_to_str` to handle byte strings
+Updated :func:`bapsflib.utils._bytes_to_str` to handle byte strings
 that my have been encoded using
-`Windows codespace 1252 <https://en.wikipedia.org/wiki/Windows-1252>`.
+`Windows codespace 1252 <https://en.wikipedia.org/wiki/Windows-1252>`_.

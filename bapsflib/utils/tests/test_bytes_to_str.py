@@ -15,6 +15,8 @@ class TestBytesToStr(ut.TestCase):
         conditions = [
             ("Hello", "Hello"),
             (b"Goodbye", "Goodbye"),
+            (b"doesn't", "doesn't"),
+            (b"doesn\x92t", "doesn’t"),
         ]
         for inputs, expected in conditions:
             with self.subTest(inputs=inputs, expected=expected):

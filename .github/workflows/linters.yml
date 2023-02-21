@@ -24,14 +24,15 @@ jobs:
           ISORTVERSION=$(python -c "import isort; print(isort.__version__)")
           echo "ISORT_VERSION=${ISORTVERSION}" >> $GITHUB_ENV
       - name: Which isort version
-        uses: isort/isort-action@master
+        uses: isort/isort-action@v1.1.0
         with:
-          isortVersion: "${{ env.ISORT_VERSION }}"
+          isort-version: "${{ env.ISORT_VERSION }}"
           configuration: "--version"
       - name: Run isort checks
-        uses: isort/isort-action@master
+        uses: isort/isort-action@v1.1.0
         with:
-          isortVersion: "${{ env.ISORT_VERSION }}"
+          isort-version: "${{ env.ISORT_VERSION }}"
+          requirements-files: "colorama"
           configuration: "--check-only --diff --color"
 
   black:

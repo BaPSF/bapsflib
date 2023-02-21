@@ -362,7 +362,7 @@ class HDFReadData(np.ndarray):
             shotnum = dheader[index.tolist(), shotnumkey]
 
             # define sni
-            sni = np.ones(shotnum.shape[0], dtype=np.bool)
+            sni = np.ones(shotnum.shape[0], dtype=bool)
 
             # print execution timing
             if timeit:  # pragma: no cover

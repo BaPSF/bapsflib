@@ -13,8 +13,8 @@ jobs:
     steps:
       - name: Look for changelog
         uses: rocco8773/actions-towncrier-changelog@vRoc
-        # TODO: return back to pllim when rocco8773 'vRoc' branch is pushed upstream
-        # uses: pllim/actions-towncrier-changelog@main
+        # TODO: return back to scientific-python when rocco8773 'vRoc' branch is pushed upstream
+        # uses: scientific-python/action-towncrier-changelog@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BOT_USERNAME: changelog_bot

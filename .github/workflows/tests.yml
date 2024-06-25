@@ -175,7 +175,8 @@ jobs:
       - name: Install requirements
         run: |
           pip install --progress-bar off --upgrade pip
-          pip install --progress-bar off -r requirements/install.txt twine
+          pip install --progress-bar off -r requirements/install.txt
+          pip install --progress-bar off twine importlib_metadata!=8.0.0
       - name: Build a binary wheel
         run: |
           python setup.py bdist_wheel

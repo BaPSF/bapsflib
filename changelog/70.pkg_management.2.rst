@@ -1,1 +1,0 @@
-Set minimum dependencies ``astropy >= 4.3.1`` and ``numpy >= 1.17``.

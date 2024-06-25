@@ -1,1 +1,0 @@
-Restrict `numpy` dependency to `numpy >= 1.2, < 2.0`.

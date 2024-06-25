@@ -1,0 +1,34 @@
+v2.0.0 (2024-06-25)
+===================
+
+Backwards Incompatible Changes
+------------------------------
+
+- Dropped support for ``h5py < 3.0``, and set minimum `h5py` dependency to
+  ``h5py >= 3.0``. (`#70 <https://github.com/BaPSF/bapsflib/pull/70>`_)
+
+
+Bug Fixes
+---------
+
+- Updated :func:`bapsflib.utils._bytes_to_str` to handle byte strings
+  that my have been encoded using
+  `Windows codespace 1252 <https://en.wikipedia.org/wiki/Windows-1252>`_. (`#100 <https://github.com/BaPSF/bapsflib/pull/100>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Replaced several instances of `numpy` deprecated functionality: `numpy.bool` to
+  `bool` and `numpy.bytes0` to `numpy.bytes_`. (`#101 <https://github.com/BaPSF/bapsflib/pull/101>`_)
+
+
+Package Management
+------------------
+
+- Extended GitHub Action workflow :file:`tests.yml` to include testing on
+  Python 3.9 and 3.10. (`#70 <https://github.com/BaPSF/bapsflib/pull/70>`_)
+- Set minimum dependencies ``astropy >= 4.3.1`` and ``numpy >= 1.17``. (`#70 <https://github.com/BaPSF/bapsflib/pull/70>`_)
+- Updated `numpy` dependency to ``>=1.20``. (`#101 <https://github.com/BaPSF/bapsflib/pull/101>`_)
+- Fixed `towncrier` dependency to `towncrier==22.8.0`. (`#101 <https://github.com/BaPSF/bapsflib/pull/101>`_)
+- Restrict `numpy` dependency to `numpy >= 1.2, < 2.0`. (`#126 <https://github.com/BaPSF/bapsflib/pull/126>`_)

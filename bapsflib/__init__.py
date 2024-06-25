@@ -21,7 +21,7 @@ import sys
 if sys.version_info < (3, 9):  # coverage: ignore
     raise ImportError("bapsflib does not support Python < 3.9")
 
-from importlib.metadata import version, PackageNotFoundError
+from importlib.metadata import PackageNotFoundError, version
 
 from bapsflib import _hdf, lapd, plasma, utils
 

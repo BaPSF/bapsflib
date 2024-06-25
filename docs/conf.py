@@ -132,8 +132,11 @@ html_theme = "sphinx_rtd_theme"
 # theme further.  For a list of options available for each theme, see
 # the documentation.
 #
+html_logo = "./_static/BaPSF_Logo_White_RGB_150px.png"
+html_favicon = "./_static/BaPSF_Logo_Color_white_background_RGB_32px.ico"
 html_theme_options = {
     "navigation_depth": 8,  # depth of readthedocs sidebar
+    "logo_only": False,
 }
 
 # Add any paths that contain custom static files (such as style sheets)

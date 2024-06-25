@@ -45,5 +45,6 @@ notebooks_for_proto
 # virtualenv
 .env
 .venv
+.venvs
 venv/
 ENV/

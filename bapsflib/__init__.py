@@ -21,24 +21,22 @@ import sys
 if sys.version_info < (3, 9):  # coverage: ignore
     raise ImportError("bapsflib does not support Python < 3.9")
 
-import pkg_resources
+from importlib.metadata import version, PackageNotFoundError
 
 from bapsflib import _hdf, lapd, plasma, utils
 
 # --- Define version -----------------------------------------------------------
 try:
-    # this places a runtime dependency on setuptools
-    #
     # note: if there's any distribution metadata in your source files, then this
     #       will find a version based on those files.  Keep distribution metadata
     #       out of your repository unless you've intentionally installed the package
-    #       as editable (e.g. `pip install -e {bapsflib_directory_root}`),
+    #       as editable (e.g. `pip install -e {root_directory}`),
     #       but then __version__ will not be updated with each commit, it is
     #       frozen to the version at time of install.
     #
     #: `bapsflib` version string
-    __version__ = pkg_resources.get_distribution("bapsflib").version
-except pkg_resources.DistributionNotFound:
+    __version__ = version("bapsflib")
+except PackageNotFoundError:
     # package is not installed
     fallback_version = "unknown"
     try:
@@ -69,4 +67,4 @@ except pkg_resources.DistributionNotFound:
     del fallback_version, warn_add
 
 
-del pkg_resources
+del sys

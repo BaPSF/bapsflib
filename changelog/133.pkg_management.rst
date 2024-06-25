@@ -1,0 +1,2 @@
+Removed dependency on deprecated package `pkg_resources`\ .  As a
+result, `bapsflib` gains the documentation dependency `packaging`\ .

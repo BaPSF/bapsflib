@@ -1,5 +1,6 @@
 # these are "extra" dependencies to run advanced package features
 # ought to mirror 'extras' under options.extras_require in config.cfg
-black==22.3.0
+-r install.txt
+black==24.3.0
 codespell
 isort

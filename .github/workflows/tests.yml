@@ -42,7 +42,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install 'bapsflib' dependencies
-        run: python -m pip install -r requirements/tests.txt
+        run: |
+          python -m pip install pip --upgrade
+          python -m pip install -r requirements/tests.txt --upgrade
       - name: Run tests ${{ matrix.name-modifier }}
         run: |
           if ${{ matrix.do-coverage }}; then
@@ -91,7 +93,9 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: Install 'bapsflib' dependencies
-        run: python -m pip install -r requirements/tests.txt
+        run: |
+          python -m pip install pip --upgrade
+          python -m pip install -r requirements/tests.txt --upgrade
       - name: Run tests
         run: |
             python -m unittest discover
@@ -126,6 +130,7 @@ jobs:
           python-version: ${{ matrix.python }}
       - name: Install 'bapsflib' dependencies
         run: |
+          python -m pip install pip --upgrade
           python -m pip install -r requirements/tests.txt ${{ matrix.min-install }}
       - name: Run tests
         run: python -m unittest discover
@@ -147,6 +152,7 @@ jobs:
           python-version: 3.8
       - name: Install 'bapsflib' dependencies
         run: |
+          python -m pip install pip --upgrade
           python -m pip install -r requirements/install.txt
       - name: Import 'bapsflib'
         run: |

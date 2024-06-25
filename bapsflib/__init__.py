@@ -16,6 +16,11 @@ data collected at BaPSF.
 """
 __all__ = ["lapd"]
 
+import sys
+
+if sys.version_info < (3, 9):  # coverage: ignore
+    raise ImportError("bapsflib does not support Python < 3.9")
+
 import pkg_resources
 
 from bapsflib import _hdf, lapd, plasma, utils

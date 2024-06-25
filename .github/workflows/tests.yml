@@ -22,13 +22,13 @@ jobs:
       matrix:
         include:
           # mark default
-          - python: '3.10'
+          - python: '3.7'
             os: ubuntu-latest
             do-coverage: false
             name-modifier: ''
 
           # mark case for coverage reporting
-          - python: '3.7'
+          - python: '3.10'
             os: ubuntu-latest
             do-coverage: true
             name-modifier: 'with Coverage'
@@ -55,9 +55,10 @@ jobs:
         if: ${{ matrix.do-coverage && !failure() }}
         uses: codecov/codecov-action@v4
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           files: .coverage
-          fail_ci_if_error: true
+          fail_ci_if_error: false
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   tests:
     needs: base-tests

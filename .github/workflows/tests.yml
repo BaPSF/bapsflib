@@ -22,13 +22,13 @@ jobs:
       matrix:
         include:
           # mark default
-          - python: '3.10'
+          - python: '3.7'
             os: ubuntu-latest
             do-coverage: false
             name-modifier: ''
 
           # mark case for coverage reporting
-          - python: '3.7'
+          - python: '3.10'
             os: ubuntu-latest
             do-coverage: true
             name-modifier: 'with Coverage'

@@ -149,9 +149,9 @@ class TestHDFOverview(TestBase):
             unknowns_discovery=mock.DEFAULT,
         ) as mock_values:
             mock_values["control_discovery"].side_effect = _overview.control_discovery()
-            mock_values[
-                "digitizer_discovery"
-            ].side_effect = _overview.digitizer_discovery()
+            mock_values["digitizer_discovery"].side_effect = (
+                _overview.digitizer_discovery()
+            )
             mock_values["msi_discovery"].side_effect = _overview.msi_discovery()
             mock_values["unknowns_discovery"].side_effect = _overview.unknowns_discovery()
 

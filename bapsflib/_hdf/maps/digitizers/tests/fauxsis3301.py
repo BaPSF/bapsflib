@@ -81,8 +81,8 @@ class FauxSIS3301(h5py.Group):
                     self._faux._update()
             else:
                 raise ValueError(
-                    "Given arugment `val` specifies configurations that DNE."
-                    f"Valid confiurations {self._faux._config_names}, specified"
+                    "Given argument `val` specifies configurations that DNE."
+                    f"Valid configurations {self._faux._config_names}, specified"
                     f" names val = {val}."
                 )
 

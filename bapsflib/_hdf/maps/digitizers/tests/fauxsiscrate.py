@@ -92,9 +92,9 @@ class FauxSISCrate(h5py.Group):
             if np.any(val["SIS 3305"][mask]):
                 freq = ["1.25 GHz", "2.5 GHz", "5 GHz"]
                 raise ValueError(
-                    f"Trying to activate unactive channels.  SIS 3305 is configued "
+                    f"Trying to activate unactive channels.  SIS 3305 is configured "
                     f"to mode {self.sis3305_mode} ({freq[self.sis3305_mode]}), thus "
-                    f"only chanels {available_chs} are available."
+                    f"only channels {available_chs} are available."
                 )
 
             # we're good

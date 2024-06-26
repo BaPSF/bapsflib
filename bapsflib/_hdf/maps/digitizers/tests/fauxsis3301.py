@@ -44,18 +44,21 @@ class FauxSIS3301(h5py.Group):
             """
             Set the active board, channel combinations
             """
-            if isinstance(val, np.ndarray):
-                if (
-                    val.shape == (13, 8)
-                    and np.issubdtype(val.dtype, bool)
-                    and np.any(val)
-                ):
-                    self._faux._active_brdch = val
-                    self._faux._update()
-                else:
-                    warn("`val` not valid, no update performed")
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, np.ndarray):
+                raise TypeError(f"Expected a numpy array, but got type {type(val)}.")
+            elif val.shape != (13, 8):
+                raise ValueError(
+                    f"Expected numpy array of shape (13, 8), got shape {val.shape}"
+                )
+            elif not np.issubdtype(val.dtype, bool):
+                raise TypeError(
+                    f"Expected numpy array of dtype bool, got dtype {val.dtype}."
+                )
+            elif not np.any(val):
+                raise ValueError("Digitizer has no active board-channel pairs.")
+
+            self._faux._active_brdch = val
+            self._faux._update()
 
         @property
         def active_config(self):
@@ -77,7 +80,11 @@ class FauxSIS3301(h5py.Group):
                     self._faux._active_config = val
                     self._faux._update()
             else:
-                warn("`val` not valid, no update performed")
+                raise ValueError(
+                    "Given arugment `val` specifies configurations that DNE."
+                    f"Valid confiurations {self._faux._config_names}, specified"
+                    f" names val = {val}."
+                )
 
         @property
         def n_configs(self):
@@ -87,12 +94,14 @@ class FauxSIS3301(h5py.Group):
         @n_configs.setter
         def n_configs(self, val):
             """Set number of waveform configurations"""
-            if val >= 1 and isinstance(val, int):
-                if val != self._faux._n_configs:
-                    self._faux._n_configs = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to be >=1.")
+
+            if val != self._faux._n_configs:
+                self._faux._n_configs = val
+                self._faux._update()
 
         @property
         def nt(self):
@@ -102,12 +111,12 @@ class FauxSIS3301(h5py.Group):
         @nt.setter
         def nt(self, val):
             """Set the number of temporal samples"""
-            if isinstance(val, int):
-                if val != self._faux._nt:
-                    self._faux._nt = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+
+            if val != self._faux._nt:
+                self._faux._nt = val
+                self._faux._update()
 
         @property
         def sn_size(self):
@@ -117,12 +126,14 @@ class FauxSIS3301(h5py.Group):
         @sn_size.setter
         def sn_size(self, val):
             """Set the number of shot numbers in a dataset"""
-            if isinstance(val, int) and val >= 1:
-                if val != self._faux._sn_size:
-                    self._faux._sn_size = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to be >=1.")
+
+            if val != self._faux._sn_size:
+                self._faux._sn_size = val
+                self._faux._update()
 
         def reset(self):
             """Reset 'SIS 3301' group to defaults."""

@@ -491,9 +491,9 @@ class HDFReadData(np.ndarray):
         sigtype = np.float32 if not keep_bits else dset.dtype
         shape = shotnum.shape
         dtype = [
-            ("shotnum", np.uint32, 1),
-            ("signal", sigtype, dset.shape[1]),
-            ("xyz", np.float32, 3),
+            ("shotnum", np.uint32, ()),
+            ("signal", sigtype, (dset.shape[1],)),
+            ("xyz", np.float32, (3,)),
         ]
         if len(controls) != 0:
             for subdtype in cdata.dtype.descr:

@@ -142,7 +142,7 @@ class FauxNIXYZ(h5py.Group):
         dtype = np.dtype(
             [
                 ("Shot number", np.int32),
-                ("Configuration name", np.bytes_, 120),
+                ("Configuration name", np.bytes_, (120,)),
                 ("motion_index", np.int32),
                 ("x", np.float64),
                 ("y", np.float64),

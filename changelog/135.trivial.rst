@@ -1,2 +1,2 @@
-Addressed `numpy`\ 's `FuturWarning` about `shape-1 field in dtypes
+Addressed `numpy`\ 's `FuturWarning` about `shape-1 fields in dtypes
 <https://numpy.org/doc/1.26/release/1.17.0-notes.html#shape-1-fields-in-dtypes-won-t-be-collapsed-to-scalars-in-a-future-version>`_.

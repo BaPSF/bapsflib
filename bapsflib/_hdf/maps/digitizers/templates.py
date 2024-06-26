@@ -19,6 +19,8 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple, Union
 from warnings import warn
 
+from bapsflib.utils.warnings import HDFMappingWarning
+
 
 class HDFMapDigiTemplate(ABC):
     # noinspection PySingleQuotedDocstring
@@ -383,17 +385,23 @@ class HDFMapDigiTemplate(ABC):
         if config_name is None:
             if len(self.active_configs) == 1:
                 config_name = self.active_configs[0]
-                warn(f"`config_name` not specified, assuming '{config_name}'")
+                warn(
+                    f"`config_name` not specified, assuming '{config_name}'",
+                    HDFMappingWarning,
+                )
             else:
                 raise ValueError("A valid `config_name` needs to be specified")
         elif self.configs[config_name]["active"] is False:
-            warn(f"Digitizer configuration '{config_name}' is not actively used.")
+            warn(
+                f"Digitizer configuration '{config_name}' is not actively used.",
+                HDFMappingWarning,
+            )
 
         # look for `adc`
         if adc is None:
             if len(self.configs[config_name]["adc"]) == 1:
                 adc = self.configs[config_name]["adc"][0]
-                warn(f"`adc` not specified, assuming '{adc}'")
+                warn(f"`adc` not specified, assuming '{adc}'", HDFMappingWarning)
             else:
                 raise ValueError("A valid `adc` needs to be specified")
 

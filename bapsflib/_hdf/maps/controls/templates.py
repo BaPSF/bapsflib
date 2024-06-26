@@ -21,6 +21,7 @@ from warnings import warn
 
 from bapsflib._hdf.maps.controls.parsers import CLParse
 from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControlTemplate(ABC):
@@ -420,7 +421,10 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
         # ensure 'Command index' is a field
         if "Command index" not in dset.dtype.names:
-            warn(f"Dataset '{dset_path}' does NOT have 'Command index' field")
+            warn(
+                f"Dataset '{dset_path}' does NOT have 'Command index' field",
+                HDFMappingWarning,
+            )
             return {}
 
         # ensure 'Command index' is a field of scalars
@@ -428,7 +432,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
             dset.dtype["Command index"].type, np.integer
         ):
             warn(
-                f"Dataset '{dset_path}' 'Command index' field is NOT a column of integers"
+                f"Dataset '{dset_path}' 'Command index' field is NOT a column "
+                f"of integers",
+                HDFMappingWarning,
             )
             return {}
 
@@ -511,6 +517,9 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         # update 'state values' dict
         if not bool(sv_dict):
             # do nothing since default parsing was unsuccessful
-            warn("RE parsing of 'command list' was unsuccessful, doing nothing")
+            warn(
+                "RE parsing of 'command list' was unsuccessful, doing nothing",
+                HDFMappingWarning,
+            )
         else:
             self._configs[config_name]["state values"] = sv_dict

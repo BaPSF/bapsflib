@@ -24,6 +24,7 @@ from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControl6K(HDFMapControlTemplate):
@@ -256,13 +257,13 @@ class HDFMapControl6K(HDFMapControlTemplate):
                         f"match the name defined in attributes '{ml_name}', "
                         f"using discovered name"
                     )
-                    warn(warn_str)
+                    warn(warn_str, HDFMappingWarning)
             except KeyError:
                 warn_str = (
                     f"Motion list attribute 'Motion list' not found for ML "
                     f"'{ml['config']['group name']}'"
                 )
-                warn(warn_str)
+                warn(warn_str, HDFMappingWarning)
 
             # -- check simple pairs --
             pairs = [
@@ -288,7 +289,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                         f"Motion list attribute '{pair[1]}' not found for ML "
                         f"'{ml['name']}'"
                     )
-                    warn(warn_str)
+                    warn(warn_str, HDFMappingWarning)
 
             # -- check 'delta' --
             try:
@@ -300,7 +301,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     f"Motion list attributes 'Delta x' and/or 'Delta y' not "
                     f"found for ML '{ml['name']}'"
                 )
-                warn(warn_str)
+                warn(warn_str, HDFMappingWarning)
 
             # -- check 'center' --
             try:
@@ -314,7 +315,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     f"Motion list attributes 'Grid center x' and/or 'Grid "
                     f"center y' not found for ML '{ml['name']}'"
                 )
-                warn(warn_str)
+                warn(warn_str, HDFMappingWarning)
 
             # -- check 'npoints' --
             try:
@@ -326,7 +327,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     f"Motion list attributes 'Nx' and/or 'Ny' not found "
                     f"for ML '{ml['name']}'"
                 )
-                warn(warn_str)
+                warn(warn_str, HDFMappingWarning)
 
             # return
             return ml
@@ -388,14 +389,15 @@ class HDFMapControl6K(HDFMapControlTemplate):
                     warn(
                         f"{pl['config']['group name']} Discovered probe list name "
                         f"'{probe_name}' does not match the name defined in "
-                        f"attributes '{pl_name}', using discovered name."
+                        f"attributes '{pl_name}', using discovered name.",
+                        HDFMappingWarning,
                     )
             except KeyError:
                 warn_str = (
                     f"{pl['config']['group name']}: Probe list attribute 'Probe' "
                     f"not found"
                 )
-                warn(warn_str)
+                warn(warn_str, HDFMappingWarning)
 
             # -- check receptacle number --
             try:
@@ -413,13 +415,13 @@ class HDFMapControl6K(HDFMapControlTemplate):
                         f"the number defined in attributes '{rnum}', using "
                         f"discovered name."
                     )
-                    warn(warn_str)
+                    warn(warn_str, HDFMappingWarning)
             except KeyError:
                 warn_str = (
                     f"{pl['config']['group name']}: Probe list attribute 'Receptacle' "
                     f"not found"
                 )
-                warn(warn_str)
+                warn(warn_str, HDFMappingWarning)
 
             # -- check pairs --
             pairs = [
@@ -450,7 +452,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
                         f"{pl['config']['group name']}: attribute '{pair[1]}' "
                         f"not found"
                     )
-                    warn(warn_str)
+                    warn(warn_str, HDFMappingWarning)
 
             # return
             return pl

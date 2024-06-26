@@ -31,6 +31,7 @@ from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib.utils import _bytes_to_str
+from bapsflib.utils.warnings import HDFMappingWarning
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
@@ -105,7 +106,10 @@ class HDFMap(object):
         if control_path in self._hdf_obj:
             self.__controls = HDFMapControls(self._hdf_obj[control_path])
         else:
-            warn(f"Group for control devices ('{control_path}') does NOT exist.")
+            warn(
+                f"Group for control devices ('{control_path}') does NOT exist.",
+                HDFMappingWarning,
+            )
             self.__controls = {}
 
     def __attach_digitizers(self):
@@ -118,7 +122,10 @@ class HDFMap(object):
         if digi_path in self._hdf_obj:
             self.__digitizers = HDFMapDigitizers(self._hdf_obj[digi_path])
         else:
-            warn(f"Group for digitizers ('{digi_path}') does NOT exist.")
+            warn(
+                f"Group for digitizers ('{digi_path}') does NOT exist.",
+                HDFMappingWarning,
+            )
             self.__digitizers = {}
 
     def __attach_msi(self):
@@ -131,7 +138,7 @@ class HDFMap(object):
         if msi_path in self._hdf_obj:
             self.__msi = HDFMapMSI(self._hdf_obj[msi_path])
         else:
-            warn(f"MSI ('{msi_path}') does NOT exist.")
+            warn(f"MSI ('{msi_path}') does NOT exist.", HDFMappingWarning)
             self.__msi = {}
 
     def __attach_unknowns(self):

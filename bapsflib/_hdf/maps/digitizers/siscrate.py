@@ -24,6 +24,7 @@ from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapDigiSISCrate(HDFMapDigiTemplate):
@@ -252,7 +253,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             f"not found for board {brd} and channel {ch}..."
                             f"removing combo from map"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         chs_to_remove.append(ch)
 
             # ensure chs is not NULL
@@ -265,7 +266,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     f"define any valid channel numbers...not adding to `configs` "
                     f"dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -287,7 +288,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"HDF5 structure unexpected...dataset '{dset_name}' has "
                         f"fields...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -298,7 +299,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"HDF5 structure unexpected...dataset '{dset_name}' is "
                         f"NOT a 2D array...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -315,7 +316,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             f"inconsistent across all channels for board {brd}..."
                             f"setting nt = -1"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         nt = -1
                         continue
 
@@ -332,7 +333,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                             f"inconsistent across all channels for board {brd}..."
                             f"setting nshotnum = -1"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         nshotnum = -1
                         continue
 
@@ -350,7 +351,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"NOT have expected shot number field '{sn_field}'..."
                         f"not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -363,7 +364,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"NOT have expected shape and dtype for a shot numbers"
                         f"...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -375,7 +376,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"for board {brd} and channel {ch} do NOT have th same "
                         f"number of shot numbers...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -388,7 +389,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     f"define any valid channel numbers...not adding to "
                     f"`configs` dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -596,7 +597,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # define _helpers
         if adc_name not in ("SIS 3302", "SIS 3305"):  # pragma: no cover
             # this should never happen
-            warn(f"Invalid adc name '{adc_name}'")
+            warn(f"Invalid adc name '{adc_name}'", HDFMappingWarning)
             return ()
         _helpers = {
             "SIS 3302": {
@@ -650,7 +651,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"HDF5 structure unexpected...defined slot number {slot} "
                         f"is unexpected...not adding to `configs` mapping"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
 
         # Ensure the same configuration index is not assign to multiple
         # slots for the same adc
@@ -665,7 +666,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         raise HDFMappingError(self.info["group path"], why=why)
                     else:
                         why += "...config not active so not adding to mapping"
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         return ()
 
         # gather adc configuration groups
@@ -691,7 +692,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     f"`config_index` {config_index} not defined in top-level "
                     f"configuration group"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
                 continue
 
             # find connected channels
@@ -725,7 +726,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                     f"not define any valid channel numbers...not adding to "
                     f"`configs` dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -766,7 +767,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                         f"not define a clock rate mode...setting to None in the "
                         f"`configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     cr_mode = -1
                 if cr_mode == 0:
                     cr = u.Quantity(1.25, unit="GHz")
@@ -915,7 +916,10 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         if config_name is None:
             if len(self.active_configs) == 1:
                 config_name = self.active_configs[0]
-                warn(f"`config_name` not specified, assuming '{config_name}'.")
+                warn(
+                    f"`config_name` not specified, assuming '{config_name}'.",
+                    HDFMappingWarning,
+                )
             elif len(self.active_configs) > 1:
                 raise ValueError(
                     "There are multiple active digitizer "
@@ -940,7 +944,8 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 adc = self.configs[config_name]["adc"][0]
                 warn(
                     f"No `adc` specified, but only one adc used..."
-                    f"assuming adc '{adc}'"
+                    f"assuming adc '{adc}'",
+                    HDFMappingWarning,
                 )
             else:
                 # there should never be a case where there are NO active
@@ -948,7 +953,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 # adc's
                 #
                 adc = "SIS 3302"
-                warn("No `adc` specified...assuming adc 'SIS 3302'")
+                warn("No `adc` specified...assuming adc 'SIS 3302'", HDFMappingWarning)
         elif adc not in self._configs[config_name]["adc"]:
             raise ValueError(
                 f"Specified adc ({adc}) is not in specified configuration "

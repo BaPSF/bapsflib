@@ -1,0 +1,1 @@
+Removed upper dependency limit on `numpy`, ``numpy < 2.0``.

@@ -35,6 +35,7 @@ from bapsflib._hdf.utils.helpers import (
     condition_shotnum,
     do_shotnum_intersection,
 )
+from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
@@ -402,7 +403,8 @@ class HDFReadControls(np.ndarray):
                                 # belongs to an array
                                 warn(
                                     f"Dataset missing field '{df_name}', applying "
-                                    f"NaN fill to to data array"
+                                    f"NaN fill to to data array",
+                                    HDFMappingWarning,
                                 )
                                 arr = np.zeros((len(index),), dtype=dtype)
 
@@ -423,7 +425,8 @@ class HDFReadControls(np.ndarray):
                                     # - this shouldn't happen though
                                     warn(
                                         f"dtype ({dtype}) of {nf_name} has no NaN "
-                                        f"concept...no NaN fill done"
+                                        f"concept...no NaN fill done",
+                                        BaPSFWarning,
                                     )
                             else:
                                 # expected field df_name is missing
@@ -468,7 +471,8 @@ class HDFReadControls(np.ndarray):
                             # - this shouldn't happen though
                             warn(
                                 f"dtype ({dtype}) of {nf_name} has no NaN concept"
-                                f"...no NaN fill done"
+                                f"...no NaN fill done",
+                                BaPSFWarning,
                             )
 
             # print execution timing

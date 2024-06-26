@@ -23,6 +23,7 @@ from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControlNIXZ(HDFMapControlTemplate):
@@ -74,7 +75,10 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
 
         # check there are existing motion lists
         if len(self.subgroup_names) == 0:
-            warn(f"{self.info['group path']}: no defining motion list groups exist")
+            warn(
+                f"{self.info['group path']}: no defining motion list groups exist",
+                HDFMappingWarning,
+            )
 
         # get dataset
         try:
@@ -111,7 +115,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         # warn if no motion lists exist
         if not bool(_ml_names):
             why = "NI_XZ has no identifiable motion lists"
-            warn(why)
+            warn(why, HDFMappingWarning)
 
         # gather ML config values
         pairs = [
@@ -156,7 +160,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
                         f"Motion List attribute '{pair[1]}' not found for "
                         f"ML group '{name}'"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
 
         # ---- define 'dset paths'                                  ----
         self.configs[cname]["dset paths"] = (dset.name,)
@@ -194,7 +198,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         elif fx or fz:
             missf = "x" if fx else "z"
             why = f" Dataset '{dset.name}' missing field '{missf}'"
-            warn(why)
+            warn(why, HDFMappingWarning)
 
     def construct_dataset_name(self, *args) -> str:
         """

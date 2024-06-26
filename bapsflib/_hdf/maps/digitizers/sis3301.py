@@ -26,6 +26,7 @@ from warnings import warn
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapDigiSIS3301(HDFMapDigiTemplate):
@@ -180,7 +181,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             warn(
                                 f"Found sample averaging of '{_match.group('NAME')}' "
                                 f"but can not convert to int...using a value of "
-                                f"None instead"
+                                f"None instead",
+                                HDFMappingWarning,
                             )
             conn[2]["sample average (hardware)"] = splave
 
@@ -264,7 +266,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             f"not found for board {brd} and channel {ch}"
                             f"...removing combo from map"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         chs_to_remove.append(ch)
 
             # ensure chs is not NULL
@@ -277,7 +279,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     f"define any valid channel numbers...not adding to "
                     f"`configs` dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -297,7 +299,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                         f"HDF5 structure unexpected...dataset '{dset_name}' has "
                         f"fields...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -308,7 +310,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                         f"HDF5 structure unexpected...dataset '{dset_name}' is "
                         f"NOT a 2D array...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -325,7 +327,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             f"sample inconsistent across all channels for "
                             f"board {brd}...setting nt = -1"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         nt = -1
                         continue
 
@@ -342,7 +344,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             f"numbers inconsistent across all channels for "
                             f"board {brd}...setting nshotnum = -1"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         nshotnum = -1
                         continue
 
@@ -366,7 +368,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             f"does NOT have expected shot number field "
                             f"'{sn_field}'...not adding to `configs` dict"
                         )
-                        warn(why)
+                        warn(why, HDFMappingWarning)
                         chs_to_remove.append(ch)
                         continue
 
@@ -379,7 +381,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                         f"does NOT have expected shape and dtype for a shot "
                         f"numbers...not adding to `configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -392,7 +394,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                         f"the same number of shot numbers...not adding to "
                         f"`configs` dict"
                     )
-                    warn(why)
+                    warn(why, HDFMappingWarning)
                     chs_to_remove.append(ch)
                     continue
 
@@ -405,7 +407,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     f"define any valid channel numbers...not adding to "
                     f"`configs` dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -566,7 +568,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             if not bool(re.fullmatch(r"Boards\[\d+\]", board)):
                 warn(
                     f"'{board}' does not match expected board group name..."
-                    f"not adding to mapping"
+                    f"not adding to mapping",
+                    HDFMappingWarning,
                 )
                 continue
 
@@ -581,10 +584,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
             # ensure brd is an int
             if not isinstance(brd, (int, np.integer)):
-                warn("Board number is not an integer")
+                warn("Board number is not an integer", HDFMappingWarning)
                 continue
             elif brd < 0:
-                warn("Board number is less than 0.")
+                warn("Board number is less than 0.", HDFMappingWarning)
                 continue
 
             # ensure there's no duplicate board numbers
@@ -598,7 +601,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 if active:
                     raise HDFMappingError(self.info["group path"], why=why)
                 else:
-                    warn(why)
+                    warn(why, HDFMappingWarning)
 
                     # skip adding to conn list
                     continue
@@ -610,7 +613,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 if not bool(re.fullmatch(r"Channels\[\d+\]", ch_key)):
                     warn(
                         f"'{board}' does not match expected channel group name"
-                        f"...not adding to mapping"
+                        f"...not adding to mapping",
+                        HDFMappingWarning,
                     )
                     continue
 
@@ -626,10 +630,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
                 # ensure ch is an int
                 if not isinstance(ch, (int, np.integer)):
-                    warn("Channel number is not an integer")
+                    warn("Channel number is not an integer", HDFMappingWarning)
                     continue
                 elif ch < 0:
-                    warn("Channel number is less than 0.")
+                    warn("Channel number is less than 0.", HDFMappingWarning)
                     continue
 
                 # define list of channels
@@ -642,7 +646,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     f"define a unique set of channel numbers...not adding to "
                     f"`configs` dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -654,7 +658,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                     f"define any valid channel numbers...not adding to "
                     f"`configs` dict"
                 )
-                warn(why)
+                warn(why, HDFMappingWarning)
 
                 # skip adding to conn list
                 continue
@@ -748,7 +752,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         if config_name is None:
             if len(self.active_configs) == 1:
                 config_name = self.active_configs[0]
-                warn(f"`config_name` not specified, assuming '{config_name}'.")
+                warn(
+                    f"`config_name` not specified, assuming '{config_name}'.",
+                    HDFMappingWarning,
+                )
             elif len(self.active_configs) > 1:
                 raise ValueError(
                     "There are multiple active digitizer "

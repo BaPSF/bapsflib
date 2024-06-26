@@ -21,6 +21,7 @@ from warnings import warn
 
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapMSIDischarge(HDFMapMSITemplate):
@@ -75,7 +76,8 @@ class HDFMapMSIDischarge(HDFMapMSITemplate):
                 self._configs[pair[0]] = []
                 warn(
                     f"Attribute '{pair[1]}' not found for MSI diagnostic "
-                    f"'{self.device_name}', continuing with mapping"
+                    f"'{self.device_name}', continuing with mapping",
+                    HDFMappingWarning,
                 )
 
         # initialize 'shape'

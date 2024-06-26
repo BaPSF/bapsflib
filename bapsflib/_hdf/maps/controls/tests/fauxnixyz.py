@@ -59,11 +59,9 @@ class FauxNIXYZ(h5py.Group):
 
             # condition val
             if not isinstance(val, (int, np.integer)):
-                warn("Setting value must be an integer of >=1")
-                val = old_val
+                raise TypeError(f"Expected type int, but got {type(val)}.")
             elif val < 1:
-                warn("Setting value must be an integer of >=1")
-                val = old_val
+                raise ValueError(f"Given argument `val` ({val}) needs to >=1.")
 
             # only update if self._n_motionlists had been defined once
             # prior
@@ -95,11 +93,9 @@ class FauxNIXYZ(h5py.Group):
 
             # condition val
             if not isinstance(val, (int, np.integer)):
-                warn("Setting value must be an integer of >=1")
-                val = old_val
+                raise TypeError(f"Expected type int, but got {type(val)}.")
             elif val < 1:
-                warn("Setting value must be an integer of >=1")
-                val = old_val
+                raise ValueError(f"Given argument `val` ({val}) needs to >=1.")
 
             # only update if self._sn_size had been defined once prior
             if hasattr(self, "_sn_size"):

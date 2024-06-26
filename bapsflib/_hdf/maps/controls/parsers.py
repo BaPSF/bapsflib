@@ -22,6 +22,8 @@ import re
 from typing import Iterable, Union
 from warnings import warn
 
+from bapsflib.utils.warnings import HDFMappingWarning
+
 
 class CLParse(object):
     """
@@ -221,7 +223,8 @@ class CLParse(object):
                 # issue warning
                 warn(
                     f"Symbolic group ({name}) removed since some or all of the "
-                    f"'command list' has None values"
+                    f"'command list' has None values",
+                    HDFMappingWarning,
                 )
             elif not all(
                 isinstance(val, type(cls_dict[name]["command list"][0]))
@@ -234,7 +237,8 @@ class CLParse(object):
                 # issue warning
                 warn(
                     f"Symbolic group ({name}) removed since all entries in "
-                    f"'command list' do NOT have the same type"
+                    f"'command list' do NOT have the same type",
+                    HDFMappingWarning,
                 )
             else:
                 # condition 'command list' value and determine 'dtype'

@@ -21,6 +21,7 @@ from unittest import mock
 from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
 from bapsflib._hdf.maps.digitizers.tests.common import DigitizerTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestSISCrate(DigitizerTestCase):
@@ -66,7 +67,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
 
         # not specified, and MULTIPLE active configs
@@ -128,7 +129,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             self.assertEqual(_map.construct_dataset_name(brd, ch), dset_name)
 
         # `adc` is None and there's TWO active adc
@@ -149,7 +150,7 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
 
         # -- `board` and `channel` combo not in configs             ----
@@ -371,7 +372,7 @@ class TestSISCrate(DigitizerTestCase):
             _map = self.map
 
     def test_map_warnings(self):
-        """Test scenarios that should cause a UserWarning."""
+        """Test scenarios that should cause a HDFMappingWarning."""
         # 1.  configuration group defines unexpected/unknown slot
         #     number
         # 2.  for inactive config, configuration index is assigned to
@@ -431,7 +432,7 @@ class TestSISCrate(DigitizerTestCase):
         wrong_ss = slots.copy()
         wrong_ss[2] = 5000
         cgroup.attrs["SIS crate slot numbers"] = wrong_ss
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
         cgroup.attrs["SIS crate slot numbers"] = slots
 
@@ -442,7 +443,7 @@ class TestSISCrate(DigitizerTestCase):
         wrong_ii = indices.copy()
         wrong_ii[2] = indices[1]
         cgroup.attrs["SIS crate config indices"] = wrong_ii
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertEqual(_map.configs["config02"][adc], ())
         cgroup.attrs["SIS crate config indices"] = indices
@@ -457,7 +458,7 @@ class TestSISCrate(DigitizerTestCase):
         wrong_ii = indices.copy()
         wrong_ii[-1] = 5
         cgroup.attrs["SIS crate config indices"] = wrong_ii
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map  # type: HDFMapDigiSISCrate
             brd = _map.slot_info[slot][0]
             self.assertTrue(
@@ -470,7 +471,7 @@ class TestSISCrate(DigitizerTestCase):
         # - same code-block is triggered by #3
         cgroup = self.dgroup[config_path]
         cgroup.create_group("SIS crate 3302 configurations[5]")
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
         del cgroup["SIS crate 3302 configurations[5]"]
 
@@ -485,7 +486,7 @@ class TestSISCrate(DigitizerTestCase):
             attr_name = f"Enabled {ii}"
             save.append(adc_group.attrs[attr_name])
             adc_group.attrs[attr_name] = np.bytes_("FALSE")
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             self.assertTrue(
@@ -520,7 +521,7 @@ class TestSISCrate(DigitizerTestCase):
         adc_group = cgroup[adc_config_name]
         cr_mode = adc_group.attrs["Channel mode"]
         del adc_group.attrs["Channel mode"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             conns = _map.configs[config_name][adc]
@@ -533,7 +534,7 @@ class TestSISCrate(DigitizerTestCase):
         # adc 'SIS 3305' configuration group defines a none          (7)
         # integer 'Channel mode' attribute
         adc_group.attrs["Channel mode"] = np.bytes_("five")
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             conns = _map.configs[config_name][adc]
@@ -574,7 +575,7 @@ class TestSISCrate(DigitizerTestCase):
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
         new_name = dset_name + "Q"
         self.dgroup.move(dset_name, new_name)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -596,7 +597,7 @@ class TestSISCrate(DigitizerTestCase):
             dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
             new_name = dset_name + "Q"
             self.dgroup.move(dset_name, new_name)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])
@@ -614,7 +615,7 @@ class TestSISCrate(DigitizerTestCase):
         self.dgroup.move(dset_name, new_name)
         data = np.empty(3, dtype=[("f1", np.int16), ("f2", np.int16)])
         self.dgroup.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -638,7 +639,7 @@ class TestSISCrate(DigitizerTestCase):
         self.dgroup.move(dset_name, new_name)
         data = np.empty((3, 100, 3), dtype=np.int16)
         self.dgroup.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -664,7 +665,7 @@ class TestSISCrate(DigitizerTestCase):
         dset = self.dgroup[new_name]
         data = np.empty((dset.shape[0], dset.shape[1] + 1), dtype=dset.dtype)
         self.dgroup.create_dataset(dset_name, data=data)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -699,7 +700,7 @@ class TestSISCrate(DigitizerTestCase):
         self.dgroup.move(hdset_name, hdset_name + "Q")
         self.dgroup.create_dataset(dset_name, data=data2)
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -732,7 +733,7 @@ class TestSISCrate(DigitizerTestCase):
         hdata2 = hdata[names]
         self.dgroup.move(hdset_name, hdset_name + "Q")
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -761,7 +762,7 @@ class TestSISCrate(DigitizerTestCase):
         # wrong dtype
         hdata2 = np.empty(hdata.shape, dtype=[("Shot number", np.float32)])
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -779,7 +780,7 @@ class TestSISCrate(DigitizerTestCase):
         # wrong shape
         hdata2 = np.empty(hdata.shape, dtype=[("Shot number", np.uint32, 2)])
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -806,7 +807,7 @@ class TestSISCrate(DigitizerTestCase):
         hdata2 = np.append(hdata, hdata[-2::, ...], axis=0)
         self.dgroup.move(hdset_name, hdset_name + "Q")
         self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             chs = None
@@ -840,7 +841,7 @@ class TestSISCrate(DigitizerTestCase):
 
             self.dgroup.move(hdset_name, hdset_name + "Q")
             self.dgroup.create_dataset(hdset_name, data=hdata2)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
 
             self.assertNotIn(brd, [conn[0] for conn in _map.configs[config_name][adc]])

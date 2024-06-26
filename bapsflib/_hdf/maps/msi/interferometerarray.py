@@ -21,6 +21,7 @@ from warnings import warn
 
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
@@ -109,7 +110,8 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                 self._configs[pair[0]] = []
                 warn(
                     f"Attribute '{pair[1]}' not found for MSI diagnostic "
-                    f"'{self.device_name}', continuing with mapping"
+                    f"'{self.device_name}', continuing with mapping",
+                    HDFMappingWarning,
                 )
 
         # more handling of general info value 'n interferometer'
@@ -119,13 +121,15 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
             check_n_inter = False
             warn(
                 f"Attribute '{pair[1]}' for MSI diagnostic "
-                f"'{self.device_name}' not an integer, continuing with mapping"
+                f"'{self.device_name}' not an integer, continuing with mapping",
+                HDFMappingWarning,
             )
         elif not isinstance(self._configs[pair[0]][0], (int, np.integer)):
             check_n_inter = False
             warn(
                 f"Attribute '{pair[1]}' for MSI diagnostic "
-                f"'{self.device_name}' not an integer, continuing with mapping"
+                f"'{self.device_name}' not an integer, continuing with mapping",
+                HDFMappingWarning,
             )
 
         # initialize 'shape'
@@ -206,7 +210,8 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
                         self._configs[pair[0]].append(None)
                         warn(
                             f"Attribute '{pair[1]}' not found for MSI diagnostic "
-                            f"'{self.device_name}/{name}', continuing with mapping"
+                            f"'{self.device_name}/{name}', continuing with mapping",
+                            HDFMappingWarning,
                         )
 
                 # define values to ensure dataset sizes are consistent

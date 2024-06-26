@@ -21,6 +21,7 @@ from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestHDFMap(ut.TestCase):
@@ -135,7 +136,7 @@ class TestHDFMap(ut.TestCase):
         #      controls
         #
         # specified control path does NOT exist                      (1)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map_file(
                 self.f,
                 msi_path="MSI",
@@ -181,7 +182,7 @@ class TestHDFMap(ut.TestCase):
         #      non-mappable digitizers
         #
         # specified digitizer path does NOT exist                    (1)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map_file(
                 self.f,
                 msi_path="MSI",
@@ -320,7 +321,7 @@ class TestHDFMap(ut.TestCase):
         #      non-mappable MSI diagnostics
         #
         # specified MSI path does NOT exist                          (1)
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map_file(
                 self.f,
                 msi_path="Not a MSI path",

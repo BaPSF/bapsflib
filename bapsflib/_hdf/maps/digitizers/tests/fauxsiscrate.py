@@ -14,6 +14,8 @@ import numpy as np
 from typing import Dict, Iterable, Tuple, Union
 from warnings import warn
 
+from bapsflib.utils.warnings import BaPSFWarning
+
 
 class FauxSISCrate(h5py.Group):
     """
@@ -45,39 +47,55 @@ class FauxSISCrate(h5py.Group):
             Set the active board, channel combinations
             """
             if not isinstance(val, np.ndarray):
-                warn("`val` not valid, no update performed")
-                return
+                raise TypeError(f"Expected a numpy array, but got type {type(val)}.")
             elif val.shape != ():
-                warn("`val` not valid, no update performed")
-                return
+                raise ValueError(
+                    f"Expected numpy array of shape (), got shape {val.shape}."
+                )
             elif not all(name in val.dtype.names for name in self._faux.device_adcs):
-                warn("`val` not valid, no update performed")
-                return
-            elif val.dtype["SIS 3302"].shape != (4, 8) or val.dtype["SIS 3305"].shape != (
-                2,
-                8,
-            ):
-                warn("`val` not valid, no update performed")
-                return
+                raise ValueError(
+                    "Given argument `val` does not contain all the named ADCs, "
+                    f"expected names {self._faux.device_adcs} "
+                    f"but got {val.dtype.names}."
+                )
+            elif val.dtype["SIS 3302"].shape != (4, 8):
+                raise ValueError(
+                    f"Given 'SIS 3302' has shape {val.dtype['SIS 3302'].shape}, but "
+                    f"expected shape (4, 8)."
+                )
+            elif val.dtype["SIS 3305"].shape != (2, 8):
+                raise ValueError(
+                    f"Given 'SIS 3305' has shape {val.dtype['SIS 3305'].shape}, but "
+                    f"expected shape (2, 8)."
+                )
             elif not np.any(val["SIS 3302"]) and not np.any(val["SIS 3305"]):
-                warn("`val` not valid, no update performed")
-                return
+                raise ValueError(
+                    "No active (board, channel) pairs are defined in 'SIS 3302'"
+                    "or 'SIS 3305'."
+                )
 
             # check against 'SIS 3305' mode
             # - prevent enabling channels that can't be enabled for
             #   the SIS 3305 mode
             if self.sis3305_mode == 2:
                 mask = np.array(2 * [True, False, False, False], dtype=bool)
+                available_chs = [1, 5]
             elif self.sis3305_mode == 1:
                 mask = np.array(2 * [True, False, True, False], dtype=bool)
+                available_chs = [1, 3, 5, 7]
             else:
                 mask = np.ones(8, dtype=bool)
+                available_chs = list(range(1, 9))
             mask = np.logical_not(mask)
             mask = mask.reshape(1, 8)
             mask = np.append(mask, mask, axis=0)
             if np.any(val["SIS 3305"][mask]):
-                warn("`val` not valid, no update performed")
-                return
+                freq = ["1.25 GHz", "2.5 GHz", "5 GHz"]
+                raise ValueError(
+                    f"Trying to activate unactive channels.  SIS 3305 is configured "
+                    f"to mode {self.sis3305_mode} ({freq[self.sis3305_mode]}), thus "
+                    f"only channels {available_chs} are available."
+                )
 
             # we're good
             self._faux._active_brdch = val
@@ -103,7 +121,11 @@ class FauxSISCrate(h5py.Group):
                     self._faux._active_config = val
                     self._faux._update()
             else:
-                warn("`val` not valid, no update performed")
+                raise ValueError(
+                    "Given argument `val` specified invalid configurations names.  "
+                    f"Valid names are {self._faux._config_names} and given "
+                    f"names were {val}."
+                )
 
         @property
         def n_configs(self):
@@ -113,12 +135,14 @@ class FauxSISCrate(h5py.Group):
         @n_configs.setter
         def n_configs(self, val):
             """Set number of waveform configurations"""
-            if val >= 1 and isinstance(val, int):
-                if val != self._faux._n_configs:
-                    self._faux._n_configs = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to be >=1.")
+
+            if val != self._faux._n_configs:
+                self._faux._n_configs = val
+                self._faux._update()
 
         @property
         def nt(self):
@@ -128,12 +152,12 @@ class FauxSISCrate(h5py.Group):
         @nt.setter
         def nt(self, val):
             """Set the number of temporal samples"""
-            if isinstance(val, int):
-                if val != self._faux._nt:
-                    self._faux._nt = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+
+            if val != self._faux._nt:
+                self._faux._nt = val
+                self._faux._update()
 
         @property
         def sis3305_mode(self):
@@ -149,12 +173,14 @@ class FauxSISCrate(h5py.Group):
             Set SIS 3305 acquisition mode. (0 = 1.25 GHz, 1 = 2.5 GHZ,
             2 = 5 GHz)
             """
-            if val in (0, 1, 2):
-                if val != self._faux._sis3305_mode:
-                    self._faux._sis3305_mode = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected an int, got type {type(val)}.")
+            if val not in (0, 1, 2):
+                raise ValueError(f"Given argument `val` ({val}) must be 0, 1, or 2.")
+
+            if val != self._faux._sis3305_mode:
+                self._faux._sis3305_mode = val
+                self._faux._update()
 
         @property
         def sn_size(self):
@@ -164,12 +190,14 @@ class FauxSISCrate(h5py.Group):
         @sn_size.setter
         def sn_size(self, val):
             """Set the number of shot numbers in a dataset"""
-            if isinstance(val, int) and val >= 1:
-                if val != self._faux._sn_size:
-                    self._faux._sn_size = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to be >=1.")
+
+            if val != self._faux._sn_size:
+                self._faux._sn_size = val
+                self._faux._update()
 
         def reset(self):
             """Reset 'SIS 3301' group to defaults."""
@@ -244,7 +272,10 @@ class FauxSISCrate(h5py.Group):
                 # determine slot number
                 slot = self.get_slot(brd + 1, field)
                 if slot is None:
-                    warn(f"Got no slot number for board number {brd+1}")
+                    warn(
+                        f"Got no slot number for board number {brd+1}.",
+                        BaPSFWarning,
+                    )
                     continue
 
                 # update lists

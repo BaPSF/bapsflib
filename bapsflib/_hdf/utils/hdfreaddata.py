@@ -32,6 +32,7 @@ from bapsflib._hdf.utils.helpers import (
     do_shotnum_intersection,
 )
 from bapsflib.plasma import core
+from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
 # noinspection PyInitNewSignature
@@ -217,7 +218,7 @@ class HDFReadData(np.ndarray):
                 f"Digitizer not specified so assuming the 'main_digitizer' "
                 f"({_fmap.main_digitizer.device_name}) defined in the mappings."
             )
-            warn(why)
+            warn(why, BaPSFWarning)
             _dmap = _fmap.main_digitizer
         else:
             try:
@@ -564,7 +565,10 @@ class HDFReadData(np.ndarray):
         try:
             voffset = dheader[0, "Offset"] * u.volt
         except ValueError:
-            warn("Digitizer header dataset is missing the voltage 'Offset' field. ")
+            warn(
+                "Digitizer header dataset is missing the voltage 'Offset' field. ",
+                HDFMappingWarning,
+            )
             voffset = None
 
         # assign dataset meta-info
@@ -613,7 +617,10 @@ class HDFReadData(np.ndarray):
         #
         if not keep_bits:
             if obj.dv is None:
-                warn("Unable to calculated voltage step size...'signal' remains as bits")
+                warn(
+                    "Unable to calculated voltage step size...'signal' remains as bits",
+                    BaPSFWarning,
+                )
             else:
                 # define offset
                 offset = abs(obj.info["voltage offset"].value)

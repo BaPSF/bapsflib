@@ -24,6 +24,7 @@ from bapsflib._hdf.maps.controls.templates import HDFMapControlCLTemplate
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControlWaveform(HDFMapControlCLTemplate):
@@ -131,7 +132,7 @@ class HDFMapControlWaveform(HDFMapControlCLTemplate):
                     )
                     if pair[0] != "command list":
                         warn_str += ", continuing with mapping"
-                        warn(warn_str)
+                        warn(warn_str, HDFMappingWarning)
                     else:
                         why = (
                             f"Attribute '{pair[1]}' not found for configuration "

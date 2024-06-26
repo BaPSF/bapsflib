@@ -17,6 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps.msi.discharge import HDFMapMSIDischarge
 from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestDischarge(MSIDiagnosticTestCase):
@@ -35,7 +36,7 @@ class TestDischarge(MSIDiagnosticTestCase):
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
-        # any failed build must throw a UserWarning
+        # any failed build must throw a HDFMappingWarning
         #
         # not all required datasets are found                       ----
         # - Datasets should be:
@@ -168,7 +169,7 @@ class TestDischarge(MSIDiagnosticTestCase):
         # - a warning is thrown, but mapping continues
         # - remove attribute 'Timestep'
         del self.dgroup.attrs["Timestep"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("dt", _map.configs)
             self.assertEqual(_map.configs["dt"], [])

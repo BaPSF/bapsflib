@@ -22,6 +22,7 @@ from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestDigiTemplates(ut.TestCase):
@@ -204,7 +205,7 @@ class TestDigiTemplates(ut.TestCase):
                 "digitizer": _map.device_name,
             }
         )
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             adc_info = _map.get_adc_info(brd, ch, adc=adc)
             self.assertADCInfo(adc_info, compare_to=compare_to)
 
@@ -224,7 +225,7 @@ class TestDigiTemplates(ut.TestCase):
                 "digitizer": _map.device_name,
             }
         )
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             adc_info = _map.get_adc_info(brd, ch, config_name=config_name, adc=adc)
             self.assertADCInfo(adc_info, compare_to=compare_to)
 
@@ -245,7 +246,7 @@ class TestDigiTemplates(ut.TestCase):
                 "digitizer": _map.device_name,
             }
         )
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             adc_info = _map.get_adc_info(brd, ch, config_name=config_name)
             self.assertADCInfo(adc_info, compare_to=compare_to)
 

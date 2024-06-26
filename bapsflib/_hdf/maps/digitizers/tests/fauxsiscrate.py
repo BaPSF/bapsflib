@@ -16,6 +16,7 @@ from warnings import warn
 
 from bapsflib.utils.warnings import BaPSFWarning
 
+
 class FauxSISCrate(h5py.Group):
     """
     Creates a Faux 'SIS crate' Group in a HDF5 file.

@@ -45,15 +45,20 @@ class FauxSixK(h5py.Group):
         @n_configs.setter
         def n_configs(self, val: int):
             """Set number of 6K configurations"""
-            if 1 <= val <= self._faux._MAX_CONFIGS and isinstance(val, int):
-                if val != self._faux._n_configs:
-                    self._faux._n_configs = val
-                    self._faux._n_probes = self._faux._n_configs
-                    if val > 1:
-                        self._faux._n_motionlists = 1
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}")
+            elif val < 1 or val > self._faux._MAX_CONFIGS:
+                raise ValueError(
+                    f"Given argument `val` ({val}) needs to be in the range "
+                    f"1 to {self._faux._MAX_CONFIGS}."
+                )
+
+            if val != self._faux._n_configs:
+                self._faux._n_configs = val
+                self._faux._n_probes = self._faux._n_configs
+                if val > 1:
+                    self._faux._n_motionlists = 1
+                self._faux._update()
 
         @property
         def n_motionlists(self):
@@ -66,12 +71,14 @@ class FauxSixK(h5py.Group):
         @n_motionlists.setter
         def n_motionlists(self, val):
             """Setter for n_motionlists"""
-            if val >= 1 and isinstance(val, int):
-                if val != self._faux._n_motionlists and self._faux._n_configs == 1:
-                    self._faux._n_motionlists = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to be >=1.")
+
+            if val != self._faux._n_motionlists and self._faux._n_configs == 1:
+                self._faux._n_motionlists = val
+                self._faux._update()
 
         @property
         def sn_size(self):
@@ -81,12 +88,14 @@ class FauxSixK(h5py.Group):
         @sn_size.setter
         def sn_size(self, val):
             """Set the number of shot numbers in the dataset"""
-            if val >= 1 and isinstance(val, int):
-                if val != self._faux._sn_size:
-                    self._faux._sn_size = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to be >=1.")
+
+            if val != self._faux._sn_size:
+                self._faux._sn_size = val
+                self._faux._update()
 
         def reset(self):
             """Reset '6K Compumotor' group to defaults."""

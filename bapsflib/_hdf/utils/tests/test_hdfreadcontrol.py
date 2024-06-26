@@ -367,7 +367,7 @@ class TestHDFReadControl(TestBase):
                             "dset paths": dset_paths,
                             "dset field": ("command",),
                             "shape": (),
-                            "dtype": np.dtype((np.unicode_, 10)),
+                            "dtype": np.dtype((np.str_, 10)),
                         },
                         "valid": {
                             "dset paths": dset_paths,

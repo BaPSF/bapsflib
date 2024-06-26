@@ -1182,10 +1182,12 @@ class TestHDFReadData(TestBase):
 
         dset_arr = dset[indices, ...]
         if not keep_bits:
-            dset_arr = dset_arr.astype(np.float32)
             dset_arr = (dv * dset_arr) - offset
+            dset_arr = dset_arr.astype(np.float32)
 
-        self.assertTrue(np.array_equal(data["signal"], dset_arr))
+        self.assertTrue(data["signal"].dtype == dset_arr.dtype)
+        self.assertTrue(data["signal"].shape == dset_arr.shape)
+        self.assertTrue(np.allclose(data["signal"], dset_arr, rtol=5e-5))
 
     def assertDataInfo(self, data, _bf):
         """

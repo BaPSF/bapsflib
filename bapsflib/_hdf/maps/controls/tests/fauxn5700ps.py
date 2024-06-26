@@ -40,12 +40,19 @@ class FauxN5700PS(h5py.Group):
         @n_configs.setter
         def n_configs(self, val: int):
             """Set number of configurations"""
-            if val >= 1 and isinstance(val, int):
-                if val != self._faux._n_configs:
-                    self._faux._n_configs = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(
+                    f"Given `val` is of type {type(val)}, expected int."
+                )
+            elif val < 1:
+                raise ValueError(
+                    f"Given argument `val` ({val}) needs to be greater than or "
+                    f"equal to 1."
+                )
+
+            if val != self._faux._n_configs:
+                self._faux._n_configs = val
+                self._faux._update()
 
         @property
         def sn_size(self):
@@ -55,12 +62,19 @@ class FauxN5700PS(h5py.Group):
         @sn_size.setter
         def sn_size(self, val):
             """Set the number of shot numbers in the dataset"""
-            if isinstance(val, int) and val >= 1:
-                if val != self._faux._sn_size:
-                    self._faux._sn_size = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(
+                    f"Given `val` is of type {type(val)}, expected int."
+                )
+            elif val < 1:
+                raise ValueError(
+                    f"Given argument `val` ({val}) needs to be greater than or "
+                    f"equal to 1."
+                )
+
+            if val != self._faux._sn_size:
+                self._faux._sn_size = val
+                self._faux._update()
 
         def reset(self):
             """Reset 'N5700_PS' group to defaults."""

@@ -81,9 +81,9 @@ class TestHDFReadData(TestBase):
         cdata = np.empty(
             20,
             dtype=[
-                ("shotnum", np.uint32, 1),
-                ("xyz", np.float32, 3),
-                ("freq", np.float32, 1),
+                ("shotnum", np.uint32, ()),
+                ("xyz", np.float32, (3,)),
+                ("freq", np.float32, ()),
             ],
         )
         cdata["shotnum"] = np.arange(41, 61, 1, dtype=np.uint32)

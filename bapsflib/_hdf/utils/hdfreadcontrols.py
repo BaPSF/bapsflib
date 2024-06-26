@@ -290,7 +290,7 @@ class HDFReadControls(np.ndarray):
         # ---- Build obj                                            ----
         # Define dtype and shape for numpy array
         shape = shotnum.shape
-        dtype = [("shotnum", np.uint32, 1)]
+        dtype = [("shotnum", np.uint32, ())]
         for control in controls:
             # control name (cname) and configuration name (cconfn)
             cname = control[0]

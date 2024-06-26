@@ -650,7 +650,7 @@ class TestSIS3301(DigitizerTestCase):
         del self.dgroup[hdset_name]
 
         # wrong shape
-        hdata2 = np.empty(hdata.shape, dtype=[("Shot", np.uint32, 2)])
+        hdata2 = np.empty(hdata.shape, dtype=[("Shot", np.uint32, (2,))])
         self.dgroup.create_dataset(hdset_name, data=hdata2)
         with self.assertWarns(HDFMappingWarning):
             _map = self.map

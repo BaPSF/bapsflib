@@ -26,6 +26,7 @@ from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class DummyTemplates(Enum):
@@ -265,14 +266,14 @@ class TestControlTemplates(ut.TestCase):
 
                 # the 'dset_paths' dataset does NOT have 'Command index'
                 configs_dict[config_name]["dset paths"] = ("/MSI/d2",)
-                with self.assertWarns(UserWarning):
+                with self.assertWarns(HDFMappingWarning):
                     sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                     self.assertFalse(bool(sv_dict))
 
                 # the 'dset_paths' dataset 'Command index' field does
                 # NOT have correct shape or dtype
                 configs_dict[config_name]["dset paths"] = ("/MSI/d3",)
-                with self.assertWarns(UserWarning):
+                with self.assertWarns(HDFMappingWarning):
                     sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                     self.assertFalse(bool(sv_dict))
 
@@ -368,7 +369,7 @@ class TestControlTemplates(ut.TestCase):
         ) as mock_csvd:
             # '_construct_state_values_dict' fails and returns {}
             mock_csvd.return_value = {}
-            with self.assertWarns(UserWarning):
+            with self.assertWarns(HDFMappingWarning):
                 _map.set_state_values_config(config_name, [pattern])
                 self.assertEqual(_map._configs[config_name]["state values"], {})
 

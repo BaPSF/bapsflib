@@ -24,6 +24,7 @@ from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 from bapsflib._hdf.utils.tests import TestBase
 from bapsflib.utils.decorators import with_bf
+from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
 class TestHDFReadControl(TestBase):
@@ -245,7 +246,7 @@ class TestHDFReadControl(TestBase):
         sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
         sn_v = np.array([8, 9, 10], dtype=np.uint32)
         controls = [("Sample", "config01")]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             cdata = HDFReadControls(
                 _bf, controls, shotnum=sn, assume_controls_conditioned=True
             )
@@ -386,7 +387,7 @@ class TestHDFReadControl(TestBase):
         }
 
         # -- Run Tests                                              ----
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             sn = np.array([8, 9, 10, 11, 12, 13], dtype=np.uint32)
             sn_v = np.array([8, 9, 10], dtype=np.uint32)
             controls = [("Sample", "config01")]

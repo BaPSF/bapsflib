@@ -20,6 +20,7 @@ from bapsflib._hdf.maps.controls import ConType
 from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestN5700PS(ControlTestCase):
@@ -89,7 +90,7 @@ class TestN5700PS(ControlTestCase):
         # - remove attribute 'IP address'
         config_name = self.mod.config_names[0]
         del self.mod[config_name].attrs["IP address"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
         self.mod.knobs.reset()
 

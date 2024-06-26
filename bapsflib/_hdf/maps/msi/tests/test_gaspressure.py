@@ -17,6 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps.msi.gaspressure import HDFMapMSIGasPressure
 from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestGasPressure(MSIDiagnosticTestCase):
@@ -35,7 +36,7 @@ class TestGasPressure(MSIDiagnosticTestCase):
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
-        # any failed build must throw a UserWarning
+        # any failed build must throw a HDFMappingWarning
         #
         # not all required datasets are found                       ----
         # - Datasets should be:
@@ -133,7 +134,7 @@ class TestGasPressure(MSIDiagnosticTestCase):
         # - a warning is thrown, but mapping continues
         # - remove attribute 'RGA AMUs'
         del self.dgroup.attrs["RGA AMUs"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("RGA AMUs", _map.configs)
             self.assertEqual(_map.configs["RGA AMUs"], [])

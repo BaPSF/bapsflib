@@ -192,7 +192,7 @@ class File(h5py.File):
         :param bool silent:
 
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            UserWarnings (soft-warnings)
+            `BaPSFWarning` (soft-warnings)
 
         :rtype: :class:`~.hdfreadcontrols.HDFReadControls`
 
@@ -306,7 +306,7 @@ class File(h5py.File):
         :param bool silent:
 
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            UserWarnings (soft-warnings)
+            `BaPSFWarning` (soft-warnings)
 
         :rtype: :class:`~.hdfreaddata.HDFReadData`
 
@@ -383,7 +383,7 @@ class File(h5py.File):
         :param bool silent:
 
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            UserWarnings (soft-warnings)
+            `BaPSFWarning` (soft-warnings)
 
         :rtype: :class:`~.hdfreadmsi.HDFReadMSI`
 

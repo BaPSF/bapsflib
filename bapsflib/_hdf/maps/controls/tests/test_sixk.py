@@ -21,6 +21,7 @@ from bapsflib._hdf.maps.controls import ConType
 from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestSixK(ControlTestCase):
@@ -144,13 +145,13 @@ class TestSixK(ControlTestCase):
 
         # 'Motion list' value does NOT match discovered ML name
         mlg.attrs["Motion list"] = "wrong name"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_motionlist(os.path.basename(mlg.name))
             self.assertEqual(ml_stuff["name"], "ml-0001")
 
         # 'Motion list' attribute does NOT exist
         del mlg.attrs["Motion list"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_motionlist(os.path.basename(mlg.name))
             self.assertEqual(ml_stuff["name"], "ml-0001")
 
@@ -162,7 +163,7 @@ class TestSixK(ControlTestCase):
 
         # attribute is missing
         del mlg.attrs["Motion count"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_motionlist(os.path.basename(mlg.name))
             self.assertIsNone(ml_stuff["config"]["motion count"])
 
@@ -175,7 +176,7 @@ class TestSixK(ControlTestCase):
 
         # attribute is missing
         del mlg.attrs["Delta x"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_motionlist(os.path.basename(mlg.name))
             self.assertTrue(
                 np.array_equal(ml_stuff["config"]["delta"], np.array([None, None, None]))
@@ -190,7 +191,7 @@ class TestSixK(ControlTestCase):
 
         # attribute is missing
         del mlg.attrs["Grid center x"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_motionlist(os.path.basename(mlg.name))
             self.assertTrue(
                 np.array_equal(ml_stuff["config"]["center"], np.array([None, None, None]))
@@ -205,7 +206,7 @@ class TestSixK(ControlTestCase):
 
         # attribute is missing
         del mlg.attrs["Nx"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_motionlist(os.path.basename(mlg.name))
             self.assertTrue(
                 np.array_equal(
@@ -245,13 +246,13 @@ class TestSixK(ControlTestCase):
 
         # 'Probe' value does NOT match discovered PL name
         plg.attrs["Probe"] = "wrong name"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             pl_stuff = self.map._analyze_probelist(os.path.basename(plg.name))
             self.assertEqual(pl_stuff["probe-id"], f"probe01 - {rnum}")
 
         # 'Probe' attribute does NOT exist
         del plg.attrs["Probe"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             pl_stuff = self.map._analyze_probelist(os.path.basename(plg.name))
             self.assertEqual(pl_stuff["probe-id"], f"probe01 - {rnum}")
 
@@ -264,13 +265,13 @@ class TestSixK(ControlTestCase):
         # 'Receptacle' value does NOT match discovered recepetacle
         # number
         plg.attrs["Receptacle"] = 10
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             pl_stuff = self.map._analyze_probelist(os.path.basename(plg.name))
             self.assertEqual(pl_stuff["config"]["receptacle"], rnum)
 
         # 'Probe' attribute does NOT exist
         del plg.attrs["Receptacle"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             pl_stuff = self.map._analyze_probelist(os.path.basename(plg.name))
             self.assertEqual(pl_stuff["config"]["receptacle"], rnum)
 
@@ -282,7 +283,7 @@ class TestSixK(ControlTestCase):
 
         # attribute is missing
         del plg.attrs["Port"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             ml_stuff = self.map._analyze_probelist(os.path.basename(plg.name))
             self.assertIsNone(ml_stuff["config"]["port"])
 

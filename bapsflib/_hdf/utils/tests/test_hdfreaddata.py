@@ -31,7 +31,7 @@ from bapsflib._hdf.utils.hdfreaddata import (
 )
 from bapsflib._hdf.utils.tests import TestBase
 from bapsflib.utils.decorators import with_bf
-
+from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 class TestHDFReadData(TestBase):
     """
@@ -436,7 +436,7 @@ class TestHDFReadData(TestBase):
                 mock_cdn.reset_mock()
 
             # `config_name` None
-            with self.assertWarns(UserWarning):
+            with self.assertWarns(HDFMappingWarning):
                 data = HDFReadData(_bf, brd, ch, adc=adc, digitizer=digi)
                 self.assertTrue(mock_cdn.called)
                 self.assertDataObj(data, _bf)
@@ -462,7 +462,7 @@ class TestHDFReadData(TestBase):
         _bf._map_file()  # re-map file
 
         # `digitizer` is None and "main" digitizer was identified
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(BaPSFWarning):
             data = HDFReadData(_bf, brd, ch, adc=adc, config_name=config_name)
             self.assertDataObj(data, _bf)
             self.assertEqual(data.info["digitizer"], digi)
@@ -518,7 +518,7 @@ class TestHDFReadData(TestBase):
         with mock.patch.object(
             HDFReadData, "dv", new_callable=mock.PropertyMock(return_value=None)
         ):
-            with self.assertWarns(UserWarning):
+            with self.assertWarns(BaPSFWarning):
                 data = HDFReadData(
                     _bf,
                     brd,
@@ -741,7 +741,7 @@ class TestHDFReadData(TestBase):
         fields = list(hdata.dtype.names)
         fields.remove("Offset")
         _bf.create_dataset(f"{dset_path} headers", data=hdata[fields])
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             data = HDFReadData(
                 _bf,
                 brd,

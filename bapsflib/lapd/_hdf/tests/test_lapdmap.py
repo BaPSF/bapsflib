@@ -22,6 +22,7 @@ from bapsflib.lapd._hdf.lapdmap import LaPDMap
 from bapsflib.lapd._hdf.tests import TestBase
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.decorators import with_lapdf
+from bapsflib.utils.warnings import BaPSFWarning
 
 
 class TestLaPDMap(TestBase):
@@ -146,7 +147,7 @@ class TestLaPDMap(TestBase):
         with mock.patch.object(
             LaPDMap, "is_lapd", new_callable=mock.PropertyMock, return_value=False
         ) as mock_il:
-            with self.assertWarns(UserWarning):
+            with self.assertWarns(BaPSFWarning):
                 _map = self.create_map(_lapdf)
                 self.assertTrue(mock_il.called)
 

@@ -18,6 +18,7 @@ import unittest as ut
 from typing import Tuple
 
 from bapsflib._hdf.maps.controls.parsers import CLParse
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestCLParse(ut.TestCase):
@@ -110,21 +111,21 @@ class TestCLParse(ut.TestCase):
         #
         # Generated command list has None values
         pattern = r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
-        self.assertWarns(UserWarning, clparse.apply_patterns, pattern)
+        self.assertWarns(HDFMappingWarning, clparse.apply_patterns, pattern)
         self.assertApplyPatternOutput(clparse.apply_patterns(pattern))
 
         # Generated command list is not all same type
         cl = ["FREQ 50.0", "FREQ A.0", "FREQ 70.0"]
         clparse = CLParse(cl)
         pattern = r"(?P<FREQ>(\bFREQ\s)(?P<VAL>(\w+\.\d*|\.\d+|\d+\b)))"
-        self.assertWarns(UserWarning, clparse.apply_patterns, pattern)
+        self.assertWarns(HDFMappingWarning, clparse.apply_patterns, pattern)
         self.assertApplyPatternOutput(clparse.apply_patterns(pattern))
 
         # Generated command list is all null strings
         cl = ["FREQ 50.0", "FREQ 60.0", "FREQ 70.0"]
         clparse = CLParse(cl)
         pattern = r"(?P<FREQ>(\bFREQ\s)(?P<VAL>))"
-        self.assertWarns(UserWarning, clparse.apply_patterns, pattern)
+        self.assertWarns(HDFMappingWarning, clparse.apply_patterns, pattern)
         self.assertApplyPatternOutput(clparse.apply_patterns(pattern))
 
         # --- Valid Patterns, but Unsuccessful                    ------

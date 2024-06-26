@@ -19,6 +19,7 @@ from bapsflib._hdf.maps.controls import ConType
 from bapsflib._hdf.maps.controls.nixyz import HDFMapControlNIXYZ
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestNIXYZ(ControlTestCase):
@@ -83,7 +84,7 @@ class TestNIXYZ(ControlTestCase):
         self.mod.move("NIXYZ data", "Run time list")
 
     def test_map_warnings(self):
-        """Test conditions that issue a UserWarning"""
+        """Test conditions that issue a HDFMappingWarning"""
         # Warnings relate to unexpected behavior that does not affect
         # reading of data from the HDF5 file
         #
@@ -97,14 +98,14 @@ class TestNIXYZ(ControlTestCase):
 
         # no motion list group is found                              (1)
         del self.mod["ml-0001"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertNIXYZDetails(_map, self.dgroup)
         self.mod.knobs.reset()
 
         # motion list group is missing an attribute                  (2)
         del self.mod["ml-0001"].attrs["Nx"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertNIXYZDetails(_map, self.dgroup)
         self.mod.knobs.reset()
@@ -119,7 +120,7 @@ class TestNIXYZ(ControlTestCase):
         data = odata[fields]
         self.mod.create_dataset("Run time list", data=data)
         del self.mod["NIXYZ data"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertNIXYZDetails(_map, self.dgroup)
         self.mod.knobs.reset()

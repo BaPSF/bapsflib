@@ -17,6 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps.msi.magneticfield import HDFMapMSIMagneticField
 from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestMagneticField(MSIDiagnosticTestCase):
@@ -163,7 +164,7 @@ class TestMagneticField(MSIDiagnosticTestCase):
         # - a warning is thrown, but mapping continues
         # - remove attribute 'Profile z locations'
         del self.dgroup.attrs["Profile z locations"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("z", _map.configs)
             self.assertEqual(_map.configs["z"], [])

@@ -17,6 +17,7 @@ import unittest as ut
 from bapsflib._hdf.maps.msi.interferometerarray import HDFMapMSIInterferometerArray
 from bapsflib._hdf.maps.msi.tests.common import MSIDiagnosticTestCase
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestInterferometerArray(MSIDiagnosticTestCase):
@@ -35,7 +36,7 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
-        # any failed build must throw a UserWarning
+        # any failed build must throw a HDFMappingWarning
         #
         # not all required datasets are found                       ----
         # - Datasets should be:
@@ -211,7 +212,7 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         #
         # remove attribute 'Interferometer count' from main group
         del self.dgroup.attrs["Interferometer count"]
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("n interferometer", _map.configs)
             self.assertEqual(_map.configs["n interferometer"], [])
@@ -221,7 +222,7 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
         del self.dgroup["Interferometer [1]"].attrs["Timestep"]
         test_vals = dt.copy()
         test_vals[1] = None
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("dt", _map.configs)
             self.assertEqual(_map.configs["dt"], test_vals)
@@ -229,7 +230,7 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
 
         # check warnings if 'Interferometer count' is NOT an integer
         self.dgroup.attrs["Interferometer count"] = b"none"
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("n interferometer", _map.configs)
             self.assertEqual(_map.configs["n interferometer"], ["none"])
@@ -237,7 +238,7 @@ class TestInterferometerArray(MSIDiagnosticTestCase):
 
         # check warnings if 'Interferometer count' is integer array
         self.dgroup.attrs["Interferometer count"] = np.array([4, 5])
-        with self.assertWarns(UserWarning):
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertIn("n interferometer", _map.configs)
             self.assertTrue(

@@ -41,9 +41,7 @@ class FauxN5700PS(h5py.Group):
         def n_configs(self, val: int):
             """Set number of configurations"""
             if not isinstance(val, int):
-                raise TypeError(
-                    f"Given `val` is of type {type(val)}, expected int."
-                )
+                raise TypeError(f"Given `val` is of type {type(val)}, expected int.")
             elif val < 1:
                 raise ValueError(
                     f"Given argument `val` ({val}) needs to be greater than or "
@@ -63,9 +61,7 @@ class FauxN5700PS(h5py.Group):
         def sn_size(self, val):
             """Set the number of shot numbers in the dataset"""
             if not isinstance(val, int):
-                raise TypeError(
-                    f"Given `val` is of type {type(val)}, expected int."
-                )
+                raise TypeError(f"Given `val` is of type {type(val)}, expected int.")
             elif val < 1:
                 raise ValueError(
                     f"Given argument `val` ({val}) needs to be greater than or "

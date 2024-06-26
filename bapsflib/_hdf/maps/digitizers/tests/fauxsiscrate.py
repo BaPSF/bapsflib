@@ -56,7 +56,8 @@ class FauxSISCrate(h5py.Group):
                 raise ValueError(
                     "Given argument `val` does not contain all the named ADCs, "
                     f"expected names {self._faux.device_adcs} "
-                    f"but got {val.dtype.names}.")
+                    f"but got {val.dtype.names}."
+                )
             elif val.dtype["SIS 3302"].shape != (4, 8):
                 raise ValueError(
                     f"Given 'SIS 3302' has shape {val.dtype['SIS 3302'].shape}, but "

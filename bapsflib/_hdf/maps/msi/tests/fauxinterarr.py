@@ -42,8 +42,7 @@ class FauxInterferometerArray(h5py.Group):
                 raise TypeError(f"Expected type int, but got {type(val)}")
             elif val < 1 or val > 7:
                 raise ValueError(
-                    f"Given argument `val` ({val}) needs to be in the range "
-                    f"1 to 7."
+                    f"Given argument `val` ({val}) needs to be in the range 1 to 7."
                 )
 
             if val != self._faux._n_interferometers:

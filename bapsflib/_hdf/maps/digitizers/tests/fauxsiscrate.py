@@ -77,16 +77,23 @@ class FauxSISCrate(h5py.Group):
             #   the SIS 3305 mode
             if self.sis3305_mode == 2:
                 mask = np.array(2 * [True, False, False, False], dtype=bool)
+                available_chs = [1, 5]
             elif self.sis3305_mode == 1:
                 mask = np.array(2 * [True, False, True, False], dtype=bool)
+                available_chs = [1, 3, 5, 7]
             else:
                 mask = np.ones(8, dtype=bool)
+                available_chs = list(range(1, 9))
             mask = np.logical_not(mask)
             mask = mask.reshape(1, 8)
             mask = np.append(mask, mask, axis=0)
             if np.any(val["SIS 3305"][mask]):
-                warn("`val` not valid, no update performed")
-                return
+                freq = ["1.25 GHz", "2.5 GHz", "5 GHz"]
+                raise ValueError(
+                    f"Trying to activate unactive channels.  SIS 3305 is configued "
+                    f"to mode {self.sis3305_mode} ({freq[self.sis3305_mode]}), thus "
+                    f"only chanels {available_chs} are available."
+                )
 
             # we're good
             self._faux._active_brdch = val

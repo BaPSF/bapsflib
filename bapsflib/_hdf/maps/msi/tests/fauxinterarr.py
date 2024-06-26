@@ -38,12 +38,17 @@ class FauxInterferometerArray(h5py.Group):
         @n_interferometers.setter
         def n_interferometers(self, val):
             """Set the number of interferometers (1 to 7)"""
-            if isinstance(val, int) and 1 <= val <= 7:
-                if val != self._faux._n_interferometers:
-                    self._faux._n_interferometers = val
-                    self._faux._update()
-            else:
-                warn("`val` not valid, no update performed")
+            if not isinstance(val, int):
+                raise TypeError(f"Expected type int, but got {type(val)}")
+            elif val < 1 or val > 7:
+                raise ValueError(
+                    f"Given argument `val` ({val}) needs to be in the range "
+                    f"1 to 7."
+                )
+
+            if val != self._faux._n_interferometers:
+                self._faux._n_interferometers = val
+                self._faux._update()
 
         def reset(self):
             """Reset 'Interferometer array' group to defaults."""

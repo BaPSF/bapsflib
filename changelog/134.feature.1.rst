@@ -1,0 +1,3 @@
+Created package specific base `Warning` class
+`~bapsflib.utils.warnings.BaPSFWarning`, and implement throughout
+`bapsflib` inplace of `UserWarning`.

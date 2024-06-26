@@ -1182,8 +1182,7 @@ class TestHDFReadData(TestBase):
 
         dset_arr = dset[indices, ...]
         if not keep_bits:
-            dset_arr = dset_arr.astype(np.float32)
-            dset_arr = (dv * dset_arr) - offset
+            dset_arr = np.astype((dv * dset_arr) - offset, np.float32)
 
         self.assertTrue(np.array_equal(data["signal"], dset_arr))
 

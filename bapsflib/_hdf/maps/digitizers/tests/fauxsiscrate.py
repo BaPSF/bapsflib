@@ -14,6 +14,7 @@ import numpy as np
 from typing import Dict, Iterable, Tuple, Union
 from warnings import warn
 
+from bapsflib.utils.warnings import BaPSFWarning
 
 class FauxSISCrate(h5py.Group):
     """
@@ -262,7 +263,10 @@ class FauxSISCrate(h5py.Group):
                 # determine slot number
                 slot = self.get_slot(brd + 1, field)
                 if slot is None:
-                    warn(f"Got no slot number for board number {brd+1}")
+                    warn(
+                        f"Got no slot number for board number {brd+1}.",
+                        BaPSFWarning,
+                    )
                     continue
 
                 # update lists

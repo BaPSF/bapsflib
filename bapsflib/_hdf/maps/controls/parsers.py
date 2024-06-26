@@ -248,7 +248,7 @@ class CLParse(object):
                 else:
                     # 'command list' is a string
                     mlen = len(max(cls_dict[name]["command list"], key=lambda x: len(x)))
-                    cls_dict[name]["dtype"] = np.dtype((np.unicode_, mlen))
+                    cls_dict[name]["dtype"] = np.dtype((np.str_, mlen))
 
             # convert lists to tuples
             # - first check dict `name` has not been deleted

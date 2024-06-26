@@ -228,7 +228,7 @@ class TestCLParse(ut.TestCase):
                     self.assertEqual(config["dtype"], np.float64)
                 else:
                     # 'command list' is a list of strings
-                    self.assertEqual(config["dtype"].type, np.unicode_)
+                    self.assertEqual(config["dtype"].type, np.str_)
         else:
             self.assertEqual(output[1], {})
 

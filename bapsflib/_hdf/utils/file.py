@@ -18,6 +18,7 @@ import warnings
 from typing import Any, Dict, List, Tuple, Union
 
 from bapsflib._hdf.maps import HDFMap, HDFMapControls, HDFMapDigitizers, HDFMapMSI
+from bapsflib.utils.warnings import BaPSFWarning
 
 
 class File(h5py.File):
@@ -85,7 +86,7 @@ class File(h5py.File):
         # -- map and build info --
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
 
             # create map
             self._map_file()
@@ -234,7 +235,7 @@ class File(h5py.File):
 
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
             data = HDFReadControls(
                 self,
                 controls,
@@ -355,7 +356,7 @@ class File(h5py.File):
 
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
             data = HDFReadData(
                 self,
                 board,
@@ -404,7 +405,7 @@ class File(h5py.File):
 
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
             data = HDFReadMSI(self, msi_diag, **kwargs)
 
         return data

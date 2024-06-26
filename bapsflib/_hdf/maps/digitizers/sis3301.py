@@ -181,7 +181,8 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                             warn(
                                 f"Found sample averaging of '{_match.group('NAME')}' "
                                 f"but can not convert to int...using a value of "
-                                f"None instead"
+                                f"None instead",
+                                HDFMappingWarning,
                             )
             conn[2]["sample average (hardware)"] = splave
 

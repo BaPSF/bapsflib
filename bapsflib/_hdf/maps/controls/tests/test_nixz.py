@@ -20,6 +20,7 @@ from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib.utils.exceptions import HDFMappingError
 from bapsflib.utils.warnings import HDFMappingWarning
 
+
 class TestNIXZ(ControlTestCase):
     """Test class for HDFMapControlNIXZ"""
 

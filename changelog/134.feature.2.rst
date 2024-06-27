@@ -1,2 +1,0 @@
-Created package specific base `Exception` class
-`~bapsflib.utils.exceptions.BaPSFError`.

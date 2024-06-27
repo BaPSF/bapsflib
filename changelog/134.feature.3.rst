@@ -1,5 +1,0 @@
-Silent mode ``silent=True`` on `~bapsflib._hdf.utils.file.File` and its
-methods :meth:`~bapsflib._hdf.utils.file.File.read_data`\ ,
-:meth:`~bapsflib._hdf.utils.file.File.read_controls`\ , and
-:meth:`~bapsflib._hdf.utils.file.File.read_msi` will only silent
-warnings subclassed from `~bapsflib.utils.warnings.BaPSFWarning`.

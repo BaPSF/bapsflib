@@ -8,10 +8,12 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import datetime
-import warnings
+"""LaPD constants/parameters."""
+__all__ = ["port_spacing", "ref_port", "BaPSFConstant", "SouthCathode"]
 
 import astropy.units as u
+import datetime
+import warnings
 
 from astropy.constants import Constant
 from astropy.utils.exceptions import AstropyWarning
@@ -20,32 +22,40 @@ from typing import Tuple
 
 class BaPSFConstant(Constant):
     """BaPSF Constant"""
-    default_reference = 'Basic Plasma Science Facility'
+
+    #: Default reference for the value of a constant.
+    default_reference = "Basic Plasma Science Facility"
+
     _registry = {}
     _has_incompatible_units = set()
 
-    def __new__(cls, abbrev, name, value, unit, uncertainty,
-                reference=default_reference, system=None):
-        return super().__new__(cls, abbrev, name, value, unit,
-                               uncertainty, reference, system)
-
 
 #: BaPSF Constant: nominal distance between LaPD ports
-port_spacing = BaPSFConstant('port_spacing', 'LaPD port spacing',
-                             31.95, 'cm', 1.0, system='cgs')
-port_spacing.__doc__ += ': nominal distance between LaPD ports'
+port_spacing = BaPSFConstant(
+    "port_spacing", "LaPD port spacing", 31.95, "cm", 1.0, system="cgs"
+)
+port_spacing.__doc__ += ": nominal distance between LaPD ports"
 
 #: BaPSF Constant: LaPD :math:`z = 0` reference port (most Northern
 #: port and :math:`+z` points South towards south cathode)
-ref_port = BaPSFConstant('ref_port', 'LaPD reference port number', 53,
-                         u.dimensionless_unscaled, 0, system=None)
-ref_port.__doc__ += (": LaPD :math:`z = 0` reference port (most "
-                     "Northern port and :math:`+z` points South "
-                     "towards south cathode)")
+ref_port = BaPSFConstant(
+    "ref_port", "LaPD reference port number", 53, u.dimensionless_unscaled, 0, system=None
+)
+ref_port.__doc__ += (
+    ": LaPD :math:`z = 0` reference port (most "
+    "Northern port and :math:`+z` points South "
+    "towards south cathode)"
+)
 
 
 class SouthCathode(object):
-    """Constants related to the South 'main' LaPD cathode."""
+    """
+    .. warning::
+       The class is currently in development and only contains info on the NiO
+       cathode, no LaB6 data or upgrade data.
+
+    Constants related to the South 'main' LaPD cathode.
+    """
 
     def __init__(self, operation_date=datetime.datetime.now()):
         """
@@ -78,28 +88,34 @@ class SouthCathode(object):
         self._operation_date = val
 
         with warnings.catch_warnings():
-            warnings.simplefilter('ignore', AstropyWarning)
+            warnings.simplefilter("ignore", AstropyWarning)
 
             if val.year <= val.year:
                 self._diameter = BaPSFConstant(
-                    'diameter',
+                    "diameter",
                     "Diameter of LaPD's south 'main' cathode",
-                    60.0, 'cm',
-                    1.0, system='cgs'
+                    60.0,
+                    "cm",
+                    1.0,
+                    system="cgs",
                 )
                 self._z = BaPSFConstant(
-                    'z',
+                    "z",
                     "Axial location of LaPD's south 'main' cathode",
-                    1700.0, 'cm',
-                    1.0, system='cgs'
+                    1700.0,
+                    "cm",
+                    1.0,
+                    system="cgs",
                 )
                 self._anode_z = BaPSFConstant(
-                    'anode_z',
+                    "anode_z",
                     "Axial location of LaPD's south 'main' anode",
-                    1650.0, 'cm',
-                    1.0, system='cgs'
+                    1650.0,
+                    "cm",
+                    1.0,
+                    system="cgs",
                 )
-                self._cathode_descr = "barium-oxide coated nickle"
+                self._cathode_descr = "barium-oxide coated nickel"
                 self._lifespan = (NotImplemented, NotImplemented)
 
     @property

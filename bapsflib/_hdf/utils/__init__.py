@@ -12,8 +12,13 @@
 This package contains an assortment of utility classes used to
 access and interface with the HDF5 files generated at BaPSF.
 """
-__all__ = ['file', 'hdfoverview', 'hdfreadcontrols', 'hdfreaddata',
-           'hdfreadmsi', 'helpers']
+__all__ = []
 
-from . import (file, hdfoverview, hdfreadcontrols, hdfreaddata,
-               hdfreadmsi, helpers)
+from bapsflib._hdf.utils import (
+    file,
+    hdfoverview,
+    hdfreadcontrols,
+    hdfreaddata,
+    hdfreadmsi,
+    helpers,
+)

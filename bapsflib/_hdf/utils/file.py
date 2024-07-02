@@ -8,13 +8,17 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module containing the main HDF5 `~bapsflib._hdf.utils.file.File` class."""
+__all__ = ["File"]
+
 import h5py
 import os
 import warnings
 
-from bapsflib._hdf.maps import (HDFMap, HDFMapControls,
-                                HDFMapDigitizers, HDFMapMSI)
-from typing import (Any, Dict, List, Tuple, Union)
+from typing import Any, Dict, List, Tuple, Union
+
+from bapsflib._hdf.maps import HDFMap, HDFMapControls, HDFMapDigitizers, HDFMapMSI
+from bapsflib.utils.warnings import BaPSFWarning
 
 
 class File(h5py.File):
@@ -24,9 +28,17 @@ class File(h5py.File):
     All functionality of :class:`h5py.File` is preserved (for details
     see http://docs.h5py.org/en/latest/)
     """
-    def __init__(self, name: str, mode='r',
-                 control_path='/', digitizer_path='/', msi_path='/',
-                 silent=False, **kwargs):
+
+    def __init__(
+        self,
+        name: str,
+        mode="r",
+        control_path="/",
+        digitizer_path="/",
+        msi_path="/",
+        silent=False,
+        **kwargs
+    ):
         """
         :param name: name (and path) of file on disk
         :param mode: readonly :code:`'r'` (DEFAULT) and read/write
@@ -53,11 +65,11 @@ class File(h5py.File):
             bapsflib._hdf.utils.file.File
         """
         # initialize
-        if mode not in ('r', 'r+'):
+        if mode not in ("r", "r+"):
             raise ValueError(
-                "Only `mode` readonly 'r' and read/write 'r+' are "
-                "supported.")
-        kwargs['mode'] = mode
+                "Only `mode` readonly 'r' and read/write 'r+' are supported."
+            )
+        kwargs["mode"] = mode
         h5py.File.__init__(self, name, **kwargs)
 
         # -- define device paths --
@@ -74,7 +86,7 @@ class File(h5py.File):
         # -- map and build info --
         warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
 
             # create map
             self._map_file()
@@ -86,8 +98,8 @@ class File(h5py.File):
         """Builds the general :attr:`info` dictionary for the file."""
         # define file keys
         self._info = {
-            'file': os.path.basename(self.filename),
-            'absolute file path': os.path.abspath(self.filename),
+            "file": os.path.basename(self.filename),
+            "absolute file path": os.path.abspath(self.filename),
         }
 
     def _map_file(self):
@@ -96,7 +108,8 @@ class File(h5py.File):
             self,
             control_path=self.CONTROL_PATH,
             digitizer_path=self.DIGITIZER_PATH,
-            msi_path=self.MSI_PATH)
+            msi_path=self.MSI_PATH,
+        )
 
     @property
     def controls(self) -> HDFMapControls:
@@ -110,7 +123,7 @@ class File(h5py.File):
 
     @property
     def file_map(self) -> HDFMap:
-        """HDF5 file map (:class:`~bapsflib._hdf.maps.hdfmap.HDFMap`)"""
+        """HDF5 file map (:class:`~bapsflib._hdf.maps.core.HDFMap`)"""
         return self._file_map
 
     @property
@@ -131,15 +144,19 @@ class File(h5py.File):
         """
         HDF5 file overview. (:class:`~.hdfoverview.HDFOverview`)
         """
-        from .hdfoverview import HDFOverview
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfoverview import HDFOverview
 
         return HDFOverview(self)
 
-    def read_controls(self,
-                      controls: List[Union[str, Tuple[str, Any]]],
-                      shotnum=slice(None),
-                      intersection_set=True,
-                      silent=False, **kwargs):
+    def read_controls(
+        self,
+        controls: List[Union[str, Tuple[str, Any]]],
+        shotnum=slice(None),
+        intersection_set=True,
+        silent=False,
+        **kwargs
+    ):
         """
         Reads data from control device datasets.  See
         :class:`~.hdfreadcontrols.HDFReadControls` for more detail.
@@ -175,7 +192,7 @@ class File(h5py.File):
         :param bool silent:
 
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            UserWarnings (soft-warnings)
+            `BaPSFWarning` (soft-warnings)
 
         :rtype: :class:`~.hdfreadcontrols.HDFReadControls`
 
@@ -213,24 +230,37 @@ class File(h5py.File):
             ['6K Compumotor', 'Waveform']
 
         """
-        from .hdfreadcontrols import HDFReadControls
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 
-        warn_filter = 'ignore' if silent else 'default'
+        warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
-            data = HDFReadControls(self, controls,
-                                   shotnum=shotnum,
-                                   intersection_set=intersection_set,
-                                   **kwargs)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
+            data = HDFReadControls(
+                self,
+                controls,
+                shotnum=shotnum,
+                intersection_set=intersection_set,
+                **kwargs
+            )
 
         return data
 
-    def read_data(self, board: int, channel: int,
-                  index=slice(None), shotnum=slice(None),
-                  digitizer=None, adc=None,
-                  config_name=None, keep_bits=False, add_controls=None,
-                  intersection_set=True, silent=False,
-                  **kwargs):
+    def read_data(
+        self,
+        board: int,
+        channel: int,
+        index=slice(None),
+        shotnum=slice(None),
+        digitizer=None,
+        adc=None,
+        config_name=None,
+        keep_bits=False,
+        add_controls=None,
+        intersection_set=True,
+        silent=False,
+        **kwargs
+    ):
         """
         Reads data from digitizer datasets and attaches control device
         data when requested. (see :class:`.hdfreaddata.HDFReadData`
@@ -276,7 +306,7 @@ class File(h5py.File):
         :param bool silent:
 
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            UserWarnings (soft-warnings)
+            `BaPSFWarning` (soft-warnings)
 
         :rtype: :class:`~.hdfreaddata.HDFReadData`
 
@@ -321,21 +351,26 @@ class File(h5py.File):
             >>> #       which prints to screen a report of the
             >>> #       digitizer hookup
         """
-        from .hdfreaddata import HDFReadData
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfreaddata import HDFReadData
 
-        warn_filter = 'ignore' if silent else 'default'
+        warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
-            data = HDFReadData(self, board, channel,
-                               index=index,
-                               shotnum=shotnum,
-                               digitizer=digitizer,
-                               adc=adc,
-                               config_name=config_name,
-                               keep_bits=keep_bits,
-                               add_controls=add_controls,
-                               intersection_set=intersection_set,
-                               **kwargs)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
+            data = HDFReadData(
+                self,
+                board,
+                channel,
+                index=index,
+                shotnum=shotnum,
+                digitizer=digitizer,
+                adc=adc,
+                config_name=config_name,
+                keep_bits=keep_bits,
+                add_controls=add_controls,
+                intersection_set=intersection_set,
+                **kwargs
+            )
 
         return data
 
@@ -348,7 +383,7 @@ class File(h5py.File):
         :param bool silent:
 
             :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            UserWarnings (soft-warnings)
+            `BaPSFWarning` (soft-warnings)
 
         :rtype: :class:`~.hdfreadmsi.HDFReadMSI`
 
@@ -368,9 +403,9 @@ class File(h5py.File):
         """
         from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 
-        warn_filter = 'ignore' if silent else 'default'
+        warn_filter = "ignore" if silent else "default"
         with warnings.catch_warnings():
-            warnings.simplefilter(warn_filter)
+            warnings.simplefilter(warn_filter, category=BaPSFWarning)
             data = HDFReadMSI(self, msi_diag, **kwargs)
 
         return data

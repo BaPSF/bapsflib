@@ -8,13 +8,13 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-__all__ = ['BaseFile', 'TestBase', 'with_bf', 'with_lapdf']
+__all__ = ["BaseFile", "TestBase", "with_bf", "with_lapdf"]
 
 import unittest as ut
 
-from bapsflib.utils.decorators import (with_bf, with_lapdf)
 from bapsflib._hdf import File as BaseFile
 from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib.utils.decorators import with_bf, with_lapdf
 
 
 def method_overridden(cls, obj, method: str) -> bool:
@@ -27,7 +27,7 @@ def method_overridden(cls, obj, method: str) -> bool:
 class TestBase(ut.TestCase):
     """Base test class for all test classes here."""
 
-    f = NotImplemented   # type: FauxHDFBuilder
+    f = NotImplemented  # type: FauxHDFBuilder
 
     @classmethod
     def setUpClass(cls):
@@ -72,12 +72,12 @@ class TestBase(ut.TestCase):
 
     @property
     def control_path(self) -> str:
-        return 'Raw data + config'
+        return "Raw data + config"
 
     @property
     def digitizer_path(self) -> str:
-        return 'Raw data + config'
+        return "Raw data + config"
 
     @property
     def msi_path(self) -> str:
-        return 'MSI'
+        return "MSI"

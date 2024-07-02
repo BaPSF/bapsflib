@@ -5,13 +5,11 @@
 [![PyPI - Python Version](https://img.shields.io/pypi/pyversions/bapsflib.svg)](https://pypi.org/project/bapsflib)
 
 [![Documentation Status](https://readthedocs.org/projects/bapsflib/badge/)](https://bapsflib.readthedocs.io/en/latest)
-[![Build Status](https://img.shields.io/travis/BaPSF/bapsflib/master.svg?label=Travis%20CI)](https://travis-ci.org/BaPSF/bapsflib)
-[![Build status](https://ci.appveyor.com/api/projects/status/kuia1r8iiqwiu2gg/branch/master?svg=true)](https://ci.appveyor.com/project/rocco8773/bapsflib/branch/master)
 [![codecov](https://codecov.io/gh/BaPSF/bapsflib/branch/master/graph/badge.svg)](https://codecov.io/gh/BaPSF/bapsflib/branch/master)
 
 [![h5py](https://img.shields.io/badge/powered%20by-h5py-%235e9ffa.svg)](https://www.h5py.org/)
 
-The **bapsflib** package is developed on Python 3.5+ and is intend to 
+The **bapsflib** package is developed on Python 3.9+ and is intended to 
 be a toolkit for reading, manipulating, and analyzing data collected at 
 the Basic Plasma Science Facility 
 ([BaPSF](http://plasma.physics.ucla.edu/)) at UCLA. 

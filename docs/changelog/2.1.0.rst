@@ -1,0 +1,37 @@
+v2.1.0 (2024-06-26)
+===================
+
+Deprecations and Removals
+-------------------------
+
+- Removed explicit support and testing for Python 3.7 and 3.8. (`#132 <https://github.com/BaPSF/bapsflib/pull/132>`_)
+
+
+Features
+--------
+
+- Created package specific base `Warning` class
+  `~bapsflib.utils.warnings.BaPSFWarning`, and implement throughout
+  `bapsflib` inplace of `UserWarning`. (`#134 <https://github.com/BaPSF/bapsflib/pull/134>`_)
+- Created package specific base `Exception` class
+  `~bapsflib.utils.exceptions.BaPSFError`. (`#134 <https://github.com/BaPSF/bapsflib/pull/134>`_)
+- Modified silent mode ``silent=True`` of `~bapsflib._hdf.utils.file.File`
+  and its methods :meth:`~bapsflib._hdf.utils.file.File.read_data`\ ,
+  :meth:`~bapsflib._hdf.utils.file.File.read_controls`\ , and
+  :meth:`~bapsflib._hdf.utils.file.File.read_msi` such that only warnings
+  subclassed from `~bapsflib.utils.warnings.BaPSFWarning` are silenced. (`#134 <https://github.com/BaPSF/bapsflib/pull/134>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Addressed `numpy`\ 's `FuturWarning` about `shape-1 fields in dtypes
+  <https://numpy.org/doc/1.26/release/1.17.0-notes.html#shape-1-fields-in-dtypes-won-t-be-collapsed-to-scalars-in-a-future-version>`_. (`#135 <https://github.com/BaPSF/bapsflib/pull/135>`_)
+
+
+Package Management
+------------------
+
+- Removed dependency on deprecated package `pkg_resources`\ .  As a
+  result, `bapsflib` gains the documentation dependency `packaging`\ . (`#133 <https://github.com/BaPSF/bapsflib/pull/133>`_)
+- Removed upper dependency limit on `numpy`, ``numpy < 2.0``. (`#136 <https://github.com/BaPSF/bapsflib/pull/136>`_)

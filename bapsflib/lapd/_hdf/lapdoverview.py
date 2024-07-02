@@ -8,19 +8,24 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from bapsflib._hdf.utils.hdfoverview import HDFOverview
+"""
+Module containing the LaPD overview class.
+"""
+__all__ = ["LaPDOverview"]
 
-from .file import File
+from bapsflib._hdf.utils.hdfoverview import HDFOverview
+from bapsflib.lapd._hdf.file import File
 
 
 class LaPDOverview(HDFOverview):
     """
     Reports an overview of the LaPD HDF5 file mapping.
     """
+
     def __init__(self, hdf_obj: File):
         """
         :param hdf_obj: HDF5 file object
-        :type hdf_obj: :class:`bapsflb.lapd._hdf.file.File`
+        :type hdf_obj: :class:`~bapsflib.lapd._hdf.file.File`
         """
         super().__init__(hdf_obj)
 
@@ -31,26 +36,23 @@ class LaPDOverview(HDFOverview):
         super().report_general()
 
         # add more print basic file info
-        print('LaPD version: {}'.format(
-            self._file.info['lapd version']))
-        print('Investigator: {}'.format(
-            self._file.info['investigator']))
-        print('Run Date:     {}'.format
-              (self._file.info['run date']))
-
-        # exp. and run structure
-        print('\nExp. and Run Structure:')
-        print('  (set)  {}'.format(self._file.info['exp set name']))
-        print('  (exp)  +-- {}'.format(self._file.info['exp name']))
-        print('  (run)  |   +-- {}'.format(
-            self._file.info['run name']))
+        print(
+            f"LaPD version: {self._file.info['lapd version']}\n"
+            f"Investigator: {self._file.info['investigator']}\n"
+            f"Run Date:     {self._file.info['run date']}\n"
+            f"\n"
+            f"Exp. and Run Structure:\n"
+            f"  (set)  {self._file.info['exp set name']}\n"
+            f"  (exp)  +-- {self._file.info['exp name']}\n"
+            f"  (run)  |   +-- {self._file.info['run name']}"
+        )
 
         # print run description
-        print('\nRun Description:')
-        for line in self._file.info['run description'].splitlines():
-            print('    ' + line)
+        print("\nRun Description:")
+        for line in self._file.info["run description"].splitlines():
+            print(f"    {line}")
 
         # print exp description
-        print('\nExp. Description:')
-        for line in self._file.info['exp description'].splitlines():
-            print('    ' + line)
+        print("\nExp. Description:")
+        for line in self._file.info["exp description"].splitlines():
+            print(f"    {line}")

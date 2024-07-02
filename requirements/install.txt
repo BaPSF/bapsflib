@@ -1,0 +1,7 @@
+# these are dependencies required to use the package
+# ought to mirror 'instal_requires' under 'options' in config.cfg
+-r build.txt
+astropy >= 4.3.1
+h5py >= 3.0
+numpy >= 1.20
+scipy >= 0.19

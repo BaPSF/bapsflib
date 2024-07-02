@@ -1,0 +1,11 @@
+coverage:
+  range: 90..98
+  status:
+    project:
+      default:
+        threshold: 0.2%
+        removed_code_behavior: adjust_base
+    patch:
+      default:
+        threshold: 0.5%
+        removed_code_behavior: adjust_base

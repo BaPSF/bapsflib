@@ -1,21 +1,8 @@
-# This file is part of the bapsflib package, a Python toolkit for the
-# BaPSF group at UCLA.
-#
-# http://plasma.physics.ucla.edu/
-#
-# Copyright 2017-2018 Erik T. Everson and contributors
-#
-# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
-#   license terms and contributor agreement.
-#
-#
-# Required Packages w/ version
-astropy >= 2.0
-codecov >= 2.0.15
-coverage >= 4.5.1
-h5py >= 2.6
-numpy >= 1.12
-scipy >= 1.0.0
-#
-# Add Sphinx/Documentation requirements
--r docs/requirements.txt
+# all dependencies required to build, install, test, and document bapsflib
+# * look to the specific requirements/*.txt for specific needs
+# * this will mimic `pip install bapsflib[developer]` (excluding bapsflib)
+-r requirements/build.txt
+-r requirements/install.txt
+-r requirements/extras.txt
+-r requirements/tests.txt
+-r requirements/docs.txt

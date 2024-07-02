@@ -8,13 +8,18 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for the template digitizer mappers."""
+__all__ = ["HDFMapDigiTemplate"]
+
 import copy
 import h5py
 import os
 
 from abc import ABC, abstractmethod
-from typing import (Any, Dict, List, Tuple, Union)
+from typing import Any, Dict, List, Tuple, Union
 from warnings import warn
+
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapDigiTemplate(ABC):
@@ -45,6 +50,7 @@ class HDFMapDigiTemplate(ABC):
         * Any method that raises a :exc:`NotImplementedError` is
           intended to be overwritten by the inheriting class.
     '''
+
     def __init__(self, group: h5py.Group):
         """
         :param group: the digitizer HDF5 group
@@ -53,11 +59,13 @@ class HDFMapDigiTemplate(ABC):
         if isinstance(group, h5py.Group):
             self._digi_group = group
         else:
-            raise TypeError('arg `group` is not of type h5py.Group')
+            raise TypeError("arg `group` is not of type h5py.Group")
 
         # define _info attribute
-        self._info = {'group name': os.path.basename(group.name),
-                      'group path': group.name}
+        self._info = {
+            "group name": os.path.basename(group.name),
+            "group path": group.name,
+        }
 
         # define device adc's
         self._device_adcs = ()
@@ -114,7 +122,7 @@ class HDFMapDigiTemplate(ABC):
         """List of active digitizer configurations"""
         active = []
         for cname in self.configs:
-            if self.configs[cname]['active']:
+            if self.configs[cname]["active"]:
                 active.append(cname)
 
         return active
@@ -257,8 +265,7 @@ class HDFMapDigiTemplate(ABC):
 
     @abstractmethod
     def construct_dataset_name(
-            self, board: int, channel: int,
-            config_name=None, adc=None, return_info=False
+        self, board: int, channel: int, config_name=None, adc=None, return_info=False
     ) -> Union[str, Tuple[str, Dict[str, Any]]]:
         """
         Constructs the name of the HDF5 dataset containing digitizer
@@ -295,8 +302,8 @@ class HDFMapDigiTemplate(ABC):
 
     @abstractmethod
     def construct_header_dataset_name(
-            self, board: int, channel: int,
-            config_name=None, adc='', **kwargs) -> str:
+        self, board: int, channel: int, config_name=None, adc="", **kwargs
+    ) -> str:
         """
         Construct the name of the HDF5 header dataset associated with
         the digitizer dataset. The header dataset stores shot numbers
@@ -358,11 +365,11 @@ class HDFMapDigiTemplate(ABC):
     @property
     def device_name(self) -> str:
         """Name of digitizer"""
-        return self._info['group name']
+        return self._info["group name"]
 
     def get_adc_info(
-            self, board: int, channel: int,
-            adc=None, config_name=None) -> Dict[str, Any]:
+        self, board: int, channel: int, adc=None, config_name=None
+    ) -> Dict[str, Any]:
         """
         Get adc setup info dictionary associated with **board** and
         **channel**.
@@ -378,20 +385,23 @@ class HDFMapDigiTemplate(ABC):
         if config_name is None:
             if len(self.active_configs) == 1:
                 config_name = self.active_configs[0]
-                warn("`config_name` not specified, assuming '"
-                     + config_name + "'")
+                warn(
+                    f"`config_name` not specified, assuming '{config_name}'",
+                    HDFMappingWarning,
+                )
             else:
-                raise ValueError(
-                    "A valid `config_name` needs to be specified")
-        elif self.configs[config_name]['active'] is False:
-            warn("Digitizer configuration '{}'".format(config_name)
-                 + " is not actively used.")
+                raise ValueError("A valid `config_name` needs to be specified")
+        elif self.configs[config_name]["active"] is False:
+            warn(
+                f"Digitizer configuration '{config_name}' is not actively used.",
+                HDFMappingWarning,
+            )
 
         # look for `adc`
         if adc is None:
-            if len(self.configs[config_name]['adc']) == 1:
-                adc = self.configs[config_name]['adc'][0]
-                warn("`adc` not specified, assuming '" + adc + "'")
+            if len(self.configs[config_name]["adc"]) == 1:
+                adc = self.configs[config_name]["adc"][0]
+                warn(f"`adc` not specified, assuming '{adc}'", HDFMappingWarning)
             else:
                 raise ValueError("A valid `adc` needs to be specified")
 
@@ -404,24 +414,21 @@ class HDFMapDigiTemplate(ABC):
                 found = True
                 break
         if not found or not bool(board):
-            raise ValueError("Board number ({}) ".format(board)
-                             + "not found in setup")
+            raise ValueError(f"Board number ({board}) not found in setup")
 
         # look for `channel`
-        if channel not in conn[1] \
-                or not bool(channel):
-            raise ValueError("Channel number ({}) ".format(channel)
-                             + " not found in setup")
+        if channel not in conn[1] or not bool(channel):
+            raise ValueError(f"Channel number ({channel})  not found in setup")
 
         # get dictionary and add keys
         # - 'board', 'channel', 'adc', 'digitizer', and
         #   'configuration name'
         adc_info = copy.deepcopy(conn[2])
-        adc_info['adc'] = adc
-        adc_info['board'] = board
-        adc_info['channel'] = channel
-        adc_info['configuration name'] = config_name
-        adc_info['digitizer'] = self.device_name
+        adc_info["adc"] = adc
+        adc_info["board"] = board
+        adc_info["channel"] = channel
+        adc_info["configuration name"] = config_name
+        adc_info["digitizer"] = self.device_name
 
         return adc_info
 

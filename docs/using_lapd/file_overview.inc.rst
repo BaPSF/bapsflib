@@ -79,8 +79,8 @@ only snippets of the report, see :numref:`f_overview_methods` below.
 
     |
 
-    If omitted, then the report is saved to a text file with the same
-    name as the HDF5 file and in the same location.
+    If ``filename`` is omitted, then the report is saved to a text file
+    with the same name as the HDF5 file and in the same location.
     "
     :meth:`~lapdoverview.LaPDOverview.report_general`, "
     Print the general info block.

@@ -14,12 +14,13 @@
 import io
 import unittest as ut
 
-from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from unittest import mock
 
-from . import (TestBase, with_lapdf)
-from ..file import File
-from ..lapdoverview import LaPDOverview
+from bapsflib._hdf.utils.hdfoverview import HDFOverview
+from bapsflib.lapd._hdf.file import File
+from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
+from bapsflib.lapd._hdf.tests import TestBase
+from bapsflib.utils.decorators import with_lapdf
 
 
 class TestLaPDOverview(TestBase):
@@ -31,10 +32,10 @@ class TestLaPDOverview(TestBase):
         super().setUp()
 
         # setup HDF5 file
-        self.f.add_module('SIS 3301')  # digitizer
-        self.f.add_module('Waveform')  # control
-        self.f.add_module('Discharge')  # MSI diagnostic
-        self.f.create_group('Raw data + config/Unknown')
+        self.f.add_module("SIS 3301")  # digitizer
+        self.f.add_module("Waveform")  # control
+        self.f.add_module("Discharge")  # MSI diagnostic
+        self.f.create_group("Raw data + config/Unknown")
 
     def tearDown(self):
         super().tearDown()
@@ -51,22 +52,20 @@ class TestLaPDOverview(TestBase):
         self.assertIsInstance(_overview, LaPDOverview)
 
         # override method `report_general`
-        self.assertMethodOverride(HDFOverview, _overview,
-                                  'report_general')
+        self.assertMethodOverride(HDFOverview, _overview, "report_general")
 
         # `report_general` prints to screen
-        _lapdf.info['exp description'] = "This experiment\n" \
-                                         "did something"
+        _lapdf.info["exp description"] = "This experiment\ndid something"
         _overview = self.create_overview(_lapdf)
-        with mock.patch('sys.stdout',
-                        new_callable=io.StringIO) as mock_stdout, \
-                mock.patch.object(HDFOverview, 'report_general',
-                                  side_effect=print('hello')) \
-                as mock_rg_super:
+        with mock.patch(
+            "sys.stdout", new_callable=io.StringIO
+        ) as mock_stdout, mock.patch.object(
+            HDFOverview, "report_general", side_effect=print("hello")
+        ) as mock_rg_super:
             _overview.report_general()
-            self.assertNotEqual(mock_stdout.getvalue(), '')
+            self.assertNotEqual(mock_stdout.getvalue(), "")
             self.assertTrue(mock_rg_super.called)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

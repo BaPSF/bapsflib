@@ -8,17 +8,23 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for defining the main control mapper `HDFMapControls`."""
+__all__ = ["HDFMapControls"]
+
 import h5py
 
-from bapsflib.utils.errors import HDFMappingError
-from typing import (Dict, Tuple, Union)
+from typing import Dict, Tuple, Union
 
-from .n5700ps import HDFMapControlN5700PS
-from .nixyz import HDFMapControlNIXYZ
-from .nixz import HDFMapControlNIXZ
-from .sixk import HDFMapControl6K
-from .templates import (HDFMapControlTemplate, HDFMapControlCLTemplate)
-from .waveform import HDFMapControlWaveform
+from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS
+from bapsflib._hdf.maps.controls.nixyz import HDFMapControlNIXYZ
+from bapsflib._hdf.maps.controls.nixz import HDFMapControlNIXZ
+from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
+from bapsflib._hdf.maps.controls.templates import (
+    HDFMapControlCLTemplate,
+    HDFMapControlTemplate,
+)
+from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
+from bapsflib.utils.exceptions import HDFMappingError
 
 # define type aliases
 ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
@@ -41,12 +47,13 @@ class HDFMapControls(dict):
         >>> control_map['6K Compumotor']
         <bapsflib._hdf.maps.controls.sixk.HDFMapControl6K>
     """
+
     _defined_mapping_classes = {
-        'N5700_PS': HDFMapControlN5700PS,
-        'NI_XYZ': HDFMapControlNIXYZ,
-        'NI_XZ': HDFMapControlNIXZ,
-        '6K Compumotor': HDFMapControl6K,
-        'Waveform': HDFMapControlWaveform,
+        "N5700_PS": HDFMapControlN5700PS,
+        "NI_XYZ": HDFMapControlNIXYZ,
+        "NI_XZ": HDFMapControlNIXZ,
+        "6K Compumotor": HDFMapControl6K,
+        "Waveform": HDFMapControlWaveform,
     }
     """
     Dictionary containing references to the defined (known) control
@@ -59,7 +66,7 @@ class HDFMapControls(dict):
         """
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
-            raise TypeError('data_group is not of type h5py.Group')
+            raise TypeError("data_group is not of type h5py.Group")
 
         # store HDF5 data group
         self.__data_group = data_group
@@ -103,8 +110,7 @@ class HDFMapControls(dict):
             if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
                 try:
-                    _map = self._defined_mapping_classes[name](
-                        self.__data_group[name])
+                    _map = self._defined_mapping_classes[name](self.__data_group[name])
                     control_dict[name] = _map
                 except HDFMappingError:
                     # mapping failed

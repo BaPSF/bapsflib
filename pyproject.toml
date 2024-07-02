@@ -1,0 +1,95 @@
+[build-system]
+requires = [
+  "setuptools >= 41.2",
+  "setuptools_scm",
+  "wheel >= 0.29.0",
+]  # ought to mirror 'requirements/build.txt'
+build-backend = "setuptools.build_meta"
+
+[tool.towncrier]
+  package = "bapsflib"
+  name = "bapsflib"
+  filename = "CHANGELOG.rst"
+  directory = "changelog/"
+  issue_format = "`#{issue} <https://github.com/BaPSF/bapsflib/pull/{issue}>`_"
+  title_format = "v{version} ({project_date})"
+
+  [[tool.towncrier.type]]
+  directory = "breaking"
+  name = "Backwards Incompatible Changes"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "removal"
+  name = "Deprecations and Removals"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "feature"
+  name = "Features"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "bugfix"
+  name = "Bug Fixes"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "doc"
+  name = "Documentation Improvements"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "trivial"
+  name = "Trivial/Internal Changes"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "pkg_management"
+  name = "Package Management"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "pkg_management"
+  name = "Package Management"
+  showcontent = true
+
+[tool.changelog_bot]
+  [tool.changelog_bot.towncrier_changelog]
+    enabled = true
+    changelog_skip_label = "No changelog needed"
+
+[tool.isort]
+line_length = 90  # needs to be the same as in tool.black
+wrap_length = 82
+sections = ["FUTURE", "STDLIB", "FIRSTPARTY", "LOCALFOLDER"]
+known_first_party = ["bapsflib", ]
+default_section = "STDLIB"
+multi_line_output = 3
+use_parentheses = true
+include_trailing_comma = true
+force_alphabetical_sort_within_sections = true
+honor_noqa = true
+lines_between_types = 1
+
+[tool.black]
+line-length = 90  # needs to be the same as in tool.isort
+
+[tool.coverage]
+  #  settings for coverage.py
+  run.branch = true
+  run.omit = [
+    ".idea/*",
+    "*/tests/*",
+    "bapsflib/plasma/*",
+    "docs/*",
+    "LICENSES/*",
+  ]
+  report.exclude_lines = [
+    "@abstractmethod",
+    "coverage: ignore",
+    "pragma: no cover",
+    "pragma: no branch",
+    "riase NotImplementedError",
+    "if __name__ == .__main__.:",
+  ]

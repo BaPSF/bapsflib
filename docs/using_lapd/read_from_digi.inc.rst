@@ -26,10 +26,9 @@ example, the entire dataset for a signal attached to :code:`board=1` and
     True
 
 where :obj:`data` is an instance of
-:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.  The
-:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class acts as a
-wrapper on :class:`numpy.recarray`.  Thus, :obj:`data` behaves just like
-a :class:`numpy.recarray` object and will have additional
+:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, which is a
+subclass of `numpy.ndarray`.  Thus, :obj:`data` behaves just like
+a :class:`numpy.ndarray`, but has additional BaPSF focused
 methods/attributes that describe the data's origin and parameters
 (see :numref:`table_HDFReadData_methods`).
 
@@ -114,7 +113,7 @@ behavior of :meth:`~File.read_data`:
     | (see :ref:`read_digi_subset`)
     "
     :data:`silent`, :code:`False`, "set :code:`True` to suppress
-    :code:`UserWarnings`
+    `bapsflib` generated warnings
     "
 
 ------
@@ -211,12 +210,12 @@ Sub-setting with :data:`shotnum` looks like::
 
 :data:`intersection_set` modifies what shot numbers are returned by
 :meth:`~File.read_data`.  By default :code:`intersection_set=True`
-which forces the returned data to only correspond to shot numbers that
+which forces the returned data to only contain shot numbers that
 exist in the digitizer dataset, exist in any specified control device
-datasets, and are requested by either :data:`index` or :data:`shotnum`.
+datasets, and are requested by :data:`index` or :data:`shotnum`.
 Setting :data:`intersection_set` to :code:`False` will return a
 :data:`data` array that has all shot numbers (:math:`\ge 1`) specified
-by either :data:`index` or :data:`shotnum`. If a digitizer or control
+by :data:`index` or :data:`shotnum`. If a digitizer or control
 device dataset does not have an entry corresponding to a specific shot
 number, then its spot in the data array will be filled with a "NaN"
 value (:data:`numpy.nan` for floats, :code:`-99999` for signed-integers,
@@ -236,10 +235,10 @@ accordingly.
 
 If :data:`digitizer` is not specified, then it is assumed that the
 desired digitizer is the one defined in
-:attr:`~bapsflib._hdf.maps.hdfmap.HDFMap.main_digitizer`.  Suppose
+:attr:`~bapsflib._hdf.maps.core.HDFMap.main_digitizer`.  Suppose
 the :file:`test.hdf5` has two digitizers, :code:`'SIS 3301'` and
 :code:`'SIS crate'`, then :code:`'SIS 3301'` would be assumed
-as the :attr:`~bapsflib._hdf.maps.hdfmap.HDFMap.main_digitizer`.  To
+as the :attr:`~bapsflib._hdf.maps.core.HDFMap.main_digitizer`.  To
 extract data from :code:`'SIS crate'` one would use the
 :data:`digitizer` keyword as follows::
 

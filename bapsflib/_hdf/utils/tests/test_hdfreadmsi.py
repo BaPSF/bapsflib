@@ -15,13 +15,15 @@ import numpy as np
 import os
 import unittest as ut
 
-from . import (TestBase, with_bf)
-from ..file import File
-from ..hdfreadmsi import HDFReadMSI
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
+from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.utils.decorators import with_bf
 
 
 class TestHDFReadMSI(TestBase):
     """Test Case for the HDFReadMSI class."""
+
     # What to test:
     #   1. Diagnostic aliases
     #   2. Input arguments
@@ -50,7 +52,7 @@ class TestHDFReadMSI(TestBase):
         #
         # -- `hdf_file` not a lapd.File object                      ----
         with self.assertRaises(TypeError):
-            self.read(None, '')
+            self.read(None, "")
 
         # -- `dname` not valid                                      ----
         # `dname` is not a string
@@ -59,23 +61,28 @@ class TestHDFReadMSI(TestBase):
 
         # `dname` not a mapped MSI diagnostic
         with self.assertRaises(ValueError):
-            self.read(_bf, 'Not Diagnostic')
+            self.read(_bf, "Not Diagnostic")
 
         # -- Not all datasets for `dname` have matching             ----
         # -- shot numbers                                           ----
         # Using 'Interferometer array' as a test case
-        self.f.add_module('Interferometer array',
-                          mod_args={'n interferometers': 4, })
-        dset_path = '/MSI/Interferometer array/Interferometer [1]/' \
-                    'Interferometer summary list'
+        self.f.add_module(
+            "Interferometer array",
+            mod_args={
+                "n interferometers": 4,
+            },
+        )
+        dset_path = (
+            "/MSI/Interferometer array/Interferometer [1]/Interferometer summary list"
+        )
         dset = self.f[dset_path]
         data = dset[:]
-        data['Shot number'][1] += 1
+        data["Shot number"][1] += 1
         del self.f[dset_path]
         self.f.create_dataset(dset_path, data=data)
         _bf._map_file()  # re-map file
         with self.assertRaises(ValueError):
-            self.read(_bf, 'Interferometer array')
+            self.read(_bf, "Interferometer array")
 
     @with_bf
     def test_read_simple(self, _bf: File):
@@ -84,10 +91,10 @@ class TestHDFReadMSI(TestBase):
         one sequence of data per shot number)
         """
         # Using 'Discharge' as a test case
-        self.f.add_module('Discharge')
+        self.f.add_module("Discharge")
         _bf._map_file()  # re-map file
-        _map = _bf.file_map.msi['Discharge']
-        self.assertDataObj(self.read(_bf, 'Discharge'), _bf, _map)
+        _map = _bf.file_map.msi["Discharge"]
+        self.assertDataObj(self.read(_bf, "Discharge"), _bf, _map)
 
     @with_bf
     def test_read_complex(self, _bf: File):
@@ -96,12 +103,15 @@ class TestHDFReadMSI(TestBase):
         more than one sequence of data per shot number)
         """
         # Using 'Interferometer array' as a test case
-        self.f.add_module('Interferometer array',
-                          mod_args={'n interferometers': 4, })
+        self.f.add_module(
+            "Interferometer array",
+            mod_args={
+                "n interferometers": 4,
+            },
+        )
         _bf._map_file()  # re-map file
-        _map = _bf.file_map.msi['Interferometer array']
-        self.assertDataObj(self.read(_bf, 'Interferometer array'),
-                           _bf, _map)
+        _map = _bf.file_map.msi["Interferometer array"]
+        self.assertDataObj(self.read(_bf, "Interferometer array"), _bf, _map)
 
     def assertDataObj(self, _data: HDFReadMSI, _bf, _map):
         # data is a structured numpy array
@@ -109,113 +119,107 @@ class TestHDFReadMSI(TestBase):
 
         # look for expected fields
         # 'shotnum' and 'meta'
-        self.assertTrue(all(x in _data.dtype.fields
-                            for x in ['shotnum', 'meta']))
+        self.assertTrue(all(x in _data.dtype.fields for x in ["shotnum", "meta"]))
 
         # check 'shape'
-        self.assertEqual(_data.shape, _map.configs['shape'])
+        self.assertEqual(_data.shape, _map.configs["shape"])
 
         # -- check 'shotnum'                                        ----
-        self.assertEqual(_data['shotnum'].dtype.shape, ())
-        self.assertTrue(np.issubdtype(_data['shotnum'].dtype,
-                                      np.integer))
+        self.assertEqual(_data["shotnum"].dtype.shape, ())
+        self.assertTrue(np.issubdtype(_data["shotnum"].dtype, np.integer))
 
         # check equality of read arrays
-        sn_config = _map.configs['shotnum']
-        for ii, path in enumerate(sn_config['dset paths']):
+        sn_config = _map.configs["shotnum"]
+        for ii, path in enumerate(sn_config["dset paths"]):
             # determine field
-            field = sn_config['dset field'][0] \
-                if len(sn_config['dset field']) == 1 \
-                else sn_config['dset field'][ii]
+            field = (
+                sn_config["dset field"][0]
+                if len(sn_config["dset field"]) == 1
+                else sn_config["dset field"][ii]
+            )
 
             # grab dataset
             dset = _bf.get(path)
             sn_arr = dset[field]
 
             # examine
-            self.assertTrue(np.array_equal(sn_arr, _data['shotnum']))
+            self.assertTrue(np.array_equal(sn_arr, _data["shotnum"]))
 
         # -- check 'meta'                                           ----
         # examine each expected 'meta' field
-        for field, config in _map.configs['meta'].items():
+        for field, config in _map.configs["meta"].items():
             # skip 'shape'
-            if field == 'shape':
+            if field == "shape":
                 continue
 
             # all expected fields are in the numpy array
-            self.assertIn(field, _data['meta'].dtype.fields)
+            self.assertIn(field, _data["meta"].dtype.fields)
 
             # compare values
-            for ii, path in enumerate(config['dset paths']):
+            for ii, path in enumerate(config["dset paths"]):
                 # determine dset_field
-                dset_field = config['dset field'][0] \
-                    if len(config['dset field']) == 1 \
-                    else config['dset field'][ii]
+                dset_field = (
+                    config["dset field"][0]
+                    if len(config["dset field"]) == 1
+                    else config["dset field"][ii]
+                )
 
                 # grab dataset
                 dset = _bf.get(path)
 
                 # examine
-                if len(config['dset paths']) == 1:
+                if len(config["dset paths"]) == 1:
                     self.assertTrue(
-                        np.array_equal(dset[dset_field],
-                                       _data['meta'][field])
+                        np.array_equal(dset[dset_field], _data["meta"][field])
                     )
                 else:
                     self.assertTrue(
-                        np.array_equal(dset[dset_field],
-                                       _data['meta'][field][:, ii, ...])
+                        np.array_equal(dset[dset_field], _data["meta"][field][:, ii, ...])
                     )
 
         # -- check signal fields                                    ----
         # examine each expected 'signals' field
-        for field, config in _map.configs['signals'].items():
+        for field, config in _map.configs["signals"].items():
             # all expected fields are in the numpy array
             self.assertIn(field, _data.dtype.fields)
 
             # compare values
-            for ii, path in enumerate(config['dset paths']):
+            for ii, path in enumerate(config["dset paths"]):
                 # grab dataset
                 dset = _bf.get(path)
 
                 # examine
-                if len(config['dset paths']) == 1:
+                if len(config["dset paths"]) == 1:
                     self.assertTrue(np.array_equal(dset, _data[field]))
                 else:
-                    self.assertTrue(
-                        np.array_equal(dset, _data[field][:, ii, ...])
-                    )
+                    self.assertTrue(np.array_equal(dset, _data[field][:, ii, ...]))
 
         # check 'info' attribute                                    ----
         # check existence and type
-        self.assertTrue(hasattr(_data, 'info'))
+        self.assertTrue(hasattr(_data, "info"))
         self.assertIsInstance(_data.info, dict)
 
         # examine each key
         infokeys = list(_map.configs.keys())
-        infokeys.remove('shape')
-        infokeys.remove('shotnum')
-        infokeys.remove('signals')
-        infokeys.remove('meta')
-        infokeys = (['source file', 'device name', 'device group path']
-                    + infokeys)
+        infokeys.remove("shape")
+        infokeys.remove("shotnum")
+        infokeys.remove("signals")
+        infokeys.remove("meta")
+        infokeys = ["source file", "device name", "device group path"] + infokeys
         for key in infokeys:
             # existence
             self.assertIn(key, _data.info)
 
             # value
-            if key == 'source file':
-                self.assertEqual(_data.info[key],
-                                 os.path.abspath(_bf.filename))
-            elif key == 'device name':
-                self.assertEqual(_data.info[key],
-                                 _map.info['group name'])
-            elif key == 'device group path':
-                self.assertEqual(_data.info[key],
-                                 _map.info['group path'])
+            if key == "source file":
+                self.assertEqual(_data.info[key], os.path.abspath(_bf.filename))
+            elif key == "device name":
+                self.assertEqual(_data.info[key], _map.info["group name"])
+            elif key == "device group path":
+                self.assertEqual(_data.info[key], _map.info["group path"])
             else:
                 self.assertEqual(_data.info[key], _map.configs[key])
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

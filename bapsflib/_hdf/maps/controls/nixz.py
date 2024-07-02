@@ -8,14 +8,22 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""
+Module for the NIXZ motion control mapper
+`~bapsflib._hdf.maps.controls.nixz.HDFMapControlNIXZ`.
+"""
+__all__ = ["HDFMapControlNIXZ"]
+
 import h5py
 import numpy as np
 
-from bapsflib.utils.errors import HDFMappingError
 from warnings import warn
 
-from .contype import ConType
-from .templates import HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.utils import _bytes_to_str
+from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControlNIXZ(HDFMapControlTemplate):
@@ -36,6 +44,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         |   |   +--
         |   +-- Run time list
     """
+
     def __init__(self, group: h5py.Group):
         """
         :param group: the HDF5 control device group
@@ -43,7 +52,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         HDFMapControlTemplate.__init__(self, group)
 
         # define control type
-        self._info['contype'] = ConType.motion
+        self._info["contype"] = ConType.motion
 
         # populate self.configs
         self._build_configs()
@@ -61,27 +70,28 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         #    - the name of the sub-group is the name of the motion list
         #
         # initialize configuration
-        cname = 'config01'
+        cname = "config01"
         self.configs[cname] = {}
 
         # check there are existing motion lists
         if len(self.subgroup_names) == 0:
-            warn(self.info['group path']
-                 + ': no defining motion list groups exist')
+            warn(
+                f"{self.info['group path']}: no defining motion list groups exist",
+                HDFMappingWarning,
+            )
 
         # get dataset
         try:
             dset = self.group[self.construct_dataset_name()]
         except KeyError:
-            why = ("Dataset '" + self.construct_dataset_name()
-                   + "' not found")
-            raise HDFMappingError(self.info['group path'], why=why)
+            why = f"Dataset '{self.construct_dataset_name()}' not found"
+            raise HDFMappingError(self.info["group path"], why=why)
 
         # ---- define general config values                         ----
         # none exist
 
         # ---- define motion list values                            ----
-        self.configs[cname]['motion lists'] = {}
+        self.configs[cname]["motion lists"] = {}
 
         # get sub-group names (i.e. ml names)
         _ml_names = []
@@ -93,8 +103,10 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         # Nx, Nz, dx, dz, x0, z0
         names_to_remove = []
         for name in _ml_names:
-            if all(attr not in self.group[name].attrs
-                   for attr in ('Nx', 'Ny', 'dx', 'dz', 'x0', 'z0')):
+            if all(
+                attr not in self.group[name].attrs
+                for attr in ("Nx", "Ny", "dx", "dz", "x0", "z0")
+            ):
                 names_to_remove.append(name)
         if bool(names_to_remove):
             for name in names_to_remove:
@@ -102,25 +114,25 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
 
         # warn if no motion lists exist
         if not bool(_ml_names):
-            why = 'NI_XZ has no identifiable motion lists'
-            warn(why)
+            why = "NI_XZ has no identifiable motion lists"
+            warn(why, HDFMappingWarning)
 
         # gather ML config values
         pairs = [
-            ('Nx', 'Nx'),
-            ('Nz', 'Nz'),
-            ('dx', 'dx'),
-            ('dz', 'dz'),
-            ('fan_XZ', 'fan_XZ'),
-            ('max_zdrive_steps', 'max_zdrive_steps'),
-            ('min_zdrive_steps', 'min_zdrive_steps'),
-            ('x0', 'x0'),
-            ('z0', 'z0'),
-            ('port', 'z_port'),
+            ("Nx", "Nx"),
+            ("Nz", "Nz"),
+            ("dx", "dx"),
+            ("dz", "dz"),
+            ("fan_XZ", "fan_XZ"),
+            ("max_zdrive_steps", "max_zdrive_steps"),
+            ("min_zdrive_steps", "min_zdrive_steps"),
+            ("x0", "x0"),
+            ("z0", "z0"),
+            ("port", "z_port"),
         ]
         for name in _ml_names:
             # initialize ML dictionary
-            self.configs[cname]['motion lists'][name] = {}
+            self.configs[cname]["motion lists"][name] = {}
 
             # add ML values
             for pair in pairs:
@@ -131,69 +143,65 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
                     # condition value
                     if np.issubdtype(type(val), np.bytes_):
                         # - val is a np.bytes_ string
-                        val = val.decode('utf-8')
-                    if pair[1] == 'fan_XZ':
+                        val = _bytes_to_str(val)
+                    if pair[1] == "fan_XZ":
                         # convert to boolean
-                        if val == 'TRUE':
+                        if val == "TRUE":
                             val = True
                         else:
                             val = False
 
                     # assign val to configs
-                    self.configs[cname]['motion lists'][name][pair[0]] \
-                        = val
+                    self.configs[cname]["motion lists"][name][pair[0]] = val
                 except KeyError:
-                    self.configs[cname]['motion lists'][name][pair[0]] \
-                        = None
+                    self.configs[cname]["motion lists"][name][pair[0]] = None
 
-                    why = "Motion List attribute '" + pair[1] \
-                          + "' not found for ML group '" + name + "'"
-                    warn(why)
+                    why = (
+                        f"Motion List attribute '{pair[1]}' not found for "
+                        f"ML group '{name}'"
+                    )
+                    warn(why, HDFMappingWarning)
 
         # ---- define 'dset paths'                                  ----
-        self.configs[cname]['dset paths'] = (dset.name,)
+        self.configs[cname]["dset paths"] = (dset.name,)
 
         # ---- define 'shotnum'                                     ----
         # check dset for 'Shot number' field
-        if 'Shot number' not in dset.dtype.names:
-            why = "Dataset '" + dset.name \
-                  + "' is missing 'Shot number' field"
-            raise HDFMappingError(self.info['group path'], why=why)
+        if "Shot number" not in dset.dtype.names:
+            why = f"Dataset '{dset.name}' is missing 'Shot number' field"
+            raise HDFMappingError(self.info["group path"], why=why)
 
         # initialize
-        self.configs[cname]['shotnum'] = {
-            'dset paths': self.configs[cname]['dset paths'],
-            'dset field': ('Shot number',),
-            'shape': dset.dtype['Shot number'].shape,
-            'dtype': np.int32,
+        self.configs[cname]["shotnum"] = {
+            "dset paths": self.configs[cname]["dset paths"],
+            "dset field": ("Shot number",),
+            "shape": dset.dtype["Shot number"].shape,
+            "dtype": np.int32,
         }
 
         # ---- define 'state values'                                ----
-        self._configs[cname]['state values'] = {
-            'xyz': {
-                'dset paths':
-                    self._configs[cname]['dset paths'],
-                'dset field': ('x', '', 'z'),
-                'shape': (3,),
-                'dtype': np.float64
+        self._configs[cname]["state values"] = {
+            "xyz": {
+                "dset paths": self._configs[cname]["dset paths"],
+                "dset field": ("x", "", "z"),
+                "shape": (3,),
+                "dtype": np.float64,
             },
         }
 
         # check dset for 'x' and 'z' fields
-        fx = 'x' not in dset.dtype.names
-        fz = 'z' not in dset.dtype.names
+        fx = "x" not in dset.dtype.names
+        fz = "z" not in dset.dtype.names
         if fx and fz:
-            why = "Dataset '" + dset.name \
-                  + "' missing both field 'x' and 'z'"
-            raise HDFMappingError(self.info['group path'], why=why)
+            why = f"Dataset '{dset.name}' missing both field 'x' and 'z'"
+            raise HDFMappingError(self.info["group path"], why=why)
         elif fx or fz:
-            missf = 'x' if fx else 'z'
-            why = " Dataset '" + dset.name \
-                  + "' missing field '" + missf + "'"
-            warn(why)
+            missf = "x" if fx else "z"
+            why = f" Dataset '{dset.name}' missing field '{missf}'"
+            warn(why, HDFMappingWarning)
 
     def construct_dataset_name(self, *args) -> str:
         """
         Constructs name of dataset containing control state value data.
         """
-        return 'Run time list'
+        return "Run time list"

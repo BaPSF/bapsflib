@@ -11,7 +11,7 @@
 """
 Decorators for the :mod:`bapsflib` package.
 """
-__all__ = ['with_bf', 'with_lapdf']
+__all__ = ["with_bf", "with_lapdf"]
 
 import functools
 import inspect
@@ -19,11 +19,14 @@ import inspect
 from typing import Union
 
 
-def with_bf(wfunc=None, *,
-            filename: Union[str, None] = None,
-            control_path: Union[str, None] = None,
-            digitizer_path: Union[str, None] = None,
-            msi_path: Union[str, None] = None):
+def with_bf(
+    wfunc=None,
+    *,
+    filename: Union[str, None] = None,
+    control_path: Union[str, None] = None,
+    digitizer_path: Union[str, None] = None,
+    msi_path: Union[str, None] = None
+):
     """
     Context decorator for managing the opening and closing BaPSF HDF5
     Files (:class:`bapsflib._hdf.utils.file.File`).  An instance of the
@@ -112,13 +115,15 @@ def with_bf(wfunc=None, *,
     # 3. decorator keywords
     #
     # define decorator set file settings
-    settings = {'filename': filename,
-                'control_path': control_path,
-                'digitizer_path': digitizer_path,
-                'msi_path': msi_path}
+    settings = {
+        "filename": filename,
+        "control_path": control_path,
+        "digitizer_path": digitizer_path,
+        "msi_path": msi_path,
+    }
 
     def decorator(func):
-        # import File here to avoid cyclical imports
+        # to avoid cyclical imports
         from bapsflib._hdf.utils.file import File
 
         @functools.wraps(func)
@@ -133,7 +138,7 @@ def with_bf(wfunc=None, *,
             func_sig = inspect.signature(func)
             bound_args = func_sig.bind_partial(*args, **kwargs)
             self = None  # type: Union[None, object]
-            if 'self' in func_sig.parameters:
+            if "self" in func_sig.parameters:
                 try:
                     if hasattr(args[0], func.__name__):  # pragma: no branch
                         # arg[0] is an object with method of the same name
@@ -166,11 +171,11 @@ def with_bf(wfunc=None, *,
                         pass
             for name in list(fsettings.keys()):
                 if fsettings[name] is None:
-                    if name == 'filename':
+                    if name == "filename":
                         raise ValueError("No valid file name specified.")
                     else:
                         del fsettings[name]
-            fname = fsettings.pop('filename')
+            fname = fsettings.pop("filename")
 
             # run function with in if statement
             with File(fname, **fsettings) as bf:
@@ -265,10 +270,10 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
     # 3. decorator keywords
     #
     # define decorator set file settings
-    settings = {'filename': filename}
+    settings = {"filename": filename}
 
     def decorator(func):
-        # import File here to avoid cyclical imports
+        # to avoid cyclical imports
         from bapsflib.lapd._hdf.file import File
 
         @functools.wraps(func)
@@ -282,7 +287,7 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
             func_sig = inspect.signature(func)
             bound_args = func_sig.bind_partial(*args, **kwargs)
             self = None  # type: Union[None, object]
-            if 'self' in func_sig.parameters:
+            if "self" in func_sig.parameters:
                 try:
                     if hasattr(args[0], func.__name__):  # pragma: no branch
                         self = args[0]
@@ -308,8 +313,7 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
                     # if wrapped function is a method, and setting not passed
                     # as function argument then look to self
                     try:
-                        if self.__getattribute__(
-                                name) is None:  # pragma: no cover
+                        if self.__getattribute__(name) is None:  # pragma: no cover
                             # currently with_lapdf only takes filename as an
                             # argument, this need to be tested if that changes
                             continue
@@ -318,11 +322,11 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
                         pass
             for name in list(fsettings.keys()):
                 if fsettings[name] is None:
-                    if name == 'filename':
+                    if name == "filename":
                         raise ValueError("No valid file name specified.")
                     else:  # pragma: no cover
                         del fsettings[name]
-            fname = fsettings.pop('filename')
+            fname = fsettings.pop("filename")
 
             # run function with in if statement
             with File(fname) as lapdf:

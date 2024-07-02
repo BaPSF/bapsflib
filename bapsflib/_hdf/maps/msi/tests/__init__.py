@@ -8,8 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from .fauxdischarge import FauxDischarge
-from .fauxgaspressure import FauxGasPressure
-from .fauxheater import FauxHeater
-from .fauxinterarr import FauxInterferometerArray
-from .fauxmagneticfield import FauxMagneticField
+from bapsflib._hdf.maps.msi.tests.fauxdischarge import FauxDischarge
+from bapsflib._hdf.maps.msi.tests.fauxgaspressure import FauxGasPressure
+from bapsflib._hdf.maps.msi.tests.fauxheater import FauxHeater
+from bapsflib._hdf.maps.msi.tests.fauxinterarr import FauxInterferometerArray
+from bapsflib._hdf.maps.msi.tests.fauxmagneticfield import FauxMagneticField

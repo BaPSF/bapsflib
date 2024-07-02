@@ -8,17 +8,20 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+"""Module for defining the main MSI mapper `HDFMapMSI`."""
+__all__ = ["HDFMapMSI"]
+
 import h5py
 
-from bapsflib.utils.errors import HDFMappingError
 from typing import Dict
 
-from .discharge import HDFMapMSIDischarge
-from .gaspressure import HDFMapMSIGasPressure
-from .heater import HDFMapMSIHeater
-from .interferometerarray import HDFMapMSIInterferometerArray
-from .magneticfield import HDFMapMSIMagneticField
-from .templates import HDFMapMSITemplate
+from bapsflib._hdf.maps.msi.discharge import HDFMapMSIDischarge
+from bapsflib._hdf.maps.msi.gaspressure import HDFMapMSIGasPressure
+from bapsflib._hdf.maps.msi.heater import HDFMapMSIHeater
+from bapsflib._hdf.maps.msi.interferometerarray import HDFMapMSIInterferometerArray
+from bapsflib._hdf.maps.msi.magneticfield import HDFMapMSIMagneticField
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
+from bapsflib.utils.exceptions import HDFMappingError
 
 
 class HDFMapMSI(dict):
@@ -36,12 +39,13 @@ class HDFMapMSI(dict):
         ... # MSI diagnostic groups
         ... msi_map = HDFMapMSI(f['MSI'])
     """
+
     _defined_mapping_classes = {
-        'Discharge': HDFMapMSIDischarge,
-        'Gas pressure': HDFMapMSIGasPressure,
-        'Heater': HDFMapMSIHeater,
-        'Interferometer array': HDFMapMSIInterferometerArray,
-        'Magnetic field': HDFMapMSIMagneticField
+        "Discharge": HDFMapMSIDischarge,
+        "Gas pressure": HDFMapMSIGasPressure,
+        "Heater": HDFMapMSIHeater,
+        "Interferometer array": HDFMapMSIInterferometerArray,
+        "Magnetic field": HDFMapMSIMagneticField,
     }
     """
     Dictionary containing references to the defined (known) MSI
@@ -54,7 +58,7 @@ class HDFMapMSI(dict):
         """
         # condition msi_group arg
         if not isinstance(msi_group, h5py.Group):
-            raise TypeError('msi_group is not of type h5py.Group')
+            raise TypeError("msi_group is not of type h5py.Group")
 
         # store HDF5 MSI group
         self.__msi_group = msi_group
@@ -94,8 +98,7 @@ class HDFMapMSI(dict):
             if name in self._defined_mapping_classes:
                 # only add mapping that succeeded
                 try:
-                    diag_map = self._defined_mapping_classes[name](
-                        self.__msi_group[name])
+                    diag_map = self._defined_mapping_classes[name](self.__msi_group[name])
                     msi_dict[name] = diag_map
                 except HDFMappingError:
                     # mapping failed

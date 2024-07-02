@@ -1,0 +1,20 @@
+name: Check for Change Log Entry
+
+on:
+  pull_request:
+    types: [opened, synchronize, labeled, unlabeled]
+
+jobs:
+  changelog_checker:
+    # configuration is defined in pyproject.toml
+    # - found under heading tool.<BOT_USERNAME>.towncrier_changelog
+    name: Check for 'towncrier' Change Log Entries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Look for changelog
+        uses: rocco8773/actions-towncrier-changelog@vRoc
+        # TODO: return back to scientific-python when rocco8773 'vRoc' branch is pushed upstream
+        # uses: scientific-python/action-towncrier-changelog@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BOT_USERNAME: changelog_bot

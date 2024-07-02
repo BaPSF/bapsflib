@@ -8,18 +8,19 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import bapsflib
+"""Module containing the HDF5 reader for LaPD generated files."""
+__all__ = ["File"]
+
 import h5py
 
 from bapsflib._hdf.utils.file import File as BaseFile
-
-from .lapdmap import LaPDMap
+from bapsflib.lapd._hdf.lapdmap import LaPDMap
 
 
 class File(BaseFile):
     """Open a HDF5 file created by the LaPD at BaPSF."""
 
-    def __init__(self, name: str, mode='r', silent=False, **kwargs):
+    def __init__(self, name: str, mode="r", silent=False, **kwargs):
         """
         :param name: name (and path) of file on disk
         :param mode: readonly :code:`'r'` (DEFAULT) and read/write
@@ -40,10 +41,15 @@ class File(BaseFile):
             >>> isinstance(f, h5py.File)
             True
         """
-        super().__init__(name, mode=mode,
-                         control_path='Raw data + config',
-                         digitizer_path='Raw data + config',
-                         msi_path='MSI', silent=silent, **kwargs)
+        super().__init__(
+            name,
+            mode=mode,
+            control_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            msi_path="MSI",
+            silent=silent,
+            **kwargs
+        )
 
     def _build_info(self):
         """Builds the general :attr:`info` dictionary for the file."""
@@ -51,7 +57,7 @@ class File(BaseFile):
         super()._build_info()
 
         # add 'lapd version' to `_info`
-        self.info['lapd version'] = self.file_map.lapd_version
+        self.info["lapd version"] = self.file_map.lapd_version
 
         # add run info
         self.info.update(self.file_map.run_info)
@@ -61,10 +67,12 @@ class File(BaseFile):
 
     def _map_file(self):
         """Map/re-map the LaPD HDF5 file. (Builds :attr:`file_map`)"""
-        self._file_map = LaPDMap(self,
-                                 control_path=self.CONTROL_PATH,
-                                 digitizer_path=self.DIGITIZER_PATH,
-                                 msi_path=self.MSI_PATH)
+        self._file_map = LaPDMap(
+            self,
+            control_path=self.CONTROL_PATH,
+            digitizer_path=self.DIGITIZER_PATH,
+            msi_path=self.MSI_PATH,
+        )
 
     @property
     def file_map(self) -> LaPDMap:
@@ -76,11 +84,12 @@ class File(BaseFile):
         """
         LaPD HDF5 file overview. (:class:`~.lapdoverview.LaPDOverview`)
         """
-        from .lapdoverview import LaPDOverview
+        # to avoid cyclical imports
+        from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
 
         return LaPDOverview(self)
 
     def run_description(self):
         """Print description of the LaPD experimental run."""
-        for line in self.info['run description'].splitlines():
+        for line in self.info["run description"].splitlines():
             print(line)

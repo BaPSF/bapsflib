@@ -9,20 +9,30 @@
 #   license terms and contributor agreement.
 #
 #
+"""
+Module containing the main `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class.
+"""
+__all__ = ["HDFReadData"]
+
 import astropy.units as u
 import copy
 import numpy as np
 import os
 import time
 
-from bapsflib.plasma import core
 from typing import Union
 from warnings import warn
 
-from .file import File
-from .helpers import (build_sndr_for_simple_dset, condition_controls,
-                      condition_shotnum, do_shotnum_intersection)
-from .hdfreadcontrols import HDFReadControls
+from bapsflib._hdf.utils.file import File
+from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
+from bapsflib._hdf.utils.helpers import (
+    build_sndr_for_simple_dset,
+    condition_controls,
+    condition_shotnum,
+    do_shotnum_intersection,
+)
+from bapsflib.plasma import core
+from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
 # noinspection PyInitNewSignature
@@ -48,12 +58,13 @@ class HDFReadData(np.ndarray):
 
     .. note::
 
-        * Evey returned numpy array will have the :code:`'xyz'` field,
+        * Every returned numpy array will have the :code:`'xyz'` field,
           which is reserved for probe position data.  If a control
           device specifies this field, then field will be filled with
           the control device data;otherwise, the field will be filled
           with :code:`numpy.nan` values.
     """
+
     __example_doc__ = """
     :Example: Here data is extracted from the digitizer 
         :code:`'SIS crate'` and position data is mated from the
@@ -98,17 +109,21 @@ class HDFReadData(np.ndarray):
 
     """
 
-    def __new__(cls,
-                hdf_file: File,
-                board: int, channel: int,
-                index=slice(None),
-                shotnum=slice(None),
-                digitizer=None,
-                config_name=None,
-                adc=None,
-                keep_bits=False,
-                add_controls=None,
-                intersection_set=True, **kwargs):
+    def __new__(
+        cls,
+        hdf_file: File,
+        board: int,
+        channel: int,
+        index=slice(None),
+        shotnum=slice(None),
+        digitizer=None,
+        config_name=None,
+        adc=None,
+        keep_bits=False,
+        add_controls=None,
+        intersection_set=True,
+        **kwargs,
+    ):
         """
         :param hdf_file: HDF5 file object
         :param board: analog-digital-converter board number
@@ -147,8 +162,8 @@ class HDFReadData(np.ndarray):
         """
         # initialize timing
         tt = []
-        if 'timeit' in kwargs:  # pragma: no cover
-            timeit = kwargs['timeit']
+        if "timeit" in kwargs:  # pragma: no cover
+            timeit = kwargs["timeit"]
             if timeit:
                 tt.append(time.time())
             else:
@@ -161,14 +176,13 @@ class HDFReadData(np.ndarray):
         #
         if not isinstance(hdf_file, File):
             raise TypeError(
-                "`hdf_file` is NOT type `"
-                + File.__module__ + "." + File.__qualname__ + "`")
+                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
+            )
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - `hdf_file` conditioning: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - `hdf_file` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Examine file map object                              ----
         # grab instance of `HDFMap`
@@ -177,8 +191,7 @@ class HDFReadData(np.ndarray):
         # ---- Condition `add_controls`                             ----
         # Check for non-empty controls
         if bool(add_controls) and not bool(_fmap.controls):
-            raise ValueError(
-                'There are no control devices in the HDF5 file.')
+            raise ValueError("There are no control devices in the HDF5 file.")
 
         # condition controls
         if bool(add_controls):
@@ -189,33 +202,32 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - `add_controls` conditioning: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - `add_controls` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition `digitizer` keyword                        ----
         if not bool(_fmap.digitizers):
-            raise ValueError(
-                "There are no digitizers in the HDF5 file.")
+            raise ValueError("There are no digitizers in the HDF5 file.")
         elif digitizer is None:
             if not bool(_fmap.main_digitizer):
                 raise ValueError(
                     "No main digitizer is identified..."
-                    "need to specify `digitizer` kwarg")
+                    "need to specify `digitizer` kwarg"
+                )
 
-            why = ("Digitizer not specified so assuming the "
-                   "'main_digitizer' "
-                   "({})".format(_fmap.main_digitizer.device_name)
-                   + " defined in the mappings.")
-            warn(why)
+            why = (
+                f"Digitizer not specified so assuming the 'main_digitizer' "
+                f"({_fmap.main_digitizer.device_name}) defined in the mappings."
+            )
+            warn(why, BaPSFWarning)
             _dmap = _fmap.main_digitizer
         else:
             try:
                 _dmap = _fmap.digitizers[digitizer]
             except KeyError:
                 raise ValueError(
-                    "Specified Digitizer '{}'".format(digitizer)
-                    + " is not among known digitizers "
-                    "({})".format(list(_fmap.digitizers)))
+                    f"Specified Digitizer '{digitizer}' is not among known "
+                    f"digitizers ({list(_fmap.digitizers)})"
+                )
 
         # ---- Gather Digi Dataset Info                             ----
         #
@@ -230,18 +242,16 @@ class HDFReadData(np.ndarray):
         # shotnumkey - field name for shot number column in dheader
         #
         # Build kwargs for construct_dataset_name()
-        kwargs = {'return_info': True}
+        kwargs = {"return_info": True}
         if config_name is not None:
-            kwargs['config_name'] = config_name
+            kwargs["config_name"] = config_name
         if adc is not None:
-            kwargs['adc'] = adc
+            kwargs["adc"] = adc
 
         # Get datasets
-        dname, d_info = _dmap.construct_dataset_name(
-            board, channel, **kwargs)
-        dhname = _dmap.construct_header_dataset_name(
-            board, channel, **kwargs)
-        dpath = _dmap.info['group path'] + '/'
+        dname, d_info = _dmap.construct_dataset_name(board, channel, **kwargs)
+        dhname = _dmap.construct_header_dataset_name(board, channel, **kwargs)
+        dpath = f"{_dmap.info['group path']}/"
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
 
@@ -250,14 +260,12 @@ class HDFReadData(np.ndarray):
             config_name = _dmap.active_configs[0]
 
         # define `shotnumkey`
-        shotnumkey = \
-            _dmap.configs[config_name]['shotnum']['dset field'][0]
+        shotnumkey = _dmap.configs[config_name]["shotnum"]["dset field"][0]
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - get dset and dheader: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - get dset and dheader: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition shots, index, and shotnum ----
         # index   -- row index of digitizer dataset
@@ -307,19 +315,19 @@ class HDFReadData(np.ndarray):
         #       be given a NULL value depending on the dtype
         #
         # Determine if indexing w.r.t. `index` or `shotnum`
-        index_with = 'index'
+        index_with = "index"
         if isinstance(index, slice):
             if index == slice(None):
                 if not isinstance(shotnum, slice):
-                    index_with = 'shotnum'
+                    index_with = "shotnum"
                 elif shotnum != slice(None):
-                    index_with = 'shotnum'
+                    index_with = "shotnum"
 
         # Condition `index` and `shotnum` keywords
         # - Valid indexing types are: int, list(int), slice(), and
         #   np.ndarray
         #
-        if index_with == 'index':
+        if index_with == "index":
             # Condition `index` keyword
             #
             # Note: I'm letting the slicing of dset[index, shotnumkey]
@@ -345,8 +353,7 @@ class HDFReadData(np.ndarray):
                 raise TypeError("Valid `index` type not passed.")
 
             # convert (VALID) negative indices to positive
-            neg_index_mask = np.where((index < 0) & (index >= -sn_size),
-                                      True, False)
+            neg_index_mask = np.where((index < 0) & (index >= -sn_size), True, False)
             if np.any(neg_index_mask):
                 adj_ii = index[neg_index_mask] % sn_size
                 index[neg_index_mask] = adj_ii
@@ -356,18 +363,17 @@ class HDFReadData(np.ndarray):
             shotnum = dheader[index.tolist(), shotnumkey]
 
             # define sni
-            sni = np.ones(shotnum.shape[0], dtype=np.bool)
+            sni = np.ones(shotnum.shape[0], dtype=bool)
 
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print('tt - condition index: '
-                      '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+                print(f"tt - condition index: {(tt[-1] - tt[-2]) * 1.0e3} ms")
         else:
             # Condition `shotnum` keyword
             #
             # convert `shotnum` to np.ndarray
-            '''
+            """
             if isinstance(shotnum, slice):
                 # determine largest possible shot number
                 last_sn = dheader[-1, shotnumkey]
@@ -409,37 +415,33 @@ class HDFReadData(np.ndarray):
                     raise ValueError('Valid `shotnum` not passed')
             else:
                 raise ValueError('Valid `shotnum` not passed')
-            '''
+            """
             # perform `shotnum` conditioning
             # - `shotnum` is returned as a numpy array
-            shotnum = condition_shotnum(shotnum,
-                                        {'digi': dheader},
-                                        {'digi': shotnumkey})
+            shotnum = condition_shotnum(shotnum, {"digi": dheader}, {"digi": shotnumkey})
 
             # Calc. the corresponding `index` and `sni`
             # - `shotnum` will be converted from list to np.array
             # - `index` and `sni` will be np.array's
-            '''
+            """
             index, shotnum, sni = \
                 condition_shotnum(shotnum, dheader, shotnumkey,
                                   intersection_set)
-            '''
-            index, sni = build_sndr_for_simple_dset(shotnum, dheader,
-                                                    shotnumkey)
+            """
+            index, sni = build_sndr_for_simple_dset(shotnum, dheader, shotnumkey)
 
             # perform intersection
             if intersection_set:
-                shotnum, sni_dict, index_dict = \
-                    do_shotnum_intersection(shotnum, {'digi': sni},
-                                            {'digi': index})
-                sni = sni_dict['digi']
-                index = index_dict['digi']
+                shotnum, sni_dict, index_dict = do_shotnum_intersection(
+                    shotnum, {"digi": sni}, {"digi": index}
+                )
+                sni = sni_dict["digi"]
+                index = index_dict["digi"]
 
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print('tt - condition shotnum: '
-                      '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+                print(f"tt - condition shotnum: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Retrieve Control Data                                ----
         # 1. retrieve the numpy array for control data
@@ -452,16 +454,20 @@ class HDFReadData(np.ndarray):
         # - shotnum should always be a ndarray at this point
         #
         if len(controls) != 0:
-            cdata = HDFReadControls(hdf_file, controls,
-                                    assume_controls_conditioned=True,
-                                    shotnum=shotnum,
-                                    intersection_set=intersection_set)
+            cdata = HDFReadControls(
+                hdf_file,
+                controls,
+                assume_controls_conditioned=True,
+                shotnum=shotnum,
+                intersection_set=intersection_set,
+            )
 
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print('tt - read in cdata (control data): '
-                      '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+                print(
+                    f"tt - read in cdata (control data): {(tt[-1] - tt[-2]) * 1.0e3} ms"
+                )
 
             # re-filter index, shotnum, and sni
             # - only need to be filtered if intersection_set=True
@@ -469,7 +475,7 @@ class HDFReadData(np.ndarray):
             #   one-to-one
             #
             if intersection_set:
-                new_sn_mask = np.isin(shotnum, cdata['shotnum'])
+                new_sn_mask = np.isin(shotnum, cdata["shotnum"])
                 shotnum = shotnum[new_sn_mask]
                 index = index[new_sn_mask]
                 sni = np.ones(shotnum.shape[0], dtype=bool)
@@ -484,9 +490,11 @@ class HDFReadData(np.ndarray):
         #   column
         sigtype = np.float32 if not keep_bits else dset.dtype
         shape = shotnum.shape
-        dtype = [('shotnum', np.uint32, 1),
-                 ('signal', sigtype, dset.shape[1]),
-                 ('xyz', np.float32, 3)]
+        dtype = [
+            ("shotnum", np.uint32, ()),
+            ("signal", sigtype, (dset.shape[1],)),
+            ("xyz", np.float32, (3,)),
+        ]
         if len(controls) != 0:
             for subdtype in cdata.dtype.descr:
                 if subdtype[0] not in [d[0] for d in dtype]:
@@ -495,8 +503,7 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - define dtype: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - define dtype: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Initialize data array
         data = np.empty(shape, dtype=dtype)
@@ -504,107 +511,103 @@ class HDFReadData(np.ndarray):
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - initialize data np.ndarray: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - initialize data np.ndarray: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # fill 'shotnum' field of data array
-        data['shotnum'] = shotnum
+        data["shotnum"] = shotnum
 
         # fill 'signal' fields of data array
         index = index.tolist()
         if intersection_set:
             # fill signal
-            data['signal'] = dset[index, ...]
+            data["signal"] = dset[index, ...]
         else:
             # fill signal
-            data['signal'][sni] = dset[index, ...]
-            if np.issubdtype(data['signal'].dtype, np.integer):
-                data['signal'][np.logical_not(sni)] = 0
+            data["signal"][sni] = dset[index, ...]
+            if np.issubdtype(data["signal"].dtype, np.integer):
+                data["signal"][np.logical_not(sni)] = 0
             else:
                 # dtype is np.floating
-                data['signal'][np.logical_not(sni)] = np.nan
+                data["signal"][np.logical_not(sni)] = np.nan
 
         # fill fields related to controls
         if len(controls) != 0:
             # Note: shot numbers of cdata and data are one-to-one
             #       by this point so intersection_set is irrelevant
             #
-            if not np.array_equal(data['shotnum'],
-                                  cdata['shotnum']):  # pragma: no cover
+            if not np.array_equal(data["shotnum"], cdata["shotnum"]):  # pragma: no cover
                 # this should never happen
-                raise ValueError(
-                    "data['shotnum'] and cdata['shotnum'] are not"
-                    " equal")
+                raise ValueError("data['shotnum'] and cdata['shotnum'] are not equal")
 
             # fill xyz
-            if 'xyz' in cdata.dtype.names:
-                data['xyz'] = cdata['xyz']
+            if "xyz" in cdata.dtype.names:
+                data["xyz"] = cdata["xyz"]
             else:
-                data['xyz'] = np.nan
+                data["xyz"] = np.nan
 
             # fill remaining controls
             for field in cdata.dtype.names:
-                if field not in ('shotnum', 'xyz'):
+                if field not in ("shotnum", "xyz"):
                     data[field] = cdata[field]
         else:
             # fill xyz
-            data['xyz'] = np.nan
+            data["xyz"] = np.nan
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - fill data array: '
-                  '{} ms'.format((tt[-1] - tt[-2]) * 1.E3))
+            print(f"tt - fill data array: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Define obj to be returned
         obj = data.view(cls)
 
         # get voltage offset
         try:
-            voffset = dheader[0, 'Offset'] * u.volt
+            voffset = dheader[0, "Offset"] * u.volt
         except ValueError:
-            warn("Digitizer header dataset is missing the voltage "
-                 "'Offset' field. ")
+            warn(
+                "Digitizer header dataset is missing the voltage 'Offset' field. ",
+                HDFMappingWarning,
+            )
             voffset = None
 
         # assign dataset meta-info
         obj._info = {
-            'source file': os.path.abspath(hdf_file.filename),
-            'device group path': _dmap.info['group path'],
-            'device dataset path': dpath + dname,
-            'digitizer': d_info['digitizer'],
-            'configuration name': d_info['configuration name'],
-            'adc': d_info['adc'],
-            'bit': d_info['bit'],
-            'clock rate': d_info['clock rate'],
-            'sample average': d_info['sample average (hardware)'],
-            'shot average': d_info['shot average (software)'],
-            'board': board,
-            'channel': channel,
-            'voltage offset': voffset,
-            'probe name': None,
-            'port': (None, None),
-            'signal units': u.bit,
+            "source file": os.path.abspath(hdf_file.filename),
+            "device group path": _dmap.info["group path"],
+            "device dataset path": dpath + dname,
+            "digitizer": d_info["digitizer"],
+            "configuration name": d_info["configuration name"],
+            "adc": d_info["adc"],
+            "bit": d_info["bit"],
+            "clock rate": d_info["clock rate"],
+            "sample average": d_info["sample average (hardware)"],
+            "shot average": d_info["shot average (software)"],
+            "board": board,
+            "channel": channel,
+            "voltage offset": voffset,
+            "probe name": None,
+            "port": (None, None),
+            "signal units": u.bit,
         }
         if cdata is not None:
-            obj._info['controls'] = \
-                copy.deepcopy(cdata.info['controls'])
+            obj._info["controls"] = copy.deepcopy(cdata.info["controls"])
         else:
-            obj._info['controls'] = {}
+            obj._info["controls"] = {}
 
         # plasma parameter dict
         obj._plasma = {
-            'Bo': None,
-            'kT': None,
-            'kTe': None,
-            'kTi': None,
-            'gamma': core.FloatUnit(1.0, 'arb'),
-            'm_e': core.ME,
-            'm_i': None,
-            'n': None,
-            'n_e': None,
-            'n_i': None,
-            'Z': None
+            "Bo": None,
+            "kT": None,
+            "kTe": None,
+            "kTi": None,
+            "gamma": core.FloatUnit(1.0, "arb"),
+            "m_e": core.ME,
+            "m_i": None,
+            "n": None,
+            "n_e": None,
+            "n_i": None,
+            "Z": None,
         }  # pragma: no cover
 
         # convert to voltage
@@ -614,23 +617,24 @@ class HDFReadData(np.ndarray):
         #
         if not keep_bits:
             if obj.dv is None:
-                warn("Unable to calculated voltage step size..."
-                     "'signal' remains as bits")
+                warn(
+                    "Unable to calculated voltage step size...'signal' remains as bits",
+                    BaPSFWarning,
+                )
             else:
                 # define offset
-                offset = abs(obj.info['voltage offset'].value)
+                offset = abs(obj.info["voltage offset"].value)
 
                 # calc voltage
-                obj['signal'] = (obj.dv.value * obj['signal']) - offset
+                obj["signal"] = (obj.dv.value * obj["signal"]) - offset
 
                 # update 'signal units'
-                obj._info['signal units'] = u.volt
+                obj._info["signal units"] = u.volt
 
         # print execution timing
         if timeit:  # pragma: no cover
             tt.append(time.time())
-            print('tt - execution time: '
-                  '{} ms'.format((tt[-1] - tt[0]) * 1.E3))
+            print(f"tt - execution time: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # return obj
         return obj
@@ -642,39 +646,47 @@ class HDFReadData(np.ndarray):
             return
 
         # Define _info attribute
-        self._info = getattr(obj, '_info', {
-            'source file': None,
-            'device group path': None,
-            'device dataset path': None,
-            'configuration name': None,
-            'adc': None,
-            'bit': None,
-            'clock rate': None,
-            'sample average': None,
-            'shot average': None,
-            'board': None,
-            'channel': None,
-            'voltage offset': None,
-            'probe name': None,
-            'port': (None, None),
-            'signal units': None,
-            'controls': {},
-        })
+        self._info = getattr(
+            obj,
+            "_info",
+            {
+                "source file": None,
+                "device group path": None,
+                "device dataset path": None,
+                "configuration name": None,
+                "adc": None,
+                "bit": None,
+                "clock rate": None,
+                "sample average": None,
+                "shot average": None,
+                "board": None,
+                "channel": None,
+                "voltage offset": None,
+                "probe name": None,
+                "port": (None, None),
+                "signal units": None,
+                "controls": {},
+            },
+        )
 
         # Define plasma attribute
-        self._plasma = getattr(obj, '_plasma', {
-            'Bo': None,
-            'kT': None,
-            'kTe': None,
-            'kTi': None,
-            'gamma': core.FloatUnit(1.0, 'arb'),
-            'm_e': core.ME,
-            'm_i': None,
-            'n': None,
-            'n_e': None,
-            'n_i': None,
-            'Z': None
-        })  # pragma: no cover
+        self._plasma = getattr(
+            obj,
+            "_plasma",
+            {
+                "Bo": None,
+                "kT": None,
+                "kTe": None,
+                "kTi": None,
+                "gamma": core.FloatUnit(1.0, "arb"),
+                "m_e": core.ME,
+                "m_i": None,
+                "n": None,
+                "n_e": None,
+                "n_i": None,
+                "Z": None,
+            },
+        )  # pragma: no cover
 
     def convert_signal(self, to_volt=False, to_bits=False, force=False):
         """converts signal from volts (bits) to bits (volts)"""
@@ -771,16 +783,16 @@ class HDFReadData(np.ndarray):
         :attr:`info`.  Returns :code:`None` if step size can not be
         calculated.
         """
-        if not isinstance(self.info['clock rate'], u.Quantity):
+        if not isinstance(self.info["clock rate"], u.Quantity):
             return
 
         # calc base dt
-        dt = 1.0 / self.info['clock rate']
-        dt = dt.to('s')
+        dt = 1.0 / self.info["clock rate"]
+        dt = dt.to("s")
 
         # adjust for hardware averaging
-        if self.info['sample average'] is not None:
-            dt = dt * float(self.info['sample average'])
+        if self.info["sample average"] is not None:
+            dt = dt * float(self.info["sample average"])
 
         return dt
 
@@ -791,13 +803,12 @@ class HDFReadData(np.ndarray):
         and :code:`'voltage offset'` items in :attr:`info`.  Returns
         :code:`None` if step size can not be calculated.
         """
-        if self.info['voltage offset'] is None:
+        if self.info["voltage offset"] is None:
             return
-        elif self.info['bit'] is None:
+        elif self.info["bit"] is None:
             return
 
-        dv = (2.0 * abs(self.info['voltage offset']) /
-              (2. ** self.info['bit'] - 1.))
+        dv = 2.0 * abs(self.info["voltage offset"]) / (2.0 ** self.info["bit"] - 1.0)
         return dv
 
     @property
@@ -864,8 +875,9 @@ class HDFReadData(np.ndarray):
         """
         return self._plasma
 
-    def set_plasma(self, Bo, kTe, kTi, m_i, n_e, Z, gamma=None,
-                   **kwargs):  # pragma: no cover
+    def set_plasma(
+        self, Bo, kTe, kTi, m_i, n_e, Z, gamma=None, **kwargs
+    ):  # pragma: no cover
         """
         Set :attr:`plasma` and add key frequency, length, and velocity
         parameters. (all quantities in cgs except temperature is in eV)
@@ -879,36 +891,37 @@ class HDFReadData(np.ndarray):
         :param float gamma: adiabatic index (arb.)
         """
         # define base values
-        self._plasma['Bo'] = core.FloatUnit(Bo, 'G')
-        self._plasma['kTe'] = core.FloatUnit(kTe, 'eV')
-        self._plasma['kTi'] = core.FloatUnit(kTi, 'eV')
-        self._plasma['m_i'] = core.FloatUnit(m_i, 'g')
-        self._plasma['n_e'] = core.FloatUnit(n_e, 'cm^-3')
-        self._plasma['Z'] = core.IntUnit(Z, 'arb')
+        self._plasma["Bo"] = core.FloatUnit(Bo, "G")
+        self._plasma["kTe"] = core.FloatUnit(kTe, "eV")
+        self._plasma["kTi"] = core.FloatUnit(kTi, "eV")
+        self._plasma["m_i"] = core.FloatUnit(m_i, "g")
+        self._plasma["n_e"] = core.FloatUnit(n_e, "cm^-3")
+        self._plasma["Z"] = core.IntUnit(Z, "arb")
 
         # define ion number density
-        self._plasma['n_i'] = core.FloatUnit(
-            self._plasma['n_e'] / self._plasma['Z'], 'cm^-3')
+        self._plasma["n_i"] = core.FloatUnit(
+            self._plasma["n_e"] / self._plasma["Z"], "cm^-3"
+        )
 
         # define gamma (adiabatic index)
         # - default = 1.0
         if gamma is not None:
-            self._plasma['gamma'] = core.FloatUnit(gamma, 'arb')
+            self._plasma["gamma"] = core.FloatUnit(gamma, "arb")
 
         # define plasma temperature
         # - if omitted then assumed kTe
         # TODO: double check assumption
-        if 'kT' in kwargs:
-            self._plasma['kT'] = core.FloatUnit(kwargs['kT'], 'eV')
+        if "kT" in kwargs:
+            self._plasma["kT"] = core.FloatUnit(kwargs["kT"], "eV")
         else:
-            self._plasma['kT'] = core.FloatUnit(kTe, 'eV')
+            self._plasma["kT"] = core.FloatUnit(kTe, "eV")
 
         # define plasma number density
         # - if omitted then assumed n_e
-        if 'n' in kwargs:
-            self._plasma['n'] = core.FloatUnit(kwargs['n'], 'cm^-3')
+        if "n" in kwargs:
+            self._plasma["n"] = core.FloatUnit(kwargs["n"], "cm^-3")
         else:
-            self._plasma['n'] = core.FloatUnit(n_e, 'cm^-3')
+            self._plasma["n"] = core.FloatUnit(n_e, "cm^-3")
 
         # add key plasma constants
         self._update_plasma_constants()
@@ -922,34 +935,35 @@ class HDFReadData(np.ndarray):
         :param value: value for key
         """
         # set plasma value
-        if key == 'Bo':
-            self._plasma['Bo'] = core.FloatUnit(value, 'G')
-        elif key == 'gamma':
-            self._plasma['gamma'] = core.FloatUnit(value, 'arb')
-        elif key in ['kT', 'kTe', 'kTi']:
-            self._plasma[key] = core.FloatUnit(value, 'eV')
+        if key == "Bo":
+            self._plasma["Bo"] = core.FloatUnit(value, "G")
+        elif key == "gamma":
+            self._plasma["gamma"] = core.FloatUnit(value, "arb")
+        elif key in ["kT", "kTe", "kTi"]:
+            self._plasma[key] = core.FloatUnit(value, "eV")
 
-            if key == 'kTe' and self._plasma['kt'] is None:
-                self._plasma['kT'] = self._plasma[key]
-        elif key == 'm_i':
-            self._plasma[key] = core.FloatUnit(value, 'g')
-        elif key in ['n', 'n_e']:
-            self._plasma[key] = core.FloatUnit(value, 'cm^-3')
+            if key == "kTe" and self._plasma["kt"] is None:
+                self._plasma["kT"] = self._plasma[key]
+        elif key == "m_i":
+            self._plasma[key] = core.FloatUnit(value, "g")
+        elif key in ["n", "n_e"]:
+            self._plasma[key] = core.FloatUnit(value, "cm^-3")
 
             # re-calc n_i and n
-            if key == 'n_e':
-                self._plasma['n_i'] = core.FloatUnit(
-                    self._plasma['n_e'] / self._plasma['Z'], 'cm^-3')
+            if key == "n_e":
+                self._plasma["n_i"] = core.FloatUnit(
+                    self._plasma["n_e"] / self._plasma["Z"], "cm^-3"
+                )
 
-                if self._plasma['n'] is None:
-                    self._plasma['n'] = self._plasma['n_e']
-        elif key == 'Z':
-            self._plasma[key] = core.IntUnit(value, 'arb')
+                if self._plasma["n"] is None:
+                    self._plasma["n"] = self._plasma["n_e"]
+        elif key == "Z":
+            self._plasma[key] = core.IntUnit(value, "arb")
 
             # re-calc n_i
-            self._plasma['n_i'] = \
-                core.FloatUnit(self._plasma['n_e'] / self._plasma['Z'],
-                               'cm^-3')
+            self._plasma["n_i"] = core.FloatUnit(
+                self._plasma["n_e"] / self._plasma["Z"], "cm^-3"
+            )
 
         # update key plasma constants
         self._update_plasma_constants()
@@ -960,31 +974,31 @@ class HDFReadData(np.ndarray):
         :attr:`plasma`.
         """
         # add key frequencies
-        self._plasma['fce'] = core.fce(**self._plasma)
-        self._plasma['fci'] = core.fci(**self._plasma)
-        self._plasma['fpe'] = core.fpe(**self._plasma)
-        self._plasma['fpi'] = core.fpi(**self._plasma)
-        self._plasma['fUH'] = core.fUH(**self._plasma)
-        self._plasma['fLH'] = core.fLH(**self._plasma)
+        self._plasma["fce"] = core.fce(**self._plasma)
+        self._plasma["fci"] = core.fci(**self._plasma)
+        self._plasma["fpe"] = core.fpe(**self._plasma)
+        self._plasma["fpi"] = core.fpi(**self._plasma)
+        self._plasma["fUH"] = core.fUH(**self._plasma)
+        self._plasma["fLH"] = core.fLH(**self._plasma)
 
         # add key lengths
-        self._plasma['lD'] = core.lD(**self._plasma)
-        self._plasma['lpe'] = core.lpe(**self._plasma)
-        self._plasma['lpi'] = core.lpi(**self._plasma)
-        self._plasma['rce'] = core.rce(**self._plasma)
-        self._plasma['rci'] = core.rci(**self._plasma)
+        self._plasma["lD"] = core.lD(**self._plasma)
+        self._plasma["lpe"] = core.lpe(**self._plasma)
+        self._plasma["lpi"] = core.lpi(**self._plasma)
+        self._plasma["rce"] = core.rce(**self._plasma)
+        self._plasma["rci"] = core.rci(**self._plasma)
 
         # add key velocities
-        self._plasma['cs'] = core.cs(**self._plasma)
-        self._plasma['VA'] = core.VA(**self._plasma)
-        self._plasma['vTe'] = core.vTe(**self._plasma)
-        self._plasma['vTi'] = core.vTi(**self._plasma)
+        self._plasma["cs"] = core.cs(**self._plasma)
+        self._plasma["VA"] = core.VA(**self._plasma)
+        self._plasma["vTe"] = core.vTe(**self._plasma)
+        self._plasma["vTi"] = core.vTi(**self._plasma)
 
 
 # add example to __new__ docstring
 HDFReadData.__new__.__doc__ += "\n"
 for line in HDFReadData.__example_doc__.splitlines():
-    HDFReadData.__new__.__doc__ += "    " + line + "\n"
+    HDFReadData.__new__.__doc__ += f"    {line}\n"
 
 
 '''

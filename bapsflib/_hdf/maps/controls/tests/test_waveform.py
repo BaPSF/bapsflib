@@ -14,20 +14,21 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib.utils.errors import HDFMappingError
 from unittest import mock
 
-from .common import ControlTestCase
-from .. import ConType
-from ..waveform import HDFMapControlWaveform
+from bapsflib._hdf.maps.controls import ConType
+from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
+from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
+from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestWaveform(ControlTestCase):
     """Test class for HDFMapControlWaveform"""
 
     # define setup variables
-    DEVICE_NAME = 'Waveform'
-    DEVICE_PATH = 'Raw data + config/Waveform'
+    DEVICE_NAME = "Waveform"
+    DEVICE_PATH = "Raw data + config/Waveform"
     MAP_CLASS = HDFMapControlWaveform
 
     def setUp(self):
@@ -37,7 +38,7 @@ class TestWaveform(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info['contype'], ConType.waveform)
+        self.assertEqual(self.map.info["contype"], ConType.waveform)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
@@ -48,24 +49,24 @@ class TestWaveform(ControlTestCase):
 
         # expected dataset does not exist
         # - rename 'Run time list' dataset
-        self.mod.move('Run time list', 'Waveform data')
+        self.mod.move("Run time list", "Waveform data")
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        self.mod.move('Waveform data', 'Run time list')
+        self.mod.move("Waveform data", "Run time list")
 
         # 'Waveform command list' attribute does not exist
         #
         config_name = self.mod.config_names[0]
-        cl = self.mod[config_name].attrs['Waveform command list']
-        self.mod[config_name].attrs['Wrong command list'] = cl
-        del self.mod[config_name].attrs['Waveform command list']
+        cl = self.mod[config_name].attrs["Waveform command list"]
+        self.mod[config_name].attrs["Wrong command list"] = cl
+        del self.mod[config_name].attrs["Waveform command list"]
         with self.assertRaises(HDFMappingError):
             _map = self.map
-        self.mod[config_name].attrs['Waveform command list'] = cl
-        del self.mod[config_name].attrs['Wrong command list']
+        self.mod[config_name].attrs["Waveform command list"] = cl
+        del self.mod[config_name].attrs["Wrong command list"]
 
         # there are no configuration groups to map
-        del self.f['Raw data + config/Waveform/config01']
+        del self.f["Raw data + config/Waveform/config01"]
         with self.assertRaises(HDFMappingError):
             _map = self.map
         self.mod.knobs.reset()
@@ -79,8 +80,8 @@ class TestWaveform(ControlTestCase):
         # 'command list'
         #
         config_name = self.mod.config_names[0]
-        cl = np.bytes_('AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n')
-        self.mod[config_name].attrs['Waveform command list'] = cl
+        cl = np.bytes_("AMP 10.0 \nAMP 15.0 \nAMP 20.0 \n")
+        self.mod[config_name].attrs["Waveform command list"] = cl
         self.assertControlMapBasics(self.map, self.dgroup)
         self.mod.knobs.reset()
 
@@ -88,8 +89,8 @@ class TestWaveform(ControlTestCase):
         # - a warning is thrown, but mapping continues
         # - remove attribute 'IP address'
         config_name = self.mod.config_names[0]
-        del self.mod[config_name].attrs['IP address']
-        with self.assertWarns(UserWarning):
+        del self.mod[config_name].attrs["IP address"]
+        with self.assertWarns(HDFMappingWarning):
             _map = self.map
         self.mod.knobs.reset()
 
@@ -98,14 +99,13 @@ class TestWaveform(ControlTestCase):
         # - default dict is used for state values
         #
         with mock.patch.object(
-                self.MAP_CLASS,
-                '_construct_state_values_dict',
-                side_effect=KeyError):
+            self.MAP_CLASS, "_construct_state_values_dict", side_effect=KeyError
+        ):
             _map = self.map
             for cname, config in _map.configs.items():
                 self.assertEqual(
-                    config['state values'],
-                    _map._default_state_values_dict(cname))
+                    config["state values"], _map._default_state_values_dict(cname)
+                )
 
     def test_one_config(self):
         """
@@ -143,10 +143,10 @@ class TestWaveform(ControlTestCase):
         self.assertControlMapBasics(_map, self.dgroup)
 
         # test dataset names
-        self.assertEqual(_map.dataset_names, ['Run time list'])
+        self.assertEqual(_map.dataset_names, ["Run time list"])
 
         # test construct_dataset_names
-        self.assertEqual(_map.construct_dataset_name(), 'Run time list')
+        self.assertEqual(_map.construct_dataset_name(), "Run time list")
 
         # test for command list
         self.assertTrue(_map.has_command_list)
@@ -166,19 +166,18 @@ class TestWaveform(ControlTestCase):
         `configs` mapping dictionary.
         """
         # only asserts 'Waveform' specific attributes
-        self.assertEqual(len(_map.configs),
-                         self.mod.knobs.n_configs)
+        self.assertEqual(len(_map.configs), self.mod.knobs.n_configs)
 
         for cname, config in _map.configs.items():
             # Note: 'command list' is not included since it is
             #         covered by assertControlMapBasics()
             #
             self.assertIn(cname, self.mod.config_names)
-            self.assertIn('IP address', config)
-            self.assertIn('generator device', config)
-            self.assertIn('GPIB address', config)
-            self.assertIn('initial state', config)
+            self.assertIn("IP address", config)
+            self.assertIn("generator device", config)
+            self.assertIn("GPIB address", config)
+            self.assertIn("initial state", config)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

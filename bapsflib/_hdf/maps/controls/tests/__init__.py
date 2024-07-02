@@ -8,8 +8,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from .fauxn5700ps import FauxN5700PS
-from .fauxnixyz import FauxNIXYZ
-from .fauxnixz import FauxNIXZ
-from .fauxsixk import FauxSixK
-from .fauxwaveform import FauxWaveform
+from bapsflib._hdf.maps.controls.tests.fauxn5700ps import FauxN5700PS
+from bapsflib._hdf.maps.controls.tests.fauxnixyz import FauxNIXYZ
+from bapsflib._hdf.maps.controls.tests.fauxnixz import FauxNIXZ
+from bapsflib._hdf.maps.controls.tests.fauxsixk import FauxSixK
+from bapsflib._hdf.maps.controls.tests.fauxwaveform import FauxWaveform

@@ -11,6 +11,22 @@
 """
 Package of developer utilities.
 """
-__all__ = ['decorators', 'errors', 'warnings']
+__all__ = []
 
-from . import (decorators, errors, warnings)
+from typing import Union
+
+from bapsflib.utils import decorators, exceptions, warnings
+
+
+def _bytes_to_str(string: Union[bytes, str]) -> str:
+    """Helper to convert a bytes literal to a utf-8 string."""
+    if isinstance(string, str):
+        return string
+
+    if isinstance(string, bytes):
+        try:
+            return str(string, "utf-8")
+        except UnicodeDecodeError:
+            return str(string, "cp1252")
+
+    raise TypeError(f"Argument 'string' is not of type str or bytes, got {type(string)}.")

@@ -15,13 +15,13 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-
-from ..map_msi import HDFMapMSI
-from ..templates import HDFMapMSITemplate
+from bapsflib._hdf.maps.msi.map_msi import HDFMapMSI
+from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 
 
 class TestHDFMapMSI(ut.TestCase):
     """Test class for HDFMapMSI"""
+
     # What to test?
     # X  1. returned object is a dictionary
     # X  2. if input is not h5py.Group instance, then TypeError is
@@ -54,7 +54,7 @@ class TestHDFMapMSI(ut.TestCase):
     @property
     def msi_group(self):
         """MSI group"""
-        return self.f['MSI']
+        return self.f["MSI"]
 
     @staticmethod
     def map_msi(group):
@@ -79,67 +79,67 @@ class TestHDFMapMSI(ut.TestCase):
 
         # the MSI group has all mappable diagnostics                ----
         self.f.remove_all_modules()
-        self.f.add_module('Discharge', {})
-        self.f.add_module('Heater', {})
-        self.f.add_module('Magnetic field', {})
+        self.f.add_module("Discharge", {})
+        self.f.add_module("Heater", {})
+        self.f.add_module("Magnetic field", {})
         _map = self.map
         self.assertBasics(_map)
 
         # check all diagnostics were mapped
         self.assertEqual(len(_map), 3)
-        self.assertIn('Discharge', _map)
-        self.assertIn('Heater', _map)
-        self.assertIn('Magnetic field', _map)
+        self.assertIn("Discharge", _map)
+        self.assertIn("Heater", _map)
+        self.assertIn("Magnetic field", _map)
 
         # the MSI group has mappable and unknown diagnostics        ----
         self.f.remove_all_modules()
-        self.f.add_module('Discharge', {})
-        self.f.add_module('Heater', {})
-        self.f.add_module('Magnetic field', {})
-        self.f['MSI'].create_group('Not known')
+        self.f.add_module("Discharge", {})
+        self.f.add_module("Heater", {})
+        self.f.add_module("Magnetic field", {})
+        self.f["MSI"].create_group("Not known")
         _map = self.map
         self.assertBasics(_map)
 
         # check correct diagnostics were mapped
         self.assertEqual(len(_map), 3)
-        self.assertIn('Discharge', _map)
-        self.assertIn('Heater', _map)
-        self.assertIn('Magnetic field', _map)
-        self.assertNotIn('Not known', _map)
+        self.assertIn("Discharge", _map)
+        self.assertIn("Heater", _map)
+        self.assertIn("Magnetic field", _map)
+        self.assertNotIn("Not known", _map)
 
         # delete unknown group
-        del self.f['MSI/Not known']
+        del self.f["MSI/Not known"]
 
         # the MSI group has a dataset                               ----
         self.f.remove_all_modules()
-        self.f.add_module('Discharge', {})
-        self.f.add_module('Heater', {})
-        self.f.add_module('Magnetic field', {})
+        self.f.add_module("Discharge", {})
+        self.f.add_module("Heater", {})
+        self.f.add_module("Magnetic field", {})
         data = np.empty((2, 100), dtype=np.float32)
-        self.f['MSI'].create_dataset('A dataset', data=data)
+        self.f["MSI"].create_dataset("A dataset", data=data)
         _map = self.map
         self.assertBasics(_map)
 
         # check correct diagnostics were mapped
         self.assertEqual(len(_map), 3)
-        self.assertIn('Discharge', _map)
-        self.assertIn('Heater', _map)
-        self.assertIn('Magnetic field', _map)
-        self.assertNotIn('A dataset', _map)
+        self.assertIn("Discharge", _map)
+        self.assertIn("Heater", _map)
+        self.assertIn("Magnetic field", _map)
+        self.assertNotIn("A dataset", _map)
 
         # delete dataset
-        del self.f['MSI/A dataset']
+        del self.f["MSI/A dataset"]
 
         # the MSI group has a mappable diagnostic                   ----
         # but mapping fails                                         ----
         self.f.remove_all_modules()
-        self.f.add_module('Discharge', {})
-        self.f.add_module('Heater', {})
+        self.f.add_module("Discharge", {})
+        self.f.add_module("Heater", {})
 
         # remove a dataset from 'Discharge'
         # - this will cause mapping of 'Discharge' to fail
         #
-        del self.f['MSI/Discharge/Discharge current']
+        del self.f["MSI/Discharge/Discharge current"]
 
         # check map
         _map = self.map
@@ -147,8 +147,8 @@ class TestHDFMapMSI(ut.TestCase):
 
         # check correct diagnostics were mapped
         self.assertEqual(len(_map), 1)
-        self.assertIn('Heater', _map)
-        self.assertNotIn('Discharge', _map)
+        self.assertIn("Heater", _map)
+        self.assertNotIn("Discharge", _map)
 
     def assertBasics(self, msi_map: HDFMapMSI):
         # mapped object is a dictionary
@@ -159,13 +159,11 @@ class TestHDFMapMSI(ut.TestCase):
             self.assertIsInstance(val, HDFMapMSITemplate)
 
         # look for map attributes
-        self.assertTrue(
-            hasattr(msi_map, 'mappable_devices'))
+        self.assertTrue(hasattr(msi_map, "mappable_devices"))
 
         # check attribute types
-        self.assertIsInstance(msi_map.mappable_devices,
-                              tuple)
+        self.assertIsInstance(msi_map.mappable_devices, tuple)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     ut.main()

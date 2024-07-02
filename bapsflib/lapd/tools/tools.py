@@ -8,14 +8,15 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-__all__ = ['portnum_to_z', 'z_to_portnum']
+"""Main sub-module for LaPD tool functionality."""
+__all__ = ["portnum_to_z", "z_to_portnum"]
 
 import astropy.units as u
 import numpy as np
 
 from typing import Union
 
-from .. import constants as const
+from bapsflib.lapd import constants as const
 
 
 def portnum_to_z(portnum: Union[int, float]) -> u.Quantity:
@@ -31,8 +32,9 @@ def portnum_to_z(portnum: Union[int, float]) -> u.Quantity:
     return val.cgs
 
 
-def z_to_portnum(z: Union[int, float, u.Quantity], unit='cm',
-                 round_to_nearest=False) -> u.Quantity:
+def z_to_portnum(
+    z: Union[int, float, u.Quantity], unit="cm", round_to_nearest=False
+) -> u.Quantity:
     """
     Converts LaPD axial z location to port number.
 

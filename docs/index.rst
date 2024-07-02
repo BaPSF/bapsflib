@@ -10,7 +10,7 @@ Welcome to bapsflib's documentation!
     :maxdepth: 1
     :caption: Contents:
 
-    about
+    About <about>
     installation
     getstarted
     ./background/main
@@ -22,15 +22,7 @@ Welcome to bapsflib's documentation!
     :maxdepth: 1
     :caption: Developer Documentation:
 
-    changelog
-
-.. toctree::
-    :maxdepth: 1
-    :caption: Package Navigation:
-
-    ./src/bapsflib
-    genindex
-    py-modindex
+    ./changelog/index
 
 .. toctree::
     :maxdepth: 1

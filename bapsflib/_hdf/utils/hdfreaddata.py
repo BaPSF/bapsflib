@@ -734,7 +734,7 @@ class HDFReadData(np.ndarray):
             * - :const:`clock rate`
               - (`int`, `float`)
               - tuple containing clock rate, e.g. (100.0, 'MHz')
-            * - :const:`clock rate`
+            * - :const:`sample average`
               - `int`
               - (hardware sampling) number of data sample average
                 together
@@ -769,7 +769,7 @@ class HDFReadData(np.ndarray):
                      'W'  = west
                      'BW' = bottom-west
                      'B'  = bottom
-                     'BE' = bottome-east
+                     'BE' = bottom-east
                      'E'  = east
                      'TE' = top-east
         """

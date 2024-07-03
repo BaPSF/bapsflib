@@ -1,0 +1,2 @@
+Added `Sphinx <https://www.sphinx-doc.org>`_
+extension `sphinx-hoverxref <https://sphinx-hoverxref.readthedocs.io>`_.

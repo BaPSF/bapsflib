@@ -68,15 +68,15 @@ intersphinx_mapping = {
 # Setup hoverxref
 hoverxref_intersphinx = list(intersphinx_mapping.keys())
 hoverxref_auto_ref = True
-hoverxref_domains = ["py", "cite"]
+hoverxref_domains = ["py"]  # ["py", "cite"]
 hoverxref_mathjax = True
 hoverxref_roles = ["confval", "term"]
 hoverxref_sphinxtabs = True
 hoverxref_tooltip_maxwidth = 600  # RTD main window is 696px
 hoverxref_role_types = {
     # roles with cite domain
-    "p": "tooltip",
-    "t": "tooltip",
+    # "p": "tooltip",
+    # "t": "tooltip",
     # roles with py domain
     "attr": "tooltip",
     "class": "tooltip",

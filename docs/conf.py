@@ -102,6 +102,9 @@ if building_on_readthedocs := os.environ.get("READTHEDOCS"):
     use_proxied_api_endpoint = os.environ.get("PROXIED_API_ENDPOINT")
     hoverxref_api_host = "/_" if use_proxied_api_endpoint else "https://readthedocs.org"
 
+# Setup numpydoc
+numpydoc_show_inherited_class_members = False
+
 # Various sphinx configuration variables
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class
 numfig = True  # enable figure and table numbering

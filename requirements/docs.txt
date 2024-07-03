@@ -2,9 +2,10 @@
 # ought to mirror 'docs' under options.extras_require in config.cfg
 -r install.txt
 packaging
-sphinx >= 3.2.0, < 7.0
+sphinx >= 3.2.0
 sphinx-automodapi >= 0.13
 sphinx-changelog
 sphinx-gallery
+sphinx-hoverxref >= 1.3
 sphinx_rtd_theme
 towncrier == 22.8.0

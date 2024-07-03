@@ -39,6 +39,7 @@ from bapsflib import __version__ as release
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "hoverxref.extension",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
@@ -55,8 +56,50 @@ intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),
     "plasmapy": ("https://docs.plasmapy.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
+    "readthedocs": ("https://docs.readthedocs.io/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
+    "sphinx_automodapi": (
+        "https://sphinx-automodapi.readthedocs.io/en/latest/",
+        None,
+    ),
 }
+
+# Setup hoverxref
+hoverxref_intersphinx = list(intersphinx_mapping.keys())
+hoverxref_auto_ref = True
+hoverxref_domains = ["py"]  # ["py", "cite"]
+hoverxref_mathjax = True
+hoverxref_roles = ["confval", "term"]
+hoverxref_sphinxtabs = True
+hoverxref_tooltip_maxwidth = 600  # RTD main window is 696px
+hoverxref_role_types = {
+    # roles with cite domain
+    # "p": "tooltip",
+    # "t": "tooltip",
+    # roles with py domain
+    "attr": "tooltip",
+    "class": "tooltip",
+    "const": "tooltip",
+    "data": "tooltip",
+    "exc": "tooltip",
+    "func": "tooltip",
+    "meth": "tooltip",
+    "mod": "tooltip",
+    "obj": "tooltip",
+    # roles with std domain
+    "confval": "tooltip",
+    "hoverxref": "tooltip",
+    "ref": "tooltip",
+    "term": "tooltip",
+}
+
+if building_on_readthedocs := os.environ.get("READTHEDOCS"):
+    # Using the proxied API endpoint is a Read the Docs strategy to
+    # avoid a cross-site request forgery block for docs using a custom
+    # domain. See conf.py for sphinx-hoverxref.
+    use_proxied_api_endpoint = os.environ.get("PROXIED_API_ENDPOINT")
+    hoverxref_api_host = "/_" if use_proxied_api_endpoint else "https://readthedocs.org"
 
 # Various sphinx configuration variables
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class

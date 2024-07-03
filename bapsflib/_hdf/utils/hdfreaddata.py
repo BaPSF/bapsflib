@@ -58,11 +58,11 @@ class HDFReadData(np.ndarray):
 
     .. note::
 
-        * Every returned numpy array will have the :code:`'xyz'` field,
-          which is reserved for probe position data.  If a control
-          device specifies this field, then field will be filled with
-          the control device data;otherwise, the field will be filled
-          with :code:`numpy.nan` values.
+        * Every returned `numpy` array will have the ``'xyz'`` field,
+          which is reserved for probe position data.  If a specified
+          control device (via keyword ``add_controls``) contains
+          position data, then this field will be auto populated;
+          otherwise, the field will be filled with `numpy.nan` values.
     """
 
     __example_doc__ = """

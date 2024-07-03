@@ -40,11 +40,12 @@ from bapsflib import __version__ as release
 # ones.
 extensions = [
     "hoverxref.extension",
-    "numpydoc",
+    # "numpydoc",
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosummary",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
-    "sphinx.ext.autosummary",
+    "sphinx.ext.napoleon",
     "sphinx_automodapi.automodapi",
     "sphinx_automodapi.smart_resolver",
     "sphinx_changelog",
@@ -102,9 +103,9 @@ if building_on_readthedocs := os.environ.get("READTHEDOCS"):
     use_proxied_api_endpoint = os.environ.get("PROXIED_API_ENDPOINT")
     hoverxref_api_host = "/_" if use_proxied_api_endpoint else "https://readthedocs.org"
 
-# Setup numpydoc
-numpydoc_show_inherited_class_members = False
-numpydoc_attributes_as_param_list = False
+# # Setup numpydoc
+# numpydoc_show_inherited_class_members = False
+# numpydoc_attributes_as_param_list = False
 
 # Various sphinx configuration variables
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class

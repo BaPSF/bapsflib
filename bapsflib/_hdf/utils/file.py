@@ -300,7 +300,7 @@ class File(h5py.File):
             dataset shot numbers, and, if requested, the shot numbers
             contained in  each control device dataset. :code:`False`
             will return the union instead of the intersection, minus
-            :math:`shotnum \le 0`. (see
+            :math:`shotnum \\le 0`. (see
             :class:`~.hdfreaddata.HDFReadData` for details)
 
         :param bool silent:
@@ -328,8 +328,8 @@ class File(h5py.File):
             ('SIS 3302,)
             >>>
             >>> # get first connected brd and channels to adc
-            >>> brd, chs = f.digitizers['SIS crate'].configs['config01'][
-            ...     'SIS 3302'][0][0:2]
+            >>> brd, chs = f.digitizers['SIS crate'].configs[
+            ...     'config01']['SIS 3302'][0][0:2]
             >>> brd
             1
             >>> chs

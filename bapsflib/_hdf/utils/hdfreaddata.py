@@ -58,11 +58,11 @@ class HDFReadData(np.ndarray):
 
     .. note::
 
-        * Every returned numpy array will have the :code:`'xyz'` field,
-          which is reserved for probe position data.  If a control
-          device specifies this field, then field will be filled with
-          the control device data;otherwise, the field will be filled
-          with :code:`numpy.nan` values.
+        * Every returned `numpy` array will have the ``'xyz'`` field,
+          which is reserved for probe position data.  If a specified
+          control device (via keyword ``add_controls``) contains
+          position data, then this field will be auto populated;
+          otherwise, the field will be filled with `numpy.nan` values.
     """
 
     __example_doc__ = """
@@ -734,9 +734,9 @@ class HDFReadData(np.ndarray):
             * - :const:`clock rate`
               - (`int`, `float`)
               - tuple containing clock rate, e.g. (100.0, 'MHz')
-            * - :const:`clock rate`
+            * - :const:`sample average`
               - `int`
-              - (hardware sampling) number of data sample average
+              - (hardware sampling) number of data samples averaged
                 together
             * - :const:`shot average`
               - `int`
@@ -769,7 +769,7 @@ class HDFReadData(np.ndarray):
                      'W'  = west
                      'BW' = bottom-west
                      'B'  = bottom
-                     'BE' = bottome-east
+                     'BE' = bottom-east
                      'E'  = east
                      'TE' = top-east
         """
@@ -777,11 +777,15 @@ class HDFReadData(np.ndarray):
 
     @property
     def dt(self) -> Union[u.Quantity, None]:
-        """
+        r"""
         Temporal step size (in sec) calculated from the
         :code:`'clock rate'` and :code:`'sample average'` items in
         :attr:`info`.  Returns :code:`None` if step size can not be
         calculated.
+
+        .. math::
+
+            dt = \frac{\text{sample average}}{\text{clock rate}}
         """
         if not isinstance(self.info["clock rate"], u.Quantity):
             return

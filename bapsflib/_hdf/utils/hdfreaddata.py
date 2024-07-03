@@ -777,11 +777,15 @@ class HDFReadData(np.ndarray):
 
     @property
     def dt(self) -> Union[u.Quantity, None]:
-        """
+        r"""
         Temporal step size (in sec) calculated from the
         :code:`'clock rate'` and :code:`'sample average'` items in
         :attr:`info`.  Returns :code:`None` if step size can not be
         calculated.
+
+        .. math::
+
+            dt = \frac{\text{sample average}}{\text{clock rate}}
         """
         if not isinstance(self.info["clock rate"], u.Quantity):
             return

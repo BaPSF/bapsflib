@@ -104,6 +104,7 @@ if building_on_readthedocs := os.environ.get("READTHEDOCS"):
 
 # Setup numpydoc
 numpydoc_show_inherited_class_members = False
+numpydoc_attributes_as_params_list = False
 
 # Various sphinx configuration variables
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class

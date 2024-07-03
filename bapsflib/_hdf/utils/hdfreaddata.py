@@ -736,7 +736,7 @@ class HDFReadData(np.ndarray):
               - tuple containing clock rate, e.g. (100.0, 'MHz')
             * - :const:`sample average`
               - `int`
-              - (hardware sampling) number of data sample average
+              - (hardware sampling) number of data samples averaged
                 together
             * - :const:`shot average`
               - `int`

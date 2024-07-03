@@ -40,6 +40,7 @@ from bapsflib import __version__ as release
 # ones.
 extensions = [
     "hoverxref.extension",
+    "numpydoc",
     "sphinx.ext.autodoc",
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",

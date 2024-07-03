@@ -35,18 +35,6 @@ class HDFMapControls(dict):
     A dictionary that contains mapping objects for all the discovered
     control devices in the HDF5 data group.  The dictionary keys are
     the names of the discovered control devices.
-
-    Examples
-    --------
-
-        >>> from bapsflib import lapd
-        >>> from bapsflib._hdf.maps import HDFMapControls
-        >>> f = lapd.File('sample.hdf5')
-        >>> # 'Raw data + config' is the LaPD HDF5 group name for the
-        ... # group housing digitizer and control devices
-        ... control_map = HDFMapControls(f['Raw data + config'])
-        >>> control_map['6K Compumotor']
-        <bapsflib._hdf.maps.controls.sixk.HDFMapControl6K>
     """
 
     _defined_mapping_classes = {
@@ -67,6 +55,18 @@ class HDFMapControls(dict):
         ----------
         data_group : `h5py.Group`
             HDF5 group object to be mapped
+
+        Examples
+        --------
+
+            >>> from bapsflib import lapd
+            >>> from bapsflib._hdf.maps import HDFMapControls
+            >>> f = lapd.File('sample.hdf5')
+            >>> # 'Raw data + config' is the LaPD HDF5 group name for the
+            ... # group housing digitizer and control devices
+            ... control_map = HDFMapControls(f['Raw data + config'])
+            >>> control_map['6K Compumotor']
+            <bapsflib._hdf.maps.controls.sixk.HDFMapControl6K>
         """
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):

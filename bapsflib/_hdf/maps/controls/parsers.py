@@ -74,7 +74,7 @@ class CLParse(object):
             otherwise.
 
         dict
-            resutls from the command list parsing
+            results from the command list parsing
 
         Examples
         --------

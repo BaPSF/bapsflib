@@ -48,7 +48,10 @@ class HDFMapControlNIXYZ(HDFMapControlTemplate):
 
     def __init__(self, group: h5py.Group):
         """
-        :param group: the HDF5 control device group
+        Parameters
+        ----------
+        group : `h5py.Group`
+            the HDF5 control device group
         """
         HDFMapControlTemplate.__init__(self, group)
 

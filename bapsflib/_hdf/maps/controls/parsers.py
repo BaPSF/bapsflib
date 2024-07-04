@@ -34,8 +34,10 @@ class CLParse(object):
 
     def __init__(self, command_list: Union[str, Iterable[str]]):
         """
-        :param command_list: the command list for a control device
-        :type command_list: list of strings
+        Parameters
+        ----------
+        command_list : Union[str, Iterable[str]]
+            the command list for a control device
         """
         super().__init__()
 
@@ -56,15 +58,26 @@ class CLParse(object):
 
     def apply_patterns(self, patterns: Union[str, Iterable[str]]):
         """
-        Applies a the REs defined in `patterns` to parse the command
-        list.
+        Applies the regular expressions defined in `patterns` to parse
+        the command list.
 
-        :param patterns: list or raw strings defining REs for parsing
+        Parameters
+        ----------
+        patterns : Union[str, Iterable[str]]
+            list of raw strings defining regular expressions for parsing
             the command list
-        :type patterns: str or list of strings
-        :return: (bool, dict)
 
-        :Example:
+        Returns
+        -------
+        bool
+            `True` if the command list is parsed successfully, `False`
+            otherwise.
+
+        dict
+            resutls from the command list parsing
+
+        Examples
+        --------
 
             >>> # define a command list
             >>> cl = ['VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0']
@@ -275,9 +288,11 @@ class CLParse(object):
         Prints to the results of applying the REs in patterns to the
         command list.  Pretty print of :meth:`apply_patterns`.
 
-        :param patterns: list or raw strings defining REs for parsing
+        Parameters
+        ----------
+        patterns : Union[str, Iterable[str]]
+            list of raw strings defining regular expressions for parsing
             the command list
-        :type patterns: str or list of strings
         """
         # TODO: clean method and format print better
         #

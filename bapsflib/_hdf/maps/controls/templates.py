@@ -26,15 +26,32 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 class HDFMapControlTemplate(ABC):
     # noinspection PySingleQuotedDocstring
-    '''
+    """
     Template class for all control mapping classes to inherit from.
 
-    Any inheriting class should define :code:`__init__` as::
+    .. note::
+
+        If a control device is structured around a :ibf:`command list`,
+        then its mapping class should subclass
+        :class:`~.templates.HDFMapControlCLTemplate` instead.
+    """
+
+    def __init__(self, group: h5py.Group):
+        """
+        Parameters
+        ----------
+        group : `h5py.Group`
+            the control device HDF5 group object
+
+        Notes
+        -----
+
+        Any inheriting class should define ``__init__`` as::
 
         def __init__(self, group: h5py.Group):
-            """
+            '''
             :param group: HDF5 group object
-            """
+            '''
             # initialize
             HDFMapControlTemplate.__init__(self, group)
 
@@ -44,22 +61,6 @@ class HDFMapControlTemplate(ABC):
             # populate self.configs
             self._build_configs()
 
-    .. note::
-
-        * Any method that raises a :exc:`NotImplementedError` is
-          intended to be overwritten by the inheriting class.
-        * :code:`from bapsflib._hdf.maps.controls import ConType`
-        * If a control device is structured around a
-          :ibf:`command list`, then its mapping class should subclass
-          :class:`~.templates.HDFMapControlCLTemplate`.
-          Which is a subclass of
-          :class:`~.templates.HDFMapControlTemplate`,
-          but adds methods for parsing/handling a command list.
-    '''
-
-    def __init__(self, group: h5py.Group):
-        """
-        :param group: the control device HDF5 group object
         """
         # condition group arg
         if isinstance(group, h5py.Group):
@@ -256,7 +257,7 @@ class HDFMapControlTemplate(ABC):
     @property
     def has_command_list(self) -> bool:
         """
-        :return: :code:`True` if dataset utilizes a command list
+        ``True`` if the control device utilizes a command list
         """
         has_cl = False
         for config_name in self._configs:
@@ -281,7 +282,7 @@ class HDFMapControlTemplate(ABC):
     @property
     def one_config_per_dset(self) -> bool:
         """
-        :code:`'True'` if each control configuration has its own dataset
+        `True` if each control configuration has its own dataset
         """
         n_dset = len(self.dataset_names)
         n_configs = len(self._configs)
@@ -289,7 +290,7 @@ class HDFMapControlTemplate(ABC):
 
     @property
     def subgroup_names(self) -> List[str]:
-        """list of names of the HDF5 sub-groups in the control group"""
+        """list of names of the HDF5 subgroups in the control group"""
         sgroup_names = [
             name for name in self.group if isinstance(self.group[name], h5py.Group)
         ]
@@ -306,34 +307,45 @@ class HDFMapControlTemplate(ABC):
         Constructs the dataset name corresponding to the input
         arguments.
 
-        :return: name of dataset
-        :raise: :exc:`NotImplementedError`
+        Returns
+        -------
+        str
+            name of dataset
         """
-        raise NotImplementedError
+        ...
 
     @abstractmethod
     def _build_configs(self):
         """
         Gathers the necessary metadata and fills :data:`configs`.
-
-        :raise: :exc:`NotImplementedError`
         """
-        raise NotImplementedError
+        ...
 
 
 class HDFMapControlCLTemplate(HDFMapControlTemplate):
     # noinspection PySingleQuotedDocstring
-    '''
+    """
     A modified :class:`HDFMapControlTemplate` template class for
     mapping control devices that record around the concept of a
     :ibf:`command list`.
+    """
 
-    Any inheriting class should define :code:`__init__` as::
+    def __init__(self, group: h5py.Group):
+        """
+        Parameters
+        ----------
+        group: `h5py.Group`
+            the control device HDF5 group object
+
+        Notes
+        -----
+
+        Any inheriting class should define :code:`__init__` as::
 
         def __init__(self, group: h5py.Group):
-            """
+            '''
             :param group: HDF5 group object
-            """
+            '''
             # initialize
             HDFMapControlCLTemplate.__init__(self, control_group)
 
@@ -347,17 +359,6 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
             # populate self.configs
             self._build_configs()
-
-    .. note::
-
-        * Any method that raises a :exc:`NotImplementedError` is
-          intended to be overwritten by the inheriting class.
-        * :code:`from bapsflib._hdf.maps.controls import ConType`
-    '''
-
-    def __init__(self, group: h5py.Group):
-        """
-        :param group: the control device HDF5 group object
         """
         HDFMapControlTemplate.__init__(self, group)
 
@@ -369,50 +370,58 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
     @abstractmethod
     def _default_state_values_dict(self, config_name: str) -> dict:
         """
-        Returns the default :code:`'state values'` dictionary for
+        Returns the default ``'state values'`` dictionary for
         configuration *config_name*.
 
-        :param str config_name: configuration name
-        :raise: :exc:`NotImplementedError`
+        Parameters
+        ----------
+        config_name: `str`
+            configuration name
 
-        :Example:
+        Examples
+        --------
 
-            .. code-block:: python
+        .. code-block:: python
 
-                # define default dict
-                default_dict = {
-                    'command': {
-                        'dset paths':
-                            self._configs[config_name]['dese paths'],
-                        'dset field': ('Command index', ),
-                        're pattern': None,
-                        'command list':
-                            self._configs[config_name]['command list'],
-                        'cl str':
-                            self._configs[config_name]['command list'],
-                        'shape': (),
-                    }
+            # define default dict
+            default_dict = {
+                'command': {
+                    'dset paths':
+                        self._configs[config_name]['dese paths'],
+                    'dset field': ('Command index', ),
+                    're pattern': None,
+                    'command list':
+                        self._configs[config_name]['command list'],
+                    'cl str':
+                        self._configs[config_name]['command list'],
+                    'shape': (),
                 }
-                default_dict['command']['dtype'] = \\
-                    default_dict['command']['command list'].dtype
+            }
+            default_dict['command']['dtype'] = \\
+                default_dict['command']['command list'].dtype
 
-                # return
-                return default_dict
+            # return
+            return default_dict
 
         """
-        raise NotImplementedError
+        ...
 
     def _construct_state_values_dict(
         self, config_name: str, patterns: Union[str, Iterable[str]]
     ) -> dict:
         """
         Returns a dictionary for
-        :code:`configs[config_name]['state values']` based on the
-        supplied RE patterns. :code:`None` is returned if the
+        ``configs[config_name]['state values']`` based on the
+        supplied RE patterns. `None` is returned if the
         construction failed.
 
-        :param config_name: configuration name
-        :param patterns: list of RE pattern strings
+        Parameters
+        ----------
+        config_name : `str`
+            configuration name
+
+        patterns : `Union[str, Iterable[str]]
+            list of RE pattern strings
         """
         # -- check requirements exist before continuing             ----
         # get dataset
@@ -465,9 +474,12 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         """
         Return instance of
         :class:`~bapsflib.lapd.controls.parsers.CLParse`
-        for `config_name`.
+        for ``config_name``.
 
-        :param str config_name: configuration name
+        Parameters
+        ----------
+        config_name : `str`
+            configuration name
         """
         # retrieve command list
         cl = self._configs[config_name]["command list"]
@@ -477,14 +489,17 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
     def reset_state_values_config(self, config_name: str, apply_patterns=False):
         """
-        Reset the :code:`configs[config_name]['state values']`
-        dictionary.
+        Reset the ``configs[config_name]['state values']`` dictionary.
 
-        :param config_name: configuration name
-        :param bool apply_patterns: Set :code:`False` (DEFAULT) to
-            reset to :code:`_default_state_values_dict(config_name)`.
-            Set :code:`True` to rebuild dict using
-            :attr:`_default_re_patterns`.
+        Parameters
+        ----------
+        config_name : `str`
+            configuration name
+
+        apply_patterns : `bool`
+            Set `False` (DEFAULT) to reset to
+            ``_default_state_values_dict(config_name)``.  Set `True` to
+            rebuild dict using :attr:`_default_re_patterns`.
         """
         if apply_patterns:
             # get sv_dict dict
@@ -504,12 +519,16 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         self, config_name: str, patterns: Union[str, Iterable[str]]
     ):
         """
-        Rebuild and set
-        :code:`configs[config_name]['state values']` based on the
-        supplied RE *patterns*.
+        Rebuild and set ``configs[config_name]['state values']`` based
+        on the supplied RE *patterns*.
 
-        :param config_name: configuration name
-        :param patterns: list of RE strings
+        Parameters
+        ----------
+        config_name : `str`
+            configuration name
+
+        patterns : `Union[str, Iterable[str]]`
+            list of RE strings
         """
         # construct dict for 'state values' dict
         sv_dict = self._construct_state_values_dict(config_name, patterns)

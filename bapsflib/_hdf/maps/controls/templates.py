@@ -48,18 +48,18 @@ class HDFMapControlTemplate(ABC):
 
         Any inheriting class should define ``__init__`` as::
 
-        def __init__(self, group: h5py.Group):
-            '''
-            :param group: HDF5 group object
-            '''
-            # initialize
-            HDFMapControlTemplate.__init__(self, group)
+            def __init__(self, group: h5py.Group):
+                '''
+                :param group: HDF5 group object
+                '''
+                # initialize
+                HDFMapControlTemplate.__init__(self, group)
 
-            # define control type
-            self.info['contype'] = ConType.motion
+                # define control type
+                self.info['contype'] = ConType.motion
 
-            # populate self.configs
-            self._build_configs()
+                # populate self.configs
+                self._build_configs()
 
         """
         # condition group arg
@@ -342,23 +342,23 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
 
         Any inheriting class should define :code:`__init__` as::
 
-        def __init__(self, group: h5py.Group):
-            '''
-            :param group: HDF5 group object
-            '''
-            # initialize
-            HDFMapControlCLTemplate.__init__(self, control_group)
+            def __init__(self, group: h5py.Group):
+                '''
+                :param group: HDF5 group object
+                '''
+                # initialize
+                HDFMapControlCLTemplate.__init__(self, control_group)
 
-            # define control type
-            self.info['contype'] = ConType.waveform
+                # define control type
+                self.info['contype'] = ConType.waveform
 
-            # define known command list RE patterns
-            self._default_re_patterns = (
-                r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
-            )
+                # define known command list RE patterns
+                self._default_re_patterns = (
+                    r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
+                )
 
-            # populate self.configs
-            self._build_configs()
+                # populate self.configs
+                self._build_configs()
         """
         HDFMapControlTemplate.__init__(self, group)
 

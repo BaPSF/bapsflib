@@ -25,18 +25,7 @@ class HDFMapDigitizers(dict):
     """
     A dictionary that contains mapping objects for all the discovered
     digitizers in the HDF5 data group.  The dictionary keys are the
-    names of he discovered digitizers.
-
-    :Example:
-
-        >>> from bapsflib import lapd
-        >>> from bapsflib._hdf.maps import HDFMapDigitizers
-        >>> f = lapd.File('sample.hdf5')
-        >>> # 'Raw data + config' is the LaPD HDF5 group name for the
-        ... # group housing digitizer and control devices
-        ... digi_map = HDFMapDigitizers(f['Raw data + config'])
-        >>> digi_map['SIS 3301']
-        <bapsflib._hdf.maps.digitizers.sis3301.HDFMapDigiSIS3301>
+    names of the discovered digitizers.
     """
 
     _defined_mapping_classes = {
@@ -50,7 +39,22 @@ class HDFMapDigitizers(dict):
 
     def __init__(self, data_group: h5py.Group):
         """
-        :param data_group: HDF5 group object
+        Parameters
+        ----------
+        data_group : `h5py.Group`
+            HDF5 group object
+
+        Examples
+        --------
+
+            >>> from bapsflib import lapd
+            >>> from bapsflib._hdf.maps import HDFMapDigitizers
+            >>> f = lapd.File('sample.hdf5')
+            >>> # 'Raw data + config' is the LaPD HDF5 group name for the
+            ... # group housing digitizer and control devices
+            ... digi_map = HDFMapDigitizers(f['Raw data + config'])
+            >>> digi_map['SIS 3301']
+            <bapsflib._hdf.maps.digitizers.sis3301.HDFMapDigiSIS3301>
         """
         # condition data_group arg
         if not isinstance(data_group, h5py.Group):
@@ -74,10 +78,12 @@ class HDFMapDigitizers(dict):
         """
         Discovers the HDF5 digitizers and builds the dictionary
         containing the digitizer mapping objects.  This is the
-        dictionary used to initialize :code:`self`.
+        dictionary used to initialize ``self``.
 
-        :return: digitizer mapping dictionary
-        :rtype: dict
+        Returns
+        -------
+        dict
+            digitizer mapping dictionary
         """
         # all data_group subgroups
         # - each of these subgroups can fall into one of four 'LaPD

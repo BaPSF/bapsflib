@@ -244,7 +244,10 @@ class FauxSISCrate(h5py.Group):
         """
         Creates and populates the digitizer configuration group.
 
-        :param config_name: name of digitizer configuration
+        Parameters
+        ----------
+        config_name : `str`
+            name of digitizer configuration
         """
         # TODO: consider adding calibration sub-groups
         # create configuration group

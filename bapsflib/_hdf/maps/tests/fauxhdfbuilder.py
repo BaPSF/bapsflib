@@ -62,9 +62,12 @@ class FauxHDFBuilder(h5py.File):
 
     def __init__(self, name=None, add_modules=None, **kwargs):
         """
-        :param str name: name of HDF5 file
-        :param add_modules:
-        :param kwargs:
+        Parameters
+        ----------
+        name : `str`
+            name of HDF5 file
+        add_modules :  optional
+        kwargs : optional
         """
         # define file name, directory, and path
         if name is None:
@@ -156,7 +159,7 @@ class FauxHDFBuilder(h5py.File):
     def close(self):
         """
         Close the HDF5 file and remove temporary files/directories if
-        the exist.
+        they exist.
         """
         _path = os.path.abspath(self.filename)
         super().close()
@@ -210,9 +213,13 @@ class FauxHDFBuilder(h5py.File):
         Adds all the groups and datasets to the HDF5 file for the
         requested module.
 
-        :param str mod_name: name of module (e.g. :code:`'Waveform'`)
-        :param dict mod_args: dictionary of input arguments for the
-            module adder
+        Parameters
+        ----------
+        mod_name : `str`
+            name of module (e.g. :code:`'Waveform'`)
+
+        mod_args : `dict`, optional
+            dictionary of input arguments for the module adder
         """
         # TODO: behavior when adding a module that already exists ??
         #

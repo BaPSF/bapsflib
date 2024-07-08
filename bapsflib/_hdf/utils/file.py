@@ -413,7 +413,7 @@ class File(h5py.File):
 
         Returns
         -------
-        ~.hdfreadmsi.HDFReadMSI
+        `~.hdfreadmsi.HDFReadMSI`
             `structured numpy array
             <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
             MSI diagnostic data

@@ -34,80 +34,92 @@ def with_bf(
     the positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.
 
-    :param wfunc: function or method to be wrapped
-    :param filename: name of the BaPSF HDF5 file
-    :param control_path: internal HDF5 path for control devices
-    :param digitizer_path: internal HDF5 path for digitizers
-    :param msi_path: internal HDF5 path for MSI devices
+    Parameters
+    ----------
+    wfunc : callable
+        function or method to be wrapped
 
-    :example:
-        The HDF5 file parameters (:data:`filename`, :data:`control_path`,
-        :data:`digitizer_path`, and :data:`msi_path`) can be passed to the
-        decorator in three ways (listed by predominance):
+    filename : `str` or `None`
+        name of the BaPSF HDF5 file
 
-        #. The wrapped function arguments.
-        #. If the wrapped function is a method, then through appropriately
-           named :data:`self` attributes.
-        #. The decorator keywords.
+    control_path : `str` or `None`
+        internal HDF5 path for control devices
 
-        **Defined with wrapped function arguments**::
+    digitizer_path : `str` or `None`
+        internal HDF5 path for digitizers
 
-            >>> # as function keywords
-            >>> @with_bf
-            ... def foo(bf, **kwargs):
-            ...     # * bf will be the HDF5 file object
-            ...     # * do whatever is needed with bf and @with_bf will close
-            ...     #   the file at the end
-            ...     return bf.filename
-            >>> foo(filename='test.hdf5', control_path='Raw data + config',
-            ...     digitizer_path='Raw data + config', msi_path='MSI')
-            'test.hdf5'
-            >>>
-            >>> # as a function argument
-            >>> @with_bf
-            ... def foo(filename, bf, **kwargs):
-            ...     # use bf
-            ...     return bf.filename
-            ... foo('test.hdf5')
-            'test.hdf5'
+    msi_path : `str` or `None`
+        internal HDF5 path for MSI devices
 
-        **Defined with wrapped method attributes**::
+    Examples
+    --------
+    The HDF5 file parameters (:data:`filename`, :data:`control_path`,
+    :data:`digitizer_path`, and :data:`msi_path`) can be passed to the
+    decorator in three ways (listed by predominance):
 
-            >>> # use `self` to pass file settings
-            >>> class BehaveOnFile:
-            ...     def __init__(self):
-            ...         super().__init__()
-            ...         self.filename = 'test.hdf5'
-            ...         self.control_path = 'Raw data + config'
-            ...         self.digitizer_path = 'Raw data + config'
-            ...         self.msi_path = 'MSI'
-            ...
-            ...     @with_bf
-            ...     def foo(self, bf, **kwargs):
-            ...         return bf.filename
-            >>> a = BehaveOnFile()
-            >>> a.foo()
-            'test.hdf5'
-            >>>
-            >>> # but keywords will still take precedence
-            >>> a.foo(filename='test_2.hdf5')
-            'test_2.hdf5'
+    #. The wrapped function arguments.
+    #. If the wrapped function is a method, then through appropriately
+       named :data:`self` attributes.
+    #. The decorator keywords.
 
-        **Defined with decorator keywords**:
+    **Defined with wrapped function arguments**::
 
-            >>> # as function keywords
-            >>> @with_bf(filename='test.hdf5',
-            ...          control_path='Raw data + config',
-            ...          digitizer_path='Raw data +config',
-            ...          msi_path='MSI')
-            ... def foo(bf, **kwargs):
-            ...     return bf.filename
-            >>> foo()
-            'test.hdf5'
-            >>>
-            >>> # function keywords will still take precedence
-            >>> foo(filename='test_2.hdf5')
-            'test_2.hdf5'
+        >>> # as function keywords
+        >>> @with_bf
+        ... def foo(bf, **kwargs):
+        ...     # * bf will be the HDF5 file object
+        ...     # * do whatever is needed with bf and @with_bf will close
+        ...     #   the file at the end
+        ...     return bf.filename
+        >>> foo(filename='test.hdf5', control_path='Raw data + config',
+        ...     digitizer_path='Raw data + config', msi_path='MSI')
+        'test.hdf5'
+        >>>
+        >>> # as a function argument
+        >>> @with_bf
+        ... def foo(filename, bf, **kwargs):
+        ...     # use bf
+        ...     return bf.filename
+        ... foo('test.hdf5')
+        'test.hdf5'
+
+    **Defined with wrapped method attributes**::
+
+        >>> # use `self` to pass file settings
+        >>> class BehaveOnFile:
+        ...     def __init__(self):
+        ...         super().__init__()
+        ...         self.filename = 'test.hdf5'
+        ...         self.control_path = 'Raw data + config'
+        ...         self.digitizer_path = 'Raw data + config'
+        ...         self.msi_path = 'MSI'
+        ...
+        ...     @with_bf
+        ...     def foo(self, bf, **kwargs):
+        ...         return bf.filename
+        >>> a = BehaveOnFile()
+        >>> a.foo()
+        'test.hdf5'
+        >>>
+        >>> # but keywords will still take precedence
+        >>> a.foo(filename='test_2.hdf5')
+        'test_2.hdf5'
+
+    **Defined with decorator keywords**:
+
+        >>> # as function keywords
+        >>> @with_bf(filename='test.hdf5',
+        ...          control_path='Raw data + config',
+        ...          digitizer_path='Raw data +config',
+        ...          msi_path='MSI')
+        ... def foo(bf, **kwargs):
+        ...     return bf.filename
+        >>> foo()
+        'test.hdf5'
+        >>>
+        >>> # function keywords will still take precedence
+        >>> foo(filename='test_2.hdf5')
+        'test_2.hdf5'
     """
     # How to pass in file settings (listed in priority):
     # 1. function keywords
@@ -200,69 +212,75 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
     the positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.
 
-    :param wfunc: function or method to be wrapped
-    :param filename: name of the BaPSF HDF5 file
+    Parameters
+    ----------
+    wfunc : callable
+        function or method to be wrapped
 
-    :example:
-        The HDF5 :data:`filename` can be passed to the decorator in three
-        ways (listed by predominance):
+    filename : `str` or `None`
+        name of the BaPSF HDF5 file
 
-        #. The wrapped function arguments.
-        #. If the wrapped function is a method, then through the
-           appropriately named :data:`self` attributes.
-        #. The decorator keywords.
+    Examples
+    --------
+    The HDF5 :data:`filename` can be passed to the decorator in three
+    ways (listed by predominance):
 
-        **Defined with wrapped function arguments**::
+    #. The wrapped function arguments.
+    #. If the wrapped function is a method, then through the
+       appropriately named :data:`self` attributes.
+    #. The decorator keywords.
 
-            >>> # as function keywords
-            >>> @with_lapdf
-            ... def foo(lapdf, **kwargs):
-            ...     # * bf will be the HDF5 file object
-            ...     # * do whatever is needed with bf and @with_bf will close
-            ...     #   the file at the end
-            ...     return lapdf.filename
-            >>> foo(filename='test.hdf5')
-            'test.hdf5'
-            >>>
-            >>> # as a function argument
-            >>> @with_lapdf
-            ... def foo(filename, lapdf, **kwargs):
-            ...     # use bf
-            ...     return lapdf.filename
-            ... foo('test.hdf5')
-            'test.hdf5'
+    **Defined with wrapped function arguments**::
 
-        **Defined with wrapped method attributes**::
+        >>> # as function keywords
+        >>> @with_lapdf
+        ... def foo(lapdf, **kwargs):
+        ...     # * bf will be the HDF5 file object
+        ...     # * do whatever is needed with bf and @with_bf will close
+        ...     #   the file at the end
+        ...     return lapdf.filename
+        >>> foo(filename='test.hdf5')
+        'test.hdf5'
+        >>>
+        >>> # as a function argument
+        >>> @with_lapdf
+        ... def foo(filename, lapdf, **kwargs):
+        ...     # use bf
+        ...     return lapdf.filename
+        ... foo('test.hdf5')
+        'test.hdf5'
 
-            >>> # use `self` to pass file settings
-            >>> class BehaveOnFile:
-            ...     def __init__(self):
-            ...         super().__init__()
-            ...         self.filename = 'test.hdf5'
-            ...
-            ...     @with_bf
-            ...     def foo(self, lapdf, **kwargs):
-            ...         return lapdf.filename
-            >>> a = BehaveOnFile()
-            >>> a.foo()
-            'test.hdf5'
-            >>>
-            >>> # but keywords will still take precedence
-            >>> a.foo(filename='test_2.hdf5')
-            'test_2.hdf5'
+    **Defined with wrapped method attributes**::
 
-        **Defined with decorator keywords**:
+        >>> # use `self` to pass file settings
+        >>> class BehaveOnFile:
+        ...     def __init__(self):
+        ...         super().__init__()
+        ...         self.filename = 'test.hdf5'
+        ...
+        ...     @with_bf
+        ...     def foo(self, lapdf, **kwargs):
+        ...         return lapdf.filename
+        >>> a = BehaveOnFile()
+        >>> a.foo()
+        'test.hdf5'
+        >>>
+        >>> # but keywords will still take precedence
+        >>> a.foo(filename='test_2.hdf5')
+        'test_2.hdf5'
 
-            >>> # as function keywords
-            >>> @with_bf(filename='test.hdf5')
-            ... def foo(lapdf, **kwargs):
-            ...     return lapdf.filename
-            >>> foo()
-            'test.hdf5'
-            >>>
-            >>> # function keywords will still take precedence
-            >>> foo(filename='test_2.hdf5')
-            'test_2.hdf5'
+    **Defined with decorator keywords**:
+
+        >>> # as function keywords
+        >>> @with_bf(filename='test.hdf5')
+        ... def foo(lapdf, **kwargs):
+        ...     return lapdf.filename
+        >>> foo()
+        'test.hdf5'
+        >>>
+        >>> # function keywords will still take precedence
+        >>> foo(filename='test_2.hdf5')
+        'test_2.hdf5'
     """
     # How to pass in file settings (listed in priority):
     # 1. function keywords

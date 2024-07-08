@@ -62,7 +62,7 @@ class TestHDFMapMSI(ut.TestCase):
         return HDFMapMSI(group)
 
     def test_not_h5py_group(self):
-        """Test error if object to map is not h5py.Group"""
+        """Test error if object to map is not `h5py.Group`"""
         with self.assertRaises(TypeError):
             self.map_msi(None)
 

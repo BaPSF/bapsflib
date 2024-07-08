@@ -122,7 +122,11 @@ class TestBuildShotnumDsetRelation(TestBase):
         cdset = self.cgroup["Run time list"]
         with self.assertRaises(ValueError):
             build_shotnum_dset_relation(
-                np.empty(5, dtype=np.uint32), cdset, "Shot number", self.map, "config01"
+                np.empty(5, dtype=np.uint32),
+                cdset,
+                "Shot number",
+                self.map,
+                "config01",
             )
 
     def assertInRangeSN(self):
@@ -293,7 +297,9 @@ class TestConditionControls(TestBase):
             [("Waveform", "config01")],
         ]
         for og_con in con_list:
-            self.assertEqual(condition_controls(_bf, og_con), [("Waveform", "config01")])
+            self.assertEqual(
+                condition_controls(_bf, og_con), [("Waveform", "config01")]
+            )
 
         # conditions that raise ValueError
         con_list = [

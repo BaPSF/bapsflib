@@ -269,7 +269,7 @@ class HDFOverview(object):
 
         Parameters
         ----------
-        msi : `HDFMapMSITemplate`
+        msi : `~.maps.msi.templates.HDFMapMSITemplate`
             an MSI mapping object
         """
         # print configs title
@@ -328,7 +328,7 @@ class HDFOverview(object):
 
         Parameters
         ----------
-        digi : `HDFMapDigiTemplate`
+        digi : ``~.maps.digitizers.templates.HDFMapDigiTemplate`
             a digitizer mapping object
         """
         nconfigs = len(digi.configs)
@@ -440,7 +440,7 @@ class HDFOverview(object):
 
         Parameters
         ----------
-        control : `HDFMapControlTemplate`
+        control : ``~.maps.controls.templates.HDFMapControlTemplate`
             a control device mapping object
         """
         nconfigs = len(control.configs)

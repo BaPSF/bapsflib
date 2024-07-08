@@ -10,7 +10,8 @@
 #
 #
 """
-Module containing the main `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class.
+Module containing the main
+`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class.
 """
 __all__ = ["HDFReadData"]
 
@@ -66,46 +67,48 @@ class HDFReadData(np.ndarray):
     """
 
     __example_doc__ = """
-    :Example: Here data is extracted from the digitizer 
-        :code:`'SIS crate'` and position data is mated from the
-        control device :code:`'6K Compumotor'`.
+    Examples
+    --------
+    
+    Here data is extracted from the digitizer ``'SIS crate'`` and 
+    position data is mated from the control device ``'6K Compumotor'``.
         
-        >>> # open HDF5 file
-        >>> f = bapsflib.lapd.File('test.hdf5')
-        >>>
-        >>> # read digitizer data from board 1, channel 1,
-        >>> # - this is equivalent to 
-        >>> #   f.read_data(1, 1)
-        >>> data = HDFReadData(f, 1, 1)
-        >>> data.dtype
-        dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
-              ('xyz', '<f4', (3,))])
-        >>>
-        >>> # display shot numbers
-        >>> data['shotnum']
-        array([  1,  2, ..., 98, 99], dtype=uint32)
-        >>>
-        >>> # show 'signal' values for shot number 1
-        >>> data['signal'][0]
-        array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
-               -0.4105754 , -0.41119337], dtype=float32)
-        >>>
-        >>> # show 'xyz' values for shot number 1
-        >>> data['xyz'][0]
-        array([nan, nan, nan], dtype=float32)
-        >>>
-        >>> # read digitizer data while adding '6K Compumotor' data
-        >>> # from receptacle (configuration) 3
-        >>> data = HDFReadData(f, 1, 1, 
-                               add_controls=[('6K Compumotor', 3)])
-        >>> data.dtype
-        dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
-               ('xyz', '<f4', (3,)), ('ptip_rot_theta', '<f8'), 
-               ('ptip_rot_phi', '<f8')])
-        >>>
-        >>> # show 'xyz' values for shot number 1
-        >>> data['xyz'][0]
-        array([ -32. ,   15. , 1022.4], dtype=float32)
+    >>> # open HDF5 file
+    >>> f = bapsflib.lapd.File('test.hdf5')
+    >>>
+    >>> # read digitizer data from board 1, channel 1,
+    >>> # - this is equivalent to 
+    >>> #   f.read_data(1, 1)
+    >>> data = HDFReadData(f, 1, 1)
+    >>> data.dtype
+    dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
+          ('xyz', '<f4', (3,))])
+    >>>
+    >>> # display shot numbers
+    >>> data['shotnum']
+    array([  1,  2, ..., 98, 99], dtype=uint32)
+    >>>
+    >>> # show 'signal' values for shot number 1
+    >>> data['signal'][0]
+    array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
+           -0.4105754 , -0.41119337], dtype=float32)
+    >>>
+    >>> # show 'xyz' values for shot number 1
+    >>> data['xyz'][0]
+    array([nan, nan, nan], dtype=float32)
+    >>>
+    >>> # read digitizer data while adding '6K Compumotor' data
+    >>> # from receptacle (configuration) 3
+    >>> data = HDFReadData(f, 1, 1, 
+                           add_controls=[('6K Compumotor', 3)])
+    >>> data.dtype
+    dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
+           ('xyz', '<f4', (3,)), ('ptip_rot_theta', '<f8'), 
+           ('ptip_rot_phi', '<f8')])
+    >>>
+    >>> # show 'xyz' values for shot number 1
+    >>> data['xyz'][0]
+    array([ -32. ,   15. , 1022.4], dtype=float32)
 
     """
 
@@ -125,32 +128,53 @@ class HDFReadData(np.ndarray):
         **kwargs,
     ):
         """
-        :param hdf_file: HDF5 file object
-        :param board: analog-digital-converter board number
-        :param channel: analog-digital-converter channel number
-        :param index: dataset row indices to be sliced (overridden
-            by :code:`shotnum`)
-        :type index: Union[int, List[int], slice, numpy.ndarray]
-        :param shotnum: HDF5 file shot number(s) indicating data
-            entries to be extracted (overrides :code:`index`)
-        :type shotnum: Union[int, List[int], slice, numpy.ndarray]
-        :param str digitizer: digitizer name
-        :param str adc: name of analog-digital-converter
-        :param str config_name: name of the digitizer configuration
-        :param bool keep_bits: set :code:`True` to keep data in bits,
-            :code:`False` (DEFAULT) to convert data to voltage
-        :param add_controls: a list indicating the desired control
-            device names and their configuration name (if more than one
-            configuration exists)
-        :type controls: Union[str, Iterable[str, Tuple[str, Any]]]
-        :param bool intersection_set: :code:`True` (DEFAULT) will force
-            the returned shot numbers to be the intersection of
-            :data:`shotnum` and the shot numbers contained in each
-            control device and digitizer dataset. :code:`False` will
-            return the union of shot numbers.
+        Parameters
+        ----------
+        hdf_file : `~bapsflib._hdf.utils.file.File`
+            HDF5 file object
 
-        Behavior of :data:`index`, :data:`shotnum` and
-        :data:`intersection_set`:
+        board : `int`
+            analog-digital-converter board number
+
+        channel : `int`
+            analog-digital-converter channel number
+
+        index : Union[int, List[int], slice, numpy.ndarray], optional
+            dataset row indices to be sliced. Overridden by argument
+            ``shotnum``. (DEFAULT ``slice(None)``)
+
+        shotnum : Union[int, List[int], slice, numpy.ndarray], optional
+            HDF5 file shot number(s) indicating data entries to be
+            extracted.  Overrides argument ``index``.  (DEFAULT
+            ``slice(None)``)
+
+        digitizer : `str`, optional
+            name of the digitizer
+
+        adc : `str`, optional
+            name of the analog-digital-converter
+
+        config_name : `str`, optional
+            name of the digitizer configuration
+
+        keep_bits : `bool`, optional
+            set `True` to keep data in bits, `False` (DEFAULT) to
+            convert data to voltage
+
+        add_controls : Union[str, Iterable[str, Tuple[str, Any]]], optional
+            a list indicating the desired control device names and their
+            configuration name (if more than one configuration exists)
+
+        intersection_set : `bool`, optional
+            `True` (DEFAULT) will force the returned shot numbers to be
+            the intersection of ``shotnum`` and the shot numbers
+            contained in each control device and digitizer dataset.
+            `False` will return the union of shot numbers.
+
+        Notes
+        -----
+
+        Behavior of ``index``, ``shotnum`` and ``intersection_set``:
 
         .. note::
 
@@ -886,13 +910,28 @@ class HDFReadData(np.ndarray):
         Set :attr:`plasma` and add key frequency, length, and velocity
         parameters. (all quantities in cgs except temperature is in eV)
 
-        :param float Bo: magnetic field (in Gauss)
-        :param float kTe: electron temperature (in eV)
-        :param float kTi: ion temperature (in eV)
-        :param float m_i: ion mass (in g)
-        :param float n_e: electron number density (in cm^-3)
-        :param int Z: ion charge number
-        :param float gamma: adiabatic index (arb.)
+        Parameters
+        ----------
+        Bo : `float`
+            magnetic field (in Gauss)
+
+        kTe : `float`
+            electron temperature (in eV)
+
+        kTi : `float`
+            ion temperature (in eV)
+
+        m_i : `float`
+            ion mass (in g)
+
+        n_e : `float`
+            electron number density (in cm^-3)
+
+        Z : `int`
+            ion charge number
+
+        gamma : `float`
+            adiabatic index (arb.)
         """
         # define base values
         self._plasma["Bo"] = core.FloatUnit(Bo, "G")
@@ -935,8 +974,13 @@ class HDFReadData(np.ndarray):
         Re-define one of the base plasma values (Bo, gamma, kT, kTe,
         kTi, m_i, n, n_e, or Z) in the :attr:`plasma` dictionary.
 
-        :param str key: one of the base plasma values
-        :param value: value for key
+        Parameters
+        ----------
+        key : str
+            one of the base plasma values
+
+        value :
+            value for key
         """
         # set plasma value
         if key == "Bo":

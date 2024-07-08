@@ -19,31 +19,32 @@ from abc import ABC, abstractmethod
 
 class HDFMapMSITemplate(ABC):
     # noinspection PySingleQuotedDocstring
-    '''
+    """
     Template class for all MSI diagnostic mapping classes to inherit
     from.
-
-    Any inheriting class should define :code:`__init__` as::
-
-        def __init__(self, group: h5py.Group):
-            """
-            :param group: HDF5 group object
-            """
-            # initialize
-            HDFMapMSITemplate.__init__(self, group)
-
-            # populate self.configs
-            self._build_configs()
-
-    .. note::
-
-        Any method that raises a :exc:`NotImplementedError` is intended
-        to be overwritten by the inheriting class.
-    '''
+    """
 
     def __init__(self, group: h5py.Group):
         """
-        :param group: the MSI diagnostic HDF5 group
+        Parameters
+        ----------
+        group : `h5py.Group`
+        the MSI diagnostic HDF5 group
+
+        Notes
+        -----
+
+        Any inheriting class should define :code:`__init__` as::
+
+            def __init__(self, group: h5py.Group):
+                '''
+                :param group: HDF5 group object
+                '''
+                # initialize
+                HDFMapMSITemplate.__init__(self, group)
+
+                # populate self.configs
+                self._build_configs()
         """
         # condition group arg
         if isinstance(group, h5py.Group):
@@ -194,12 +195,10 @@ class HDFMapMSITemplate(ABC):
         Gathers the necessary mapping data and constructs the
         :attr:`configs` dictionary.
 
-        :raises: :exc:`NotImplementedError`
-
         .. note::
 
             Examine :meth:`_build_configs` in existing modules for ideas
             on how to override this method.  Also read
             :ref:`add_msi_mod`.
         """
-        raise NotImplementedError
+        ...

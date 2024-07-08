@@ -41,8 +41,10 @@ class HDFMapMSIDischarge(HDFMapMSITemplate):
 
     def __init__(self, group: h5py.Group):
         """
-        :param group: the HDF5 MSI diagnostic group
-        :type group: :class:`h5py.Group`
+        Parameters
+        ----------
+        group : `h5py.Group`
+            the HDF5 MSI diagnostic group
         """
         # initialize
         HDFMapMSITemplate.__init__(self, group)

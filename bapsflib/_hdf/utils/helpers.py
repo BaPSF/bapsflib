@@ -84,6 +84,7 @@ def build_shotnum_dset_relation(
     sni : `numpy.ndarray`
         boolean array that masks the ``shotnum`` array
 
+
     .. note::
 
         This function leverages the functions

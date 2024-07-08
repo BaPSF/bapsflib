@@ -29,7 +29,7 @@ class HDFMapMSITemplate(ABC):
         Parameters
         ----------
         group : `h5py.Group`
-        the MSI diagnostic HDF5 group
+            the MSI diagnostic HDF5 group
 
         Notes
         -----

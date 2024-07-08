@@ -45,26 +45,33 @@ class HDFMap(object):
     utilized by the HDF5 utility classes (in module
     :mod:`bapsflib._hdf.utils`) to manipulate and read data out of
     the HDF5 file.
-
-    The following classes are leveraged to construct the mappings:
-
-        * :class:`~.controls.map_controls.HDFMapControls`.
-        * :class:`~.digitizers.map_digis.HDFMapDigitizers`.
-        * :class:`~.msi.map_msi.HDFMapMSI`.
     """
 
     def __init__(
         self, hdf_obj: h5py.File, control_path: str, digitizer_path: str, msi_path: str
     ):
         """
-        :param hdf_obj: the HDF5 file object
-        :type hdf_obj: :class:`h5py.File`
-        :param control_path: internal HDF5 path to group containing
-            control devices
-        :param digitizer_path: internal HDF5 path to group containing
-            digitizers
-        :param msi_path: internal HDF5 path to group containing
-            MSI diagnostics
+        Parameters
+        ----------
+        hdf_obj : `h5py.File`
+            the HDF5 file object
+
+        control_path : `str`
+            internal HDF5 path to group containing control devices
+
+        digitizer_path : `str`
+            internal HDF5 path to group containing digitizers
+
+        msi_path : `str`
+            internal HDF5 path to group containing MSI diagnostics
+
+        Notes
+        -----
+        The following classes are leveraged to construct the mappings:
+
+            * :class:`~.controls.map_controls.HDFMapControls`.
+            * :class:`~.digitizers.map_digis.HDFMapDigitizers`.
+            * :class:`~.msi.map_msi.HDFMapMSI`.
         """
         # store an instance of the HDF5 object for HDFMap
         if isinstance(hdf_obj, h5py.File):
@@ -180,13 +187,14 @@ class HDFMap(object):
         """
         Dictionary of all the control device mapping objects.
 
-        :Example:
+        Examples
+        --------
 
-            How to retrieve the mapping object of the control device
-            :code:`'6K Compumotor'`::
+        How to retrieve the mapping object of the control device
+        ``'6K Compumotor'``::
 
-                fmap = HDFMap(file_obj)
-                dmap = fmap.controls['6K Compumotor']
+            fmap = HDFMap(file_obj)
+            dmap = fmap.controls['6K Compumotor']
         """
         return self.__controls
 
@@ -195,34 +203,38 @@ class HDFMap(object):
         """
         Dictionary of all the digitizer device mapping objects.
 
-        :Example:
+        Examples
+        --------
 
-            How to retrieve the mapping object of the digitizer
-            :code:`'SIS 3301'`::
+        How to retrieve the mapping object of the digitizer
+        ``'SIS 3301'``::
 
-                fmap = HDFMap(file_obj)
-                dmap = fmap.digitizers['SIS 3301']
+            fmap = HDFMap(file_obj)
+            dmap = fmap.digitizers['SIS 3301']
         """
         return self.__digitizers
 
     def get(self, name: str):
         """
-        Get an device mapping instance.
+        Get a device mapping instance.  Returns `None` if no mapping
+        instance for ``name`` is found.
 
-        :param name: name of desired device
-        :returns: If the specified device is mapped, then an instance
-            of the mapping is returned. Otherwise, :code:`None` is
-            returned.
-        :Example:
+        Parameters
+        ----------
+        name : `str`
+            name of desired device
 
-            How to retrieve the mapping object for the
-            :code:`'SIS 3301'` digitizer::
+        Examples
+        --------
 
-                >>> fmap = HDFMap(file_obj)
-                >>> dmap = fmap.get('SIS 3301')
-                >>>
-                >>> # which is equivalent to
-                >>> dmap = fmap.digitizers['SIS 3301']
+        How to retrieve the mapping object for the ``'SIS 3301'``
+        digitizer::
+
+            >>> fmap = HDFMap(file_obj)
+            >>> dmap = fmap.get('SIS 3301')
+            >>>
+            >>> # which is equivalent to
+            >>> dmap = fmap.digitizers['SIS 3301']
         """
         if name in self.controls:
             _map = self.controls[name]
@@ -238,15 +250,16 @@ class HDFMap(object):
     @property
     def main_digitizer(self) -> Union[None, DigiMap]:
         """
-        :return: the mapping object for the digitizer that is assumed
-            to be the :ibf:`main digitizer` in :attr:`digitizers`
+        Mapping object for the digitizer that is assumed to be the
+        :ibf:`main digitizer` in :attr:`digitizers`.
 
-        The main digitizer is determine by scanning through the local
+        Notes
+        -----
+
+        The main digitizer is determined by scanning through the local
         tuple :const:`possible_candidates` that contains a
         hierarchical list of digitizers. The first digitizer found is
-        assumed to be the :ibf:`main digitizer`. ::
-
-            possible_candidates = ('SIS 3301', 'SIS crate')
+        assumed to be the :ibf:`main digitizer`.
         """
         # possible_candidates is a hierarchical tuple of all digitizers
         # such that the first found digitizer is assumed to be the main
@@ -268,13 +281,14 @@ class HDFMap(object):
         """
         Dictionary of all the MSI diagnostic mapping objects.
 
-        :Example:
+        Examples
+        --------
 
-            How to retrieve the mapping object of the
-            :code:`'Magnetic field'` MSI diagnostic::
+        How to retrieve the mapping object of the ``'Magnetic field'``
+        MSI diagnostic::
 
-                fmap = HDFMap(file_obj)
-                dmap = fmap.msi['Magnetic field']
+            fmap = HDFMap(file_obj)
+            dmap = fmap.msi['Magnetic field']
         """
         return self.__msi
 

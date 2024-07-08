@@ -199,7 +199,7 @@ class File(h5py.File):
 
         Returns
         -------
-        ~.hdfreadcontrols.HDFReadControls
+        `~.hdfreadcontrols.HDFReadControls`
             `structured numpy array
             <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
             control device data
@@ -327,7 +327,7 @@ class File(h5py.File):
 
         Returns
         -------
-        ~.hdfreaddata.HDFReadData
+        `~.hdfreaddata.HDFReadData`
             `structured numpy array
             <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
             digitized data

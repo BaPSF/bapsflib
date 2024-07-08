@@ -232,9 +232,11 @@ class HDFOverview(object):
         Prints to screen a report of detected MSI diagnostics and
         their configurations.
 
-        :param str name: name of MSI diagnostic. If :code:`None` or
-            `name` is not among MSI diagnostics, then all MSI
-            diagnostics are printed.
+        Parameters
+        ----------
+        name : `str`
+            name of MSI diagnostic. If `None` or ``name`` is not among
+            MSI diagnostics, then all MSI diagnostics are printed.
         """
         # gather configs to print
         if name in self._fmap.msi:

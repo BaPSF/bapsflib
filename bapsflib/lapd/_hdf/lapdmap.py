@@ -40,22 +40,22 @@ class LaPDMap(HDFMap):
         msi_path="MSI",
     ):
         """
-        :param hdf_obj: HDF5 file object
-        :type hdf_obj: :class:`h5py.File`
-        :param str control_path:
+        Parameters
+        ----------
+        hdf_obj : `h5py.File`
+            HDF5 file object
 
+        control_path : `str`, optional
             internal HDF5 path to group containing control devices
-            (DEFAULT :code:`'Raw data + config'`)
+            (DEFAULT ``'Raw data + config'``)
 
-        :param str digitizer_path:
-
+        digitizer_path : `str`, optional
             internal HDF5 path to group containing digitizers
-            (DEFAULT :code:`'Raw data + config'`)
+            (DEFAULT ``'Raw data + config'``)
 
-        :param str msi_path:
-
+        msi_path : `str`, optional
             internal HDF5 path to group containing MSI diagnostics
-            (DEFAULT :code:`'MSI'`)
+            (DEFAULT ``'MSI'``)
         """
         super().__init__(
             hdf_obj,

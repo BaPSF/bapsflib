@@ -41,57 +41,63 @@ class HDFReadMSI(np.ndarray):
     """
 
     __example_doc__ = """
-    :Example: Here the :code:`'Discharge'` MSI diagnostic is used 
-        as an example:
+    Examples
+    --------
+    
+    Here the ``'Discharge'`` MSI diagnostic is used as an example:
 
-        >>> # open HDF5 file
-        >>> f = bapsflib.lapd.File('test.hdf5')
-        >>>
-        >>> # read MSI data
-        >>> # - this is equivalent to f.read_msi('Discharge')
-        >>> mdata = HDFReadMSI(f, 'Discharge')
-        >>> mdata.dtype
-        dtype([('shotnum', '<i4'),
-               ('voltage', '<f4', (2048,)),
-               ('current', '<f4', (2048,)),
-               ('meta', [('timestamp', '<f8'),
-                         ('data valid', 'i1'),
-                         ('pulse length', '<f4'),
-                         ('peak current', '<f4'),
-                         ('bank voltage', '<f4')])])
-        >>> # display shot numbers
-        >>> mdata['shotnum']
-        array([    0, 19251], dtype=int32)
-        >>>
-        >>> # fields 'voltage' and 'current' belong to data arrays
-        >>> # - show first 3 elements of 'voltage' for shot number 0
-        >>> mdata['voltage'][0,0:3:]
-        array([-46.99707 , -46.844482, -46.99707], dtype=float32)
-        >>>
-        >>> # display peak current for shot number 0
-        >>> mdata['meta']['peak current'][0]
-        6127.1323
-        >>>
-        >>> # the `info` attribute has diagnostic specific data
-        >>> mdata.info
-        {'current conversion factor': [0.0],
-         'device name': 'Discharge',
-         'device group path': '/MSI/Discharge',
-         'dt': [4.88e-05],
-         'source file': '/foo/bar/test.hdf5',
-         't0': [-0.0249856],
-         'voltage conversion factor': [0.0]}
-        >>>
-        >>> # get time step for the data arrays
-        >>> mdata.info['dt'][0]
-        4.88e-05
+    >>> # open HDF5 file
+    >>> f = bapsflib.lapd.File('test.hdf5')
+    >>>
+    >>> # read MSI data
+    >>> # - this is equivalent to f.read_msi('Discharge')
+    >>> mdata = HDFReadMSI(f, 'Discharge')
+    >>> mdata.dtype
+    dtype([('shotnum', '<i4'),
+           ('voltage', '<f4', (2048,)),
+           ('current', '<f4', (2048,)),
+           ('meta', [('timestamp', '<f8'),
+                     ('data valid', 'i1'),
+                     ('pulse length', '<f4'),
+                     ('peak current', '<f4'),
+                     ('bank voltage', '<f4')])])
+    >>> # display shot numbers
+    >>> mdata['shotnum']
+    array([    0, 19251], dtype=int32)
+    >>>
+    >>> # fields 'voltage' and 'current' belong to data arrays
+    >>> # - show first 3 elements of 'voltage' for shot number 0
+    >>> mdata['voltage'][0,0:3:]
+    array([-46.99707 , -46.844482, -46.99707], dtype=float32)
+    >>>
+    >>> # display peak current for shot number 0
+    >>> mdata['meta']['peak current'][0]
+    6127.1323
+    >>>
+    >>> # the `info` attribute has diagnostic specific data
+    >>> mdata.info
+    {'current conversion factor': [0.0],
+     'device name': 'Discharge',
+     'device group path': '/MSI/Discharge',
+     'dt': [4.88e-05],
+     'source file': '/foo/bar/test.hdf5',
+     't0': [-0.0249856],
+     'voltage conversion factor': [0.0]}
+    >>>
+    >>> # get time step for the data arrays
+    >>> mdata.info['dt'][0]
+    4.88e-05
     """
 
     def __new__(cls, hdf_file: File, dname: str, **kwargs):
         """
-        :param hdf_file: HDF5 file object
-        :type hdf_file: :class:`~bapsflib.lapd.File`
-        :param str dname: name of desired MSI diagnostic
+        Parameters
+        ----------
+        hdf_file : `~bapsflib._hdf.utils.file.File`
+            HDF5 file object
+
+        dname : `str`
+            name of desired MSI diagnostic
         """
         # ---- Condition `hdf_file`                                 ----
         # - `hdf_file` is a lapd.File object

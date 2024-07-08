@@ -9,8 +9,8 @@
 #   license terms and contributor agreement.
 #
 """
-Helper functions that are utilized by the the HDF5 utility classes
-defined in module :mod:`bapsflib._hdf.utils`.
+Helper functions that are utilized by the HDF5 utility classes defined
+in module :mod:`bapsflib._hdf.utils`.
 """
 __all__ = [
     "build_shotnum_dset_relation",
@@ -45,7 +45,7 @@ def build_shotnum_dset_relation(
     cconfn: Any,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** numpy array to the specified dataset,
+    Compares the **shotnum** `numpy` array to the specified dataset,
     **dset**, to determine which indices contain the desired shot
     number(s)
     [for :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
@@ -58,14 +58,31 @@ def build_shotnum_dset_relation(
     be in the dataset, and **index** is an array of indices
     corresponding to the desired shot number(s).
 
-    :param shotnum: desired HDF5 shot number(s)
-    :param dset: control device dataset
-    :type dset: :class:`h5py.Dataset`
-    :param str shotnumkey: field name in the control device dataset that
-        contains shot numbers
-    :param cmap: mapping object for control device
-    :param cconfn: configuration name for the control device
-    :return: :code:`index` and :code:`sni` numpy arrays
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        desired HDF5 shot number(s)
+
+    dset: `h5py.Dataset`
+        control device dataset
+
+    shotnumkey : `str`
+        field name in the control device dataset that contains shot
+        numbers
+
+    cmap : `ControlMap`
+        mapping object for control device
+
+    cconfn :
+        configuration name for the control device
+
+    Returns
+    -------
+    index : `numpy.ndarray`
+        array of indices to index ``dset``
+
+    sni : `numpy.ndarray`
+        boolean array that masks the ``shotnum`` array
 
     .. note::
 

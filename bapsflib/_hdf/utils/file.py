@@ -25,7 +25,7 @@ class File(h5py.File):
     """
     Open a HDF5 file created at the Basic Plasma Science Facility.
 
-    All functionality of :class:`h5py.File` is preserved (for details
+    All functionality of `h5py.File` is preserved (for details
     see http://docs.h5py.org/en/latest/)
     """
 
@@ -40,21 +40,29 @@ class File(h5py.File):
         **kwargs
     ):
         """
-        :param name: name (and path) of file on disk
-        :param mode: readonly :code:`'r'` (DEFAULT) and read/write
-            :code:`'r+'`
-        :param control_path: internal HDF5 path to group containing
-            control devices
-        :param digitizer_path: internal HDF5 path to group containing
-            digitizer devices
-        :param msi_path: internal HDF5 path to group containing MSI
-            devices
-        :param silent: set :code:`True` to suppress warnings
-            (:code:`False` DEFAULT)
-        :param kwargs:  additional keywords passed on to
-            :class:`h5py.File`
+        Parameters
+        ----------
+        name : `str`
+            name (and path) of file on disk
 
-        :Example:
+        mode : `str`, optional
+            readonly ``'r'`` (DEFAULT) and read/write ``'r+'``
+
+        control_path : `str`, optional
+            internal HDF5 path to group containing control devices
+
+        digitizer_path : `str`, optional
+            internal HDF5 path to group containing digitizer devices
+        msi_path : `str`, optional
+            internal HDF5 path to group containing MSI devices
+
+        silent : `bool`, optional
+            set `True` to suppress warnings (`False` DEFAULT)
+        kwargs : `dict`, optional
+            additional keywords passed on to `h5py.File`
+
+        Examples
+        --------
 
             >>> # open HDF5 file
             >>> f = File('sample.hdf5',
@@ -161,73 +169,74 @@ class File(h5py.File):
         Reads data from control device datasets.  See
         :class:`~.hdfreadcontrols.HDFReadControls` for more detail.
 
-        :param controls:
+        Parameters
+        ----------
+        controls : List[Union[str, Tuple[str, Any]]]
+            A list of strings and/or 2-element tuples indicating the
+            control device(s).  If a control device has only one
+            configuration then only the device name ``'control'`` needs
+            to be passed in the list.  If a control device has multiple
+            configurations, then the device name and its configuration
+            "name" needs to be passed as a tuple element
+            ``('control', 'config')`` in the list. (see
+            :func:`~.helpers.condition_controls` for details)
 
-            A list of strings and/or 2-element tuples
-            indicating the control device(s).  If a control device has
-            only one configuration then only the device name
-            :code:`'control'` needs to be passed in the list.  If a
-            control device has multiple configurations, then the device
-            name and its configuration "name" needs to be passed as a
-            tuple element :code:`('control', 'config')` in the list.
-            (see :func:`~.helpers.condition_controls` for details)
-
-        :type controls: List[Union[str, Tuple[str, Any]]]
-        :param shotnum:
-
+        shotnum : Union[int, list(int), slice(), numpy.array], optional
             HDF5 file shot number(s) indicating data entries to be
             extracted
 
-        :type shotnum: Union[int, list(int), slice(), numpy.array]
-        :param bool intersection_set:
+        intersection_set : `bool`, optional
+            `True` (DEFAULT) will force the returned shot numbers to be
+            the intersection of :data:`shotnum` and the shot numbers
+            contained in each control device dataset. `False` will
+            return the union instead of the intersection, minus
+            :math:`shotnum \\le 0`. (see
+            :class:`~.hdfreadcontrols.HDFReadControls` for details)
 
-            :code:`True` (DEFAULT) will force the returned shot numbers
-            to be the intersection of :data:`shotnum` and the shot
-            numbers contained in each control device dataset.
-            :code:`False` will return the union instead of the
-            intersection, minus :math:`shotnum \\le 0`. (see
-            :class:`~.hdfreadcontrols.HDFReadControls`
-            for details)
+        silent : bool, optional
+            `False` (DEFAULT).  Set `True` to ignore any `BaPSFWarning`
+             (soft-warnings)
 
-        :param bool silent:
+        Returns
+        -------
+        ~.hdfreadcontrols.HDFReadControls
+            `structured numpy array
+            <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
+            control device data
 
-            :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            `BaPSFWarning` (soft-warnings)
+        Examples
+        --------
 
-        :rtype: :class:`~.hdfreadcontrols.HDFReadControls`
-
-        :Example:
-
-            >>> # open HDF5 file
-            >>> f = File('sample.hdf5')
-            >>>
-            >>> # list control devices
-            >>> list(f.controls)
-            ['6K Compumotor', 'Waveform']
-            >>>
-            >>> # list '6K Compumotor' configurations
-            >>> list(f.controls['6K Compumotor'].configs)
-            [2, 3]
-            >>>
-            >>> # extract all '6k Compumotor' data for configuration 3
-            >>> cdata = f.read_controls([('6K Compumotor', 3)])
-            >>> type(cdata)
-            bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls
-            >>>
-            >>> # list 'Waveform' configurations
-            >>> list(f.file_map.controls['Waveform'].configs)
-            ['config01']
-            >>>
-            >>> # extract 'Waveform' data
-            >>> cdata = f.read_controls(['Waveform'])
-            >>> list(cdata.info['controls'])
-            ['Waveform']
-            >>>
-            >>> # extract both 'Waveform' and '6K Compumotor'
-            >>> controls = ['Waveform', ('6K Compumotor', 2)]
-            >>> cdata = f.read_controls(controls)
-            >>> list(cdata.info['controls'])
-            ['6K Compumotor', 'Waveform']
+        >>> # open HDF5 file
+        >>> f = File('sample.hdf5')
+        >>>
+        >>> # list control devices
+        >>> list(f.controls)
+        ['6K Compumotor', 'Waveform']
+        >>>
+        >>> # list '6K Compumotor' configurations
+        >>> list(f.controls['6K Compumotor'].configs)
+        [2, 3]
+        >>>
+        >>> # extract all '6k Compumotor' data for configuration 3
+        >>> cdata = f.read_controls([('6K Compumotor', 3)])
+        >>> type(cdata)
+        bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls
+        >>>
+        >>> # list 'Waveform' configurations
+        >>> list(f.file_map.controls['Waveform'].configs)
+        ['config01']
+        >>>
+        >>> # extract 'Waveform' data
+        >>> cdata = f.read_controls(['Waveform'])
+        >>> list(cdata.info['controls'])
+        ['Waveform']
+        >>>
+        >>> # extract both 'Waveform' and '6K Compumotor'
+        >>> controls = ['Waveform', ('6K Compumotor', 2)]
+        >>> cdata = f.read_controls(controls)
+        >>> list(cdata.info['controls'])
+        ['6K Compumotor', 'Waveform']
 
         """
         # to avoid cyclical imports
@@ -266,90 +275,104 @@ class File(h5py.File):
         data when requested. (see :class:`.hdfreaddata.HDFReadData`
         for details)
 
-        :param board: digitizer board number
-        :param channel: digitizer channel number
-        :param index: dataset row index
-        :type index: Union[int, list(int), slice(), numpy.array]
-        :param shotnum: HDF5 global shot number
-        :type shotnum: Union[int, list(int), slice(), numpy.array]
-        :param str digitizer: name of digitizer
-        :param str adc: name of the digitizer's analog-digital converter
-        :param str config_name: name of digitizer configuration
-        :param bool keep_bits:
+        Parameters
+        ----------
+        board : `int`
+            digitizer board number
 
-            :code:`True` to keep digitizer signal in bits,
-            :code:`False` (default) to convert digitizer signal to
-            voltage
+        channel : `int`
+            digitizer channel number
 
-        :param add_controls:
+        index : Union[int, list(int), slice(), numpy.array], optional
+            dataset row index
 
-            A list of strings and/or 2-element tuples
-            indicating the control device(s).  If a control device has
-            only one configuration then only the device name
-            :code:`'control'` needs to be passed in the list.  If a
-            control device has multiple configurations, then the device
-            name and its configuration "name" needs to be passed as a
-            tuple element :code:`('control', 'config')` in the list.
-            (see :func:`~.helpers.condition_controls` for details)
+        shotnum : Union[int, list(int), slice(), numpy.array], optional
+            HDF5 global shot number
 
-        :type add_controls: List[Union[str, Tuple[str, Any]]]
-        :param bool intersection_set:
+        digitizer : `str`, optional
+            name of digitizer
 
-            :code:`True` (DEFAULT) will force the returned shot numbers
-            to be the intersection of :data:`shotnum`, the digitizer
-            dataset shot numbers, and, if requested, the shot numbers
-            contained in  each control device dataset. :code:`False`
-            will return the union instead of the intersection, minus
+        adc : `str`, optional
+            name of the digitizer's analog-digital converter
+
+        config_name : `str`, optional
+            name of digitizer configuration
+
+        keep_bits : `bool`, optional
+            `True` to keep digitizer signal in bits, `False` (default)
+            to convert digitizer signal to voltage
+
+        add_controls : List[Union[str, Tuple[str, Any]]], optional
+            A list of strings and/or 2-element tuples indicating the
+            control device(s).  If a control device has only one
+            configuration then only the device name ``'control'`` needs
+            to be passed in the list.  If a control device has multiple
+            configurations, then the device name and its configuration
+            "name" needs to be passed as a tuple element
+            ``('control', 'config')`` in the list. (see
+            :func:`~.helpers.condition_controls` for details)
+
+        intersection_set : `bool`, optional
+            `True` (DEFAULT) will force the returned shot numbers to be
+            the intersection of :data:`shotnum`, the digitizer dataset
+            shot numbers, and, if requested, the shot numbers contained
+            in  each control device dataset. `False` will return the
+            union instead of the intersection, minus
             :math:`shotnum \\le 0`. (see
             :class:`~.hdfreaddata.HDFReadData` for details)
 
-        :param bool silent:
+        silent : `bool`, optional
+            `False` (DEFAULT).  Set `True` to ignore any `BaPSFWarning`
+            (soft-warnings)
 
-            :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            `BaPSFWarning` (soft-warnings)
+        Returns
+        -------
+        ~.hdfreaddata.HDFReadData
+            `structured numpy array
+            <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
+            digitized data
 
-        :rtype: :class:`~.hdfreaddata.HDFReadData`
+        Examples
+        --------
 
-        :Example:
-
-            >>> # open HDF5 file
-            >>> f = File('sample.hdf5')
-            >>>
-            >>> # list control devices
-            >>> list(f.digitizers)
-            ['SIS crate']
-            >>>
-            >>> # get active configurations
-            >>> f.digitizers['SIS crate'].configs
-            ['config01', 'config02']
-            >>>
-            >>> # get active adc's for config
-            >>> f.digitizers['SIS crate'].configs['config01']['adc']
-            ('SIS 3302,)
-            >>>
-            >>> # get first connected brd and channels to adc
-            >>> brd, chs = f.digitizers['SIS crate'].configs[
-            ...     'config01']['SIS 3302'][0][0:2]
-            >>> brd
-            1
-            >>> chs
-            (1, 2, 3)
-            >>>
-            >>> # get data for brd = 1, ch = 1
-            >>> data = f.read_data(brd, chs[0],
-            ...                    digitizer='SIS crate',
-            ...                    adc='SIS 3302',
-            ...                    config_name='config01')
-            >>> type(data)
-            bapsflib._hdf.utils.hdfreaddata.HDFReadData
-            >>>
-            >>> # Note: a quicker way to see how the digitizers are
-            >>> #       configured is to use
-            >>> #
-            >>> #       f.overview.report_digitizers()
-            >>> #
-            >>> #       which prints to screen a report of the
-            >>> #       digitizer hookup
+        >>> # open HDF5 file
+        >>> f = File('sample.hdf5')
+        >>>
+        >>> # list control devices
+        >>> list(f.digitizers)
+        ['SIS crate']
+        >>>
+        >>> # get active configurations
+        >>> f.digitizers['SIS crate'].configs
+        ['config01', 'config02']
+        >>>
+        >>> # get active adc's for config
+        >>> f.digitizers['SIS crate'].configs['config01']['adc']
+        ('SIS 3302,)
+        >>>
+        >>> # get first connected brd and channels to adc
+        >>> brd, chs = f.digitizers['SIS crate'].configs[
+        ...     'config01']['SIS 3302'][0][0:2]
+        >>> brd
+        1
+        >>> chs
+        (1, 2, 3)
+        >>>
+        >>> # get data for brd = 1, ch = 1
+        >>> data = f.read_data(brd, chs[0],
+        ...                    digitizer='SIS crate',
+        ...                    adc='SIS 3302',
+        ...                    config_name='config01')
+        >>> type(data)
+        bapsflib._hdf.utils.hdfreaddata.HDFReadData
+        >>>
+        >>> # Note: a quicker way to see how the digitizers are
+        >>> #       configured is to use
+        >>> #
+        >>> #       f.overview.report_digitizers()
+        >>> #
+        >>> #       which prints to screen a report of the
+        >>> #       digitizer hookup
         """
         # to avoid cyclical imports
         from bapsflib._hdf.utils.hdfreaddata import HDFReadData
@@ -379,27 +402,36 @@ class File(h5py.File):
         Reads data from MSI Diagnostic datasets.  See
         :class:`~.hdfreadmsi.HDFReadMSI` for more detail.
 
-        :param msi_diag: name of MSI diagnostic
-        :param bool silent:
+        Parameters
+        ----------
+        msi_diag : `str`
+            name of MSI diagnostic
 
-            :code:`False` (DEFAULT).  Set :code:`True` to ignore any
-            `BaPSFWarning` (soft-warnings)
+        silent : `bool`, optional
+            `False` (DEFAULT).  Set `True` to ignore any `BaPSFWarning`
+            (soft-warnings)
 
-        :rtype: :class:`~.hdfreadmsi.HDFReadMSI`
+        Returns
+        -------
+        ~.hdfreadmsi.HDFReadMSI
+            `structured numpy array
+            <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
+            MSI diagnostic data
 
-        :Example:
+        Examples
+        --------
 
-            >>> # open HDF5 file
-            >>> f = File('sample.hdf5')
-            >>>
-            >>> # list msi diagnostics
-            >>> list(f.msi)
-            ['Interferometer array', 'Magnetic field']
-            >>>
-            >>> # read 'Interferometer array'
-            >>> mdata = f.read_msi('Interferometer array')
-            >>> type(mdata)
-            bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI
+        >>> # open HDF5 file
+        >>> f = File('sample.hdf5')
+        >>>
+        >>> # list msi diagnostics
+        >>> list(f.msi)
+        ['Interferometer array', 'Magnetic field']
+        >>>
+        >>> # read 'Interferometer array'
+        >>> mdata = f.read_msi('Interferometer array')
+        >>> type(mdata)
+        bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI
         """
         from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 

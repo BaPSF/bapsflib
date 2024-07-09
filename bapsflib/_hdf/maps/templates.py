@@ -2,7 +2,7 @@
 Module for the primary mapping template base class.
 """
 
-__all__ = ["HDFMapTemplate"]
+__all__ = ["HDFMapTemplate", "MapTypes"]
 
 import h5py
 import os

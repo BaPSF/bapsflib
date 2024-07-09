@@ -103,6 +103,19 @@ class HDFMapTemplate(ABC):
         """
         Metadata information about the mapping type and the mapped group
         location in the HDF5 file.
+
+        Extended Summary
+        ----------------
+        The dictionary will contain the following elements:
+
+        .. code-block:: python
+
+            info = {
+                "group name": "Device",  # name of the mapped HDF5 group
+                "group path": "/foo/bar/Device", # internal HDF5 path to the group
+                "maptype": self.maptype,  # mapping class type
+            }
+
         """
         return {**self._info, "maptype": self._maptype}
 

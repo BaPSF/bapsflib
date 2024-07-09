@@ -16,50 +16,16 @@ import os
 
 from abc import ABC, abstractmethod
 
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 
-class HDFMapMSITemplate(ABC):
-    # noinspection PySingleQuotedDocstring
+
+class HDFMapMSITemplate(HDFMapTemplate, ABC):
     """
     Template class for all MSI diagnostic mapping classes to inherit
     from.
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the MSI diagnostic HDF5 group
-
-        Notes
-        -----
-
-        Any inheriting class should define ``__init__`` as::
-
-            def __init__(self, group: h5py.Group):
-                '''
-                :param group: HDF5 group object
-                '''
-                # initialize
-                HDFMapMSITemplate.__init__(self, group)
-
-                # populate self.configs
-                self._build_configs()
-        """
-        # condition group arg
-        if isinstance(group, h5py.Group):
-            self._diag_group = group
-        else:
-            raise TypeError("arg `group` is not of type h5py.Group")
-
-        # define info attribute
-        self._info = {
-            "group name": os.path.basename(group.name),
-            "group path": group.name,
-        }
-
-        # initialize self.configs
-        self._configs = {}
+    _maptype = MapTypes.MSI
 
     @property
     def configs(self) -> dict:
@@ -165,40 +131,9 @@ class HDFMapMSITemplate(ABC):
 
             For further details, look to :ref:`add_msi_mod`.
         """
-        return self._configs
-
-    @property
-    def info(self) -> dict:
-        """
-        MSI diagnostic dictionary of meta-info. For example, ::
-
-            info = {
-                'group name': 'Diagnostic',
-                'group path': '/foo/bar/Diagnostic',
-            }
-        """
-        return self._info
+        return super().configs
 
     @property
     def device_name(self) -> str:
         """Name of MSI diagnostic (device)"""
-        return self._info["group name"]
-
-    @property
-    def group(self) -> h5py.Group:
-        """Instance of MSI diagnostic group"""
-        return self._diag_group
-
-    @abstractmethod
-    def _build_configs(self):
-        """
-        Gathers the necessary mapping data and constructs the
-        :attr:`configs` dictionary.
-
-        .. note::
-
-            Examine :meth:`_build_configs` in existing modules for ideas
-            on how to override this method.  Also read
-            :ref:`add_msi_mod`.
-        """
-        ...
+        return self.group_name

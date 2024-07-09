@@ -17,7 +17,7 @@ import warnings
 
 from typing import Any, Dict, List, Tuple, Union
 
-from bapsflib._hdf.maps import HDFMapper, HDFMapControls, HDFMapDigitizers, HDFMapMSI
+from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
 from bapsflib.utils.warnings import BaPSFWarning
 
 

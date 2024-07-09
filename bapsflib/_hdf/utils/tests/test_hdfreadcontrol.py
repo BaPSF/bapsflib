@@ -571,7 +571,7 @@ class TestHDFReadControl(TestBase):
     @with_bf
     def test_two_controls(self, _bf: File):
         """
-        Testing HDF5 with two control devices.  Each control is setup
+        Testing HDF5 with two control devices.  Each control is set up
         with one configuration each.
         """
         # Test Outline:

@@ -59,14 +59,17 @@ class SouthCathode(object):
 
     def __init__(self, operation_date=datetime.datetime.now()):
         """
-        :param operation_date: Date the south 'main' cathode was
-            operated (i.e. date of the experiment)
-        :type operation_date: :class:`datetime.datetime`
+        Parameters
+        ----------
+        operation_data `datatime.datetime`
+            Date the south 'main' cathode was operated (i.e. date of
+            the experiment)
 
-        :Example:
+        Examples
+        --------
 
-            >>> import datetime
-            >>> MC = SouthCathode(datetime.date(2018, 1, 1))
+        >>> import datetime
+        >>> MC = SouthCathode(datetime.date(2018, 1, 1))
 
         """
         super().__init__()

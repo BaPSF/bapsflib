@@ -29,15 +29,6 @@ class HDFMapMSI(dict):
     A dictionary containing mapping objects for all the discovered
     MSI diagnostic HDF5 groups.  The dictionary keys are the MSI
     diagnostic names.
-
-    :Example:
-
-        >>> from bapsflib import lapd
-        >>> from bapsflib._hdf.maps import HDFMapMSI
-        >>> f = lapd.File('sample.hdf5')
-        >>> # 'MSI' is the LaPD HDF5 group name for the group housing
-        ... # MSI diagnostic groups
-        ... msi_map = HDFMapMSI(f['MSI'])
     """
 
     _defined_mapping_classes = {
@@ -54,7 +45,20 @@ class HDFMapMSI(dict):
 
     def __init__(self, msi_group: h5py.Group):
         """
-        :param msi_group: HDF5 group object
+        Parameters
+        ----------
+        msi_group : `h5py.Group`
+            HDF5 group object
+
+        Examples
+        --------
+
+        >>> from bapsflib import lapd
+        >>> from bapsflib._hdf.maps import HDFMapMSI
+        >>> f = lapd.File('sample.hdf5')
+        >>> # 'MSI' is the LaPD HDF5 group name for the group housing
+        ... # MSI diagnostic groups
+        ... msi_map = HDFMapMSI(f['MSI'])
         """
         # condition msi_group arg
         if not isinstance(msi_group, h5py.Group):
@@ -87,10 +91,12 @@ class HDFMapMSI(dict):
         """
         Discovers the HDF5 MSI diagnostics and builds the dictionary
         containing the diagnostic mapping objects.  This is the
-        dictionary used to initialize :code:`self`.
+        dictionary used to initialize ``self``.
 
-        :return: MSI diagnostic mapping dictionary
-        :rtype: dict
+        Returns
+        -------
+        dict
+            MSI diagnostic mapping dictionary
         """
         # do not attach item if mapping is not known
         msi_dict = {}

@@ -24,8 +24,10 @@ class LaPDOverview(HDFOverview):
 
     def __init__(self, hdf_obj: File):
         """
-        :param hdf_obj: HDF5 file object
-        :type hdf_obj: :class:`~bapsflib.lapd._hdf.file.File`
+        Parameters
+        ----------
+        hdf_obj : `~bapsflib.lapd._hdf.file.File`
+            HDF5 file object
         """
         super().__init__(hdf_obj)
 

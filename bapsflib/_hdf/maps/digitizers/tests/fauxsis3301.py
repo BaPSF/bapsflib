@@ -230,7 +230,10 @@ class FauxSIS3301(h5py.Group):
         """
         Creates and populates the digitizer configuration group.
 
-        :param config_name: name of digitizer configuration
+        Parameters
+        ----------
+        config_name : `str`
+            name of digitizer configuration
         """
         # create configuration group
         gname = f"Configuration: {config_name}"

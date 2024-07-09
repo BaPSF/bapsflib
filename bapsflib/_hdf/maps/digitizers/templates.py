@@ -24,36 +24,38 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 class HDFMapDigiTemplate(ABC):
     # noinspection PySingleQuotedDocstring
-    '''
+    """
     Template class for all digitizer mapping classes to inherit from.
-
-    Any inheriting class should define :code:`__init__` as::
-
-        def __init__(self, group: h5py.Group)
-            """
-            :param group: HDF5 group object
-            """
-            # initialize
-            HDFMapDigiTemplate.__init__(self, group)
-
-            # define device adc's
-            self._device_adcs = ()  # type: Tuple[str, ...]
-
-            # populate self.configs
-            self._build_configs()
-
-    .. note::
-
-        * In the code sample above, :code:`self._device_adcs` is
-          digitizer specific and should be defined as a tuple of
-          strings of analog-digital-converter (adc) names.
-        * Any method that raises a :exc:`NotImplementedError` is
-          intended to be overwritten by the inheriting class.
-    '''
+    """
 
     def __init__(self, group: h5py.Group):
         """
-        :param group: the digitizer HDF5 group
+        Parameters
+        ----------
+        group : `h5py.Group`
+            the digitizer HDF5 group
+
+        Examples
+        --------
+
+        Any inheriting class should define ``__init__`` as::
+
+            def __init__(self, group: h5py.Group)
+                '''
+                :param group: HDF5 group object
+                '''
+                # initialize
+                HDFMapDigiTemplate.__init__(self, group)
+
+                # define device adc's
+                self._device_adcs = ()  # type: Tuple[str, ...]
+
+                # populate self.configs
+                self._build_configs()
+
+        where ``self._device_adcs`` is digitizer specific and should be
+        defined as a tuple of strings of analog-digital-converter (adc)
+        names.
         """
         # condition group arg
         if isinstance(group, h5py.Group):
@@ -78,11 +80,9 @@ class HDFMapDigiTemplate(ABC):
         """
         Examines the HDF5 group to build the :data:`configs` dictionary.
 
-        :raise: :exc:`NotImplementedError`
-
         .. note::
 
-            It is recommended to define additioal helper methods to
+            It is recommended to define additional helper methods to
             construct and populate the :attr:`configs` dictionary.
 
             .. csv-table:: Possible helper methods.
@@ -115,7 +115,7 @@ class HDFMapDigiTemplate(ABC):
                 "
 
         """
-        raise NotImplementedError
+        ...
 
     @property
     def active_configs(self) -> List[str]:
@@ -134,16 +134,16 @@ class HDFMapDigiTemplate(ABC):
         translate the HDF5 data into a numpy array by
         :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
 
-        **-- Constructing** :code:`configs` **--**
+        **-- Constructing** ``configs`` **--**
 
-        The :code:`configs` dict is a nested dictionary where the first
+        The ``configs`` dict is a nested dictionary where the first
         level of keys represents the digitizer configuration names.
         Each configuration dictionary then consists of a set of
         non-polymorphic and polymorphic keys.  Any additional keys are
         currently ignored.  The non-polymorphic keys are as follows:
 
         .. csv-table:: Required Non-Polymorphic keys for
-                       :code:`config=configs['config name']`
+                       ``config=configs['config name']``
             :header: "Key", "Description"
             :widths: 20, 60
 
@@ -151,8 +151,8 @@ class HDFMapDigiTemplate(ABC):
 
                 config['active']
             ", "
-            :code:`True` or :code:`False` indicating if this
-            configuration was used in recording the digitizer datasets
+            `True` or `False` indicating if this configuration was used
+            in recording the digitizer datasets
             "
             "::
 
@@ -187,18 +187,18 @@ class HDFMapDigiTemplate(ABC):
                     'dtype': numpy.uint32,
                 }
 
-            where :code:`'dset field'` is the field name of the
-            header dataset containing shot numbers, :code:`'shape'` is
-            the numpy shape of the shot number data, and :code:`'dtype'`
-            is the numpy :code:`dtype` of the data.  This all defines
-            the numpy :code:`dtype` of the :code:`'shotnum'` field in
+            where ``'dset field'`` is the field name of the
+            header dataset containing shot numbers, ``'shape'`` is
+            the numpy shape of the shot number data, and ``'dtype'``
+            is the numpy `~numpy.dtype` of the data.  This all defines
+            the numpy `~numpy.dtype` of the ``'shotnum'`` field in
             the
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed numpy array.
             "
 
         The required polymorphic keys are the names of each adc listed
-        in :code:`configs['config name']['adc']`.  These entries contain
+        in ``configs['config name']['adc']``.  These entries contain
         the adc board and channel hookup configuration, as well as, the
         adc setup configuration for each connected board.  Continuing
         with the example above, this key would look something like ::
@@ -215,7 +215,7 @@ class HDFMapDigiTemplate(ABC):
         follows:
 
         .. csv-table:: Breakdown of Polymorphic Key.
-                       (:code:`config=configs['config name']`)
+                       (``config=configs['config name']``)
             :header: "Key", "Description"
             :widths: 20, 60
 
@@ -223,20 +223,20 @@ class HDFMapDigiTemplate(ABC):
 
                 config['SIS 3301'][0][0]
             ", "
-            :code:`int` representing the connected board number
+            `int` representing the connected board number
             "
             "::
 
                 config['SIS 3301'][0][1]
             ", "
-            :code:`Tuple[int, ...]` representing the connected channel
+            ``Tuple[int, ...]`` representing the connected channel
             numbers associated with the board number
             "
             "::
 
                 config['SIS 3301'][0][2]
             ", "
-            :code:`Dict[str, Any]` representing the setup configuration
+            ``Dict[str, Any]`` representing the setup configuration
             of the adc.  The dictionary should look like::
 
                 config['SIS 3301'][0][2] = {
@@ -249,14 +249,14 @@ class HDFMapDigiTemplate(ABC):
                     'shot average (software)': None,
                 }
 
-            where :code:`'bit'` represents the bit resolution of the
-            adc, :code:`'clock rate'` represents the base clock rate of
-            the adc, :code:`'nshotnum'` is the number of shot numbers
-            recorded, :code:`'nt'` is the number of time samples
-            recorded, :code:`'sample average (hardware)'` is the number
+            where ``'bit'`` represents the bit resolution of the
+            adc, ``'clock rate'`` represents the base clock rate of
+            the adc, ``'nshotnum'`` is the number of shot numbers
+            recorded, ``'nt'`` is the number of time samples
+            recorded, ``'sample average (hardware)'`` is the number
             of time samples averaged together (this and the
-            :code:`'clock rate'` make up the :code:`'sample rate'`),
-            and :code:`'shot average (software)'` is the number of shots
+            ``'clock rate'`` make up the ``'sample rate'``),
+            and ``'shot average (software)'`` is the number of shots
             intended to be average together.
             "
 
@@ -265,22 +265,43 @@ class HDFMapDigiTemplate(ABC):
 
     @abstractmethod
     def construct_dataset_name(
-        self, board: int, channel: int, config_name=None, adc=None, return_info=False
+        self,
+        board: int,
+        channel: int,
+        config_name: str = None,
+        adc: str = None,
+        return_info: bool = False,
     ) -> Union[str, Tuple[str, Dict[str, Any]]]:
         """
         Constructs the name of the HDF5 dataset containing digitizer
         data.
 
-        :param board: board number
-        :param channel: channel number
-        :param str config_name: digitizer configuration name
-        :param str adc: analog-digital-converter name
-        :param bool return_info: :code:`True` will return a dictionary
-            of meta-info associated with the digitizer data
-            (DEFAULT :code:`False`)
-        :return: digitizer dataset name. If :code:`return_info=True`,
-            then returns a tuple of (dataset name, dictionary of
-            meta-info)
+        Parameters
+        ----------
+        board : `int`
+            board number
+
+        channel : `int`
+            channel number
+
+        config_name :  `str`, optional
+            digitizer configuration name
+
+        adc : `str`, optional
+            analog-digital-converter name
+
+        return_info : `bool`, optional
+            `True` will return a dictionary of meta-info associated
+            with the digitizer data (DEFAULT `False`)
+
+        Returns
+        -------
+        Union[str, Tuple[str, Dict[str, Any]]]
+            digitizer dataset name. If ``return_info=True``, then
+            returns a tuple of (dataset name, dictionary of meta-info)
+
+        Notes
+        -----
 
         The returned adc information dictionary should look like::
 
@@ -296,13 +317,17 @@ class HDFMapDigiTemplate(ABC):
                 'shot average (software)': int,
             }
 
-        :raise: :exc:`NotImplementedError`
         """
-        raise NotImplementedError
+        ...
 
     @abstractmethod
     def construct_header_dataset_name(
-        self, board: int, channel: int, config_name=None, adc="", **kwargs
+        self,
+        board: int,
+        channel: int,
+        config_name: str = None,
+        adc: str = "",
+        **kwargs,
     ) -> str:
         """
         Construct the name of the HDF5 header dataset associated with
@@ -310,29 +335,48 @@ class HDFMapDigiTemplate(ABC):
         and other shot number specific meta-data.  It also has a one-
         to-one row correspondence with the digitizer dataset.
 
-        :param board: board number
-        :param channel: channel number
-        :param str config_name: digitizer configuration name
-        :param str adc: analog-digital-converter name
-        :returns: header dataset name associated with the digitizer
-            dataset
+        Parameters
+        ----------
+        board : `int`
+            board number
+
+        channel : `int`
+            channel number
+
+        config_name : `str`, optional
+            digitizer configuration name
+
+        adc : `str`, optional
+            analog-digital-converter name
+
+        Returns
+        -------
+        str
+            header dataset name associated with the digitizer dataset
         """
-        raise NotImplementedError
+        ...
 
     def deduce_config_active_status(self, config_name: str) -> bool:
         """
         Determines if data was recorded using the configuration
-        specified by :code:`config_name`.  This is done by comparing
+        specified by ``config_name``.  This is done by comparing
         the configuration name against the dataset names.
 
-        :param config_name: digitizer configuration name
-        :returns: :code:`True` if the configuration was used in
-            recording the group datasets; otherwise, :code:`False`
+        Parameters
+        ----------
+        config_name : `str`
+            digitizer configuration name
+
+        Returns
+        -------
+        bool
+            `True` if the configuration was used in recording the group
+            datasets; otherwise, `False`
 
         .. note::
 
             If the digitizer does not use the configuration name in the
-            name of the created datasets, then the subclassing digitzier
+            name of the created datasets, then the subclassing digitizer
             mapping class should override this method with a rule that
             is appropriate for the digitizer the class is being
             designed for.
@@ -368,18 +412,35 @@ class HDFMapDigiTemplate(ABC):
         return self._info["group name"]
 
     def get_adc_info(
-        self, board: int, channel: int, adc=None, config_name=None
+        self,
+        board: int,
+        channel: int,
+        adc: str = None,
+        config_name: str = None,
     ) -> Dict[str, Any]:
         """
         Get adc setup info dictionary associated with **board** and
         **channel**.
 
-        :param board: board number
-        :param channel: channel number
-        :param str adc: analog-digital-converter name
-        :param config_name: digitizer configuration name
-        :returns: dictionary of adc setup info (bit, clock rate,
-            averaging, etc.) associated with **board* and **channel**
+        Parameters
+        ----------
+        board : `int`
+            board number
+
+        channel : `int`
+            channel number
+
+        adc : `str`, optional
+            analog-digital-converter name
+
+        config_name : `str`, optional
+            digitizer configuration name
+
+        Returns
+        -------
+        Dict[str, Any]
+            dictionary of adc setup info (bit, clock rate, averaging,
+            etc.) associated with **board** and **channel**
         """
         # look for `config_name`
         if config_name is None:

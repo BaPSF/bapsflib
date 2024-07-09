@@ -9,8 +9,8 @@
 #   license terms and contributor agreement.
 #
 """
-Helper functions that are utilized by the the HDF5 utility classes
-defined in module :mod:`bapsflib._hdf.utils`.
+Helper functions that are utilized by the HDF5 utility classes defined
+in module :mod:`bapsflib._hdf.utils`.
 """
 __all__ = [
     "build_shotnum_dset_relation",
@@ -45,7 +45,7 @@ def build_shotnum_dset_relation(
     cconfn: Any,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** numpy array to the specified dataset,
+    Compares the **shotnum** `numpy` array to the specified dataset,
     **dset**, to determine which indices contain the desired shot
     number(s)
     [for :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
@@ -58,14 +58,32 @@ def build_shotnum_dset_relation(
     be in the dataset, and **index** is an array of indices
     corresponding to the desired shot number(s).
 
-    :param shotnum: desired HDF5 shot number(s)
-    :param dset: control device dataset
-    :type dset: :class:`h5py.Dataset`
-    :param str shotnumkey: field name in the control device dataset that
-        contains shot numbers
-    :param cmap: mapping object for control device
-    :param cconfn: configuration name for the control device
-    :return: :code:`index` and :code:`sni` numpy arrays
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        desired HDF5 shot number(s)
+
+    dset: `h5py.Dataset`
+        control device dataset
+
+    shotnumkey : `str`
+        field name in the control device dataset that contains shot
+        numbers
+
+    cmap : `ControlMap`
+        mapping object for control device
+
+    cconfn :
+        configuration name for the control device
+
+    Returns
+    -------
+    index : `numpy.ndarray`
+        array of indices to index ``dset``
+
+    sni : `numpy.ndarray`
+        boolean array that masks the ``shotnum`` array
+
 
     .. note::
 
@@ -120,12 +138,25 @@ def build_sndr_for_simple_dset(
     A "simple" dataset is a dataset in which the data for only ONE
     configuration is recorded.
 
-    :param shotnum: desired HDF5 shot number
-    :param dset: dataset containing shot numbers
-    :type dset: :class:`h5py.Dataset`
-    :param str shotnumkey: field name in the dataset that contains
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        desired HDF5 shot number
+
+    dset : `h5py.Dataset`
+        dataset containing shot numbers
+
+    shotnumkey : `str`
+        field name in the dataset that contains
         the shot numbers
-    :return: :code:`index` and :code:`sni` numpy arrays
+
+    Returns
+    -------
+    index : `numpy.ndarray`
+        array of indices to index ``dset``
+
+    sni : `numpy.ndarray`
+        boolean array that masks the ``shotnum`` array
     """
     # this is for a dataset that only records data for one configuration
     #
@@ -223,14 +254,30 @@ def build_sndr_for_complex_dset(
         are recorded in that order, then each following grouping of
         three rows will maintain that order.
 
-    :param shotnum: desired HDF5 shot number
-    :param dset: dataset containing shot numbers
-    :type dset: :class:`h5py.Dataset`
-    :param str shotnumkey: field name in the dataset that contains
-        the shot numbers
-    :param cmap: mapping object for control device
-    :param cconfn: configuration name for the control device
-    :return: :code:`index` and :code:`sni` numpy arrays
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        desired HDF5 shot number
+
+    dset : `h5py.Dataset`
+        dataset containing shot numbers
+
+    shotnumkey : `str`
+        field name in the dataset that contains the shot numbers
+
+    cmap : ControlMap
+        mapping object for control device
+
+    cconfn :
+        configuration name for the control device
+
+    Returns
+    -------
+    index : `numpy.ndarray`
+        array of indices to index ``dset``
+
+    sni : `numpy.ndarray`
+        boolean array that masks the ``shotnum`` array
     """
     # this is for a dataset that records data for multiple
     # configurations
@@ -368,24 +415,34 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
     :class:`~.hdfreadcontrols.HDFReadControls` and
     :class:`~.hdfreaddata.HDFReadData`.
 
-    :param hdf_file: HDF5 object instance
-    :param controls: `controls` argument to be conditioned
-    :return: list containing tuple pairs of control device name and
-        desired configuration name
+    Parameters
+    ----------
+    hdf_file : `~bapsflib._hdf.utils.file.File`
+        HDF5 object instance
 
-    :Example:
+    controls :
+        ``controls`` argument to be conditioned
 
-        >>> from bapsflib import lapd
-        >>> f = lapd.File('sample.hdf5')
-        >>> controls = ['Wavefrom', ('6K Compumotor', 3)]
-        >>> conditioned_controls = condition_controls(f, controls)
-        >>> conditioned_controls
-        [('Waveform', 'config01'), ('6K Compumotor', 3)]
+    Returns
+    -------
+    `list`
+        A `list` containing tuple pairs of control device name and desired
+        configuration name
+
+    Examples
+    --------
+
+    >>> from bapsflib import lapd
+    >>> f = lapd.File('sample.hdf5')
+    >>> controls = ['Wavefrom', ('6K Compumotor', 3)]
+    >>> conditioned_controls = condition_controls(f, controls)
+    >>> conditioned_controls
+    [('Waveform', 'config01'), ('6K Compumotor', 3)]
 
     .. admonition:: Condition Criteria
 
         #. Input **controls** should be
-           :code:`Union[str, Iterable[Union[str, Tuple[str, Any]]]]`
+           ``Union[str, Iterable[Union[str, Tuple[str, Any]]]]``
         #. There can only be one control for each
            :class:`~bapsflib._hdf.maps.controls.types.ConType`.
         #. If a control has multiple configurations, then one must be
@@ -481,24 +538,36 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
 def condition_shotnum(
     shotnum: Any, dset_dict: Dict[str, h5py.Dataset], shotnumkey_dict: Dict[str, str]
 ) -> np.ndarray:
-    """
+    r"""
     Conditions the **shotnum** argument for
     :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
     :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
 
-    :param shotnum: desired HDF5 shot numbers
-    :param dset_dict: dictionary of all control dataset instances
-    :param shotnumkey_dict: dictionary of the shot number field name
-        for each control dataset in dset_dict
-    :return: conditioned **shotnum** numpy array
+    Parameters
+    ----------
+    shotnum: :term:`array_like`
+        desired HDF5 shot numbers
+
+    dset_dict : Dict[str, h5py.Dataset]
+        dictionary of all control dataset instances
+
+    shotnumkey_dict : Dict[str, str]
+        dictionary of the shot number field name for each control
+        dataset in dset_dict
+
+    Returns
+    -------
+    `numpy.ndarray`
+        conditioned ``shotnum`` numpy array
+
 
     .. admonition:: Condition Criteria
 
         #. Input **shotnum** should be
-           :code:`Union[int, List[int,...], slice, np.ndarray]`
+           ``Union[int, List[int,...], slice, np.ndarray]``
         #. Any :math:`\mathbf{shotnum} \le 0` will be removed.
-        #. A :code:`ValueError` will be thrown if the conditioned array
-           is NULL.
+        #. A `ValueError` will be thrown if the conditioned array is
+           NULL.
     """
     # Acceptable `shotnum` types
     # 1. int
@@ -593,17 +662,35 @@ def do_shotnum_intersection(
     Calculates intersection of **shotnum** and all existing dataset
     shot numbers, **shotnum[sni]**.
 
-    :param shotnum: desired HDF5 shot numbers
-    :param sni_dict: dictionary of all dataset **sni** arrays
-    :param index_dict:  dictionary of all dataset **index** arrays
-    :return: intersected and re-calculated versions of :code:`index`
-        and :code:`sni` numpy arrays
-
     .. admonition:: Recall Array Relationship
 
         .. code-block:: python
 
             shotnum[sni] = dset[index, shotnumkey]
+
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        desired HDF5 shot numbers
+
+    sni_dict : `IndexDict`
+        dictionary of all dataset **sni** arrays
+
+    index_dict : `IndexDict`
+        dictionary of all dataset **index** arrays
+
+    Returns
+    -------
+    shotnum : `numpy.ndarray`
+        intersected and re-calculated array of shot numbers
+
+    sni_dict : `IndexDict`
+        intersected and re-calculated arrays of ``sni`` indexing values
+        for each dataset
+
+    index_dict : `IndexDict`
+        intersected and re-calculated arrays of ``index`` indexing
+        values for each dataset
     """
     # intersect shot numbers
     shotnum_intersect = shotnum

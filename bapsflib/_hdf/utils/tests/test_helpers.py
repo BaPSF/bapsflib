@@ -122,7 +122,11 @@ class TestBuildShotnumDsetRelation(TestBase):
         cdset = self.cgroup["Run time list"]
         with self.assertRaises(ValueError):
             build_shotnum_dset_relation(
-                np.empty(5, dtype=np.uint32), cdset, "Shot number", self.map, "config01"
+                np.empty(5, dtype=np.uint32),
+                cdset,
+                "Shot number",
+                self.map,
+                "config01",
             )
 
     def assertInRangeSN(self):

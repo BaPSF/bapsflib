@@ -50,7 +50,7 @@ class HDFReadControls(np.ndarray):
     This class constructs and returns a structured numpy array.  The
     data in the array is grouped into two categories:
 
-    #. shot numbers which are contained in the :code:`'shotnum'` field
+    #. shot numbers which are contained in the ``'shotnum'`` field
     #. control device data which is represented by the remaining fields
        in the numpy array.  These field names are polymorphic and are
        defined by the control device mapping class.
@@ -77,27 +77,30 @@ class HDFReadControls(np.ndarray):
     """
 
     __example_doc__ = """
-    :Example: Here the control device :code:`'Waveform'` is used as a
-        basic example:
+    Examples
+    --------
+    
+    Here the control device ``'Waveform'`` is used as a basic 
+    example:
         
-        >>> # open HDF5 file
-        >>> f = bapsflib.lapd.File('test.hdf5')
-        >>>
-        >>> # read control data
-        >>> # - this is equivalent to 
-        >>> #   f.read_control(['Waveform', 'config01'])
-        >>> data = HDFReadControls(f, ['Waveform', 'config01'])
-        >>> data.dtype
-        dtype([('shotnum', '<u4'), ('command', '<U18')])
-        >>>
-        >>> # display shot numbers
-        >>> data['shotnum']
-        array([   1,    2,    3, ..., 6158, 6159, 6160], dtype=uint32)
-        >>>
-        >>> # show 'command' values for shot numbers 1 to 2
-        >>> data['command'][0:2:]
-        array(['FREQ 50000.000000', 'FREQ 50000.000000'],
-              dtype='<U18')
+    >>> # open HDF5 file
+    >>> f = bapsflib.lapd.File('test.hdf5')
+    >>>
+    >>> # read control data
+    >>> # - this is equivalent to 
+    >>> #   f.read_control(['Waveform', 'config01'])
+    >>> data = HDFReadControls(f, ['Waveform', 'config01'])
+    >>> data.dtype
+    dtype([('shotnum', '<u4'), ('command', '<U18')])
+    >>>
+    >>> # display shot numbers
+    >>> data['shotnum']
+    array([   1,    2,    3, ..., 6158, 6159, 6160], dtype=uint32)
+    >>>
+    >>> # show 'command' values for shot numbers 1 to 2
+    >>> data['command'][0:2:]
+    array(['FREQ 50000.000000', 'FREQ 50000.000000'],
+          dtype='<U18')
     """
 
     def __new__(
@@ -109,34 +112,38 @@ class HDFReadControls(np.ndarray):
         **kwargs,
     ):
         """
-        :param hdf_file: HDF5 file object
-        :param controls: a list indicating the desired control device
-            names and their configuration name (if more than one
-            configuration exists)
-        :type controls: Union[str, Iterable[str, Tuple[str, Any]]]
-        :param shotnum: HDF5 file shot number(s) indicating data
-            entries to be extracted
-        :type shotnum: Union[int, List[int], slice, numpy.ndarray]
-        :param bool intersection_set: :code:`True` (DEFAULT) will force
-            the returned shot numbers to be the intersection of
-            :data:`shotnum` and the shot numbers contained in each
-            control device dataset. :code:`False` will return the union
-            instead of the intersection
+        Parameters
+        ----------
+        hdf_file : `~bapsflib._hdf.utils.file.File`
+            HDF5 file object
 
+        controls : Union[str, Iterable[str, Tuple[str, Any]]]
+            a list indicating the desired control device names and their
+            configuration name (if more than one configuration exists)
+
+        shotnum : Union[int, List[int], slice, numpy.ndarray], optional
+            HDF5 file shot number(s) indicating data entries to be extracted
+
+        intersection_set : `bool`, optional
+            `True` (DEFAULT) will force the returned shot numbers to be
+            the intersection of :data:`shotnum` and the shot numbers
+            contained in each control device dataset. `False` will
+            return the union instead of the intersection
+
+        Notes
+        -----
         Behavior of :data:`shotnum` and :data:`intersection_set`:
             * :data:`shotnum` indexing starts at 1
-            * Any :data:`shotnum` values :code:`<= 0` will be thrown out
-            * If :code:`intersection_set=True`, then only data
-              corresponding to shot numbers that are specified in
-              :data:`shotnum` and are in all control datasets will be
-              returned
-            * If :code:`intersection_set=False`, then the returned array
+            * Any :data:`shotnum` values `<= 0` will be thrown out.
+            * If `intersection_set=True`, then only data corresponding
+              to shot numbers that are specified in :data:`shotnum` and
+              are in all control datasets will be returned.
+            * If ``intersection_set=False``, then the returned array
               will have entries for all shot numbers specified in
               :data:`shotnum` but entries that correspond to control
               datasets that do not have the specified shot number will
-              be given a NULL value of :code:`-99999`, :code:`0`,
-              :code:`numpy.nan`, or :code:`''`, depending on the
-              :code:`numpy.dtype`.
+              be given a NULL value of ``-99999``, ``0``, `numpy.nan`,
+              or ``''``, depending on the `numpy.dtype`.
         """
         # initialize timing
         tt = []

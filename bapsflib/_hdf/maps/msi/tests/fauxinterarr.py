@@ -118,7 +118,10 @@ class FauxInterferometerArray(h5py.Group):
         Builds interferometer group for interferometer
         :data:`inter_num`.
 
-        :param int inter_num:  interferometer number (0 to 6)
+        Parameters
+        ----------
+        inter_num : `int`
+            interferometer number (0 to 6)
         """
         # Order of operations
         # 1. create interferometer group
@@ -151,7 +154,10 @@ class FauxInterferometerArray(h5py.Group):
         Builds the datasets for interferometer associated with
         :data:`inter_gname`.
 
-        :param str inter_gname: name of interferometer group
+        Parameters
+        ----------
+        inter_gname : `str`
+            name of interferometer group
         """
         # ------ Build trace dataset                              ------
         dname = "Interferometer trace"

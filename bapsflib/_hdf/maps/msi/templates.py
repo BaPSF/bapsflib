@@ -19,31 +19,32 @@ from abc import ABC, abstractmethod
 
 class HDFMapMSITemplate(ABC):
     # noinspection PySingleQuotedDocstring
-    '''
+    """
     Template class for all MSI diagnostic mapping classes to inherit
     from.
-
-    Any inheriting class should define :code:`__init__` as::
-
-        def __init__(self, group: h5py.Group):
-            """
-            :param group: HDF5 group object
-            """
-            # initialize
-            HDFMapMSITemplate.__init__(self, group)
-
-            # populate self.configs
-            self._build_configs()
-
-    .. note::
-
-        Any method that raises a :exc:`NotImplementedError` is intended
-        to be overwritten by the inheriting class.
-    '''
+    """
 
     def __init__(self, group: h5py.Group):
         """
-        :param group: the MSI diagnostic HDF5 group
+        Parameters
+        ----------
+        group : `h5py.Group`
+            the MSI diagnostic HDF5 group
+
+        Notes
+        -----
+
+        Any inheriting class should define ``__init__`` as::
+
+            def __init__(self, group: h5py.Group):
+                '''
+                :param group: HDF5 group object
+                '''
+                # initialize
+                HDFMapMSITemplate.__init__(self, group)
+
+                # populate self.configs
+                self._build_configs()
         """
         # condition group arg
         if isinstance(group, h5py.Group):
@@ -68,12 +69,12 @@ class HDFMapMSITemplate(ABC):
         array construction is done by
         :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.
 
-        **-- Constructing** :code:`configs` **--**
+        **-- Constructing** ``configs`` **--**
 
-        The :code:`configs` dict is broken into a set of required keys
-        (:code:`'shape'`, :code:`'shotnum'`, :code:`'signals'`, and
-        :code:`'meta'`) and optional keys.  Any option key is considered
-        as meta-info for the device and is added to the
+        The ``configs`` dict is broken into a set of required keys
+        (``'shape'``, ``'shotnum'``, ``'signals'``, and ``'meta'``) and
+        optional keys.  Any option key is considered as meta-info for
+        the device and is added to the
         :attr:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI.info`
         dictionary when the numpy array is constructed.  The required
         keys constitute the mapping for constructing the numpy array.
@@ -92,16 +93,16 @@ class HDFMapMSITemplate(ABC):
 
                 configs['shape'] = (nsn, )
 
-            where :code:`nsn` is the number of shot numbers saved to
-            the diagnostic's datasets.
+            where ``nsn`` is the number of shot numbers saved to the
+            diagnostic's datasets.
             "
             "::
 
                 configs['shotnum']
             ", "
             Specifies the dataset(s) containing the recorded HDF5 shot
-            numbers.  This maps to the :code:`'shotnum'` field of the
-            numpy array constructed by
+            numbers.  This maps to the ``'shotnum'`` field of the
+            `numpy` array constructed by
             :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.  Should
             look like::
 
@@ -112,11 +113,11 @@ class HDFMapMSITemplate(ABC):
                     'dtype': numpy.int32,
                 }
 
-            where :code:`'dset paths'` is the internal HDF5 path to the
-            dataset(s), :code:`'dset field'` is the field name of the
-            dataset containing shot numbers, :code:`'shape'` of the shot
-            number data, and :code:`'dtype'` is the numpy :code:`dtype`
-            that the :code:`'shotnum'` field of the constructed numpy
+            where ``'dset paths'`` is the internal HDF5 path to the
+            dataset(s), ``'dset field'`` is the field name of the
+            dataset containing shot numbers, ``'shape'`` of the shot
+            number data, and ``'dtype'`` is the numpy `~numpy.dtype`
+            that the ``'shotnum'`` field of the constructed numpy
             array will be.
             "
             "::
@@ -136,7 +137,7 @@ class HDFMapMSITemplate(ABC):
                         'dtype': numpy.float32},
                 }
 
-            would created a :code:`'current'` field in the constructed
+            would create a ``'current'`` field in the constructed
             numpy array.  Any field specified in this key is considered
             to be your plot-able, or ""primary"", diagnostic data.
             "
@@ -156,8 +157,8 @@ class HDFMapMSITemplate(ABC):
                         'dtype': numpy.float32},
                 }
 
-            would create a :code:`'max current'` field in the
-            :code:`'meta'` field of the constructed numpy array.
+            would create a ``'max current'`` field in the ``'meta'``
+            field of the constructed numpy array.
             "
 
         .. note::
@@ -194,12 +195,10 @@ class HDFMapMSITemplate(ABC):
         Gathers the necessary mapping data and constructs the
         :attr:`configs` dictionary.
 
-        :raises: :exc:`NotImplementedError`
-
         .. note::
 
             Examine :meth:`_build_configs` in existing modules for ideas
             on how to override this method.  Also read
             :ref:`add_msi_mod`.
         """
-        raise NotImplementedError
+        ...

@@ -22,24 +22,31 @@ class File(BaseFile):
 
     def __init__(self, name: str, mode="r", silent=False, **kwargs):
         """
-        :param name: name (and path) of file on disk
-        :param mode: readonly :code:`'r'` (DEFAULT) and read/write
-            :code:`'r+'`
-        :param silent: set :code:`True` to suppress warnings
-            (:code:`False` DEFAULT)
-        :param kwargs: additional keywords passed on to
-            :class:`h5py.File`
+        Parameters
+        ----------
+        name : `str`
+            name (and path) of file on disk
 
-        :Example:
+        mode : `str`, optional
+            readonly ``'r'`` (DEFAULT) and read/write ``'r+'``
 
-            >>> # open HDF5 file
-            >>> f = File('sample.hdf5')
-            >>> type(f)
-            bapsflib.lapd._hdf.file.File
-            >>> isinstance(f, bapsflib._hdf.utils.file.File)
-            True
-            >>> isinstance(f, h5py.File)
-            True
+        silent : `bool`, optional
+            set `True` to suppress warnings (`False` DEFAULT)
+
+        kwargs : `dict`, optional
+            additional keywords passed on to `h5py.File`
+
+        Examples
+        --------
+
+        >>> # open HDF5 file
+        >>> f = File('sample.hdf5')
+        >>> type(f)
+        bapsflib.lapd._hdf.file.File
+        >>> isinstance(f, bapsflib._hdf.utils.file.File)
+        True
+        >>> isinstance(f, h5py.File)
+        True
         """
         super().__init__(
             name,

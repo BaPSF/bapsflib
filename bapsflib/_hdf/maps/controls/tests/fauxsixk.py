@@ -64,7 +64,7 @@ class FauxSixK(h5py.Group):
         def n_motionlists(self):
             """
             Number of motion lists used. Will always be one unless
-            :code:`n_configs == 1` and then :code:`n_motionlists >= 1`
+            ``n_configs == 1`` and then ``n_motionlists >= 1``
             """
             return self._faux._n_motionlists
 
@@ -339,7 +339,7 @@ class FauxSixK(h5py.Group):
                 self._configs[config_name]["motion lists"] = self._motionlist_names
 
     def _add_datasets(self):
-        """Create datasets for each configurations"""
+        """Create datasets for each configuration"""
         # TODO: fill data fields 'x', 'y', 'z', 'theta', 'phi'
         shape = (self._sn_size,)
         dtype = np.dtype(

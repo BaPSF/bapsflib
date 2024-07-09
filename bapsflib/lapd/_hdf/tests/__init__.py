@@ -49,9 +49,16 @@ class TestBase(ut.TestCase):
         Assert the class that instantiated `obj` over-road `base_class`
         `method`.
 
-        :param base_class: the class the was sub-classes
-        :param obj: the instantiated object
-        :param str method: method that should have been over-written
+        Parameters
+        ----------
+        base_class
+            the class the was sub-classes
+
+        obj
+            the instantiated object
+
+        method : `str`
+            method that should have been over-written
         """
         self.assertTrue(method_overridden(base_class, obj, method))
 
@@ -60,9 +67,16 @@ class TestBase(ut.TestCase):
         Assert the class that instantiated `obj` did NOT override
         `base_class` `method`.
 
-        :param base_class: the class the was sub-classes
-        :param obj: the instantiated object
-        :param str method: method that should have NOT been over-written
+        Parameters
+        ----------
+        base_class
+            the class the was subclasses
+
+        obj
+            the instantiated object
+
+        method : `str`
+            method that should have NOT been over-written
         """
         self.assertTrue(method_overridden(base_class, obj, method))
 

@@ -49,7 +49,10 @@ class HDFMapControl6K(HDFMapControlTemplate):
 
     def __init__(self, group: h5py.Group):
         """
-        :param group: the HDF5 control device group
+        Parameters
+        ----------
+        group : `h5py.Group`
+            the HDF5 control device group
         """
         HDFMapControlTemplate.__init__(self, group)
 
@@ -212,8 +215,15 @@ class HDFMapControl6K(HDFMapControlTemplate):
         Determines if `gname` matches the RE for a motion list group
         name.  It yes, then it gathers the motion list info.
 
-        :param str gname: name of potential motion list group
-        :return: dictionary with `'name'` and `'config'` keys
+        Parameters
+        ----------
+        gname : `str`
+            name of potential motion list group
+
+        Returns
+        -------
+        dict
+            dictionary with ``'name'`` and ``'config'`` keys
         """
         # Define RE pattern
         # - A motion list group follows the naming scheme of:
@@ -340,8 +350,15 @@ class HDFMapControl6K(HDFMapControlTemplate):
         Determines if `gname` matches the RE for a probe list group
         name.  If yes, then it gathers the probe info.
 
-        :param str gname: name of potential probe list group
-        :return: dictionary with `'probe-id'` and `'config'` keys
+        Parameters
+        ----------
+        gname : `str`
+            name of potential probe list group
+
+        Returns
+        -------
+        dict
+            dictionary with ``'probe-id'`` and ``'config'`` keys
         """
         # Define RE pattern
         # - A probe list group follows the naming scheme of:

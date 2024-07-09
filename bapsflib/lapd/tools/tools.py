@@ -38,10 +38,17 @@ def z_to_portnum(
     """
     Converts LaPD axial z location to port number.
 
-    :param z: axial z location
-    :param unit: string or :class:`astropy.units` specifying unit type
-    :param bool round_to_nearest: :code:`False` (DEFAULT), :code:`True`
-        will round the port number to the nearest full integer
+    Parameters
+    ----------
+    z : Union[int, float, u.Quantity]
+        axial z location
+
+    unit : `str`, optional
+        string or :class:`astropy.units` specifying unit type
+
+    round_to_nearest : `bool`, optional
+        `False` (DEFAULT), `True` will round the port number to the
+        nearest full integer
 
     .. note::
 

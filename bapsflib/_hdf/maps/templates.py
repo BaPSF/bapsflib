@@ -1,3 +1,7 @@
+"""
+Module for the primary mapping template base class.
+"""
+
 __all__ = ["HDFMapTemplate"]
 
 import h5py

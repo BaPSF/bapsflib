@@ -10,9 +10,9 @@
 #
 """
 Module for defining the main HDF5 file mapper
-`~bapsflib._hdf.maps.mapper.HDFMap`.
+`~bapsflib._hdf.maps.mapper.HDFMapper`.
 """
-__all__ = ["HDFMap"]
+__all__ = ["HDFMapper"]
 
 import h5py
 import numpy as np
@@ -39,7 +39,7 @@ DigiMap = HDFMapDigiTemplate
 MSIMap = HDFMapMSITemplate
 
 
-class HDFMap(object):
+class HDFMapper(object):
     """
     Constructs a complete file mapping of the HDF5 file.  This is
     utilized by the HDF5 utility classes (in module
@@ -73,7 +73,7 @@ class HDFMap(object):
             * :class:`~.digitizers.map_digis.HDFMapDigitizers`.
             * :class:`~.msi.map_msi.HDFMapMSI`.
         """
-        # store an instance of the HDF5 object for HDFMap
+        # store an instance of the HDF5 object for HDFMapper
         if isinstance(hdf_obj, h5py.File):
             self._hdf_obj = hdf_obj
         else:
@@ -193,7 +193,7 @@ class HDFMap(object):
         How to retrieve the mapping object of the control device
         ``'6K Compumotor'``::
 
-            fmap = HDFMap(file_obj)
+            fmap = HDFMapper(file_obj)
             dmap = fmap.controls['6K Compumotor']
         """
         return self.__controls
@@ -209,7 +209,7 @@ class HDFMap(object):
         How to retrieve the mapping object of the digitizer
         ``'SIS 3301'``::
 
-            fmap = HDFMap(file_obj)
+            fmap = HDFMapper(file_obj)
             dmap = fmap.digitizers['SIS 3301']
         """
         return self.__digitizers
@@ -230,7 +230,7 @@ class HDFMap(object):
         How to retrieve the mapping object for the ``'SIS 3301'``
         digitizer::
 
-            >>> fmap = HDFMap(file_obj)
+            >>> fmap = HDFMapper(file_obj)
             >>> dmap = fmap.get('SIS 3301')
             >>>
             >>> # which is equivalent to
@@ -287,7 +287,7 @@ class HDFMap(object):
         How to retrieve the mapping object of the ``'Magnetic field'``
         MSI diagnostic::
 
-            fmap = HDFMap(file_obj)
+            fmap = HDFMapper(file_obj)
             dmap = fmap.msi['Magnetic field']
         """
         return self.__msi

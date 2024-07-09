@@ -17,7 +17,7 @@ import unittest as ut
 
 from unittest import mock
 
-from bapsflib._hdf.maps import HDFMap
+from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from bapsflib._hdf.utils.tests import TestBase
@@ -81,7 +81,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.control_discovery()
         with mock.patch.object(
-            HDFMap,
+            HDFMapper,
             "controls",
             new_callable=mock.PropertyMock,
             return_value=_bf.file_map.controls,
@@ -97,7 +97,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.digitizer_discovery()
         with mock.patch.object(
-            HDFMap,
+            HDFMapper,
             "digitizers",
             new_callable=mock.PropertyMock,
             return_value=_bf.file_map.digitizers,
@@ -113,7 +113,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.msi_discovery()
         with mock.patch.object(
-            HDFMap, "msi", new_callable=mock.PropertyMock, return_value=_bf.file_map.msi
+            HDFMapper, "msi", new_callable=mock.PropertyMock, return_value=_bf.file_map.msi
         ) as mock_dmap:
             _overview.msi_discovery()
             self.assertNotEqual(mock_stdout.getvalue(), "")
@@ -126,7 +126,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.unknowns_discovery()
         with mock.patch.object(
-            HDFMap,
+            HDFMapper,
             "unknowns",
             new_callable=mock.PropertyMock,
             return_value=_bf.file_map.unknowns,
@@ -208,7 +208,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.report_controls                               ----
         with mock.patch.object(
-            HDFMap,
+            HDFMapper,
             "controls",
             new_callable=mock.PropertyMock,
             return_value=_bf.file_map.controls,
@@ -314,7 +314,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.report_digitizers                             ----
         with mock.patch.object(
-            HDFMap,
+            HDFMapper,
             "digitizers",
             new_callable=mock.PropertyMock,
             return_value=_bf.file_map.digitizers,
@@ -400,7 +400,7 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.report_msi                                    ----
         with mock.patch.object(
-            HDFMap, "msi", new_callable=mock.PropertyMock, return_value=_bf.file_map.msi
+            HDFMapper, "msi", new_callable=mock.PropertyMock, return_value=_bf.file_map.msi
         ) as mock_dmap, mock.patch.object(
             HDFOverview,
             "report_msi_configs",

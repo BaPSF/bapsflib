@@ -18,7 +18,7 @@ from unittest import mock
 
 import bapsflib
 
-from bapsflib._hdf.maps.mapper import HDFMap
+from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib.lapd._hdf.file import File
 from bapsflib.lapd._hdf.lapdmap import LaPDMap
 from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
@@ -65,7 +65,7 @@ class TestLaPDFile(TestBase):
         _lapdf._map_file()
 
         # `file_map`
-        self.assertIsInstance(_lapdf.file_map, HDFMap)
+        self.assertIsInstance(_lapdf.file_map, HDFMapper)
         self.assertIsInstance(_lapdf.file_map, LaPDMap)
         self.assertIsInstance(type(_lapdf).file_map, property)
 

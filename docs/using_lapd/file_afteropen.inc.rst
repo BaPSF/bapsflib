@@ -2,7 +2,7 @@
 
 Upon opening a file, :class:`~File` calls on the
 :class:`~_hdf.lapdmap.LaPDMap` class
-(a subclass of :class:`~bapsflib._hdf.maps.mapper.HDFMap`) to construct
+(a subclass of :class:`~bapsflib._hdf.maps.mapper.HDFMapper`) to construct
 a mapping of the HDF5 file's internal data structure.  This mapping
 provides the necessary translation for the high-level data reading
 methods, :meth:`~File.read_data`, :meth:`~File.read_controls`, and
@@ -14,13 +14,13 @@ object is bound to :class:`File` as
 :attr:`~File.file_map` ::
 
     >>> from bapsflib import lapd
-    >>> from bapsflib._hdf import HDFMap
+    >>> from bapsflib._hdf import HDFMapper
     >>> f = lapd.File('test.hdf5')
     >>> f.file_map
     <LaPDMap of HDF5 file 'test.hdf5'>
     >>>
-    >>> # is still an instance of HDFMap
-    >>> isinstance(f.file_map, HDFMap)
+    >>> # is still an instance of HDFMapper
+    >>> isinstance(f.file_map, HDFMapper)
     True
 
 For details on how the mapping works and how the mapping objects are

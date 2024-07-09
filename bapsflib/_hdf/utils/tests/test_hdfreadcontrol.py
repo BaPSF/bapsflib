@@ -18,7 +18,7 @@ import unittest as ut
 from typing import Any, Dict, List, Tuple
 from unittest import mock
 
-from bapsflib._hdf.maps import ConType, HDFMap
+from bapsflib._hdf.maps import ConType, HDFMapper
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
@@ -108,7 +108,7 @@ class TestHDFReadControl(TestBase):
         self.assertCDataObj(data, _bf, control_plus)
 
     @with_bf
-    @mock.patch.object(HDFMap, "controls", new_callable=mock.PropertyMock)
+    @mock.patch.object(HDFMapper, "controls", new_callable=mock.PropertyMock)
     def test_missing_dataset_fields(self, _bf: File, mock_controls):
         """
         Test readout behavior when an expected/unexpected dataset
@@ -294,7 +294,7 @@ class TestHDFReadControl(TestBase):
             )
 
     @with_bf
-    @mock.patch.object(HDFMap, "controls", new_callable=mock.PropertyMock)
+    @mock.patch.object(HDFMapper, "controls", new_callable=mock.PropertyMock)
     def test_nan_fill(self, _bf: File, mock_controls):
         """Test different NaN fills."""
         # -- Define "Sample Control" in HDF5 file                   ----

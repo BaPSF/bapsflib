@@ -17,7 +17,7 @@ from bapsflib._hdf.maps.controls import HDFMapControls
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
-from bapsflib._hdf.maps.mapper import HDFMap
+from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder
@@ -26,11 +26,11 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.mapper.HDFMap`
+    Test Case for :class:`~bapsflib._hdf.maps.mapper.HDFMapper`
     """
 
     f = NotImplemented  # type: FauxHDFBuilder
-    MAP_CLASS = HDFMap
+    MAP_CLASS = HDFMapper
 
     @classmethod
     def setUpClass(cls):
@@ -368,7 +368,7 @@ class TestHDFMap(ut.TestCase):
 
     def assertHDFMapBasics(self, _map, _file):
         # check instance
-        self.assertIsInstance(_map, HDFMap)
+        self.assertIsInstance(_map, HDFMapper)
 
         # check attribute existence
         attrs = (

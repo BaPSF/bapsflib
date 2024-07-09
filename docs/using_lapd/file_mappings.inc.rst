@@ -7,8 +7,8 @@ and the HDF5 file structure.
 
 The LaPD file mapping is constructed by the
 :class:`~_hdf.lapdmap.LaPDMap` class, which sub-classes
-:class:`~bapsflib._hdf.HDFMap` (see :ref:`hdfmap_details` for
-:class:`~bapsflib._hdf.HDFMap` details), and an instance is bound to
+:class:`~bapsflib._hdf.HDFMapper` (see :ref:`hdfmap_details` for
+:class:`~bapsflib._hdf.HDFMapper` details), and an instance is bound to
 the file object as :attr:`~File.file_map`.  Except for some select
 cases, the :attr:`~File.file_map` object does not need to be directly
 accessed.  Its results are provide through higher-level user interfaces,

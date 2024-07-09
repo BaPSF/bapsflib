@@ -16,7 +16,7 @@ import unittest as ut
 
 from unittest import mock
 
-from bapsflib._hdf import HDFMap
+from bapsflib._hdf import HDFMapper
 from bapsflib.lapd._hdf.file import File
 from bapsflib.lapd._hdf.lapdmap import LaPDMap
 from bapsflib.lapd._hdf.tests import TestBase
@@ -39,8 +39,8 @@ class TestLaPDMap(TestBase):
     def test_mapping(self, _lapdf: File):
         _map = self.create_map(_lapdf)
 
-        # LaPDMap subclasses HDFMap
-        self.assertIsInstance(_map, HDFMap)
+        # LaPDMap subclasses HDFMapper
+        self.assertIsInstance(_map, HDFMapper)
 
         # check paths
         self.assertTrue(hasattr(_map, "DEVICE_PATHS"))

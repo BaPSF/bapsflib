@@ -22,6 +22,7 @@ class MapTypes(Enum):
 
 class HDFMapTemplate(ABC):
     """Template class for all mapping template classes."""
+
     _maptype = NotImplemented  # type: MapTypes
 
     def __init__(self, group: h5py.Group):
@@ -120,4 +121,3 @@ class HDFMapTemplate(ABC):
         `bapsflib.utils.exceptions.HDFMappingError` should be raised.
         """
         ...
-

@@ -108,6 +108,7 @@ class HDFMapTemplate(ABC):
 
     @property
     def maptype(self) -> MapTypes:
+        """Mapping class type (`MapTypes`)."""
         return self._maptype
 
     @property

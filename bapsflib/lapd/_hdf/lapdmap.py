@@ -10,9 +10,9 @@
 #
 """
 Module for defining the LaPD HDF5 file mapper
-`~bapsflib.lapd._hdf.lapdmap.LaPDMap`.
+`~bapsflib.lapd._hdf.lapdmap.LaPDMapper`.
 """
-__all__ = ["LaPDMap"]
+__all__ = ["LaPDMapper"]
 
 import h5py
 import numpy as np
@@ -25,7 +25,7 @@ from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.warnings import BaPSFWarning
 
 
-class LaPDMap(HDFMapper):
+class LaPDMapper(HDFMapper):
     """
     A specialized version of :class:`~bapsflib._hdf.maps.mapper.HDFMapper`
     which adds attributes that are specific to mapping a HDF5 file

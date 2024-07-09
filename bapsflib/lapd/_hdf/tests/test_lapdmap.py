@@ -18,7 +18,7 @@ from unittest import mock
 
 from bapsflib._hdf import HDFMapper
 from bapsflib.lapd._hdf.file import File
-from bapsflib.lapd._hdf.lapdmap import LaPDMap
+from bapsflib.lapd._hdf.lapdmap import LaPDMapper
 from bapsflib.lapd._hdf.tests import TestBase
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.decorators import with_lapdf
@@ -27,19 +27,19 @@ from bapsflib.utils.warnings import BaPSFWarning
 
 class TestLaPDMap(TestBase):
     """
-    Test case for :class:`~bapsflib.lapd._hdf.lapdmap.LaPDMap`
+    Test case for :class:`~bapsflib.lapd._hdf.lapdmap.LaPDMapper`
     """
 
     @staticmethod
     def create_map(file):
         """Generate LaPD map object"""
-        return LaPDMap(file)
+        return LaPDMapper(file)
 
     @with_lapdf
     def test_mapping(self, _lapdf: File):
         _map = self.create_map(_lapdf)
 
-        # LaPDMap subclasses HDFMapper
+        # LaPDMapper subclasses HDFMapper
         self.assertIsInstance(_map, HDFMapper)
 
         # check paths
@@ -145,7 +145,7 @@ class TestLaPDMap(TestBase):
 
         # -- `__init__` warning                                     ----
         with mock.patch.object(
-            LaPDMap, "is_lapd", new_callable=mock.PropertyMock, return_value=False
+            LaPDMapper, "is_lapd", new_callable=mock.PropertyMock, return_value=False
         ) as mock_il:
             with self.assertWarns(BaPSFWarning):
                 _map = self.create_map(_lapdf)

@@ -13,11 +13,20 @@ from typing import Any, Dict, List
 
 
 class MapTypes(Enum):
+    """
+    An enumeration of mapping types for unique elements of the HDF5 file
+    to be mapped.
+    """
     # todo: come up with at better name...this should really be types
     #       for the different HDF5 structural elements
     DIGITIZER = 1
+    """Mapping class type for a digitized HDF5 file element."""
+
     CONTROL = 2
+    """Mapping class type for a control device HDF5 file element."""
+
     MSI = 3
+    """Mapping class type for a MSI diagnostic HDF5 file element."""
 
 
 class HDFMapTemplate(ABC):

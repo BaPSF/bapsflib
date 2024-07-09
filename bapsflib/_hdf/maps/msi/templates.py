@@ -11,9 +11,6 @@
 """Module for the template MSI mappers."""
 __all__ = ["HDFMapMSITemplate"]
 
-import h5py
-import os
-
 from abc import ABC, abstractmethod
 
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes

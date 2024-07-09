@@ -139,8 +139,8 @@ def fce(Bo, **kwargs):
 
     .. math::
 
-        f_{ce} = \\frac{\Omega_{ce}}{2 \pi}
-        = -\\frac{|e| B_{o}}{2 \pi m_{e} c}
+        f_{ce} = \frac{\Omega_{ce}}{2 \pi}
+        = -\frac{|e| B_{o}}{2 \pi m_{e} c}
 
     Parameters
     ----------
@@ -159,8 +159,8 @@ def fci(Bo, m_i, Z, **kwargs):
 
     .. math::
 
-        f_{ci} = \\frac{\Omega_{ci}}{2 \pi}
-        = \\frac{Z |e| B_{o}}{2 \pi m_{i} c}
+        f_{ci} = \frac{\Omega_{ci}}{2 \pi}
+        = \frac{Z |e| B_{o}}{2 \pi m_{i} c}
 
     Parameters
     ----------
@@ -184,7 +184,7 @@ def fLH(Bo, m_i, n_i, Z, **kwargs):
     Lower-Hybrid Resonance frequency (Hz)
 
     .. math::
-        f_{LH} = \\frac{\omega_{LH}}{2 \pi}
+        f_{LH} = \frac{\omega_{LH}}{2 \pi}
 
     Parameters
     ----------
@@ -212,8 +212,8 @@ def fpe(n_e, **kwargs):
 
     .. math::
 
-        f_{pe} = \\frac{\omega_{pe}}{2 \pi}
-        = \sqrt{\\frac{n_{e} e^{2}}{\pi m_{e}}}
+        f_{pe} = \frac{\omega_{pe}}{2 \pi}
+        = \sqrt{\frac{n_{e} e^{2}}{\pi m_{e}}}
 
     Parameters
     ----------
@@ -232,8 +232,8 @@ def fpi(m_i, n_i, Z, **kwargs):
 
     .. math::
 
-        f_{pi} = \\frac{\omega_{pi}}{2 \pi}
-        = \sqrt{\\frac{n_{i} (Z e)^{2}}{\pi m_{i}}}
+        f_{pi} = \frac{\omega_{pi}}{2 \pi}
+        = \sqrt{\frac{n_{i} (Z e)^{2}}{\pi m_{i}}}
 
     Parameters
     ----------
@@ -258,7 +258,7 @@ def fUH(Bo, n_e, **kwargs):
 
     .. math::
 
-        f_{UH} = \\frac{\omega_{UH}}{2 \pi}
+        f_{UH} = \frac{\omega_{UH}}{2 \pi}
 
     Parameters
     ----------
@@ -280,7 +280,7 @@ def oce(Bo, **kwargs):
 
     .. math::
 
-        \Omega_{ce} = -\\frac{|e| B_{o}}{m_{e} c}
+        \Omega_{ce} = -\frac{|e| B_{o}}{m_{e} c}
 
     Parameters
     ----------
@@ -297,7 +297,7 @@ def oci(Bo, m_i, Z, **kwargs):
 
     .. math::
 
-        \Omega_{ci} = \\frac{Z |e| B_{o}}{m_{i} c}
+        \Omega_{ci} = \frac{Z |e| B_{o}}{m_{i} c}
 
     Parameters
     ----------
@@ -319,17 +319,17 @@ def oLH(Bo, m_i, n_i, Z, **kwargs):
     Lower-Hybrid Resonance frequency (rad/s)
 
     .. math::
-        \\frac{1}{\omega_{LH}^{2}}=
-        \\frac{1}{\Omega_{i}^{2}+\omega_{pi}^{2}}
-        + \\frac{1}{\\lvert \Omega_{e}\Omega_{i} \\rvert}
+        \frac{1}{\omega_{LH}^{2}}=
+        \frac{1}{\Omega_{i}^{2}+\omega_{pi}^{2}}
+        + \frac{1}{\lvert \Omega_{e}\Omega_{i} \rvert}
 
     .. note::
 
         This form is for a quasi-neutral plasma that satisfies
 
         .. math::
-            \\frac{Z m_{e}}{m_{i}} \ll
-            1 - \\left(\\frac{V_{A}}{c}\\right)^{2}
+            \frac{Z m_{e}}{m_{i}} \ll
+            1 - \left(\frac{V_{A}}{c}\right)^{2}
 
     Parameters
     ----------
@@ -361,7 +361,7 @@ def ope(n_e, **kwargs):
 
     .. math::
 
-        \omega_{pe}^{2} = \\frac{4 \pi n_{e} e^2}{m_{e}}
+        \omega_{pe}^{2} = \frac{4 \pi n_{e} e^2}{m_{e}}
 
     Parameters
     ----------
@@ -378,7 +378,7 @@ def opi(m_i, n_i, Z, **kwargs):
 
     .. math::
 
-        \omega_{pi}^{2} = \\frac{4 \pi n_{i} (Z e)^{2}}{m_{i}}
+        \omega_{pi}^{2} = \frac{4 \pi n_{i} (Z e)^{2}}{m_{i}}
 
     Parameters
     ----------
@@ -424,7 +424,7 @@ def lD(kT, n, **kwargs):
 
     .. math::
 
-        \lambda_{D} = \sqrt{\\frac{k_{B} T}{4 \pi n e^{2}}}
+        \lambda_{D} = \sqrt{\frac{k_{B} T}{4 \pi n e^{2}}}
 
     Parameters
     ----------
@@ -445,7 +445,7 @@ def lpe(n_e, **kwargs):
 
     .. math::
 
-        l_{pe} = \\frac{c}{\omega_{pe}}
+        l_{pe} = frac{c}{\omega_{pe}}
 
     Parameters
     ----------
@@ -464,7 +464,7 @@ def lpi(m_i, n_i, Z, **kwargs):
 
     .. math::
 
-        l_{pi} = \\frac{c}{\omega_{pi}}
+        l_{pi} = \frac{c}{\omega_{pi}}
 
     Parameters
     ----------
@@ -489,7 +489,7 @@ def rce(Bo, kTe, **kwargs):
 
     .. math::
 
-        r_{ce} = \\frac{v_{T_{e}}}{\Omega_{ce}}
+        r_{ce} = \frac{v_{T_{e}}}{\Omega_{ce}}
 
     Parameters
     ----------
@@ -511,7 +511,7 @@ def rci(Bo, kTi, m_i, Z, **kwargs):
 
     .. math::
 
-        r_{ci} = \\frac{v_{T_{i}}}{\Omega_{ci}}
+        r_{ci} = \frac{v_{T_{i}}}{\Omega_{ci}}
 
     Parameters
     ----------
@@ -540,7 +540,7 @@ def cs(kTe, m_i, Z, gamma=1.0, **kwargs):
 
     .. math::
 
-        C_{s} = \sqrt{\\frac{\gamma Z k T_{e}}{m_{i}}}
+        C_{s} = \sqrt{frac{\gamma Z k T_{e}}{m_{i}}}
 
     .. note::
 
@@ -573,7 +573,7 @@ def VA(Bo, m_i, n_i, **kwargs):
 
     .. math::
 
-        V_{A} = \\frac{B_{o}}{\sqrt{4 \pi n_{i} m_{i}}}
+        V_{A} = \frac{B_{o}}{\sqrt{4 \pi n_{i} m_{i}}}
 
     Parameters
     ----------
@@ -596,7 +596,7 @@ def vTe(kTe, **kwargs):
 
     .. math::
 
-        v_{T_{e}} = \sqrt{\\frac{k T_{e}}{m_{e}}}
+        v_{T_{e}} = \sqrt{\frac{k T_{e}}{m_{e}}}
 
     Parameters
     ----------
@@ -614,7 +614,7 @@ def vTi(kTi, m_i, **kwargs):
 
     .. math::
 
-        v_{T_{i}} = \sqrt{\\frac{k T_{i}}{m_{i}}}
+        v_{T_{i}} = \sqrt{\frac{k T_{i}}{m_{i}}}
 
     Parameters
     ----------

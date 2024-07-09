@@ -297,9 +297,7 @@ class TestConditionControls(TestBase):
             [("Waveform", "config01")],
         ]
         for og_con in con_list:
-            self.assertEqual(
-                condition_controls(_bf, og_con), [("Waveform", "config01")]
-            )
+            self.assertEqual(condition_controls(_bf, og_con), [("Waveform", "config01")])
 
         # conditions that raise ValueError
         con_list = [

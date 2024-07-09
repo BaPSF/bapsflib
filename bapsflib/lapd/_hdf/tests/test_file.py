@@ -20,7 +20,7 @@ import bapsflib
 
 from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib.lapd._hdf.file import File
-from bapsflib.lapd._hdf.lapdmap import LaPDMapper
+from bapsflib.lapd._hdf.mapper import LaPDMapper
 from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
 from bapsflib.lapd._hdf.tests import BaseFile, TestBase
 from bapsflib.utils.decorators import with_bf, with_lapdf

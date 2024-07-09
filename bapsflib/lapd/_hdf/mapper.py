@@ -10,7 +10,7 @@
 #
 """
 Module for defining the LaPD HDF5 file mapper
-`~bapsflib.lapd._hdf.lapdmap.LaPDMapper`.
+`~bapsflib.lapd._hdf.mapper.LaPDMapper`.
 """
 __all__ = ["LaPDMapper"]
 

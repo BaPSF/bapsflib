@@ -1,7 +1,7 @@
 .. py:currentmodule:: bapsflib.lapd
 
 Upon opening a file, :class:`~File` calls on the
-:class:`~_hdf.lapdmap.LaPDMapper` class
+:class:`~_hdf.mapper.LaPDMapper` class
 (a subclass of :class:`~bapsflib._hdf.maps.mapper.HDFMapper`) to construct
 a mapping of the HDF5 file's internal data structure.  This mapping
 provides the necessary translation for the high-level data reading
@@ -47,7 +47,7 @@ attributes for th user to interface with, see :numref:`f_meth_table`.
     "
     :attr:`~File.file_map`, "
     | instance of the LaPD HDF5 file mapping (instance of
-      :class:`~_hdf.lapdmap.LaPDMapper`)
+      :class:`~_hdf.mapper.LaPDMapper`)
     | (see :ref:`file_map` for details)
     "
     :attr:`~File.info`, "

@@ -14,7 +14,7 @@ __all__ = ["File"]
 import h5py
 
 from bapsflib._hdf.utils.file import File as BaseFile
-from bapsflib.lapd._hdf.lapdmap import LaPDMapper
+from bapsflib.lapd._hdf.mapper import LaPDMapper
 
 
 class File(BaseFile):
@@ -83,7 +83,7 @@ class File(BaseFile):
 
     @property
     def file_map(self) -> LaPDMapper:
-        """LaPD HDF5 file map (:class:`~.lapdmap.LaPDMapper`)"""
+        """LaPD HDF5 file map (:class:`~.mapper.LaPDMapper`)"""
         return self._file_map
 
     @property

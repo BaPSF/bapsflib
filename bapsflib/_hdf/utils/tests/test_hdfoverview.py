@@ -113,7 +113,10 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.msi_discovery()
         with mock.patch.object(
-            HDFMapper, "msi", new_callable=mock.PropertyMock, return_value=_bf.file_map.msi
+            HDFMapper,
+            "msi",
+            new_callable=mock.PropertyMock,
+            return_value=_bf.file_map.msi,
         ) as mock_dmap:
             _overview.msi_discovery()
             self.assertNotEqual(mock_stdout.getvalue(), "")
@@ -400,7 +403,10 @@ class TestHDFOverview(TestBase):
 
         # HDFOverview.report_msi                                    ----
         with mock.patch.object(
-            HDFMapper, "msi", new_callable=mock.PropertyMock, return_value=_bf.file_map.msi
+            HDFMapper,
+            "msi",
+            new_callable=mock.PropertyMock,
+            return_value=_bf.file_map.msi,
         ) as mock_dmap, mock.patch.object(
             HDFOverview,
             "report_msi_configs",

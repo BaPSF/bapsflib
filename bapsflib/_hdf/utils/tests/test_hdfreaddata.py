@@ -54,7 +54,10 @@ class TestHDFReadData(TestBase):
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.HDFReadControls")
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.condition_controls")
     @mock.patch.object(
-        HDFMapper, "controls", new_callable=mock.PropertyMock, return_value={"control": None}
+        HDFMapper,
+        "controls",
+        new_callable=mock.PropertyMock,
+        return_value={"control": None},
     )
     def test_adding_controls(self, _bf: File, mock_cmap, mock_cc, mock_cdata):
         """Test adding control device data to digitizer data."""

@@ -15,7 +15,7 @@ import unittest as ut
 
 from bapsflib._hdf.maps.controls import HDFMapControls
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
-from bapsflib._hdf.maps.core import HDFMap
+from bapsflib._hdf.maps.mapper import HDFMap
 from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.msi import HDFMapMSI
@@ -26,7 +26,7 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.core.HDFMap`
+    Test Case for :class:`~bapsflib._hdf.maps.mapper.HDFMap`
     """
 
     f = NotImplemented  # type: FauxHDFBuilder

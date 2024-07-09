@@ -2,7 +2,7 @@
 
 Upon opening a file, :class:`~File` calls on the
 :class:`~_hdf.lapdmap.LaPDMap` class
-(a subclass of :class:`~bapsflib._hdf.maps.core.HDFMap`) to construct
+(a subclass of :class:`~bapsflib._hdf.maps.mapper.HDFMap`) to construct
 a mapping of the HDF5 file's internal data structure.  This mapping
 provides the necessary translation for the high-level data reading
 methods, :meth:`~File.read_data`, :meth:`~File.read_controls`, and

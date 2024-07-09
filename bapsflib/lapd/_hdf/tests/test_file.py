@@ -18,7 +18,7 @@ from unittest import mock
 
 import bapsflib
 
-from bapsflib._hdf.maps.core import HDFMap
+from bapsflib._hdf.maps.mapper import HDFMap
 from bapsflib.lapd._hdf.file import File
 from bapsflib.lapd._hdf.lapdmap import LaPDMap
 from bapsflib.lapd._hdf.lapdoverview import LaPDOverview

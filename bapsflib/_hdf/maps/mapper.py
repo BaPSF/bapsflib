@@ -10,7 +10,7 @@
 #
 """
 Module for defining the main HDF5 file mapper
-`~bapsflib._hdf.maps.core.HDFMap`.
+`~bapsflib._hdf.maps.mapper.HDFMap`.
 """
 __all__ = ["HDFMap"]
 

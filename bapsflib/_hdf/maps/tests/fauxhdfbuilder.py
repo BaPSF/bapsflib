@@ -138,16 +138,16 @@ class FauxHDFBuilder(h5py.File):
     @property
     def tempdir(self):
         """
-        Temporary directory containing :attr:`tempfile`.  :code:`None`
-        if a real directory is specified upon creation.
+        Temporary directory containing :attr:`tempfile`.  `None` if a
+        real directory is specified upon creation.
         """
         return self._tempdir
 
     @property
     def tempfile(self):
         """
-        Temporary HDF5 file. :code:`None` if a real file is specified
-        upon creation.
+        Temporary HDF5 file. `None` if a real file is specified upon
+        creation.
         """
         return self._tempfile
 
@@ -216,7 +216,7 @@ class FauxHDFBuilder(h5py.File):
         Parameters
         ----------
         mod_name : `str`
-            name of module (e.g. :code:`'Waveform'`)
+            name of module (e.g. ``'Waveform'``)
 
         mod_args : `dict`, optional
             dictionary of input arguments for the module adder

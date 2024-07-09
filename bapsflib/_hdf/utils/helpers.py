@@ -442,7 +442,7 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
     .. admonition:: Condition Criteria
 
         #. Input **controls** should be
-           :code:`Union[str, Iterable[Union[str, Tuple[str, Any]]]]`
+           ``Union[str, Iterable[Union[str, Tuple[str, Any]]]]``
         #. There can only be one control for each
            :class:`~bapsflib._hdf.maps.controls.types.ConType`.
         #. If a control has multiple configurations, then one must be

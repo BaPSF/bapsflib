@@ -81,14 +81,14 @@ class File(h5py.File):
         h5py.File.__init__(self, name, **kwargs)
 
         # -- define device paths --
-        #: Internal HDF5 path for control devices. (DEFAULT :code:`'/'`)
+        #: Internal HDF5 path for control devices. (DEFAULT ``'/'``)
         self.CONTROL_PATH = control_path
 
         #: Internal HDF5 path for digitizer devices.
-        #: (DEFAULT :code:`'/'`)
+        #: (DEFAULT ``'/'``)
         self.DIGITIZER_PATH = digitizer_path
 
-        #: Internal HDF5 path for MSI devices. (DEFAULT :code:`'/'`)
+        #: Internal HDF5 path for MSI devices. (DEFAULT ``'/'``)
         self.MSI_PATH = msi_path
 
         # -- map and build info --

@@ -242,7 +242,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             ", "
             the number of shot numbers contained in the datasets
             associated with a **board**, equivalent to
-            :code:`dset.shape[0]`
+            ``dset.shape[0]``
             "
             "::
 
@@ -250,7 +250,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             ", "
             the number of time samples recorded in the datasets
             associated with a **board**, equivalent to
-            :code:`dset.shape[1]`
+            ``dset.shape[1]``
             "
         """
         # ensure dataset exists for each (brd, ch) combo
@@ -704,7 +704,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
     @staticmethod
     def _parse_config_name(name: str) -> Union[None, str]:
         """
-        Parses :code:`name` to determine the digitizer configuration
+        Parses ``name`` to determine the digitizer configuration
         name.  A configuration group name follows the format::
 
             'Configuration: <configuration name>'
@@ -773,7 +773,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
         return_info : `bool`, optional
             `True` will return a dictionary of meta-info associated
-            with the digitizer data (DEFAULT :code:`False`)
+            with the digitizer data (DEFAULT `False`)
 
         Returns
         -------

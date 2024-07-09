@@ -28,9 +28,9 @@ class HDFReadMSI(np.ndarray):
     This class constructs and returns a structured numpy array.  The
     data in the array is grouped in three categories:
 
-    #. shot numbers which are contained in the :code:`'shotnum'` field
+    #. shot numbers which are contained in the ``'shotnum'`` field
     #. metadata data that is both shot number and diagnostic specific
-       which is stored in the sub-fields of the :code:`'meta'` field
+       which is stored in the sub-fields of the ``'meta'`` field
     #. recorded data arrays which get unique fields based on their
        mapping
        :attr:`~bapsflib._hdf.maps.msi.templates.HDFMapMSITemplate.configs`

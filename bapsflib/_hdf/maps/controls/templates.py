@@ -85,9 +85,9 @@ class HDFMapControlTemplate(ABC):
         translate the HDF5 data into a numpy array by
         :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`.
 
-        **-- Constructing** :code:`configs` **--**
+        **-- Constructing** ``configs`` **--**
 
-        The :code:`configs` dict is a nested dictionary where the first
+        The ``configs`` dict is a nested dictionary where the first
         level of keys represents the control device configuration names.
         Each configuration corresponds to one dataset in the HDF5
         control group and represents a grouping of state values
@@ -95,8 +95,8 @@ class HDFMapControlTemplate(ABC):
         experiment.
 
         Each configuration is a dictionary consisting of a set of
-        required keys (:code:`'dset paths'`, :code:`'shotnum'`, and
-        :code:`'state values'`) and optional keys.  Any optional key is
+        required keys (``'dset paths'``, ``'shotnum'``, and
+        ``'state values'``) and optional keys.  Any optional key is
         considered as meta-info for the device and is added to the
         :attr:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls.info`
         dictionary when the numpy array is constructed.  The required
@@ -104,7 +104,7 @@ class HDFMapControlTemplate(ABC):
         and are explained in the table below.
 
         .. csv-table:: Dictionary breakdown for
-                       :code:`config = configs['config name']`
+                       ``config = configs['config name']``
             :header: "Key", "Description"
             :widths: 20, 60
 
@@ -123,7 +123,7 @@ class HDFMapControlTemplate(ABC):
                 config['shotnum']
             ", "
             Defines how the run shot numbers are stored in the HDF5
-            file, which are mapped to the :code:`'shotnum'` field of the
+            file, which are mapped to the ``'shotnum'`` field of the
             constructed numpy array.  Should look like, ::
 
                 config['shotnum'] = {
@@ -133,12 +133,12 @@ class HDFMapControlTemplate(ABC):
                     'dtype': numpy.int32,
                 }
 
-            where :code:`'dset paths'` is the internal HDF5 path to the
-            dataset, :code:`'dset field'` is the field name of the
-            dataset containing shot numbers, :code:`'shape'` is the
-            numpy shape of the shot number data, and :code:`'dtype'`
-            is the numpy :code:`dtype` of the data.  This all defines
-            the numpy :code:`dtype` of the :code:`'shotnum'` field in
+            where ``'dset paths'`` is the internal HDF5 path to the
+            dataset, ``'dset field'`` is the field name of the
+            dataset containing shot numbers, ``'shape'`` is the
+            numpy shape of the shot number data, and ``'dtype'``
+            is the numpy `~numpy.dtype` of the data.  This all defines
+            the numpy `~numpy.dtype` of the ``'shotnum'`` field in
             the
             :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
             constructed numpy array.
@@ -147,7 +147,7 @@ class HDFMapControlTemplate(ABC):
 
                 config['state values']
             ", "
-            This is another dictionary defining :code:`'state values`.
+            This is another dictionary defining ``'state values'``.
             For example, ::
 
                 config['state values'] = {
@@ -160,31 +160,31 @@ class HDFMapControlTemplate(ABC):
 
             will tell
             :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
-            to construct a numpy array with a the :code:`'xyz'` field.
+            to construct a numpy array with a the ``'xyz'`` field.
             This field would be a 3-element array of
-            :code:`numpy.float32`, where the :code:`'x'` field of the
-            HDF5 dataset is mapped to the 1st index, :code:`'y'` is
-            mapped to the 2nd index, and :code:`'z'` is mapped to the
+            `numpy.float32`, where the ``'x'`` field of the
+            HDF5 dataset is mapped to the 1st index, ``'y'`` is
+            mapped to the 2nd index, and ``'z'`` is mapped to the
             3rd index.
 
             **Note:**
 
             * A state value field (key) can not be defined as
-              :code:`'signal'` since this field is reserved for
-              digitizer data constructed by
+              ``'signal'`` since this field is reserved for digitizer
+              data constructed by
               :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
             * If state value data represents probe position data, then
-              it should be given the field name (key) :code:`'xyz'`
+              it should be given the field name (key) ``'xyz'``
               (like in the example above).
 
             "
 
         If a control device saves data around the concept of a
-        :ibf:`command list`, then :code:`configs` has a few additional
+        :ibf:`command list`, then ``configs`` has a few additional
         required keys, see table below.
 
         .. csv-table:: Additional required keys for
-                       :code:`config = configs['config name']` when
+                       ``config = configs['config name']`` when
                        the control device saves data around the concept
                        of a :ibf:`command list`.
             :header: "Key", "Description"
@@ -207,8 +207,7 @@ class HDFMapControlTemplate(ABC):
                 config['state values']
             ", "
             Has all the same keys as before, plus the addition of
-            :code:`'command list'`, :code:`'cl str`,
-            and :code:`'re pattern'`.
+            ``'command list'``, ``'cl str'``, and ``re pattern``.
             For example, ::
 
                 config['state values'] = {
@@ -223,10 +222,10 @@ class HDFMapControlTemplate(ABC):
                         're pattern': re.compile(r'some RE pattern')}
                 }
 
-            where :code:`'re pattern'` is the compiled RE pattern used
-            to parse the original **command list**, :code:`'cl str'` is
+            where ``'re pattern'`` is the compiled RE pattern used
+            to parse the original **command list**, ``'cl str'`` is
             the matched string segment of the **command list**, and
-            :code:`'command list'` is the set of values that will
+            ``'command list'`` is the set of values that will
             populate the constructed numpy array.
             "
 
@@ -340,7 +339,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate):
         Notes
         -----
 
-        Any inheriting class should define :code:`__init__` as::
+        Any inheriting class should define ``__init__`` as::
 
             def __init__(self, group: h5py.Group):
                 '''

@@ -104,7 +104,7 @@ class HDFMapControls(dict):
         """
         Discovers the HDF5 control devices and builds the dictionary
         containing the control device mapping objects.  This is the
-        dictionary used to initialize :code:`self`.
+        dictionary used to initialize ``self``.
 
         Returns
         -------

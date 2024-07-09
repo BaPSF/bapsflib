@@ -38,7 +38,7 @@ class HDFMapDigiTemplate(ABC):
         Examples
         --------
 
-        Any inheriting class should define :code:`__init__` as::
+        Any inheriting class should define ``__init__`` as::
 
             def __init__(self, group: h5py.Group)
                 '''
@@ -134,16 +134,16 @@ class HDFMapDigiTemplate(ABC):
         translate the HDF5 data into a numpy array by
         :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
 
-        **-- Constructing** :code:`configs` **--**
+        **-- Constructing** ``configs`` **--**
 
-        The :code:`configs` dict is a nested dictionary where the first
+        The ``configs`` dict is a nested dictionary where the first
         level of keys represents the digitizer configuration names.
         Each configuration dictionary then consists of a set of
         non-polymorphic and polymorphic keys.  Any additional keys are
         currently ignored.  The non-polymorphic keys are as follows:
 
         .. csv-table:: Required Non-Polymorphic keys for
-                       :code:`config=configs['config name']`
+                       ``config=configs['config name']``
             :header: "Key", "Description"
             :widths: 20, 60
 
@@ -151,8 +151,8 @@ class HDFMapDigiTemplate(ABC):
 
                 config['active']
             ", "
-            :code:`True` or :code:`False` indicating if this
-            configuration was used in recording the digitizer datasets
+            `True` or `False` indicating if this configuration was used
+            in recording the digitizer datasets
             "
             "::
 
@@ -187,18 +187,18 @@ class HDFMapDigiTemplate(ABC):
                     'dtype': numpy.uint32,
                 }
 
-            where :code:`'dset field'` is the field name of the
-            header dataset containing shot numbers, :code:`'shape'` is
-            the numpy shape of the shot number data, and :code:`'dtype'`
-            is the numpy :code:`dtype` of the data.  This all defines
-            the numpy :code:`dtype` of the :code:`'shotnum'` field in
+            where ``'dset field'`` is the field name of the
+            header dataset containing shot numbers, ``'shape'`` is
+            the numpy shape of the shot number data, and ``'dtype'``
+            is the numpy `~numpy.dtype` of the data.  This all defines
+            the numpy `~numpy.dtype` of the ``'shotnum'`` field in
             the
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed numpy array.
             "
 
         The required polymorphic keys are the names of each adc listed
-        in :code:`configs['config name']['adc']`.  These entries contain
+        in ``configs['config name']['adc']``.  These entries contain
         the adc board and channel hookup configuration, as well as, the
         adc setup configuration for each connected board.  Continuing
         with the example above, this key would look something like ::
@@ -215,7 +215,7 @@ class HDFMapDigiTemplate(ABC):
         follows:
 
         .. csv-table:: Breakdown of Polymorphic Key.
-                       (:code:`config=configs['config name']`)
+                       (``config=configs['config name']``)
             :header: "Key", "Description"
             :widths: 20, 60
 
@@ -223,20 +223,20 @@ class HDFMapDigiTemplate(ABC):
 
                 config['SIS 3301'][0][0]
             ", "
-            :code:`int` representing the connected board number
+            `int` representing the connected board number
             "
             "::
 
                 config['SIS 3301'][0][1]
             ", "
-            :code:`Tuple[int, ...]` representing the connected channel
+            ``Tuple[int, ...]`` representing the connected channel
             numbers associated with the board number
             "
             "::
 
                 config['SIS 3301'][0][2]
             ", "
-            :code:`Dict[str, Any]` representing the setup configuration
+            ``Dict[str, Any]`` representing the setup configuration
             of the adc.  The dictionary should look like::
 
                 config['SIS 3301'][0][2] = {
@@ -249,14 +249,14 @@ class HDFMapDigiTemplate(ABC):
                     'shot average (software)': None,
                 }
 
-            where :code:`'bit'` represents the bit resolution of the
-            adc, :code:`'clock rate'` represents the base clock rate of
-            the adc, :code:`'nshotnum'` is the number of shot numbers
-            recorded, :code:`'nt'` is the number of time samples
-            recorded, :code:`'sample average (hardware)'` is the number
+            where ``'bit'`` represents the bit resolution of the
+            adc, ``'clock rate'`` represents the base clock rate of
+            the adc, ``'nshotnum'`` is the number of shot numbers
+            recorded, ``'nt'`` is the number of time samples
+            recorded, ``'sample average (hardware)'`` is the number
             of time samples averaged together (this and the
-            :code:`'clock rate'` make up the :code:`'sample rate'`),
-            and :code:`'shot average (software)'` is the number of shots
+            ``'clock rate'`` make up the ``'sample rate'``),
+            and ``'shot average (software)'`` is the number of shots
             intended to be average together.
             "
 

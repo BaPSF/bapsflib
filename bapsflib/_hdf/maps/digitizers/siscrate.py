@@ -226,16 +226,14 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 'nshotnum'
             ", "
             the number of shot numbers contained in the datasets
-            associated with a **board**, equivalent to
-            :code:`dset.shape[0]`
+            associated with a **board**, equivalent to ``dset.shape[0]``
             "
             "::
 
                 'nt'
             ", "
             the number of time samples recorded in the datasets
-            associated with a **board**, equivalent to
-            :code:`dset.shape[1]`
+            associated with a **board**, equivalent to ``dset.shape[1]``
             "
         """
         # ensure dataset exists for each (brd, ch) combo
@@ -869,7 +867,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
     def _parse_config_name(self, name: str) -> Union[None, str]:
         """
-        Parses :code:`name` to determine the digitizer configuration
+        Parses ``name`` to determine the digitizer configuration
         name.  A configuration group name follows the format::
 
             '<configuration name>'

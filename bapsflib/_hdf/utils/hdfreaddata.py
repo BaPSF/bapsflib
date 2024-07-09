@@ -47,8 +47,8 @@ class HDFReadData(np.ndarray):
     This class constructs and returns a structured numpy array.  The
     data in the array is grouped into three categories:
 
-    #. shot numbers which are contained in the :code:`'shotnum'` field
-    #. digitizer data which is contained in the :code:`'signal'` field
+    #. shot numbers which are contained in the ``'shotnum'`` field
+    #. digitizer data which is contained in the ``'signal'`` field
     #. control device data which is represented by the remaining fields
        in the numpy array.  These field names are polymorphic and are
        defined by the control device mapping class. (see
@@ -802,10 +802,9 @@ class HDFReadData(np.ndarray):
     @property
     def dt(self) -> Union[u.Quantity, None]:
         r"""
-        Temporal step size (in sec) calculated from the
-        :code:`'clock rate'` and :code:`'sample average'` items in
-        :attr:`info`.  Returns :code:`None` if step size can not be
-        calculated.
+        Temporal step size (in sec) calculated from the ``'clock rate'``
+        and ``'sample average'`` items in :attr:`info`.  Returns `None`
+        if step size can not be calculated.
 
         .. math::
 
@@ -827,9 +826,9 @@ class HDFReadData(np.ndarray):
     @property
     def dv(self) -> Union[u.Quantity, None]:
         """
-        Voltage step size (in volts) calculated from the :code:`'bit'`
-        and :code:`'voltage offset'` items in :attr:`info`.  Returns
-        :code:`None` if step size can not be calculated.
+        Voltage step size (in volts) calculated from the ``'bit'`` and
+        ``'voltage offset'`` items in :attr:`info`.  Returns `None` if
+        step size can not be calculated.
         """
         if self.info["voltage offset"] is None:
             return
@@ -1061,8 +1060,8 @@ def condition_shotnum(shotnum, dheader, shotnumkey,
     :param dheader: :class:`h5py.Dataset`
     :param str shotnumkey: field name in **dheader** that contains the
         shot numbers
-    :param bool intersection_set: Set :code:`True` to intersect
-        **shotnum** with the shot numbers in :code:`dheader[shotnumkey]`
+    :param bool intersection_set: Set `True` to intersect **shotnum** 
+        with the shot numbers in ``dheader[shotnumkey]``
     :return: index, shotnum, sni
 
     .. note::

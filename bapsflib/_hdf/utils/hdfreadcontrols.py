@@ -80,7 +80,7 @@ class HDFReadControls(np.ndarray):
     Examples
     --------
     
-    Here the control device :code:`'Waveform'` is used as a basic 
+    Here the control device ``'Waveform'`` is used as a basic 
     example:
         
     >>> # open HDF5 file
@@ -134,18 +134,16 @@ class HDFReadControls(np.ndarray):
         -----
         Behavior of :data:`shotnum` and :data:`intersection_set`:
             * :data:`shotnum` indexing starts at 1
-            * Any :data:`shotnum` values :code:`<= 0` will be thrown out
-            * If :code:`intersection_set=True`, then only data
-              corresponding to shot numbers that are specified in
-              :data:`shotnum` and are in all control datasets will be
-              returned
-            * If :code:`intersection_set=False`, then the returned array
+            * Any :data:`shotnum` values `<= 0` will be thrown out.
+            * If `intersection_set=True`, then only data corresponding
+              to shot numbers that are specified in :data:`shotnum` and
+              are in all control datasets will be returned.
+            * If ``intersection_set=False``, then the returned array
               will have entries for all shot numbers specified in
               :data:`shotnum` but entries that correspond to control
               datasets that do not have the specified shot number will
-              be given a NULL value of :code:`-99999`, :code:`0`,
-              :code:`numpy.nan`, or :code:`''`, depending on the
-              :code:`numpy.dtype`.
+              be given a NULL value of ``-99999``, ``0``, `numpy.nan`,
+              or ``''``, depending on the `numpy.dtype`.
         """
         # initialize timing
         tt = []

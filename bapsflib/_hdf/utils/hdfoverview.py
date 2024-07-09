@@ -483,7 +483,7 @@ def status_print(
         string for 3rd column
 
     indent : `int`, optional
-        number of indentations for 1st column display (DEFUALT ``0``)
+        number of indentations for 1st column display (DEFAULT ``0``)
 
     onetwo_pad : `str`, optional
         one character string for pad style between 1st and 2nd column

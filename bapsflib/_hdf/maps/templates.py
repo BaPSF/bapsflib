@@ -143,9 +143,11 @@ class HDFMapTemplate(ABC):
     @abstractmethod
     def _build_configs(self):
         """
-        Inspected the HDF5 group and build the configuration dictionary.
+        Inspect the HDF5 group and build the configuration dictionary,
+        :attr:`configs`.
+
         Functionality should specifically populate ``self._configs``
-        instead of `self.configs`.  If a mapping fails, then
-        `bapsflib.utils.exceptions.HDFMappingError` should be raised.
+        instead of `self.configs`.  If a mapping fails, then a
+        `~bapsflib.utils.exceptions.HDFMappingError` should be raised.
         """
         ...

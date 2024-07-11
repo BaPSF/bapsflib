@@ -40,6 +40,11 @@ class HDFMapTemplate(ABC):
         ----------
         group : `h5py.Group`
             The HDF5 to apply the mapping to.
+
+
+        .. rubric:: Abstract Methods
+
+        .. automethod:: _build_configs
         """
 
         # condition group arg

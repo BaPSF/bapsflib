@@ -11,7 +11,8 @@
 """Module for the template MSI mappers."""
 __all__ = ["HDFMapMSITemplate"]
 
-from abc import ABC, abstractmethod
+from abc import ABC
+from inspect import getdoc
 
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 
@@ -27,20 +28,21 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
     @property
     def configs(self) -> dict:
         """
-        Dictionary containing all the relevant mapping information to
-        translate the HDF5 data into a numpy array.  The actually numpy
-        array construction is done by
-        :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.
+        Notes
+        -----
 
-        **-- Constructing** ``configs`` **--**
+        The information stored in this ``configs`` dictionary is used
+        by `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` to build the MSI
+        numpy array from the associated HDF5 dataset(s).
 
         The ``configs`` dict is broken into a set of required keys
         (``'shape'``, ``'shotnum'``, ``'signals'``, and ``'meta'``) and
-        optional keys.  Any option key is considered as meta-info for
-        the device and is added to the
+        optional keys.  The required keys are used by
+        `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` to extract the MSI
+        data and build the numpy arrays.  Any optional key is considered
+        as meta-data and is included in the
         :attr:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI.info`
-        dictionary when the numpy array is constructed.  The required
-        keys constitute the mapping for constructing the numpy array.
+        attribute of the constructed MSI numpy array.
 
         .. csv-table::
             :header: "Key", "Description"
@@ -50,8 +52,8 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
 
                 configs['shape']
             ", "
-            This is used as the :data:`shape` for the
-            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`
+            This is used as the ``shape`` for the
+            `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`
             constructed numpy array and typically looks like::
 
                 configs['shape'] = (nsn, )
@@ -134,3 +136,10 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
     def device_name(self) -> str:
         """Name of MSI diagnostic (device)"""
         return self.group_name
+
+
+HDFMapMSITemplate.configs.__doc__ = (
+    getdoc(HDFMapTemplate.configs)
+    + "\n\n"
+    + getdoc(HDFMapMSITemplate.configs)
+)

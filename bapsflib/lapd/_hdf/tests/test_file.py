@@ -18,10 +18,10 @@ from unittest import mock
 
 import bapsflib
 
-from bapsflib._hdf.maps.core import HDFMap
+from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib.lapd._hdf.file import File
-from bapsflib.lapd._hdf.lapdmap import LaPDMap
 from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
+from bapsflib.lapd._hdf.mapper import LaPDMapper
 from bapsflib.lapd._hdf.tests import BaseFile, TestBase
 from bapsflib.utils.decorators import with_bf, with_lapdf
 
@@ -52,9 +52,9 @@ class TestLaPDFile(TestBase):
         # should override `_map_file` of subclass
         self.assertMethodOverride(bapsflib._hdf.utils.file.File, _lapdf, "_map_file")
 
-        # `_map_file` should call LaPDMap
+        # `_map_file` should call LaPDMapper
         with mock.patch(
-            f"{File.__module__}.{LaPDMap.__qualname__}", return_value="mapped"
+            f"{File.__module__}.{LaPDMapper.__qualname__}", return_value="mapped"
         ) as mock_map:
 
             _lapdf._map_file()
@@ -65,8 +65,8 @@ class TestLaPDFile(TestBase):
         _lapdf._map_file()
 
         # `file_map`
-        self.assertIsInstance(_lapdf.file_map, HDFMap)
-        self.assertIsInstance(_lapdf.file_map, LaPDMap)
+        self.assertIsInstance(_lapdf.file_map, HDFMapper)
+        self.assertIsInstance(_lapdf.file_map, LaPDMapper)
         self.assertIsInstance(type(_lapdf).file_map, property)
 
         # examine `_build_info`                                     ----

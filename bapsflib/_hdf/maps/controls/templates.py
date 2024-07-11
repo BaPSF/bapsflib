@@ -25,7 +25,6 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControlTemplate(ABC):
-    # noinspection PySingleQuotedDocstring
     """
     Template class for all control mapping classes to inherit from.
 

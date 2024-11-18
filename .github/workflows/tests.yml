@@ -55,7 +55,7 @@ jobs:
         shell: bash
       - name: Report coverage
         if: ${{ matrix.do-coverage && !failure() }}
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           files: .coverage
           fail_ci_if_error: false

@@ -23,7 +23,8 @@ jobs:
         run: |
           ISORTVERSION=$(python -c "import isort; print(isort.__version__)")
           echo "ISORT_VERSION=${ISORTVERSION}" >> $GITHUB_ENV
-      - run: echo "isort[color]" >> /tmp/isort.requirements.txt
+      - name: Create Temp Requirements file isort.requirements.txt
+        run: echo "colorama" >> /tmp/isort.requirements.txt
       - name: Which isort version
         uses: isort/isort-action@v1.1.0
         with:

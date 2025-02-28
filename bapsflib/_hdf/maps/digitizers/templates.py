@@ -179,17 +179,23 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
     @property
     def configs(self) -> dict:
         """
-        Dictionary containing al the relevant mapping information to
-        translate the HDF5 data into a numpy array by
-        :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
+        Notes
+        -----
 
-        **-- Constructing** ``configs`` **--**
+        The information stored in this ``configs`` dictionary is used
+        by `~bapsflib._hdf.utils.hdfreadmsi.HDFReadData` to build the
+        `numpy` array from the associated HDF5 dataset(s).
 
-        The ``configs`` dict is a nested dictionary where the first
+        The ``configs`` `dict` is a nested dictionary where the first
         level of keys represents the digitizer configuration names.
-        Each configuration dictionary then consists of a set of
-        non-polymorphic and polymorphic keys.  Any additional keys are
-        currently ignored.  The non-polymorphic keys are as follows:
+        Each configuration name (`dict` key) has an associated `dict`
+        value that consists of a set of polymorphic and non-polymorphic
+        keys. Any additional keys are currently ignored.
+
+        All the polymorphic and non-polymorphic keys described below
+        are required keys.
+
+        The non-polymorphic keys are as follows:
 
         .. csv-table:: Required Non-Polymorphic keys for
                        ``config=configs['config name']``
@@ -226,8 +232,8 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                 config['shotnum']
             ", "
             Dictionary defining how the digitzier shot numbers are
-            recorded.  It is assumed, the shot numbers are recorded in
-            the header dataset associated with the main dataset.  The
+            recorded.  Assuming the shot numbers are recorded in the
+            header dataset associated with the main dataset.  The
             dictionary should look like, ::
 
                 config['shotnum'] = {
@@ -238,30 +244,20 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
             where ``'dset field'`` is the field name of the
             header dataset containing shot numbers, ``'shape'`` is
-            the numpy shape of the shot number data, and ``'dtype'``
-            is the numpy `~numpy.dtype` of the data.  This all defines
-            the numpy `~numpy.dtype` of the ``'shotnum'`` field in
+            the `numpy` shape of the shot number data, and ``'dtype'``
+            is the `numpy` `~numpy.dtype` of the data.  This all defines
+            the `numpy` `~numpy.dtype` of the ``'shotnum'`` field in
             the
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
-            constructed numpy array.
+            constructed `numpy` array.
             "
 
-        The required polymorphic keys are the names of each adc listed
-        in ``configs['config name']['adc']``.  These entries contain
-        the adc board and channel hookup configuration, as well as, the
-        adc setup configuration for each connected board.  Continuing
-        with the example above, this key would look something like ::
-
-            >>> type(config['SIS 3301'])
-            tuple
-            >>> type(config['SIS 3301'][0])
-            tuple
-            >>> len(config['SIS 3301'][0])
-            3
-
-        where each nested tuple represents one board connection to the
-        adc and is 3 elements long.  The breakdown of the nested tuple
-        follows:
+        There is a required polymorphic key for each adc named in the
+        ``configs['configs name']['adc']`` tuple.  This entry is a
+        ``(N, 3)`` tuple where ``N`` is the number of DAQ boards
+        associated with the `adc`.  Continuing with the example above,
+        the first entry of the ``'SIS 3301'`` polymorphic key would
+        look like::
 
         .. csv-table:: Breakdown of Polymorphic Key.
                        (``config=configs['config name']``)
@@ -305,8 +301,8 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             recorded, ``'sample average (hardware)'`` is the number
             of time samples averaged together (this and the
             ``'clock rate'`` make up the ``'sample rate'``),
-            and ``'shot average (software)'`` is the number of shots
-            intended to be average together.
+            and ``'shot average (software)'`` is the number of shot
+            timeseries intended to be average together.
             "
 
         """

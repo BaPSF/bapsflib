@@ -77,53 +77,6 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
           "
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the digitizer HDF5 group
-
-        Examples
-        --------
-
-        Any inheriting class should define ``__init__`` as::
-
-            def __init__(self, group: h5py.Group)
-                '''
-                :param group: HDF5 group object
-                '''
-                # initialize
-                HDFMapDigiTemplate.__init__(self, group)
-
-                # define device adc's
-                self._device_adcs = ()  # type: Tuple[str, ...]
-
-                # populate self.configs
-                self._build_configs()
-
-        where ``self._device_adcs`` is digitizer specific and should be
-        defined as a tuple of strings of analog-digital-converter (adc)
-        names.
-        """
-        # condition group arg
-        if isinstance(group, h5py.Group):
-            self._digi_group = group
-        else:
-            raise TypeError("arg `group` is not of type h5py.Group")
-
-        # define _info attribute
-        self._info = {
-            "group name": os.path.basename(group.name),
-            "group path": group.name,
-        }
-
-        # define device adc's
-        self._device_adcs = ()
-
-        # initialize configuration dictionary
-        self._configs = {}
-
     @abstractmethod
     def _build_configs(self):
         """
@@ -538,19 +491,4 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         return adc_info
 
-    @property
-    def group(self) -> h5py.Group:
-        """Instance of the HDF5 digitizer group"""
-        return self._digi_group
 
-    @property
-    def info(self) -> dict:
-        """
-        Digitizer dictionary of meta-info. For example, ::
-
-            info = {
-                'group name': 'Digitizer',
-                'group path': '/foo/bar/Digitizer',
-            }
-        """
-        return self._info

@@ -47,19 +47,6 @@ class HDFMapMSIInterferometerArray(HDFMapMSITemplate):
         |   |   +-- Interferometer trace
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the HDF5 MSI diagnostic group
-        """
-        # initialize
-        HDFMapMSITemplate.__init__(self, group)
-
-        # populate self.configs
-        self._build_configs()
-
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""
         # What should be in configs

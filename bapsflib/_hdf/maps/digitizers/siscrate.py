@@ -66,6 +66,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         .
         .
     """
+
     _device_adcs = ("SIS 3302", "SIS 3305")
 
     def _adc_info_first_pass(

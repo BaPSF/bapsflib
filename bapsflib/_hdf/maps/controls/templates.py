@@ -35,6 +35,11 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         then its mapping class should subclass
         :class:`~.templates.HDFMapControlCLTemplate` instead.
     """
+    _maptype = MapTypes.CONTROL
+    _contype = NotImplemented  # type: ConType
+    """
+    Control device type.  (`ConType` `enum`)
+    """
 
     def _init_before_build_configs(self):
         super()._init_before_build_configs()
@@ -199,8 +204,8 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 
     @property
     def contype(self) -> ConType:
-        """control device type"""
-        return self._info["contype"]
+        """Control device type."""
+        return self._contype
 
     @property
     def has_command_list(self) -> bool:

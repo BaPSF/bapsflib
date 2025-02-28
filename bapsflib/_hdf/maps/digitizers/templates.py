@@ -15,14 +15,15 @@ import copy
 import h5py
 
 from abc import ABC, abstractmethod
+from inspect import getdoc
 from typing import Any, Dict, List, Tuple, Union
 from warnings import warn
 
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
-class HDFMapDigiTemplate(ABC):
-    # noinspection PySingleQuotedDocstring
+class HDFMapDigiTemplate(HDFMapTemplate, ABC):
     """
     Template class for all digitizer mapping classes to inherit from.
     """

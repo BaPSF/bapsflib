@@ -30,7 +30,23 @@ class MapTypes(Enum):
 
 
 class HDFMapTemplate(ABC):
-    """Template class for all mapping template classes."""
+    """
+    Template class for all mapping template classes.
+
+    Note
+    ----
+    To fully define a subclass the ``_build_configs`` abstract method
+    needs to be defined.
+
+    .. automethod:: _build_configs
+
+    If a subclass needs to initialize additional variables before
+    ``_build_configs`` is called in the ``__init__``, then those
+    routines can be defined in the ``_init_before_build_configs``
+    method.
+
+    .. automethod:: _init_before_build_configs
+    """
 
     _maptype = NotImplemented  # type: MapTypes
 
@@ -40,11 +56,6 @@ class HDFMapTemplate(ABC):
         ----------
         group : `h5py.Group`
             The HDF5 to apply the mapping to.
-
-
-        .. rubric:: Abstract Methods
-
-        .. automethod:: _build_configs
         """
 
         # condition group arg

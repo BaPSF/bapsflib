@@ -11,12 +11,13 @@
 """Module for the template MSI mappers."""
 __all__ = ["HDFMapMSITemplate"]
 
+from abc import ABC
 from inspect import getdoc
 
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 
 
-class HDFMapMSITemplate(HDFMapTemplate):  # noqa
+class HDFMapMSITemplate(HDFMapTemplate, ABC):
     """
     Template class for all MSI diagnostic mapping classes to inherit
     from.

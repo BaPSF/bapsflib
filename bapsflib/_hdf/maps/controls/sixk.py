@@ -14,7 +14,6 @@ Module for the 6K Compumotor motion control mapper
 """
 __all__ = ["HDFMapControl6K"]
 
-import h5py
 import numpy as np
 import re
 
@@ -47,20 +46,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
 
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the HDF5 control device group
-        """
-        HDFMapControlTemplate.__init__(self, group)
-
-        # define control type
-        self._info["contype"] = ConType.MOTION
-
-        # populate self.configs
-        self._build_configs()
+    _contype = ConType.MOTION
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""

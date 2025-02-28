@@ -457,3 +457,6 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         return adc_info
 
 
+HDFMapDigiTemplate.configs.__doc__ = (
+    getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapDigiTemplate.configs)
+)

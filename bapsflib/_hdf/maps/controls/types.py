@@ -24,7 +24,7 @@ class ConType(Enum):
     POWER = "power"
 
     #: type for timing control devices
-    timing = "timing"
+    TIMING = "timing"
 
     #: type for waveform control devices
     waveform = "waveform"

@@ -1091,7 +1091,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         config_name : `str`, optional
             digitizer configuration name
 
-        adc : `str1, optional
+        adc : `str`, optional
             analog-digital-converter name
 
         Returns

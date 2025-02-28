@@ -26,13 +26,13 @@ jobs:
       - name: Create Temp Requirements file isort.requirements.txt
         run: echo "colorama" >> /tmp/isort.requirements.txt
       - name: Which isort version
-        uses: isort/isort-action@v1.1.0
+        uses: isort/isort-action@v1.1.1
         with:
           isortVersion: "${{ env.ISORT_VERSION }}"
           configuration: "--version"
           requirements-files: "/tmp/isort.requirements.txt"
       - name: Run isort checks
-        uses: isort/isort-action@v1.1.0
+        uses: isort/isort-action@v1.1.1
         with:
           isortVersion: "${{ env.ISORT_VERSION }}"
           configuration: "--check-only --diff --color"

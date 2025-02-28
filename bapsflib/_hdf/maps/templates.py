@@ -17,6 +17,7 @@ class MapTypes(Enum):
     An enumeration of mapping types for unique elements of the HDF5 file
     to be mapped.
     """
+
     # todo: come up with at better name...this should really be types
     #       for the different HDF5 structural elements
     DIGITIZER = 1

@@ -158,7 +158,5 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
 
 
 HDFMapMSITemplate.configs.__doc__ = (
-    getdoc(HDFMapTemplate.configs)
-    + "\n\n"
-    + getdoc(HDFMapMSITemplate.configs)
+    getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapMSITemplate.configs)
 )

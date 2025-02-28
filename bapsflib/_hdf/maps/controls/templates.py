@@ -253,7 +253,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
     @property
     def device_name(self) -> str:
         """Name of Control device"""
-        return self._info["group name"]
+        return self.group_name
 
     @abstractmethod
     def construct_dataset_name(self, *args) -> str:

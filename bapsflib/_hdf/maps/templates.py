@@ -41,7 +41,7 @@ class HDFMapTemplate(ABC):
 
       .. automethod:: _build_configs
 
-    -  If a subclass needs to initialize additional variables before
+    - If a subclass needs to initialize additional variables before
       ``_build_configs`` is called in the ``__init__``, then those
       routines can be defined in the ``_init_before_build_configs``
       method.

@@ -11,9 +11,7 @@
 """Module for the template control mappers."""
 __all__ = ["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
 
-import h5py
 import numpy as np
-import os
 
 from abc import ABC, abstractmethod
 from typing import Iterable, List, Tuple, Union
@@ -53,6 +51,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
          :noindex:
 
     """
+
     _maptype = MapTypes.CONTROL
     _contype = NotImplemented  # type: ConType
     """

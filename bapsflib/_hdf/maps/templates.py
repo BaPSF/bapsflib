@@ -90,9 +90,10 @@ class HDFMapTemplate(ABC):
     @property
     def configs(self) -> Dict[str, Any]:
         """
-        Dictionary containing all the gathered mapping information that
-        is by `~bapsflib._hdf.utils.file.File` and its methods to
-        provide a consistent user  interface.
+        Dictionary containing all the relevant mapping information
+        to translate the corresponding device data in the HDF5 file
+        and provide a consistent user interface via
+        `~bapsflib._hdf.utils.file.File`.
         """
         return self._configs
 

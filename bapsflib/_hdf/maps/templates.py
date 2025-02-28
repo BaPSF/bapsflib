@@ -65,6 +65,9 @@ class HDFMapTemplate(ABC):
         # initialize configuration dictionary
         self._configs = {}
 
+        # initialize custom subclass items
+        self._init_before_build_configs()
+
         # populate self.configs
         self._build_configs()
 
@@ -149,5 +152,15 @@ class HDFMapTemplate(ABC):
         Functionality should specifically populate ``self._configs``
         instead of `self.configs`.  If a mapping fails, then a
         `~bapsflib.utils.exceptions.HDFMappingError` should be raised.
+        """
+        ...
+
+    def _init_before_build_configs(self):
+        """
+        Any initialization that needs to be performed before executing
+        ``self._build_configs`` in ``__init__``.
+
+        By default we do nothing, but subclasses can override this for
+        their specific purposes.
         """
         ...

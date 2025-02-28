@@ -36,47 +36,9 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         :class:`~.templates.HDFMapControlCLTemplate` instead.
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the control device HDF5 group object
-
-        Notes
-        -----
-
-        Any inheriting class should define ``__init__`` as::
-
-            def __init__(self, group: h5py.Group):
-                '''
-                :param group: HDF5 group object
-                '''
-                # initialize
-                HDFMapControlTemplate.__init__(self, group)
-
-                # define control type
-                self.info['contype'] = ConType.motion
-
-                # populate self.configs
-                self._build_configs()
-
-        """
-        # condition group arg
-        if isinstance(group, h5py.Group):
-            self._control_group = group
-        else:
-            raise TypeError("arg `group` is not of type h5py.Group")
-
-        # define _info attribute
-        self._info = {
-            "group name": os.path.basename(group.name),
-            "group path": group.name,
-            "contype": NotImplemented,
-        }
-
-        # initialize configuration dictionary
-        self._configs = {}
+    def _init_before_build_configs(self):
+        super()._init_before_build_configs()
+        self._info["contype"] = self._contype
 
     @property
     def configs(self) -> dict:
@@ -241,19 +203,6 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         return self._info["contype"]
 
     @property
-    def dataset_names(self) -> List[str]:
-        """list of names of the HDF5 datasets in the control group"""
-        dnames = [
-            name for name in self.group if isinstance(self.group[name], h5py.Dataset)
-        ]
-        return dnames
-
-    @property
-    def group(self) -> h5py.Group:
-        """Instance of the HDF5 Control Device group"""
-        return self._control_group
-
-    @property
     def has_command_list(self) -> bool:
         """
         ``True`` if the control device utilizes a command list
@@ -288,14 +237,6 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         return True if n_dset == n_configs else False
 
     @property
-    def subgroup_names(self) -> List[str]:
-        """list of names of the HDF5 subgroups in the control group"""
-        sgroup_names = [
-            name for name in self.group if isinstance(self.group[name], h5py.Group)
-        ]
-        return sgroup_names
-
-    @property
     def device_name(self) -> str:
         """Name of Control device"""
         return self._info["group name"]
@@ -313,12 +254,6 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         """
         ...
 
-    @abstractmethod
-    def _build_configs(self):
-        """
-        Gathers the necessary metadata and fills :data:`configs`.
-        """
-        ...
 
 
 class HDFMapControlCLTemplate(HDFMapControlTemplate):

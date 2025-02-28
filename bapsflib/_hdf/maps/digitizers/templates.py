@@ -173,9 +173,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         There is a required polymorphic key for each adc named in the
         ``configs['configs name']['adc']`` tuple.  This entry is a
         ``(N, 3)`` tuple where ``N`` is the number of DAQ boards
-        associated with the `adc`.  Continuing with the example above,
+        associated with the ``adc``.  Continuing with the example above,
         the first entry of the ``'SIS 3301'`` polymorphic key would
-        look like::
+        look like:
 
         .. csv-table:: Breakdown of Polymorphic Key.
                        (``config=configs['config name']``)

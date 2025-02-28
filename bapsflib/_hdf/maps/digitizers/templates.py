@@ -77,6 +77,12 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
           "
     """
 
+    _maptype = MapTypes.DIGITIZER
+    _device_adcs = NotImplemented  # type: Tuple[str, ...]
+    """
+    Tuple of strings defining the names of the available 
+    analog-digital-converters (adc's).
+    """
 
     @property
     def active_configs(self) -> List[str]:

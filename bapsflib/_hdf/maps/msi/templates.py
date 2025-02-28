@@ -89,10 +89,13 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
 
                 configs['signals']
             ", "
-            This is another dictionary where each key will map to a
-            field in the
-            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` numpy
-            array.  For example, ::
+            A dictionary that maps MSI data signals to the `numpy` array
+            constructed by
+            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.  Each
+            key in this dictionary corresponds to a field name in
+            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` array
+            and the value defines the data location in the HDF5 file.
+            For example, ::
 
                 configs['signals'] = {
                     'current': {

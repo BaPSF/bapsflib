@@ -21,7 +21,7 @@ class ConType(Enum):
     MOTION = "motion"
 
     #: type for power control devices
-    power = "power"
+    POWER = "power"
 
     #: type for timing control devices
     timing = "timing"

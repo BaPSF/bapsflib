@@ -51,22 +51,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         .
         .
     """
-
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the HDF5 digitizer group
-        """
-        # initialize
-        HDFMapDigiTemplate.__init__(self, group)
-
-        # define device adc's
-        self._device_adcs = ("SIS 3301",)  # type: Tuple[str, ...]
-
-        # populate self.configs
-        self._build_configs()
+    _device_adcs = ("SIS 3301",)
 
     def _adc_info_first_pass(
         self, adc_name: str, config_group: h5py.Group

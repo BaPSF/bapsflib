@@ -13,7 +13,6 @@ __all__ = ["HDFMapDigiTemplate"]
 
 import copy
 import h5py
-import os
 
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Tuple, Union

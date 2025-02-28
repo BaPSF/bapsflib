@@ -19,21 +19,24 @@ jobs:
       - name: Install isort
         run: |
           python -m pip install -r requirements/extras.txt
-          python -m pip install colorama
       - name: Retrieve isort version
         run: |
           ISORTVERSION=$(python -c "import isort; print(isort.__version__)")
           echo "ISORT_VERSION=${ISORTVERSION}" >> $GITHUB_ENV
+      - name: Create Temp Requirements file isort.requirements.txt
+        run: echo "colorama" >> /tmp/isort.requirements.txt
       - name: Which isort version
-        uses: isort/isort-action@v1.1.0
+        uses: isort/isort-action@v1.1.1
         with:
-          isort-version: "${{ env.ISORT_VERSION }}"
+          isortVersion: "${{ env.ISORT_VERSION }}"
           configuration: "--version"
+          requirements-files: "/tmp/isort.requirements.txt"
       - name: Run isort checks
-        uses: isort/isort-action@v1.1.0
+        uses: isort/isort-action@v1.1.1
         with:
-          isort-version: "${{ env.ISORT_VERSION }}"
+          isortVersion: "${{ env.ISORT_VERSION }}"
           configuration: "--check-only --diff --color"
+          requirements-files: "/tmp/isort.requirements.txt"
 
   black:
     runs-on: ubuntu-latest

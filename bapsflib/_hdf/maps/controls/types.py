@@ -18,7 +18,7 @@ class ConType(Enum):
     """Enum of Control Device Types"""
 
     #: type for motion control devices
-    motion = "motion"
+    MOTION = "motion"
 
     #: type for power control devices
     power = "power"

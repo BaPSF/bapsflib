@@ -57,7 +57,7 @@ class HDFMapControl6K(HDFMapControlTemplate):
         HDFMapControlTemplate.__init__(self, group)
 
         # define control type
-        self._info["contype"] = ConType.motion
+        self._info["contype"] = ConType.MOTION
 
         # populate self.configs
         self._build_configs()

@@ -33,16 +33,16 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
 
         The information stored in this ``configs`` dictionary is used
         by `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` to build the MSI
-        numpy array from the associated HDF5 dataset(s).
+        `numpy` array from the associated HDF5 dataset(s).
 
         The ``configs`` dict is broken into a set of required keys
         (``'shape'``, ``'shotnum'``, ``'signals'``, and ``'meta'``) and
         optional keys.  The required keys are used by
         `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` to extract the MSI
-        data and build the numpy arrays.  Any optional key is considered
-        as meta-data and is included in the
+        data and build the `numpy` arrays.  Any optional key is
+        considered as meta-data and is included in the
         :attr:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI.info`
-        attribute of the constructed MSI numpy array.
+        attribute of the constructed MSI `numpy` array.
 
         .. csv-table::
             :header: "Key", "Description"
@@ -54,12 +54,12 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
             ", "
             This is used as the ``shape`` for the
             `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`
-            constructed numpy array and typically looks like::
+            constructed `numpy` array and typically looks like::
 
                 configs['shape'] = (nsn, )
 
             where ``nsn`` is the number of shot numbers saved to the
-            diagnostic's datasets.
+            diagnostics's datasets.
             "
             "::
 
@@ -81,8 +81,8 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
             where ``'dset paths'`` is the internal HDF5 path to the
             dataset(s), ``'dset field'`` is the field name of the
             dataset containing shot numbers, ``'shape'`` of the shot
-            number data, and ``'dtype'`` is the numpy `~numpy.dtype`
-            that the ``'shotnum'`` field of the constructed numpy
+            number data, and ``'dtype'`` is the `numpy` `~numpy.dtype`
+            that the ``'shotnum'`` field of the constructed `numpy`
             array will be.
             "
             "::
@@ -99,11 +99,12 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
                         'dset paths': ('/foo/bar/dset',),
                         'dset field': (),
                         'shape': (100,),
-                        'dtype': numpy.float32},
+                        'dtype': numpy.float32,
+                    },
                 }
 
             would create a ``'current'`` field in the constructed
-            numpy array.  Any field specified in this key is considered
+            `numpy` array.  Any field specified in this key is considered
             to be your plot-able, or ""primary"", diagnostic data.
             "
             "::
@@ -123,7 +124,7 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
                 }
 
             would create a ``'max current'`` field in the ``'meta'``
-            field of the constructed numpy array.
+            field of the constructed `numpy` array.
             "
 
         .. note::

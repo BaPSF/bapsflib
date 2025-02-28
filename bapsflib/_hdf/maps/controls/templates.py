@@ -289,8 +289,34 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
     """
     A modified :class:`HDFMapControlTemplate` template class for
-    mapping control devices that record around the concept of a
+    mapping control devices that record data around the concept of a
     :ibf:`command list`.
+
+    Note
+    ----
+
+    - If the control device is NOT structured around a
+      :ibf:`command list`, then its mapping class should subclass
+      :class:`~.templates.HDFMapControlTemplate` instead.
+
+    - To fully define a subclass there are several abstract methods that
+      need to be defined, which includes
+
+      - :meth:`construct_dataset_name`
+      - :meth:`_build_configs`
+      - :meth:`_default_state_values_dict`
+
+        .. automethod:: _build_configs
+        .. automethod:: _default_state_values_dict
+
+    - If a subclass needs to initialize additional variables before
+      ``_build_configs`` is called in the ``__init__``, then those
+      routines can be defined in the ``_init_before_build_configs``
+      method.
+
+      .. automethod:: _init_before_build_configs
+         :noindex:
+
     """
 
     def __init__(self, group: h5py.Group):

@@ -224,7 +224,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             "
 
         """
-        return self._configs
+        return super().configs
 
     @abstractmethod
     def construct_dataset_name(

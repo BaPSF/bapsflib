@@ -76,6 +76,7 @@ class HDFMapTemplate(ABC):
         self._info = {
             "group name": os.path.basename(group.name),
             "group path": group.name,
+            "maptype": self._maptype,
         }
 
         # initialize configuration dictionary
@@ -142,7 +143,7 @@ class HDFMapTemplate(ABC):
             }
 
         """
-        return {**self._info, "maptype": self._maptype}
+        return self._info
 
     @property
     def maptype(self) -> MapTypes:

@@ -36,10 +36,12 @@ class HDFMapTemplate(ABC):
 
     Note
     ----
+
     - To fully define a subclass the ``_build_configs`` abstract method
       needs to be defined.
 
       .. automethod:: _build_configs
+         :noindex:
 
     - If a subclass needs to initialize additional variables before
       ``_build_configs`` is called in the ``__init__``, then those
@@ -47,6 +49,8 @@ class HDFMapTemplate(ABC):
       method.
 
       .. automethod:: _init_before_build_configs
+         :noindex:
+
     """
 
     _maptype = NotImplemented  # type: MapTypes

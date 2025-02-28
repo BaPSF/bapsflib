@@ -286,9 +286,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         ...
 
 
-
-class HDFMapControlCLTemplate(HDFMapControlTemplate):
-    # noinspection PySingleQuotedDocstring
+class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
     """
     A modified :class:`HDFMapControlTemplate` template class for
     mapping control devices that record around the concept of a

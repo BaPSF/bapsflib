@@ -53,7 +53,7 @@ class HDFMapControlWaveform(HDFMapControlCLTemplate):
         HDFMapControlCLTemplate.__init__(self, group)
 
         # define control type
-        self._info["contype"] = ConType.waveform
+        self._info["contype"] = ConType.WAVEFORM
 
         # define known command list RE patterns
         self._default_re_patterns = (

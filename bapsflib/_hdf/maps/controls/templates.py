@@ -222,15 +222,24 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
     @property
     def info(self) -> dict:
         """
-        Control device dictionary of meta-info. For example, ::
+        Metadata information about the mapping type and the mapped group
+        location in the HDF5 file.
+
+        Extended Summary
+        ----------------
+        The dictionary will contain the following elements:
+
+        .. code-block:: python
 
             info = {
-                'group name': 'Control',
-                'group path': '/foo/bar/Control',
-                'contype': 'motion',
+                "group name": "Device",  # name of the mapped HDF5 group
+                "group path": "/foo/bar/Device", # internal HDF5 path to the group
+                "maptype": self.maptype,  # mapping class type
+                "contype": self.contype,  # control device type
             }
+
         """
-        return self._info
+        return super().info
 
     @property
     def one_config_per_dset(self) -> bool:

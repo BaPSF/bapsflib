@@ -14,7 +14,6 @@ Module for the Discharge MSI Diagnostic mapper
 """
 __all__ = ["HDFMapMSIDischarge"]
 
-import h5py
 import numpy as np
 
 from warnings import warn

@@ -319,42 +319,6 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
 
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group: `h5py.Group`
-            the control device HDF5 group object
-
-        Notes
-        -----
-
-        Any inheriting class should define ``__init__`` as::
-
-            def __init__(self, group: h5py.Group):
-                '''
-                :param group: HDF5 group object
-                '''
-                # initialize
-                HDFMapControlCLTemplate.__init__(self, control_group)
-
-                # define control type
-                self.info['contype'] = ConType.waveform
-
-                # define known command list RE patterns
-                self._default_re_patterns = (
-                    r'(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))',
-                )
-
-                # populate self.configs
-                self._build_configs()
-        """
-        HDFMapControlTemplate.__init__(self, group)
-
-        # initialize internal 'command list' regular expression (RE)
-        # patterns
-        self._default_re_patterns = ()
-        """tuple of default RE patterns for the control device"""
 
     @abstractmethod
     def _default_state_values_dict(self, config_name: str) -> dict:

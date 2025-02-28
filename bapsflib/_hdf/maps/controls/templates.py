@@ -29,11 +29,29 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
     """
     Template class for all control mapping classes to inherit from.
 
-    .. note::
+    Note
+    ----
 
-        If a control device is structured around a :ibf:`command list`,
-        then its mapping class should subclass
-        :class:`~.templates.HDFMapControlCLTemplate` instead.
+    - If a control device is structured around a :ibf:`command list`,
+      then its mapping class should subclass
+      :class:`~.templates.HDFMapControlCLTemplate` instead.
+
+    - To fully define a subclass there are several abstract methods that
+      need to be defined, which includes
+
+      - :meth:`construct_dataset_name`
+      - :meth:`_build_configs`
+
+        .. automethod:: _build_configs
+
+    - If a subclass needs to initialize additional variables before
+      ``_build_configs`` is called in the ``__init__``, then those
+      routines can be defined in the ``_init_before_build_configs``
+      method.
+
+      .. automethod:: _init_before_build_configs
+         :noindex:
+
     """
     _maptype = MapTypes.CONTROL
     _contype = NotImplemented  # type: ConType

@@ -319,6 +319,8 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
 
     """
 
+    _default_re_patterns = ()  # type: Tuple[str, ...]
+    """Tuple of RE pattern strings for the control device."""
 
     @abstractmethod
     def _default_state_values_dict(self, config_name: str) -> dict:

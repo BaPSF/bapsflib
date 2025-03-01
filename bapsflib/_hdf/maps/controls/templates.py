@@ -436,7 +436,6 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
         """
         return super().configs
 
-
     def clparse(self, config_name: str) -> CLParse:
         """
         Return instance of

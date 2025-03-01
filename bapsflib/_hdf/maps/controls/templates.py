@@ -14,6 +14,7 @@ __all__ = ["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
 import numpy as np
 
 from abc import ABC, abstractmethod
+from inspect import getdoc
 from typing import Iterable, Tuple, Union
 from warnings import warn
 
@@ -61,27 +62,23 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
     @property
     def configs(self) -> dict:
         """
-        Dictionary containing all the relevant mapping information to
-        translate the HDF5 data into a numpy array by
-        :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`.
+        Notes
+        -----
 
-        **-- Constructing** ``configs`` **--**
+        The information stored in the ``configs`` dictionary is used by
+        `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` to build
+        the `numpy` data array from the associated HDF5 dataset(s).
 
-        The ``configs`` dict is a nested dictionary where the first
-        level of keys represents the control device configuration names.
-        Each configuration corresponds to one dataset in the HDF5
-        control group and represents a grouping of state values
-        associated with an probe or instrument used during an
-        experiment.
-
-        Each configuration is a dictionary consisting of a set of
-        required keys (``'dset paths'``, ``'shotnum'``, and
-        ``'state values'``) and optional keys.  Any optional key is
-        considered as meta-info for the device and is added to the
+        The ``configs`` `dict` is a nested dictionary where the first
+        level of keys represents the control device configuration
+        names.  Each configuration name (`dict` key) has an associated
+        `dict` value that consists of a set of required keys and
+        optional keys.  Any optional key is considered as meta-info for
+        the device and is added to the
         :attr:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls.info`
-        dictionary when the numpy array is constructed.  The required
-        keys constitute the mapping for constructing the numpy array
-        and are explained in the table below.
+        dictionary.
+
+        The required keys are as follows:
 
         .. csv-table:: Dictionary breakdown for
                        ``config = configs['config name']``
@@ -102,9 +99,10 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 
                 config['shotnum']
             ", "
-            Defines how the run shot numbers are stored in the HDF5
-            file, which are mapped to the ``'shotnum'`` field of the
-            constructed numpy array.  Should look like, ::
+            Defines how the run shot numbers are stored in the
+            associated HDF5 dataset, which are mapped to the
+            ``'shotnum'`` field of the constructed `numpy` array.
+            Should look like, ::
 
                 config['shotnum'] = {
                     'dset paths': config['dset paths'],
@@ -140,7 +138,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 
             will tell
             :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
-            to construct a numpy array with a the ``'xyz'`` field.
+            to construct a numpy array with a ``'xyz'`` field.
             This field would be a 3-element array of
             `numpy.float32`, where the ``'x'`` field of the
             HDF5 dataset is mapped to the 1st index, ``'y'`` is
@@ -159,61 +157,8 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 
             "
 
-        If a control device saves data around the concept of a
-        :ibf:`command list`, then ``configs`` has a few additional
-        required keys, see table below.
-
-        .. csv-table:: Additional required keys for
-                       ``config = configs['config name']`` when
-                       the control device saves data around the concept
-                       of a :ibf:`command list`.
-            :header: "Key", "Description"
-            :widths: 20, 60
-
-            "::
-
-                config['command list']
-            ", "
-            A tuple representing the original **command list**.
-            For example, ::
-
-                config['command list'] = ('VOLT: 20.0',
-                                          'VOLT 25.0',
-                                          'VOLT 30.0')
-
-            "
-            "::
-
-                config['state values']
-            ", "
-            Has all the same keys as before, plus the addition of
-            ``'command list'``, ``'cl str'``, and ``re pattern``.
-            For example, ::
-
-                config['state values'] = {
-                    'command': {
-                        'dset paths': config['dset paths'],
-                        'dset field': ('Command index',),
-                        'shape': (),
-                        'dtype': numpy.float32,
-                        'command list': (20.0, 25.0, 30.0),
-                        'cl str': ('VOLT: 20.0', 'VOLT 25.0',
-                                   'VOLT 30.0'),
-                        're pattern': re.compile(r'some RE pattern')}
-                }
-
-            where ``'re pattern'`` is the compiled RE pattern used
-            to parse the original **command list**, ``'cl str'`` is
-            the matched string segment of the **command list**, and
-            ``'command list'`` is the set of values that will
-            populate the constructed numpy array.
-            "
-
-        .. note::
-
-            For further details, look to :ref:`add_control_mod`.
         """
-        return self._configs
+        return super().configs
 
     @property
     def contype(self) -> ConType:
@@ -281,6 +226,11 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             name of dataset
         """
         ...
+
+
+HDFMapControlTemplate.configs.__doc__ = (
+    getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapControlTemplate.configs)
+)
 
 
 class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
@@ -422,6 +372,70 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
         # return
         return sv_dict
 
+    def configs(self) -> dict:
+        """
+        Notes
+        -----
+
+        When a control device saves around the concept of a
+        :ibf:`command list`, then ``configs`` shares the same structure
+        as the `HDFMapControlTemplate` `~HDFMapControlTemplate.configs`
+        ...with a couple alterations.  There is now a required
+        ``'command list'`` key, and the ``'state values'`` needs
+        additional information.
+
+        The modified required keys look like:
+
+        .. csv-table:: Additional :ibf:`command list` required keys for
+                       ``config = configs['config name']``
+            :header: "Key", "Description"
+            :widths: 20, 60
+
+            "::
+
+                config['command list']
+            ", "
+            A `tuple` representing the original **command list**.
+            For example, ::
+
+                config['command list'] = (
+                    'VOLT: 20.0',
+                    'VOLT 25.0',
+                    'VOLT 30.0',
+                )
+
+            "
+            "::
+
+                config['state values']
+            ", "
+            Has all the same keys as before, plus the addition of
+            ``'command list'``, ``'cl str'``, and ``re pattern``.
+            For example, ::
+
+                config['state values'] = {
+                    'command': {
+                        'dset paths': config['dset paths'],
+                        'dset field': ('Command index',),
+                        'shape': (),
+                        'dtype': numpy.float32,
+                        'command list': (20.0, 25.0, 30.0),
+                        'cl str': ('VOLT: 20.0', 'VOLT 25.0',
+                                   'VOLT 30.0'),
+                        're pattern': re.compile(r'some RE pattern'),
+                    },
+                }
+
+            where ``'re pattern'`` is the compiled RE pattern used
+            to parse the original **command list**, ``'cl str'`` is
+            the matched string segment of the **command list**, and
+            ``'command list'`` is the set of values that will
+            populate the constructed numpy array.
+            "
+        """
+        return super().configs
+
+
     def clparse(self, config_name: str) -> CLParse:
         """
         Return instance of
@@ -494,3 +508,8 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
             )
         else:
             self._configs[config_name]["state values"] = sv_dict
+
+
+HDFMapControlCLTemplate.configs.__doc__ = (
+    getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapControlCLTemplate.configs)
+)

@@ -106,7 +106,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         The information stored in this ``configs`` dictionary is used
         by `~bapsflib._hdf.utils.hdfreadmsi.HDFReadData` to build the
-        `numpy` array from the associated HDF5 dataset(s).
+        `numpy` data array from the associated HDF5 dataset(s).
 
         The ``configs`` `dict` is a nested dictionary where the first
         level of keys represents the digitizer configuration names.

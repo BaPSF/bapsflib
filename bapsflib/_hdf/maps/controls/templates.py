@@ -14,7 +14,7 @@ __all__ = ["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
 import numpy as np
 
 from abc import ABC, abstractmethod
-from typing import Iterable, List, Tuple, Union
+from typing import Iterable, Tuple, Union
 from warnings import warn
 
 from bapsflib._hdf.maps.controls.parsers import CLParse

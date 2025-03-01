@@ -38,7 +38,7 @@ class TestN5700PS(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info["contype"], ConType.power)
+        self.assertEqual(self.map.info["contype"], ConType.POWER)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

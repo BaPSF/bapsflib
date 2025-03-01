@@ -14,8 +14,9 @@ Sub-Packages & Modules
 
     controls
     digitizers
-    core
     msi
+    mapper
+    templates
 
 .. automodapi:: bapsflib._hdf.maps
     :no-main-docstr:

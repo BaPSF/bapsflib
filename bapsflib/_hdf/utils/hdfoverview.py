@@ -45,7 +45,7 @@ class HDFOverview(object):
             self._file = hdf_obj
             self._fmap = hdf_obj.file_map
         else:
-            raise ValueError("input arg is not of type HDFMap")
+            raise ValueError("input arg is not of type HDFMapper")
 
     def print(self):
         """

@@ -1,8 +1,8 @@
 .. py:currentmodule:: bapsflib.lapd
 
 Upon opening a file, :class:`~File` calls on the
-:class:`~_hdf.lapdmap.LaPDMap` class
-(a subclass of :class:`~bapsflib._hdf.maps.core.HDFMap`) to construct
+:class:`~_hdf.mapper.LaPDMapper` class
+(a subclass of :class:`~bapsflib._hdf.maps.mapper.HDFMapper`) to construct
 a mapping of the HDF5 file's internal data structure.  This mapping
 provides the necessary translation for the high-level data reading
 methods, :meth:`~File.read_data`, :meth:`~File.read_controls`, and
@@ -14,13 +14,13 @@ object is bound to :class:`File` as
 :attr:`~File.file_map` ::
 
     >>> from bapsflib import lapd
-    >>> from bapsflib._hdf import HDFMap
+    >>> from bapsflib._hdf import HDFMapper
     >>> f = lapd.File('test.hdf5')
     >>> f.file_map
-    <LaPDMap of HDF5 file 'test.hdf5'>
+    <LaPDMapper of HDF5 file 'test.hdf5'>
     >>>
-    >>> # is still an instance of HDFMap
-    >>> isinstance(f.file_map, HDFMap)
+    >>> # is still an instance of HDFMapper
+    >>> isinstance(f.file_map, HDFMapper)
     True
 
 For details on how the mapping works and how the mapping objects are
@@ -47,7 +47,7 @@ attributes for th user to interface with, see :numref:`f_meth_table`.
     "
     :attr:`~File.file_map`, "
     | instance of the LaPD HDF5 file mapping (instance of
-      :class:`~_hdf.lapdmap.LaPDMap`)
+      :class:`~_hdf.mapper.LaPDMapper`)
     | (see :ref:`file_map` for details)
     "
     :attr:`~File.info`, "

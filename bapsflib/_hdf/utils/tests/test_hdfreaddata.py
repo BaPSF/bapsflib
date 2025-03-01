@@ -19,7 +19,7 @@ import unittest as ut
 
 from unittest import mock
 
-from bapsflib._hdf.maps import HDFMap
+from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
@@ -54,7 +54,10 @@ class TestHDFReadData(TestBase):
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.HDFReadControls")
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.condition_controls")
     @mock.patch.object(
-        HDFMap, "controls", new_callable=mock.PropertyMock, return_value={"control": None}
+        HDFMapper,
+        "controls",
+        new_callable=mock.PropertyMock,
+        return_value={"control": None},
     )
     def test_adding_controls(self, _bf: File, mock_cmap, mock_cc, mock_cdata):
         """Test adding control device data to digitizer data."""
@@ -870,7 +873,7 @@ class TestHDFReadData(TestBase):
 
         # test
         with mock.patch.object(
-            HDFMap, "main_digitizer", new_callable=mock.PropertyMock, return_value=None
+            HDFMapper, "main_digitizer", new_callable=mock.PropertyMock, return_value=None
         ):
             self.assertRaises(ValueError, HDFReadData, _bf, brd, ch)
 

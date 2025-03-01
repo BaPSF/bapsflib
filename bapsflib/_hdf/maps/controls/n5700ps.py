@@ -13,7 +13,6 @@ Module for the N5700PS power supply mapper
 """
 __all__ = ["HDFMapControlN5700PS"]
 
-import h5py
 import numpy as np
 import warnings
 
@@ -41,26 +40,10 @@ class HDFMapControlN5700PS(HDFMapControlCLTemplate):
 
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the HDF5 control device group
-        """
-        # initialize
-        HDFMapControlCLTemplate.__init__(self, group)
-
-        # define control type
-        self._info["contype"] = ConType.power
-
-        # define known command list RE patterns
-        self._default_re_patterns = (
-            r"(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
-        )
-
-        # populate self.configs
-        self._build_configs()
+    _contype = ConType.POWER
+    _default_re_patterns = (
+        r"(?P<VOLT>(\bSOURCE:VOLTAGE:LEVEL\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
+    )
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""

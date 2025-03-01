@@ -372,6 +372,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
         # return
         return sv_dict
 
+    @property
     def configs(self) -> dict:
         """
         Notes

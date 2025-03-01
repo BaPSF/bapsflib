@@ -17,9 +17,9 @@ from abc import ABC, abstractmethod
 from typing import Iterable, List, Tuple, Union
 from warnings import warn
 
-from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib._hdf.maps.controls.parsers import CLParse
 from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 

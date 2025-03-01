@@ -58,10 +58,6 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
     Control device type.  (`ConType` `enum`)
     """
 
-    def _init_before_build_configs(self):
-        super()._init_before_build_configs()
-        self._info["contype"] = self._contype
-
     @property
     def configs(self) -> dict:
         """
@@ -256,6 +252,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             }
 
         """
+        self._info["contype"] = self.contype
         return super().info
 
     @property

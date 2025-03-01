@@ -138,14 +138,7 @@ class TestHDFReadControl(TestBase):
 
         # -- Define "Sample Control Mapping Class"                  ----
         class HDFMapSampleControl(HDFMapControlTemplate):
-            def __init__(self, group):
-                HDFMapControlTemplate.__init__(self, group)
-
-                # define control type
-                self._info["contype"] = ConType.MOTION
-
-                # populate self.configs
-                self._build_configs()
+            _contype = ConType.MOTION
 
             def _build_configs(self):
                 config_name = "config01"
@@ -322,14 +315,7 @@ class TestHDFReadControl(TestBase):
 
         # -- Define "Sample Control Mapping Class"                  ----
         class HDFMapSampleControl(HDFMapControlTemplate):
-            def __init__(self, group):
-                HDFMapControlTemplate.__init__(self, group)
-
-                # define control type
-                self._info["contype"] = ConType.MOTION
-
-                # populate self.configs
-                self._build_configs()
+            _contype = ConType.MOTION
 
             def _build_configs(self):
                 config_name = "config01"

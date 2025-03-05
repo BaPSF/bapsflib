@@ -122,25 +122,26 @@ class HDFReadControls(np.ndarray):
             configuration name (if more than one configuration exists)
 
         shotnum : Union[int, List[int], slice, numpy.ndarray], optional
-            HDF5 file shot number(s) indicating data entries to be extracted
+            HDF5 file shot number(s) indicating data entries to be
+            extracted
 
         intersection_set : `bool`, optional
             `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of :data:`shotnum` and the shot numbers
+            the intersection of ``shotnum`` and the shot numbers
             contained in each control device dataset. `False` will
             return the union instead of the intersection
 
         Notes
         -----
-        Behavior of :data:`shotnum` and :data:`intersection_set`:
-            * :data:`shotnum` indexing starts at 1
-            * Any :data:`shotnum` values `<= 0` will be thrown out.
-            * If `intersection_set=True`, then only data corresponding
-              to shot numbers that are specified in :data:`shotnum` and
+        Behavior of ``shotnum`` and ``intersection_set``:
+            * ``shotnum`` indexing starts at 1
+            * Any ``shotnum`` values ``<= 0`` will be thrown out.
+            * If ``intersection_set=True``, then only data corresponding
+              to shot numbers that are specified in ``shotnum`` and
               are in all control datasets will be returned.
             * If ``intersection_set=False``, then the returned array
               will have entries for all shot numbers specified in
-              :data:`shotnum` but entries that correspond to control
+              ``shotnum`` but entries that correspond to control
               datasets that do not have the specified shot number will
               be given a NULL value of ``-99999``, ``0``, `numpy.nan`,
               or ``''``, depending on the `numpy.dtype`.

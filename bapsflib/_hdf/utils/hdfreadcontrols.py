@@ -248,11 +248,21 @@ class HDFReadControls(np.ndarray):
             config_name = control[1]
 
             # gather control datasets and shotnumkey's
-            cdset_path = cmap.configs[cconfn]["dset paths"][0]
-            cdset_dict[cname] = hdf_file.get(cdset_path)
-            shotnumkey = cmap.configs[cconfn]["shotnum"]["dset field"][0]
-            shotnumkey_dict[cname] = shotnumkey
             cmap = _fmap.controls[control_name]
+            control_config = cmap.configs[config_name]
+
+            if control_config["shotnum"]["dset paths"] is None:
+                # state values have differing dset paths and shotnum
+                # is pulled from those paths
+                for _key, _entry in control_config["state values"].items():
+                    _name = f"{control_name} - {_key}"
+                    cdset_dict[_name] = hdf_file.get(_entry["dset paths"][0])
+                    shotnumkey_dict[_name] = control_config["shotnum"]["dset field"][0]
+            else:
+                cdset_dict[control_name] = hdf_file.get(
+                    control_config["shotnum"]["dset paths"][0]
+                )
+                shotnumkey_dict[control_name] = control_config["shotnum"]["dset field"][0]
 
         # perform `shotnum` conditioning
         # - `shotnum` is returned as a numpy array

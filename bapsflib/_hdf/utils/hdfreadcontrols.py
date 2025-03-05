@@ -243,20 +243,21 @@ class HDFReadControls(np.ndarray):
         cdset_dict = {}  # type: Dict[str, h5py.Dataset]
         shotnumkey_dict = {}  # type: Dict[str, str]
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # gather control datasets and shotnumkey's
-            cmap = _fmap.controls[cname]
             cdset_path = cmap.configs[cconfn]["dset paths"][0]
             cdset_dict[cname] = hdf_file.get(cdset_path)
             shotnumkey = cmap.configs[cconfn]["shotnum"]["dset field"][0]
             shotnumkey_dict[cname] = shotnumkey
+            cmap = _fmap.controls[control_name]
 
         # perform `shotnum` conditioning
         # - `shotnum` is returned as a numpy array
         shotnum = condition_shotnum(shotnum, cdset_dict, shotnumkey_dict)
+        print(shotnum)
 
         # ---- Build `index` and `sni` arrays for each dataset      ----
         #
@@ -273,14 +274,14 @@ class HDFReadControls(np.ndarray):
         index_dict = {}  # type: IndexDict
         sni_dict = {}  # type: IndexDict
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
-            cmap = _fmap.controls[cname]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
+            cmap = _fmap.controls[control_name]
 
             # build `index` and `sni` for each dataset
-            index_dict[cname], sni_dict[cname] = build_shotnum_dset_relation(
-                shotnum, cdset_dict[cname], shotnumkey_dict[cname], cmap, cconfn
+            index_dict[control_name], sni_dict[control_name] = build_shotnum_dset_relation(
+                shotnum, cdset_dict[control_name], shotnumkey_dict[control_name], cmap, config_name
             )
 
         # re-filter `index`, `shotnum`, and `sni` if intersection_set
@@ -300,12 +301,12 @@ class HDFReadControls(np.ndarray):
         shape = shotnum.shape
         dtype = [("shotnum", np.uint32, ())]
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # add fields
-            cconfig = _fmap.controls[cname].configs[cconfn]
+            cconfig = _fmap.controls[control_name].configs[config_name]
             for field_name, fconfig in cconfig["state values"].items():
                 dtype.append(
                     (
@@ -331,16 +332,16 @@ class HDFReadControls(np.ndarray):
 
         # Assign Control Data to Numpy array
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # get control dataset
-            cmap = _fmap.controls[cname]
-            cconfig = cmap.configs[cconfn]
-            cdset = cdset_dict[cname]
-            sni = sni_dict[cname]
-            index = index_dict[cname].tolist()  # type: List
+            cmap = _fmap.controls[control_name]
+            cconfig = cmap.configs[config_name]
+            cdset = cdset_dict[control_name]
+            sni = sni_dict[control_name]
+            index = index_dict[control_name].tolist()  # type: List
 
             # populate control data array
             # 1. scan over numpy fields
@@ -486,7 +487,7 @@ class HDFReadControls(np.ndarray):
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print(f"tt - fill data - {cname}: {(tt[-1] - tt[-2]) * 1.0e3} ms")
+                print(f"tt - fill data - {control_name}: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -511,24 +512,24 @@ class HDFReadControls(np.ndarray):
 
         # add control meta-info
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # get control dataset
-            cmap = _fmap.controls[cname]
-            cconfig = cmap.configs[cconfn]  # type: dict
+            cmap = _fmap.controls[control_name]
+            cconfig = cmap.configs[config_name]  # type: dict
 
             # populate
-            obj._info["controls"][cname] = {
+            obj._info["controls"][control_name] = {
                 "device group path": cmap.info["group path"],
                 "device dataset path": cconfig["dset paths"][0],
                 "contype": cmap.contype,
-                "configuration name": cconfn,
+                "configuration name": config_name,
             }
             for key, val in cconfig.items():
                 if key not in ["dset paths", "shotnum", "state values"]:
-                    obj._info["controls"][cname][key] = copy.deepcopy(val)
+                    obj._info["controls"][control_name][key] = copy.deepcopy(val)
 
         # print execution timing
         if timeit:  # pragma: no cover

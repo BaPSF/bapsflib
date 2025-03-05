@@ -267,7 +267,6 @@ class HDFReadControls(np.ndarray):
         # perform `shotnum` conditioning
         # - `shotnum` is returned as a numpy array
         shotnum = condition_shotnum(shotnum, cdset_dict, shotnumkey_dict)
-        print(shotnum)
 
         # ---- Build `index` and `sni` arrays for each dataset      ----
         #

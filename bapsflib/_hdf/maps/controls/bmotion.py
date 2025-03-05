@@ -1,0 +1,310 @@
+"""
+Module for the "bmotion" motion control mapper
+`~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion`.
+"""
+
+__all__ = ["HDFMapControlBMotion"]
+
+import ast
+import copy
+import numpy as np
+import warnings
+
+from bapsf_motion.utils import toml
+from h5py import Group, Dataset
+from typing import Callable, Optional, Union
+
+from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
+from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.utils import _bytes_to_str
+from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
+
+
+class HDFMapControlBMotion(HDFMapControlTemplate):
+
+    _contype = ConType.MOTION
+    _required_dataset_names = {
+        "main": "Run time list",
+        "axis_names": "bmotion_axis_names",
+        "positions": "bmotion_positions",
+        "target_positions": "bmotion_target_positions",
+    }
+
+    def _init_before_build_configs(self):
+        self._run_config = None
+
+    def _build_configs(self):
+        # Build the attribute self.configs dictionary
+        #
+        # bmotion group contains 1 group and 4 datasets
+        # - <group> --> contains the run configuration
+        # - "Run time list" <dataset> --> top level data, mg names and motion list index
+        # - "bmotion_axis_names" <dataset> --> LaPD axis associations
+        # - "bmotion_positions" <dataset> --> motion group position data
+        # - "bmotion_target_positions <dataset> --> motion group target position data
+        #
+        # examine groups
+        group_names = self.subgroup_names
+        if len(group_names) != 1:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Expected 1 sub-group, found {len(group_names)} groups.",
+            )
+        config_group = self.group[group_names[0]]  # type: Group
+
+        # examine datasets
+        dataset_names = set(self.dataset_names)
+        if len(dataset_names) != 4:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Expected 4 datasets, found {len(dataset_names)} datasets.",
+            )
+        required_datasets = set(self._required_dataset_names.values())
+        _remainder_dsets = dataset_names - required_datasets
+        if len(_remainder_dsets) != 0:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Missing datasets {_remainder_dsets}.",
+            )
+
+        # construct meta-info from config group
+        _info = dict(config_group.attrs)
+        if "RUN_CONFIG" not in _info.keys():
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Missing 'RUN_CONFIG' attribute.",
+            )
+        for key in _info.keys():
+            _info[key] = _bytes_to_str(_info[key])
+        _info["RUN_CONFIG"] = toml.loads(_info["RUN_CONFIG"])
+        self._run_config = _info.pop("RUN_CONFIG")
+        _run_config = self._run_config  # type: dict
+
+        # initialize motion group configs
+        mg_configs = _run_config["run"]["motion_group"]
+        n_mg_configs = len(mg_configs)
+        if n_mg_configs == 0:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"No motion groups exist in the configuration.",
+            )
+        for key, mg_config in mg_configs.items():
+            name = self._generate_config_name(key, mg_config["name"])
+            self.configs[name] = {**_info}
+            self.configs[name]["MG_CONFIG"] = copy.deepcopy(mg_config)
+
+        # grab first n_mg_config rows of each dataset
+        dset_axis_names = self.group[self.construct_dataset_name(which="axis_names")][
+            :n_mg_configs
+        ]
+
+        # Build out each config
+        for cname, _config in self.configs.items():  # type: str, dict
+            mg_name = _config["MG_CONFIG"]["name"]
+
+            # add 'dset paths' key
+            _config["dset paths"] = tuple(
+                self.group[dset_name].name
+                for dset_name in self._required_dataset_names.values()
+            )
+
+            # add 'shotnum' key
+            _config["shotnum"] = {
+                "dset paths": None,
+                "dset field": ("Shot number",),
+                "shape": (),
+                "dtype": np.int32,
+            }
+
+            # get axis names
+            if "motion_group_name" not in dset_axis_names.dtype.fields:
+                raise HDFMappingError(
+                    device_name="bmotion",
+                    why=(
+                        "Unable to identify 'motion_group_name' column "
+                        "in the 'bmotion_axis_names' dataset."
+                    ),
+                )
+            indices = np.where(
+                dset_axis_names["motion_group_name"] == bytes(mg_name, encoding="utf-8")
+            )
+            if len(indices) != 1:
+                warnings.warn(
+                    f"Unable to locate the '{mg_name}' configuration in the "
+                    f"'bmotion_axis_names' dataset.",
+                    HDFMappingWarning,
+                )
+                continue
+            index = indices[0][0]
+            ax_name_mapping = []
+            for col_name in {"a0", "a1", "a2", "a3", "a4", "a5"}:
+                if col_name not in dset_axis_names.dtype.fields:
+                    continue
+
+                ax_name = dset_axis_names[col_name][index]
+                if ax_name == b"":
+                    # this axis was not used
+                    continue
+
+                ax_name_mapping.append((col_name, _bytes_to_str(ax_name)))
+            if len(ax_name_mapping) == 0:
+                warnings.warn(
+                    f"Unable to identify any used axes for the {mg_name}"
+                    f" motion group configuration.",
+                    HDFMappingWarning,
+                )
+                continue
+
+            # add state values
+            _config["state values"] = dict()
+            for col_name, ax_name in ax_name_mapping:
+
+                # add "position" 'state values'
+                dset = self.group[self.construct_dataset_name(which="positions")]
+                _key, _entry = self._generate_state_entry(
+                    col_name=col_name,
+                    ax_name=ax_name,
+                    dset=dset,
+                    state_dict=_config["state values"],
+                )
+                _config["state values"][_key] = _entry
+
+                # add "target_position" ' state values
+                dset = self.group[self.construct_dataset_name(which="target_positions")]
+                _key, _entry = self._generate_state_entry(
+                    col_name=col_name,
+                    ax_name=ax_name,
+                    dset=dset,
+                    state_dict=_config["state values"],
+                    ax_rename=lambda x: f"{x}_target",
+                )
+                print(_key, _entry)
+                _config["state values"][_key] = _entry
+
+            # update config
+            self.configs[cname] = _config
+
+        # check all configs define a 'state values' entry
+        for cname in list(self.configs.keys()):
+            if "state values" not in self.configs[cname]:
+                del self.configs[cname]
+        if len(self.configs) == 0:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why="Unable to fully build any of the motion group configurations.",
+            )
+
+    @staticmethod
+    def _generate_state_entry(
+        col_name: str,
+        ax_name: str,
+        dset: Dataset,
+        state_dict: dict,
+        ax_rename: Optional[Callable] = None,
+    ):
+        if ax_rename is None:
+            def ax_rename(x):
+                return x
+
+        if ax_name.casefold() in ("x", "y", "z"):
+            ax_name = ax_name.casefold()
+            state_key = ax_rename("xyz")
+            state_entry = state_dict.get(state_key)
+
+            if state_entry is None:
+                state_entry = {
+                    "dset paths": (dset.name,),
+                    "dset field": ("", "", ""),
+                    "shape": (3,),
+                    "dtype": np.float64,
+                }
+
+            dset_field = list(state_entry["dset field"])
+            if ax_name == "x":
+                dset_field[0] = col_name
+            elif ax_name == "y":
+                dset_field[1] = col_name
+            else:
+                dset_field[2] = col_name
+            state_entry["dset field"] = tuple(dset_field)
+
+        else:
+            state_key = ax_rename(ax_name)
+            state_entry = {
+                "dset paths": (dset.name,),
+                "dset field": (col_name,),
+                "shape": (),
+                "dtype": dset.dtype[col_name],
+            }
+
+        return state_key, state_entry
+
+    @staticmethod
+    def _generate_config_name(key, mg_name):
+        return f"{key} - {mg_name}"
+
+    # def _split_config_name(self):
+    #     _pattern
+
+    def _get_dataset(self, which: str) -> Dataset:
+        name = self.construct_dataset_name(which=which)
+        return self.group[name]
+
+    def construct_dataset_name(self, which: str, *args) -> str:
+        try:
+            name = self._required_dataset_names[which]
+        except KeyError:
+            raise ValueError(
+                f"The requested dataset is invalid, got request '{which}'"
+                f" and valid requests are {self._required_dataset_names.keys()}."
+            )
+        return name
+
+    def get_config_name_by_drive_name(self, name: str) -> Union[str, None]:
+        if not isinstance(name, str):
+            return None
+
+        _mg_configs = self._run_config["run"]["motion_groups"]
+        for key, _config in _mg_configs.items():
+            if _config["drive"]["name"] == name:
+                config_name = self._generate_config_name(key, _config["name"])
+                return config_name
+
+        return None
+
+    def get_config_name_by_motion_group_id(
+        self, _id: Union[int, str]
+    ) -> Union[str, None]:
+        if not isinstance(_id, (int, str)):
+            return None
+        elif isinstance(_id, int):
+            _id = f"{_id}"
+
+        _mg_configs = self._run_config["run"]["motion_groups"]
+        try:
+            mg_name = _mg_configs[_id]["name"]
+            config_name = self._generate_config_name(_id, mg_name)
+            return config_name
+        except KeyError:
+            pass
+
+        _id = ast.literal_eval(_id)
+        try:
+            mg_name = _mg_configs[_id]["name"]
+            config_name = self._generate_config_name(_id, mg_name)
+            return config_name
+        except KeyError:
+            return None
+
+    def get_config_name_by_motion_group_name(self, name: str) -> Union[str, None]:
+        if not isinstance(name, str):
+            return None
+
+        _mg_configs = self._run_config["run"]["motion_groups"]
+        for key, _config in _mg_configs.items():
+            if _config["name"] == name:
+                config_name = self._generate_config_name(key, _config["name"])
+                return config_name
+
+        return None

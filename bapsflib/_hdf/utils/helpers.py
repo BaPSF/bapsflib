@@ -326,7 +326,7 @@ def build_sndr_for_complex_dset(
                 # and, thus, the routines assumption's do not match
                 # the format of the dataset
                 raise ValueError(
-                    "The specified dataset is NOT consistent with the"
+                    "The specified dataset is NOT consistent with the "
                     "routines assumptions of a complex dataset"
                 )
     else:
@@ -345,7 +345,7 @@ def build_sndr_for_complex_dset(
             # are found or the routine's assumptions do not
             # match the format of the dataset
             raise ValueError(
-                "The specified dataset is NOT consistent with the"
+                "The specified dataset is NOT consistent with the "
                 "routines assumptions of a complex dataset"
             )
 

@@ -23,11 +23,11 @@ from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
-from bapsflib._hdf.utils.hdfreaddata import (
+from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+from bapsflib._hdf.utils.helpers import (
     build_sndr_for_simple_dset,
     condition_shotnum,
     do_shotnum_intersection,
-    HDFReadData,
 )
 from bapsflib._hdf.utils.tests import TestBase
 from bapsflib.utils.decorators import with_bf

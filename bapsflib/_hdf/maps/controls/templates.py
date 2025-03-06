@@ -9,7 +9,11 @@
 #   license terms and contributor agreement.
 #
 """Module for the template control mappers."""
-__all__ = ["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
+__all__ = [
+    "ControlMap",
+    "HDFMapControlTemplate",
+    "HDFMapControlCLTemplate",
+]
 
 import numpy as np
 
@@ -22,6 +26,9 @@ from bapsflib._hdf.maps.controls.parsers import CLParse
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
+
+# define type aliases
+ControlMap = Union["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
 
 
 class HDFMapControlTemplate(HDFMapTemplate, ABC):

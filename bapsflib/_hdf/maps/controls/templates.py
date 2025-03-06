@@ -214,6 +214,18 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         """Name of Control device"""
         return self.group_name
 
+    def get_config_id(self, config_name: str) -> str:
+        """
+        Get the configuration identifier for the given ``config_name``.
+        This identifier is the string value used in the HDF5 datasets.
+
+        Parameters
+        ----------
+        config_name : `str`
+            The configuration name used in :attr:`configs`.
+        """
+        return config_name
+
     @abstractmethod
     def construct_dataset_name(self, *args) -> str:
         """

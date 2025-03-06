@@ -542,24 +542,25 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
 
 
 def condition_shotnum(
-    shotnum: Any, dset_dict: Dict[str, h5py.Dataset], shotnumkey_dict: Dict[str, str]
+    shotnum: Any, dset_list: List[h5py.Dataset], shotnumkey_list: List[str]
 ) -> np.ndarray:
     r"""
-    Conditions the **shotnum** argument for
-    :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
-    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
+    Conditions the ``shotnum`` argument for
+    `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
+    :`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
 
     Parameters
     ----------
-    shotnum: :term:`array_like`
+    shotnum: :term:`array_like` or Union[int, slice, List[int,...]]
         desired HDF5 shot numbers
 
-    dset_dict : Dict[str, h5py.Dataset]
-        dictionary of all control dataset instances
+    dset_list : List[h5py.Dataset]
+        List of control dataset instances that the shot number
+        ``shotnum`` should be conditioned against
 
-    shotnumkey_dict : Dict[str, str]
-        dictionary of the shot number field name for each control
-        dataset in dset_dict
+    shotnumkey_list : List[str]
+        A one-to-one list with ``dset_list`` that names the shot number
+        column filed in the associated dataset.
 
     Returns
     -------
@@ -569,8 +570,6 @@ def condition_shotnum(
 
     .. admonition:: Condition Criteria
 
-        #. Input **shotnum** should be
-           ``Union[int, List[int,...], slice, np.ndarray]``
         #. Any :math:`\mathbf{shotnum} \le 0` will be removed.
         #. A `ValueError` will be thrown if the conditioned array is
            NULL.
@@ -614,10 +613,8 @@ def condition_shotnum(
         shotnum = np.array(shotnum, dtype=np.uint32)
 
     elif isinstance(shotnum, slice):
-        # determine largest possible shot number
-        last_sn = [
-            dset_dict[cname][-1, shotnumkey_dict[cname]] + 1 for cname in dset_dict
-        ]
+        # determine the largest possible shot number
+        last_sn = [dset[-1, key] + 1 for dset, key in zip(dset_list, shotnumkey_list)]
         if shotnum.stop is not None:
             last_sn.append(shotnum.stop)
         stop_sn = max(last_sn)

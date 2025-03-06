@@ -442,7 +442,7 @@ class HDFReadData(np.ndarray):
             """
             # perform `shotnum` conditioning
             # - `shotnum` is returned as a numpy array
-            shotnum = condition_shotnum(shotnum, {"digi": dheader}, {"digi": shotnumkey})
+            shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
 
             # Calc. the corresponding `index` and `sni`
             # - `shotnum` will be converted from list to np.array

@@ -25,6 +25,7 @@ from typing import Any, Dict, Iterable, List, Tuple, Union
 from warnings import warn
 
 from bapsflib._hdf.maps.controls.templates import (
+    ControlMap,
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
@@ -38,7 +39,6 @@ from bapsflib._hdf.utils.helpers import (
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 # define type aliases
-ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 ControlsType = Union[str, Iterable[Union[str, Tuple[str, Any]]]]
 IndexDict = Dict[str, np.ndarray]
 

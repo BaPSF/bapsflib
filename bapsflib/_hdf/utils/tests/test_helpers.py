@@ -21,7 +21,7 @@ from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
     condition_controls,
-    condition_shotnum,
+    _condition_shotnum,
     do_shotnum_intersection,
 )
 from bapsflib._hdf.utils.tests import TestBase
@@ -536,12 +536,12 @@ class TestConditionShotnum(TestBase):
         sn = [-20, 0]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = condition_shotnum(shotnum, {}, {})
+                _sn = _condition_shotnum(shotnum, {}, {})
 
         # shotnum > 0 (valid)
         sn = [1, 100]
         for shotnum in sn:
-            _sn = condition_shotnum(shotnum, {}, {})
+            _sn = _condition_shotnum(shotnum, {}, {})
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertEqual(_sn.shape, (1,))
@@ -556,7 +556,7 @@ class TestConditionShotnum(TestBase):
         ]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = condition_shotnum(shotnum, {}, {})
+                _sn = _condition_shotnum(shotnum, {}, {})
 
         # all shotnum values are <= 0
         sn = [
@@ -565,7 +565,7 @@ class TestConditionShotnum(TestBase):
         ]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = condition_shotnum(shotnum, {}, {})
+                _sn = _condition_shotnum(shotnum, {}, {})
 
         # valid shotnum lists
         sn = [
@@ -574,7 +574,7 @@ class TestConditionShotnum(TestBase):
             ([1, 2, 4], np.array([1, 2, 4], dtype=np.uint32)),
         ]
         for shotnum, ex_sn in sn:
-            _sn = condition_shotnum(shotnum, {}, {})
+            _sn = _condition_shotnum(shotnum, {}, {})
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertTrue(np.array_equal(_sn, ex_sn))
@@ -600,7 +600,7 @@ class TestConditionShotnum(TestBase):
 
         # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
-            _sn = condition_shotnum(slice(-1, -4, 1), dset_dict, shotnumkey_dict)
+            _sn = _condition_shotnum(slice(-1, -4, 1), dset_dict, shotnumkey_dict)
 
         # valid shotnum slices
         sn = [
@@ -611,7 +611,7 @@ class TestConditionShotnum(TestBase):
             (slice(-2, -1), np.array([6], dtype=np.uint32)),
         ]
         for shotnum, ex_sn in sn:
-            _sn = condition_shotnum(shotnum, dset_dict, shotnumkey_dict)
+            _sn = _condition_shotnum(shotnum, dset_dict, shotnumkey_dict)
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertTrue(np.array_equal(_sn, ex_sn))
@@ -636,7 +636,7 @@ class TestConditionShotnum(TestBase):
         ]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = condition_shotnum(shotnum, {}, {})
+                _sn = _condition_shotnum(shotnum, {}, {})
 
         # shotnum valid
         sn = [
@@ -645,7 +645,7 @@ class TestConditionShotnum(TestBase):
             (np.array([20, 30], np.int32), np.array([20, 30], np.uint32)),
         ]
         for shotnum, ex_sn in sn:
-            _sn = condition_shotnum(shotnum, {}, {})
+            _sn = _condition_shotnum(shotnum, {}, {})
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertTrue(np.array_equal(_sn, ex_sn))
@@ -655,7 +655,7 @@ class TestConditionShotnum(TestBase):
         sn = [1.5, None, True, {}]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = condition_shotnum(shotnum, {}, {})
+                _sn = _condition_shotnum(shotnum, {}, {})
 
 
 class TestDoShotnumIntersection(ut.TestCase):

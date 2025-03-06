@@ -127,20 +127,26 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             the
             :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
             constructed numpy array.
+
+            If the ``'dset paths'`` entry is defined as `None`, then
+            the `bapsflib` routines will default to the ``'dset paths'``
+            defined for each of the ``'state values'`` entries.
             "
             "::
 
                 config['state values']
             ", "
             This is another dictionary defining ``'state values'``.
-            For example, ::
+            For example,::
 
                 config['state values'] = {
                     'xyz': {
                         'dset paths': config['dset paths'],
                         'dset field': ('x', 'y', 'z'),
                         'shape': (3,),
-                        'dtype': numpy.float32}
+                        'dtype': numpy.float32,
+                        'config column': 'Configuration name',
+                    },
                 }
 
             will tell
@@ -151,6 +157,12 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             HDF5 dataset is mapped to the 1st index, ``'y'`` is
             mapped to the 2nd index, and ``'z'`` is mapped to the
             3rd index.
+
+            The ``'config column'`` indicates the dataset column name
+            that holds the configuration identification value (name,
+            id, etc.).  This field is optional, and will look for the
+            column with 'configuration' in its name if the field is
+            omitted.
 
             **Note:**
 

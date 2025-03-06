@@ -45,17 +45,17 @@ def build_shotnum_dset_relation(
     config_name: str,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** `numpy` array to the specified dataset,
-    **dset**, to determine which indices contain the desired shot
+    Compares the ``shotnum`` `numpy` array to the specified dataset,
+    ``dset``, to determine which indices contain the desired shot
     number(s)
-    [for :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
+    [for `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
     As a results, two numpy arrays are returned which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
-    where **shotnum** is the original shot number array, **sni** is a
-    boolean numpy array masking which shot numbers were determined to
-    be in the dataset, and **index** is an array of indices
+    where ``shotnum`` is the original shot number array, ``sni`` is a
+    boolean `numpy` array masking which shot numbers were determined to
+    be in the dataset, and ``index`` is an array of indices
     corresponding to the desired shot number(s).
 
     Parameters

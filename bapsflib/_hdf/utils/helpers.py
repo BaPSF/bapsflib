@@ -42,7 +42,7 @@ def build_shotnum_dset_relation(
     dset: h5py.Dataset,
     shotnumkey: str,
     cmap: ControlMap,
-    cconfn: Any,
+    config_name: str,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
     Compares the **shotnum** `numpy` array to the specified dataset,
@@ -73,7 +73,7 @@ def build_shotnum_dset_relation(
     cmap : `ControlMap`
         mapping object for control device
 
-    cconfn :
+    config_name : str
         configuration name for the control device
 
     Returns
@@ -97,7 +97,7 @@ def build_shotnum_dset_relation(
     # dset         - the control device dataset
     # shotnumkey   - field name for the shot number column in dset
     # cmap         - file mapping object for the control device
-    # cconfn       - configuration for control device
+    # config_name       - configuration for control device
     #
     # Returns:
     # index     np.array(dtype=uint32)  - dset row index for the
@@ -113,7 +113,13 @@ def build_shotnum_dset_relation(
         index, sni = build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
     else:
         # the dataset saves data for multiple configurations
-        index, sni = build_sndr_for_complex_dset(shotnum, dset, shotnumkey, cmap, cconfn)
+        index, sni = build_sndr_for_complex_dset(
+            shotnum,
+            dset,
+            shotnumkey,
+            cmap,
+            config_name,
+        )
 
     # return calculated arrays
     return index.view(), sni.view()

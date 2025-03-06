@@ -23,6 +23,7 @@ from warnings import warn
 
 from bapsflib._hdf.maps.controls import HDFMapControls
 from bapsflib._hdf.maps.controls.templates import (
+    ControlMap,
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
@@ -34,7 +35,6 @@ from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.warnings import HDFMappingWarning
 
 # define type aliases
-ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 DigiMap = HDFMapDigiTemplate
 MSIMap = HDFMapMSITemplate
 

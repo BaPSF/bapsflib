@@ -21,14 +21,12 @@ from bapsflib._hdf.maps.controls.nixyz import HDFMapControlNIXYZ
 from bapsflib._hdf.maps.controls.nixz import HDFMapControlNIXZ
 from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
 from bapsflib._hdf.maps.controls.templates import (
+    ControlMap,
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
 from bapsflib.utils.exceptions import HDFMappingError
-
-# define type aliases
-ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 
 
 class HDFMapControls(dict):

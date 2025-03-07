@@ -69,6 +69,40 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 why=f"Missing datasets {_remainder_dsets}.",
             )
 
+        # examine dataset structure
+        for dset_name in self._required_dataset_names.values():
+            dset = self.group[dset_name]
+            if dset.dtype.fields is None:
+                raise HDFMappingError(
+                    device_name="bmotion",
+                    why=f"Dataset {dset.name} does not have named columns.",
+                )
+
+            if dset_name == "Run time list":
+                column_names = {"Shot number", "Configuration name"}
+            else:
+                column_names = {
+                    "Shot number",
+                    "motion_group_id",
+                    "motion_group_name",
+                    "motionlist_index",
+                    "a0",
+                    "a1",
+                    "a2",
+                    "a3",
+                    "a4",
+                    "a5",
+                }
+
+            if len(set(dset.dtype.fields) - column_names) != 0:
+                raise HDFMappingError(
+                    device_name="bmotion",
+                    why=(
+                        f"Dataset {dset.name} does not have required columns,"
+                        f" {column_names}."
+                    ),
+                )
+
         # construct meta-info from config group
         _info = dict(config_group.attrs)
         if "RUN_CONFIG" not in _info.keys():

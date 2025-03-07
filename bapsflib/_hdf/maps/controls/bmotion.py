@@ -8,6 +8,7 @@ __all__ = ["HDFMapControlBMotion"]
 import ast
 import copy
 import numpy as np
+import re
 import warnings
 
 from bapsf_motion.utils import toml
@@ -244,8 +245,16 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
     def _generate_config_name(key, mg_name):
         return f"{key} - {mg_name}"
 
-    # def _split_config_name(self):
-    #     _pattern
+    @staticmethod
+    def _split_config_name(config_name):
+        match = re.compile(r"\s*(?P<_id>[0-9]+)\s+(-)\s+(?P<mg_name>.+)").fullmatch(
+            config_name
+        )
+        return (
+            None
+            if match is None
+            else (match.group("_id").strip(), match.group("mg_name").strip())
+        )
 
     def _get_dataset(self, which: str) -> Dataset:
         name = self.construct_dataset_name(which=which)
@@ -260,6 +269,10 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 f" and valid requests are {self._required_dataset_names.keys()}."
             )
         return name
+
+    def get_config_id(self, config_name: str) -> str:
+        _id, mg_name = self._split_config_name(config_name)
+        return _id
 
     def get_config_name_by_drive_name(self, name: str) -> Union[str, None]:
         if not isinstance(name, str):

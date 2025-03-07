@@ -21,7 +21,7 @@ from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
     condition_controls,
-    _condition_shotnum,
+    condition_shotnum,
     do_shotnum_intersection,
 )
 from bapsflib._hdf.utils.tests import TestBase
@@ -544,12 +544,12 @@ class TestConditionShotnum(TestBase):
         sn = [-20, 0]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = _condition_shotnum(shotnum, {}, {})
+                _sn = condition_shotnum(shotnum, [], [])
 
         # shotnum > 0 (valid)
         sn = [1, 100]
         for shotnum in sn:
-            _sn = _condition_shotnum(shotnum, {}, {})
+            _sn = condition_shotnum(shotnum, [], [])
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertEqual(_sn.shape, (1,))
@@ -564,7 +564,7 @@ class TestConditionShotnum(TestBase):
         ]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = _condition_shotnum(shotnum, {}, {})
+                _sn = condition_shotnum(shotnum, [], [])
 
         # all shotnum values are <= 0
         sn = [
@@ -573,7 +573,7 @@ class TestConditionShotnum(TestBase):
         ]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = _condition_shotnum(shotnum, {}, {})
+                _sn = condition_shotnum(shotnum, [], [])
 
         # valid shotnum lists
         sn = [
@@ -582,7 +582,7 @@ class TestConditionShotnum(TestBase):
             ([1, 2, 4], np.array([1, 2, 4], dtype=np.uint32)),
         ]
         for shotnum, ex_sn in sn:
-            _sn = _condition_shotnum(shotnum, {}, {})
+            _sn = condition_shotnum(shotnum, [], [])
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertTrue(np.array_equal(_sn, ex_sn))
@@ -597,18 +597,12 @@ class TestConditionShotnum(TestBase):
         self.f.create_dataset("d2", data=data)
 
         # make fake dicts
-        dset_dict = {
-            "c1": self.f["d1"],
-            "c2": self.f["d2"],
-        }
-        shotnumkey_dict = {
-            "c1": "Shot number",
-            "c2": "Shot number",
-        }
+        dset_list = [self.f["d1"], self.f["d2"]]
+        shotnumkey_list = ["Shot number", "Shot number"]
 
         # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
-            _sn = _condition_shotnum(slice(-1, -4, 1), dset_dict, shotnumkey_dict)
+            _sn = condition_shotnum(slice(-1, -4, 1), dset_list, shotnumkey_list)
 
         # valid shotnum slices
         sn = [
@@ -619,7 +613,7 @@ class TestConditionShotnum(TestBase):
             (slice(-2, -1), np.array([6], dtype=np.uint32)),
         ]
         for shotnum, ex_sn in sn:
-            _sn = _condition_shotnum(shotnum, dset_dict, shotnumkey_dict)
+            _sn = condition_shotnum(shotnum, dset_list, shotnumkey_list)
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertTrue(np.array_equal(_sn, ex_sn))
@@ -644,7 +638,7 @@ class TestConditionShotnum(TestBase):
         ]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = _condition_shotnum(shotnum, {}, {})
+                _sn = condition_shotnum(shotnum, [], [])
 
         # shotnum valid
         sn = [
@@ -653,7 +647,7 @@ class TestConditionShotnum(TestBase):
             (np.array([20, 30], np.int32), np.array([20, 30], np.uint32)),
         ]
         for shotnum, ex_sn in sn:
-            _sn = _condition_shotnum(shotnum, {}, {})
+            _sn = condition_shotnum(shotnum, [], [])
 
             self.assertIsInstance(_sn, np.ndarray)
             self.assertTrue(np.array_equal(_sn, ex_sn))
@@ -663,7 +657,7 @@ class TestConditionShotnum(TestBase):
         sn = [1.5, None, True, {}]
         for shotnum in sn:
             with self.assertRaises(ValueError):
-                _sn = _condition_shotnum(shotnum, {}, {})
+                _sn = condition_shotnum(shotnum, [], [])
 
 
 class TestDoShotnumIntersection(ut.TestCase):
@@ -673,34 +667,37 @@ class TestDoShotnumIntersection(ut.TestCase):
         """Test intersection behavior with one control device"""
         # test a case that results in a null result
         shotnum = np.arange(1, 21, 1, dtype=np.uint32)
-        sni_dict = {"Waveform": np.zeros(shotnum.shape, dtype=bool)}
-        index_dict = {"Waveform": np.array([])}
+        sni_dict = {"Waveform": {"command": np.zeros(shotnum.shape, dtype=bool)}}
+        index_dict = {"Waveform": {"command": np.array([])}}
         self.assertRaises(
             ValueError, do_shotnum_intersection, shotnum, sni_dict, index_dict
         )
 
         # test a working case
         shotnum = np.arange(1, 21, 1)
-        sni_dict = {"Waveform": np.zeros(shotnum.shape, dtype=bool)}
-        index_dict = {"Waveform": np.array([5, 6, 7])}
-        sni_dict["Waveform"][[5, 6, 7]] = True
+        sni_dict = {"Waveform": {"command": np.zeros(shotnum.shape, dtype=bool)}}
+        index_dict = {"Waveform": {"command": np.array([5, 6, 7])}}
+        sni_dict["Waveform"]["command"][[5, 6, 7]] = True
         shotnum, sni_dict, index_dict = do_shotnum_intersection(
             shotnum, sni_dict, index_dict
         )
         self.assertTrue(np.array_equal(shotnum, [6, 7, 8]))
-        self.assertTrue(np.array_equal(sni_dict["Waveform"], [True] * 3))
-        self.assertTrue(np.array_equal(index_dict["Waveform"], [5, 6, 7]))
+        self.assertTrue(np.array_equal(sni_dict["Waveform"]["command"], [True] * 3))
+        self.assertTrue(np.array_equal(index_dict["Waveform"]["command"], [5, 6, 7]))
 
     def test_two_controls(self):
         """Test intersection behavior with two control devices"""
         # test a case that results in a null result
         shotnum = np.arange(1, 21, 1)
         sni_dict = {
-            "Waveform": np.zeros(shotnum.shape, dtype=bool),
-            "6K Compumotor": np.zeros(shotnum.shape, dtype=bool),
+            "Waveform": {"command": np.zeros(shotnum.shape, dtype=bool)},
+            "6K Compumotor": {0: np.zeros(shotnum.shape, dtype=bool)},
         }
-        index_dict = {"Waveform": np.array([]), "6K Compumotor": np.array([5, 6, 7])}
-        sni_dict["6K Compumotor"][[6, 7, 8]] = True
+        index_dict = {
+            "Waveform": {"command": np.array([])},
+            "6K Compumotor": {0: np.array([5, 6, 7])},
+        }
+        sni_dict["6K Compumotor"][0][[6, 7, 8]] = True
         self.assertRaises(
             ValueError, do_shotnum_intersection, shotnum, sni_dict, index_dict
         )
@@ -709,19 +706,23 @@ class TestDoShotnumIntersection(ut.TestCase):
         shotnum = np.arange(1, 21, 1)
         shotnum_dict = {"Waveform": shotnum, "6K Compumotor": shotnum}
         sni_dict = {
-            "Waveform": np.zeros(shotnum.shape, dtype=bool),
-            "6K Compumotor": np.zeros(shotnum.shape, dtype=bool),
+            "Waveform": {"command": np.zeros(shotnum.shape, dtype=bool)},
+            "6K Compumotor": {0: np.zeros(shotnum.shape, dtype=bool)},
         }
-        index_dict = {"Waveform": np.array([5, 6]), "6K Compumotor": np.array([5, 6, 7])}
-        sni_dict["Waveform"][[5, 6]] = True
-        sni_dict["6K Compumotor"][[5, 6, 7]] = True
+        index_dict = {
+            "Waveform": {"command": np.array([5, 6])},
+            "6K Compumotor": {0: np.array([5, 6, 7])},
+        }
+        sni_dict["Waveform"]["command"][[5, 6]] = True
+        sni_dict["6K Compumotor"][0][[5, 6, 7]] = True
         shotnum, sni_dict, index_dict = do_shotnum_intersection(
             shotnum, sni_dict, index_dict
         )
         self.assertTrue(np.array_equal(shotnum, [6, 7]))
         for key in shotnum_dict:
-            self.assertTrue(np.array_equal(sni_dict[key], [True] * 2))
-            self.assertTrue(np.array_equal(index_dict[key], [5, 6]))
+            for state_key in sni_dict[key]:
+                self.assertTrue(np.array_equal(sni_dict[key][state_key], [True] * 2))
+                self.assertTrue(np.array_equal(index_dict[key][state_key], [5, 6]))
 
 
 if __name__ == "__main__":

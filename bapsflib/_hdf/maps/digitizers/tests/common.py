@@ -17,6 +17,7 @@ import unittest as ut
 from typing import Tuple
 
 from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.templates import MapTypes
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 
@@ -82,6 +83,12 @@ class DigitizerTestCase(ut.TestCase):
     def map_device(self, group: h5py.Group) -> HDFMapDigiTemplate:
         """Mapping function"""
         return self.MAP_CLASS(group)
+
+    def test_inheritance(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, HDFMapDigiTemplate))
+
+    def test_maptype(self):
+        self.assertTrue(self.MAP_CLASS._maptype, MapTypes.DIGITIZER)
 
     def test_map_basics(self):
         """Test all required basic map features."""

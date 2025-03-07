@@ -457,10 +457,10 @@ class HDFReadData(np.ndarray):
             # perform intersection
             if intersection_set:
                 shotnum, sni_dict, index_dict = do_shotnum_intersection(
-                    shotnum, {"digi": sni}, {"digi": index}
+                    shotnum, {"digi": {"signal": sni}}, {"digi": {"signal": index}}
                 )
-                sni = sni_dict["digi"]
-                index = index_dict["digi"]
+                sni = sni_dict["digi"]["signal"]
+                index = index_dict["digi"]["signal"]
 
             # print execution timing
             if timeit:  # pragma: no cover

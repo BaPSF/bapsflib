@@ -122,14 +122,14 @@ def build_sndr_for_simple_dset(
     shotnum: np.ndarray, dset: h5py.Dataset, shotnumkey: str
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** numpy array to the specified "simple"
+    Compares the ``shotnum`` numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
     shot number(s).  As a results, two numpy arrays are returned which
     satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
-    where **shotnum** is the original shot number array, **sni** is a
+    where ``shotnum`` is the original shot number array, **sni** is a
     boolean numpy array masking which shot numbers were determined to
     be in the dataset, and **index** is an array of indices
     corresponding to the desired shot number(s).
@@ -140,14 +140,13 @@ def build_sndr_for_simple_dset(
     Parameters
     ----------
     shotnum : :term:`array_like`
-        desired HDF5 shot number
+        Array like object of desired shot numbers.
 
     dset : `h5py.Dataset`
-        dataset containing shot numbers
+        Control device dataset
 
     shotnumkey : `str`
-        field name in the dataset that contains
-        the shot numbers
+        Dataset field name containing shot numbers.
 
     Returns
     -------

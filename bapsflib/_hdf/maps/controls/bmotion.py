@@ -239,6 +239,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         ax_rename: Optional[Callable] = None,
     ):
         if ax_rename is None:
+
             def ax_rename(x):
                 return x
 

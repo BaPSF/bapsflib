@@ -192,19 +192,22 @@ class TestBuildShotnumDsetRelation(TestBase):
         cdset = self.cgroup["Run time list"]
         shotnumkey = "Shot number"
         configkey = "Configuration name"
-        for og_shotnum in shotnum_list:
+        for ii, og_shotnum in enumerate(shotnum_list):
             sn_arr = np.array(og_shotnum, dtype=np.uint32)
-            for cconfn in self.map.configs:
+            for jj, config_name in enumerate(self.map.configs):
+                config_column = configkey if (ii * jj) % 2 else None
+
                 index, sni = build_shotnum_dset_relation(
                     shotnum=sn_arr,
                     dset=cdset,
                     shotnumkey=shotnumkey,
                     n_configs=len(self.map.configs),
-                    config_id=cconfn,
+                    config_id=config_name,
+                    config_column=config_column,
                 )
 
                 self.assertSNSuite(
-                    sn_arr, index, sni, cdset, shotnumkey, configkey, cconfn
+                    sn_arr, index, sni, cdset, shotnumkey, configkey, config_name
                 )
 
     def assertSNSuite(self, shotnum, index, sni, cdset, shotnumkey, configkey, cconfn):

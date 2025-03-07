@@ -452,7 +452,11 @@ class HDFReadData(np.ndarray):
                 condition_shotnum(shotnum, dheader, shotnumkey,
                                   intersection_set)
             """
-            index, sni = build_sndr_for_simple_dset(shotnum, dheader, shotnumkey)
+            index, sni = build_sndr_for_simple_dset(
+                shotnum=shotnum,
+                dset=dheader,
+                shotnumkey=shotnumkey,
+            )
 
             # perform intersection
             if intersection_set:

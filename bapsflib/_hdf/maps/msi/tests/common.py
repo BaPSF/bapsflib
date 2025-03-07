@@ -82,7 +82,7 @@ class MSIDiagnosticTestCase(ut.TestCase):
         self.assertTrue(issubclass(self.MAP_CLASS, HDFMapMSITemplate))
 
     def test_maptype(self):
-        self.assertTrue(self.MAP_CLASS._maptype, MapTypes.MSI)
+        self.assertTrue(self.MAP_CLASS._maptype == MapTypes.MSI)
 
     def test_map_basics(self):
         """Test all required basic map features."""

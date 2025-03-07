@@ -88,7 +88,7 @@ class DigitizerTestCase(ut.TestCase):
         self.assertTrue(issubclass(self.MAP_CLASS, HDFMapDigiTemplate))
 
     def test_maptype(self):
-        self.assertTrue(self.MAP_CLASS._maptype, MapTypes.DIGITIZER)
+        self.assertTrue(self.MAP_CLASS._maptype == MapTypes.DIGITIZER)
 
     def test_map_basics(self):
         """Test all required basic map features."""

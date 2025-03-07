@@ -411,9 +411,8 @@ def build_sndr_for_complex_dset(
 
 def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
     """
-    Conditions the **controls** argument for
-    :class:`~.hdfreadcontrols.HDFReadControls` and
-    :class:`~.hdfreaddata.HDFReadData`.
+    Conditions the ``controls`` argument for
+    `~.hdfreadcontrols.HDFReadControls` and `~.hdfreaddata.HDFReadData`.
 
     Parameters
     ----------
@@ -441,7 +440,7 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
 
     .. admonition:: Condition Criteria
 
-        #. Input **controls** should be
+        #. Input ``controls`` should be
            ``Union[str, Iterable[Union[str, Tuple[str, Any]]]]``
         #. There can only be one control for each
            :class:`~bapsflib._hdf.maps.controls.types.ConType`.
@@ -546,7 +545,7 @@ def condition_shotnum(
     Parameters
     ----------
     shotnum: :term:`array_like` or Union[int, slice, List[int,...]]
-        desired HDF5 shot numbers
+        Array like object of desired shot numbers.
 
     dset_list : List[h5py.Dataset]
         List of control dataset instances that the shot number
@@ -609,126 +608,6 @@ def condition_shotnum(
     elif isinstance(shotnum, slice):
         # determine the largest possible shot number
         last_sn = [dset[-1, key] + 1 for dset, key in zip(dset_list, shotnumkey_list)]
-        if shotnum.stop is not None:
-            last_sn.append(shotnum.stop)
-        stop_sn = max(last_sn)
-
-        # get the start, stop, and step for the shot number array
-        start, stop, step = shotnum.indices(stop_sn)
-
-        # re-define `shotnum`
-        shotnum = np.arange(start, stop, step, dtype=np.int32)
-
-        # remove shot numbers <= 0
-        shotnum = np.delete(shotnum, np.where(shotnum <= 0)[0])
-        shotnum = shotnum.astype(np.uint32)
-
-        # ensure not NULL
-        if shotnum.size == 0:
-            raise ValueError("Valid `shotnum` not passed. Resulting array would be NULL")
-
-    elif isinstance(shotnum, np.ndarray):
-        if shotnum.ndim != 1:
-            shotnum = shotnum.squeeze()
-        if (
-            shotnum.ndim != 1
-            or not np.issubdtype(shotnum.dtype, np.integer)
-            or bool(shotnum.dtype.names)
-        ):
-            raise ValueError("Valid `shotnum` not passed")
-
-        # remove shot numbers <= 0
-        shotnum.sort()
-        shotnum = np.delete(shotnum, np.where(shotnum <= 0)[0])
-        shotnum = shotnum.astype(np.uint32)
-
-        # ensure not NULL
-        if shotnum.size == 0:
-            raise ValueError("Valid `shotnum` not passed. Resulting array would be NULL")
-    else:
-        raise ValueError("Valid `shotnum` not passed")
-
-    # return
-    return shotnum
-
-
-def _condition_shotnum(
-    shotnum: Any, dset_dict: Dict[str, h5py.Dataset], shotnumkey_dict: Dict[str, str]
-) -> np.ndarray:
-    r"""
-    Conditions the **shotnum** argument for
-    :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
-    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
-
-    Parameters
-    ----------
-    shotnum: :term:`array_like`
-        desired HDF5 shot numbers
-
-    dset_dict : Dict[str, h5py.Dataset]
-        dictionary of all control dataset instances
-
-    shotnumkey_dict : Dict[str, str]
-        dictionary of the shot number field name for each control
-        dataset in dset_dict
-
-    Returns
-    -------
-    `numpy.ndarray`
-        conditioned ``shotnum`` numpy array
-
-
-    .. admonition:: Condition Criteria
-
-        #. Input **shotnum** should be
-           ``Union[int, List[int,...], slice, np.ndarray]``
-        #. Any :math:`\mathbf{shotnum} \le 0` will be removed.
-        #. A `ValueError` will be thrown if the conditioned array is
-           NULL.
-    """
-    # Acceptable `shotnum` types
-    # 1. int
-    # 2. slice() object
-    # 3. List[int, ...]
-    # 4. np.array (dtype = np.integer and ndim = 1)
-    #
-    # Catch each `shotnum` type and convert to numpy array
-    #
-    if isinstance(shotnum, int):
-        if shotnum <= 0 or isinstance(shotnum, bool):
-            raise ValueError(
-                f"Valid `shotnum` ({shotnum}) not passed. Resulting array would be NULL."
-            )
-
-        # convert
-        shotnum = np.array([shotnum], dtype=np.uint32)
-
-    elif isinstance(shotnum, list):
-        # ensure all elements are int
-        if not all(isinstance(sn, int) for sn in shotnum):
-            raise ValueError("Valid `shotnum` not passed. All values NOT int.")
-
-        # remove shot numbers <= 0
-        shotnum.sort()
-        shotnum = list(set(shotnum))
-        shotnum.sort()
-        if min(shotnum) <= 0:
-            # remove values less-than or equal to 0
-            new_sn = [sn for sn in shotnum if sn > 0]
-            shotnum = new_sn
-
-        # ensure not NULL
-        if len(shotnum) == 0:
-            raise ValueError("Valid `shotnum` not passed. Resulting array would be NULL")
-
-        # convert
-        shotnum = np.array(shotnum, dtype=np.uint32)
-
-    elif isinstance(shotnum, slice):
-        # determine the largest possible shot number
-        last_sn = [
-            dset_dict[cname][-1, shotnumkey_dict[cname]] + 1 for cname in dset_dict
-        ]
         if shotnum.stop is not None:
             last_sn.append(shotnum.stop)
         stop_sn = max(last_sn)

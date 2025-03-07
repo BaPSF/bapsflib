@@ -19,17 +19,18 @@ __all__ = [
     "condition_controls",
     "condition_shotnum",
     "do_shotnum_intersection",
+    "IndexDict",
 ]
 
 import h5py
 import numpy as np
 
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 from bapsflib._hdf.utils.file import File
 
 # define type aliases
-IndexDict = Dict[str, np.ndarray]
+IndexDict = Dict[str, Dict[str, np.ndarray]]
 
 
 def build_shotnum_dset_relation(
@@ -655,8 +656,8 @@ def do_shotnum_intersection(
     shotnum: np.ndarray, sni_dict: IndexDict, index_dict: IndexDict
 ) -> Tuple[np.ndarray, IndexDict, IndexDict]:
     """
-    Calculates intersection of **shotnum** and all existing dataset
-    shot numbers, **shotnum[sni]**.
+    Calculates intersection of ``shotnum`` and all existing dataset
+    shot numbers, ``shotnum[sni]``.
 
     .. admonition:: Recall Array Relationship
 
@@ -667,13 +668,19 @@ def do_shotnum_intersection(
     Parameters
     ----------
     shotnum : :term:`array_like`
-        desired HDF5 shot numbers
+        Array like object of desired shot numbers.
 
     sni_dict : `IndexDict`
-        dictionary of all dataset **sni** arrays
+        Dictionary of dictionaries of all dataset ``sni`` arrays.  The
+        first level of `dict` keys is the control device name and the
+        second level of `dict` keys is the desired 'state value` (e.g.
+        ``'xyz'``).
 
     index_dict : `IndexDict`
-        dictionary of all dataset **index** arrays
+        Dictionary of dictionaries of all dataset ``index`` arrays.  The
+        first level of `dict` keys is the control device name and the
+        second level of `dict` keys is the desired 'state value` (e.g.
+        ``'xyz'``).
 
     Returns
     -------
@@ -690,19 +697,27 @@ def do_shotnum_intersection(
     """
     # intersect shot numbers
     shotnum_intersect = shotnum
-    for sni in sni_dict.values():
-        shotnum_intersect = np.intersect1d(
-            shotnum_intersect, shotnum[sni], assume_unique=True
-        )
+    # for sni in sni_dict.values():
+    for control_name in sni_dict.keys():
+        for state_key, sni in sni_dict[control_name].items():
+            shotnum_intersect = np.intersect1d(
+                shotnum_intersect, shotnum[sni], assume_unique=True
+            )
     if shotnum_intersect.shape[0] == 0:
         raise ValueError("Input `shotnum` would result in a NULL array")
 
     # now filter
-    for cname in index_dict:
-        sni = sni_dict[cname]
-        mask_for_index = np.isin(shotnum[sni], shotnum_intersect)
-        index_dict[cname] = index_dict[cname][mask_for_index]
-        sni_dict[cname] = np.ones(shotnum_intersect.shape, dtype=bool)
+    # for control_name in index_dict:
+    for control_name in index_dict.keys():
+        for state_key, index in index_dict[control_name].items():
+            sni = sni_dict[control_name][state_key]
+            mask_for_index = np.isin(shotnum[sni], shotnum_intersect)
+            index_dict[control_name][state_key] = index_dict[control_name][state_key][
+                mask_for_index
+            ]
+            sni_dict[control_name][state_key] = np.ones(
+                shotnum_intersect.shape, dtype=bool
+            )
 
     # update shotnum
     shotnum = shotnum_intersect

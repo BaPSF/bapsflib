@@ -12,7 +12,7 @@ import re
 import warnings
 
 from bapsf_motion.utils import toml
-from h5py import Group, Dataset
+from h5py import Dataset, Group
 from typing import Callable, Optional, Union
 
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate

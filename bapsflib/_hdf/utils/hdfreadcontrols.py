@@ -35,12 +35,12 @@ from bapsflib._hdf.utils.helpers import (
     condition_controls,
     condition_shotnum,
     do_shotnum_intersection,
+    IndexDict,
 )
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 # define type aliases
 ControlsType = Union[str, Iterable[Union[str, Tuple[str, Any]]]]
-IndexDict = Dict[str, np.ndarray]
 
 
 class HDFReadControls(np.ndarray):

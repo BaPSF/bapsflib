@@ -122,11 +122,11 @@ class TestBuildShotnumDsetRelation(TestBase):
         cdset = self.cgroup["Run time list"]
         with self.assertRaises(ValueError):
             build_shotnum_dset_relation(
-                np.empty(5, dtype=np.uint32),
-                cdset,
-                "Shot number",
-                self.map,
-                "config01",
+                shotnum=np.empty(5, dtype=np.uint32),
+                dset=cdset,
+                shotnumkey="Shot number",
+                n_configs=len(self.map.configs),
+                config_id="config01",
             )
 
     def assertInRangeSN(self):
@@ -154,7 +154,11 @@ class TestBuildShotnumDsetRelation(TestBase):
             sn_arr = np.array(og_shotnum, dtype=np.uint32)
             for cconfn in self.map.configs:
                 index, sni = build_shotnum_dset_relation(
-                    sn_arr, cdset, shotnumkey, self.map, cconfn
+                    shotnum=sn_arr,
+                    dset=cdset,
+                    shotnumkey=shotnumkey,
+                    n_configs=len(self.map.configs),
+                    config_id=cconfn,
                 )
 
                 self.assertSNSuite(
@@ -192,7 +196,11 @@ class TestBuildShotnumDsetRelation(TestBase):
             sn_arr = np.array(og_shotnum, dtype=np.uint32)
             for cconfn in self.map.configs:
                 index, sni = build_shotnum_dset_relation(
-                    sn_arr, cdset, shotnumkey, self.map, cconfn
+                    shotnum=sn_arr,
+                    dset=cdset,
+                    shotnumkey=shotnumkey,
+                    n_configs=len(self.map.configs),
+                    config_id=cconfn,
                 )
 
                 self.assertSNSuite(

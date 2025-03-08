@@ -22,6 +22,7 @@ from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
@@ -76,6 +77,34 @@ class TestDigiTemplates(ut.TestCase):
 
         # return
         return dummy_map(group)
+
+    def test_inheritance(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, HDFMapTemplate))
+
+    def test_maptype(self):
+        self.assertTrue(self.MAP_CLASS._maptype == MapTypes.DIGITIZER)
+
+    def test_additional_attributes_existence(self):
+        expected_attributes = {
+            "_device_adcs",
+            "active_configs",
+            "deduce_config_active_status",
+            "device_adcs",
+            "device_name",
+            "get_adc_info",
+        }
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
+
+    def test_additional_abstractmethod_existence(self):
+        expected_attributes = {
+            "construct_dataset_name",
+            "construct_header_dataset_name",
+        }
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                self.assertTrue(attr_name in self.MAP_CLASS.__abstractmethods__)
 
     def test_deduce_config_active_status(self):
         """

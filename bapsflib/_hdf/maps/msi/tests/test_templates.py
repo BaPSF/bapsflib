@@ -18,9 +18,7 @@ class TestHDFMapMSITemplate(ut.TestCase):
 
         # Creates class DummyMap which is subclass of HDFMapTemplate with
         # all abstract methods returning NotImplemented
-        self._DummyMap = type(
-            "DummyMap", (HDFMapMSITemplate,), new__dict__
-        )
+        self._DummyMap = type("DummyMap", (HDFMapMSITemplate,), new__dict__)
 
     def setUp(self):
         # blank/temporary HDF5 file

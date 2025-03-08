@@ -42,9 +42,7 @@ class ControlTemplateTestCase:
 
         # Creates class DummyMap which is subclass of HDFMapTemplate with
         # all abstract methods returning NotImplemented
-        self._DummyMap = type(
-            "DummyMap", (self.MAP_CLASS,), new__dict__
-        )
+        self._DummyMap = type("DummyMap", (self.MAP_CLASS,), new__dict__)
         self._DummyMap._maptype = MapTypes.CONTROL
         self._DummyMap._contype = ConType.MOTION
 
@@ -251,7 +249,10 @@ class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
         # run tests on a mock _map._configs
         with mock.patch.dict(_map._configs, configs_dict):
             # mock CLParse attribute 'apply_patterns'
-            with mock.patch.object(CLParse, "apply_patterns", ) as mock_apply_pat:
+            with mock.patch.object(
+                CLParse,
+                "apply_patterns",
+            ) as mock_apply_pat:
                 # 'apply_patterns' is unsuccessful
                 mock_apply_pat.return_value = (False, {})
                 sv_dict = _map._construct_state_values_dict(config_name, [pattern])
@@ -329,7 +330,7 @@ class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
         # mock _map._configs
         # mock the '_default_state_values_dict' method
         with mock.patch.dict(_map._configs, configs_dict), mock.patch.object(
-                _map, "_default_state_values_dict"
+            _map, "_default_state_values_dict"
         ) as mock_dsvdict:
             mock_dsvdict.return_value = dsv_dict
 
@@ -382,7 +383,7 @@ class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
         # mock _map._configs
         # mock the '_construct_state_values_dict' method
         with mock.patch.dict(_map._configs, configs_dict), mock.patch.object(
-                _map, "_construct_state_values_dict"
+            _map, "_construct_state_values_dict"
         ) as mock_csvd:
             # '_construct_state_values_dict' fails and returns {}
             mock_csvd.return_value = {}

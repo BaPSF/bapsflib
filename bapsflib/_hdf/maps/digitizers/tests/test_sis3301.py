@@ -37,7 +37,7 @@ class TestSIS3301(DigitizerTestCase):
         super().tearDown()
 
     def test_device_acs(self):
-        self.assertTrue(self.MAP_CLASS._device_adcs == ("SIS 3301", ))
+        self.assertTrue(self.MAP_CLASS._device_adcs == ("SIS 3301",))
 
     def test_construct_dataset_name(self):
         """Test functionality of method `construct_dataset_name`"""

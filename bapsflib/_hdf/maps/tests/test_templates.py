@@ -35,9 +35,7 @@ class TestHDFMapTemplate(ut.TestCase):
 
         # Creates class DummyMap which is subclass of HDFMapTemplate with
         # all abstract methods returning NotImplemented
-        self._DummyMap = type(
-            "DummyMap", (HDFMapTemplate,), new__dict__
-        )
+        self._DummyMap = type("DummyMap", (HDFMapTemplate,), new__dict__)
         self._DummyMap._maptype = MapTypes.MSI
 
     def setUp(self):

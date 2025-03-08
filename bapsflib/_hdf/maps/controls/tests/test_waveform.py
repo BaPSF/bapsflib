@@ -32,12 +32,6 @@ class TestWaveform(ControlTestCase):
     MAP_CLASS = HDFMapControlWaveform
     CONTYPE = ConType.WAVEFORM
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
         # any failed build must throw a HDFMappingError

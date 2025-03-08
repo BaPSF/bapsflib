@@ -33,12 +33,6 @@ class TestSixK(ControlTestCase):
     MAP_CLASS = HDFMapControl6K
     CONTYPE = ConType.MOTION
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""
         # any failed build must throw a HDFMappingError

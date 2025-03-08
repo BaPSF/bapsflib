@@ -14,8 +14,8 @@ import os
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-from bapsflib._hdf.maps.templates import MapTypes
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
+from bapsflib._hdf.maps.templates import MapTypes
 
 
 class MSIDiagnosticTestCase(ut.TestCase):

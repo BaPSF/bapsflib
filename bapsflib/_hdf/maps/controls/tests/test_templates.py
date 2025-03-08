@@ -11,14 +11,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import h5py
 import numpy as np
-import os
 import re
 import unittest as ut
 
 from abc import ABC
-from enum import Enum
 from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
@@ -32,18 +29,11 @@ from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
-class DummyTemplates(Enum):
-    default = HDFMapControlTemplate
-    cl = HDFMapControlCLTemplate
-
-
-class ControlTestCase(ut.TestCase):
+class ControlTemplateTestCase:
     _control_device_path = "/Raw data + config/Control device"
     MAP_CLASS = NotImplemented
 
-    def __init__(self, methodName="runTest"):
-        super().__init__(methodName=methodName)
-
+    def __init__(self):
         # Create a fully defined DummyMap to test basic functionality
         # of HDFMapTemplate
         new__dict__ = self.MAP_CLASS.__dict__.copy()
@@ -185,12 +175,20 @@ class ControlTestCase(ut.TestCase):
                     self.assertEqual(_map.has_command_list, case[0])
 
 
-class TestHDFMapControlTemplate(ControlTestCase):
+class TestHDFMapControlTemplate(ControlTemplateTestCase, ut.TestCase):
     MAP_CLASS = HDFMapControlTemplate
 
+    def __init__(self, methodName):
+        ut.TestCase.__init__(self, methodName=methodName)
+        ControlTemplateTestCase.__init__(self)
 
-class TestHDFMapControlCLTemplate(ControlTestCase):
+
+class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
     MAP_CLASS = HDFMapControlCLTemplate
+
+    def __init__(self, methodName):
+        ut.TestCase.__init__(self, methodName=methodName)
+        ControlTemplateTestCase.__init__(self)
 
     def test_additional_attribute_existence(self):
         expected_attributes = {

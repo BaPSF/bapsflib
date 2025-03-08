@@ -18,16 +18,16 @@ class ConType(Enum):
     """Enum of Control Device Types"""
 
     #: type for motion control devices
-    motion = "motion"
+    MOTION = "motion"
 
     #: type for power control devices
-    power = "power"
+    POWER = "power"
 
     #: type for timing control devices
-    timing = "timing"
+    TIMING = "timing"
 
     #: type for waveform control devices
-    waveform = "waveform"
+    WAVEFORM = "waveform"
 
     def __repr__(self):  # pragma: no cover
         return f"contype.{self.name}"

@@ -39,7 +39,7 @@ class TestSixK(ControlTestCase):
         super().tearDown()
 
     def test_contype(self):
-        self.assertEqual(self.map.info["contype"], ConType.motion)
+        self.assertEqual(self.map.info["contype"], ConType.MOTION)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

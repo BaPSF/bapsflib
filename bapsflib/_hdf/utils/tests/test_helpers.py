@@ -518,9 +518,9 @@ class TestConditionControls(TestBase):
         _bf._map_file()  # re-map file
 
         # fake 6K as contype.waveform
-        _bf.file_map.controls["6K Compumotor"].info["contype"] = _bf.file_map.controls[
+        _bf.file_map.controls["6K Compumotor"]._contype = _bf.file_map.controls[
             "Waveform"
-        ].info["contype"]
+        ].contype
 
         # test
         self.assertRaises(

@@ -14,7 +14,7 @@ import os
 import re
 import unittest as ut
 
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps import FauxHDFBuilder, MapTypes
 from bapsflib._hdf.maps.controls import ConType
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
@@ -86,6 +86,12 @@ class ControlTestCase(ut.TestCase):
     def map_device(self, group):
         """Mapping function"""
         return self.MAP_CLASS(group)
+
+    def test_inheritance(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, HDFMapControlTemplate))
+
+    def test_maptype(self):
+        self.assertTrue(self.MAP_CLASS._maptype == MapTypes.CONTROL)
 
     def test_map_basics(self):
         """Test all required basic map features."""

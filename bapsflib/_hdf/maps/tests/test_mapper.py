@@ -11,13 +11,17 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import h5py
+import os.path
 import unittest as ut
+
+from unittest import mock
 
 from bapsflib._hdf.maps.controls import HDFMapControls
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
-from bapsflib._hdf.maps.core import HDFMap
 from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder
@@ -26,11 +30,11 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.core.HDFMap`
+    Test Case for :class:`~bapsflib._hdf.maps.mapper.HDFMapper`
     """
 
     f = NotImplemented  # type: FauxHDFBuilder
-    MAP_CLASS = HDFMap
+    MAP_CLASS = HDFMapper
 
     @classmethod
     def setUpClass(cls):
@@ -67,6 +71,26 @@ class TestHDFMap(ut.TestCase):
             digitizer_path=digitizer_path,
             control_path=control_path,
         )
+
+    def test__repr__(self):
+        _map = self.map_file(
+            self.f,
+            msi_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            control_path="Raw data + config",
+        )
+        _class_name = _map.__class__.__name__
+        _file_path = os.path.basename(self.f.filename)
+        _repr = f"<{_class_name} of HDF5 file '{_file_path}'>"
+
+        _cases = [self.f.filename, bytes(self.f.filename, encoding="utf-8")]
+        for _case in _cases:
+            with self.subTest(case=_case):
+                with mock.patch.object(
+                    h5py.File, "filename", new_callable=mock.PropertyMock
+                ) as mock_filename:
+                    mock_filename.return_value = _case
+                    self.assertEqual(_map.__repr__(), _repr)
 
     def test_all_devices_in_one_group(self):
         """
@@ -368,7 +392,7 @@ class TestHDFMap(ut.TestCase):
 
     def assertHDFMapBasics(self, _map, _file):
         # check instance
-        self.assertIsInstance(_map, HDFMap)
+        self.assertIsInstance(_map, HDFMapper)
 
         # check attribute existence
         attrs = (

@@ -15,6 +15,7 @@ import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
+from bapsflib._hdf.maps.templates import MapTypes
 
 
 class MSIDiagnosticTestCase(ut.TestCase):
@@ -76,6 +77,12 @@ class MSIDiagnosticTestCase(ut.TestCase):
     def map_device(self, group):
         """Mapping function"""
         return self.MAP_CLASS(group)
+
+    def test_inheritance(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, HDFMapMSITemplate))
+
+    def test_maptype(self):
+        self.assertTrue(self.MAP_CLASS._maptype == MapTypes.MSI)
 
     def test_map_basics(self):
         """Test all required basic map features."""

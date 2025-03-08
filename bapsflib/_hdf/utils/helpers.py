@@ -27,13 +27,13 @@ import numpy as np
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
 from bapsflib._hdf.maps.controls.templates import (
+    ControlMap,
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
 from bapsflib._hdf.utils.file import File
 
 # define type aliases
-ControlMap = Union[HDFMapControlTemplate, HDFMapControlCLTemplate]
 IndexDict = Dict[str, np.ndarray]
 
 

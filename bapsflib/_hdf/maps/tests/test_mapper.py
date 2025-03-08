@@ -11,6 +11,7 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import os.path
 import unittest as ut
 
 from bapsflib._hdf.maps.controls import HDFMapControls
@@ -67,6 +68,19 @@ class TestHDFMap(ut.TestCase):
             digitizer_path=digitizer_path,
             control_path=control_path,
         )
+
+    def test__repr__(self):
+        _map = self.map_file(
+            self.f,
+            msi_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            control_path="Raw data + config",
+        )
+        _class_name = _map.__class__.__name__
+        _file_path = os.path.basename(self.f.filename)
+        _repr = f"<{_class_name} of HDF5 file '{_file_path}'>"
+
+        self.assertEqual(_map.__repr__(), _repr)
 
     def test_all_devices_in_one_group(self):
         """

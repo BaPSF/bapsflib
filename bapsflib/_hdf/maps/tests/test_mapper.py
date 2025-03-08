@@ -11,8 +11,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+import h5py
 import os.path
 import unittest as ut
+
+from unittest import mock
 
 from bapsflib._hdf.maps.controls import HDFMapControls
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
@@ -80,7 +83,14 @@ class TestHDFMap(ut.TestCase):
         _file_path = os.path.basename(self.f.filename)
         _repr = f"<{_class_name} of HDF5 file '{_file_path}'>"
 
-        self.assertEqual(_map.__repr__(), _repr)
+        _cases = [self.f.filename, bytes(self.f.filename, encoding="utf-8")]
+        for _case in _cases:
+            with self.subTest(case=_case):
+                with mock.patch.object(
+                    h5py.File, "filename", new_callable=mock.PropertyMock
+                ) as mock_filename:
+                    mock_filename.return_value = _case
+                    self.assertEqual(_map.__repr__(), _repr)
 
     def test_all_devices_in_one_group(self):
         """

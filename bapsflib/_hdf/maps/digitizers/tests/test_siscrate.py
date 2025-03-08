@@ -41,6 +41,9 @@ class TestSISCrate(DigitizerTestCase):
     def tearDown(self):
         super().tearDown()
 
+    def test_device_acs(self):
+        self.assertTrue(self.MAP_CLASS._device_adcs == ("SIS 3302", "SIS 3305"))
+
     def test_construct_dataset_name(self):
         """Test functionality of method `construct_dataset_name`"""
         # setup

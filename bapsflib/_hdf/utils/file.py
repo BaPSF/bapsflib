@@ -17,7 +17,7 @@ import warnings
 
 from typing import Any, Dict, List, Tuple, Union
 
-from bapsflib._hdf.maps import HDFMap, HDFMapControls, HDFMapDigitizers, HDFMapMSI
+from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
 from bapsflib.utils.warnings import BaPSFWarning
 
 
@@ -112,7 +112,7 @@ class File(h5py.File):
 
     def _map_file(self):
         """Map/re-map the HDF5 file. (Builds :attr:`file_map`)"""
-        self._file_map = HDFMap(
+        self._file_map = HDFMapper(
             self,
             control_path=self.CONTROL_PATH,
             digitizer_path=self.DIGITIZER_PATH,
@@ -130,8 +130,8 @@ class File(h5py.File):
         return self.file_map.digitizers
 
     @property
-    def file_map(self) -> HDFMap:
-        """HDF5 file map (:class:`~bapsflib._hdf.maps.core.HDFMap`)"""
+    def file_map(self) -> HDFMapper:
+        """HDF5 file map (:class:`~bapsflib._hdf.maps.mapper.HDFMapper`)"""
         return self._file_map
 
     @property

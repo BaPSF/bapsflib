@@ -13,7 +13,7 @@ Sub-Packages & Modules
 .. autosummary::
 
     file
-    lapdmap
+    mapper
     lapdoverview
 
 .. automodapi:: bapsflib.lapd._hdf

@@ -11,13 +11,11 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-import h5py
 import numpy as np
-import os
 import re
 import unittest as ut
 
-from enum import Enum
+from abc import ABC
 from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
@@ -26,204 +24,219 @@ from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
+from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
-class DummyTemplates(Enum):
-    default = HDFMapControlTemplate
-    cl = HDFMapControlCLTemplate
+class ControlTemplateTestCase:
+    _control_device_path = "/Raw data + config/Control device"
+    MAP_CLASS = NotImplemented
 
+    def __init__(self):
+        # Create a fully defined DummyMap to test basic functionality
+        # of HDFMapTemplate
+        new__dict__ = self.MAP_CLASS.__dict__.copy()
+        for _abc_method_name in self.MAP_CLASS.__abstractmethods__:
+            new__dict__[_abc_method_name] = lambda *args, **kwargs: NotImplemented
 
-class TestControlTemplates(ut.TestCase):
-    """
-    Test class for HDFMapControlTemplate and
-    HDFMapControlCLTemplate.
-    """
+        # Creates class DummyMap which is subclass of HDFMapTemplate with
+        # all abstract methods returning NotImplemented
+        self._DummyMap = type("DummyMap", (self.MAP_CLASS,), new__dict__)
+        self._DummyMap._maptype = MapTypes.CONTROL
+        self._DummyMap._contype = ConType.MOTION
 
     def setUp(self):
         # blank/temporary HDF5 file
         self.f = FauxHDFBuilder()
 
+        # self.f["Raw data + config"].create_group("Control Device")
+        # _control_group = self.f.get(self._control_device_path)
+        self.f.create_group(self._control_device_path)
+        control_group = self.f.get(self._control_device_path)
+
         # fill the MSI group for testing
-        self.f["MSI"].create_group("g1")
-        self.f["MSI"].create_group("g2")
+        _path = self._control_device_path
+        control_group.create_group("g1")
+        control_group.create_group("g2")
 
         # correct 'command list' dataset
         dtype = np.dtype([("Shot number", np.int32), ("Command index", np.int8)])
         data = np.empty((5,), dtype=dtype)
-        self.f["MSI"].create_dataset("d1", data=data)
+        control_group.create_dataset("d1", data=data)
 
         # dataset missing 'Command index'
         dtype = np.dtype([("Shot number", np.int32), ("Not command index", np.int8)])
         data = np.empty((5,), dtype=dtype)
-        self.f["MSI"].create_dataset("d2", data=data)
+        control_group.create_dataset("d2", data=data)
 
         # dataset missing 'Command index' wrong shape and size
         dtype = np.dtype([("Shot number", np.int32), ("Command index", np.float16, (2,))])
         data = np.empty((5,), dtype=dtype)
-        self.f["MSI"].create_dataset("d3", data=data)
+        control_group.create_dataset("d3", data=data)
 
     def tearDown(self):
         """Cleanup temporary HDF5 file"""
         self.f.cleanup()
 
-    def group(self):
-        """HDF5 group for testing"""
-        return self.f["MSI"]
+    @property
+    def control_group(self):
+        return self.f[self._control_device_path]
 
-    @staticmethod
-    def dummy_map(template, group):
-        """A template mapping of a HDF5 group"""
-        # Note: Since the template classes contain abstract methods that
-        #       are intended to be overwritten, those methods must be
-        #       overwritten before instantiating an object.
-        #
-        # retrieve desired template class
-        template_cls = DummyTemplates[template].value
+    def test_abstractness(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, ABC))
 
-        # override abstract methods
-        # - all abstract methods will now return NotImplemented instead
-        #   of raising NotImplementedError
-        #
-        new_dict = template_cls.__dict__.copy()
-        for abstractmethod in template_cls.__abstractmethods__:
-            new_dict[abstractmethod] = lambda *args: NotImplemented
+    def test_inheritance(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, HDFMapTemplate))
 
-        # define new template class
-        new_template_class = type(
-            "dummy_%s" % template_cls.__name__, (template_cls,), new_dict
-        )
-
-        # return map
-        return new_template_class(group)
-
-    def test_not_h5py_group(self):
-        """Test error if object to map is not h5py.Group"""
-        with self.assertRaises(TypeError):
-            self.dummy_map("default", None)
-            self.dummy_map("cl", None)
-
-    def test_structure(self):
-        # test HDFMapControlTemplate
-        self.assertControlTemplate(self.dummy_map("default", self.group()), self.group())
-
-        # test HDFMapControlCLTemplate
-        self.assertControlCLTemplate(self.dummy_map("cl", self.group()), self.group())
-
-    def assertControlTemplate(self, _map, _group: h5py.Group):
-        # check instance
-        self.assertIsInstance(_map, HDFMapControlTemplate)
-
-        # check attribute existence
-        attrs = (
-            "info",
-            "configs",
+    def test_attribute_existence(self):
+        expected_attributes = {
+            "_contype",
             "contype",
-            "dataset_names",
-            "group",
+            "device_name",
+            "get_config_id",
             "has_command_list",
             "one_config_per_dset",
-            "subgroup_names",
-            "device_name",
-            "construct_dataset_name",
-            "_build_configs",
-        )
-        for attr in attrs:
-            self.assertTrue(hasattr(_map, attr))
+        }
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
 
-        # -- check 'info'                                           ----
-        # assert is a dict
-        self.assertIsInstance(_map.info, dict)
+    def test_abstractmethod_existence(self):
+        expected_attributes = {"construct_dataset_name"}
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
 
-        # assert required keys
-        self.assertIn("group name", _map.info)
-        self.assertIn("group path", _map.info)
-        self.assertIn("contype", _map.info)
+    def test_attribute_values(self):
+        _map = self._DummyMap(self.control_group)
+        _expected = {
+            "configs": dict(),
+            "group_name": "Control device",
+            "device_name": _map.group_name,
+            "maptype": MapTypes.CONTROL,
+            "contype": ConType.MOTION,
+        }
+        for attr_name, expected in _expected.items():
+            with self.subTest(attr_name=attr_name, expected=expected):
+                self.assertEqual(getattr(_map, attr_name), expected)
 
-        # assert values
-        self.assertEqual(_map.info["group name"], os.path.basename(_group.name))
-        self.assertEqual(_map.info["group path"], _group.name)
-        self.assertEqual(_map.info["contype"], NotImplemented)
+    def test_not_h5py_group(self):
+        with self.assertRaises(TypeError):
+            self._DummyMap(None)
 
-        # -- check 'configs'                                        ----
-        self.assertIsInstance(_map.configs, dict)
-        self.assertEqual(len(_map.configs), 0)
+    def test_get_config_id(self):
+        _map = self._DummyMap(self.control_group)
+        self.assertEqual(_map.get_config_id("config01"), "config01")
 
-        # -- check 'one_config_per_dset'                            ----
-        # empty configs dict
-        self.assertFalse(_map.one_config_per_dset)
+    def test_one_config_per_dset(self):
+        # control_group is set up with 3 datasets
+        _map = self._DummyMap(self.control_group)
 
-        # one config for three datasets
-        with mock.patch.dict(_map._configs, {"config1": {}}):
-            self.assertFalse(_map.one_config_per_dset)
+        _cases = [  # (one_config_per_dset? , mock_configs)
+            (False, {"config1": {}}),
+            (True, {"config1": {}, "config2": {}, "config3": {}}),
+        ]
+        for case in _cases:
+            with self.subTest(case=case):
+                with mock.patch.dict(_map.configs, case[1]):
+                    self.assertEqual(_map.one_config_per_dset, case[0])
 
-        # 3 configs for 3 datasets
-        with mock.patch.dict(
-            _map._configs, {"config1": {}, "config2": {}, "config3": {}}
-        ):
-            self.assertTrue(_map.one_config_per_dset)
+    def test_info_dict(self):
+        _map = self._DummyMap(self.control_group)
 
-        # -- check 'has_command_list'                               ----
-        # empty configs dict
-        self.assertFalse(_map.has_command_list)
+        _expected = {
+            True: isinstance(_map.info, dict),
+            "group name": "Control device",
+            "group path": self._control_device_path,
+            "maptype": _map.maptype,
+            "contype": _map.contype,
+        }
+        for key, expected in _expected.items():
+            with self.subTest(key=key, expected=expected):
+                val = key if not isinstance(key, str) else _map.info[key]
+                self.assertEqual(val, expected)
 
-        # add artificial 'command list'
-        with mock.patch.dict(
-            _map.configs, {"config1": {}, "config2": {"command list": ("start",)}}
-        ):
-            self.assertTrue(_map.has_command_list)
+    def test_has_command_list(self):
+        # control_group is set up with 3 datasets
+        _map = self._DummyMap(self.control_group)
 
-        # -- check other attributes                                 ----
-        self.assertEqual(_map.contype, _map.info["contype"])
-        self.assertEqual(_map.group, _group)
-        self.assertEqual(_map.device_name, _map.info["group name"])
-        self.assertEqual(sorted(_map.dataset_names), sorted(["d1", "d2", "d3"]))
-        self.assertEqual(sorted(_map.subgroup_names), sorted(["g1", "g2"]))
+        _cases = [  # (one_config_per_dset? , mock_configs)
+            (False, {"config1": {}}),
+            (False, {"config1": {}, "config2": {}}),
+            (True, {"config1": {"command list": ("start",)}}),
+            (True, {"config1": {"command list": ("start",)}, "config2": {}}),
+        ]
+        for case in _cases:
+            with self.subTest(case=case):
+                with mock.patch.dict(_map.configs, case[1]):
+                    self.assertEqual(_map.has_command_list, case[0])
 
-        # -- check abstract methods                                 ----
-        # Note: `self.dummy_map` overrides all abstract methods to
-        #       return NotImplemented values
-        #
-        self.assertEqual(_map.construct_dataset_name(), NotImplemented)
-        self.assertEqual(_map._build_configs(), NotImplemented)
 
-    def assertControlCLTemplate(self, _map, _group: h5py.Group):
-        # check instance
-        self.assertIsInstance(_map, HDFMapControlCLTemplate)
+class TestHDFMapControlTemplate(ControlTemplateTestCase, ut.TestCase):
+    MAP_CLASS = HDFMapControlTemplate
 
-        # re-assert HDFMapControlTemplate structure
-        self.assertControlTemplate(_map, _group)
+    def __init__(self, methodName):
+        ut.TestCase.__init__(self, methodName=methodName)
+        ControlTemplateTestCase.__init__(self)
 
-        # check attribute existence
-        attrs = (
+
+class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
+    MAP_CLASS = HDFMapControlCLTemplate
+
+    def __init__(self, methodName):
+        ut.TestCase.__init__(self, methodName=methodName)
+        ControlTemplateTestCase.__init__(self)
+
+    def test_additional_attribute_existence(self):
+        expected_attributes = {
+            "_construct_state_values_dict",
             "_default_re_patterns",
             "clparse",
-            "_construct_state_values_dict",
             "reset_state_values_config",
             "set_state_values_config",
-            "_default_state_values_dict",
-        )
-        for attr in attrs:
-            self.assertTrue(hasattr(_map, attr))
+        }
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
 
-        # -- check '_default_re_patterns'                           ----
-        self.assertIsInstance(_map._default_re_patterns, tuple)
-        self.assertEqual(len(_map._default_re_patterns), 0)
+    def test_additional_abstractmethod_existence(self):
+        expected_attributes = {"_default_state_values_dict"}
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
 
-        # -- check 'clparse'                                        ----
+    def test_default_re_patterns(self):
+        _map = self._DummyMap(self.control_group)
+
+        _cases = [
+            isinstance(_map._default_re_patterns, tuple),
+            _map._default_re_patterns == (),
+        ]
+        for case in _cases:
+            with self.subTest(case=case):
+                self.assertTrue(case)
+
+    def test_clparse(self):
+        _map = self._DummyMap(self.control_group)
+
         with mock.patch.dict(
-            _map._configs, {"config1": {"command list": ("VOLT 25.0",)}}
+            _map._configs,
+            {"config1": {"command list": ("VOLT 25.0",)}},
         ):
             self.assertIsInstance(_map.clparse("config1"), CLParse)
 
-        # -- check '_construct_state_values_dict'                   ----
-        cl = (
-            "VOLT 20.0",
-            "VOLT 25.0",
-            "VOLT 30.0",
-        )
+    def test_construct_state_values_dict(self):
+        _map = self._DummyMap(self.control_group)
+
+        cl = ("VOLT 20.0", "VOLT 25.0", "VOLT 30.0")
         config_name = "config1"
-        configs_dict = {config_name: {"command list": cl, "dset paths": ("/MSI/d1",)}}
+        configs_dict = {
+            config_name: {
+                "command list": cl,
+                "dset paths": (f"{_map.group_path}/d1",),
+            },
+        }
         clparse_dict = {
             "VOLT": {
                 "command list": (20.0, 25.0, 30.0),
@@ -265,26 +278,28 @@ class TestControlTemplates(ut.TestCase):
                 )
 
                 # the 'dset_paths' dataset does NOT have 'Command index'
-                configs_dict[config_name]["dset paths"] = ("/MSI/d2",)
+                configs_dict[config_name]["dset paths"] = (f"{_map.group_path}/d2",)
                 with self.assertWarns(HDFMappingWarning):
                     sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                     self.assertFalse(bool(sv_dict))
 
                 # the 'dset_paths' dataset 'Command index' field does
                 # NOT have correct shape or dtype
-                configs_dict[config_name]["dset paths"] = ("/MSI/d3",)
+                configs_dict[config_name]["dset paths"] = (f"{_map.group_path}/d3",)
                 with self.assertWarns(HDFMappingWarning):
                     sv_dict = _map._construct_state_values_dict(config_name, [pattern])
                     self.assertFalse(bool(sv_dict))
 
-        # -- check 'reset_state_values_config'                      ----
+    def test_reset_state_values_config(self):
+        _map = self._DummyMap(self.control_group)
+
         cl = ("VOLT 20.0", "VOLT 25.0", "VOLT 30.0")
         pattern = r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
         config_name = "config1"
         configs_dict = {
             config_name: {
                 "command list": cl,
-                "dset paths": ("/MSI/d1",),
+                "dset paths": (f"{_map.group_path}/d1",),
                 "shotnum": {},
                 "state values": {},
             }
@@ -338,6 +353,9 @@ class TestControlTemplates(ut.TestCase):
                 _map.reset_state_values_config(config_name, apply_patterns=True)
                 self.assertEqual(_map._configs[config_name]["state values"], sv_dict)
 
+    def test_set_state_values_config(self):
+        _map = self._DummyMap(self.control_group)
+
         # -- check 'set_state_values_config'                        ----
         cl = ("VOLT 20.0", "VOLT 25.0", "VOLT 30.0")
         pattern = r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
@@ -345,7 +363,7 @@ class TestControlTemplates(ut.TestCase):
         configs_dict = {
             config_name: {
                 "command list": cl,
-                "dset paths": ("/MSI/d1",),
+                "dset paths": (f"{_map.group_path}/d1",),
                 "shotnum": {},
                 "state values": {},
             }
@@ -384,7 +402,3 @@ class TestControlTemplates(ut.TestCase):
         #       return NotImplemented values
         #
         self.assertEqual(_map._default_state_values_dict(""), NotImplemented)
-
-
-if __name__ == "__main__":
-    ut.main()

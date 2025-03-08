@@ -83,6 +83,20 @@ div.pkgnav ul li a:hover {
 .rst-content table.docutils td div[class^='highlight-default'] {
     margin-bottom: 12px;
 }
+.rst-content table.docutils div[class^="highlight"] pre {
+    padding: 6px 12px;
+}
+
+/* bottom margin for paragraphs in "CSV" tables */
+.rst-content table.docutils p {
+    margin-bottom: 10px !important;
+    line-height: 1.35em !important;
+}
+
+/* NO bottom margin for paragraphs in autosummary tables */
+.rst-content table.autosummary p {
+    margin-bottom: 0 !important;
+}
 
 /* .highlight background color */
 div[class^="highlight"] {

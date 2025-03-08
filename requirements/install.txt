@@ -2,6 +2,7 @@
 # ought to mirror 'instal_requires' under 'options' in config.cfg
 -r build.txt
 astropy >= 4.3.1
+bapsf_motion >= 0.2
 h5py >= 3.0
 numpy >= 1.20
 scipy >= 0.19

@@ -106,3 +106,23 @@ class TestBMotion(ControlTestCase):
                         _map.construct_dataset_name(*args)
                 else:
                     self.fail(f"Test assert_type '{assert_type}' is unknown.")
+
+    def test_get_config_id(self):
+        _map = self.map
+        _conditions = [
+            # (assert_type, args, expected)
+            ("equal", ("5 - my_motion_group",), "5"),
+            ("equal", ("20 - foo",), "20"),
+            ("equal", ("20 - <Hades>    n21x21",), "20"),
+            ("is", ("five",), None),
+            ("is", ("A - my_motion_group",), None),
+            ("is", ("5 ~ my_motion_group",), None),
+        ]
+        for assert_type, args, expected in _conditions:
+            with self.subTest(assert_type=assert_type, args=args, expected=expected):
+                if assert_type == "equal":
+                    self.assertEqual(_map.get_config_id(*args), expected)
+                elif assert_type == "is":
+                    self.assertIs(_map.get_config_id(*args), expected)
+                else:
+                    self.fail(f"Test assert_type '{assert_type}' is unknown.")

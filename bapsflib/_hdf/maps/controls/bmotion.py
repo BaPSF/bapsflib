@@ -343,7 +343,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         if not isinstance(name, str):
             return None
 
-        _mg_configs = self._run_config["run"]["motion_groups"]
+        _mg_configs = self._run_config["run"]["motion_group"]
         for key, _config in _mg_configs.items():
             if _config["name"] == name:
                 config_name = self._generate_config_name(key, _config["name"])

@@ -98,13 +98,13 @@ class ControlTestCase(ut.TestCase):
 
     def test_contype(self):
         _conditions = [
-            self.MAP_CLASS._contype == self.CONTYPE,
-            self.map.contype == self.CONTYPE,
-            self.map.info["contype"] == self.map.contype,
+            (self.MAP_CLASS._contype, self.CONTYPE),
+            (self.map.contype, self.CONTYPE),
+            (self.map.info["contype"], self.map.contype),
         ]
-        for condition in _conditions:
-            with self.subTest(condition=condition):
-                self.assertTrue(self.MAP_CLASS._contype == self.CONTYPE)
+        for c1, c2 in _conditions:
+            with self.subTest(c1=c1, c2=c2):
+                self.assertEqual(c1, c2)
 
     def test_map_basics(self):
         """Test all required basic map features."""

@@ -13,3 +13,4 @@ from bapsflib._hdf.maps.controls.tests.fauxnixyz import FauxNIXYZ
 from bapsflib._hdf.maps.controls.tests.fauxnixz import FauxNIXZ
 from bapsflib._hdf.maps.controls.tests.fauxsixk import FauxSixK
 from bapsflib._hdf.maps.controls.tests.fauxwaveform import FauxWaveform
+from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion

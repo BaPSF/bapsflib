@@ -8,9 +8,9 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion
 from bapsflib._hdf.maps.controls.tests.fauxn5700ps import FauxN5700PS
 from bapsflib._hdf.maps.controls.tests.fauxnixyz import FauxNIXYZ
 from bapsflib._hdf.maps.controls.tests.fauxnixz import FauxNIXZ
 from bapsflib._hdf.maps.controls.tests.fauxsixk import FauxSixK
 from bapsflib._hdf.maps.controls.tests.fauxwaveform import FauxWaveform
-from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion

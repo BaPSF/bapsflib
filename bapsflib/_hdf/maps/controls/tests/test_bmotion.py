@@ -20,3 +20,14 @@ class TestBMotion(ControlTestCase):
     @ut.skip("Not implemented")
     def test_warnings(self):
         ...
+
+    def test_generate_config_name(self):
+        _map = self.MAP_CLASS
+        _conditions = [
+            # (args, expected)
+            ((5, "my_motion_group"), "5 - my_motion_group"),
+            ((20, "foo"), "20 - foo"),
+        ]
+        for args, expected in _conditions:
+            with self.subTest(args=args, expected=expected):
+                self.assertEqual(_map._generate_config_name(*args), expected)

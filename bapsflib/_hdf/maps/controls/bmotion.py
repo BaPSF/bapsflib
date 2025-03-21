@@ -339,19 +339,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         except KeyError:
             pass
 
-        try:
-            _id = ast.literal_eval(_id)
-            mg_name = _mg_configs[_id]["name"]
-            config_name = self._generate_config_name(_id, mg_name)
-            return config_name
-        except KeyError:
-            # drive id does NOT exist
-            return None
-        except ValueError:
-            # ast.literal_eval not able to convert string to python
-            # literal structure (in our case an int)
-            return None
-
     def get_config_name_by_motion_group_name(self, name: str) -> Union[str, None]:
         if not isinstance(name, str):
             return None

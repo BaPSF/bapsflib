@@ -65,6 +65,28 @@ class TestBMotion(ControlTestCase):
                 else:
                     self.fail(f"Test assert_type '{assert_type}' is unknown.")
 
+    def test_get_dataset(self):
+        _map = self.map
+        _group = self.dgroup
+
+        _conditions = [
+            # (assert_type, args, expected)
+            ("equal", ("main",), _group["Run time list"]),
+            ("equal", ("axis_names",), _group["bmotion_axis_names"]),
+            ("equal", ("positions",), _group["bmotion_positions"]),
+            ("equal", ("target_positions",), _group["bmotion_target_positions"]),
+            ("raises", ("not_a_dataset",), ValueError),
+        ]
+        for assert_type, args, expected in _conditions:
+            with self.subTest(assert_type=assert_type, args=args, expected=expected):
+                if assert_type == "equal":
+                    self.assertEqual(_map._get_dataset(*args), expected)
+                elif assert_type == "raises":
+                    with self.assertRaises(expected):
+                        _map._get_dataset(*args)
+                else:
+                    self.fail(f"Test assert_type '{assert_type}' is unknown.")
+
     def test_construct_dataset_name(self):
         _map = self.map
         _conditions = [

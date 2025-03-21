@@ -122,18 +122,26 @@ class TestBMotion(ControlTestCase):
             (self.assertIs, ("A - my_motion_group",), None),
             (self.assertIs, ("5 ~ my_motion_group",), None),
         ]
-        for assert_type, args, expected in _conditions:
-            with self.subTest(assert_type=assert_type, args=args, expected=expected):
-                if assert_type == "equal":
-                    self.assertEqual(_map.get_config_id(*args), expected)
-                elif assert_type == "is":
-                    self.assertIs(_map.get_config_id(*args), expected)
-                else:
-                    self.fail(f"Test assert_type '{assert_type}' is unknown.")
         for _assert, args, expected in _conditions:
             self.assert_runner(
                 _assert=_assert,
                 attr=_map.get_config_id,
+                args=args,
+                kwargs={},
+                expected=expected,
+            )
+
+    def test_get_config_name_by_drive_name(self):
+        _map = self.map  # type: HDFMapControlBMotion
+        _conditions = [
+            (self.assertIs, (5,), None),
+            (self.assertIs, ("nor_correct_drive_name",), None),
+            (self.assertEqual, ("drive0",), _map._generate_config_name(0, "mg0")),
+        ]
+        for _assert, args, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.get_config_name_by_drive_name,
                 args=args,
                 kwargs={},
                 expected=expected,

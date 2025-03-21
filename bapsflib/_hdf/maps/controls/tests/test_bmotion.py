@@ -14,6 +14,18 @@ class TestBMotion(ControlTestCase):
     MAP_CLASS = HDFMapControlBMotion
     CONTYPE = ConType.MOTION
 
+    def test_required_dataset_names(self):
+        self.assertEqual(
+            self.MAP_CLASS._required_dataset_names,
+            {
+                "main": "Run time list",
+                "axis_names": "bmotion_axis_names",
+                "positions": "bmotion_positions",
+                "target_positions": "bmotion_target_positions",
+            },
+        )
+
+    @ut.skip("Not implemented")
     def test_raises(self):
         ...
 

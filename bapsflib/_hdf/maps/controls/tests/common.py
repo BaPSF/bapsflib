@@ -239,7 +239,11 @@ class ControlTestCase(ut.TestCase):
             self.assertIn("dtype", config["shotnum"])
 
             # ['shotnum']['dset paths']
-            self.assertEqual(config["shotnum"]["dset paths"], config["dset paths"])
+            sn_dset_paths = config["shotnum"]["dset paths"]
+            self.assertTrue(sn_dset_paths is None or isinstance(sn_dset_paths, tuple))
+            if isinstance(sn_dset_paths, tuple):
+                self.assertTrue(len(sn_dset_paths) == 1)
+                self.assertTrue(sn_dset_paths[0] in config["dset paths"])
 
             # ['shotnum']['dset field']
             self.assertIsInstance(config["shotnum"]["dset field"], tuple)

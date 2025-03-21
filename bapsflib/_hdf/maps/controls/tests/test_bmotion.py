@@ -31,3 +31,22 @@ class TestBMotion(ControlTestCase):
         for args, expected in _conditions:
             with self.subTest(args=args, expected=expected):
                 self.assertEqual(_map._generate_config_name(*args), expected)
+
+    def test_split_config_name(self):
+        _map = self.MAP_CLASS
+        _conditions = [
+            # (assert_type, args, expected)
+            ("equal", ("5 - my_motion_group",), ("5", "my_motion_group")),
+            ("equal", ("20 - foo",), ("20", "foo")),
+            ("is", ("five",), None),
+            ("is", ("A - my_motion_group",), None),
+            ("is", ("5 ~ my_motion_group",), None),
+        ]
+        for assert_type, args, expected in _conditions:
+            with self.subTest(assert_type=assert_type, args=args, expected=expected):
+                if assert_type == "equal":
+                    self.assertEqual(_map._split_config_name(*args), expected)
+                elif assert_type == "is":
+                    self.assertIs(_map._split_config_name(*args), expected)
+                else:
+                    self.fail(f"Test assert_type '{assert_type}' is unknown.")

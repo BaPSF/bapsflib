@@ -147,6 +147,25 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
+    def test_get_config_name_by_motion_group_id(self):
+        _map = self.map  # type: HDFMapControlBMotion
+        _conditions = [
+            # (_assert, args, expected)
+            (self.assertIs, (5.5,), None),
+            (self.assertIs, ({"not_an_id": 5},), None),
+            (self.assertIs, ("not_correct_motion_group_id",), None),
+            (self.assertEqual, (0,), _map._generate_config_name(0, "mg0")),
+            (self.assertEqual, ("0",), _map._generate_config_name(0, "mg0")),
+        ]
+        for _assert, args, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.get_config_name_by_motion_group_id,
+                args=args,
+                kwargs={},
+                expected=expected,
+            )
+
     def assert_runner(
         self,
         _assert: Union[str, Callable],

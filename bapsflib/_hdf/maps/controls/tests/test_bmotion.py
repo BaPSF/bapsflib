@@ -129,30 +129,28 @@ class TestBMotion(ControlTestCase):
 
     def assert_runner(
         self,
-        assert_type: str,
-        obj,
-        attr_name: str,
+        _assert: Union[str, Callable],
+        attr: Callable,
         args: tuple,
         kwargs: dict,
         expected,
     ):
         with self.subTest(
-            test_attr=attr_name,
+            test_attr=attr,
             args=args,
             kwargs=kwargs,
             expected=expected,
         ):
-            if not hasattr(obj, attr_name):
-                self.fail(f"Test object {obj} does not have attribute '{attr_name}'")
+            if isinstance(_assert, str) and hasattr(self, _assert):
+                _assert = getattr(self, _assert)
+            elif isinstance(_assert, str):
+                self.fail(
+                    f"The given assert name '{_assert}' does NOT match an "
+                    f"assert method on self."
+                )
 
-            attr = getattr(obj, attr_name)
-
-            if assert_type == "equal":
-                self.assertEqual(attr(*args, **kwargs), expected)
-            elif assert_type == "is":
-                self.assertIs(attr(*args, **kwargs), expected)
-            elif assert_type == "raises":
+            if _assert is self.assertRaises:
                 with self.assertRaises(expected):
-                    attr(*args)
+                    attr(*args, **kwargs)
             else:
-                self.fail(f"Test assert_type '{assert_type}' is unknown.")
+                _assert(attr(*args, **kwargs), expected)

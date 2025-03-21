@@ -354,6 +354,7 @@ class FauxBMotion(h5py.Group):
             slim_run_config += f"""
             [run.motion_group.{ii}]
             name = "{mg_name}"
+            drive.name = "drive{ii}"
             
             """
 

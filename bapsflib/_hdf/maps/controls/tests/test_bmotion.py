@@ -1,4 +1,5 @@
 import unittest as ut
+
 from typing import Callable, Union
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
@@ -96,7 +97,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         _conditions = [
             # (_assert, args, expected)
-            (self.assertEqual, ("main", ), "Run time list"),
+            (self.assertEqual, ("main",), "Run time list"),
             (self.assertEqual, ("axis_names",), "bmotion_axis_names"),
             (self.assertEqual, ("positions",), "bmotion_positions"),
             (self.assertEqual, ("target_positions",), "bmotion_target_positions"),

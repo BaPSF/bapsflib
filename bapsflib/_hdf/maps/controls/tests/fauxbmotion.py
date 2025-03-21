@@ -36,9 +36,8 @@ class FauxBMotion(h5py.Group):
         def n_motion_groups(self, val: int):
             """Set shot number size"""
             # condition val
-            if (
-                not isinstance(val, int)
-                and not (isinstance(val, np.generic) and np.issubdtype(val, np.integer))
+            if not isinstance(val, int) and not (
+                isinstance(val, np.generic) and np.issubdtype(val, np.integer)
             ):
                 raise TypeError(f"Expected type int, but got {type(val)}.")
             elif val < 1:
@@ -60,9 +59,8 @@ class FauxBMotion(h5py.Group):
         def sn_size(self, val: int):
             """Set shot number size"""
             # condition val
-            if (
-                not isinstance(val, int)
-                and not (isinstance(val, np.generic) and np.issubdtype(val, np.integer))
+            if not isinstance(val, int) and not (
+                isinstance(val, np.generic) and np.issubdtype(val, np.integer)
             ):
                 raise TypeError(f"Expected type int, but got {type(val)}.")
             elif val < 1:
@@ -121,7 +119,7 @@ class FauxBMotion(h5py.Group):
     @property
     def shotnum(self):
         _size = self.knobs.sn_size
-        self._shotnum = np.arange(1, _size+1, 1, dtype=np.int32)
+        self._shotnum = np.arange(1, _size + 1, 1, dtype=np.int32)
         return self._shotnum
 
     @property

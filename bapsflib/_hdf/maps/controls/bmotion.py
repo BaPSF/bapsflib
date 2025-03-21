@@ -308,8 +308,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         return name
 
     def get_config_id(self, config_name: str) -> str:
-        _id, mg_name = self._split_config_name(config_name)
-        return _id
+        id_and_mg_name = self._split_config_name(config_name)
+        return None if id_and_mg_name is None else id_and_mg_name[0]
 
     def get_config_name_by_drive_name(self, name: str) -> Union[str, None]:
         if not isinstance(name, str):

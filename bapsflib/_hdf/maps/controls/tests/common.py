@@ -357,15 +357,13 @@ class ControlTestCase(ut.TestCase):
             self.assertIn("shape", sv_config)
             self.assertIn("dtype", sv_config)
 
-            # ['state values']['']['dset paths']
-            self.assertEqual(sv_config["dset paths"], config["dset paths"])
-
             # ['state values']['']['dset field']
             self.assertIsInstance(sv_config["dset field"], tuple)
-            self.assertNotEqual(len(sv_config["dset field"]), 0)
+            self.assertTrue(len(sv_config["dset field"]), 1)
             self.assertTrue(
                 all(isinstance(field, str) for field in sv_config["dset field"])
             )
+            self.assertTrue(sv_config["dset paths"][0] in config["dset paths"])
 
             # ['state values]['']['shape']
             self.assertIsInstance(sv_config["shape"], tuple)

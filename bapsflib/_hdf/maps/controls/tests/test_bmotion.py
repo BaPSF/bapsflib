@@ -126,3 +126,33 @@ class TestBMotion(ControlTestCase):
                     self.assertIs(_map.get_config_id(*args), expected)
                 else:
                     self.fail(f"Test assert_type '{assert_type}' is unknown.")
+
+    def assert_runner(
+        self,
+        assert_type: str,
+        obj,
+        attr_name: str,
+        args: tuple,
+        kwargs: dict,
+        expected,
+    ):
+        with self.subTest(
+            test_attr=attr_name,
+            args=args,
+            kwargs=kwargs,
+            expected=expected,
+        ):
+            if not hasattr(obj, attr_name):
+                self.fail(f"Test object {obj} does not have attribute '{attr_name}'")
+
+            attr = getattr(obj, attr_name)
+
+            if assert_type == "equal":
+                self.assertEqual(attr(*args, **kwargs), expected)
+            elif assert_type == "is":
+                self.assertIs(attr(*args, **kwargs), expected)
+            elif assert_type == "raises":
+                with self.assertRaises(expected):
+                    attr(*args)
+            else:
+                self.fail(f"Test assert_type '{assert_type}' is unknown.")

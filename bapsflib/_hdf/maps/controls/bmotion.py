@@ -331,7 +331,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         elif isinstance(_id, int):
             _id = f"{_id}"
 
-        _mg_configs = self._run_config["run"]["motion_groups"]
+        _mg_configs = self._run_config["run"]["motion_group"]
         try:
             mg_name = _mg_configs[_id]["name"]
             config_name = self._generate_config_name(_id, mg_name)

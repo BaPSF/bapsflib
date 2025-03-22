@@ -246,7 +246,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         if ax_name.casefold() in ("x", "y", "z"):
             ax_name = ax_name.casefold()
             state_key = ax_rename("xyz")
-            state_entry = state_dict.get(state_key)
+            state_entry = state_dict.get(state_key, None)
 
             if state_entry is None:
                 state_entry = {

@@ -56,17 +56,17 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
         # examine datasets
         dataset_names = set(self.dataset_names)
-        if len(dataset_names) != 4:
-            raise HDFMappingError(
-                device_name="bmotion",
-                why=f"Expected 4 datasets, found {len(dataset_names)} datasets.",
-            )
         required_datasets = set(self._required_dataset_names.values())
-        _remainder_dsets = dataset_names - required_datasets
+        _remainder_dsets = required_datasets - dataset_names
         if len(_remainder_dsets) != 0:
             raise HDFMappingError(
                 device_name="bmotion",
                 why=f"Missing datasets {_remainder_dsets}.",
+            )
+        if len(dataset_names) != 4:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Expected 4 datasets, found {len(dataset_names)} datasets.",
             )
 
         # examine dataset structure

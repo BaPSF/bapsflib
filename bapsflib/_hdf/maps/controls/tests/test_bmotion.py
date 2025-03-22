@@ -81,6 +81,26 @@ class TestBMotion(ControlTestCase):
             with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
                 _map = self.map
 
+    def test_raises_missing_run_config(self):
+        # group needs attribute "RUN_CONFIG"
+        self.fail("write test")
+
+    def test_raises_run_config_has_no_motion_groups(self):
+        # the "RUN_CONFIG" needs at least one motion group
+        self.fail("write test")
+
+    def test_raise_build_config_ends_with_no_configs(self):
+        # at the end of _build_configs self.configs is still empty
+        self.fail("write test")
+
+    def test_warns_config_not_in_datasets(self):
+        # config defined in "RUN_CONFIG" is missing from datasets
+        self.fail("write test")
+
+    def test_warns_axis_names_not_defined(self):
+        # axis names are not populated in bmotion_axis_names
+        self.fail("write test")
+
     def test_generate_state_entry(self):
         _map = self.map  # type: HDFMapControlBMotion
         _dset = self.dgroup["bmotion_positions"]  # type: h5py.Dataset

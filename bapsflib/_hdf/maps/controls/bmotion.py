@@ -94,7 +94,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                     "a5",
                 }
 
-            if len(set(dset.dtype.fields) - column_names) != 0:
+            if len(column_names - set(dset.dtype.fields)) != 0:
                 raise HDFMappingError(
                     device_name="bmotion",
                     why=(

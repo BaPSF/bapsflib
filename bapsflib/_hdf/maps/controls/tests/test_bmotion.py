@@ -1,3 +1,5 @@
+import h5py
+import numpy as np
 import unittest as ut
 
 from typing import Callable, Union
@@ -34,6 +36,104 @@ class TestBMotion(ControlTestCase):
     @ut.skip("Not implemented")
     def test_warnings(self):
         ...
+    def test_generate_state_entry(self):
+        _map = self.map  # type: HDFMapControlBMotion
+        _dset = self.dgroup["bmotion_positions"]  # type: h5py.Dataset
+        _conditions = [
+            # (_assert, kwargs, expected)
+            (
+                self.assertEqual,
+                {
+                    "col_name": "a0",
+                    "ax_name": "x",
+                    "dset": _dset,
+                    "state_dict": {},
+                },
+                (
+                    "xyz",
+                    {
+                        "dset paths": (_dset.name,),
+                        "dset field": ("a0", "", ""),
+                        "shape": (3,),
+                        "dtype": np.float64,
+                        "config column": "motion_group_id",
+                    },
+                ),
+            ),
+            (
+                self.assertEqual,
+                {
+                    "col_name": "a1",
+                    "ax_name": "y",
+                    "dset": _dset,
+                    "state_dict": {"target_xyz": {}},
+                },
+                (
+                    "xyz",
+                    {
+                        "dset paths": (_dset.name,),
+                        "dset field": ("", "a1", ""),
+                        "shape": (3,),
+                        "dtype": np.float64,
+                        "config column": "motion_group_id",
+                    },
+                ),
+            ),
+            (
+                self.assertEqual,
+                {
+                    "col_name": "a2",
+                    "ax_name": "z",
+                    "dset": _dset,
+                    "state_dict": {
+                        "xyz": {
+                            "dset paths": (_dset.name,),
+                            "dset field": ("a0", "", ""),
+                            "shape": (3,),
+                            "dtype": np.float64,
+                            "config column": "motion_group_id",
+                        },
+                    },
+                },
+                (
+                    "xyz",
+                    {
+                        "dset paths": (_dset.name,),
+                        "dset field": ("a0", "", "a2"),
+                        "shape": (3,),
+                        "dtype": np.float64,
+                        "config column": "motion_group_id",
+                    },
+                ),
+            ),
+            (
+                self.assertEqual,
+                {
+                    "col_name": "a4",
+                    "ax_name": "rotation",
+                    "dset": _dset,
+                    "state_dict": {},
+                },
+                (
+                    "rotation",
+                    {
+                        "dset paths": (_dset.name,),
+                        "dset field": ("a4",),
+                        "shape": (),
+                        "dtype": _dset.dtype["a4"],
+                        "config column": "motion_group_id",
+                    },
+                ),
+            ),
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map._generate_state_entry,
+                args=(),
+                kwargs=kwargs,
+                expected=expected,
+            )
 
     def test_generate_config_name(self):
         _map = self.MAP_CLASS

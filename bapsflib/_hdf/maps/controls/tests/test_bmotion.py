@@ -66,6 +66,21 @@ class TestBMotion(ControlTestCase):
             with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
                 _map = self.map
 
+    def test_raises_datasets_missing_fields(self):
+        for dset_name in self.MAP_CLASS._required_dataset_names.values():
+            self.f.remove_all_modules()
+            self.f.add_module(self.DEVICE_NAME)
+
+            _group = self.dgroup
+            dset = _group[dset_name]
+            data = dset[...]  # type: np.ndarray
+            del _group[dset_name]
+            field_names = list(data.dtype.names)
+            _group.create_dataset(dset_name, data=data[field_names[1:]])
+
+            with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
+                _map = self.map
+
     def test_generate_state_entry(self):
         _map = self.map  # type: HDFMapControlBMotion
         _dset = self.dgroup["bmotion_positions"]  # type: h5py.Dataset

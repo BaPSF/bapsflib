@@ -7,6 +7,7 @@ from typing import Callable, Union
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.utils.exceptions import HDFMappingError
 
 
 class TestBMotion(ControlTestCase):
@@ -29,13 +30,42 @@ class TestBMotion(ControlTestCase):
             },
         )
 
-    @ut.skip("Not implemented")
-    def test_raises(self):
-        ...
+    def test_raises_too_many_subgroups(self):
+        _group = self.dgroup  # type: h5py.Group
+        _group.create_group("extra_group")
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
 
-    @ut.skip("Not implemented")
-    def test_warnings(self):
-        ...
+    def test_raises_too_many_datasets(self):
+        _group = self.dgroup  # type: h5py.Group
+        _group.create_dataset("extra_dataset", data=np.linspace(0, 10, 1))
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
+
+    def test_raises_missing_required_dataset(self):
+        for dset_name in self.MAP_CLASS._required_dataset_names.values():
+            self.f.remove_all_modules()
+            self.f.add_module(self.DEVICE_NAME)
+
+            _group = self.dgroup  # type: h5py.Group
+            del _group[dset_name]
+
+            with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
+                _map = self.map
+
+    def test_raises_required_datasets_have_no_fields(self):
+        for dset_name in self.MAP_CLASS._required_dataset_names.values():
+            self.f.remove_all_modules()
+            self.f.add_module(self.DEVICE_NAME)
+
+            _group = self.dgroup  # type: h5py.Group
+            del _group[dset_name]
+
+            _group.create_dataset(dset_name, data=np.linspace(0, 10, 1))
+
+            with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
+                _map = self.map
+
     def test_generate_state_entry(self):
         _map = self.map  # type: HDFMapControlBMotion
         _dset = self.dgroup["bmotion_positions"]  # type: h5py.Dataset

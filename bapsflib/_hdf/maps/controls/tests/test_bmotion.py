@@ -418,9 +418,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         configs = _map.configs
 
-        _run_config_str = (
-            _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
-        )
+        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
         _mg_config = _run_config["run"]["motion_group"]["0"]
 
@@ -494,7 +492,11 @@ class TestBMotion(ControlTestCase):
                 },
             ),
         ]
-        for _assert, value, expected, in _conditions:
+        for (
+            _assert,
+            value,
+            expected,
+        ) in _conditions:
             with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
                 _assert(value, expected)
 
@@ -506,9 +508,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         configs = _map.configs
 
-        _run_config_str = (
-            _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
-        )
+        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
 
         _conditions = [
@@ -532,7 +532,11 @@ class TestBMotion(ControlTestCase):
                         configs[mg_name]["BAPSFDAQ_MOTION_LV_VERSION"],
                         str,
                     ),
-                    (self.assertIsInstance, configs[mg_name]["BAPSF_MOTION_VERSION"], str),
+                    (
+                        self.assertIsInstance,
+                        configs[mg_name]["BAPSF_MOTION_VERSION"],
+                        str,
+                    ),
                     (self.assertIsInstance, configs[mg_name]["EXPANSION_ATTR"], str),
                     (self.assertIsInstance, configs[mg_name]["MG_CONFIG"], dict),
                     (self.assertIsInstance, configs[mg_name]["dset paths"], tuple),
@@ -569,7 +573,9 @@ class TestBMotion(ControlTestCase):
                         self.assertDictEqual,
                         configs[mg_name]["state values"]["xyz"],
                         {
-                            "dset paths": ("/Raw data + config/bmotion/bmotion_positions",),
+                            "dset paths": (
+                                "/Raw data + config/bmotion/bmotion_positions",
+                            ),
                             "dset field": ("a0", "a1", ""),
                             "shape": (3,),
                             "dtype": np.float64,
@@ -591,7 +597,11 @@ class TestBMotion(ControlTestCase):
                     ),
                 ],
             )
-        for _assert, value, expected, in _conditions:
+        for (
+            _assert,
+            value,
+            expected,
+        ) in _conditions:
             with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
                 _assert(value, expected)
 
@@ -601,9 +611,7 @@ class TestBMotion(ControlTestCase):
         _group = self.dgroup
         _faux_mod = self.mod  # type: FauxBMotion
 
-        _run_config_str = (
-            _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
-        )
+        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
         _run_config["run"]["motion_group"]["1"] = {
             "name": "mg1",

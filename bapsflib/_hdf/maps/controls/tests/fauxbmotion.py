@@ -202,11 +202,11 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = np.repeat(self.shotnum, self.knobs.n_motion_groups)
-        data["motion_group_id"] = np.repeat(
+        data["motion_group_id"] = np.tile(
             np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
             self.knobs.sn_size,
         )
-        data["motion_group_name"] = np.repeat(
+        data["motion_group_name"] = np.tile(
             np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
             self.knobs.sn_size,
         )
@@ -244,11 +244,11 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = np.repeat(self.shotnum, self.knobs.n_motion_groups)
-        data["motion_group_id"] = np.repeat(
+        data["motion_group_id"] = np.tile(
             np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
             self.knobs.sn_size,
         )
-        data["motion_group_name"] = np.repeat(
+        data["motion_group_name"] = np.tile(
             np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
             self.knobs.sn_size,
         )
@@ -300,11 +300,11 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = np.repeat(self.shotnum, self.knobs.n_motion_groups)
-        data["motion_group_id"] = np.repeat(
+        data["motion_group_id"] = np.tile(
             np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
             self.knobs.sn_size,
         )
-        data["motion_group_name"] = np.repeat(
+        data["motion_group_name"] = np.tile(
             np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
             self.knobs.sn_size,
         )

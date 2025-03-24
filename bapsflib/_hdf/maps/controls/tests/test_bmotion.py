@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 import unittest as ut
 
+from bapsf_motion.utils import toml
 from typing import Callable, Union
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
@@ -86,13 +87,29 @@ class TestBMotion(ControlTestCase):
         for child in _group.values():
             if isinstance(child, h5py.Group) and "RUN_CONFIG" in child.attrs:
                 del child.attrs["RUN_CONFIG"]
+                break
 
         with self.assertRaises(HDFMappingError):
             _map = self.map
 
     def test_raises_run_config_has_no_motion_groups(self):
-        # the "RUN_CONFIG" needs at least one motion group
-        self.fail("write test")
+        _group = self.dgroup
+        _run_config_str = None
+        child = None
+        for child in _group.values():
+            if isinstance(child, h5py.Group) and "RUN_CONFIG" in child.attrs:
+                _run_config_str = child.attrs["RUN_CONFIG"]
+                break
+
+        if _run_config_str is None:
+            self.fail("Unable to find RUN_CONFIG in configuration subgroup.")
+
+        _run_config = toml.loads(_run_config_str)
+        _run_config["run"]["motion_group"] = {}
+        child.attrs["RUN_CONFIG"] = toml.as_toml_string(_run_config)
+
+        with self.assertRaises(HDFMappingError):
+            _map = self.map
 
     def test_raise_build_config_ends_with_no_configs(self):
         # at the end of _build_configs self.configs is still empty

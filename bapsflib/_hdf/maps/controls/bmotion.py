@@ -5,7 +5,6 @@ Module for the "bmotion" motion control mapper
 
 __all__ = ["HDFMapControlBMotion"]
 
-import ast
 import copy
 import numpy as np
 import re

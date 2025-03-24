@@ -8,6 +8,7 @@ from typing import Callable, Union
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
+from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils.exceptions import HDFMappingError
 from bapsflib.utils.warnings import HDFMappingWarning
@@ -411,11 +412,13 @@ class TestBMotion(ControlTestCase):
 
     def test_configs_one_motion_group(self):
         _group = self.dgroup
+        _faux_mod = self.mod  # type: FauxBMotion
+
         _map = self.map
         configs = _map.configs
 
         _run_config_str = (
-            _group[self.f.modules["bmotion"].run_configuration_name].attrs["RUN_CONFIG"]
+            _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
         )
         _run_config = toml.loads(_run_config_str)
         _mg_config = _run_config["run"]["motion_group"]["0"]

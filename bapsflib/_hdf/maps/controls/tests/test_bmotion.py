@@ -1,6 +1,7 @@
 import h5py
 import numpy as np
 import unittest as ut
+import unittest.mock
 
 from bapsf_motion.utils import toml
 from typing import Callable, Union
@@ -112,8 +113,10 @@ class TestBMotion(ControlTestCase):
             _map = self.map
 
     def test_raise_build_config_ends_with_no_configs(self):
-        # at the end of _build_configs self.configs is still empty
-        self.fail("write test")
+        with ut.mock.patch.object(HDFMapControlBMotion, "configs") as mock_configs:
+            mock_configs.return_value = {}
+            with self.assertRaises(HDFMappingError):
+                _map = self.map
 
     def test_warns_config_not_in_datasets(self):
         # config defined in "RUN_CONFIG" is missing from datasets

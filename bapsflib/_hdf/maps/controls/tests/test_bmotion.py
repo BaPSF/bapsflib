@@ -149,7 +149,16 @@ class TestBMotion(ControlTestCase):
 
     def test_warns_axis_names_not_defined(self):
         # axis names are not populated in bmotion_axis_names
-        self.fail("write test")
+        _group = self.dgroup
+        dset_axis_names = _group["bmotion_axis_names"]
+        data = dset_axis_names[...]
+        data[["a0", "a1", "a2", "a3", "a4", "a5"]][:] = b""
+        dset_axis_names[...] = data[...]
+
+        # test
+        with self.assertRaises(HDFMappingError):
+            with self.assertWarns(HDFMappingWarning):
+                _map = self.map  # type: HDFMapControlBMotion
 
     def test_generate_state_entry(self):
         _map = self.map  # type: HDFMapControlBMotion

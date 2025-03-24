@@ -213,7 +213,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                     state_dict=_config["state values"],
                     ax_rename=lambda x: f"{x}_target",
                 )
-                print(_key, _entry)
                 _config["state values"][_key] = _entry
 
             # update config

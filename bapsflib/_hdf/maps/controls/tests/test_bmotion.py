@@ -2,6 +2,7 @@ import h5py
 import numpy as np
 import unittest as ut
 import unittest.mock
+import warnings
 
 from bapsf_motion.utils import toml
 from typing import Callable, Union
@@ -591,6 +592,39 @@ class TestBMotion(ControlTestCase):
                 ],
             )
         for _assert, value, expected, in _conditions:
+            with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
+                _assert(value, expected)
+
+    def test_configs_two_motion_groups_with_one_unused(self):
+        # test a run configuration with two motion groups in RUN_CONFIGS
+        # but with only one is saved to datasets
+        _group = self.dgroup
+        _faux_mod = self.mod  # type: FauxBMotion
+
+        _run_config_str = (
+            _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        )
+        _run_config = toml.loads(_run_config_str)
+        _run_config["run"]["motion_group"]["1"] = {
+            "name": "mg1",
+            "drive": {"name": "drive1"},
+        }
+        _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"] = (
+            toml.as_toml_string(_run_config)
+        )
+
+        with self.assertWarns(HDFMappingWarning):
+            self.test_configs_one_motion_group()
+
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", category=HDFMappingWarning)
+            _map = self.map
+            configs = _map.configs
+        _conditions = [
+            # (_assert, value, expected)
+            (self.assertNotIn, "1 - mg1", configs),
+        ]
+        for _assert, value, expected in _conditions:
             with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
                 _assert(value, expected)
 

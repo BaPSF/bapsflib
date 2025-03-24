@@ -10,6 +10,7 @@ from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils.exceptions import HDFMappingError
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestBMotion(ControlTestCase):
@@ -120,7 +121,31 @@ class TestBMotion(ControlTestCase):
 
     def test_warns_config_not_in_datasets(self):
         # config defined in "RUN_CONFIG" is missing from datasets
-        self.fail("write test")
+        _group = self.dgroup
+        _run_config_str = None
+        child = None
+        for child in _group.values():
+            if isinstance(child, h5py.Group) and "RUN_CONFIG" in child.attrs:
+                _run_config_str = child.attrs["RUN_CONFIG"]
+                break
+
+        if _run_config_str is None:
+            self.fail("Unable to find RUN_CONFIG in configuration subgroup.")
+
+        _run_config = toml.loads(_run_config_str)
+        n_motion_groups = len(_run_config["run"]["motion_group"])
+        _run_config["run"]["motion_group"][f"{n_motion_groups}"] = {
+            "name": "unused motion group"
+        }
+        child.attrs["RUN_CONFIG"] = toml.as_toml_string(_run_config)
+
+        # test
+        with self.assertWarns(HDFMappingWarning):
+            _map = self.map  # type: HDFMapControlBMotion
+            self.assertTrue(
+                _map._generate_config_name(n_motion_groups, "unused motion group")
+                not in _map.configs
+            )
 
     def test_warns_axis_names_not_defined(self):
         # axis names are not populated in bmotion_axis_names

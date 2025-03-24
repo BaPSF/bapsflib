@@ -163,7 +163,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             indices = np.where(
                 dset_axis_names["motion_group_name"] == bytes(mg_name, encoding="utf-8")
             )
-            if len(indices) != 1:
+            if len(indices[0]) == 0:
                 warnings.warn(
                     f"Unable to locate the '{mg_name}' configuration in the "
                     f"'bmotion_axis_names' dataset.",

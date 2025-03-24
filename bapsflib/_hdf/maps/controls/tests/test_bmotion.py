@@ -409,6 +409,85 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
+    def test_configs_one_motion_group(self):
+        _group = self.dgroup
+        _map = self.map
+        configs = _map.configs
+
+        _run_config_str = (
+            _group[self.f.modules["bmotion"].run_configuration_name].attrs["RUN_CONFIG"]
+        )
+        _run_config = toml.loads(_run_config_str)
+        _mg_config = _run_config["run"]["motion_group"]["0"]
+
+        _conditions = [
+            # (_assert, value, expected)
+            (self.assertEqual, 1, len(configs)),
+            (self.assertIn, "0 - mg0", configs),
+            (self.assertIn, "BAPSFDAQ_MOTION_LV_VERSION", configs["0 - mg0"]),
+            (self.assertIn, "BAPSF_MOTION_VERSION", configs["0 - mg0"]),
+            (self.assertIn, "EXPANSION_ATTR", configs["0 - mg0"]),
+            (self.assertIn, "MG_CONFIG", configs["0 - mg0"]),
+            (self.assertIn, "dset paths", configs["0 - mg0"]),
+            (self.assertIn, "shotnum", configs["0 - mg0"]),
+            (self.assertIn, "state values", configs["0 - mg0"]),
+            (self.assertIsInstance, configs["0 - mg0"]["BAPSFDAQ_MOTION_LV_VERSION"], str),
+            (self.assertIsInstance, configs["0 - mg0"]["BAPSF_MOTION_VERSION"], str),
+            (self.assertIsInstance, configs["0 - mg0"]["EXPANSION_ATTR"], str),
+            (self.assertIsInstance, configs["0 - mg0"]["MG_CONFIG"], dict),
+            (self.assertIsInstance, configs["0 - mg0"]["dset paths"], tuple),
+            (self.assertIsInstance, configs["0 - mg0"]["shotnum"], dict),
+            (self.assertIsInstance, configs["0 - mg0"]["state values"], dict),
+            (self.assertDictEqual, configs["0 - mg0"]["MG_CONFIG"], _mg_config),
+            (
+                self.assertEqual,
+                configs["0 - mg0"]["dset paths"],
+                (
+                    f"/Raw data + config/bmotion/Run time list",
+                    f"/Raw data + config/bmotion/bmotion_axis_names",
+                    f"/Raw data + config/bmotion/bmotion_positions",
+                    f"/Raw data + config/bmotion/bmotion_target_positions",
+                ),
+            ),
+            (
+                self.assertDictEqual,
+                configs["0 - mg0"]["shotnum"],
+                {
+                    "dset paths": None,
+                    "dset field": ("Shot number",),
+                    "shape": (),
+                    "dtype": np.int32,
+                },
+            ),
+            (self.assertIn, "xyz", configs["0 - mg0"]["state values"]),
+            (self.assertIn, "xyz_target", configs["0 - mg0"]["state values"]),
+            (
+                self.assertDictEqual,
+                configs["0 - mg0"]["state values"]["xyz"],
+                {
+                    "dset paths": ("/Raw data + config/bmotion/bmotion_positions",),
+                    "dset field": ("a0", "a1", ""),
+                    "shape": (3,),
+                    "dtype": np.float64,
+                    "config column": "motion_group_id",
+                },
+            ),
+            (
+                self.assertDictEqual,
+                configs["0 - mg0"]["state values"]["xyz_target"],
+                {
+                    "dset paths": ("/Raw data + config/bmotion/bmotion_target_positions",),
+                    "dset field": ("a0", "a1", ""),
+                    "shape": (3,),
+                    "dtype": np.float64,
+                    "config column": "motion_group_id",
+                },
+            ),
+        ]
+        for _assert, value, expected, in _conditions:
+            with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
+                _assert(value, expected)
+
     def assert_runner(
         self,
         _assert: Union[str, Callable],

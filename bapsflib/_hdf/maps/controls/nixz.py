@@ -45,20 +45,7 @@ class HDFMapControlNIXZ(HDFMapControlTemplate):
         |   +-- Run time list
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the HDF5 control device group
-        """
-        HDFMapControlTemplate.__init__(self, group)
-
-        # define control type
-        self._info["contype"] = ConType.motion
-
-        # populate self.configs
-        self._build_configs()
+    _contype = ConType.MOTION
 
     def _build_configs(self):
         """Build the :attr:`configs` dictionary"""

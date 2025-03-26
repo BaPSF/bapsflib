@@ -209,7 +209,7 @@ class HDFReadData(np.ndarray):
             print(f"tt - `hdf_file` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Examine file map object                              ----
-        # grab instance of `HDFMap`
+        # grab instance of `HDFMapper`
         _fmap = hdf_file.file_map
 
         # ---- Condition `add_controls`                             ----

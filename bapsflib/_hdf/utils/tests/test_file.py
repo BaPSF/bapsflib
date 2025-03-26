@@ -17,7 +17,7 @@ import unittest as ut
 
 from unittest import mock
 
-from bapsflib._hdf import HDFMap
+from bapsflib._hdf import HDFMapper
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
@@ -64,9 +64,9 @@ class TestFile(TestBase):
         self.assertTrue(hasattr(_bf, "digitizers"))
         self.assertTrue(hasattr(_bf, "msi"))
 
-        # `_map_file` should call HDFMap
+        # `_map_file` should call HDFMapper
         with mock.patch(
-            f"{File.__module__}.{HDFMap.__qualname__}", return_value="mapped"
+            f"{File.__module__}.{HDFMapper.__qualname__}", return_value="mapped"
         ) as mock_map:
 
             _bf._map_file()
@@ -77,7 +77,7 @@ class TestFile(TestBase):
         _bf._map_file()
 
         # `file_map`
-        self.assertIsInstance(_bf.file_map, HDFMap)
+        self.assertIsInstance(_bf.file_map, HDFMapper)
         self.assertIsInstance(type(_bf).file_map, property)
 
         # individual mappings

@@ -1,0 +1,2 @@
+Added `enum` `~bapsflib._hdf.maps.controls.ConType` to create a control
+type indicator.

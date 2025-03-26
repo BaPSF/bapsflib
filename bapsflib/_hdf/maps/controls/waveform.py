@@ -42,27 +42,11 @@ class HDFMapControlWaveform(HDFMapControlCLTemplate):
 
     """
 
-    def __init__(self, group: h5py.Group):
-        """
-        Parameters
-        ----------
-        group : `h5py.Group`
-            the HDF5 control device group
-        """
-        # initialize
-        HDFMapControlCLTemplate.__init__(self, group)
-
-        # define control type
-        self._info["contype"] = ConType.waveform
-
-        # define known command list RE patterns
-        self._default_re_patterns = (
-            r"(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
-            r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
-        )
-
-        # populate self.configs
-        self._build_configs()
+    _contype = ConType.WAVEFORM
+    _default_re_patterns = (
+        r"(?P<FREQ>(\bFREQ\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
+        r"(?P<VOLT>(\bVOLT\s)(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))",
+    )
 
     def _build_configs(self):
         """Builds the :attr:`configs` dictionary."""

@@ -1,0 +1,2 @@
+All control device mapping classes now have a class attribute ``contype`` to
+indicate the control device type.

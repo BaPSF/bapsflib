@@ -1,0 +1,2 @@
+Added `enum` `~bapsflib._hdf.maps.templates.MapTypes` to create a map
+type indicator.

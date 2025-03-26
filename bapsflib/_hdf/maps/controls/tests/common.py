@@ -14,6 +14,8 @@ import os
 import re
 import unittest as ut
 
+from typing import Type
+
 from bapsflib._hdf.maps import FauxHDFBuilder, MapTypes
 from bapsflib._hdf.maps.controls import ConType
 from bapsflib._hdf.maps.controls.templates import (
@@ -39,9 +41,10 @@ class ControlTestCase(ut.TestCase):
     #   raise a HDFMappingError
 
     f = NotImplemented
-    DEVICE_NAME = NotImplemented
-    DEVICE_PATH = NotImplemented
-    MAP_CLASS = NotImplemented
+    DEVICE_NAME = NotImplemented  # type: str
+    DEVICE_PATH = NotImplemented  # type: str
+    MAP_CLASS = NotImplemented  # type: Type[HDFMapControlTemplate]
+    CONTYPE = NotImplemented  # type: ConType
 
     @classmethod
     def setUpClass(cls):
@@ -92,6 +95,16 @@ class ControlTestCase(ut.TestCase):
 
     def test_maptype(self):
         self.assertTrue(self.MAP_CLASS._maptype == MapTypes.CONTROL)
+
+    def test_contype(self):
+        _conditions = [
+            self.MAP_CLASS._contype == self.CONTYPE,
+            self.map.contype == self.CONTYPE,
+            self.map.info["contype"] == self.map.contype,
+        ]
+        for condition in _conditions:
+            with self.subTest(condition=condition):
+                self.assertTrue(self.MAP_CLASS._contype == self.CONTYPE)
 
     def test_map_basics(self):
         """Test all required basic map features."""

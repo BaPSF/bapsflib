@@ -28,15 +28,13 @@ class TestNIXZ(ControlTestCase):
     DEVICE_NAME = "NI_XZ"
     DEVICE_PATH = "Raw data + config/NI_XZ"
     MAP_CLASS = HDFMapControlNIXZ
+    CONTYPE = ConType.MOTION
 
     def setUp(self):
         super().setUp()
 
     def tearDown(self):
         super().tearDown()
-
-    def test_contype(self):
-        self.assertEqual(self.map.info["contype"], ConType.MOTION)
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

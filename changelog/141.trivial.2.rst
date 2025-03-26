@@ -1,1 +1,1 @@
-Renamed `bapsflib.lapd._hdf.lapdmap` to `bapsflib.lapd._hdf.lapdmapper`.
+Renamed `bapsflib.lapd._hdf.lapdmap` to `bapsflib.lapd._hdf.mapper`.

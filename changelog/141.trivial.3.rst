@@ -1,1 +1,1 @@
-Renamed `HDFMap` to `~bapsflib._hdf.maps.mapper.MDFMapper`.
+Renamed `HDFMap` to `~bapsflib._hdf.maps.mapper.HDFMapper`.

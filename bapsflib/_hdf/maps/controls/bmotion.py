@@ -152,14 +152,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             }
 
             # get axis names
-            if "motion_group_name" not in dset_axis_names.dtype.fields:
-                raise HDFMappingError(
-                    device_name="bmotion",
-                    why=(
-                        "Unable to identify 'motion_group_name' column "
-                        "in the 'bmotion_axis_names' dataset."
-                    ),
-                )
             indices = np.where(
                 dset_axis_names["motion_group_name"] == bytes(mg_name, encoding="utf-8")
             )

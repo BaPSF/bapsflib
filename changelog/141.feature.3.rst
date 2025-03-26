@@ -1,0 +1,4 @@
+Created a master mapping template class `~bapsflib._hdf.maps.templates.HDFMapTemplate`
+that all other mapping template classes inherit from.  This reduces code
+duplication for inheriting children.  This introduces a class attribute
+``maptype`` for all mapping classes.

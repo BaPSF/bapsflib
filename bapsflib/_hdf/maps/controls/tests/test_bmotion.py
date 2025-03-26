@@ -87,6 +87,12 @@ class TestBMotion(ControlTestCase):
                 _map = self.map
 
     def test_raises_missing_run_config(self):
+        # for some unknown reason, coverage results are not being produced
+        # for this test when executed during the whole class execution,
+        # unless we manually tear down and set up
+        self.tearDown()
+        self.setUp()
+
         _group = self.dgroup  # type: h5py.Group
         for child in _group.values():
             if isinstance(child, h5py.Group) and "RUN_CONFIG" in child.attrs:
@@ -97,6 +103,12 @@ class TestBMotion(ControlTestCase):
             _map = self.map
 
     def test_raises_run_config_has_no_motion_groups(self):
+        # for some unknown reason, coverage results are not being produced
+        # for this test when executed during the whole class execution,
+        # unless we manually tear down and set up
+        self.tearDown()
+        self.setUp()
+
         _group = self.dgroup
         _run_config_str = None
         child = None

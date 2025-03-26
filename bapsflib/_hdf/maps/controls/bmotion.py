@@ -22,6 +22,21 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class HDFMapControlBMotion(HDFMapControlTemplate):
+    """
+    Mapping module for the control device 'bmotion'.
+
+    Simple group structure looks like:
+
+    .. code-block:: none
+
+        +-- bmotion
+        |   +-- <configuration name>        [Group]
+        |   +-- Run time list               [Dataset]
+        |   +-- bmotion_axis_names          [Dataset]
+        |   +-- bmotion_positions           [Dataset]
+        |   +-- bmotion_target_positions    [Dataset]
+
+    """
 
     _contype = ConType.MOTION
     _required_dataset_names = {
@@ -226,6 +241,34 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         state_dict: dict,
         ax_rename: Optional[Callable] = None,
     ):
+        """
+        Generate a dictionary configuration for the `'state values'`
+        of the :attr:`configs` dictionary.
+
+        Parameters
+        ----------
+        col_name : `str`
+            Name of the column in ``dset`` to generate the entry for.
+
+        ax_name : `str`
+            The `'state values'` key the generated entry will map to.
+            If given `'x'`, `'y'`, or `'z'`, then they will
+            automatically map to the `'xyz'` states value key.
+
+        dset : `Dataset`
+            `h5py.Dataset` to be examined to generate the state values
+            entry.
+
+        state_dict : `dict`
+            A starting dictionary for the state values entry.
+
+        ax_rename : Optional[Callable]
+            A callable that will rename ``ax_name`` to define the
+            state values key. For example, ``lambda x: f'target_{x}'``
+            would generate a ``'target_xyz'`` key if ``ax_name='x'``
+            or ``'target_rotation'`` key if ``'ax_name='rotation'``.
+            (DEFAULT `None`)
+        """
         if ax_rename is None:
 
             def ax_rename(x):
@@ -268,10 +311,18 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
     @staticmethod
     def _generate_config_name(key, mg_name):
+        """
+        Generate the configuration name, which is a mash-up of the
+        motion group key and name in the `bapsf_motion` run manager
+        configuration.
+        """
         return f"{key} - {mg_name}"
 
     @staticmethod
     def _split_config_name(config_name):
+        """
+        Splits a configuration name into its motion group key and name.
+        """
         match = re.compile(r"\s*(?P<_id>[0-9]+)\s+(-)\s+(?P<mg_name>.+)").fullmatch(
             config_name
         )
@@ -282,10 +333,20 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         )
 
     def _get_dataset(self, which: str) -> Dataset:
+        """
+        Retrieves the ``bmotion`` group dataset based on the ``which``
+        argument.  The ``which`` argument should map directly to the
+        keys of :attr:`_required_dataset_names`.
+        """
         name = self.construct_dataset_name(which=which)
         return self.group[name]
 
     def construct_dataset_name(self, which: str, *args) -> str:
+        """
+        Return the data set name for the specified ``which`` argument.
+        The ``which`` argument should map directly to the
+        keys of :attr:`_required_dataset_names`.
+        """
         try:
             name = self._required_dataset_names[which]
         except KeyError:
@@ -296,10 +357,17 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         return name
 
     def get_config_id(self, config_name: str) -> str:
+        """
+        Get the configuration "motion group" id for the specified
+        ``config_name``.
+        """
         id_and_mg_name = self._split_config_name(config_name)
         return None if id_and_mg_name is None else id_and_mg_name[0]
 
     def get_config_name_by_drive_name(self, name: str) -> Union[str, None]:
+        """
+        Get the configuration name for the specified drive ``name``.
+        """
         if not isinstance(name, str):
             return None
 
@@ -314,6 +382,9 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
     def get_config_name_by_motion_group_id(
         self, _id: Union[int, str]
     ) -> Union[str, None]:
+        """
+        Get the configuration name for the given motion group id.
+        """
         if not isinstance(_id, (int, str)):
             return None
         elif isinstance(_id, int):
@@ -328,6 +399,9 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             pass
 
     def get_config_name_by_motion_group_name(self, name: str) -> Union[str, None]:
+        """
+        Get the configuration name for the given motion group name.
+        """
         if not isinstance(name, str):
             return None
 

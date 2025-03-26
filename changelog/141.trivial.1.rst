@@ -1,0 +1,1 @@
+Renamed `bapsflib._hdf.maps.core` to `bapsflib._hdf.maps.mapper`.

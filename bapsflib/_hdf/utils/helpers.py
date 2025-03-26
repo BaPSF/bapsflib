@@ -697,7 +697,6 @@ def do_shotnum_intersection(
     """
     # intersect shot numbers
     shotnum_intersect = shotnum
-    # for sni in sni_dict.values():
     for control_name in sni_dict.keys():
         for state_key, sni in sni_dict[control_name].items():
             shotnum_intersect = np.intersect1d(
@@ -707,7 +706,6 @@ def do_shotnum_intersection(
         raise ValueError("Input `shotnum` would result in a NULL array")
 
     # now filter
-    # for control_name in index_dict:
     for control_name in index_dict.keys():
         for state_key, index in index_dict[control_name].items():
             sni = sni_dict[control_name][state_key]

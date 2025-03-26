@@ -30,15 +30,7 @@ class TestWaveform(ControlTestCase):
     DEVICE_NAME = "Waveform"
     DEVICE_PATH = "Raw data + config/Waveform"
     MAP_CLASS = HDFMapControlWaveform
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
-    def test_contype(self):
-        self.assertEqual(self.map.info["contype"], ConType.WAVEFORM)
+    CONTYPE = ConType.WAVEFORM
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

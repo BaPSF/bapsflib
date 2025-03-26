@@ -14,6 +14,8 @@ import os
 import re
 import unittest as ut
 
+from typing import Type
+
 from bapsflib._hdf.maps import FauxHDFBuilder, MapTypes
 from bapsflib._hdf.maps.controls import ConType
 from bapsflib._hdf.maps.controls.templates import (
@@ -39,9 +41,10 @@ class ControlTestCase(ut.TestCase):
     #   raise a HDFMappingError
 
     f = NotImplemented
-    DEVICE_NAME = NotImplemented
-    DEVICE_PATH = NotImplemented
-    MAP_CLASS = NotImplemented
+    DEVICE_NAME = NotImplemented  # type: str
+    DEVICE_PATH = NotImplemented  # type: str
+    MAP_CLASS = NotImplemented  # type: Type[HDFMapControlTemplate]
+    CONTYPE = NotImplemented  # type: ConType
 
     @classmethod
     def setUpClass(cls):
@@ -92,6 +95,16 @@ class ControlTestCase(ut.TestCase):
 
     def test_maptype(self):
         self.assertTrue(self.MAP_CLASS._maptype == MapTypes.CONTROL)
+
+    def test_contype(self):
+        _conditions = [
+            (self.MAP_CLASS._contype, self.CONTYPE),
+            (self.map.contype, self.CONTYPE),
+            (self.map.info["contype"], self.map.contype),
+        ]
+        for c1, c2 in _conditions:
+            with self.subTest(c1=c1, c2=c2):
+                self.assertEqual(c1, c2)
 
     def test_map_basics(self):
         """Test all required basic map features."""
@@ -226,7 +239,11 @@ class ControlTestCase(ut.TestCase):
             self.assertIn("dtype", config["shotnum"])
 
             # ['shotnum']['dset paths']
-            self.assertEqual(config["shotnum"]["dset paths"], config["dset paths"])
+            sn_dset_paths = config["shotnum"]["dset paths"]
+            self.assertTrue(sn_dset_paths is None or isinstance(sn_dset_paths, tuple))
+            if isinstance(sn_dset_paths, tuple):
+                self.assertTrue(len(sn_dset_paths) == 1)
+                self.assertTrue(sn_dset_paths[0] in config["dset paths"])
 
             # ['shotnum']['dset field']
             self.assertIsInstance(config["shotnum"]["dset field"], tuple)
@@ -340,15 +357,13 @@ class ControlTestCase(ut.TestCase):
             self.assertIn("shape", sv_config)
             self.assertIn("dtype", sv_config)
 
-            # ['state values']['']['dset paths']
-            self.assertEqual(sv_config["dset paths"], config["dset paths"])
-
             # ['state values']['']['dset field']
             self.assertIsInstance(sv_config["dset field"], tuple)
-            self.assertNotEqual(len(sv_config["dset field"]), 0)
+            self.assertTrue(len(sv_config["dset field"]), 1)
             self.assertTrue(
                 all(isinstance(field, str) for field in sv_config["dset field"])
             )
+            self.assertTrue(sv_config["dset paths"][0] in config["dset paths"])
 
             # ['state values]['']['shape']
             self.assertIsInstance(sv_config["shape"], tuple)

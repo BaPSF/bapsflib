@@ -31,15 +31,7 @@ class TestSixK(ControlTestCase):
     DEVICE_NAME = "6K Compumotor"
     DEVICE_PATH = "Raw data + config/6K Compumotor"
     MAP_CLASS = HDFMapControl6K
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
-    def test_contype(self):
-        self.assertEqual(self.map.info["contype"], ConType.MOTION)
+    CONTYPE = ConType.MOTION
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

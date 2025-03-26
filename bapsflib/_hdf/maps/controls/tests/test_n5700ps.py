@@ -30,15 +30,7 @@ class TestN5700PS(ControlTestCase):
     DEVICE_NAME = "N5700_PS"
     DEVICE_PATH = "Raw data + config/N5700_PS"
     MAP_CLASS = HDFMapControlN5700PS
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
-    def test_contype(self):
-        self.assertEqual(self.map.info["contype"], ConType.POWER)
+    CONTYPE = ConType.POWER
 
     def test_map_failures(self):
         """Test conditions that result in unsuccessful mappings."""

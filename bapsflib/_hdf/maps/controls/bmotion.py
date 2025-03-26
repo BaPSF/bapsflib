@@ -165,8 +165,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             index = indices[0][0]
             ax_name_mapping = []
             for col_name in {"a0", "a1", "a2", "a3", "a4", "a5"}:
-                if col_name not in dset_axis_names.dtype.fields:
-                    continue
 
                 ax_name = dset_axis_names[col_name][index]
                 if ax_name == b"":

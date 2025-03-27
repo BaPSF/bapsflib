@@ -1,2 +1,0 @@
-Added control device mapper
-`~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion`.

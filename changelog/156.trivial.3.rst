@@ -1,4 +1,0 @@
-Updated `~bapsflib._hdf.utils.helpers.do_shotnum_intersection` so
-shot numbers are retrieved from the dataset associated with each
-mapped ``config['state values']``, and not the generic
-``config['dset paths']``.

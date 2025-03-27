@@ -1,5 +1,0 @@
-For control device mappings, added the option field
-``configs["state values"][<key>]["config column"]`` so the dataset
-configuration column can be named.  If omitted, then
-`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` will still
-search for a column with ``'configuration'`` in the name.

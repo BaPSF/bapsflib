@@ -1,3 +1,0 @@
-For control device mappings, the ``configs["shotnum"]["dset paths"]`` can be
-`None`. If so, `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` will
-assume the ``'dset paths'`` defined in each ``'state values'`` entry.

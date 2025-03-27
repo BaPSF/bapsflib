@@ -1,4 +1,0 @@
-Signature of `~bapsflib._hdf.utils.helpers.condition_shotnum` is updated
-to accept arguments ``shotnum``, ``dset_list``, and ``shotnumkey_list``.
-This allows for mapped ``config['state values']`` entries to utilize
-separate datasets.

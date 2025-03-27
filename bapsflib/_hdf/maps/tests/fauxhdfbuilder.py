@@ -17,6 +17,7 @@ import tempfile
 from typing import Any, Dict
 
 from bapsflib._hdf.maps.controls.tests import (
+    FauxBMotion,
     FauxN5700PS,
     FauxNIXYZ,
     FauxNIXZ,
@@ -51,6 +52,7 @@ class FauxHDFBuilder(h5py.File):
     }
     _KNOWN_CONTROLS = {
         "6K Compumotor": FauxSixK,
+        "bmotion": FauxBMotion,
         "N5700_PS": FauxN5700PS,
         "NI_XYZ": FauxNIXYZ,
         "NI_XZ": FauxNIXZ,

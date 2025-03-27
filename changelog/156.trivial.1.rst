@@ -1,0 +1,6 @@
+Signature of `~bapsflib._hdf.utils.helpers.build_shotnum_dset_relation` and
+`~bapsflib._hdf.utils.helpers.build_sndr_for_complex_dset` are updated to
+accept arguments ``shotnum``, ``dset``, ``shotnumkey``, ``n_configs``,
+``config_id``, and (optional) ``config_column``.  This allows for mapped
+``config['state values']`` entries to utilize separate datasets and
+custom configuration columns.

@@ -442,7 +442,7 @@ class HDFReadData(np.ndarray):
             """
             # perform `shotnum` conditioning
             # - `shotnum` is returned as a numpy array
-            shotnum = condition_shotnum(shotnum, {"digi": dheader}, {"digi": shotnumkey})
+            shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
 
             # Calc. the corresponding `index` and `sni`
             # - `shotnum` will be converted from list to np.array
@@ -452,15 +452,19 @@ class HDFReadData(np.ndarray):
                 condition_shotnum(shotnum, dheader, shotnumkey,
                                   intersection_set)
             """
-            index, sni = build_sndr_for_simple_dset(shotnum, dheader, shotnumkey)
+            index, sni = build_sndr_for_simple_dset(
+                shotnum=shotnum,
+                dset=dheader,
+                shotnumkey=shotnumkey,
+            )
 
             # perform intersection
             if intersection_set:
                 shotnum, sni_dict, index_dict = do_shotnum_intersection(
-                    shotnum, {"digi": sni}, {"digi": index}
+                    shotnum, {"digi": {"signal": sni}}, {"digi": {"signal": index}}
                 )
-                sni = sni_dict["digi"]
-                index = index_dict["digi"]
+                sni = sni_dict["digi"]["signal"]
+                index = index_dict["digi"]["signal"]
 
             # print execution timing
             if timeit:  # pragma: no cover

@@ -19,62 +19,65 @@ __all__ = [
     "condition_controls",
     "condition_shotnum",
     "do_shotnum_intersection",
+    "IndexDict",
 ]
 
 import h5py
 import numpy as np
 
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from bapsflib._hdf.maps.controls.templates import (
-    ControlMap,
-    HDFMapControlCLTemplate,
-    HDFMapControlTemplate,
-)
 from bapsflib._hdf.utils.file import File
 
 # define type aliases
-IndexDict = Dict[str, np.ndarray]
+IndexDict = Dict[str, Dict[str, np.ndarray]]
 
 
 def build_shotnum_dset_relation(
     shotnum: np.ndarray,
     dset: h5py.Dataset,
     shotnumkey: str,
-    cmap: ControlMap,
-    cconfn: Any,
+    n_configs: int,
+    config_id: Any,
+    config_column: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** `numpy` array to the specified dataset,
-    **dset**, to determine which indices contain the desired shot
+    Compares the ``shotnum`` `numpy` array to the specified dataset,
+    ``dset``, to determine which indices contain the desired shot
     number(s)
-    [for :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
+    [for `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
     As a results, two numpy arrays are returned which satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
-    where **shotnum** is the original shot number array, **sni** is a
-    boolean numpy array masking which shot numbers were determined to
-    be in the dataset, and **index** is an array of indices
+    where ``shotnum`` is the original shot number array, ``sni`` is a
+    boolean `numpy` array masking which shot numbers were determined to
+    be in the dataset, and ``index`` is an array of indices
     corresponding to the desired shot number(s).
 
     Parameters
     ----------
     shotnum : :term:`array_like`
-        desired HDF5 shot number(s)
+        Array like object of desired shot numbers.
 
     dset: `h5py.Dataset`
-        control device dataset
+        Control device dataset
 
     shotnumkey : `str`
-        field name in the control device dataset that contains shot
-        numbers
+        Dataset field name containing shot numbers.
 
-    cmap : `ControlMap`
-        mapping object for control device
+    n_configs : int
+        The number of unique configurations contained in ``dset``.
 
-    cconfn :
-        configuration name for the control device
+    config_id : `Any`
+        The configuration identification.  Typically, the name of the
+        configuration.  This is the value searched for in the data
+        contained in the ``config_column``.
+
+    config_column : Optional[`str`]
+        Name of the ``dset`` column containing control configurations.
+        If omitted, then ``dset`` columns are searched for a name
+        containing 'configuration'.  (DEFAULT: `None`)
 
     Returns
     -------
@@ -92,28 +95,20 @@ def build_shotnum_dset_relation(
         and
         :func:`~.helpers.build_sndr_for_complex_dset`
     """
-    # Inputs:
-    # shotnum      - the desired shot number(s)
-    # dset         - the control device dataset
-    # shotnumkey   - field name for the shot number column in dset
-    # cmap         - file mapping object for the control device
-    # cconfn       - configuration for control device
-    #
-    # Returns:
-    # index     np.array(dtype=uint32)  - dset row index for the
-    #                                     specified shotnum
-    # shotnum   np.array(dtype=uint32)  - shot numbers
-    # sni       np.array(dtype=bool)    - shotnum mask such that:
-    #
-    #            shotnum[sni] = dset[index, shotnumkey]
-    #
     # Calc. index, shotnum, and sni
-    if cmap.one_config_per_dset:
+    if n_configs == 1:
         # the dataset only saves data for one configuration
         index, sni = build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
     else:
         # the dataset saves data for multiple configurations
-        index, sni = build_sndr_for_complex_dset(shotnum, dset, shotnumkey, cmap, cconfn)
+        index, sni = build_sndr_for_complex_dset(
+            shotnum=shotnum,
+            dset=dset,
+            shotnumkey=shotnumkey,
+            n_configs=n_configs,
+            config_id=config_id,
+            config_column=config_column,
+        )
 
     # return calculated arrays
     return index.view(), sni.view()
@@ -123,14 +118,14 @@ def build_sndr_for_simple_dset(
     shotnum: np.ndarray, dset: h5py.Dataset, shotnumkey: str
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** numpy array to the specified "simple"
+    Compares the ``shotnum`` numpy array to the specified "simple"
     dataset, **dset**, to determine which indices contain the desired
     shot number(s).  As a results, two numpy arrays are returned which
     satisfy the rule::
 
         shotnum[sni] = dset[index, shotnumkey]
 
-    where **shotnum** is the original shot number array, **sni** is a
+    where ``shotnum`` is the original shot number array, **sni** is a
     boolean numpy array masking which shot numbers were determined to
     be in the dataset, and **index** is an array of indices
     corresponding to the desired shot number(s).
@@ -141,14 +136,13 @@ def build_sndr_for_simple_dset(
     Parameters
     ----------
     shotnum : :term:`array_like`
-        desired HDF5 shot number
+        Array like object of desired shot numbers.
 
     dset : `h5py.Dataset`
-        dataset containing shot numbers
+        Control device dataset
 
     shotnumkey : `str`
-        field name in the dataset that contains
-        the shot numbers
+        Dataset field name containing shot numbers.
 
     Returns
     -------
@@ -224,20 +218,23 @@ def build_sndr_for_complex_dset(
     shotnum: np.ndarray,
     dset: h5py.Dataset,
     shotnumkey: str,
-    cmap: ControlMap,
-    cconfn: Any,
+    n_configs: int,
+    config_id: Any,
+    config_column: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compares the **shotnum** numpy array to the specified "complex"
-    dataset, **dset**, to determine which indices contain the desired
+    Compares the ``shotnum`` numpy array to the specified "complex"
+    dataset, ``dset``, to determine which indices contain the desired
     shot number(s).  As a results, two numpy arrays are returned
-    which satisfy the rule::
+    which satisfy the rule:
+
+    .. code-block:: python
 
         shotnum[sni] = dset[index, shotnumkey]
 
-    where **shotnum** is the original shot number array, **sni** is a
+    where ``shotnum`` is the original shot number array, **sni** is a
     boolean numpy array masking which shot numbers were determined to
-    be in the dataset, and **index** is an array of indices
+    be in the dataset, and ``index`` is an array of indices
     corresponding to the desired shot number(s).
 
     A "complex" dataset is a dataset in which the data for MULTIPLE
@@ -245,8 +242,8 @@ def build_sndr_for_complex_dset(
 
     .. admonition:: Dataset Assumption
 
-        There is an assumption that each shot number spans **n_configs**
-        number of rows in the dataset, where **n_configs** is the number
+        There is an assumption that each shot number spans ``n_configs``
+        number of rows in the dataset, where ``n_configs`` is the number
         of control device configurations.  It is also assumed that the
         order in which the configs are recorded is the same for each
         shot number.  That is, if there are 3 configs (config01,
@@ -257,19 +254,26 @@ def build_sndr_for_complex_dset(
     Parameters
     ----------
     shotnum : :term:`array_like`
-        desired HDF5 shot number
+        Array like object of desired shot numbers.
 
     dset : `h5py.Dataset`
-        dataset containing shot numbers
+        HDF5 dataset to examine for shot numbers.
 
     shotnumkey : `str`
-        field name in the dataset that contains the shot numbers
+        Dataset field name containing shot numbers.
 
-    cmap : ControlMap
-        mapping object for control device
+    n_configs : `int`
+        The number of unique configurations contained in ``dset``.
 
-    cconfn :
-        configuration name for the control device
+    config_id : `Any`
+        The configuration identification.  Typically, the name of the
+        configuration.  This is the value searched for in the data
+        contained in the ``config_column``.
+
+    config_column : Optional[`str`]
+        Name of the ``dset`` column containing control configurations.
+        If omitted, then ``dset`` columns are searched for a name
+        containing 'configuration'.  (DEFAULT: `None`)
 
     Returns
     -------
@@ -279,25 +283,22 @@ def build_sndr_for_complex_dset(
     sni : `numpy.ndarray`
         boolean array that masks the ``shotnum`` array
     """
-    # this is for a dataset that records data for multiple
-    # configurations
-    #
-    # Initialize some vals
-    n_configs = len(cmap.configs)
-
     # determine configkey
     # - configkey is the dataset field name for the column that contains
     #   the associated configuration name
     #
-    configkey = ""
-    for df in dset.dtype.names:
-        if "configuration" in df.casefold():
-            configkey = df
-            break
-    if configkey == "":
+    if config_column is None:
+        configkey = ""
+        for df in dset.dtype.names:
+            if "configuration" in df.casefold():
+                configkey = df
+                break
+    else:
+        configkey = config_column
+    if configkey == "" or configkey not in dset.dtype.fields:
         raise ValueError(
-            f"Can NOT find a configuration field in the control "
-            f"({cmap.device_name}) dataset"
+            f"Can NOT find a configuration field '{configkey}' in the "
+            f"control device dataset {dset.name}."
         )
 
     # find index
@@ -308,7 +309,7 @@ def build_sndr_for_complex_dset(
         #       name of the configuration.  When reading that into a
         #       numpy array the string becomes a byte string (i.e. b'').
         #       When comparing with np.where() the comparing string
-        #       needs to be encoded (i.e. cconfn.encode()).
+        #       needs to be encoded (i.e. config_id.encode()).
         #
         only_sn = dset[0, shotnumkey]
         sni = np.where(shotnum == only_sn, True, False)
@@ -319,14 +320,14 @@ def build_sndr_for_complex_dset(
             index = np.empty(shape=0, dtype=np.uint32)
         else:
             config_name_arr = dset[0:n_configs, configkey]
-            index = np.where(config_name_arr == cconfn.encode())[0]
+            index = np.where(config_name_arr == config_id.encode())[0]
 
             if index.size != 1:  # pragma: no cover
                 # something went wrong...no configurations are found
-                # and, thus, the routines assumption's do not match
+                # and, thus, the routine's assumptions do not match
                 # the format of the dataset
                 raise ValueError(
-                    "The specified dataset is NOT consistent with the"
+                    "The specified dataset is NOT consistent with the "
                     "routines assumptions of a complex dataset"
                 )
     else:
@@ -337,7 +338,7 @@ def build_sndr_for_complex_dset(
         # find sub-group index corresponding to the requested device
         # configuration
         config_name_arr = dset[0:n_configs, configkey]
-        config_where = np.where(config_name_arr == cconfn.encode())[0]
+        config_where = np.where(config_name_arr == config_id.encode())[0]
         if config_where.size == 1:
             config_subindex = config_where[0]
         else:  # pragma: no cover
@@ -345,7 +346,7 @@ def build_sndr_for_complex_dset(
             # are found or the routine's assumptions do not
             # match the format of the dataset
             raise ValueError(
-                "The specified dataset is NOT consistent with the"
+                "The specified dataset is NOT consistent with the "
                 "routines assumptions of a complex dataset"
             )
 
@@ -411,9 +412,8 @@ def build_sndr_for_complex_dset(
 
 def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
     """
-    Conditions the **controls** argument for
-    :class:`~.hdfreadcontrols.HDFReadControls` and
-    :class:`~.hdfreaddata.HDFReadData`.
+    Conditions the ``controls`` argument for
+    `~.hdfreadcontrols.HDFReadControls` and `~.hdfreaddata.HDFReadData`.
 
     Parameters
     ----------
@@ -441,7 +441,7 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
 
     .. admonition:: Condition Criteria
 
-        #. Input **controls** should be
+        #. Input ``controls`` should be
            ``Union[str, Iterable[Union[str, Tuple[str, Any]]]]``
         #. There can only be one control for each
            :class:`~bapsflib._hdf.maps.controls.types.ConType`.
@@ -536,24 +536,25 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
 
 
 def condition_shotnum(
-    shotnum: Any, dset_dict: Dict[str, h5py.Dataset], shotnumkey_dict: Dict[str, str]
+    shotnum: Any, dset_list: List[h5py.Dataset], shotnumkey_list: List[str]
 ) -> np.ndarray:
     r"""
-    Conditions the **shotnum** argument for
-    :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
-    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
+    Conditions the ``shotnum`` argument for
+    `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and
+    :`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
 
     Parameters
     ----------
-    shotnum: :term:`array_like`
-        desired HDF5 shot numbers
+    shotnum: :term:`array_like` or Union[int, slice, List[int,...]]
+        Array like object of desired shot numbers.
 
-    dset_dict : Dict[str, h5py.Dataset]
-        dictionary of all control dataset instances
+    dset_list : List[h5py.Dataset]
+        List of control dataset instances that the shot number
+        ``shotnum`` should be conditioned against
 
-    shotnumkey_dict : Dict[str, str]
-        dictionary of the shot number field name for each control
-        dataset in dset_dict
+    shotnumkey_list : List[str]
+        A one-to-one list with ``dset_list`` that names the shot number
+        column filed in the associated dataset.
 
     Returns
     -------
@@ -563,8 +564,6 @@ def condition_shotnum(
 
     .. admonition:: Condition Criteria
 
-        #. Input **shotnum** should be
-           ``Union[int, List[int,...], slice, np.ndarray]``
         #. Any :math:`\mathbf{shotnum} \le 0` will be removed.
         #. A `ValueError` will be thrown if the conditioned array is
            NULL.
@@ -608,10 +607,8 @@ def condition_shotnum(
         shotnum = np.array(shotnum, dtype=np.uint32)
 
     elif isinstance(shotnum, slice):
-        # determine largest possible shot number
-        last_sn = [
-            dset_dict[cname][-1, shotnumkey_dict[cname]] + 1 for cname in dset_dict
-        ]
+        # determine the largest possible shot number
+        last_sn = [dset[-1, key] + 1 for dset, key in zip(dset_list, shotnumkey_list)]
         if shotnum.stop is not None:
             last_sn.append(shotnum.stop)
         stop_sn = max(last_sn)
@@ -659,8 +656,8 @@ def do_shotnum_intersection(
     shotnum: np.ndarray, sni_dict: IndexDict, index_dict: IndexDict
 ) -> Tuple[np.ndarray, IndexDict, IndexDict]:
     """
-    Calculates intersection of **shotnum** and all existing dataset
-    shot numbers, **shotnum[sni]**.
+    Calculates intersection of ``shotnum`` and all existing dataset
+    shot numbers, ``shotnum[sni]``.
 
     .. admonition:: Recall Array Relationship
 
@@ -671,13 +668,19 @@ def do_shotnum_intersection(
     Parameters
     ----------
     shotnum : :term:`array_like`
-        desired HDF5 shot numbers
+        Array like object of desired shot numbers.
 
     sni_dict : `IndexDict`
-        dictionary of all dataset **sni** arrays
+        Dictionary of dictionaries of all dataset ``sni`` arrays.  The
+        first level of `dict` keys is the control device name and the
+        second level of `dict` keys is the desired 'state value` (e.g.
+        ``'xyz'``).
 
     index_dict : `IndexDict`
-        dictionary of all dataset **index** arrays
+        Dictionary of dictionaries of all dataset ``index`` arrays.  The
+        first level of `dict` keys is the control device name and the
+        second level of `dict` keys is the desired 'state value` (e.g.
+        ``'xyz'``).
 
     Returns
     -------
@@ -694,19 +697,25 @@ def do_shotnum_intersection(
     """
     # intersect shot numbers
     shotnum_intersect = shotnum
-    for sni in sni_dict.values():
-        shotnum_intersect = np.intersect1d(
-            shotnum_intersect, shotnum[sni], assume_unique=True
-        )
+    for control_name in sni_dict.keys():
+        for state_key, sni in sni_dict[control_name].items():
+            shotnum_intersect = np.intersect1d(
+                shotnum_intersect, shotnum[sni], assume_unique=True
+            )
     if shotnum_intersect.shape[0] == 0:
         raise ValueError("Input `shotnum` would result in a NULL array")
 
     # now filter
-    for cname in index_dict:
-        sni = sni_dict[cname]
-        mask_for_index = np.isin(shotnum[sni], shotnum_intersect)
-        index_dict[cname] = index_dict[cname][mask_for_index]
-        sni_dict[cname] = np.ones(shotnum_intersect.shape, dtype=bool)
+    for control_name in index_dict.keys():
+        for state_key, index in index_dict[control_name].items():
+            sni = sni_dict[control_name][state_key]
+            mask_for_index = np.isin(shotnum[sni], shotnum_intersect)
+            index_dict[control_name][state_key] = index_dict[control_name][state_key][
+                mask_for_index
+            ]
+            sni_dict[control_name][state_key] = np.ones(
+                shotnum_intersect.shape, dtype=bool
+            )
 
     # update shotnum
     shotnum = shotnum_intersect

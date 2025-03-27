@@ -35,12 +35,12 @@ from bapsflib._hdf.utils.helpers import (
     condition_controls,
     condition_shotnum,
     do_shotnum_intersection,
+    IndexDict,
 )
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 # define type aliases
 ControlsType = Union[str, Iterable[Union[str, Tuple[str, Any]]]]
-IndexDict = Dict[str, np.ndarray]
 
 
 class HDFReadControls(np.ndarray):
@@ -122,25 +122,26 @@ class HDFReadControls(np.ndarray):
             configuration name (if more than one configuration exists)
 
         shotnum : Union[int, List[int], slice, numpy.ndarray], optional
-            HDF5 file shot number(s) indicating data entries to be extracted
+            HDF5 file shot number(s) indicating data entries to be
+            extracted
 
         intersection_set : `bool`, optional
             `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of :data:`shotnum` and the shot numbers
+            the intersection of ``shotnum`` and the shot numbers
             contained in each control device dataset. `False` will
             return the union instead of the intersection
 
         Notes
         -----
-        Behavior of :data:`shotnum` and :data:`intersection_set`:
-            * :data:`shotnum` indexing starts at 1
-            * Any :data:`shotnum` values `<= 0` will be thrown out.
-            * If `intersection_set=True`, then only data corresponding
-              to shot numbers that are specified in :data:`shotnum` and
+        Behavior of ``shotnum`` and ``intersection_set``:
+            * ``shotnum`` indexing starts at 1
+            * Any ``shotnum`` values ``<= 0`` will be thrown out.
+            * If ``intersection_set=True``, then only data corresponding
+              to shot numbers that are specified in ``shotnum`` and
               are in all control datasets will be returned.
             * If ``intersection_set=False``, then the returned array
               will have entries for all shot numbers specified in
-              :data:`shotnum` but entries that correspond to control
+              ``shotnum`` but entries that correspond to control
               datasets that do not have the specified shot number will
               be given a NULL value of ``-99999``, ``0``, `numpy.nan`,
               or ``''``, depending on the `numpy.dtype`.
@@ -239,23 +240,33 @@ class HDFReadControls(np.ndarray):
         #
         # Gather control datasets and associated shot number field names
         # - things needed to perform the conditioning
-        cdset_dict = {}  # type: Dict[str, h5py.Dataset]
-        shotnumkey_dict = {}  # type: Dict[str, str]
+        dset_list = []  # type: List[h5py.Dataset]
+        shotnumkey_list = []  # type: List[str]
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # gather control datasets and shotnumkey's
-            cmap = _fmap.controls[cname]
-            cdset_path = cmap.configs[cconfn]["dset paths"][0]
-            cdset_dict[cname] = hdf_file.get(cdset_path)
-            shotnumkey = cmap.configs[cconfn]["shotnum"]["dset field"][0]
-            shotnumkey_dict[cname] = shotnumkey
+            control_config = _fmap.controls[control_name].configs[config_name]
+
+            if control_config["shotnum"]["dset paths"] is None:
+                # state values have differing dset paths and shotnum
+                # is pulled from those paths
+                for _key, _entry in control_config["state values"].items():
+                    dset_list.append(hdf_file.get(_entry["dset paths"][0]))
+                    shotnumkey_list.append(control_config["shotnum"]["dset field"][0])
+            else:
+                dset_list.append(hdf_file.get(control_config["shotnum"]["dset paths"][0]))
+                shotnumkey_list.append(control_config["shotnum"]["dset field"][0])
 
         # perform `shotnum` conditioning
         # - `shotnum` is returned as a numpy array
-        shotnum = condition_shotnum(shotnum, cdset_dict, shotnumkey_dict)
+        shotnum = condition_shotnum(
+            shotnum=shotnum,
+            dset_list=dset_list,
+            shotnumkey_list=shotnumkey_list,
+        )
 
         # ---- Build `index` and `sni` arrays for each dataset      ----
         #
@@ -269,18 +280,33 @@ class HDFReadControls(np.ndarray):
         # 2. all entries in `index_dict` and `sni_dict` are build with
         #    respect to shotnum
         #
-        index_dict = {}  # type: IndexDict
-        sni_dict = {}  # type: IndexDict
+        index_dict = dict()  # type: IndexDict
+        sni_dict = dict()  # type: IndexDict
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
-            cmap = _fmap.controls[cname]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
+            control_map = _fmap.controls[control_name]  # type: HDFMapControlTemplate
+            control_config = control_map.configs[config_name]
 
             # build `index` and `sni` for each dataset
-            index_dict[cname], sni_dict[cname] = build_shotnum_dset_relation(
-                shotnum, cdset_dict[cname], shotnumkey_dict[cname], cmap, cconfn
-            )
+            index_dict[control_name] = dict()
+            sni_dict[control_name] = dict()
+            for key, entry in control_config["state values"].items():  # type: str, dict
+                config_column = entry.get("config column")
+                n_configs = (
+                    1 if control_map.one_config_per_dset else len(control_map.configs)
+                )
+                _index, _sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=hdf_file.get(entry["dset paths"][0]),
+                    shotnumkey=control_config["shotnum"]["dset field"][0],
+                    n_configs=n_configs,
+                    config_id=control_map.get_config_id(config_name),
+                    config_column=config_column,
+                )
+                index_dict[control_name][key] = _index
+                sni_dict[control_name][key] = _sni
 
         # re-filter `index`, `shotnum`, and `sni` if intersection_set
         # requested
@@ -299,13 +325,13 @@ class HDFReadControls(np.ndarray):
         shape = shotnum.shape
         dtype = [("shotnum", np.uint32, ())]
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # add fields
-            cconfig = _fmap.controls[cname].configs[cconfn]
-            for field_name, fconfig in cconfig["state values"].items():
+            control_config = _fmap.controls[control_name].configs[config_name]
+            for field_name, fconfig in control_config["state values"].items():
                 dtype.append(
                     (
                         field_name,
@@ -330,16 +356,13 @@ class HDFReadControls(np.ndarray):
 
         # Assign Control Data to Numpy array
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # get control dataset
-            cmap = _fmap.controls[cname]
-            cconfig = cmap.configs[cconfn]
-            cdset = cdset_dict[cname]
-            sni = sni_dict[cname]
-            index = index_dict[cname].tolist()  # type: List
+            cmap = _fmap.controls[control_name]
+            control_config = cmap.configs[config_name]
 
             # populate control data array
             # 1. scan over numpy fields
@@ -348,23 +371,27 @@ class HDFReadControls(np.ndarray):
             # 3. split between a command list fill or a direct fill
             # 4. NaN fill if intersection_set = False
             #
-            for nf_name, fconfig in cconfig["state values"].items():
-                # nf_name = the numpy field name
-                # fconfig = the mapping dictionary for nf_name
+            for state_field, state_config in control_config["state values"].items():
+                # state_field = the numpy field name
+                # state_config = the mapping dictionary for state_field
                 #
-                for npi, df_name in enumerate(fconfig["dset field"]):
+
+                cdset = hdf_file.get(state_config["dset paths"][0])
+                sni = sni_dict[control_name][state_field]
+                index = index_dict[control_name][state_field].tolist()  # type: List
+                for npi, df_name in enumerate(state_config["dset field"]):
                     # df_name
                     #   the dset field name that will fill the numpy
                     #   field
                     # npi
                     #   the index of the numpy array corresponding to
-                    #   nf_name that df_name will fill
+                    #   state_field that df_name will fill
                     #
                     # assign data
                     if cmap.has_command_list:
                         # command list fill
                         # get command list
-                        cl = fconfig["command list"]
+                        cl = state_config["command list"]
 
                         # retrieve the array of command indices
                         ci_arr = cdset[index, df_name]
@@ -385,15 +412,15 @@ class HDFReadControls(np.ndarray):
                             sni_for_ci[np.where(sni)[0][ii]] = True
 
                             # assign values
-                            data[nf_name][sni_for_ci] = command
+                            data[state_field][sni_for_ci] = command
                     else:
                         # direct fill (NO command list)
                         try:
                             arr = cdset[index, df_name]
                         except ValueError as err:
-                            mlist = [1] + list(data.dtype[nf_name].shape)
+                            mlist = [1] + list(data.dtype[state_field].shape)
                             size = reduce(lambda x, y: x * y, mlist)
-                            dtype = data.dtype[nf_name].base
+                            dtype = data.dtype[state_field].base
                             if df_name == "":
                                 # a mapping module gives an empty string
                                 # '' when the dataset does not have a
@@ -431,7 +458,7 @@ class HDFReadControls(np.ndarray):
                                     # no real NaN concept exists
                                     # - this shouldn't happen though
                                     warn(
-                                        f"dtype ({dtype}) of {nf_name} has no NaN "
+                                        f"dtype ({dtype}) of {state_field} has no NaN "
                                         f"concept...no NaN fill done",
                                         BaPSFWarning,
                                     )
@@ -439,45 +466,45 @@ class HDFReadControls(np.ndarray):
                                 # expected field df_name is missing
                                 raise err
 
-                        if data.dtype[nf_name].shape != ():
+                        if data.dtype[state_field].shape != ():
                             # field contains an array (e.g. 'xyz')
-                            # data[nf_name][sni, npi] = \
+                            # data[state_field][sni, npi] = \
                             #     cdset[index, df_name]
-                            data[nf_name][sni, npi] = arr
+                            data[state_field][sni, npi] = arr
                         else:
                             # field is a constant
-                            # data[nf_name][sni] = \
+                            # data[state_field][sni] = \
                             #     cdset[index, df_name]
-                            data[nf_name][sni] = arr
+                            data[state_field][sni] = arr
 
                     # handle NaN fill
                     if not intersection_set:
                         # overhead
                         sni_not = np.logical_not(sni)
-                        dtype = data.dtype[nf_name].base
+                        dtype = data.dtype[state_field].base
 
                         #
-                        if data.dtype[nf_name].shape != ():
+                        if data.dtype[state_field].shape != ():
                             ii = np.s_[sni_not, npi]
                         else:
                             ii = np.s_[sni_not]
 
                         # NaN fill
                         if np.issubdtype(dtype, np.signedinteger):
-                            data[nf_name][ii] = -99999
+                            data[state_field][ii] = -99999
                         elif np.issubdtype(dtype, np.unsignedinteger):
-                            data[nf_name][ii] = 0
+                            data[state_field][ii] = 0
                         elif np.issubdtype(dtype, np.floating):
                             # any float type
-                            data[nf_name][ii] = np.nan
+                            data[state_field][ii] = np.nan
                         elif np.issubdtype(dtype, np.flexible):
                             # string, unicode, void
-                            data[nf_name][ii] = ""
+                            data[state_field][ii] = ""
                         else:
                             # no real NaN concept exists
                             # - this shouldn't happen though
                             warn(
-                                f"dtype ({dtype}) of {nf_name} has no NaN concept"
+                                f"dtype ({dtype}) of {state_field} has no NaN concept"
                                 f"...no NaN fill done",
                                 BaPSFWarning,
                             )
@@ -485,7 +512,7 @@ class HDFReadControls(np.ndarray):
             # print execution timing
             if timeit:  # pragma: no cover
                 tt.append(time.time())
-                print(f"tt - fill data - {cname}: {(tt[-1] - tt[-2]) * 1.0e3} ms")
+                print(f"tt - fill data - {control_name}: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -510,24 +537,24 @@ class HDFReadControls(np.ndarray):
 
         # add control meta-info
         for control in controls:
-            # control name (cname) and configuration name (cconfn)
-            cname = control[0]
-            cconfn = control[1]
+            # control name (control_name) and configuration name (config_name)
+            control_name = control[0]
+            config_name = control[1]
 
             # get control dataset
-            cmap = _fmap.controls[cname]
-            cconfig = cmap.configs[cconfn]  # type: dict
+            cmap = _fmap.controls[control_name]
+            control_config = cmap.configs[config_name]  # type: dict
 
             # populate
-            obj._info["controls"][cname] = {
+            obj._info["controls"][control_name] = {
                 "device group path": cmap.info["group path"],
-                "device dataset path": cconfig["dset paths"][0],
+                "device dataset path": control_config["dset paths"][0],
                 "contype": cmap.contype,
-                "configuration name": cconfn,
+                "configuration name": config_name,
             }
-            for key, val in cconfig.items():
+            for key, val in control_config.items():
                 if key not in ["dset paths", "shotnum", "state values"]:
-                    obj._info["controls"][cname][key] = copy.deepcopy(val)
+                    obj._info["controls"][control_name][key] = copy.deepcopy(val)
 
         # print execution timing
         if timeit:  # pragma: no cover

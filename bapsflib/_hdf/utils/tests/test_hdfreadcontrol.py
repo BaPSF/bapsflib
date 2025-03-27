@@ -782,6 +782,37 @@ class TestHDFReadControl(TestBase):
         cdata = HDFReadControls(_bf, control, intersection_set=False)
         self.assertCDataObj(cdata, _bf, control_plus, intersection_set=False)
 
+    @with_bf
+    def test_shotnum_dset_paths_in_state_values(self, _bf: File):
+        # clean and reset HDF5 file
+        self.f.remove_all_modules()
+        self.f.add_module(
+            "6K Compumotor", {"n_configs": 1, "sn_size": 50, "n_motionlists": 1}
+        )
+        _bf._map_file()  # re-map file
+
+        # setup for data read
+        config_name = self.f.modules["6K Compumotor"].config_names[0]
+        controls = [("6K Compumotor", config_name)]
+        control_plus = (
+            "6K Compumotor",
+            config_name,
+            {
+                "sn_requested": [10, 20, 30],
+                "sn_correct": [10, 20, 30],
+                "sn_valid": [10, 20, 30],
+            },
+        )
+
+        # set 'dset paths' to None for the 'shotnum' entry, this should
+        # make HDFReadControl default to retrieving the 'dset paths' form
+        # the state values entry being read
+        _bf.controls["6K Compumotor"].configs[config_name]["shotnum"]["dset paths"] = None
+
+        cdata = HDFReadControls(_bf, controls, shotnum=control_plus[2]["sn_requested"])
+
+        self.assertCDataObj(cdata, _bf, [control_plus])
+
     def assertCDataObj(
         self,
         cdata: HDFReadControls,

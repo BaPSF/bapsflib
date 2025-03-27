@@ -1,0 +1,65 @@
+v2025.3.0 (2025-03-27)
+======================
+
+Features
+--------
+
+- Added `enum` `~bapsflib._hdf.maps.templates.MapTypes` to create a map
+  type indicator. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Added `enum` `~bapsflib._hdf.maps.controls.ConType` to create a control
+  type indicator. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Created a master mapping template class `~bapsflib._hdf.maps.templates.HDFMapTemplate`
+  that all other mapping template classes inherit from.  This reduces code
+  duplication for inheriting children.  This introduces a class attribute
+  ``maptype`` for all mapping classes. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- All control device mapping classes now have a class attribute ``contype`` to
+  indicate the control device type. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- For control device mappings, the ``configs["shotnum"]["dset paths"]`` can be
+  `None`. If so, `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` will
+  assume the ``'dset paths'`` defined in each ``'state values'`` entry. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- For control device mappings, added the option field
+  ``configs["state values"][<key>]["config column"]`` so the dataset
+  configuration column can be named.  If omitted, then
+  `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` will still
+  search for a column with ``'configuration'`` in the name. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Added control device mapper
+  `~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion`. (`#154 <https://github.com/BaPSF/bapsflib/pull/154>`_)
+
+
+Documentation Improvements
+--------------------------
+
+- Added `Sphinx <https://www.sphinx-doc.org>`_
+  extension `sphinx-hoverxref <https://sphinx-hoverxref.readthedocs.io>`_. (`#139 <https://github.com/BaPSF/bapsflib/pull/139>`_)
+- Converted all docstrings to the `numpydoc style
+  <https://numpydoc.readthedocs.io/en/latest/format.html#>`_. (`#140 <https://github.com/BaPSF/bapsflib/pull/140>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Renamed `bapsflib._hdf.maps.core` to `bapsflib._hdf.maps.mapper`. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Renamed `bapsflib.lapd._hdf.lapdmap` to `bapsflib.lapd._hdf.mapper`. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Renamed `HDFMap` to `~bapsflib._hdf.maps.mapper.HDFMapper`. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Renamed `LaPDMap` to `~bapsflib.lapd._hdf.mapper.LaPDMapper`. (`#141 <https://github.com/BaPSF/bapsflib/pull/141>`_)
+- Signature of `~bapsflib._hdf.utils.helpers.build_shotnum_dset_relation` and
+  `~bapsflib._hdf.utils.helpers.build_sndr_for_complex_dset` are updated to
+  accept arguments ``shotnum``, ``dset``, ``shotnumkey``, ``n_configs``,
+  ``config_id``, and (optional) ``config_column``.  This allows for mapped
+  ``config['state values']`` entries to utilize separate datasets and
+  custom configuration columns. (`#156 <https://github.com/BaPSF/bapsflib/pull/156>`_)
+- Signature of `~bapsflib._hdf.utils.helpers.condition_shotnum` is updated
+  to accept arguments ``shotnum``, ``dset_list``, and ``shotnumkey_list``.
+  This allows for mapped ``config['state values']`` entries to utilize
+  separate datasets. (`#156 <https://github.com/BaPSF/bapsflib/pull/156>`_)
+- Updated `~bapsflib._hdf.utils.helpers.do_shotnum_intersection` so
+  shot numbers are retrieved from the dataset associated with each
+  mapped ``config['state values']``, and not the generic
+  ``config['dset paths']``. (`#156 <https://github.com/BaPSF/bapsflib/pull/156>`_)
+
+
+Package Management
+------------------
+
+- Added package dependency `numpydoc`. (`#140 <https://github.com/BaPSF/bapsflib/pull/140>`_)
+- Added dependency `bapsf_motion`. (`#154 <https://github.com/BaPSF/bapsflib/pull/154>`_)

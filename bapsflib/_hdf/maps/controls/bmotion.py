@@ -83,39 +83,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 why=f"Expected 4 datasets, found {len(dataset_names)} datasets.",
             )
 
-        # examine dataset structure
-        for dset_name in self._required_dataset_names.values():
-            dset = self.group[dset_name]
-            if dset.dtype.fields is None:
-                raise HDFMappingError(
-                    device_name="bmotion",
-                    why=f"Dataset {dset.name} does not have named columns.",
-                )
-
-            if dset_name == "Run time list":
-                column_names = {"Shot number", "Configuration name"}
-            else:
-                column_names = {
-                    "Shot number",
-                    "motion_group_id",
-                    "motion_group_name",
-                    "motionlist_index",
-                    "a0",
-                    "a1",
-                    "a2",
-                    "a3",
-                    "a4",
-                    "a5",
-                }
-
-            if len(column_names - set(dset.dtype.fields)) != 0:
-                raise HDFMappingError(
-                    device_name="bmotion",
-                    why=(
-                        f"Dataset {dset.name} does not have all required columns,"
-                        f" {column_names}."
-                    ),
-                )
+        self._verify_datasets()
 
         # construct meta-info from config group
         _info = dict(config_group.attrs)
@@ -232,6 +200,62 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 device_name="bmotion",
                 why="Unable to fully build any of the motion group configurations.",
             )
+
+    def _verify_datasets(self):
+        # bmotion group contains 4 datasets
+        # - "Run time list" <dataset> --> top level data, mg names and motion list index
+        # - "bmotion_axis_names" <dataset> --> LaPD axis associations
+        # - "bmotion_positions" <dataset> --> motion group position data
+        # - "bmotion_target_positions <dataset> --> motion group target position data
+        #
+        # verify datasets existence
+        dataset_names = set(self.dataset_names)
+        required_datasets = set(self._required_dataset_names.values())
+        _remainder_dsets = required_datasets - dataset_names
+        if len(_remainder_dsets) != 0:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Missing datasets {_remainder_dsets}.",
+            )
+        if len(dataset_names) != 4:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Expected 4 datasets, found {len(dataset_names)} datasets.",
+            )
+
+        # verify dataset structure
+        for dset_name in self._required_dataset_names.values():
+            dset = self.group[dset_name]
+            if dset.dtype.fields is None:
+                raise HDFMappingError(
+                    device_name="bmotion",
+                    why=f"Dataset {dset.name} does not have named columns.",
+                )
+
+            if dset_name == "Run time list":
+                column_names = {"Shot number", "Configuration name"}
+            else:
+                column_names = {
+                    "Shot number",
+                    "motion_group_id",
+                    "motion_group_name",
+                    "motionlist_index",
+                    "a0",
+                    "a1",
+                    "a2",
+                    "a3",
+                    "a4",
+                    "a5",
+                }
+
+            if len(column_names - set(dset.dtype.fields)) != 0:
+                raise HDFMappingError(
+                    device_name="bmotion",
+                    why=(
+                        f"Dataset {dset.name} does not have all required columns,"
+                        f" {column_names}."
+                    ),
+                )
 
     @staticmethod
     def _generate_state_entry(

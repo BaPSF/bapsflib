@@ -12,7 +12,7 @@ import warnings
 
 from bapsf_motion.utils import toml
 from h5py import Dataset, Group
-from typing import Callable, Optional, Union
+from typing import Callable, List, Optional, Union
 
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.controls.types import ConType
@@ -48,42 +48,14 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
     def _init_before_build_configs(self):
         self._run_config = None
+        self._config_groups = None
 
     def _build_configs(self):
         # Build the attribute self.configs dictionary
         #
-        # bmotion group contains 1 group and 4 datasets
-        # - <group> --> contains the run configuration
-        # - "Run time list" <dataset> --> top level data, mg names and motion list index
-        # - "bmotion_axis_names" <dataset> --> LaPD axis associations
-        # - "bmotion_positions" <dataset> --> motion group position data
-        # - "bmotion_target_positions <dataset> --> motion group target position data
-        #
-        # examine groups
-        group_names = self.subgroup_names
-        if len(group_names) != 1:
-            raise HDFMappingError(
-                device_name="bmotion",
-                why=f"Expected 1 sub-group, found {len(group_names)} groups.",
-            )
-        config_group = self.group[group_names[0]]  # type: Group
-
-        # examine datasets
-        dataset_names = set(self.dataset_names)
-        required_datasets = set(self._required_dataset_names.values())
-        _remainder_dsets = required_datasets - dataset_names
-        if len(_remainder_dsets) != 0:
-            raise HDFMappingError(
-                device_name="bmotion",
-                why=f"Missing datasets {_remainder_dsets}.",
-            )
-        if len(dataset_names) != 4:
-            raise HDFMappingError(
-                device_name="bmotion",
-                why=f"Expected 4 datasets, found {len(dataset_names)} datasets.",
-            )
-
-        self._verify_datasets()
+        self._verify_datasets()  # datasets must be verified before groups
+        self._verify_groups()
+        config_groups = self._config_groups
 
         # construct meta-info from config group
         _info = dict(config_group.attrs)
@@ -256,6 +228,41 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                         f" {column_names}."
                     ),
                 )
+
+    def _verify_groups(self):
+        # bmotion group contains 1 group
+        # - <group> --> contains the run configuration
+        #
+        group_names = self.subgroup_names
+        if len(group_names) < 1:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why=f"Expected at least 1 sub-group, found {len(group_names)} groups.",
+            )
+
+        self._config_groups = {}
+        for ii, name in enumerate(group_names):
+            group = self.group[name]
+            if "RUN_CONFIG" not in group.attrs:
+                continue
+
+            self._config_groups[0] = {
+                "name": name,
+                "group": group,
+            }
+
+        dset_runtime_list = self._get_dataset(which="main")  # Run-time list
+        used_config_names = np.unique(dset_runtime_list["Configuration name"])
+        for key in list(self._config_groups.keys()):
+            config_name = self._config_groups[key]["name"]
+            if config_name not in used_config_names:
+                self._config_groups.pop(key)
+
+        if not bool(self._config_groups):
+            raise HDFMappingError(
+                device_name="bmotion",
+                why="There are no valid configurations in the bmotion group.",
+            )
 
     @staticmethod
     def _generate_state_entry(

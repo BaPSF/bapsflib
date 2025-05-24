@@ -47,8 +47,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
     }
 
     def _init_before_build_configs(self):
-        self._run_config = None
         self._config_groups = None
+        self._run_configs = None
 
     def _build_configs(self):
         # Build the attribute self.configs dictionary

@@ -12,6 +12,7 @@ import warnings
 
 from bapsf_motion.utils import toml
 from h5py import Dataset, Group
+from pathlib import Path
 from typing import Callable, List, Optional, Union
 
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
@@ -240,25 +241,22 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 why=f"Expected at least 1 sub-group, found {len(group_names)} groups.",
             )
 
-        self._config_groups = {}
+        self._config_groups = []  # type: List[Group]
         for ii, name in enumerate(group_names):
             group = self.group[name]
             if "RUN_CONFIG" not in group.attrs:
                 continue
 
-            self._config_groups[0] = {
-                "name": name,
-                "group": group,
-            }
+            self._config_groups.append(group)
 
         dset_runtime_list = self._get_dataset(which="main")  # Run-time list
         used_config_names = np.unique(dset_runtime_list["Configuration name"])
-        for key in list(self._config_groups.keys()):
-            config_name = self._config_groups[key]["name"]
+        for ii in range(len(self._config_groups)):
+            config_name = Path(self._config_groups[ii].name).stem
             if config_name not in used_config_names:
-                self._config_groups.pop(key)
+                self._config_groups.pop(ii)
 
-        if not bool(self._config_groups):
+        if len(self._config_groups) == 0:
             raise HDFMappingError(
                 device_name="bmotion",
                 why="There are no valid configurations in the bmotion group.",

@@ -61,7 +61,8 @@ class TestFile(TestBase):
             "read_data",
             "read_controls",
             "read_msi",
-            #
+            # other attributes/methods
+            "overview",
         ]
         for attr_name in _conditions:
             with self.subTest(attr_name=attr_name):
@@ -122,7 +123,6 @@ class TestFile(TestBase):
         self.assertIs(_bf.msi, _bf.file_map.msi)
 
         # `overview` attribute                                      ----
-        self.assertTrue(hasattr(_bf, "overview"))
         self.assertIsInstance(_bf.overview, HDFOverview)
 
         # calling `read_controls`

@@ -92,29 +92,37 @@ class TestFile(TestBase):
             self.assertEqual(_bf._file_map, "mapped")
 
     @with_bf
+    def test_attributes_as_property(self, _bf: File):
+        _conditions = [  # attribute name
+            "info",
+            "file_map",
+            "controls",
+            "digitizers",
+            "msi",
+            "overview",
+        ]
+        for attr_name in _conditions:
+            with self.subTest(attr_name=attr_name):
+                self.assertIsInstance(getattr(type(_bf), attr_name), property)
+
+    @with_bf
     def test_file(self, _bf: File):
 
         # `info` attributes`                                        ----
         self.assertIsInstance(_bf.info, dict)
-        self.assertIsInstance(type(_bf).info, property)
         self.assertEqual(_bf.info["file"], os.path.basename(_bf.filename))
         self.assertEqual(_bf.info["absolute file path"], os.path.abspath(_bf.filename))
 
         # `file_map`
         self.assertIsInstance(_bf.file_map, HDFMapper)
-        self.assertIsInstance(type(_bf).file_map, property)
 
         # individual mappings
-        self.assertIsInstance(type(_bf).controls, property)
         self.assertIs(_bf.controls, _bf.file_map.controls)
-        self.assertIsInstance(type(_bf).digitizers, property)
         self.assertIs(_bf.digitizers, _bf.file_map.digitizers)
-        self.assertIsInstance(type(_bf).msi, property)
         self.assertIs(_bf.msi, _bf.file_map.msi)
 
         # `overview` attribute                                      ----
         self.assertTrue(hasattr(_bf, "overview"))
-        self.assertIsInstance(type(_bf).overview, property)
         self.assertIsInstance(_bf.overview, HDFOverview)
 
         # calling `read_controls`

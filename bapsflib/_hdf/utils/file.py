@@ -15,10 +15,10 @@ import h5py
 import os
 import warnings
 
-from typing import Any, Dict, List, Tuple, Union
+from typing import Any, Dict, Literal, List, Optional, Tuple, Union
 
 from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
-from bapsflib.utils.warnings import BaPSFWarning
+from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
 class File(h5py.File):
@@ -156,6 +156,117 @@ class File(h5py.File):
         from bapsflib._hdf.utils.hdfoverview import HDFOverview
 
         return HDFOverview(self)
+
+    def get_digitizer_specs(
+        self,
+        board: int,
+        channel: int,
+        *,
+        digitizer: Optional[str] = None,
+        adc: Optional[str] = None,
+        config_name: Optional[str] = None,
+        silent: bool = False,
+    ) -> Dict[str, Any]:
+        """
+        Get a dictionary of the digitizer setup for the given ``board``
+        and ``channel``.
+
+        Parameters
+        ----------
+        board : `int`
+            Digitizer board number.
+
+        channel : `int`
+            Digitizer channel number.
+
+        digitizer : `str`, optional
+            Digitizer name.  If `None`, then the digitizer will be
+            inferred if only one digitizer was used. (DEFAULT: `None`)
+        adc : `str`, optional
+            Digitizer analog-digital-converter name.  If `None`, then
+            the ``adc`` will be taken from the digitizer configuration
+            assuming only one adc was used.  (DEFAULT: `None`)
+
+        config_name : `str`, optional
+            Digitizer configuration name.  If `None`, then the
+            ``config_name`` will be taken from the digitizer
+            configuration assuming only one active configuration was
+            used. (DEFAULT: `None`)
+
+        silent : `bool`
+            Set `True` to suppress warnings. (DEFAULT: `False`)
+
+        Returns
+        -------
+        Dict[str, Any]
+            Dictionary of the digitizer setup for the specified
+            ``board`` and ``channel``.
+
+        Notes
+        -----
+
+        The returned dictionary will contain the following data:
+
+        +---------------------------------+----------------------------------------+
+        | Key                             | Description                            |
+        +=================================+========================================+
+        | ``'board'``                     | Digitizer board number.                |
+        +---------------------------------+----------------------------------------+
+        | ``'channel'``                   | Digitizer channel number.              |
+        +---------------------------------+----------------------------------------+
+        | ``'digitizer'``                 | Digitizer name.                        |
+        +---------------------------------+----------------------------------------+
+        | ``'adc'``                       | Name of analog-digital-converter.      |
+        +---------------------------------+----------------------------------------+
+        | ``'configuration name'``        | Name of digitizer configuration.       |
+        +---------------------------------+----------------------------------------+
+        | ``'nshotnum'``                  | Num. of shot numbers in the data run.  |
+        +---------------------------------+----------------------------------------+
+        | ``'nt'``                        | Num. of time samples.                  |
+        +---------------------------------+----------------------------------------+
+        | ``'bit'``                       | Bit-ness of the digitizer.             |
+        +---------------------------------+----------------------------------------+
+        | ``'clock rate'``                | Digitizer clock rate                   |
+        +---------------------------------+----------------------------------------+
+        | ``'shot average (software)'``   | Num. of timeseries averaged together   |
+        +---------------------------------+----------------------------------------+
+        | ``'sample average (hardware)'`` | Num. of time samples averaged together |
+        +---------------------------------+----------------------------------------+
+
+        """
+        if digitizer is None and len(self.digitizers) != 1:
+            raise ValueError(
+                f"The HDF5 file has {len(self.digitizers)} digitizers and can "
+                f"not infer the desired digitizer.  Argument 'digitizer' "
+                f"must specify one of {self.digitizers.keys()}."
+            )
+        elif digitizer is None:
+            digitizer = list(self.digitizers.keys())[0]
+            digi_map = self.digitizers[digitizer]
+        elif not isinstance(digitizer, str):
+            raise TypeError(
+                "Argument 'digitizer' must be a string specifying one of "
+                f"{list(self.digitizers.keys())}.  Got type {type(digitizer)}."
+            )
+        elif digitizer not in self.digitizers:
+            raise ValueError(
+                f"Argument 'digitizer' ({digitizer}) not in list of mapped "
+                f"digitizers {list(self.digitizers.keys())}."
+            )
+        else:
+            digi_map = self.digitizers[digitizer]
+
+        with warnings.catch_warnings():
+            _filter = "ignore" if silent else "default"
+            warnings.simplefilter(_filter, category=HDFMappingWarning)
+            _info = digi_map.get_adc_info(
+                board,
+                channel,
+                adc=adc,
+                config_name=config_name,
+            )  # type: Dict[str, Any]
+            _info.update({"board": board, "channel": channel})
+        return _info
 
     def read_controls(
         self,

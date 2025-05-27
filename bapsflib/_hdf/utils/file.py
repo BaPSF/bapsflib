@@ -15,7 +15,7 @@ import h5py
 import os
 import warnings
 
-from typing import Any, Dict, Literal, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning

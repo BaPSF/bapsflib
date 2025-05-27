@@ -51,12 +51,17 @@ class TestFile(TestBase):
             # 'info' attributes
             "_build_info",
             "info",
-            # mapping attributes
+            # mapping attributes/methods
             "_map_file",
             "file_map",
             "controls",
             "digitizers",
             "msi",
+            # read data attributes/methods
+            "read_data",
+            "read_controls",
+            "read_msi",
+            #
         ]
         for attr_name in _conditions:
             with self.subTest(attr_name=attr_name):
@@ -111,11 +116,6 @@ class TestFile(TestBase):
         self.assertTrue(hasattr(_bf, "overview"))
         self.assertIsInstance(type(_bf).overview, property)
         self.assertIsInstance(_bf.overview, HDFOverview)
-
-        # read attributes                                           ----
-        self.assertTrue(hasattr(_bf, "read_controls"))
-        self.assertTrue(hasattr(_bf, "read_data"))
-        self.assertTrue(hasattr(_bf, "read_msi"))
 
         # calling `read_controls`
         with mock.patch(

@@ -187,6 +187,15 @@ class TestFile(TestBase):
             mock_rm.assert_called_once_with(_bf, "Discharge")
 
     @with_bf
+    def test_file_wrong_open_mode(self, _bf: File):
+        # raise ValueError if mode not in ('r', 'r+')
+        modes = ["w", "w-", "x", "a"]
+        for mode in modes:
+            with self.subTest(mode=mode), self.assertRaises(ValueError):
+                _bf2 = File(self.f.filename, mode=mode)
+                _bf2.close()
+
+    @with_bf
     def test_file(self, _bf: File):
         # __init__ calling                                          ----
         # methods `_build_info` and `_map_file` should be called in
@@ -221,11 +230,6 @@ class TestFile(TestBase):
                 mock_file.assert_called_once_with(_bf2, self.f.filename, mode=mode)
                 mock_file.reset_mock()
                 _bf2.close()
-
-        # raise ValueError if mode not in ('r', 'r+')
-        with self.assertRaises(ValueError):
-            _bf2 = File(self.f.filename, mode="w")
-            _bf2.close()
 
 
 if __name__ == "__main__":

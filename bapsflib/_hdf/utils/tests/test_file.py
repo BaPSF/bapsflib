@@ -13,7 +13,6 @@
 #
 import h5py
 import os
-import unittest as ut
 
 from unittest import mock
 

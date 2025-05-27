@@ -63,12 +63,19 @@ class TestFile(TestBase):
                 self.assertTrue(hasattr(_bf, attr_name))
 
     @with_bf
-    def test_file(self, _bf: File):
+    def test_path_attribute_values(self, _bf: File):
+        _conditions = [
+            # (attr_name, expected)
+            ("CONTROL_PATH", "Raw data + config"),
+            ("DIGITIZER_PATH", "Raw data + config"),
+            ("MSI_PATH", "MSI"),
+        ]
+        for attr_name, expected in _conditions:
+            with self.subTest(attr_name=attr_name, expected=expected):
+                self.assertEqual(getattr(_bf, attr_name), expected)
 
-        # path attributes
-        self.assertEqual(_bf.CONTROL_PATH, "Raw data + config")
-        self.assertEqual(_bf.DIGITIZER_PATH, "Raw data + config")
-        self.assertEqual(_bf.MSI_PATH, "MSI")
+    @with_bf
+    def test_file(self, _bf: File):
 
         # `info` attributes`                                        ----
         self.assertIsInstance(_bf.info, dict)

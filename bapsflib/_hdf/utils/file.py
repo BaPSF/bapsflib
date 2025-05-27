@@ -37,7 +37,7 @@ class File(h5py.File):
         digitizer_path="/",
         msi_path="/",
         silent=False,
-        **kwargs
+        **kwargs,
     ):
         """
         Parameters
@@ -274,7 +274,7 @@ class File(h5py.File):
         shotnum=slice(None),
         intersection_set=True,
         silent=False,
-        **kwargs
+        **kwargs,
     ):
         """
         Reads data from control device datasets.  See
@@ -361,7 +361,7 @@ class File(h5py.File):
                 controls,
                 shotnum=shotnum,
                 intersection_set=intersection_set,
-                **kwargs
+                **kwargs,
             )
 
         return data
@@ -379,7 +379,7 @@ class File(h5py.File):
         add_controls=None,
         intersection_set=True,
         silent=False,
-        **kwargs
+        **kwargs,
     ):
         """
         Reads data from digitizer datasets and attaches control device
@@ -503,7 +503,7 @@ class File(h5py.File):
                 keep_bits=keep_bits,
                 add_controls=add_controls,
                 intersection_set=intersection_set,
-                **kwargs
+                **kwargs,
             )
 
         return data

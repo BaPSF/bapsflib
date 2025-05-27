@@ -136,10 +136,11 @@ class TestFile(TestBase):
                 self.assertIs(getattr(_bf, attr_name), getattr(_bf.file_map, attr_name))
 
     @with_bf
-    def test_file(self, _bf: File):
-        # `overview` attribute                                      ----
+    def test_overview(self, _bf: File):
         self.assertIsInstance(_bf.overview, HDFOverview)
 
+    @with_bf
+    def test_file(self, _bf: File):
         # calling `read_controls`
         with mock.patch(
             f"{HDFReadControls.__module__}.{HDFReadControls.__qualname__}",

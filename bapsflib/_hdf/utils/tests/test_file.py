@@ -107,13 +107,22 @@ class TestFile(TestBase):
                 self.assertIsInstance(getattr(type(_bf), attr_name), property)
 
     @with_bf
+    def test_info_property(self, _bf: File):
+        _conditions = [
+            # (_assert, key, expected)
+            (self.assertIsInstance, None, dict),
+            (self.assertEqual, "file", os.path.basename(_bf.filename)),
+            (self.assertEqual, "absolute file path", os.path.abspath(_bf.filename)),
+        ]
+        for _assert, key, expected in _conditions:
+            with self.subTest(_assert=_assert.__name__, key=key, expected=expected):
+                if key is None:
+                    _assert(_bf.info, expected)
+                else:
+                    _assert(_bf.info[key], expected)
+
+    @with_bf
     def test_file(self, _bf: File):
-
-        # `info` attributes`                                        ----
-        self.assertIsInstance(_bf.info, dict)
-        self.assertEqual(_bf.info["file"], os.path.basename(_bf.filename))
-        self.assertEqual(_bf.info["absolute file path"], os.path.abspath(_bf.filename))
-
         # `file_map`
         self.assertIsInstance(_bf.file_map, HDFMapper)
 

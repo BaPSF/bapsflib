@@ -122,15 +122,21 @@ class TestFile(TestBase):
                     _assert(_bf.info[key], expected)
 
     @with_bf
-    def test_file(self, _bf: File):
-        # `file_map`
+    def test_file_map(self, _bf: File):
         self.assertIsInstance(_bf.file_map, HDFMapper)
 
-        # individual mappings
-        self.assertIs(_bf.controls, _bf.file_map.controls)
-        self.assertIs(_bf.digitizers, _bf.file_map.digitizers)
-        self.assertIs(_bf.msi, _bf.file_map.msi)
+    @with_bf
+    def test_mapping_properties(self, _bf: File):
+        _conditions = [
+            # property name
+            "controls", "digitizers", "msi",
+        ]
+        for attr_name in _conditions:
+            with self.subTest(attr_name=attr_name):
+                self.assertIs(getattr(_bf, attr_name), getattr(_bf.file_map, attr_name))
 
+    @with_bf
+    def test_file(self, _bf: File):
         # `overview` attribute                                      ----
         self.assertIsInstance(_bf.overview, HDFOverview)
 

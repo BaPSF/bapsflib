@@ -24,6 +24,7 @@ from bapsflib._hdf.utils.hdfreaddata import HDFReadData
 from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 from bapsflib._hdf.utils.tests import TestBase
 from bapsflib.utils.decorators import with_bf
+from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestFile(TestBase):
@@ -223,3 +224,46 @@ class TestFile(TestBase):
             self.assertTrue(mock_mf.called)
             self.assertTrue(mock_bi.called)
             _bf2.close()
+    def test_get_digitizer_specs_raises(self):
+        self.f.reset()
+        self.f.add_module("SIS crate")
+        self.f.add_module("SIS 3301")
+        _bf = File(
+            self.f.filename,
+            control_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            msi_path="MSI",
+        )
+
+        _conditions = [
+            # (error, args, kwargs)
+            (ValueError, (1, 1), {"silent": True}),
+            (TypeError, (1, 1), {"digitizer": 5, "silent": True}),
+            (ValueError, (1, 1), {"digitizer": "not a digitizer", "silent": True}),
+        ]
+        for _error, args, kwargs in _conditions:
+            with (
+                self.subTest(error=_error, args=args, kwargs=kwargs),
+                self.assertRaises(_error),
+            ):
+                _bf.get_digitizer_specs(*args, **kwargs)
+
+        _bf.close()
+        self.f.reset()
+
+    @with_bf
+    def test_get_digitizer_specs_warnings(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("SIS crate")
+        _bf = File(
+            self.f.filename,
+            control_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            msi_path="MSI",
+        )
+
+        with self.assertWarns(HDFMappingWarning):
+            _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=False)
+
+        _bf.close()
+        self.f.reset()

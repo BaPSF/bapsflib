@@ -30,12 +30,6 @@ from bapsflib.utils.decorators import with_bf
 class TestFile(TestBase):
     """Test case for :class:`~bapsflib._hdf.utils.file.File`."""
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     @with_bf
     def test_file_subclass(self, _bf: File):
         # must be h5py.File instance

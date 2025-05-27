@@ -37,32 +37,23 @@ class TestFile(TestBase):
         super().tearDown()
 
     @with_bf
-    def test_file(self, _bf: File):
-        # must by h5py.File instance
+    def test_file_subclass(self, _bf: File):
+        # must be h5py.File instance
         self.assertIsInstance(_bf, h5py.File)
 
+    @with_bf
+    def test_file(self, _bf: File):
+
         # path attributes
-        self.assertTrue(hasattr(_bf, "CONTROL_PATH"))
-        self.assertTrue(hasattr(_bf, "DIGITIZER_PATH"))
-        self.assertTrue(hasattr(_bf, "MSI_PATH"))
         self.assertEqual(_bf.CONTROL_PATH, "Raw data + config")
         self.assertEqual(_bf.DIGITIZER_PATH, "Raw data + config")
         self.assertEqual(_bf.MSI_PATH, "MSI")
 
         # `info` attributes`                                        ----
-        self.assertTrue(hasattr(_bf, "_build_info"))
-        self.assertTrue(hasattr(_bf, "info"))
         self.assertIsInstance(_bf.info, dict)
         self.assertIsInstance(type(_bf).info, property)
         self.assertEqual(_bf.info["file"], os.path.basename(_bf.filename))
         self.assertEqual(_bf.info["absolute file path"], os.path.abspath(_bf.filename))
-
-        # mapping attributes                                        ----
-        self.assertTrue(hasattr(_bf, "_map_file"))
-        self.assertTrue(hasattr(_bf, "file_map"))
-        self.assertTrue(hasattr(_bf, "controls"))
-        self.assertTrue(hasattr(_bf, "digitizers"))
-        self.assertTrue(hasattr(_bf, "msi"))
 
         # `_map_file` should call HDFMapper
         with mock.patch(

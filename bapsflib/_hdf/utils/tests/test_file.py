@@ -42,6 +42,27 @@ class TestFile(TestBase):
         self.assertIsInstance(_bf, h5py.File)
 
     @with_bf
+    def test_attribute_existence(self, _bf: File):
+        _conditions = [  # attribute name
+            # path attributes
+            "CONTROL_PATH",
+            "DIGITIZER_PATH",
+            "MSI_PATH",
+            # 'info' attributes
+            "_build_info",
+            "info",
+            # mapping attributes
+            "_map_file",
+            "file_map",
+            "controls",
+            "digitizers",
+            "msi",
+        ]
+        for attr_name in _conditions:
+            with self.subTest(attr_name=attr_name):
+                self.assertTrue(hasattr(_bf, attr_name))
+
+    @with_bf
     def test_file(self, _bf: File):
 
         # path attributes

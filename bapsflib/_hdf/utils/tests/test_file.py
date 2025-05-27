@@ -196,6 +196,24 @@ class TestFile(TestBase):
                 _bf2.close()
 
     @with_bf
+    def test_file_correct_open_mode(self, _bf: File):
+        with mock.patch("h5py.File.__init__", wraps=h5py.File.__init__) as mock_file:
+            for mode in ("r", "r+"):
+                with self.subTest(mode=mode):
+                    _bf2 = File(
+                        self.f.filename,
+                        mode=mode,
+                        control_path="Raw data + config",
+                        digitizer_path="Raw data + config",
+                        msi_path="MSI",
+                        silent=True,
+                    )
+                    self.assertTrue(mock_file.called)
+                    mock_file.assert_called_once_with(_bf2, self.f.filename, mode=mode)
+                    mock_file.reset_mock()
+                    _bf2.close()
+
+    @with_bf
     def test_file(self, _bf: File):
         # __init__ calling                                          ----
         # methods `_build_info` and `_map_file` should be called in
@@ -214,22 +232,6 @@ class TestFile(TestBase):
             self.assertTrue(mock_mf.called)
             self.assertTrue(mock_bi.called)
             _bf2.close()
-
-        # `mode` calling
-        with mock.patch("h5py.File.__init__", wraps=h5py.File.__init__) as mock_file:
-            for mode in ("r", "r+"):
-                _bf2 = File(
-                    self.f.filename,
-                    mode=mode,
-                    control_path="Raw data + config",
-                    digitizer_path="Raw data + config",
-                    msi_path="MSI",
-                    silent=True,
-                )
-                self.assertTrue(mock_file.called)
-                mock_file.assert_called_once_with(_bf2, self.f.filename, mode=mode)
-                mock_file.reset_mock()
-                _bf2.close()
 
 
 if __name__ == "__main__":

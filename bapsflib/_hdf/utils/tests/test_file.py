@@ -140,8 +140,7 @@ class TestFile(TestBase):
         self.assertIsInstance(_bf.overview, HDFOverview)
 
     @with_bf
-    def test_file(self, _bf: File):
-        # calling `read_controls`
+    def test_read_controls(self, _bf: File):
         with mock.patch(
             f"{HDFReadControls.__module__}.{HDFReadControls.__qualname__}",
             return_value="read control",
@@ -155,7 +154,8 @@ class TestFile(TestBase):
             self.assertEqual(cdata, "read control")
             mock_rc.assert_called_once_with(_bf, ["control"], **extras)
 
-        # calling `read_data`
+    @with_bf
+    def test_read_data(self, _bf: File):
         with mock.patch(
             f"{HDFReadData.__module__}.{HDFReadData.__qualname__}",
             return_value="read data",
@@ -175,15 +175,19 @@ class TestFile(TestBase):
             self.assertEqual(data, "read data")
             mock_rd.assert_called_once_with(_bf, 1, 2, **extras)
 
-        # calling `read_msi`
+    @with_bf
+    def test_read_msi(self, _bf: File):
         with mock.patch(
-            f"{HDFReadMSI.__module__}.{HDFReadMSI.__qualname__}", return_value="read msi"
+                f"{HDFReadMSI.__module__}.{HDFReadMSI.__qualname__}",
+                return_value="read msi"
         ) as mock_rm:
             mdata = _bf.read_msi("Discharge", silent=False)
             self.assertTrue(mock_rm.called)
             self.assertEqual(mdata, "read msi")
             mock_rm.assert_called_once_with(_bf, "Discharge")
 
+    @with_bf
+    def test_file(self, _bf: File):
         # __init__ calling                                          ----
         # methods `_build_info` and `_map_file` should be called in
         # __init__

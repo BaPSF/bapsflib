@@ -214,10 +214,8 @@ class TestFile(TestBase):
                     _bf2.close()
 
     @with_bf
-    def test_file(self, _bf: File):
-        # __init__ calling                                          ----
+    def test_file_init_sequence(self, _bf: File):
         # methods `_build_info` and `_map_file` should be called in
-        # __init__
         with mock.patch.object(
             File, "_build_info", side_effect=_bf._build_info
         ) as mock_bi, mock.patch.object(
@@ -232,7 +230,3 @@ class TestFile(TestBase):
             self.assertTrue(mock_mf.called)
             self.assertTrue(mock_bi.called)
             _bf2.close()
-
-
-if __name__ == "__main__":
-    ut.main()

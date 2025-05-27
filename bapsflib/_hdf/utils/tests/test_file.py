@@ -80,6 +80,18 @@ class TestFile(TestBase):
                 self.assertEqual(getattr(_bf, attr_name), expected)
 
     @with_bf
+    def test_map_file_call(self, _bf: File):
+        # `_map_file` should call HDFMapper
+        with mock.patch(
+            f"{File.__module__}.{HDFMapper.__qualname__}", return_value="mapped"
+        ) as mock_map:
+
+            _bf._map_file()
+
+            self.assertTrue(mock_map.called)
+            self.assertEqual(_bf._file_map, "mapped")
+
+    @with_bf
     def test_file(self, _bf: File):
 
         # `info` attributes`                                        ----
@@ -87,18 +99,6 @@ class TestFile(TestBase):
         self.assertIsInstance(type(_bf).info, property)
         self.assertEqual(_bf.info["file"], os.path.basename(_bf.filename))
         self.assertEqual(_bf.info["absolute file path"], os.path.abspath(_bf.filename))
-
-        # `_map_file` should call HDFMapper
-        with mock.patch(
-            f"{File.__module__}.{HDFMapper.__qualname__}", return_value="mapped"
-        ) as mock_map:
-
-            _bf._map_file()
-            self.assertTrue(mock_map.called)
-            self.assertEqual(_bf._file_map, "mapped")
-
-        # restore map
-        _bf._map_file()
 
         # `file_map`
         self.assertIsInstance(_bf.file_map, HDFMapper)

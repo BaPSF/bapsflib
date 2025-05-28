@@ -265,7 +265,6 @@ class File(h5py.File):
                 adc=adc,
                 config_name=config_name,
             )  # type: Dict[str, Any]
-            _info.update({"board": board, "channel": channel})
         return _info
 
     def read_controls(

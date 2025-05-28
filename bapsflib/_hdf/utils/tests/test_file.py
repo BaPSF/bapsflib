@@ -17,6 +17,7 @@ import os
 from unittest import mock
 
 from bapsflib._hdf import HDFMapper
+from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
@@ -224,6 +225,48 @@ class TestFile(TestBase):
             self.assertTrue(mock_mf.called)
             self.assertTrue(mock_bi.called)
             _bf2.close()
+
+    def test_get_digitizer_specs_one_digi(self):
+        self.f.reset()
+        self.f.add_module("SIS crate")
+        _bf = File(
+            self.f.filename,
+            control_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            msi_path="MSI",
+        )
+
+        with mock.patch(
+            f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
+            return_value="mapped",
+        ) as mock_map:
+            _bf.get_digitizer_specs(1, 1, digitizer=None, adc="SIS 3302", silent=True)
+            mock_map.assert_called_once()
+
+        _bf.close()
+        self.f.reset()
+
+    def test_get_digitizer_specs_two_digi(self):
+        self.f.reset()
+        self.f.add_module("SIS 3301")
+        self.f.add_module("SIS crate")
+        _bf = File(
+            self.f.filename,
+            control_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            msi_path="MSI",
+        )
+
+        with mock.patch(
+            f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
+            return_value="mapped",
+        ) as mock_map:
+            _bf.get_digitizer_specs(1, 1, digitizer="SIS crate", adc="SIS 3302", silent=True)
+            mock_map.assert_called_once()
+
+        _bf.close()
+        self.f.reset()
+
     def test_get_digitizer_specs_raises(self):
         self.f.reset()
         self.f.add_module("SIS crate")

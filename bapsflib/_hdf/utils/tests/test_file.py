@@ -267,6 +267,22 @@ class TestFile(TestBase):
         _bf.close()
         self.f.reset()
 
+    def test_get_digitizer_specs(self):
+        self.f.reset()
+        self.f.add_module("SIS crate")
+        _bf = File(
+            self.f.filename,
+            control_path="Raw data + config",
+            digitizer_path="Raw data + config",
+            msi_path="MSI",
+        )
+
+        expected = _bf.digitizers["SIS crate"].get_adc_info(
+            1, 1, adc="SIS 3302", config_name="config01"
+        )
+        specs = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
+        self.assertDictEqual(expected, specs)
+
     def test_get_digitizer_specs_raises(self):
         self.f.reset()
         self.f.add_module("SIS crate")

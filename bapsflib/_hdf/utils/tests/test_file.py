@@ -124,7 +124,9 @@ class TestFile(TestBase):
     def test_mapping_properties(self, _bf: File):
         _conditions = [
             # property name
-            "controls", "digitizers", "msi",
+            "controls",
+            "digitizers",
+            "msi",
         ]
         for attr_name in _conditions:
             with self.subTest(attr_name=attr_name):
@@ -173,8 +175,7 @@ class TestFile(TestBase):
     @with_bf
     def test_read_msi(self, _bf: File):
         with mock.patch(
-                f"{HDFReadMSI.__module__}.{HDFReadMSI.__qualname__}",
-                return_value="read msi"
+            f"{HDFReadMSI.__module__}.{HDFReadMSI.__qualname__}", return_value="read msi"
         ) as mock_rm:
             mdata = _bf.read_msi("Discharge", silent=False)
             self.assertTrue(mock_rm.called)
@@ -261,7 +262,9 @@ class TestFile(TestBase):
             f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
             return_value="mapped",
         ) as mock_map:
-            _bf.get_digitizer_specs(1, 1, digitizer="SIS crate", adc="SIS 3302", silent=True)
+            _bf.get_digitizer_specs(
+                1, 1, digitizer="SIS crate", adc="SIS 3302", silent=True
+            )
             mock_map.assert_called_once()
 
         _bf.close()

@@ -409,7 +409,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                     "dset field": ("", "", ""),
                     "shape": (3,),
                     "dtype": np.float64,
-                    "config column": "motion_group_id",
+                    "config column": "motion_group_name",
                 }
 
             dset_field = list(state_entry["dset field"])
@@ -428,7 +428,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 "dset field": (col_name,),
                 "shape": (),
                 "dtype": dset.dtype[col_name],
-                "config column": "motion_group_id",
+                "config column": "motion_group_name",
             }
 
         return state_key, state_entry

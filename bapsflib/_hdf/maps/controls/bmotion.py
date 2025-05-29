@@ -251,10 +251,13 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
         dset_runtime_list = self._get_dataset(which="main")  # Run-time list
         used_config_names = np.unique(dset_runtime_list["Configuration name"])
-        for ii in range(len(self._config_groups)):
-            config_name = Path(self._config_groups[ii].name).stem
-            if config_name not in used_config_names:
-                self._config_groups.pop(ii)
+        used_config_names = [_bytes_to_str(name) for name in used_config_names]
+        used_config_groups = []
+        for group in self._config_groups:
+            config_name = Path(group.name).stem
+            if config_name in used_config_names:
+                used_config_groups.append(group)
+        self._config_groups = used_config_groups
 
         if len(self._config_groups) == 0:
             raise HDFMappingError(

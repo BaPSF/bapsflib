@@ -329,7 +329,12 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         axn_dset = self.group[self.construct_dataset_name(which="axis_names")]
 
         axis_names = {
-            "a0": None, "a1": None, "a2": None, "a3": None, "a4": None, "a5": None
+            "a0": None,
+            "a1": None,
+            "a2": None,
+            "a3": None,
+            "a4": None,
+            "a5": None,
         }  # type: Dict[str, Union[str, None]]
         remove_config = False
         for ii, entry in enumerate(list(config_dict["meta"])):

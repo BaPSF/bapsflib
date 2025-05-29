@@ -134,7 +134,13 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 why="Unable to fully map any of the motion group configurations.",
             )
 
-    def _build_configs_get_axis_name_mapping(self, mg_name: str) -> Union[List[Tuple[str, str]], None]:
+    def _build_configs_get_axis_name_mapping(
+        self, mg_name: str
+    ) -> Union[List[Tuple[str, str]], None]:
+        """
+        Build mapping that connects dataset column name to the
+        associated motion group axis name.
+        """
         dset_axis_names = self._get_dataset(which="axis_names")
         indices = np.where(
             dset_axis_names["motion_group_name"] == bytes(mg_name, encoding="utf-8")

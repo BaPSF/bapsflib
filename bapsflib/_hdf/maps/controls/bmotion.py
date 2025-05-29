@@ -49,7 +49,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
     def _init_before_build_configs(self):
         self._config_groups = []  # type: List[Group]
-        # self._run_configs = None
 
     def _build_configs(self):
         # Build the attribute self.configs dictionary
@@ -67,11 +66,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 device_name="bmotion",
                 why="Unable to fully map any of the motion group configurations.",
             )
-
-        # grab first n_mg_config rows of each dataset
-        dset_axis_names = self.group[self.construct_dataset_name(which="axis_names")][
-            :n_mg_configs
-        ]
 
         # Build out each config
         for cname, _config in self.configs.items():  # type: str, dict
@@ -97,10 +91,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 continue
 
             # construct state values entry
-            _config["state values"] = (
-                self._build_configs_construct_state_values_entry(
-                    ax_name_mapping
-                )
+            _config["state values"] = self._build_configs_construct_state_values_entry(
+                ax_name_mapping
             )
 
             # update config
@@ -158,7 +150,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
     def _build_configs_construct_state_values_entry(
         self, ax_name_mapping: List[Tuple[str, str]]
-    ):
+    ) -> Dict[str, Any]:
         entry = dict()
         for col_name, ax_name in ax_name_mapping:
             # add "position" 'state values'
@@ -181,6 +173,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 ax_rename=lambda x: f"{x}_target",
             )
             entry[_key] = _entry
+        return entry
 
     def _verify_datasets(self):
         # bmotion group contains 4 datasets

@@ -48,15 +48,14 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
     }
 
     def _init_before_build_configs(self):
-        self._config_groups = None
-        self._run_configs = None
+        self._config_groups = []  # type: List[Group]
+        # self._run_configs = None
 
     def _build_configs(self):
         # Build the attribute self.configs dictionary
         #
         self._verify_datasets()  # datasets must be verified before groups
         self._verify_groups()
-        config_groups = self._config_groups
 
         # construct meta-info from config group
         _info = dict(config_group.attrs)
@@ -241,7 +240,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 why=f"Expected at least 1 sub-group, found {len(group_names)} groups.",
             )
 
-        self._config_groups = []  # type: List[Group]
         for ii, name in enumerate(group_names):
             group = self.group[name]
             if "RUN_CONFIG" not in group.attrs:

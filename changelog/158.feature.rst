@@ -1,0 +1,4 @@
+Added method `~bapsflib._hdf.utils.file.File.get_digitizer_specs` to
+`~bapsflib._hdf.utils.file.File`.  This allows users to gather
+digitizer information without first reading data or navigating through
+the mapping objects.

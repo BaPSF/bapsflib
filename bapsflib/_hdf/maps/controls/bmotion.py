@@ -13,7 +13,7 @@ import warnings
 from bapsf_motion.utils import toml
 from h5py import Dataset, Group
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.controls.types import ConType
@@ -88,32 +88,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             }
 
             # get axis names
-            indices = np.where(
-                dset_axis_names["motion_group_name"] == bytes(mg_name, encoding="utf-8")
-            )
-            if len(indices[0]) == 0:
-                warnings.warn(
-                    f"Unable to locate the '{mg_name}' configuration in the "
-                    f"'bmotion_axis_names' dataset.",
-                    HDFMappingWarning,
-                )
-                continue
-            index = indices[0][0]
-            ax_name_mapping = []
-            for col_name in {"a0", "a1", "a2", "a3", "a4", "a5"}:
-
-                ax_name = dset_axis_names[col_name][index]
-                if ax_name == b"":
-                    # this axis was not used
-                    continue
-
-                ax_name_mapping.append((col_name, _bytes_to_str(ax_name)))
-            if len(ax_name_mapping) == 0:
-                warnings.warn(
-                    f"Unable to identify any used axes for the {mg_name}"
-                    f" motion group configuration.",
-                    HDFMappingWarning,
-                )
+            ax_name_mapping = self._build_configs_get_axis_name_mapping(mg_name)
+            if ax_name_mapping is None:
                 continue
 
             # add state values
@@ -153,6 +129,40 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 device_name="bmotion",
                 why="Unable to fully build any of the motion group configurations.",
             )
+
+    def _build_configs_get_axis_name_mapping(self, mg_name: str) -> Union[List[Tuple[str, str]], None]:
+        dset_axis_names = self._get_dataset(which="axis_names")
+        indices = np.where(
+            dset_axis_names["motion_group_name"] == bytes(mg_name, encoding="utf-8")
+        )[0]
+        if len(indices) == 0:
+            warnings.warn(
+                f"Unable to locate the '{mg_name}' configuration in the "
+                f"'bmotion_axis_names' dataset.",
+                HDFMappingWarning,
+            )
+            return None
+
+        index = indices[0]
+        ax_name_mapping = []
+        for col_name in {"a0", "a1", "a2", "a3", "a4", "a5"}:
+
+            ax_name = dset_axis_names[col_name][index]
+            if ax_name == b"":
+                # this axis was not used
+                continue
+
+            ax_name_mapping.append((col_name, _bytes_to_str(ax_name)))
+
+        if len(ax_name_mapping) == 0:
+            warnings.warn(
+                f"Unable to identify any used axes for the {mg_name}"
+                f" motion group configuration.",
+                HDFMappingWarning,
+            )
+            return None
+
+        return ax_name_mapping
 
     def _verify_datasets(self):
         # bmotion group contains 4 datasets

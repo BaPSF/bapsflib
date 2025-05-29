@@ -57,31 +57,12 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         self._verify_datasets()  # datasets must be verified before groups
         self._verify_groups()
 
-        # construct meta-info from config group
-        _info = dict(config_group.attrs)
-        if "RUN_CONFIG" not in _info.keys():
-            raise HDFMappingError(
-                device_name="bmotion",
-                why=f"Missing 'RUN_CONFIG' attribute.",
-            )
-        for key in _info.keys():
-            _info[key] = _bytes_to_str(_info[key])
-        _info["RUN_CONFIG"] = toml.loads(_info["RUN_CONFIG"])
-        self._run_config = _info.pop("RUN_CONFIG")
-        _run_config = self._run_config  # type: dict
+        for group in self._config_groups:
+            self._process_run_config_group(group)
 
-        # initialize motion group configs
-        mg_configs = _run_config["run"]["motion_group"]
-        n_mg_configs = len(mg_configs)
-        if n_mg_configs == 0:
-            raise HDFMappingError(
-                device_name="bmotion",
-                why=f"No motion groups exist in the configuration.",
-            )
-        for key, mg_config in mg_configs.items():
-            name = self._generate_config_name(key, mg_config["name"])
-            self.configs[name] = {**_info}
-            self.configs[name]["MG_CONFIG"] = copy.deepcopy(mg_config)
+        self._verify_multiple_run_config()
+
+        # TODO: add HDFMappingError if self.configs is null
 
         # grab first n_mg_config rows of each dataset
         dset_axis_names = self.group[self.construct_dataset_name(which="axis_names")][
@@ -259,6 +240,122 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 device_name="bmotion",
                 why="There are no valid configurations in the bmotion group.",
             )
+
+    def _process_run_config_group(self, group: Group):
+        # retrieve meta-info from config group
+        _info = dict(group.attrs)  # type: Dict[str, Any]
+        for key in _info.keys():
+            _info[key] = _bytes_to_str(_info[key])
+        _info["RUN_CONFIG"] = toml.loads(_info["RUN_CONFIG"])
+        _run_config = _info.pop("RUN_CONFIG")  # type: Dict[str, Any]
+
+        # initialize motion group configs
+        mg_configs = _run_config["run"]["motion_group"]
+        n_mg_configs = len(mg_configs)
+        if n_mg_configs == 0:
+            # no configs to add
+            return
+
+        for key, mg_config in mg_configs.items():
+            name = self._generate_config_name(key, mg_config["name"])
+
+            entry = {
+                **_info,
+                "mg_id": key,
+                "MG_CONFIG": copy.deepcopy(mg_config),
+                "RUN_CONFIG_NAME": Path(group.name).stem,
+            },
+            if name in self.configs:
+                self.configs[name]["meta"] += (entry,)
+            else:
+                self.configs[name] = {}
+                self.configs[name]["meta"] = (entry,)
+
+    def _verify_multiple_run_config(self):
+        if len(self._config_groups) == 1:
+            return
+        elif len(self._config_groups) == 0:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why="There are no valid configurations in the bmotion group.",
+            )
+
+        # If a motion group name is used in multiple run configurations,
+        # then it must the same bmotion_axis_names entries.  Otherwise,
+        # these were two different probe drives with different run-time
+        # states, which can NOT be handled by bapsflib at the moment.
+        for config_name in list(self.configs.keys()):
+            config_dict = self.configs[config_name]
+            if len(config_dict["meta"]) == 0:
+                self.configs.pop(config_name)
+                continue
+            elif len(config_dict["meta"]) == 1:
+                continue
+
+            # multiple run configurations were used for this motion group
+            # must check that they have the same bmotion_axis_names entry
+
+            self._verify_consistent_motion_group_run_time_state(config_name)
+
+    def _verify_consistent_motion_group_run_time_state(self, config_name):
+        # config_name is a configuration name in self.configs
+        config_dict = self.configs[config_name]
+
+        rtl_dset = self.group[self.construct_dataset_name(which="main")]
+        axn_dset = self.group[self.construct_dataset_name(which="axis_names")]
+
+        axis_names = {
+            "a0": None, "a1": None, "a2": None, "a3": None, "a4": None, "a5": None
+        }  # type: Dict[str, Union[str, None]]
+        remove_config = False
+        for ii, entry in enumerate(list(config_dict["meta"])):
+            run_config_name = entry["RUN_CONFIG_NAME"]
+
+            indices = np.where(
+                rtl_dset["Configuration name"] == run_config_name.encode("utf-8")
+            )[0]
+            if indices.size == 0:
+                warnings.warn(
+                    f"bmotion run configuration '{run_config_name}' was not "
+                    f"found in the 'Run time list' dataset.  Removing "
+                    f"configuration from association with motion group "
+                    f"'{config_name}'.",
+                    HDFMappingWarning,
+                )
+                meta_list = list(config_dict["meta"])
+                meta_list.pop(ii)
+                config_dict["meta"] = meta_list
+                continue
+
+            data_row = axn_dset[indices[0]]
+            for col_name in axis_names.keys():
+                ax_name = _bytes_to_str(data_row[col_name])
+                if axis_names[col_name] is None:
+                    axis_names[col_name] = ax_name
+                elif axis_names[col_name] != ax_name:
+                    warnings.warn(
+                        f"bmotion: the motion group '{config_name}' has differing "
+                        f"axis names for the specified run configurations.  Removing "
+                        f"'{config_name}' from mapping.",
+                        HDFMappingWarning,
+                    )
+                    remove_config = True
+                    break
+
+            if remove_config:
+                break
+
+        if len(config_dict["meta"]) == 0:
+            warnings.warn(
+                f"bmotion: unable to fully map the motion group '{config_name}'.  "
+                f"Removing from mapping.",
+                HDFMappingWarning,
+            )
+            self.configs.pop(config_name)
+        elif remove_config:
+            self.configs.pop(config_name)
+        else:
+            self.configs[config_name] = config_dict
 
     @staticmethod
     def _generate_state_entry(

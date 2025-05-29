@@ -13,7 +13,7 @@ import warnings
 from bapsf_motion.utils import toml
 from h5py import Dataset, Group
 from pathlib import Path
-from typing import Callable, List, Optional, Union
+from typing import Any, Callable, Dict, List, Optional, Union
 
 from bapsflib._hdf.maps.controls.templates import HDFMapControlTemplate
 from bapsflib._hdf.maps.controls.types import ConType

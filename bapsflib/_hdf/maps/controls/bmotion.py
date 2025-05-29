@@ -538,3 +538,62 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 return config_name
 
         return None
+
+    def get_run_configuration(
+        self, run_config_name: Optional[str] = None, as_toml_string: bool = False
+    ) -> Union[str, Dict[str, Any]]:
+        """
+        Get the TOML string associated with a specified bmotion run
+        configuration, ``run_config_name``.
+
+        Parameters
+        ----------
+        run_config_name : str, optional
+            The name of the bmotion run configuration to retrieve.  If
+            `None`, then the run configuration name will be inferred
+            if only ONE configuration is present. (DEFAULT: `None`)
+
+        as_toml_string : bool, optional
+            If `True`, then return the configuration as a TOML string
+            instead of a dictionary.  (DEFAULT: `False`)
+
+        Returns
+        -------
+        Union[str, Dict[str, Any]]
+            The TOML string or `dict` associated with the specified
+            bmotion run configuration, ``run_config_name``.
+        """
+
+        run_config_names = [Path(group.name).stem for group in self._config_groups]
+        if run_config_name is None and len(self._config_groups) == 1:
+            config_group = self._config_groups[0]
+        elif run_config_name is None:
+            raise ValueError(
+                f"bmotion: bmotion has {len(self._config_groups)} run "
+                f"configurations.  Set argument 'run_config_name' to one of "
+                f"{run_config_names}."
+            )
+        elif run_config_name not in run_config_names:
+            raise ValueError(
+                f"bmotion: Argument run_config_name ('{run_config_name}') is "
+                f"not among the existing run configurations, {run_config_names}."
+            )
+        else:
+            config_group = None
+            for group in self._config_groups:
+                if Path(group.name).stem == run_config_name:
+                    config_group = group
+                    break
+
+        if config_group is None:
+            raise ValueError(
+                "bmotion: Unable to find configuration group for run_config_name "
+                f"'{run_config_name}'."
+            )
+
+        toml_string = _bytes_to_str(config_group.attrs["RUN_CONFIG"])
+
+        if as_toml_string:
+            return toml_string
+
+        return toml.loads(toml_string)

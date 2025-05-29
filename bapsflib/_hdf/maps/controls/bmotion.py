@@ -96,30 +96,12 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             if ax_name_mapping is None:
                 continue
 
-            # add state values
-            _config["state values"] = dict()
-            for col_name, ax_name in ax_name_mapping:
-
-                # add "position" 'state values'
-                dset = self.group[self.construct_dataset_name(which="positions")]
-                _key, _entry = self._generate_state_entry(
-                    col_name=col_name,
-                    ax_name=ax_name,
-                    dset=dset,
-                    state_dict=_config["state values"],
+            # construct state values entry
+            _config["state values"] = (
+                self._build_configs_construct_state_values_entry(
+                    ax_name_mapping
                 )
-                _config["state values"][_key] = _entry
-
-                # add "target_position" ' state values
-                dset = self.group[self.construct_dataset_name(which="target_positions")]
-                _key, _entry = self._generate_state_entry(
-                    col_name=col_name,
-                    ax_name=ax_name,
-                    dset=dset,
-                    state_dict=_config["state values"],
-                    ax_rename=lambda x: f"{x}_target",
-                )
-                _config["state values"][_key] = _entry
+            )
 
             # update config
             self.configs[cname] = _config
@@ -173,6 +155,32 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             return None
 
         return ax_name_mapping
+
+    def _build_configs_construct_state_values_entry(
+        self, ax_name_mapping: List[Tuple[str, str]]
+    ):
+        entry = dict()
+        for col_name, ax_name in ax_name_mapping:
+            # add "position" 'state values'
+            dset = self.group[self.construct_dataset_name(which="positions")]
+            _key, _entry = self._generate_state_entry(
+                col_name=col_name,
+                ax_name=ax_name,
+                dset=dset,
+                state_dict=entry,
+            )
+            entry[_key] = _entry
+
+            # add "target_position" ' state values
+            dset = self.group[self.construct_dataset_name(which="target_positions")]
+            _key, _entry = self._generate_state_entry(
+                col_name=col_name,
+                ax_name=ax_name,
+                dset=dset,
+                state_dict=entry,
+                ax_rename=lambda x: f"{x}_target",
+            )
+            entry[_key] = _entry
 
     def _verify_datasets(self):
         # bmotion group contains 4 datasets

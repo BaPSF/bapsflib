@@ -62,7 +62,11 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
         self._verify_multiple_run_config()
 
-        # TODO: add HDFMappingError if self.configs is null
+        if len(self.configs) == 0:
+            raise HDFMappingError(
+                device_name="bmotion",
+                why="Unable to fully map any of the motion group configurations.",
+            )
 
         # grab first n_mg_config rows of each dataset
         dset_axis_names = self.group[self.construct_dataset_name(which="axis_names")][

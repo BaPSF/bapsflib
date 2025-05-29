@@ -69,7 +69,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
         # Build out each config
         for cname, _config in self.configs.items():  # type: str, dict
-            mg_name = _config["MG_CONFIG"]["name"]
+            mg_name = _config["meta"][0]["MG_CONFIG"]["name"]
 
             # add 'dset paths' key
             _config["dset paths"] = tuple(

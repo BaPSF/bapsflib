@@ -47,8 +47,17 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         "target_positions": "bmotion_target_positions",
     }
 
+    @property
+    def run_config_names(self):
+        """
+        Tuple of the bmotion run configuration names loaded and used
+        during a data run.
+        """
+        return self._run_config_names
+
     def _init_before_build_configs(self):
         self._config_groups = []  # type: List[Group]
+        self._run_config_names = tuple()  # type: Tuple[str]
 
     def _build_configs(self):
         # Build the attribute self.configs dictionary
@@ -107,6 +116,15 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 device_name="bmotion",
                 why="Unable to fully map any of the motion group configurations.",
             )
+
+        # define run_config_names
+        names = []
+        for items in self.configs.values():
+            names.extend(
+                [meta_entry["RUN_CONFIG_NAME"] for meta_entry in items["meta"]]
+            )
+        names = set(names)
+        self._run_config_names = tuple(names)
 
     def _build_configs_get_axis_name_mapping(
         self, mg_name: str

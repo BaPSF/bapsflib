@@ -529,13 +529,13 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             )
         return name
 
-    def get_config_id(self, config_name: str) -> str:
-        """
-        Get the configuration "motion group" id for the specified
-        ``config_name``.
-        """
-        id_and_mg_name = self._split_config_name(config_name)
-        return None if id_and_mg_name is None else id_and_mg_name[0]
+    # def get_config_column_value(self, config_name: Union[str, int]) -> str:
+    #     """
+    #     Get the configuration "motion group" id for the specified
+    #     ``config_name``.
+    #     """
+    #     id_and_mg_name = self._split_config_name(config_name)
+    #     return None if id_and_mg_name is None else id_and_mg_name[0]
 
     def get_config_name_by_drive_name(self, name: str) -> Union[str, None]:
         """

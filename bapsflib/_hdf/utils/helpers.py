@@ -38,7 +38,7 @@ def build_shotnum_dset_relation(
     dset: h5py.Dataset,
     shotnumkey: str,
     n_configs: int,
-    config_id: Any,
+    config_column_value: Any,
     config_column: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -69,7 +69,7 @@ def build_shotnum_dset_relation(
     n_configs : int
         The number of unique configurations contained in ``dset``.
 
-    config_id : `Any`
+    config_column_value : `Any`
         The configuration identification.  Typically, the name of the
         configuration.  This is the value searched for in the data
         contained in the ``config_column``.
@@ -106,7 +106,7 @@ def build_shotnum_dset_relation(
             dset=dset,
             shotnumkey=shotnumkey,
             n_configs=n_configs,
-            config_id=config_id,
+            config_column_value=config_column_value,
             config_column=config_column,
         )
 
@@ -219,7 +219,7 @@ def build_sndr_for_complex_dset(
     dset: h5py.Dataset,
     shotnumkey: str,
     n_configs: int,
-    config_id: Any,
+    config_column_value: Any,
     config_column: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -265,7 +265,7 @@ def build_sndr_for_complex_dset(
     n_configs : `int`
         The number of unique configurations contained in ``dset``.
 
-    config_id : `Any`
+    config_column_value : `Any`
         The configuration identification.  Typically, the name of the
         configuration.  This is the value searched for in the data
         contained in the ``config_column``.
@@ -309,7 +309,7 @@ def build_sndr_for_complex_dset(
         #       name of the configuration.  When reading that into a
         #       numpy array the string becomes a byte string (i.e. b'').
         #       When comparing with np.where() the comparing string
-        #       needs to be encoded (i.e. config_id.encode()).
+        #       needs to be encoded (i.e. config_column_value.encode()).
         #
         only_sn = dset[0, shotnumkey]
         sni = np.where(shotnum == only_sn, True, False)
@@ -320,7 +320,7 @@ def build_sndr_for_complex_dset(
             index = np.empty(shape=0, dtype=np.uint32)
         else:
             config_name_arr = dset[0:n_configs, configkey]
-            index = np.where(config_name_arr == config_id.encode())[0]
+            index = np.where(config_name_arr == config_column_value.encode())[0]
 
             if index.size != 1:  # pragma: no cover
                 # something went wrong...no configurations are found
@@ -338,7 +338,7 @@ def build_sndr_for_complex_dset(
         # find sub-group index corresponding to the requested device
         # configuration
         config_name_arr = dset[0:n_configs, configkey]
-        config_where = np.where(config_name_arr == config_id.encode())[0]
+        config_where = np.where(config_name_arr == config_column_value.encode())[0]
         if config_where.size == 1:
             config_subindex = config_where[0]
         else:  # pragma: no cover

@@ -112,6 +112,86 @@ def build_shotnum_dset_relation(
     # return calculated arrays
     return index.view(), sni.view()
 
+# This is the old version of build_shotnum_dset_relation()
+def _build_shotnum_dset_relation(
+    shotnum: np.ndarray,
+    dset: h5py.Dataset,
+    shotnumkey: str,
+    n_configs: int,
+    config_column_value: Any,
+    config_column: Optional[str] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compares the ``shotnum`` `numpy` array to the specified dataset,
+    ``dset``, to determine which indices contain the desired shot
+    number(s)
+    [for `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
+    As a results, two numpy arrays are returned which satisfy the rule::
+
+        shotnum[sni] = dset[index, shotnumkey]
+
+    where ``shotnum`` is the original shot number array, ``sni`` is a
+    boolean `numpy` array masking which shot numbers were determined to
+    be in the dataset, and ``index`` is an array of indices
+    corresponding to the desired shot number(s).
+
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        Array like object of desired shot numbers.
+
+    dset: `h5py.Dataset`
+        Control device dataset
+
+    shotnumkey : `str`
+        Dataset field name containing shot numbers.
+
+    n_configs : int
+        The number of unique configurations contained in ``dset``.
+
+    config_column_value : `Any`
+        The configuration value to searched for in ``config_column``.
+        This is typically the name of the device configuration.
+
+    config_column : Optional[`str`]
+        Name of the ``dset`` column containing control configurations.
+        If omitted, then ``dset`` columns are searched for a name
+        containing 'configuration'.  (DEFAULT: `None`)
+
+    Returns
+    -------
+    index : `numpy.ndarray`
+        array of indices to index ``dset``
+
+    sni : `numpy.ndarray`
+        boolean array that masks the ``shotnum`` array
+
+
+    .. note::
+
+        This function leverages the functions
+        :func:`~.helpers.build_sndr_for_simple_dset`
+        and
+        :func:`~.helpers.build_sndr_for_complex_dset`
+    """
+    # Calc. index, shotnum, and sni
+    if n_configs == 1:
+        # the dataset only saves data for one configuration
+        index, sni = build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
+    else:
+        # the dataset saves data for multiple configurations
+        index, sni = build_sndr_for_complex_dset(
+            shotnum=shotnum,
+            dset=dset,
+            shotnumkey=shotnumkey,
+            n_configs=n_configs,
+            config_column_value=config_column_value,
+            config_column=config_column,
+        )
+
+    # return calculated arrays
+    return index.view(), sni.view()
+
 
 def build_sndr_for_simple_dset(
     shotnum: np.ndarray, dset: h5py.Dataset, shotnumkey: str

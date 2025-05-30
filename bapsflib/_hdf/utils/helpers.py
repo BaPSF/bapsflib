@@ -70,9 +70,8 @@ def build_shotnum_dset_relation(
         The number of unique configurations contained in ``dset``.
 
     config_column_value : `Any`
-        The configuration identification.  Typically, the name of the
-        configuration.  This is the value searched for in the data
-        contained in the ``config_column``.
+        The configuration value to searched for in ``config_column``.
+        This is typically the name of the device configuration.
 
     config_column : Optional[`str`]
         Name of the ``dset`` column containing control configurations.
@@ -266,9 +265,8 @@ def build_sndr_for_complex_dset(
         The number of unique configurations contained in ``dset``.
 
     config_column_value : `Any`
-        The configuration identification.  Typically, the name of the
-        configuration.  This is the value searched for in the data
-        contained in the ``config_column``.
+        The configuration value to searched for in ``config_column``.
+        This is typically the name of the device configuration.
 
     config_column : Optional[`str`]
         Name of the ``dset`` column containing control configurations.

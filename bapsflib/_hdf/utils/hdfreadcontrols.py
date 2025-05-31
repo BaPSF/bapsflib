@@ -302,7 +302,7 @@ class HDFReadControls(np.ndarray):
                     dset=hdf_file.get(entry["dset paths"][0]),
                     shotnumkey=control_config["shotnum"]["dset field"][0],
                     n_configs=n_configs,
-                    config_id=control_map.get_config_id(config_name),
+                    config_column_value=control_map.get_config_column_value(config_name),
                     config_column=config_column,
                 )
                 index_dict[control_name][key] = _index

@@ -38,7 +38,7 @@ def build_shotnum_dset_relation(
     dset: h5py.Dataset,
     shotnumkey: str,
     n_configs: int,
-    config_id: Any,
+    config_column_value: Any,
     config_column: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -69,10 +69,150 @@ def build_shotnum_dset_relation(
     n_configs : int
         The number of unique configurations contained in ``dset``.
 
-    config_id : `Any`
-        The configuration identification.  Typically, the name of the
-        configuration.  This is the value searched for in the data
-        contained in the ``config_column``.
+    config_column_value : `Any`
+        The configuration value to searched for in ``config_column``.
+        This is typically the name of the device configuration.
+
+    config_column : Optional[`str`]
+        Name of the ``dset`` column containing control configurations.
+        If omitted, then ``dset`` columns are searched for a name
+        containing 'configuration'.  (DEFAULT: `None`)
+
+    Returns
+    -------
+    index : `numpy.ndarray`
+        array of indices to index ``dset``
+
+    sni : `numpy.ndarray`
+        boolean array that masks the ``shotnum`` array
+
+
+    .. note::
+
+        This function leverages the functions
+        :func:`~.helpers.build_sndr_for_simple_dset`
+        and
+        :func:`~.helpers.build_sndr_for_complex_dset`
+    """
+    # We assume the shot numbers in shotnum and dset are sequential.  If they
+    # are not, then something wrong occurred with the ACQ II.
+    #
+    if shotnumkey not in dset.dtype.names:
+        raise ValueError(
+            f"The expected shot number column '{shotnumkey}' not found in the "
+            f"HDF5 dataset {dset.name}.  Present columns are {dset.dtype.names}."
+        )
+
+    if config_column is None and n_configs != 1:
+        raise ValueError(
+            f"The HDF5 dataset '{dset.name}' is indicated to have "
+            f"n_configs={n_configs}, but a configuration column is not specified."
+        )
+    elif config_column is None:  # n_configs == 1
+        pass
+    elif config_column not in dset.dtype.names:
+        raise ValueError(
+            f"The configuration column '{config_column}' not found in the "
+            f"HDF5 dataset '{dset.name}'.  Present columns are {dset.dtype.names}."
+        )
+
+    dset_shotnum = dset[shotnumkey]
+    if n_configs == 1 and dset_shotnum.size != np.unique(dset_shotnum).size:
+        raise ValueError(
+            f"HDF5 dataset {dset.name} is indicated to have a single configuration, "
+            f"but the shot number column is NOT uniquely filled.  Indicating "
+            f"multiple configurations are present."
+        )
+
+    if config_column is None:
+        # at this point we know n_configs == 1
+        #
+        # construct sni
+        mask1 = shotnum >= dset_shotnum[0]
+        mask2 = shotnum <= dset_shotnum[-1]
+        sni = np.logical_and(mask1, mask2)
+
+        # construct index
+        mask1 = dset_shotnum >= shotnum[0]
+        mask2 = dset_shotnum <= shotnum[-1]
+        mask = np.logical_and(mask1, mask2)
+        index = np.where(mask)[0]
+    else:
+        dset_config_column = dset[config_column]
+        config_mask = dset_config_column == config_column_value.encode()
+
+        if np.count_nonzero(config_mask) == 0:
+            raise ValueError(
+                f"The config_column_value '{config_column_value}' could not be "
+                f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
+                f"{np.unique(dset_config_column)}."
+            )
+
+        dset_shotnum_subset = dset_shotnum[config_mask]
+
+        # construct sni
+        mask1 = shotnum >= dset_shotnum_subset[0]
+        mask2 = shotnum <= dset_shotnum_subset[-1]
+        sni = np.logical_and(mask1, mask2)
+
+        # construct index
+        mask1 = dset_shotnum_subset >= shotnum[0]
+        mask2 = dset_shotnum_subset <= shotnum[-1]
+        mask = np.logical_and(mask1, mask2)
+        config_mask_indices = np.where(config_mask)[0]
+        config_mask[config_mask_indices] = mask
+        index = np.where(config_mask)[0]
+
+    if np.count_nonzero(sni) != index.size:
+        raise ValueError(
+            "Something went wrong... The constructed 'sni' does NOT have the "
+            "same number of True values as the size of the constructed 'index' "
+            "array."
+        )
+
+    return index.view(), sni.view()
+
+
+# This is the old version of build_shotnum_dset_relation()
+def _build_shotnum_dset_relation(
+    shotnum: np.ndarray,
+    dset: h5py.Dataset,
+    shotnumkey: str,
+    n_configs: int,
+    config_column_value: Any,
+    config_column: Optional[str] = None,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Compares the ``shotnum`` `numpy` array to the specified dataset,
+    ``dset``, to determine which indices contain the desired shot
+    number(s)
+    [for `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`].
+    As a results, two numpy arrays are returned which satisfy the rule::
+
+        shotnum[sni] = dset[index, shotnumkey]
+
+    where ``shotnum`` is the original shot number array, ``sni`` is a
+    boolean `numpy` array masking which shot numbers were determined to
+    be in the dataset, and ``index`` is an array of indices
+    corresponding to the desired shot number(s).
+
+    Parameters
+    ----------
+    shotnum : :term:`array_like`
+        Array like object of desired shot numbers.
+
+    dset: `h5py.Dataset`
+        Control device dataset
+
+    shotnumkey : `str`
+        Dataset field name containing shot numbers.
+
+    n_configs : int
+        The number of unique configurations contained in ``dset``.
+
+    config_column_value : `Any`
+        The configuration value to searched for in ``config_column``.
+        This is typically the name of the device configuration.
 
     config_column : Optional[`str`]
         Name of the ``dset`` column containing control configurations.
@@ -106,7 +246,7 @@ def build_shotnum_dset_relation(
             dset=dset,
             shotnumkey=shotnumkey,
             n_configs=n_configs,
-            config_id=config_id,
+            config_column_value=config_column_value,
             config_column=config_column,
         )
 
@@ -219,7 +359,7 @@ def build_sndr_for_complex_dset(
     dset: h5py.Dataset,
     shotnumkey: str,
     n_configs: int,
-    config_id: Any,
+    config_column_value: Any,
     config_column: Optional[str] = None,
 ) -> Tuple[np.ndarray, np.ndarray]:
     """
@@ -265,10 +405,9 @@ def build_sndr_for_complex_dset(
     n_configs : `int`
         The number of unique configurations contained in ``dset``.
 
-    config_id : `Any`
-        The configuration identification.  Typically, the name of the
-        configuration.  This is the value searched for in the data
-        contained in the ``config_column``.
+    config_column_value : `Any`
+        The configuration value to searched for in ``config_column``.
+        This is typically the name of the device configuration.
 
     config_column : Optional[`str`]
         Name of the ``dset`` column containing control configurations.
@@ -309,7 +448,7 @@ def build_sndr_for_complex_dset(
         #       name of the configuration.  When reading that into a
         #       numpy array the string becomes a byte string (i.e. b'').
         #       When comparing with np.where() the comparing string
-        #       needs to be encoded (i.e. config_id.encode()).
+        #       needs to be encoded (i.e. config_column_value.encode()).
         #
         only_sn = dset[0, shotnumkey]
         sni = np.where(shotnum == only_sn, True, False)
@@ -320,7 +459,7 @@ def build_sndr_for_complex_dset(
             index = np.empty(shape=0, dtype=np.uint32)
         else:
             config_name_arr = dset[0:n_configs, configkey]
-            index = np.where(config_name_arr == config_id.encode())[0]
+            index = np.where(config_name_arr == config_column_value.encode())[0]
 
             if index.size != 1:  # pragma: no cover
                 # something went wrong...no configurations are found
@@ -338,7 +477,7 @@ def build_sndr_for_complex_dset(
         # find sub-group index corresponding to the requested device
         # configuration
         config_name_arr = dset[0:n_configs, configkey]
-        config_where = np.where(config_name_arr == config_id.encode())[0]
+        config_where = np.where(config_name_arr == config_column_value.encode())[0]
         if config_where.size == 1:
             config_subindex = config_where[0]
         else:  # pragma: no cover
@@ -470,52 +609,49 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
         controls = [controls]
 
     # condition Iterable
-    if isinstance(controls, Iterable):
-        # all list items have to be strings or tuples
-        if not all(isinstance(con, (str, tuple)) for con in controls):
-            raise TypeError("all elements of `controls` must be of type string or tuple")
-
-        # condition controls
-        new_controls = []
-        for control in controls:
-            if isinstance(control, str):
-                name = control
-                config_name = None
-            else:
-                # tuple case
-                if len(control) > 2:
-                    raise ValueError(
-                        "a `controls` tuple element must be specified "
-                        "as ('control name') or, "
-                        "('control name', config_name)"
-                    )
-
-                name = control[0]
-                config_name = None if len(control) == 1 else control[1]
-
-            # ensure proper control and configuration name are defined
-            if name in [cc[0] for cc in new_controls]:
-                raise ValueError(
-                    f"Control device ({control}) can only have one occurrence in controls"
-                )
-            elif name in _fmap.controls:
-                if config_name in _fmap.controls[name].configs:
-                    # all is good
-                    pass
-                elif len(_fmap.controls[name].configs) == 1 and config_name is None:
-                    config_name = list(_fmap.controls[name].configs)[0]
-                else:
-                    raise ValueError(
-                        f"'{config_name}' is not a valid configuration name for "
-                        f"control device '{name}'"
-                    )
-            else:
-                raise ValueError(f"Control device ({name}) not in HDF5 file")
-
-            # add control to new_controls
-            new_controls.append((name, config_name))
-    else:
+    if not isinstance(controls, Iterable):
         raise TypeError("`controls` argument is not Iterable")
+
+    # all list items have to be strings or tuples
+    if not all(isinstance(con, (str, tuple)) for con in controls):
+        raise TypeError("all elements of `controls` must be of type string or tuple")
+
+    # condition controls
+    new_controls = []
+    for control in controls:
+        if isinstance(control, str):
+            name = control
+            config_name = None
+        else:
+            # tuple case
+            if len(control) > 2:
+                raise ValueError(
+                    "a `controls` tuple element must be specified "
+                    "as ('control name') or, "
+                    "('control name', config_name)"
+                )
+
+            name = control[0]
+            config_name = None if len(control) == 1 else control[1]
+
+        # ensure proper control and configuration name are defined
+        if name in [cc[0] for cc in new_controls]:
+            raise ValueError(
+                f"Control device ({control}) can only have one occurrence in controls"
+            )
+        elif name in _fmap.controls:
+            control_map = _fmap.controls[name]
+
+            if config_name is None and len(control_map.configs) == 1:
+                config_name = list(control_map.configs)[0]
+            else:
+                config_name = control_map.process_config_name(config_name)
+
+        else:
+            raise ValueError(f"Control device ({name}) not in HDF5 file")
+
+        # add control to new_controls
+        new_controls.append((name, config_name))
 
     # re-assign `controls`
     controls = new_controls

@@ -233,14 +233,15 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         """Name of Control device"""
         return self.group_name
 
-    def get_config_id(self, config_name: str) -> str:
+    def get_config_column_value(self, config_name: Union[str, int]) -> str:
         """
-        Get the configuration identifier for the given ``config_name``.
-        This identifier is the string value used in the HDF5 datasets.
+        For the given configuration name ``config_name`` get the
+        associated configuration value that would be in the
+        configuration column of the associated HDF5 datasets.
 
         Parameters
         ----------
-        config_name : `str`
+        config_name : `str` or  `int`
             The configuration name used in :attr:`configs`.
         """
         return config_name
@@ -257,6 +258,27 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             name of dataset
         """
         ...
+
+    def process_config_name(self, config_name: Union[str, int]) -> Union[str, int]:
+        """
+        Process a given configuration name ``config_name`` and return.
+
+        This ``config_name`` is a key to the mapped :attr:`configs`
+        dictionary.
+
+        Notes
+        -----
+        Typically this just returns ``config_name``, but subclasses may
+        override the method to allow desired "nicknames" for the
+        ``config_name``.
+        """
+        if config_name not in self.configs:
+            raise ValueError(
+                f"The given 'config_name' ({config_name}) does not exist within "
+                f"the mapped configurations.  Allowed configuration names are "
+                f"{self.configs.keys()}."
+            )
+        return config_name
 
 
 HDFMapControlTemplate.configs.__doc__ = (

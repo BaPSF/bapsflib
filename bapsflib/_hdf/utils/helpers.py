@@ -94,23 +94,84 @@ def build_shotnum_dset_relation(
         and
         :func:`~.helpers.build_sndr_for_complex_dset`
     """
-    # Calc. index, shotnum, and sni
-    if n_configs == 1:
-        # the dataset only saves data for one configuration
-        index, sni = build_sndr_for_simple_dset(shotnum, dset, shotnumkey)
-    else:
-        # the dataset saves data for multiple configurations
-        index, sni = build_sndr_for_complex_dset(
-            shotnum=shotnum,
-            dset=dset,
-            shotnumkey=shotnumkey,
-            n_configs=n_configs,
-            config_column_value=config_column_value,
-            config_column=config_column,
+    # We assume the shot numbers in shotnum and dset are sequential.  If they
+    # are not, then something wrong occurred with the ACQ II.
+    #
+    if shotnumkey not in dset.dtype.names:
+        raise ValueError(
+            f"The expected shot number column '{shotnumkey}' not found in the "
+            f"HDF5 dataset {dset.name}.  Present columns are {dset.dtype.names}."
         )
 
-    # return calculated arrays
+    if config_column is None and n_configs != 1:
+        raise ValueError(
+            f"The HDF5 dataset '{dset.name}' is indicated to have "
+            f"n_configs={n_configs}, but a configuration column is not specified."
+        )
+    elif config_column is None:  # n_configs == 1
+        pass
+    elif config_column not in dset.dtype.names:
+        raise ValueError(
+            f"The configuration column '{config_column}' not found in the "
+            f"HDF5 dataset '{dset.name}'.  Present columns are {dset.dtype.names}."
+        )
+
+    dset_shotnum = dset[shotnumkey]
+    if n_configs == 1 and dset_shotnum.size != np.unique(dset_shotnum).size:
+        raise ValueError(
+            f"HDF5 dataset {dset.name} is indicated to have a single configuration, "
+            f"but the shot number column is NOT uniquely filled.  Indicating "
+            f"multiple configurations are present."
+        )
+
+    if config_column is None:
+        # at this point we know n_configs == 1
+        #
+        # construct sni
+        mask1 = shotnum >= dset_shotnum[0]
+        mask2 = shotnum <= dset_shotnum[-1]
+        sni = np.logical_and(mask1, mask2)
+
+        # construct index
+        mask1 = dset_shotnum >= shotnum[0]
+        mask2 = dset_shotnum <= shotnum[-1]
+        mask = np.logical_and(mask1, mask2)
+        index = np.where(mask)[0]
+    else:
+        dset_config_column = dset[config_column]
+        config_mask = dset_config_column == config_column_value.encode()
+
+        if np.count_nonzero(config_mask) == 0:
+            raise ValueError(
+                f"The config_column_value '{config_column_value}' could not be "
+                f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
+                f"{np.unique(dset_config_column)}."
+            )
+
+        dset_shotnum_subset = dset_shotnum[config_mask]
+
+        # construct sni
+        mask1 = shotnum >= dset_shotnum_subset[0]
+        mask2 = shotnum <= dset_shotnum_subset[-1]
+        sni = np.logical_and(mask1, mask2)
+
+        # construct index
+        mask1 = dset_shotnum_subset >= shotnum[0]
+        mask2 = dset_shotnum_subset <= shotnum[-1]
+        mask = np.logical_and(mask1, mask2)
+        config_mask_indices = np.where(config_mask)[0]
+        config_mask[config_mask_indices] = mask
+        index = np.where(config_mask)[0]
+
+    if np.count_nonzero(sni) != index.size:
+        raise ValueError(
+            "Something went wrong... The constructed 'sni' does NOT have the "
+            "same number of True values as the size of the constructed 'index' "
+            "array."
+        )
+
     return index.view(), sni.view()
+
 
 # This is the old version of build_shotnum_dset_relation()
 def _build_shotnum_dset_relation(

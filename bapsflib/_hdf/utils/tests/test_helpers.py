@@ -126,7 +126,7 @@ class TestBuildShotnumDsetRelation(TestBase):
                 dset=cdset,
                 shotnumkey="Shot number",
                 n_configs=len(self.map.configs),
-                config_id="config01",
+                config_column_value="config01",
             )
 
     def assertInRangeSN(self):
@@ -158,7 +158,7 @@ class TestBuildShotnumDsetRelation(TestBase):
                     dset=cdset,
                     shotnumkey=shotnumkey,
                     n_configs=len(self.map.configs),
-                    config_id=cconfn,
+                    config_column_value=cconfn,
                 )
 
                 self.assertSNSuite(
@@ -202,7 +202,7 @@ class TestBuildShotnumDsetRelation(TestBase):
                     dset=cdset,
                     shotnumkey=shotnumkey,
                     n_configs=len(self.map.configs),
-                    config_id=config_name,
+                    config_column_value=config_name,
                     config_column=config_column,
                 )
 

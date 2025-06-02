@@ -120,9 +120,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         # define run_config_names
         names = []
         for items in self.configs.values():
-            names.extend(
-                [meta_entry["RUN_CONFIG_NAME"] for meta_entry in items["meta"]]
-            )
+            names.extend([meta_entry["RUN_CONFIG_NAME"] for meta_entry in items["meta"]])
         names = set(names)
         self._run_config_names = tuple(names)
 
@@ -306,7 +304,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 "mg_id": key,
                 "MG_CONFIG": copy.deepcopy(mg_config),
                 "RUN_CONFIG_NAME": Path(group.name).stem,
-                "DRIVE_NAME": mg_config["drive"]["name"]
+                "DRIVE_NAME": mg_config["drive"]["name"],
             }
             if name in self.configs:
                 self.configs[name]["meta"] += (entry,)

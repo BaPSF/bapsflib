@@ -103,13 +103,17 @@ def build_shotnum_dset_relation(
             f"HDF5 dataset {dset.name}.  Present columns are {dset.dtype.names}."
         )
 
-    if config_column is None and n_configs != 1:
-        raise ValueError(
-            f"The HDF5 dataset '{dset.name}' is indicated to have "
-            f"n_configs={n_configs}, but a configuration column is not specified."
-        )
-    elif config_column is None:  # n_configs == 1
-        pass
+    if config_column is None:
+        # assume default column name
+        column_name_mask = ["configuration" in name.casefold() for name in dset.dtype.names]
+        if np.count_nonzero(column_name_mask) != 1:
+            raise ValueError(
+                "No column configuration name given (i.e. config_column ==  None) "
+                "and unable to infer configuration name from "
+                f"HDF5 dataset ('{dset.name}') column names, {list(dset.dtype.names)}."
+            )
+
+        config_column = dset.dtype.names[np.where(column_name_mask)[0][0]]
     elif config_column not in dset.dtype.names:
         raise ValueError(
             f"The configuration column '{config_column}' not found in the "

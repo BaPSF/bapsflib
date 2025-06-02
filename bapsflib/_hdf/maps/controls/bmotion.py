@@ -306,6 +306,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 "mg_id": key,
                 "MG_CONFIG": copy.deepcopy(mg_config),
                 "RUN_CONFIG_NAME": Path(group.name).stem,
+                "DRIVE_NAME": mg_config["drive"]["name"]
             }
             if name in self.configs:
                 self.configs[name]["meta"] += (entry,)

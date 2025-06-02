@@ -645,3 +645,34 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             return toml_string
 
         return toml.loads(toml_string)
+
+    def process_config_name(self, config_name: Union[str, int]) -> Union[str, int]:
+        if config_name in self.configs:
+            return config_name
+
+        # assume config_name is a probe drive name (e.g. Hera)
+        nickname = config_name
+        config_name = None
+        drive_names = []
+        for _config_name, config in self._configs.items():
+            drive_name = config["meta"][0]["DRIVE_NAME"]
+            drive_names.append(drive_name)
+            if nickname == drive_name:
+                config_name = _config_name
+
+        if config_name is None:
+            raise ValueError(
+                "bmotion: Unable to process config_name.  No configuration name "
+                f"'{nickname}' found in mapped configurations. Valid names "
+                f"are {list(self.configs.keys())}."
+            )
+
+        if len(set(drive_names)) != len(drive_names):
+            raise ValueError(
+                "bmotion: Unable to process config_name.  The supplied nickname "
+                f"'{nickname}' is used amongst multiple configurations.  Please "
+                f"specify the exact configuration name.  Valid configuration "
+                f"names are {list(self.configs.keys())}."
+            )
+
+        return config_name

@@ -105,7 +105,9 @@ def build_shotnum_dset_relation(
 
     if config_column is None:
         # assume default column name
-        column_name_mask = ["configuration" in name.casefold() for name in dset.dtype.names]
+        column_name_mask = [
+            "configuration" in name.casefold() for name in dset.dtype.names
+        ]
         if np.count_nonzero(column_name_mask) != 1:
             raise ValueError(
                 "No column configuration name given (i.e. config_column ==  None) "

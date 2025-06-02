@@ -128,44 +128,30 @@ def build_shotnum_dset_relation(
             f"multiple configurations are present."
         )
 
-    if config_column is None:
-        # at this point we know n_configs == 1
-        #
-        # construct sni
-        mask1 = shotnum >= dset_shotnum[0]
-        mask2 = shotnum <= dset_shotnum[-1]
-        sni = np.logical_and(mask1, mask2)
+    dset_config_column = dset[config_column]  # type: np.ndarray
+    config_mask = dset_config_column == config_column_value.encode()  # type: np.ndarray
+    if np.count_nonzero(config_mask) == 0:
+        raise ValueError(
+            f"The config_column_value '{config_column_value}' could not be "
+            f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
+            f"{np.unique(dset_config_column)}."
+        )
 
-        # construct index
-        mask1 = dset_shotnum >= shotnum[0]
-        mask2 = dset_shotnum <= shotnum[-1]
-        mask = np.logical_and(mask1, mask2)
-        index = np.where(mask)[0]
-    else:
-        dset_config_column = dset[config_column]
-        config_mask = dset_config_column == config_column_value.encode()
+    dset_shotnum_subset = dset_shotnum if n_configs == 1 else dset_shotnum[config_mask]
 
-        if np.count_nonzero(config_mask) == 0:
-            raise ValueError(
-                f"The config_column_value '{config_column_value}' could not be "
-                f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
-                f"{np.unique(dset_config_column)}."
-            )
+    intersection, sni_index, dset_subset_index = np.intersect1d(
+        shotnum, dset_shotnum_subset, assume_unique=True, return_indices=True
+    )
 
-        dset_shotnum_subset = dset_shotnum[config_mask]
+    # construct sni
+    sni = np.zeros_like(shotnum, dtype=bool)
+    sni[sni_index] = True
 
-        # construct sni
-        mask1 = shotnum >= dset_shotnum_subset[0]
-        mask2 = shotnum <= dset_shotnum_subset[-1]
-        sni = np.logical_and(mask1, mask2)
-
-        # construct index
-        mask1 = dset_shotnum_subset >= shotnum[0]
-        mask2 = dset_shotnum_subset <= shotnum[-1]
-        mask = np.logical_and(mask1, mask2)
-        config_mask_indices = np.where(config_mask)[0]
-        config_mask[config_mask_indices] = mask
-        index = np.where(config_mask)[0]
+    # construct index
+    mask = np.zeros_like(dset_shotnum_subset, dtype=bool)
+    mask[dset_subset_index] = True
+    config_mask[config_mask] = mask
+    index = np.where(config_mask)[0]
 
     if np.count_nonzero(sni) != index.size:
         raise ValueError(

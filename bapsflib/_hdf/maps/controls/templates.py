@@ -239,6 +239,13 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         associated configuration value that would be in the
         configuration column of the associated HDF5 datasets.
 
+        Typically, the column value is just ``config_name``, but
+        subclasses may override this to provide more sophisticated
+        behavior.  For example, if ``config_name`` is a mash-up of the
+        column value and some other specifier, then this method can be
+        used to do the proper `regex` to pull out the column value from
+        ``config_name``.
+
         Parameters
         ----------
         config_name : `str` or  `int`

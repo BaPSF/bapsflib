@@ -270,17 +270,17 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 
     def process_config_name(self, config_name: Union[str, int]) -> Union[str, int]:
         """
-        Process a given configuration name ``config_name`` and return.
+        Process a given configuration name ``config_name`` and return
+        the conditioned configuration name.
 
-        This ``config_name`` is a key to the mapped :attr:`configs`
-        dictionary.
+        The conditioned configuration name is a key to the mapped
+        :attr:`configs` dictionary.
 
-        Notes
-        -----
-        Typically this just returns ``config_name``, but subclasses may
-        override the method to allow desired "nicknames" for the
-        ``config_name``.
-        """
+        Typically, the conditioned configuration name is just the given
+        ``config_name``, but subclasses may override this method to
+        allow desired "nicknames" to be conditioned into valid
+        configuration names.
+    """
         if config_name not in self.configs:
             raise ValueError(
                 f"The given 'config_name' ({config_name}) does not exist within "

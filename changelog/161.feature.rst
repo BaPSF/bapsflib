@@ -8,6 +8,6 @@ implemented by `~utils.helpers.condition_controls`, which conditions the
 ``controls`` argument of `~utils.hdfreadcontrols.HDFReadControls`.
 Thus,
 `~maps.controls.templates.HDFMapControlTemplate.process_config_name`
-can effectively create nicknames that link the actual configuration
+can effectively create nicknames that link to the actual configuration
 names used in
 `~maps.controls.templates.HDFMapControlTemplate.configs`.

@@ -391,9 +391,9 @@ class TestBMotion(ControlTestCase):
         _map = self.map  # type: HDFMapControlBMotion
         _conditions = [
             # (_assert, args, expected)
-            (self.assertIs, (5.5,), None),
-            (self.assertIs, ({"not_an_id": 5},), None),
-            (self.assertIs, ("not_correct_motion_group_id",), None),
+            (self.assertRaises, (5.5,), TypeError),
+            (self.assertRaises, ({"not_an_id": 5},), TypeError),
+            (self.assertRaises, ("not_correct_motion_group_id",), HDFMappingError),
             (self.assertEqual, (0,), _map._generate_config_name(0, "mg0")),
             (self.assertEqual, ("0",), _map._generate_config_name(0, "mg0")),
         ]

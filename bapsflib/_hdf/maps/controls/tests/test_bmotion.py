@@ -367,7 +367,7 @@ class TestBMotion(ControlTestCase):
         for _assert, args, expected in _conditions:
             self.assert_runner(
                 _assert=_assert,
-                attr=_map.get_config_id,
+                attr=_map.get_config_column_value,
                 args=args,
                 kwargs={},
                 expected=expected,

@@ -280,7 +280,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         ``config_name``, but subclasses may override this method to
         allow desired "nicknames" to be conditioned into valid
         configuration names.
-    """
+        """
         if config_name not in self.configs:
             raise ValueError(
                 f"The given 'config_name' ({config_name}) does not exist within "

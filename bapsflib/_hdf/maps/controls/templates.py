@@ -233,14 +233,24 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         """Name of Control device"""
         return self.group_name
 
-    def get_config_id(self, config_name: str) -> str:
+    def get_config_column_value(  # noqa: PLR6301
+        self, config_name: Union[str, int]
+    ) -> Union[str, None]:
         """
-        Get the configuration identifier for the given ``config_name``.
-        This identifier is the string value used in the HDF5 datasets.
+        For the given configuration name ``config_name`` get the
+        associated configuration value that would be in the
+        configuration column of the associated HDF5 datasets.
+
+        Typically, the column value is just ``config_name``, but
+        subclasses may override this to provide more sophisticated
+        behavior.  For example, if ``config_name`` is a mash-up of the
+        column value and some other specifier, then this method can be
+        used to do the proper `regex` to pull out the column value from
+        ``config_name``.
 
         Parameters
         ----------
-        config_name : `str`
+        config_name : `str` or  `int`
             The configuration name used in :attr:`configs`.
         """
         return config_name

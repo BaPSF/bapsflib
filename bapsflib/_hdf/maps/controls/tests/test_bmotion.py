@@ -149,7 +149,8 @@ class TestBMotion(ControlTestCase):
         _run_config = toml.loads(_run_config_str)
         n_motion_groups = len(_run_config["run"]["motion_group"])
         _run_config["run"]["motion_group"][f"{n_motion_groups}"] = {
-            "name": "unused motion group"
+            "name": "unused motion group",
+            "drive": {"name": "unused drive"},
         }
         child.attrs["RUN_CONFIG"] = toml.as_toml_string(_run_config)
 

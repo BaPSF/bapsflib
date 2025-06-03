@@ -486,8 +486,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         motion group key and name in the `bapsf_motion` run manager
         configuration.
         """
-        # return f"{key} - {mg_name}"
-        return f"{mg_name}"
+        return f"{mg_name}" if key is None else f"{key} - {mg_name}"
 
     @staticmethod
     def _split_config_name(config_name):

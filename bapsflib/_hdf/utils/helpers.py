@@ -108,14 +108,20 @@ def build_shotnum_dset_relation(
         column_name_mask = [
             "configuration" in name.casefold() for name in dset.dtype.names
         ]
-        if np.count_nonzero(column_name_mask) != 1:
+        if np.count_nonzero(column_name_mask) != 1 and n_configs != 1:
             raise ValueError(
                 "No column configuration name given (i.e. config_column ==  None) "
                 "and unable to infer configuration name from "
                 f"HDF5 dataset ('{dset.name}') column names, {list(dset.dtype.names)}."
             )
 
-        config_column = dset.dtype.names[np.where(column_name_mask)[0][0]]
+        if np.count_nonzero(column_name_mask) == 1:  # n_configs == 1
+            config_column = dset.dtype.names[np.where(column_name_mask)[0][0]]
+        else:
+            # n_configs == 1 and there's no configuration column...assume the
+            # dataset represents a single configuration
+            pass
+
     elif config_column not in dset.dtype.names:
         raise ValueError(
             f"The configuration column '{config_column}' not found in the "
@@ -130,16 +136,20 @@ def build_shotnum_dset_relation(
             f"multiple configurations are present."
         )
 
-    dset_config_column = dset[config_column]  # type: np.ndarray
-    config_mask = dset_config_column == config_column_value.encode()  # type: np.ndarray
-    if np.count_nonzero(config_mask) == 0:
-        raise ValueError(
-            f"The config_column_value '{config_column_value}' could not be "
-            f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
-            f"{np.unique(dset_config_column)}."
-        )
+    if config_column is None:
+        config_mask = np.ones_like(dset_shotnum, dtype=bool)
+    else:
+        dset_config_column = dset[config_column]  # type: np.ndarray
+        config_mask = dset_config_column == config_column_value.encode()  # type: np.ndarray
 
-    dset_shotnum_subset = dset_shotnum if n_configs == 1 else dset_shotnum[config_mask]
+        if np.count_nonzero(config_mask) == 0:
+            raise ValueError(
+                f"The config_column_value '{config_column_value}' could not be "
+                f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
+                f"{np.unique(dset_config_column)}."
+            )
+
+    dset_shotnum_subset = dset_shotnum[config_mask]
 
     intersection, sni_index, dset_subset_index = np.intersect1d(
         shotnum, dset_shotnum_subset, assume_unique=True, return_indices=True

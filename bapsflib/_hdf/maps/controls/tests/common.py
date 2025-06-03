@@ -31,7 +31,37 @@ def method_overridden(cls, obj, method: str) -> bool:
     return obj_method and base_method
 
 
-class ControlTestCase(ut.TestCase):
+class BaPSFTestCase(ut.TestCase):
+    def assert_runner(
+        self,
+        _assert: Union[str, Callable],
+        attr: Callable,
+        args: tuple,
+        kwargs: dict,
+        expected,
+    ):
+        with self.subTest(
+            test_attr=attr.__name__,
+            args=args,
+            kwargs=kwargs,
+            expected=expected,
+        ):
+            if isinstance(_assert, str) and hasattr(self, _assert):
+                _assert = getattr(self, _assert)
+            elif isinstance(_assert, str):
+                self.fail(
+                    f"The given assert name '{_assert}' does NOT match an "
+                    f"assert method on self."
+                )
+
+            if _assert == self.assertRaises:
+                with self.assertRaises(expected):
+                    attr(*args, **kwargs)
+            else:
+                _assert(attr(*args, **kwargs), expected)
+
+
+class ControlTestCase(BaPSFTestCase):
     """
     TestCase for control devices.
     """
@@ -422,31 +452,3 @@ class ControlTestCase(ut.TestCase):
     def assertDatasetNames(self, _map, _group):
         dset_names = [name for name in _group if isinstance(_group[name], h5py.Dataset)]
         self.assertEqual(_map.dataset_names, dset_names)
-
-    def assert_runner(
-        self,
-        _assert: Union[str, Callable],
-        attr: Callable,
-        args: tuple,
-        kwargs: dict,
-        expected,
-    ):
-        with self.subTest(
-            test_attr=attr.__name__,
-            args=args,
-            kwargs=kwargs,
-            expected=expected,
-        ):
-            if isinstance(_assert, str) and hasattr(self, _assert):
-                _assert = getattr(self, _assert)
-            elif isinstance(_assert, str):
-                self.fail(
-                    f"The given assert name '{_assert}' does NOT match an "
-                    f"assert method on self."
-                )
-
-            if _assert == self.assertRaises:
-                with self.assertRaises(expected):
-                    attr(*args, **kwargs)
-            else:
-                _assert(attr(*args, **kwargs), expected)

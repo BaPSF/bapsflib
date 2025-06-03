@@ -625,15 +625,23 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         Get the configuration name for the given motion group name.
         """
         if not isinstance(name, str):
-            return None
+            raise TypeError("Expected 'name' to be str, got '{type(name)}' instead.")
 
-        _mg_configs = self._run_config["run"]["motion_group"]
-        for key, _config in _mg_configs.items():
-            if _config["name"] == name:
-                config_name = self._generate_config_name(key, _config["name"])
-                return config_name
+        for _cname, config in self.configs.items():
+            if name == _cname and name == config["meta"][0]["MG_CONFIG"]["name"]:
+                return _cname
 
-        return None
+            if (
+                len(config["meta"]) == 1
+                and name == config["meta"][0]["MG_CONFIG"]["name"]
+            ):
+                return _cname
+
+        raise ValueError(
+            f"The given motion group name '{name}' was not found among the "
+            f"mapped configurations.  Valid bmotion configurations are "
+            f"{list(self.configs.keys())}."
+        )
 
     def get_run_configuration(
         self, run_config_name: Optional[str] = None, as_toml_string: bool = False

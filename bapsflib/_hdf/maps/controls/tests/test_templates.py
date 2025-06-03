@@ -94,7 +94,7 @@ class ControlTemplateTestCase:
             "_contype",
             "contype",
             "device_name",
-            "get_config_id",
+            "get_config_column_value",
             "has_command_list",
             "one_config_per_dset",
         }
@@ -125,9 +125,9 @@ class ControlTemplateTestCase:
         with self.assertRaises(TypeError):
             self._DummyMap(None)
 
-    def test_get_config_id(self):
+    def test_get_config_column_value(self):
         _map = self._DummyMap(self.control_group)
-        self.assertEqual(_map.get_config_id("config01"), "config01")
+        self.assertEqual(_map.get_config_column_value("config01"), "config01")
 
     def test_one_config_per_dset(self):
         # control_group is set up with 3 datasets

@@ -561,15 +561,21 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         Get the configuration name for the specified drive ``name``.
         """
         if not isinstance(name, str):
-            return None
+            raise TypeError(
+                f"Argument 'name' must be of type str, got type {type(name)}."
+            )
 
-        _mg_configs = self._run_config["run"]["motion_group"]
-        for key, _config in _mg_configs.items():
-            if _config["drive"]["name"] == name:
-                config_name = self._generate_config_name(key, _config["name"])
+        config_name = None
+        for _cname, config in self.configs.items():
+            if name == config["meta"][0]["DRIVE_NAME"]:
+                config_name = _cname
                 return config_name
 
-        return None
+        if config_name is None:
+            raise ValueError(
+                f"The given drive name '{name}' was not found among the "
+                f"active bmotion configurations."
+            )
 
     def get_config_name_by_motion_group_id(
         self, _id: Union[int, str]

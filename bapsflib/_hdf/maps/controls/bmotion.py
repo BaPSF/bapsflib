@@ -493,15 +493,14 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         """
         Splits a configuration name into its motion group key and name.
         """
-        # match = re.compile(r"\s*(?P<_id>[0-9]+)\s+(-)\s+(?P<mg_name>.+)").fullmatch(
-        #     config_name
-        # )
-        # return (
-        #     None
-        #     if match is None
-        #     else (match.group("_id").strip(), match.group("mg_name").strip())
-        # )
-        return None, config_name
+        match = re.compile(r"\s*(?P<_id>[0-9]+)\s+(-)\s+(?P<mg_name>.+)").fullmatch(
+            config_name
+        )
+        return (
+            (None, config_name)
+            if match is None
+            else (match.group("_id").strip(), match.group("mg_name").strip())
+        )
 
     def _get_dataset(self, which: str) -> Dataset:
         """

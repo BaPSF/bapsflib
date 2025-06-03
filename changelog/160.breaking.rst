@@ -1,0 +1,5 @@
+.. currentmodule:: bapsflib._hdf.maps.controls.templates
+
+Renamed method ``HDFMapControlTemplate.get_config_id`` to
+`HDFMapControlTemplate.get_config_column_value`, and updated any
+overriding sub-classes as well as tests.

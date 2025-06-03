@@ -25,7 +25,7 @@ from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 from bapsflib._hdf.utils.hdfreaddata import HDFReadData
 from bapsflib._hdf.utils.helpers import (
-    build_sndr_for_simple_dset,
+    build_shotnum_dset_relation,
     condition_shotnum,
     do_shotnum_intersection,
 )
@@ -1012,8 +1012,8 @@ class TestHDFReadData(TestBase):
         "bapsflib._hdf.utils.hdfreaddata.condition_shotnum", side_effect=condition_shotnum
     )
     @mock.patch(
-        "bapsflib._hdf.utils.hdfreaddata.build_sndr_for_simple_dset",
-        side_effect=build_sndr_for_simple_dset,
+        "bapsflib._hdf.utils.hdfreaddata.build_shotnum_dset_relation",
+        side_effect=build_shotnum_dset_relation,
     )
     @mock.patch(
         "bapsflib._hdf.utils.hdfreaddata.do_shotnum_intersection",
@@ -1042,7 +1042,7 @@ class TestHDFReadData(TestBase):
 
         # -- examine the various `shotnum` types                    ----
         # Note: relying on test for `condition_shotnum`,
-        #       `build_sndr_for_simple_dset`, and
+        #       `build_shotnum_dset_relation`, and
         #       `do_shotnum_intersection` for detailed behavior and
         #       testing
         #

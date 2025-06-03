@@ -280,6 +280,20 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         ``config_name``, but subclasses may override this method to
         allow desired "nicknames" to be conditioned into valid
         configuration names.
+
+        .. note::
+            This method is integrated into
+            `~bapsflib._hdf.utils.helpers.condition_controls`, which is
+            used by `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` and
+            `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` to
+            condition the respective arguments ``add_controls`` and
+            ``controls``.  This integration is why the nickname mapping
+            implemented here is available in the
+            `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` and
+            `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+            classes and read data methods of
+            `~bapsflib._hdf.utils.file.File`.
+
         """
         if config_name not in self.configs:
             raise ValueError(

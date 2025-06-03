@@ -461,7 +461,9 @@ class ControlTemplateTestCase(BaPSFTestCase):
     _control_device_path = "/Raw data + config/Control device"
     MAP_CLASS = NotImplemented
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         # Create a fully defined DummyMap to test basic functionality
         # of HDFMapTemplate
         new__dict__ = self.MAP_CLASS.__dict__.copy()

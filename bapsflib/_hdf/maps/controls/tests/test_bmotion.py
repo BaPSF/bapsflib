@@ -297,9 +297,9 @@ class TestBMotion(ControlTestCase):
             (self.assertEqual, ("5 - my_motion_group",), ("5", "my_motion_group")),
             (self.assertEqual, ("20 - foo",), ("20", "foo")),
             (self.assertEqual, ("20 - <Hades>    n21x21",), ("20", "<Hades>    n21x21")),
-            (self.assertIs, ("five",), None),
-            (self.assertIs, ("A - my_motion_group",), None),
-            (self.assertIs, ("5 ~ my_motion_group",), None),
+            (self.assertEqual, ("five",), (None, "five")),
+            (self.assertEqual, ("A - my_motion_group",), (None, "A - my_motion_group")),
+            (self.assertEqual, ("5 ~ my_motion_group",), (None, "5 ~ my_motion_group")),
         ]
         for _assert, args, expected in _conditions:
             self.assert_runner(

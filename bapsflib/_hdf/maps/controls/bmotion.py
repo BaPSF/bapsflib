@@ -80,7 +80,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         for cname, _config in self.configs.items():  # type: str, dict
             mg_name = _config["meta"][0]["MG_CONFIG"]["name"]
 
-            # for backwards compatability, add keys to root level of the
+            # for backwards compatibility, add keys to root level of the
             # configuration dictionary
             if len(_config["meta"]) == 1:
                 for key in (

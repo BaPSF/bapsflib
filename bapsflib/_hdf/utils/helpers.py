@@ -140,7 +140,9 @@ def build_shotnum_dset_relation(
         config_mask = np.ones_like(dset_shotnum, dtype=bool)
     else:
         dset_config_column = dset[config_column]  # type: np.ndarray
-        config_mask = dset_config_column == config_column_value.encode()  # type: np.ndarray
+        config_mask = (
+            dset_config_column == config_column_value.encode()
+        )  # type: np.ndarray
 
         if np.count_nonzero(config_mask) == 0:
             raise ValueError(

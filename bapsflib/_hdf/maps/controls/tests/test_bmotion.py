@@ -658,7 +658,7 @@ class TestBMotion(ControlTestCase):
         expected,
     ):
         with self.subTest(
-            test_attr=attr,
+            test_attr=attr.__name__,
             args=args,
             kwargs=kwargs,
             expected=expected,

@@ -13,7 +13,6 @@
 #
 import numpy as np
 import re
-import unittest as ut
 
 from abc import ABC
 from unittest import mock
@@ -24,16 +23,19 @@ from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
+from bapsflib._hdf.maps.controls.tests.common import BaPSFTestCase
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
-class ControlTemplateTestCase:
+class TestHDFMapControlTemplate(BaPSFTestCase):
     _control_device_path = "/Raw data + config/Control device"
-    MAP_CLASS = NotImplemented
+    MAP_CLASS = HDFMapControlTemplate
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
         # Create a fully defined DummyMap to test basic functionality
         # of HDFMapTemplate
         new__dict__ = self.MAP_CLASS.__dict__.copy()
@@ -97,6 +99,7 @@ class ControlTemplateTestCase:
             "get_config_column_value",
             "has_command_list",
             "one_config_per_dset",
+            "process_config_name",
         }
         for attr_name in expected_attributes:
             with self.subTest(attr_name=attr_name):
@@ -172,21 +175,26 @@ class ControlTemplateTestCase:
                 with mock.patch.dict(_map.configs, case[1]):
                     self.assertEqual(_map.has_command_list, case[0])
 
+    def test_process_config_name(self):
+        _map = self._DummyMap(self.control_group)
+        _conditions = [
+            # (assert, arg, expected)
+            (self.assertRaises, "not a config", ValueError),
+            (self.assertEqual, "config1", "config1"),
+        ]
+        with mock.patch.dict(_map.configs, {"config1": {}}):
+            for _assert, arg, expected in _conditions:
+                self.assert_runner(
+                    _assert=_assert,
+                    attr=_map.process_config_name,
+                    args=(arg,),
+                    kwargs={},
+                    expected=expected,
+                )
 
-class TestHDFMapControlTemplate(ControlTemplateTestCase, ut.TestCase):
-    MAP_CLASS = HDFMapControlTemplate
 
-    def __init__(self, methodName):
-        ut.TestCase.__init__(self, methodName=methodName)
-        ControlTemplateTestCase.__init__(self)
-
-
-class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
+class TestHDFMapControlCLTemplate(TestHDFMapControlTemplate):
     MAP_CLASS = HDFMapControlCLTemplate
-
-    def __init__(self, methodName):
-        ut.TestCase.__init__(self, methodName=methodName)
-        ControlTemplateTestCase.__init__(self)
 
     def test_additional_attribute_existence(self):
         expected_attributes = {

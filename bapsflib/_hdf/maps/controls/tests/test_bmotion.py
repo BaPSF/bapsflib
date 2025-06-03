@@ -373,8 +373,9 @@ class TestBMotion(ControlTestCase):
     def test_get_config_name_by_drive_name(self):
         _map = self.map  # type: HDFMapControlBMotion
         _conditions = [
-            (self.assertIs, (5,), None),
-            (self.assertIs, ("not_correct_drive_name",), None),
+            # (assert, args, expected)
+            (self.assertRaises, (5,), TypeError),
+            (self.assertRaises, ("not_correct_drive_name",), ValueError),
             (self.assertEqual, ("drive0",), _map._generate_config_name(0, "mg0")),
         ]
         for _assert, args, expected in _conditions:

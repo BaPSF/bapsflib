@@ -312,6 +312,17 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 self.configs[name] = {}
                 self.configs[name]["meta"] = (entry,)
 
+        # rename configuration name to remain backwards compatible with version
+        # v2025.3.0
+        for name in list(self.configs.keys()):
+            if len(self.configs[name]["meta"]) != 1:
+                continue
+
+            config = self.configs.pop(name)
+            mg_id = config["meta"][0]["MG_ID"]
+            config_name = self._generate_config_name(mg_id, name)
+            self.configs[config_name] = config
+
     def _verify_multiple_run_config(self):
         if len(self._config_groups) == 1:
             return

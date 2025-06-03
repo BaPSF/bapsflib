@@ -14,12 +14,10 @@ import os
 import re
 import unittest as ut
 
-from abc import ABC
 from typing import Callable, Type, Union
-from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
+from bapsflib._hdf.maps.templates import MapTypes
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,

@@ -175,6 +175,23 @@ class TestHDFMapControlTemplate(BaPSFTestCase):
                 with mock.patch.dict(_map.configs, case[1]):
                     self.assertEqual(_map.has_command_list, case[0])
 
+    def test_process_config_name(self):
+        _map = self._DummyMap(self.control_group)
+        _conditions = [
+            # (assert, arg, expected)
+            (self.assertRaises, "not a config", ValueError),
+            (self.assertEqual, "config1", "config1"),
+        ]
+        with mock.patch.dict(_map.configs, {"config1": {}}):
+            for _assert, arg, expected in _conditions:
+                self.assert_runner(
+                    _assert=_assert,
+                    attr=_map.process_config_name,
+                    args=(arg,),
+                    kwargs={},
+                    expected=expected,
+                )
+
 
 class TestHDFMapControlCLTemplate(TestHDFMapControlTemplate):
     MAP_CLASS = HDFMapControlCLTemplate

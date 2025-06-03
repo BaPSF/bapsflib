@@ -297,7 +297,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             return
 
         for key, mg_config in mg_configs.items():
-            name = self._generate_config_name(key, mg_config["name"])
+            name = self._generate_config_name(key=None, mg_name=mg_config["name"])
 
             entry = {
                 **_info,

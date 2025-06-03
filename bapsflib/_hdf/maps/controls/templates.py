@@ -268,6 +268,41 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         """
         ...
 
+    def process_config_name(self, config_name: Union[str, int]) -> Union[str, int]:
+        """
+        Process a given configuration name ``config_name`` and return
+        the conditioned configuration name.
+
+        The conditioned configuration name is a key to the mapped
+        :attr:`configs` dictionary.
+
+        Typically, the conditioned configuration name is just the given
+        ``config_name``, but subclasses may override this method to
+        allow desired "nicknames" to be conditioned into valid
+        configuration names.
+
+        .. note::
+            This method is integrated into
+            `~bapsflib._hdf.utils.helpers.condition_controls`, which is
+            used by `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` and
+            `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` to
+            condition the respective arguments ``add_controls`` and
+            ``controls``.  This integration is why the nickname mapping
+            implemented here is available in the
+            `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` and
+            `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+            classes, as well as the read data methods of
+            `~bapsflib._hdf.utils.file.File`.
+
+        """
+        if config_name not in self.configs:
+            raise ValueError(
+                f"The given 'config_name' ({config_name}) does not exist within "
+                f"the mapped configurations.  Allowed configuration names are "
+                f"{list(self.configs.keys())}."
+            )
+        return config_name
+
 
 HDFMapControlTemplate.configs.__doc__ = (
     getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapControlTemplate.configs)

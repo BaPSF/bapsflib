@@ -468,52 +468,49 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
         controls = [controls]
 
     # condition Iterable
-    if isinstance(controls, Iterable):
-        # all list items have to be strings or tuples
-        if not all(isinstance(con, (str, tuple)) for con in controls):
-            raise TypeError("all elements of `controls` must be of type string or tuple")
-
-        # condition controls
-        new_controls = []
-        for control in controls:
-            if isinstance(control, str):
-                name = control
-                config_name = None
-            else:
-                # tuple case
-                if len(control) > 2:
-                    raise ValueError(
-                        "a `controls` tuple element must be specified "
-                        "as ('control name') or, "
-                        "('control name', config_name)"
-                    )
-
-                name = control[0]
-                config_name = None if len(control) == 1 else control[1]
-
-            # ensure proper control and configuration name are defined
-            if name in [cc[0] for cc in new_controls]:
-                raise ValueError(
-                    f"Control device ({control}) can only have one occurrence in controls"
-                )
-            elif name in _fmap.controls:
-                if config_name in _fmap.controls[name].configs:
-                    # all is good
-                    pass
-                elif len(_fmap.controls[name].configs) == 1 and config_name is None:
-                    config_name = list(_fmap.controls[name].configs)[0]
-                else:
-                    raise ValueError(
-                        f"'{config_name}' is not a valid configuration name for "
-                        f"control device '{name}'"
-                    )
-            else:
-                raise ValueError(f"Control device ({name}) not in HDF5 file")
-
-            # add control to new_controls
-            new_controls.append((name, config_name))
-    else:
+    if not isinstance(controls, Iterable):
         raise TypeError("`controls` argument is not Iterable")
+
+    # all list items have to be strings or tuples
+    if not all(isinstance(con, (str, tuple)) for con in controls):
+        raise TypeError("all elements of `controls` must be of type string or tuple")
+
+    # condition controls
+    new_controls = []
+    for control in controls:
+        if isinstance(control, str):
+            name = control
+            config_name = None
+        else:
+            # tuple case
+            if len(control) > 2:
+                raise ValueError(
+                    "a `controls` tuple element must be specified "
+                    "as ('control name') or, "
+                    "('control name', config_name)"
+                )
+
+            name = control[0]
+            config_name = None if len(control) == 1 else control[1]
+
+        # ensure proper control and configuration name are defined
+        if name in [cc[0] for cc in new_controls]:
+            raise ValueError(
+                f"Control device ({control}) can only have one occurrence in controls"
+            )
+        elif name in _fmap.controls:
+            control_map = _fmap.controls[name]
+
+            if config_name is None and len(control_map.configs) == 1:
+                config_name = list(control_map.configs)[0]
+            else:
+                config_name = control_map.process_config_name(config_name)
+
+        else:
+            raise ValueError(f"Control device ({name}) not in HDF5 file")
+
+        # add control to new_controls
+        new_controls.append((name, config_name))
 
     # re-assign `controls`
     controls = new_controls

@@ -14,7 +14,7 @@ import os
 import re
 import unittest as ut
 
-from typing import Type
+from typing import Callable, Type, Union
 
 from bapsflib._hdf.maps import FauxHDFBuilder, MapTypes
 from bapsflib._hdf.maps.controls import ConType
@@ -422,3 +422,31 @@ class ControlTestCase(ut.TestCase):
     def assertDatasetNames(self, _map, _group):
         dset_names = [name for name in _group if isinstance(_group[name], h5py.Dataset)]
         self.assertEqual(_map.dataset_names, dset_names)
+
+    def assert_runner(
+        self,
+        _assert: Union[str, Callable],
+        attr: Callable,
+        args: tuple,
+        kwargs: dict,
+        expected,
+    ):
+        with self.subTest(
+            test_attr=attr.__name__,
+            args=args,
+            kwargs=kwargs,
+            expected=expected,
+        ):
+            if isinstance(_assert, str) and hasattr(self, _assert):
+                _assert = getattr(self, _assert)
+            elif isinstance(_assert, str):
+                self.fail(
+                    f"The given assert name '{_assert}' does NOT match an "
+                    f"assert method on self."
+                )
+
+            if _assert == self.assertRaises:
+                with self.assertRaises(expected):
+                    attr(*args, **kwargs)
+            else:
+                _assert(attr(*args, **kwargs), expected)

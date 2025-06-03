@@ -27,7 +27,7 @@ from warnings import warn
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 from bapsflib._hdf.utils.helpers import (
-    build_sndr_for_simple_dset,
+    build_shotnum_dset_relation,
     condition_controls,
     condition_shotnum,
     do_shotnum_intersection,
@@ -452,10 +452,12 @@ class HDFReadData(np.ndarray):
                 condition_shotnum(shotnum, dheader, shotnumkey,
                                   intersection_set)
             """
-            index, sni = build_sndr_for_simple_dset(
+            index, sni = build_shotnum_dset_relation(
                 shotnum=shotnum,
                 dset=dheader,
                 shotnumkey=shotnumkey,
+                n_configs=1,
+                config_column_value=None,
             )
 
             # perform intersection

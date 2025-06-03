@@ -99,6 +99,7 @@ class TestHDFMapControlTemplate(BaPSFTestCase):
             "get_config_column_value",
             "has_command_list",
             "one_config_per_dset",
+            "process_config_name",
         }
         for attr_name in expected_attributes:
             with self.subTest(attr_name=attr_name):

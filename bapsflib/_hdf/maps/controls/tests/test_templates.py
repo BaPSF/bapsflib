@@ -26,20 +26,12 @@ from bapsflib._hdf.maps.controls.templates import (
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
-class TestHDFMapControlTemplate(ControlTemplateTestCase, ut.TestCase):
+class TestHDFMapControlTemplate(ControlTemplateTestCase):
     MAP_CLASS = HDFMapControlTemplate
 
-    def __init__(self, methodName):
-        ut.TestCase.__init__(self, methodName=methodName)
-        ControlTemplateTestCase.__init__(self)
 
-
-class TestHDFMapControlCLTemplate(ControlTemplateTestCase, ut.TestCase):
+class TestHDFMapControlCLTemplate(ControlTemplateTestCase):
     MAP_CLASS = HDFMapControlCLTemplate
-
-    def __init__(self, methodName):
-        ut.TestCase.__init__(self, methodName=methodName)
-        ControlTemplateTestCase.__init__(self)
 
     def test_additional_attribute_existence(self):
         expected_attributes = {

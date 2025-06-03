@@ -233,7 +233,9 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
         """Name of Control device"""
         return self.group_name
 
-    def get_config_column_value(self, config_name: Union[str, int]) -> str:
+    def get_config_column_value(  # noqa: PLR6301
+        self, config_name: Union[str, int]
+    ) -> Union[str, None]:
         """
         For the given configuration name ``config_name`` get the
         associated configuration value that would be in the

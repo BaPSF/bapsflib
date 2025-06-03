@@ -291,7 +291,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             implemented here is available in the
             `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` and
             `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
-            classes and read data methods of
+            classes, as well as the read data methods of
             `~bapsflib._hdf.utils.file.File`.
 
         """

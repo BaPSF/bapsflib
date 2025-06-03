@@ -17,12 +17,12 @@ import unittest as ut
 from typing import Callable, Type, Union
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-from bapsflib._hdf.maps.templates import MapTypes
-from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
+from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib._hdf.maps.templates import MapTypes
 
 
 def method_overridden(cls, obj, method: str) -> bool:

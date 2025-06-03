@@ -18,14 +18,14 @@ from abc import ABC
 from unittest import mock
 
 from bapsflib._hdf.maps import FauxHDFBuilder
-from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
-from bapsflib._hdf.maps.controls.tests.common import BaPSFTestCase
-from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.controls.parsers import CLParse
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
+from bapsflib._hdf.maps.controls.tests.common import BaPSFTestCase
+from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 

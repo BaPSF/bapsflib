@@ -13,11 +13,14 @@
 #
 import numpy as np
 import re
-import unittest as ut
 
+from abc import ABC
 from unittest import mock
 
-from bapsflib._hdf.maps.controls.tests.common import ControlTemplateTestCase
+from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
+from bapsflib._hdf.maps.controls.tests.common import BaPSFTestCase
+from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.controls.parsers import CLParse
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
@@ -26,11 +29,153 @@ from bapsflib._hdf.maps.controls.templates import (
 from bapsflib.utils.warnings import HDFMappingWarning
 
 
-class TestHDFMapControlTemplate(ControlTemplateTestCase):
+class TestHDFMapControlTemplate(BaPSFTestCase):
+    _control_device_path = "/Raw data + config/Control device"
     MAP_CLASS = HDFMapControlTemplate
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
-class TestHDFMapControlCLTemplate(ControlTemplateTestCase):
+        # Create a fully defined DummyMap to test basic functionality
+        # of HDFMapTemplate
+        new__dict__ = self.MAP_CLASS.__dict__.copy()
+        for _abc_method_name in self.MAP_CLASS.__abstractmethods__:
+            new__dict__[_abc_method_name] = lambda *args, **kwargs: NotImplemented
+
+        # Creates class DummyMap which is subclass of HDFMapTemplate with
+        # all abstract methods returning NotImplemented
+        self._DummyMap = type("DummyMap", (self.MAP_CLASS,), new__dict__)
+        self._DummyMap._maptype = MapTypes.CONTROL
+        self._DummyMap._contype = ConType.MOTION
+
+    def setUp(self):
+        # blank/temporary HDF5 file
+        self.f = FauxHDFBuilder()
+
+        # self.f["Raw data + config"].create_group("Control Device")
+        # _control_group = self.f.get(self._control_device_path)
+        self.f.create_group(self._control_device_path)
+        control_group = self.f.get(self._control_device_path)
+
+        # fill the MSI group for testing
+        _path = self._control_device_path
+        control_group.create_group("g1")
+        control_group.create_group("g2")
+
+        # correct 'command list' dataset
+        dtype = np.dtype([("Shot number", np.int32), ("Command index", np.int8)])
+        data = np.empty((5,), dtype=dtype)
+        control_group.create_dataset("d1", data=data)
+
+        # dataset missing 'Command index'
+        dtype = np.dtype([("Shot number", np.int32), ("Not command index", np.int8)])
+        data = np.empty((5,), dtype=dtype)
+        control_group.create_dataset("d2", data=data)
+
+        # dataset missing 'Command index' wrong shape and size
+        dtype = np.dtype([("Shot number", np.int32), ("Command index", np.float16, (2,))])
+        data = np.empty((5,), dtype=dtype)
+        control_group.create_dataset("d3", data=data)
+
+    def tearDown(self):
+        """Cleanup temporary HDF5 file"""
+        self.f.cleanup()
+
+    @property
+    def control_group(self):
+        return self.f[self._control_device_path]
+
+    def test_abstractness(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, ABC))
+
+    def test_inheritance(self):
+        self.assertTrue(issubclass(self.MAP_CLASS, HDFMapTemplate))
+
+    def test_attribute_existence(self):
+        expected_attributes = {
+            "_contype",
+            "contype",
+            "device_name",
+            "get_config_column_value",
+            "has_command_list",
+            "one_config_per_dset",
+        }
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
+
+    def test_abstractmethod_existence(self):
+        expected_attributes = {"construct_dataset_name"}
+        for attr_name in expected_attributes:
+            with self.subTest(attr_name=attr_name):
+                assert hasattr(self.MAP_CLASS, attr_name)
+
+    def test_attribute_values(self):
+        _map = self._DummyMap(self.control_group)
+        _expected = {
+            "configs": dict(),
+            "group_name": "Control device",
+            "device_name": _map.group_name,
+            "maptype": MapTypes.CONTROL,
+            "contype": ConType.MOTION,
+        }
+        for attr_name, expected in _expected.items():
+            with self.subTest(attr_name=attr_name, expected=expected):
+                self.assertEqual(getattr(_map, attr_name), expected)
+
+    def test_not_h5py_group(self):
+        with self.assertRaises(TypeError):
+            self._DummyMap(None)
+
+    def test_get_config_column_value(self):
+        _map = self._DummyMap(self.control_group)
+        self.assertEqual(_map.get_config_column_value("config01"), "config01")
+
+    def test_one_config_per_dset(self):
+        # control_group is set up with 3 datasets
+        _map = self._DummyMap(self.control_group)
+
+        _cases = [  # (one_config_per_dset? , mock_configs)
+            (False, {"config1": {}}),
+            (True, {"config1": {}, "config2": {}, "config3": {}}),
+        ]
+        for case in _cases:
+            with self.subTest(case=case):
+                with mock.patch.dict(_map.configs, case[1]):
+                    self.assertEqual(_map.one_config_per_dset, case[0])
+
+    def test_info_dict(self):
+        _map = self._DummyMap(self.control_group)
+
+        _expected = {
+            True: isinstance(_map.info, dict),
+            "group name": "Control device",
+            "group path": self._control_device_path,
+            "maptype": _map.maptype,
+            "contype": _map.contype,
+        }
+        for key, expected in _expected.items():
+            with self.subTest(key=key, expected=expected):
+                val = key if not isinstance(key, str) else _map.info[key]
+                self.assertEqual(val, expected)
+
+    def test_has_command_list(self):
+        # control_group is set up with 3 datasets
+        _map = self._DummyMap(self.control_group)
+
+        _cases = [  # (one_config_per_dset? , mock_configs)
+            (False, {"config1": {}}),
+            (False, {"config1": {}, "config2": {}}),
+            (True, {"config1": {"command list": ("start",)}}),
+            (True, {"config1": {"command list": ("start",)}, "config2": {}}),
+        ]
+        for case in _cases:
+            with self.subTest(case=case):
+                with mock.patch.dict(_map.configs, case[1]):
+                    self.assertEqual(_map.has_command_list, case[0])
+
+
+class TestHDFMapControlCLTemplate(TestHDFMapControlTemplate):
     MAP_CLASS = HDFMapControlCLTemplate
 
     def test_additional_attribute_existence(self):

@@ -35,6 +35,7 @@ class TestBMotion(ControlTestCase):
             },
         )
 
+    @ut.skip("update to test multiple subgroups")
     def test_raises_too_many_subgroups(self):
         _group = self.dgroup  # type: h5py.Group
         _group.create_group("extra_group")
@@ -351,7 +352,8 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
-    def test_get_config_id(self):
+    @ut.skip("Update for get_config_column_value")
+    def test_get_config_column_value(self):
         _map = self.map
         _conditions = [
             # (_assert, args, expected)

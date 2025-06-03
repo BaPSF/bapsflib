@@ -584,17 +584,41 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         Get the configuration name for the given motion group id.
         """
         if not isinstance(_id, (int, str)):
-            return None
+            raise TypeError(
+                "The motion group id '_id' is supposed to be str or int, got "
+                f"type {type(_id)} instead."
+            )
         elif isinstance(_id, int):
             _id = f"{_id}"
 
-        _mg_configs = self._run_config["run"]["motion_group"]
-        try:
-            mg_name = _mg_configs[_id]["name"]
-            config_name = self._generate_config_name(_id, mg_name)
-            return config_name
-        except KeyError:
-            pass
+        used_ids = []
+        bad_ids = []
+        id_config_names = []
+        for _cname, config in self.configs.items():
+            if len(config["meta"]) != 1:
+                continue
+
+            cid, mg_name = self._split_config_name(_cname)
+
+            if cid in bad_ids:
+                continue
+            elif cid in used_ids:
+                ii = used_ids.index(cid)
+                used_ids.pop(ii)
+                id_config_names.pop(ii)
+            else:
+                used_ids.append(cid)
+                id_config_names.append(_cname)
+
+        if len(used_ids) == 0 or _id not in used_ids:
+            raise HDFMappingError(
+                f"bmotion has multiple run configurations "
+                f"({len(self._config_groups)}), so identifying a configuration "
+                f"name by motion group ID is non-sensical.",
+            )
+
+        ii = used_ids.index(_id)
+        return id_config_names[ii]
 
     def get_config_name_by_motion_group_name(self, name: str) -> Union[str, None]:
         """

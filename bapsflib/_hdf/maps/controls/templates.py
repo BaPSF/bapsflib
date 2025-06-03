@@ -285,7 +285,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             raise ValueError(
                 f"The given 'config_name' ({config_name}) does not exist within "
                 f"the mapped configurations.  Allowed configuration names are "
-                f"{self.configs.keys()}."
+                f"{list(self.configs.keys())}."
             )
         return config_name
 

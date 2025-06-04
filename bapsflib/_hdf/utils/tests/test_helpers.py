@@ -354,6 +354,36 @@ class TestBuildShotnumDsetRelation(TestBase):
                 config_column=None,
             )
 
+    def test_dset_per_config(self):
+        # Test a dataset that has no configuration column and represents
+        # only one configuration
+        #
+        # modify dataset to have two configuration columns
+        data = self.cgroup["Run time list"][...]
+        column_names = list(data.dtype.names)
+        column_names.remove("Configuration name")
+        data = data[column_names]
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        dset = self.cgroup["Run time list"]
+        shotnums = [
+            np.arange(1, 30, 2),
+            np.arange(90, 110, 1),
+        ]
+        for shotnum in shotnums:
+            with self.subTest(shotnum=shotnum):
+                index, sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=dset,
+                    shotnumkey="Shot number",
+                    n_configs=1,
+                    config_column_value=list(self.map.configs.keys())[0],
+                    config_column=None,
+                )
+                self.assertTrue(np.allclose(shotnum[sni], dset["Shot number"][index]))
+
+
 
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""

@@ -35,10 +35,12 @@ class TestBMotion(ControlTestCase):
             },
         )
 
-    @ut.skip("update to test multiple subgroups")
-    def test_raises_too_many_subgroups(self):
+    def test_raises_no_subgroups(self):
         _group = self.dgroup  # type: h5py.Group
-        _group.create_group("extra_group")
+        for key, element in _group.items():
+            if isinstance(element, h5py.Group):
+                del _group[key]
+
         with self.assertRaises(HDFMappingError):
             _map = self.map
 

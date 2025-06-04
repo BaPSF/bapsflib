@@ -160,7 +160,7 @@ def build_shotnum_dset_relation(
     config_mask[config_mask] = mask
     index = np.where(config_mask)[0]
 
-    if np.count_nonzero(sni) != index.size:
+    if np.count_nonzero(sni) != index.size:  # coverage: ignore
         raise ValueError(
             "Something went wrong... The constructed 'sni' does NOT have the "
             "same number of True values as the size of the constructed 'index' "

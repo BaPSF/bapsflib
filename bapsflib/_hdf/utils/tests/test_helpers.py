@@ -430,7 +430,6 @@ class TestBuildShotnumDsetRelation(TestBase):
                 self.assertTrue(np.allclose(kwargs["shotnum"][sni], expected))
 
 
-
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""
 

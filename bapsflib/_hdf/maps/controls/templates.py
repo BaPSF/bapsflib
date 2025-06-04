@@ -295,6 +295,8 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             `~bapsflib._hdf.utils.file.File`.
 
         """
+        # ^^ Do NOT add a NOTES numpydoc section here so overriding sub-classes
+        #    can append their own notes section.
         if config_name not in self.configs:
             raise ValueError(
                 f"The given 'config_name' ({config_name}) does not exist within "

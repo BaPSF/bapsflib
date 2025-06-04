@@ -730,7 +730,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             )
 
         return config_name
-    process_config_name.__doc__ += """
+    process_config_name.__doc__ = HDFMapControlTemplate.process_config_name.__doc__ + """
     Notes
     -----
     

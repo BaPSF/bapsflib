@@ -383,6 +383,52 @@ class TestBuildShotnumDsetRelation(TestBase):
                 )
                 self.assertTrue(np.allclose(shotnum[sni], dset["Shot number"][index]))
 
+    def test_sequential_configurations(self):
+        # Test relation construction when a dataset saves configuration data
+        # sequentially... i.e. all data for config 1 then all data for config 2
+        #
+        # modify dataset to have two configuration columns
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.sn_size = 50
+        config_names = list(self.map.configs.keys())
+        data = self.cgroup["Run time list"][...]
+        data["Shot number"] = np.arange(1, 101, 1, dtype=data["Shot number"].dtype)
+        data["Configuration name"][0:50] = config_names[0]
+        data["Configuration name"][50:100] = config_names[1]
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        base_kwargs = {
+            "shotnum": np.arange(40, 61, 1),
+            "dset": self.cgroup["Run time list"],
+            "shotnumkey": "Shot number",
+            "n_configs": 2,
+            "config_column_value": None,
+            "config_column": "Configuration name",
+        }
+        _conditions = [
+            # (kwargs, expected)
+            (
+                {**base_kwargs, "config_column_value": config_names[0]},
+                np.arange(40, 51, 1),
+            ),
+            (
+                {**base_kwargs, "config_column_value": config_names[1]},
+                np.arange(51, 61, 1),
+            ),
+        ]
+        for kwargs, expected in _conditions:
+            with self.subTest(kwargs=kwargs, expected=expected):
+                index, sni = build_shotnum_dset_relation(**kwargs)
+
+                self.assertTrue(
+                    np.allclose(
+                        kwargs["shotnum"][sni],
+                        kwargs["dset"]["Shot number"][index],
+                    )
+                )
+                self.assertTrue(np.allclose(kwargs["shotnum"][sni], expected))
+
 
 
 class TestConditionControls(TestBase):

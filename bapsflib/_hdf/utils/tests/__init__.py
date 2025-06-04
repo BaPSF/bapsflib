@@ -14,9 +14,10 @@ import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib.utils.decorators import with_bf
+from bapsflib.utils.tests import BaPSFTestCase
 
 
-class TestBase(ut.TestCase):
+class TestBase(BaPSFTestCase):
     """Base test class for all test classes here."""
 
     f = NotImplemented  # type: FauxHDFBuilder

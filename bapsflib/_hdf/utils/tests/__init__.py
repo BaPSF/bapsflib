@@ -10,8 +10,6 @@
 #
 __all__ = ["TestBase", "with_bf"]
 
-import unittest as ut
-
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib.utils.decorators import with_bf
 from bapsflib.utils.tests import BaPSFTestCase

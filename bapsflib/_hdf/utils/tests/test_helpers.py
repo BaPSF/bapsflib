@@ -269,7 +269,12 @@ class TestBuildShotnumDsetRelation(TestBase):
                 self.assertRaises,
                 {**base_kwargs, "config_column": "wrong name"},
                 ValueError,
-            )
+            ),
+            (
+                self.assertRaises,
+                {**base_kwargs, "config_column_value": "wrong value"},
+                ValueError,
+            ),
         ]
         for _assert, kwargs, expected in _conditions:
             self.assert_runner(

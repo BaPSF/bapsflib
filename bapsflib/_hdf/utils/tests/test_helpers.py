@@ -325,6 +325,30 @@ class TestBuildShotnumDsetRelation(TestBase):
                 config_column=None,
             )
 
+    def test_raises_dset_single_config_w_duplicate_shotnums(self):
+        # testing that dataset indicated with one configuration (n_configs == 1)
+        # but has duplicate shot numbers (indicating multiple configs)
+        #
+        # modify dataset
+        data = self.cgroup["Run time list"][...]
+        new_shotnum = np.tile(data["Shot number"], 2)
+        column_names = list(data.dtype.names)
+        column_names.remove("Shot number")
+        data = data[column_names]
+        data = rfn.append_fields(data, "Shot number", new_shotnum)
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        with self.assertRaises(ValueError):
+            build_shotnum_dset_relation(
+                shotnum=np.arange(1, 30, 2),
+                dset=self.cgroup["Run time list"],
+                shotnumkey="Shot number",
+                n_configs=1,
+                config_column_value=list(self.map.configs.keys())[0],
+                config_column=None,
+            )
+
 
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""

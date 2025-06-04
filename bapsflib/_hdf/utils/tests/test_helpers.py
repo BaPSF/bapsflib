@@ -280,6 +280,27 @@ class TestBuildShotnumDsetRelation(TestBase):
                 expected=expected,
             )
 
+    def test_raises_multiple_configuration_columns(self):
+        # testing no config_column given (i.e. config_column == None) and
+        # the dataset has multiple columns with "configuration" in their
+        # name
+        #
+        # modify dataset to have two configuration columns
+        data = self.cgroup["Run time list"][...]
+        data = rfn.append_fields(data, "configuration 2", data["Configuration name"])
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        with self.assertRaises(ValueError):
+            build_shotnum_dset_relation(
+                shotnum=np.arange(1, 30, 2),
+                dset=self.cgroup["Run time list"],
+                shotnumkey="Shot number",
+                n_configs=1,
+                config_column_value=list(self.map.configs.keys())[0],
+                config_column=None,
+            )
+
 
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""

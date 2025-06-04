@@ -99,7 +99,9 @@ def build_shotnum_dset_relation(
         column_name_mask = [
             "configuration" in name.casefold() for name in dset.dtype.names
         ]
-        if np.count_nonzero(column_name_mask) != 1 and n_configs != 1:
+        if np.count_nonzero(column_name_mask) > 1 or (
+            np.count_nonzero(column_name_mask) != 1 and n_configs != 1
+        ):
             raise ValueError(
                 "No column configuration name given (i.e. config_column ==  None) "
                 "and unable to infer configuration name from "
@@ -158,7 +160,7 @@ def build_shotnum_dset_relation(
     config_mask[config_mask] = mask
     index = np.where(config_mask)[0]
 
-    if np.count_nonzero(sni) != index.size:
+    if np.count_nonzero(sni) != index.size:  # coverage: ignore
         raise ValueError(
             "Something went wrong... The constructed 'sni' does NOT have the "
             "same number of True values as the size of the constructed 'index' "

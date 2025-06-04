@@ -14,6 +14,7 @@
 import numpy as np
 import unittest as ut
 
+from h5py import Group
 from numpy.lib import recfunctions as rfn
 
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
@@ -42,7 +43,7 @@ class TestBuildShotnumDsetRelation(TestBase):
         super().tearDown()
 
     @property
-    def cgroup(self):
+    def cgroup(self) -> Group:
         return self.f["Raw data + config/Waveform"]
 
     @property
@@ -247,6 +248,186 @@ class TestBuildShotnumDsetRelation(TestBase):
             cname_arr = cdset[index.tolist(), configkey]
             for name in cname_arr:
                 self.assertEqual(_bytes_to_str(name), cconfn)
+
+    def test_raises(self):
+        base_kwargs = {
+            "shotnum": np.arange(1, 30, 2),
+            "dset": self.cgroup["Run time list"],
+            "shotnumkey": "Shot number",
+            "n_configs": 1,
+            "config_column_value": list(self.map.configs.keys())[0],
+            "config_column": "Configuration name",
+        }
+        _conditions = [
+            # (assert, kwargs, expected)
+            (
+                self.assertRaises,
+                {**base_kwargs, "shotnumkey": "wrong name"},
+                ValueError,
+            ),
+            (
+                self.assertRaises,
+                {**base_kwargs, "config_column": "wrong name"},
+                ValueError,
+            ),
+            (
+                self.assertRaises,
+                {**base_kwargs, "config_column_value": "wrong value"},
+                ValueError,
+            ),
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=build_shotnum_dset_relation,
+                args=(),
+                kwargs=kwargs,
+                expected=expected,
+            )
+
+    def test_raises_multiple_configuration_columns(self):
+        # testing no config_column given (i.e. config_column == None) and
+        # the dataset has multiple columns with "configuration" in their
+        # name
+        #
+        # modify dataset to have two configuration columns
+        data = self.cgroup["Run time list"][...]
+        data = rfn.append_fields(data, "configuration 2", data["Configuration name"])
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        with self.assertRaises(ValueError):
+            build_shotnum_dset_relation(
+                shotnum=np.arange(1, 30, 2),
+                dset=self.cgroup["Run time list"],
+                shotnumkey="Shot number",
+                n_configs=1,
+                config_column_value=list(self.map.configs.keys())[0],
+                config_column=None,
+            )
+
+    def test_raises_no_configuration_column_w_multiple_configs(self):
+        # testing no config_column given (i.e. config_column == None) and
+        # the dataset has NO columns with "configuration" in their
+        # name and the dset holds multiple configurations
+        #
+        # modify dataset to have NO configuration columns
+        data = self.cgroup["Run time list"][...]
+        data = rfn.append_fields(data, "bad named column", data["Configuration name"])
+        column_names = list(data.dtype.names)
+        column_names.remove("Configuration name")
+        data = data[column_names]
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        with self.assertRaises(ValueError):
+            build_shotnum_dset_relation(
+                shotnum=np.arange(1, 30, 2),
+                dset=self.cgroup["Run time list"],
+                shotnumkey="Shot number",
+                n_configs=2,
+                config_column_value=list(self.map.configs.keys())[0],
+                config_column=None,
+            )
+
+    def test_raises_dset_single_config_w_duplicate_shotnums(self):
+        # testing that dataset indicated with one configuration (n_configs == 1)
+        # but has duplicate shot numbers (indicating multiple configs)
+        #
+        # modify dataset
+        data = self.cgroup["Run time list"][...]
+        new_shotnum = np.tile(data["Shot number"], 2)
+        column_names = list(data.dtype.names)
+        column_names.remove("Shot number")
+        data = data[column_names]
+        data = rfn.append_fields(data, "Shot number", new_shotnum)
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        with self.assertRaises(ValueError):
+            build_shotnum_dset_relation(
+                shotnum=np.arange(1, 30, 2),
+                dset=self.cgroup["Run time list"],
+                shotnumkey="Shot number",
+                n_configs=1,
+                config_column_value=list(self.map.configs.keys())[0],
+                config_column=None,
+            )
+
+    def test_dset_per_config(self):
+        # Test a dataset that has no configuration column and represents
+        # only one configuration
+        #
+        # modify dataset to have two configuration columns
+        data = self.cgroup["Run time list"][...]
+        column_names = list(data.dtype.names)
+        column_names.remove("Configuration name")
+        data = data[column_names]
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        dset = self.cgroup["Run time list"]
+        shotnums = [
+            np.arange(1, 30, 2),
+            np.arange(90, 110, 1),
+        ]
+        for shotnum in shotnums:
+            with self.subTest(shotnum=shotnum):
+                index, sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=dset,
+                    shotnumkey="Shot number",
+                    n_configs=1,
+                    config_column_value=list(self.map.configs.keys())[0],
+                    config_column=None,
+                )
+                self.assertTrue(np.allclose(shotnum[sni], dset["Shot number"][index]))
+
+    def test_sequential_configurations(self):
+        # Test relation construction when a dataset saves configuration data
+        # sequentially... i.e. all data for config 1 then all data for config 2
+        #
+        # modify dataset to have two configuration columns
+        self.mod.knobs.n_configs = 2
+        self.mod.knobs.sn_size = 50
+        config_names = list(self.map.configs.keys())
+        data = self.cgroup["Run time list"][...]
+        data["Shot number"] = np.arange(1, 101, 1, dtype=data["Shot number"].dtype)
+        data["Configuration name"][0:50] = config_names[0]
+        data["Configuration name"][50:100] = config_names[1]
+        del self.cgroup["Run time list"]
+        self.cgroup.create_dataset("Run time list", data=data)
+
+        base_kwargs = {
+            "shotnum": np.arange(40, 61, 1),
+            "dset": self.cgroup["Run time list"],
+            "shotnumkey": "Shot number",
+            "n_configs": 2,
+            "config_column_value": None,
+            "config_column": "Configuration name",
+        }
+        _conditions = [
+            # (kwargs, expected)
+            (
+                {**base_kwargs, "config_column_value": config_names[0]},
+                np.arange(40, 51, 1),
+            ),
+            (
+                {**base_kwargs, "config_column_value": config_names[1]},
+                np.arange(51, 61, 1),
+            ),
+        ]
+        for kwargs, expected in _conditions:
+            with self.subTest(kwargs=kwargs, expected=expected):
+                index, sni = build_shotnum_dset_relation(**kwargs)
+
+                self.assertTrue(
+                    np.allclose(
+                        kwargs["shotnum"][sni],
+                        kwargs["dset"]["Shot number"][index],
+                    )
+                )
+                self.assertTrue(np.allclose(kwargs["shotnum"][sni], expected))
 
 
 class TestConditionControls(TestBase):

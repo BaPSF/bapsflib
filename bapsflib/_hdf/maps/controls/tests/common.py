@@ -14,7 +14,7 @@ import os
 import re
 import unittest as ut
 
-from typing import Callable, Type, Union
+from typing import Type
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.controls.templates import (
@@ -23,6 +23,7 @@ from bapsflib._hdf.maps.controls.templates import (
 )
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.templates import MapTypes
+from bapsflib.utils.tests import BaPSFTestCase
 
 
 def method_overridden(cls, obj, method: str) -> bool:
@@ -30,36 +31,6 @@ def method_overridden(cls, obj, method: str) -> bool:
     obj_method = method in obj.__class__.__dict__.keys()
     base_method = method in cls.__dict__.keys()
     return obj_method and base_method
-
-
-class BaPSFTestCase(ut.TestCase):
-    def assert_runner(
-        self,
-        _assert: Union[str, Callable],
-        attr: Callable,
-        args: tuple,
-        kwargs: dict,
-        expected,
-    ):
-        with self.subTest(
-            test_attr=attr.__name__,
-            args=args,
-            kwargs=kwargs,
-            expected=expected,
-        ):
-            if isinstance(_assert, str) and hasattr(self, _assert):
-                _assert = getattr(self, _assert)
-            elif isinstance(_assert, str):
-                self.fail(
-                    f"The given assert name '{_assert}' does NOT match an "
-                    f"assert method on self."
-                )
-
-            if _assert == self.assertRaises:
-                with self.assertRaises(expected):
-                    attr(*args, **kwargs)
-            else:
-                _assert(attr(*args, **kwargs), expected)
 
 
 class ControlTestCase(BaPSFTestCase):

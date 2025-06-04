@@ -1,0 +1,8 @@
+.. currentmodule:: bapsflib._hdf.utils.helpers
+
+Reworked algorithm of `build_shotnum_dset_relation` to handle
+HDF5 datasets that have data for control device configurations saved
+sequentially; that is, all of configuration 1 is written to the dataset
+then all of configuration 2 is saved to the dataset, and so on.  As a
+result of the rework helper functions ``build_sndr_for_simple_dset`` and
+``build_sndr_for_complex_dset`` were removed.

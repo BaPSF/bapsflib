@@ -249,6 +249,37 @@ class TestBuildShotnumDsetRelation(TestBase):
             for name in cname_arr:
                 self.assertEqual(_bytes_to_str(name), cconfn)
 
+    def test_raises(self):
+        base_kwargs = {
+            "shotnum": np.arange(1, 30, 2),
+            "dset": self.cgroup["Run time list"],
+            "shotnumkey": "Shot number",
+            "n_configs": 1,
+            "config_column_value": list(self.map.configs.keys())[0],
+            "config_column": "Configuration name",
+        }
+        _conditions = [
+            # (assert, kwargs, expected)
+            (
+                self.assertRaises,
+                {**base_kwargs, "shotnumkey": "wrong name"},
+                ValueError,
+            ),
+            (
+                self.assertRaises,
+                {**base_kwargs, "config_column": "wrong name"},
+                ValueError,
+            )
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=build_shotnum_dset_relation,
+                args=(),
+                kwargs=kwargs,
+                expected=expected,
+            )
+
 
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""

@@ -14,6 +14,7 @@
 import numpy as np
 import unittest as ut
 
+from h5py import Group
 from numpy.lib import recfunctions as rfn
 
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
@@ -42,7 +43,7 @@ class TestBuildShotnumDsetRelation(TestBase):
         super().tearDown()
 
     @property
-    def cgroup(self):
+    def cgroup(self) -> Group:
         return self.f["Raw data + config/Waveform"]
 
     @property

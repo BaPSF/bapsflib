@@ -653,3 +653,44 @@ class TestBMotion(ControlTestCase):
         for _assert, value, expected in _conditions:
             with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
                 _assert(value, expected)
+
+    def test_process_config_name(self):
+        _map = self.map
+        _config_name = list(_map.configs.keys())[0]
+        _conditions = [
+            # (assert, config_name, expected)
+            (self.assertEqual, _config_name, _config_name),
+            # probe drive names are nicknames (when uniquely used)
+            (self.assertEqual, "drive0", _config_name),
+        ]
+        for _assert, config_name, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.process_config_name,
+                args=(config_name,),
+                kwargs={},
+                expected=expected,
+            )
+
+    def test_raises_process_config(self):
+        _map = self.map
+
+        # add a config that uses the same drive name
+        _map.configs["<drive0> duplicate"] = {
+            "meta": ({"DRIVE_NAME": "drive0"},),
+        }
+        _conditions = [
+            # (assert, config_name, expecged)
+            # bad nickname
+            (self.assertRaises, "bad_nickname", ValueError),
+            # drive not used uniquely
+            (self.assertRaises, "drive0", ValueError),
+        ]
+        for _assert, config_name, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.process_config_name,
+                args=(config_name,),
+                kwargs={},
+                expected=expected,
+            )

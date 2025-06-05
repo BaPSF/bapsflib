@@ -295,6 +295,15 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             config_name = Path(group.name).stem
             if config_name in used_config_names:
                 used_config_groups.append(group)
+                continue
+
+            warnings.warn(
+                f"bmotion run configuration '{config_name}' was not "
+                f"found in the 'Run time list' dataset.  Not including "
+                f"configuration in the mapping.",
+                HDFMappingWarning,
+            )
+
         self._config_groups = used_config_groups
 
         if len(self._config_groups) == 0:
@@ -381,21 +390,12 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         for ii, entry in enumerate(list(config_dict["meta"])):
             run_config_name = entry["RUN_CONFIG_NAME"]
 
+            # Note: self._verify_groups() checks that the run configuration
+            #       name is present in the "Configuration name" column
+            #       before allowing it to be mapped.
             indices = np.where(
                 rtl_dset["Configuration name"] == run_config_name.encode("utf-8")
             )[0]
-            if indices.size == 0:
-                warnings.warn(
-                    f"bmotion run configuration '{run_config_name}' was not "
-                    f"found in the 'Run time list' dataset.  Removing "
-                    f"configuration from association with motion group "
-                    f"'{config_name}'.",
-                    HDFMappingWarning,
-                )
-                meta_list = list(config_dict["meta"])
-                meta_list.pop(ii)
-                config_dict["meta"] = meta_list
-                continue
 
             data_row = axn_dset[indices[0]]
             for col_name in axis_names.keys():

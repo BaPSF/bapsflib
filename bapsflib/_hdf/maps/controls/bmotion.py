@@ -253,8 +253,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 raise HDFMappingError(
                     device_name="bmotion",
                     why=(
-                        f"Dataset {dset.name} does not have all required columns,"
-                        f" {column_names}."
+                        f"Dataset {dset.name} does not have all required columns, "
+                        f"missing columns: {column_names - set(dset.dtype.fields)}."
                     ),
                 )
 

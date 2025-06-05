@@ -19,7 +19,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from inspect import getdoc
-from typing import Iterable, Tuple, Union
+from typing import Iterable, Tuple, TypeVar, Union
 from warnings import warn
 
 from bapsflib._hdf.maps.controls.parsers import CLParse
@@ -28,7 +28,7 @@ from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 # define type aliases
-ControlMap = Union["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
+ControlMap = TypeVar("ControlMap", bound="HDFMapControlTemplate")
 
 
 class HDFMapControlTemplate(HDFMapTemplate, ABC):

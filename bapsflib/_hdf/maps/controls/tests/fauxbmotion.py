@@ -2,8 +2,8 @@ import h5py
 import numpy as np
 import textwrap
 
-from datetime import datetime, timezone
 from bapsf_motion.utils import toml
+from datetime import datetime, timezone
 from typing import List
 
 

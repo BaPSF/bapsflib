@@ -548,11 +548,12 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             )
         return name
 
-    # def get_config_column_value(self, config_name: str) -> Union[str, None]:
-    #     # bmotion uses the motion_group_id column as the configuration column,
-    #     # so this method will return the motion group ID or None
-    #     id_and_mg_name = self._split_config_name(config_name)
-    #     return None if id_and_mg_name is None else id_and_mg_name[0]
+    def get_config_column_value(self, config_name: str) -> Union[str, None]:
+        # bmotion uses the motion_group_name column as the configuration column,
+        # so this method will return the motion group name or None
+        config_name = self.process_config_name(config_name)
+        _id, mg_name = self._split_config_name(config_name)
+        return mg_name
 
     def get_config_name_by_drive_name(self, name: str) -> Union[str, None]:
         """

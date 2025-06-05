@@ -789,3 +789,25 @@ class TestBMotion(ControlTestCase):
             len(set(self.mod.motion_group_names) - set(_map.configs.keys())),
             0,
         )
+
+    def test_run_config_missing_from_run_time_list(self):
+        self.mod.knobs.n_motion_groups = 1
+        self.mod.knobs.n_run_configs = 2
+        self.mod.knobs.sn_size = 50
+
+        # remove 2nd run config from "Run time list" dset
+        data = self.dgroup["Run time list"][...]
+        del self.dgroup["Run time list"]
+        self.dgroup.create_dataset("Run time list", data=data[0:50])
+
+        with self.assertWarns(HDFMappingWarning):
+            _map = self.map
+            self.assertTrue(
+                all(len(config["meta"]) == 1for config in _map.configs.values())
+            )
+            self.assertTrue(
+                all(
+                    config["meta"][0]["RUN_CONFIG_NAME"] == self.mod.run_configuration_names[0]
+                    for config in _map.configs.values()
+                )
+            )

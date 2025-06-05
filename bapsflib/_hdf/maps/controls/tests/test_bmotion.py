@@ -803,11 +803,12 @@ class TestBMotion(ControlTestCase):
         with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertTrue(
-                all(len(config["meta"]) == 1for config in _map.configs.values())
+                all(len(config["meta"]) == 1 for config in _map.configs.values())
             )
             self.assertTrue(
                 all(
-                    config["meta"][0]["RUN_CONFIG_NAME"] == self.mod.run_configuration_names[0]
+                    config["meta"][0]["RUN_CONFIG_NAME"]
+                    == self.mod.run_configuration_names[0]
                     for config in _map.configs.values()
                 )
             )

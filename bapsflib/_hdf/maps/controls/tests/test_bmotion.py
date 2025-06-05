@@ -5,7 +5,6 @@ import unittest.mock
 import warnings
 
 from bapsf_motion.utils import toml
-from typing import Callable, Union
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase

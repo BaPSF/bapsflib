@@ -356,7 +356,9 @@ class FauxBMotion(h5py.Group):
 
     def _add_dataset_bmotion_target_positions(self):
         dset_name = "bmotion_target_positions"
-        shape = (self.knobs.sn_size * self.knobs.n_motion_groups,)
+        shape = (
+            self.knobs.sn_size * self.knobs.n_motion_groups * self.knobs.n_run_configs,
+        )
         dtype = np.dtype(
             [
                 ("Shot number", np.int32),

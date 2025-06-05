@@ -93,7 +93,7 @@ class FauxBMotion(h5py.Group):
             """Set shot number size"""
             # condition val
             if not isinstance(val, int) and not (
-                    isinstance(val, np.generic) and np.issubdtype(val, np.integer)
+                isinstance(val, np.generic) and np.issubdtype(val, np.integer)
             ):
                 raise TypeError(f"Expected type int, but got {type(val)}.")
             elif val < 1:

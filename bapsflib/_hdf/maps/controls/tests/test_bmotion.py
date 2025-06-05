@@ -10,6 +10,7 @@ from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion
 from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from bapsflib.utils.warnings import HDFMappingWarning
 
@@ -694,5 +695,60 @@ class TestBMotion(ControlTestCase):
                 attr=_map.process_config_name,
                 args=(config_name,),
                 kwargs={},
+                expected=expected,
+            )
+
+    def test_get_run_configuration(self):
+        run_config_group = self.dgroup["run_config_name"]
+        run_config_toml_string = _bytes_to_str(run_config_group.attrs["RUN_CONFIG"])
+        run_config_toml_dict = toml.loads(run_config_toml_string)
+
+        _map = self.map
+
+        _conditions = [
+            # (assert, kwargs, expected)
+            (self.assertDictEqual, {}, run_config_toml_dict),
+            (
+                self.assertDictEqual,
+                {"run_config_name": "run_config_name"},
+                run_config_toml_dict,
+            ),
+            (
+                self.assertEqual,
+                {"as_toml_string": True},
+                run_config_toml_string,
+            ),
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.get_run_configuration,
+                args=(),
+                kwargs=kwargs,
+                expected=expected,
+            )
+
+    def test_raises_get_run_configuration(self):
+        run_config_group = self.dgroup["run_config_name"]
+        self.dgroup.copy(run_config_group, self.dgroup, name="second_run_config")
+        self.dgroup["Run time list"]["Configuration name", -1] = "second_run_config"
+
+        _map = self.map
+
+        _conditions = [
+            # (assert, kwargs, expected)
+            (self.assertRaises, {"as_toml_string": "not a bool"}, TypeError),
+            (self.assertRaises, {"run_config_name": 5}, TypeError),
+            # multiple run configs present, so need to specify
+            (self.assertRaises, {"run_config_name": None}, ValueError),
+            # bad run_config_name
+            (self.assertRaises, {"run_config_name": "non-existent name"}, ValueError),
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.get_run_configuration,
+                args=(),
+                kwargs=kwargs,
                 expected=expected,
             )

@@ -337,7 +337,9 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
     def _verify_multiple_run_config(self):
         if len(self._config_groups) == 1:
             return
-        elif len(self._config_groups) == 0:
+        elif len(self._config_groups) == 0:  # coverage: ignore
+            # keeping as a gatekeeper...this should never happen since
+            # self._verify_groups() does this check
             raise HDFMappingError(
                 device_name="bmotion",
                 why="There are no valid configurations in the bmotion group.",

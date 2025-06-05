@@ -79,9 +79,6 @@ class TestBMotion(ControlTestCase):
 
     def test_raises_datasets_missing_fields(self):
         for dset_name in self.MAP_CLASS._required_dataset_names.values():
-            self.f.remove_all_modules()
-            self.f.add_module(self.DEVICE_NAME)
-
             _group = self.dgroup
             dset = _group[dset_name]
             data = dset[...]  # type: np.ndarray
@@ -91,6 +88,8 @@ class TestBMotion(ControlTestCase):
 
             with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
                 _map = self.map
+
+            self.mod.knobs.reset()
 
     def test_raises_missing_run_config(self):
         # for some unknown reason, coverage results are not being produced

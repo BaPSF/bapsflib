@@ -439,7 +439,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         configs = _map.configs
 
-        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        _run_config_str = _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
         _mg_config = _run_config["run"]["motion_group"]["0"]
 
@@ -529,7 +529,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         configs = _map.configs
 
-        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        _run_config_str = _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
 
         _conditions = [
@@ -632,13 +632,13 @@ class TestBMotion(ControlTestCase):
         _group = self.dgroup
         _faux_mod = self.mod  # type: FauxBMotion
 
-        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        _run_config_str = _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
         _run_config["run"]["motion_group"]["1"] = {
             "name": "mg1",
             "drive": {"name": "drive1"},
         }
-        _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"] = (
+        _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"] = (
             toml.as_toml_string(_run_config)
         )
 
@@ -699,7 +699,8 @@ class TestBMotion(ControlTestCase):
             )
 
     def test_get_run_configuration(self):
-        run_config_group = self.dgroup["run_config_name"]
+        run_configuration_name = self.mod.run_configuration_names[0]
+        run_config_group = self.dgroup[run_configuration_name]
         run_config_toml_string = _bytes_to_str(run_config_group.attrs["RUN_CONFIG"])
         run_config_toml_dict = toml.loads(run_config_toml_string)
 
@@ -710,7 +711,7 @@ class TestBMotion(ControlTestCase):
             (self.assertDictEqual, {}, run_config_toml_dict),
             (
                 self.assertDictEqual,
-                {"run_config_name": "run_config_name"},
+                {"run_config_name": run_configuration_name},
                 run_config_toml_dict,
             ),
             (
@@ -729,7 +730,8 @@ class TestBMotion(ControlTestCase):
             )
 
     def test_raises_get_run_configuration(self):
-        run_config_group = self.dgroup["run_config_name"]
+        run_configuration_name = self.mod.run_configuration_names[0]
+        run_config_group = self.dgroup[run_configuration_name]
         self.dgroup.copy(run_config_group, self.dgroup, name="second_run_config")
         self.dgroup["Run time list"]["Configuration name", -1] = "second_run_config"
 

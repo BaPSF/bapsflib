@@ -376,7 +376,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         config_dict = self.configs[config_name]
 
         rtl_dset = self.group[self.construct_dataset_name(which="main")]
-        axn_dset = self.group[self.construct_dataset_name(which="axis_names")]
+        ban_dset = self.group[self.construct_dataset_name(which="axis_names")]
 
         axis_names = {
             "a0": None,
@@ -389,15 +389,35 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         remove_config = False
         for ii, entry in enumerate(list(config_dict["meta"])):
             run_config_name = entry["RUN_CONFIG_NAME"]
+            mg_name = entry["MG_CONFIG"]["name"]
 
             # Note: self._verify_groups() checks that the run configuration
             #       name is present in the "Configuration name" column
             #       before allowing it to be mapped.
-            indices = np.where(
-                rtl_dset["Configuration name"] == run_config_name.encode("utf-8")
-            )[0]
+            rtl_mask = rtl_dset["Configuration name"] == run_config_name.encode("utf-8")
+            shotnums = rtl_dset["Shot number"][rtl_mask]
+            ban_shotnum = ban_dset["Shot number"]
+            ban_shotnum_mask = np.zeros_like(ban_shotnum, dtype=bool)
 
-            data_row = axn_dset[indices[0]]
+            while True:
+                invert_mask = np.logical_not(ban_shotnum_mask)
+                indices = np.intersect1d(
+                    shotnums,
+                    ban_shotnum[invert_mask],
+                    return_indices=True,
+                )[2]
+
+                if indices.size == 0:
+                    break
+
+                ban_shotnum_mask[np.where(invert_mask)[0][indices]] = True
+
+                if np.all(ban_shotnum_mask):
+                    break
+
+            mask_indices = ban_dset["motion_group_name"] == mg_name.encode("utf-8")
+            mask = np.logical_and(ban_shotnum_mask, mask_indices)
+            data_row = ban_dset[mask][0]
             for col_name in axis_names.keys():
                 ax_name = _bytes_to_str(data_row[col_name])
                 if axis_names[col_name] is None:
@@ -415,14 +435,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             if remove_config:
                 break
 
-        if len(config_dict["meta"]) == 0:
-            warnings.warn(
-                f"bmotion: unable to fully map the motion group '{config_name}'.  "
-                f"Removing from mapping.",
-                HDFMappingWarning,
-            )
-            self.configs.pop(config_name)
-        elif remove_config:
+        if remove_config:
             self.configs.pop(config_name)
         else:
             self.configs[config_name] = config_dict

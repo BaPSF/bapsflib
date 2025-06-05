@@ -28,6 +28,26 @@ class TestBMotion(ControlTestCase):
     def map(self) -> HDFMapControlBMotion:
         return super().map
 
+    def test_attribute_existence(self):
+        _map = self.map
+        _attributes_names = [
+            "run_config_names",
+            "get_config_name_by_drive_name",
+            "get_config_name_by_motion_group_id",
+            "get_config_name_by_motion_group_name",
+            "get_run_configuration",
+        ]
+        for name in _attributes_names:
+            with self.subTest(attr_name=name):
+                self.assertTrue(hasattr(_map, name))
+
+    def test_property_existence(self):
+        _map = self.map
+        _property_names = ["run_config_names"]
+        for name in _property_names:
+            with self.subTest(property_name=name):
+                self.assertIsInstance(getattr(type(_map), name), property)
+
     def test_required_dataset_names(self):
         self.assertEqual(
             self.MAP_CLASS._required_dataset_names,

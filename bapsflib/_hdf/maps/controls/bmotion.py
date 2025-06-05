@@ -277,7 +277,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         if len(group_names) < 1:
             raise HDFMappingError(
                 device_name="bmotion",
-                why=f"Expected at least 1 sub-group, found {len(group_names)} groups.",
+                why=f"Expected at least 1 sub-group, found NO groups.",
             )
 
         for ii, name in enumerate(group_names):

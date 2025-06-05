@@ -68,6 +68,17 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         for group in self._config_groups:
             self._process_run_config_group(group)
 
+        # rename configuration name to remain backwards compatible with version
+        # v2025.3.0
+        for name in list(self.configs.keys()):
+            if len(self.configs[name]["meta"]) != 1:
+                continue
+
+            config = self.configs.pop(name)
+            mg_id = config["meta"][0]["MG_ID"]
+            config_name = self._generate_config_name(mg_id, name)
+            self.configs[config_name] = config
+
         self._verify_multiple_run_config()
 
         if len(self.configs) == 0:
@@ -322,17 +333,6 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             else:
                 self.configs[name] = {}
                 self.configs[name]["meta"] = (entry,)
-
-        # rename configuration name to remain backwards compatible with version
-        # v2025.3.0
-        for name in list(self.configs.keys()):
-            if len(self.configs[name]["meta"]) != 1:
-                continue
-
-            config = self.configs.pop(name)
-            mg_id = config["meta"][0]["MG_ID"]
-            config_name = self._generate_config_name(mg_id, name)
-            self.configs[config_name] = config
 
     def _verify_multiple_run_config(self):
         if len(self._config_groups) == 1:

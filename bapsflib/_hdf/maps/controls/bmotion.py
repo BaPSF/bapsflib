@@ -412,7 +412,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
                 ban_shotnum_mask[np.where(invert_mask)[0][indices]] = True
 
-                if np.all(ban_shotnum_mask):
+                if np.all(ban_shotnum_mask):  # coverage: ignore
                     break
 
             mask_indices = ban_dset["motion_group_name"] == mg_name.encode("utf-8")

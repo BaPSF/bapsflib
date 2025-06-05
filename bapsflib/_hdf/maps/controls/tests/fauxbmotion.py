@@ -191,7 +191,7 @@ class FauxBMotion(h5py.Group):
     @property
     def motion_group_id_dset_data(self):
         if self._motion_group_id_dset_data is None:
-            self._motion_group_id_dset_data = np.repeat(
+            self._motion_group_id_dset_data = np.tile(
                 np.tile(
                     np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
                     self.knobs.sn_size,
@@ -204,7 +204,7 @@ class FauxBMotion(h5py.Group):
     @property
     def motion_group_name_dset_data(self):
         if self._motion_group_name_dset_data is None:
-            self._motion_group_name_dset_data = np.repeat(
+            self._motion_group_name_dset_data = np.tile(
                 np.tile(
                     np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
                     self.knobs.sn_size,

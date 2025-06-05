@@ -811,3 +811,27 @@ class TestBMotion(ControlTestCase):
                     for config in _map.configs.values()
                 )
             )
+
+    def test_multiple_run_w_inconsistent_axes(self):
+        self.mod.knobs.n_motion_groups = 2
+        self.mod.knobs.n_run_configs = 2
+        self.mod.knobs.sn_size = 50
+
+        second_run_name = self.mod.run_configuration_names[1]
+        mg_name = "mg0"
+
+        # make axes different for mg0 in 2nd run
+        rtl_mask = np.repeat(
+            self.dgroup["Run time list"]["Configuration name"]
+            == second_run_name.encode(),
+            2,
+        )
+        ban_mask = (
+            self.dgroup["bmotion_axis_names"]["motion_group_name"] == mg_name.encode()
+        )
+        mask = np.logical_and(rtl_mask, ban_mask)
+        self.dgroup["bmotion_axis_names"]["a1", mask] = b"Z"
+
+        with self.assertWarns(HDFMappingWarning):
+            _map = self.map
+            self.assertNotIn(mg_name, _map.configs)

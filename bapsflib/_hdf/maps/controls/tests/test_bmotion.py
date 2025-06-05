@@ -23,6 +23,10 @@ class TestBMotion(ControlTestCase):
     MAP_CLASS = HDFMapControlBMotion
     CONTYPE = ConType.MOTION
 
+    @property
+    def map(self) -> HDFMapControlBMotion:
+        return super().map
+
     def test_required_dataset_names(self):
         self.assertEqual(
             self.MAP_CLASS._required_dataset_names,

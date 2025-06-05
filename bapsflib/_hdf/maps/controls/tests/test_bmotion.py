@@ -28,6 +28,10 @@ class TestBMotion(ControlTestCase):
     def map(self) -> HDFMapControlBMotion:
         return super().map
 
+    @property
+    def mod(self) -> FauxBMotion:
+        return super().mod
+
     def test_attribute_existence(self):
         _map = self.map
         _attributes_names = [

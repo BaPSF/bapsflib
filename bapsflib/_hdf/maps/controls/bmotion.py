@@ -698,7 +698,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                     config_group = group
                     break
 
-        if config_group is None:
+        if config_group is None:  # coverage: ignore
+            # this should never happen...just putting this as a safeguard
             raise ValueError(
                 "bmotion: Unable to find configuration group for run_config_name "
                 f"'{run_config_name}'."

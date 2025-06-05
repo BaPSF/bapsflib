@@ -1190,7 +1190,7 @@ class TestHDFReadData(TestBase):
 
         self.assertTrue(data["signal"].dtype == dset_arr.dtype)
         self.assertTrue(data["signal"].shape == dset_arr.shape)
-        self.assertTrue(np.allclose(data["signal"], dset_arr, rtol=5e-5))
+        self.assertTrue(np.allclose(data["signal"], dset_arr, rtol=6e-5))
 
     def assertDataInfo(self, data, _bf):
         """

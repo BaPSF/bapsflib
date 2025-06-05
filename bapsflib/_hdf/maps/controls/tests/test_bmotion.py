@@ -377,26 +377,13 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
-    @ut.skip("Update for get_config_column_value")
     def test_get_config_column_value(self):
         _map = self.map
-        _conditions = [
-            # (_assert, args, expected)
-            (self.assertEqual, ("5 - my_motion_group",), "5"),
-            (self.assertEqual, ("20 - foo",), "20"),
-            (self.assertEqual, ("20 - <Hades>    n21x21",), "20"),
-            (self.assertIs, ("five",), None),
-            (self.assertIs, ("A - my_motion_group",), None),
-            (self.assertIs, ("5 ~ my_motion_group",), None),
-        ]
-        for _assert, args, expected in _conditions:
-            self.assert_runner(
-                _assert=_assert,
-                attr=_map.get_config_column_value,
-                args=args,
-                kwargs={},
-                expected=expected,
-            )
+        with ut.mock.patch.object(
+            self.MAP_CLASS, "process_config_name", side_effect=_map.process_config_name
+        ) as mock_attr:
+            self.assertEqual(_map.get_config_column_value("0 - mg0"), "mg0")
+            self.assertTrue(mock_attr.called)
 
     def test_get_config_name_by_drive_name(self):
         _map = self.map  # type: HDFMapControlBMotion

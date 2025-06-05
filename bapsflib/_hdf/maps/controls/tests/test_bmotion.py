@@ -774,3 +774,16 @@ class TestBMotion(ControlTestCase):
                 kwargs=kwargs,
                 expected=expected,
             )
+
+    def test_run_config_names(self):
+        _map = self.map
+        run_config_name = self.mod.run_configuration_names[0]
+
+        _conditions = [
+            # (assert, expected)
+            (self.assertIsInstance, tuple),
+            (self.assertEqual, (run_config_name,)),
+        ]
+        for _assert, expected in _conditions:
+            with self.subTest(_assert=_assert.__name__, expected=expected):
+                _assert(_map.run_config_names, expected)

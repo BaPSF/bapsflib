@@ -778,3 +778,14 @@ class TestBMotion(ControlTestCase):
         for _assert, expected in _conditions:
             with self.subTest(_assert=_assert.__name__, expected=expected):
                 _assert(_map.run_config_names, expected)
+
+    def test_build_multiple_run_configs(self):
+        self.mod.knobs.n_motion_groups = 3
+        self.mod.knobs.n_run_configs = 2
+        _map = self.map
+
+        self.assertEqual(len(self.mod.motion_group_names), len(_map.configs.keys()))
+        self.assertEqual(
+            len(set(self.mod.motion_group_names) - set(_map.configs.keys())),
+            0,
+        )

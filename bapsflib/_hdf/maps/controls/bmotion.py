@@ -665,6 +665,17 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             The TOML string or `dict` associated with the specified
             bmotion run configuration, ``run_config_name``.
         """
+        if not isinstance(as_toml_string, bool):
+            raise TypeError(
+                f"Argument 'as_toml_string' must be of type bool, "
+                f"got type {type(as_toml_string)}."
+            )
+
+        if run_config_name is not None and not isinstance(run_config_name, str):
+            raise TypeError(
+                "Argument 'run_config_name' must be of type str or None, "
+                f"got type {type(run_config_name)}."
+            )
 
         run_config_names = [Path(group.name).stem for group in self._config_groups]
         if run_config_name is None and len(self._config_groups) == 1:

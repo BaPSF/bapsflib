@@ -584,13 +584,15 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         for _cname, config in self.configs.items():
             if name == config["meta"][0]["DRIVE_NAME"]:
                 config_name = _cname
-                return config_name
+                break
 
         if config_name is None:
             raise ValueError(
                 f"The given drive name '{name}' was not found among the "
                 f"active bmotion configurations."
             )
+
+        return config_name
 
     def get_config_name_by_motion_group_id(
         self, _id: Union[int, str]

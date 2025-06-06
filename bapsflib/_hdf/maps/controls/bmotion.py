@@ -360,7 +360,8 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         # states, which can NOT be handled by bapsflib at the moment.
         for config_name in list(self.configs.keys()):
             config_dict = self.configs[config_name]
-            if len(config_dict["meta"]) == 0:
+            if len(config_dict["meta"]) == 0:  # coverage: ignore
+                # this should never happen...keeping as a gatekeeper
                 self.configs.pop(config_name)
                 continue
             elif len(config_dict["meta"]) == 1:

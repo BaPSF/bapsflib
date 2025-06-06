@@ -615,12 +615,15 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
             cid, mg_name = self._split_config_name(_cname)
 
-            if cid in bad_ids:
+            if cid is None:
+                continue
+            elif cid in bad_ids:
                 continue
             elif cid in used_ids:
                 ii = used_ids.index(cid)
                 used_ids.pop(ii)
                 id_config_names.pop(ii)
+                bad_ids.append(cid)
             else:
                 used_ids.append(cid)
                 id_config_names.append(_cname)

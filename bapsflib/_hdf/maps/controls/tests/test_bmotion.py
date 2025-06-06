@@ -407,7 +407,7 @@ class TestBMotion(ControlTestCase):
             )
 
     def test_get_config_name_by_motion_group_id(self):
-        _map = self.map  # type: HDFMapControlBMotion
+        _map = self.map
         _conditions = [
             # (_assert, args, expected)
             (self.assertRaises, (5.5,), TypeError),
@@ -424,6 +424,36 @@ class TestBMotion(ControlTestCase):
                 kwargs={},
                 expected=expected,
             )
+
+    def test_get_config_name_by_motion_group_id_w_multiple_run_configs(self):
+        self.mod.knobs.n_run_configs = 3
+        self.mod.knobs.n_motion_groups = 1
+        run_config_names = self.mod.run_configuration_names
+
+        mock_configs_dict = {
+            "0 - mg0": {
+                "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[0]},)
+            },
+            "mg1": {
+                "meta": ({"MG_ID": "1", "RUN_CONFIG_NAME": run_config_names[0]},)
+            },
+            "0 - <Hades> xline": {
+                "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[1]},)
+            },
+            "0 - <Hera> yline": {
+                "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[2]},)
+            },
+        }
+        _map = self.map
+        _conditions = [
+            # (_assert, args, expected)
+            (self.assertRaises, (0,), HDFMappingError),
+        ]
+        with (
+            ut.mock.patch.dict(_map.configs, mock_configs_dict),
+            self.assertRaises(HDFMappingError)
+        ):
+            _map.get_config_name_by_motion_group_id(0)
 
     def test_get_config_name_by_motion_group_name(self):
         _map = self.map  # type: HDFMapControlBMotion

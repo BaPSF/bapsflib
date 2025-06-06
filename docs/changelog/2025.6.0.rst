@@ -1,0 +1,51 @@
+v2025.6.0 (2025-06-05)
+======================
+
+Backwards Incompatible Changes
+------------------------------
+
+- .. currentmodule:: bapsflib._hdf.maps.controls.templates
+
+  Renamed method ``HDFMapControlTemplate.get_config_id`` to
+  `HDFMapControlTemplate.get_config_column_value`, and updated any
+  overriding sub-classes as well as tests. (`#160 <https://github.com/BaPSF/bapsflib/pull/160>`_)
+
+
+Features
+--------
+
+- Added method `~bapsflib._hdf.utils.file.File.get_digitizer_specs` to
+  `~bapsflib._hdf.utils.file.File`.  This allows users to gather
+  digitizer information without first reading data or navigating through
+  the mapping objects. (`#158 <https://github.com/BaPSF/bapsflib/pull/158>`_)
+- Updated `~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion` so
+  HDF5 files generated with multiple bmotion run configurations are
+  mappable and accessible by the rest of the `bapsflib` functionality. (`#159 <https://github.com/BaPSF/bapsflib/pull/159>`_)
+- .. currentmodule:: bapsflib._hdf.maps.controls.bmotion
+
+  Modified `HDFMapControlBMotion.process_config_name` so probe drive names
+  act as nicknames for configurations.  For example, when extracting data
+  with `~bapsflib._hdf.utils.file.File.read_data` instead of doing
+  ``add_controls=[("bmotion", "<Hades> some_really_long_motionlist_name")]``
+  a user can just do ``add_controls=[("bmotion", "Hades")]``. (`#159 <https://github.com/BaPSF/bapsflib/pull/159>`_)
+- .. currentmodule:: bapsflib._hdf
+
+  Added method
+  `~maps.controls.templates.HDFMapControlTemplate.process_config_name` to
+  the control device mapping abstract base class
+  `~maps.controls.templates.HDFMapControlTemplate`.  This method is
+  implemented by `~utils.helpers.condition_controls`, which conditions the
+  ``controls`` argument of `~utils.hdfreadcontrols.HDFReadControls`.
+  Thus,
+  `~maps.controls.templates.HDFMapControlTemplate.process_config_name`
+  can effectively create nicknames that link to the actual configuration
+  names used in
+  `~maps.controls.templates.HDFMapControlTemplate.configs`. (`#161 <https://github.com/BaPSF/bapsflib/pull/161>`_)
+- .. currentmodule:: bapsflib._hdf.utils.helpers
+
+  Reworked algorithm of `build_shotnum_dset_relation` to handle
+  HDF5 datasets that have data for control device configurations saved
+  sequentially; that is, all of configuration 1 is written to the dataset
+  then all of configuration 2 is saved to the dataset, and so on.  As a
+  result of the rework helper functions ``build_sndr_for_simple_dset`` and
+  ``build_sndr_for_complex_dset`` were removed. (`#162 <https://github.com/BaPSF/bapsflib/pull/162>`_)

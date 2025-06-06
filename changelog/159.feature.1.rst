@@ -1,3 +1,0 @@
-Updated `~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion` so
-HDF5 files generated with multiple bmotion run configurations are
-mappable and accessible by the rest of the `bapsflib` functionality.

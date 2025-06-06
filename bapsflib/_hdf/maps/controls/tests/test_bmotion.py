@@ -434,9 +434,7 @@ class TestBMotion(ControlTestCase):
             "0 - mg0": {
                 "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[0]},)
             },
-            "mg1": {
-                "meta": ({"MG_ID": "1", "RUN_CONFIG_NAME": run_config_names[0]},)
-            },
+            "mg1": {"meta": ({"MG_ID": "1", "RUN_CONFIG_NAME": run_config_names[0]},)},
             "0 - <Hades> xline": {
                 "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[1]},)
             },
@@ -451,7 +449,7 @@ class TestBMotion(ControlTestCase):
         ]
         with (
             ut.mock.patch.dict(_map.configs, mock_configs_dict),
-            self.assertRaises(HDFMappingError)
+            self.assertRaises(HDFMappingError),
         ):
             _map.get_config_name_by_motion_group_id(0)
 

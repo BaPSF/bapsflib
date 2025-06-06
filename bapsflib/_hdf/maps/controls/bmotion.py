@@ -355,7 +355,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
             )
 
         # If a motion group name is used in multiple run configurations,
-        # then it must the same bmotion_axis_names entries.  Otherwise,
+        # then it must have the same bmotion_axis_names entries.  Otherwise,
         # these were two different probe drives with different run-time
         # states, which can NOT be handled by bapsflib at the moment.
         for config_name in list(self.configs.keys()):

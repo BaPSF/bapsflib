@@ -473,6 +473,13 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
+    def test_get_config_name_by_motion_group_name_w_multiple_run_configs(self):
+        self.mod.knobs.n_run_configs = 2
+        self.mod.knobs.n_motion_groups = 2
+
+        _map = self.map
+        self.assertEqual(_map.get_config_name_by_motion_group_name("mg0"), "mg0")
+
     def test_configs_one_motion_group(self):
         _group = self.dgroup
         _faux_mod = self.mod  # type: FauxBMotion

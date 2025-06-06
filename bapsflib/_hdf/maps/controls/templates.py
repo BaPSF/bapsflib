@@ -19,7 +19,7 @@ import numpy as np
 
 from abc import ABC, abstractmethod
 from inspect import getdoc
-from typing import Iterable, Tuple, Union
+from typing import Iterable, Tuple, TypeVar, Union
 from warnings import warn
 
 from bapsflib._hdf.maps.controls.parsers import CLParse
@@ -28,7 +28,7 @@ from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
 from bapsflib.utils.warnings import HDFMappingWarning
 
 # define type aliases
-ControlMap = Union["HDFMapControlTemplate", "HDFMapControlCLTemplate"]
+ControlMap = TypeVar("ControlMap", bound="HDFMapControlTemplate")
 
 
 class HDFMapControlTemplate(HDFMapTemplate, ABC):
@@ -295,6 +295,8 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             `~bapsflib._hdf.utils.file.File`.
 
         """
+        # ^^ Do NOT add a NOTES numpydoc section here so overriding sub-classes
+        #    can append their own notes section.
         if config_name not in self.configs:
             raise ValueError(
                 f"The given 'config_name' ({config_name}) does not exist within "

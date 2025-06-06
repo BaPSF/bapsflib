@@ -2,8 +2,9 @@ import h5py
 import numpy as np
 import textwrap
 
+from bapsf_motion.utils import toml
 from datetime import datetime, timezone
-from typing import Union
+from typing import List
 
 
 class FauxBMotion(h5py.Group):
@@ -17,7 +18,13 @@ class FauxBMotion(h5py.Group):
         control device group structure.
         """
 
-        def __init__(self, faux: "FauxBMotion", n_motion_groups: int, sn_size: int):
+        def __init__(
+            self,
+            faux: "FauxBMotion",
+            n_motion_groups: int,
+            sn_size: int,
+            n_run_configs: int,
+        ):
             self._faux = faux
 
             # initialize knobs
@@ -26,6 +33,9 @@ class FauxBMotion(h5py.Group):
 
             self._sn_size = None
             self.sn_size = sn_size
+
+            self._n_run_configs = None
+            self.n_run_configs = n_run_configs
 
         @property
         def n_motion_groups(self):
@@ -73,10 +83,34 @@ class FauxBMotion(h5py.Group):
                 self._sn_size = val
                 self._faux.populate()
 
+        @property
+        def n_run_configs(self):
+            """Shot number size"""
+            return self._n_run_configs
+
+        @n_run_configs.setter
+        def n_run_configs(self, val: int):
+            """Set shot number size"""
+            # condition val
+            if not isinstance(val, int) and not (
+                isinstance(val, np.generic) and np.issubdtype(val, np.integer)
+            ):
+                raise TypeError(f"Expected type int, but got {type(val)}.")
+            elif val < 1:
+                raise ValueError(f"Given argument `val` ({val}) needs to >=1.")
+
+            # only update if self._sn_size had been defined once prior
+            if self._n_run_configs is None:
+                self._n_run_configs = val
+            else:
+                self._n_run_configs = val
+                self._faux.populate()
+
         def reset(self):
             """Reset to defaults"""
             self._n_motion_groups = 1
             self._sn_size = 100
+            self._n_run_configs = 1
             self._faux.populate()
 
     def __init__(
@@ -84,6 +118,7 @@ class FauxBMotion(h5py.Group):
         id: h5py.h5g.GroupID,
         n_motion_groups: int = 1,
         sn_size: int = 100,
+        n_run_configs: int = 1,
     ):
         # ensure id is for a HDF5 group
         if not isinstance(id, h5py.h5g.GroupID):
@@ -94,11 +129,15 @@ class FauxBMotion(h5py.Group):
         super().__init__(gid)
 
         # store number on configurations
-        self._knobs = self.Knobs(self, n_motion_groups, sn_size)
+        self._knobs = self.Knobs(self, n_motion_groups, sn_size, n_run_configs)
 
         # initialize some attributes
-        # self._n_motion_groups = 1
-        # self._ml = []  # list of motion lists
+        self._run_config_base_name = "faux_run_config_"
+        self._run_configuration_names = []  # type: List[str]
+        self._motion_group_id_dset_data = None
+        self._motion_group_name_dset_data = None
+        self._motionlist_index_dset_data = None
+
         self._shotnum = None
         self.configs = {}  # configurations dictionary
         #
@@ -113,12 +152,12 @@ class FauxBMotion(h5py.Group):
         return self._knobs
 
     @property
-    def run_configuration_name(self):
-        return "run_config_name"
+    def run_configuration_names(self) -> List[str]:
+        return self._run_configuration_names
 
     @property
     def shotnum(self):
-        _size = self.knobs.sn_size
+        _size = self.knobs.sn_size * self.knobs.n_run_configs
         self._shotnum = np.arange(1, _size + 1, 1, dtype=np.int32)
         return self._shotnum
 
@@ -149,6 +188,42 @@ class FauxBMotion(h5py.Group):
         )
         return np.reshape(motionlist, (self.knobs.sn_size, 2))
 
+    @property
+    def motion_group_id_dset_data(self):
+        if self._motion_group_id_dset_data is None:
+            self._motion_group_id_dset_data = np.tile(
+                np.tile(
+                    np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
+                    self.knobs.sn_size,
+                ),
+                self.knobs.n_run_configs,
+            )
+
+        return self._motion_group_id_dset_data
+
+    @property
+    def motion_group_name_dset_data(self):
+        if self._motion_group_name_dset_data is None:
+            self._motion_group_name_dset_data = np.tile(
+                np.tile(
+                    np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
+                    self.knobs.sn_size,
+                ),
+                self.knobs.n_run_configs,
+            )
+
+        return self._motion_group_name_dset_data
+
+    @property
+    def motionlist_index_dset_data(self):
+        if self._motionlist_index_dset_data is None:
+            self._motionlist_index_dset_data = np.tile(
+                np.repeat(np.arange(0, self.knobs.sn_size), self.knobs.n_motion_groups),
+                self.knobs.n_run_configs,
+            )
+
+        return self._motionlist_index_dset_data
+
     @staticmethod
     def find_nearest_divisor(sn_size):
         closest_pair = (1, sn_size)
@@ -165,7 +240,7 @@ class FauxBMotion(h5py.Group):
 
     def _add_dataset_run_time_list(self):
         dset_name = "Run time list"
-        shape = (self.knobs.sn_size,)
+        shape = (self.knobs.sn_size * self.knobs.n_run_configs,)
         dtype = np.dtype(
             [
                 ("Shot number", np.int32),
@@ -176,14 +251,20 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = self.shotnum[...]
-        data["Configuration name"][...] = "run_config_name"
+
+        for ii, run_config_name in enumerate(self.run_configuration_names):
+            start_index = ii * self.knobs.sn_size
+            end_index = (ii + 1) * self.knobs.sn_size
+            data["Configuration name"][start_index:end_index] = run_config_name
 
         # create dataset
         self.create_dataset(dset_name, data=data)
 
     def _add_dataset_bmotion_axis_names(self):
         dset_name = "bmotion_axis_names"
-        shape = (self.knobs.sn_size * self.knobs.n_motion_groups,)
+        shape = (
+            self.knobs.sn_size * self.knobs.n_motion_groups * self.knobs.n_run_configs,
+        )
         dtype = np.dtype(
             [
                 ("Shot number", np.int32),
@@ -202,15 +283,9 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = np.repeat(self.shotnum, self.knobs.n_motion_groups)
-        data["motion_group_id"] = np.tile(
-            np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
-            self.knobs.sn_size,
-        )
-        data["motion_group_name"] = np.tile(
-            np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
-            self.knobs.sn_size,
-        )
-        data["motionlist_index"] = np.repeat(self.shotnum - 1, self.knobs.n_motion_groups)
+        data["motion_group_id"] = self.motion_group_id_dset_data
+        data["motion_group_name"] = self.motion_group_name_dset_data
+        data["motionlist_index"] = self.motionlist_index_dset_data
         data["a0"][...] = "X"
         data["a1"][...] = "Y"
         data["a2"][...] = ""
@@ -223,7 +298,9 @@ class FauxBMotion(h5py.Group):
 
     def _add_dataset_bmotion_positions(self):
         dset_name = "bmotion_positions"
-        shape = (self.knobs.sn_size * self.knobs.n_motion_groups,)
+        shape = (
+            self.knobs.sn_size * self.knobs.n_motion_groups * self.knobs.n_run_configs,
+        )
         dtype = np.dtype(
             [
                 ("Shot number", np.int32),
@@ -244,17 +321,17 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = np.repeat(self.shotnum, self.knobs.n_motion_groups)
-        data["motion_group_id"] = np.tile(
-            np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
-            self.knobs.sn_size,
+        data["motion_group_id"] = self.motion_group_id_dset_data
+        data["motion_group_name"] = self.motion_group_name_dset_data
+        data["motionlist_index"] = self.motionlist_index_dset_data
+        data["a0"][...] = np.tile(
+            np.repeat(motionlist[..., 0], self.knobs.n_motion_groups),
+            self.knobs.n_run_configs,
         )
-        data["motion_group_name"] = np.tile(
-            np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
-            self.knobs.sn_size,
+        data["a1"][...] = np.tile(
+            np.repeat(motionlist[..., 1], self.knobs.n_motion_groups),
+            self.knobs.n_run_configs,
         )
-        data["motionlist_index"] = np.repeat(self.shotnum - 1, self.knobs.n_motion_groups)
-        data["a0"][...] = np.repeat(motionlist[..., 0], self.knobs.n_motion_groups)
-        data["a1"][...] = np.repeat(motionlist[..., 1], self.knobs.n_motion_groups)
         data["a2"][...] = -9999
         data["a3"][...] = -9999
         data["a4"][...] = -9999
@@ -279,7 +356,9 @@ class FauxBMotion(h5py.Group):
 
     def _add_dataset_bmotion_target_positions(self):
         dset_name = "bmotion_target_positions"
-        shape = (self.knobs.sn_size * self.knobs.n_motion_groups,)
+        shape = (
+            self.knobs.sn_size * self.knobs.n_motion_groups * self.knobs.n_run_configs,
+        )
         dtype = np.dtype(
             [
                 ("Shot number", np.int32),
@@ -300,17 +379,17 @@ class FauxBMotion(h5py.Group):
 
         # populate dataset
         data["Shot number"][...] = np.repeat(self.shotnum, self.knobs.n_motion_groups)
-        data["motion_group_id"] = np.tile(
-            np.array(self.motion_group_ids, dtype=(np.bytes_, 120)),
-            self.knobs.sn_size,
+        data["motion_group_id"] = self.motion_group_id_dset_data
+        data["motion_group_name"] = self.motion_group_name_dset_data
+        data["motionlist_index"] = self.motionlist_index_dset_data
+        data["a0"][...] = np.tile(
+            np.repeat(motionlist[..., 0], self.knobs.n_motion_groups),
+            self.knobs.n_run_configs,
         )
-        data["motion_group_name"] = np.tile(
-            np.array(self.motion_group_names, dtype=(np.bytes_, 120)),
-            self.knobs.sn_size,
+        data["a1"][...] = np.tile(
+            np.repeat(motionlist[..., 1], self.knobs.n_motion_groups),
+            self.knobs.n_run_configs,
         )
-        data["motionlist_index"] = np.repeat(self.shotnum - 1, self.knobs.n_motion_groups)
-        data["a0"][...] = np.repeat(motionlist[..., 0], self.knobs.n_motion_groups)
-        data["a1"][...] = np.repeat(motionlist[..., 1], self.knobs.n_motion_groups)
         data["a2"][...] = -9999
         data["a3"][...] = -9999
         data["a4"][...] = -9999
@@ -333,8 +412,15 @@ class FauxBMotion(h5py.Group):
         # create dataset
         self.create_dataset(dset_name, data=data)
 
-    def _add_group_run_config(self):
-        group_name = self.run_configuration_name
+    def _add_group_run_configs(self):
+        # generate run configuration names
+        for ii in range(self.knobs.n_run_configs):
+            run_config_name = f"{self._run_config_base_name}_{ii}"
+            self._create_run_config_group(run_config_name)
+            self._run_configuration_names.append(run_config_name)
+
+    def _create_run_config_group(self, name: str):
+        group_name = name
         self.create_group(group_name)
         group = self.get(group_name)
 
@@ -344,7 +430,7 @@ class FauxBMotion(h5py.Group):
 
         slim_run_config = f"""
         [run]
-        name = "{self.run_configuration_name}"
+        name = "{name}"
         date = "{datetime.now(tz=timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}"
         
         """
@@ -353,19 +439,34 @@ class FauxBMotion(h5py.Group):
             [run.motion_group.{ii}]
             name = "{mg_name}"
             drive.name = "drive{ii}"
-            
             """
 
-            self.configs[mg_name] = {
-                "dset paths": (),
-                "shotnum": {
-                    "dset paths": None,
-                    "dset field": ("Shot number",),
-                    "shape": (),
-                    "dtype": np.int32,
-                },
-                "state values": dict(),
+            mg_config = toml.loads(slim_run_config)["run"]["motion_group"][f"{ii}"]
+
+            meta_entry = {
+                "BAPSFDAQ_MOTION_LV_VERSION": group.attrs["BAPSFDAQ_MOTION_LV_VERSION"],
+                "BAPSF_MOTION_VERSION": group.attrs["BAPSF_MOTION_VERSION"],
+                "EXPANSION_ATTR": group.attrs["EXPANSION_ATTR"],
+                "MG_ID": ii,
+                "MG_CONFIG": mg_config,
+                "RUN_CONFIG_NAME": name,
+                "DRIVE_NAME": mg_config["drive"]["name"],
             }
+
+            if mg_name not in self.configs:
+                self.configs[mg_name] = {
+                    "dset paths": (),
+                    "shotnum": {
+                        "dset paths": None,
+                        "dset field": ("Shot number",),
+                        "shape": (),
+                        "dtype": np.int32,
+                    },
+                    "state values": dict(),
+                    "meta": (meta_entry,),
+                }
+            else:
+                self.configs[mg_name]["meta"] += (meta_entry,)
 
         group.attrs["RUN_CONFIG"] = textwrap.dedent(slim_run_config)
 
@@ -376,13 +477,17 @@ class FauxBMotion(h5py.Group):
         """
         # clear group before rebuild
         self.clear()
+        self._run_configuration_names = []
+        self._motion_group_id_dset_data = None
+        self._motion_group_name_dset_data = None
+        self._motionlist_index_dset_data = None
 
         # re-initialize key dicts
         self.configs.clear()
 
         # group needs to be added before datasets so self.config is
         # properly initialized
-        self._add_group_run_config()
+        self._add_group_run_configs()
 
         # add datasets
         self._add_dataset_run_time_list()

@@ -14,10 +14,12 @@ import os
 import re
 import unittest as ut
 
+from h5py import Group
 from typing import Type
 
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.controls.templates import (
+    ControlMap,
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
 )
@@ -65,9 +67,6 @@ class ControlTestCase(BaPSFTestCase):
             self.f.remove_all_modules()
             self.f.add_module(self.DEVICE_NAME)
 
-        # define `mod` attribute
-        self.mod = self.f.modules[self.DEVICE_NAME]
-
     def tearDown(self):
         # reset module
         self.mod.knobs.reset()
@@ -79,12 +78,17 @@ class ControlTestCase(BaPSFTestCase):
         cls.f.cleanup()
 
     @property
-    def map(self):
+    def map(self) -> ControlMap:
         """Map object of device"""
         return self.map_device(self.dgroup)
 
     @property
-    def dgroup(self):
+    def mod(self):
+        """Instance of the Faux module."""
+        return self.f.modules[self.DEVICE_NAME]
+
+    @property
+    def dgroup(self) -> Group:
         """Device HDF5 group"""
         return self.f[self.DEVICE_PATH]
 

@@ -5,12 +5,12 @@ import unittest.mock
 import warnings
 
 from bapsf_motion.utils import toml
-from typing import Callable, Union
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion
 from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError
 from bapsflib.utils.warnings import HDFMappingWarning
 
@@ -24,6 +24,34 @@ class TestBMotion(ControlTestCase):
     MAP_CLASS = HDFMapControlBMotion
     CONTYPE = ConType.MOTION
 
+    @property
+    def map(self) -> HDFMapControlBMotion:
+        return super().map
+
+    @property
+    def mod(self) -> FauxBMotion:
+        return super().mod
+
+    def test_attribute_existence(self):
+        _map = self.map
+        _attributes_names = [
+            "run_config_names",
+            "get_config_name_by_drive_name",
+            "get_config_name_by_motion_group_id",
+            "get_config_name_by_motion_group_name",
+            "get_run_configuration",
+        ]
+        for name in _attributes_names:
+            with self.subTest(attr_name=name):
+                self.assertTrue(hasattr(_map, name))
+
+    def test_property_existence(self):
+        _map = self.map
+        _property_names = ["run_config_names"]
+        for name in _property_names:
+            with self.subTest(property_name=name):
+                self.assertIsInstance(getattr(type(_map), name), property)
+
     def test_required_dataset_names(self):
         self.assertEqual(
             self.MAP_CLASS._required_dataset_names,
@@ -35,9 +63,12 @@ class TestBMotion(ControlTestCase):
             },
         )
 
-    def test_raises_too_many_subgroups(self):
+    def test_raises_no_subgroups(self):
         _group = self.dgroup  # type: h5py.Group
-        _group.create_group("extra_group")
+        for key, element in _group.items():
+            if isinstance(element, h5py.Group):
+                del _group[key]
+
         with self.assertRaises(HDFMappingError):
             _map = self.map
 
@@ -73,9 +104,6 @@ class TestBMotion(ControlTestCase):
 
     def test_raises_datasets_missing_fields(self):
         for dset_name in self.MAP_CLASS._required_dataset_names.values():
-            self.f.remove_all_modules()
-            self.f.add_module(self.DEVICE_NAME)
-
             _group = self.dgroup
             dset = _group[dset_name]
             data = dset[...]  # type: np.ndarray
@@ -85,6 +113,8 @@ class TestBMotion(ControlTestCase):
 
             with self.subTest(name=dset_name), self.assertRaises(HDFMappingError):
                 _map = self.map
+
+            self.mod.knobs.reset()
 
     def test_raises_missing_run_config(self):
         # for some unknown reason, coverage results are not being produced
@@ -149,7 +179,8 @@ class TestBMotion(ControlTestCase):
         _run_config = toml.loads(_run_config_str)
         n_motion_groups = len(_run_config["run"]["motion_group"])
         _run_config["run"]["motion_group"][f"{n_motion_groups}"] = {
-            "name": "unused motion group"
+            "name": "unused motion group",
+            "drive": {"name": "unused drive"},
         }
         child.attrs["RUN_CONFIG"] = toml.as_toml_string(_run_config)
 
@@ -194,7 +225,7 @@ class TestBMotion(ControlTestCase):
                         "dset field": ("a0", "", ""),
                         "shape": (3,),
                         "dtype": np.float64,
-                        "config column": "motion_group_id",
+                        "config column": "motion_group_name",
                     },
                 ),
             ),
@@ -213,7 +244,7 @@ class TestBMotion(ControlTestCase):
                         "dset field": ("", "a1", ""),
                         "shape": (3,),
                         "dtype": np.float64,
-                        "config column": "motion_group_id",
+                        "config column": "motion_group_name",
                     },
                 ),
             ),
@@ -229,7 +260,7 @@ class TestBMotion(ControlTestCase):
                             "dset field": ("a0", "", ""),
                             "shape": (3,),
                             "dtype": np.float64,
-                            "config column": "motion_group_id",
+                            "config column": "motion_group_name",
                         },
                     },
                 },
@@ -240,7 +271,7 @@ class TestBMotion(ControlTestCase):
                         "dset field": ("a0", "", "a2"),
                         "shape": (3,),
                         "dtype": np.float64,
-                        "config column": "motion_group_id",
+                        "config column": "motion_group_name",
                     },
                 ),
             ),
@@ -259,7 +290,7 @@ class TestBMotion(ControlTestCase):
                         "dset field": ("a4",),
                         "shape": (),
                         "dtype": _dset.dtype["a4"],
-                        "config column": "motion_group_id",
+                        "config column": "motion_group_name",
                     },
                 ),
             ),
@@ -297,9 +328,9 @@ class TestBMotion(ControlTestCase):
             (self.assertEqual, ("5 - my_motion_group",), ("5", "my_motion_group")),
             (self.assertEqual, ("20 - foo",), ("20", "foo")),
             (self.assertEqual, ("20 - <Hades>    n21x21",), ("20", "<Hades>    n21x21")),
-            (self.assertIs, ("five",), None),
-            (self.assertIs, ("A - my_motion_group",), None),
-            (self.assertIs, ("5 ~ my_motion_group",), None),
+            (self.assertEqual, ("five",), (None, "five")),
+            (self.assertEqual, ("A - my_motion_group",), (None, "A - my_motion_group")),
+            (self.assertEqual, ("5 ~ my_motion_group",), (None, "5 ~ my_motion_group")),
         ]
         for _assert, args, expected in _conditions:
             self.assert_runner(
@@ -352,29 +383,18 @@ class TestBMotion(ControlTestCase):
 
     def test_get_config_column_value(self):
         _map = self.map
-        _conditions = [
-            # (_assert, args, expected)
-            (self.assertEqual, ("5 - my_motion_group",), "5"),
-            (self.assertEqual, ("20 - foo",), "20"),
-            (self.assertEqual, ("20 - <Hades>    n21x21",), "20"),
-            (self.assertIs, ("five",), None),
-            (self.assertIs, ("A - my_motion_group",), None),
-            (self.assertIs, ("5 ~ my_motion_group",), None),
-        ]
-        for _assert, args, expected in _conditions:
-            self.assert_runner(
-                _assert=_assert,
-                attr=_map.get_config_column_value,
-                args=args,
-                kwargs={},
-                expected=expected,
-            )
+        with ut.mock.patch.object(
+            self.MAP_CLASS, "process_config_name", side_effect=_map.process_config_name
+        ) as mock_attr:
+            self.assertEqual(_map.get_config_column_value("0 - mg0"), "mg0")
+            self.assertTrue(mock_attr.called)
 
     def test_get_config_name_by_drive_name(self):
         _map = self.map  # type: HDFMapControlBMotion
         _conditions = [
-            (self.assertIs, (5,), None),
-            (self.assertIs, ("not_correct_drive_name",), None),
+            # (assert, args, expected)
+            (self.assertRaises, (5,), TypeError),
+            (self.assertRaises, ("not_correct_drive_name",), ValueError),
             (self.assertEqual, ("drive0",), _map._generate_config_name(0, "mg0")),
         ]
         for _assert, args, expected in _conditions:
@@ -387,12 +407,12 @@ class TestBMotion(ControlTestCase):
             )
 
     def test_get_config_name_by_motion_group_id(self):
-        _map = self.map  # type: HDFMapControlBMotion
+        _map = self.map
         _conditions = [
             # (_assert, args, expected)
-            (self.assertIs, (5.5,), None),
-            (self.assertIs, ({"not_an_id": 5},), None),
-            (self.assertIs, ("not_correct_motion_group_id",), None),
+            (self.assertRaises, (5.5,), TypeError),
+            (self.assertRaises, ({"not_an_id": 5},), TypeError),
+            (self.assertRaises, ("not_correct_motion_group_id",), HDFMappingError),
             (self.assertEqual, (0,), _map._generate_config_name(0, "mg0")),
             (self.assertEqual, ("0",), _map._generate_config_name(0, "mg0")),
         ]
@@ -405,13 +425,41 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
+    def test_get_config_name_by_motion_group_id_w_multiple_run_configs(self):
+        self.mod.knobs.n_run_configs = 3
+        self.mod.knobs.n_motion_groups = 1
+        run_config_names = self.mod.run_configuration_names
+
+        mock_configs_dict = {
+            "0 - mg0": {
+                "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[0]},)
+            },
+            "mg1": {"meta": ({"MG_ID": "1", "RUN_CONFIG_NAME": run_config_names[0]},)},
+            "0 - <Hades> xline": {
+                "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[1]},)
+            },
+            "0 - <Hera> yline": {
+                "meta": ({"MG_ID": "0", "RUN_CONFIG_NAME": run_config_names[2]},)
+            },
+        }
+        _map = self.map
+        _conditions = [
+            # (_assert, args, expected)
+            (self.assertRaises, (0,), HDFMappingError),
+        ]
+        with (
+            ut.mock.patch.dict(_map.configs, mock_configs_dict),
+            self.assertRaises(HDFMappingError),
+        ):
+            _map.get_config_name_by_motion_group_id(0)
+
     def test_get_config_name_by_motion_group_name(self):
         _map = self.map  # type: HDFMapControlBMotion
         _conditions = [
             # (_assert, args, expected)
-            (self.assertIs, (5.5,), None),
-            (self.assertIs, ({"not_a_name": 5},), None),
-            (self.assertIs, ("wrong_name",), None),
+            (self.assertRaises, (5.5,), TypeError),
+            (self.assertRaises, ({"not_a_name": 5},), TypeError),
+            (self.assertRaises, ("wrong_name",), ValueError),
             (self.assertEqual, ("mg0",), _map._generate_config_name(0, "mg0")),
         ]
         for _assert, args, expected in _conditions:
@@ -423,6 +471,13 @@ class TestBMotion(ControlTestCase):
                 expected=expected,
             )
 
+    def test_get_config_name_by_motion_group_name_w_multiple_run_configs(self):
+        self.mod.knobs.n_run_configs = 2
+        self.mod.knobs.n_motion_groups = 2
+
+        _map = self.map
+        self.assertEqual(_map.get_config_name_by_motion_group_name("mg0"), "mg0")
+
     def test_configs_one_motion_group(self):
         _group = self.dgroup
         _faux_mod = self.mod  # type: FauxBMotion
@@ -430,7 +485,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         configs = _map.configs
 
-        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        _run_config_str = _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
         _mg_config = _run_config["run"]["motion_group"]["0"]
 
@@ -487,7 +542,7 @@ class TestBMotion(ControlTestCase):
                     "dset field": ("a0", "a1", ""),
                     "shape": (3,),
                     "dtype": np.float64,
-                    "config column": "motion_group_id",
+                    "config column": "motion_group_name",
                 },
             ),
             (
@@ -500,7 +555,7 @@ class TestBMotion(ControlTestCase):
                     "dset field": ("a0", "a1", ""),
                     "shape": (3,),
                     "dtype": np.float64,
-                    "config column": "motion_group_id",
+                    "config column": "motion_group_name",
                 },
             ),
         ]
@@ -520,7 +575,7 @@ class TestBMotion(ControlTestCase):
         _map = self.map
         configs = _map.configs
 
-        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        _run_config_str = _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
 
         _conditions = [
@@ -591,7 +646,7 @@ class TestBMotion(ControlTestCase):
                             "dset field": ("a0", "a1", ""),
                             "shape": (3,),
                             "dtype": np.float64,
-                            "config column": "motion_group_id",
+                            "config column": "motion_group_name",
                         },
                     ),
                     (
@@ -604,7 +659,7 @@ class TestBMotion(ControlTestCase):
                             "dset field": ("a0", "a1", ""),
                             "shape": (3,),
                             "dtype": np.float64,
-                            "config column": "motion_group_id",
+                            "config column": "motion_group_name",
                         },
                     ),
                 ],
@@ -623,13 +678,13 @@ class TestBMotion(ControlTestCase):
         _group = self.dgroup
         _faux_mod = self.mod  # type: FauxBMotion
 
-        _run_config_str = _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"]
+        _run_config_str = _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"]
         _run_config = toml.loads(_run_config_str)
         _run_config["run"]["motion_group"]["1"] = {
             "name": "mg1",
             "drive": {"name": "drive1"},
         }
-        _group[_faux_mod.run_configuration_name].attrs["RUN_CONFIG"] = (
+        _group[_faux_mod.run_configuration_names[0]].attrs["RUN_CONFIG"] = (
             toml.as_toml_string(_run_config)
         )
 
@@ -647,3 +702,172 @@ class TestBMotion(ControlTestCase):
         for _assert, value, expected in _conditions:
             with self.subTest(_assert=_assert.__name__, value=value, expected=expected):
                 _assert(value, expected)
+
+    def test_process_config_name(self):
+        _map = self.map
+        _config_name = list(_map.configs.keys())[0]
+        _conditions = [
+            # (assert, config_name, expected)
+            (self.assertEqual, _config_name, _config_name),
+            # probe drive names are nicknames (when uniquely used)
+            (self.assertEqual, "drive0", _config_name),
+        ]
+        for _assert, config_name, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.process_config_name,
+                args=(config_name,),
+                kwargs={},
+                expected=expected,
+            )
+
+    def test_raises_process_config(self):
+        _map = self.map
+
+        # add a config that uses the same drive name
+        _map.configs["<drive0> duplicate"] = {
+            "meta": ({"DRIVE_NAME": "drive0"},),
+        }
+        _conditions = [
+            # (assert, config_name, expecged)
+            # bad nickname
+            (self.assertRaises, "bad_nickname", ValueError),
+            # drive not used uniquely
+            (self.assertRaises, "drive0", ValueError),
+        ]
+        for _assert, config_name, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.process_config_name,
+                args=(config_name,),
+                kwargs={},
+                expected=expected,
+            )
+
+    def test_get_run_configuration(self):
+        run_configuration_name = self.mod.run_configuration_names[0]
+        run_config_group = self.dgroup[run_configuration_name]
+        run_config_toml_string = _bytes_to_str(run_config_group.attrs["RUN_CONFIG"])
+        run_config_toml_dict = toml.loads(run_config_toml_string)
+
+        _map = self.map
+
+        _conditions = [
+            # (assert, kwargs, expected)
+            (self.assertDictEqual, {}, run_config_toml_dict),
+            (
+                self.assertDictEqual,
+                {"run_config_name": run_configuration_name},
+                run_config_toml_dict,
+            ),
+            (
+                self.assertEqual,
+                {"as_toml_string": True},
+                run_config_toml_string,
+            ),
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.get_run_configuration,
+                args=(),
+                kwargs=kwargs,
+                expected=expected,
+            )
+
+    def test_raises_get_run_configuration(self):
+        run_configuration_name = self.mod.run_configuration_names[0]
+        run_config_group = self.dgroup[run_configuration_name]
+        self.dgroup.copy(run_config_group, self.dgroup, name="second_run_config")
+        self.dgroup["Run time list"]["Configuration name", -1] = "second_run_config"
+
+        _map = self.map
+
+        _conditions = [
+            # (assert, kwargs, expected)
+            (self.assertRaises, {"as_toml_string": "not a bool"}, TypeError),
+            (self.assertRaises, {"run_config_name": 5}, TypeError),
+            # multiple run configs present, so need to specify
+            (self.assertRaises, {"run_config_name": None}, ValueError),
+            # bad run_config_name
+            (self.assertRaises, {"run_config_name": "non-existent name"}, ValueError),
+        ]
+        for _assert, kwargs, expected in _conditions:
+            self.assert_runner(
+                _assert=_assert,
+                attr=_map.get_run_configuration,
+                args=(),
+                kwargs=kwargs,
+                expected=expected,
+            )
+
+    def test_run_config_names(self):
+        _map = self.map
+        run_config_name = self.mod.run_configuration_names[0]
+
+        _conditions = [
+            # (assert, expected)
+            (self.assertIsInstance, tuple),
+            (self.assertEqual, (run_config_name,)),
+        ]
+        for _assert, expected in _conditions:
+            with self.subTest(_assert=_assert.__name__, expected=expected):
+                _assert(_map.run_config_names, expected)
+
+    def test_build_multiple_run_configs(self):
+        self.mod.knobs.n_motion_groups = 3
+        self.mod.knobs.n_run_configs = 2
+        _map = self.map
+
+        self.assertEqual(len(self.mod.motion_group_names), len(_map.configs.keys()))
+        self.assertEqual(
+            len(set(self.mod.motion_group_names) - set(_map.configs.keys())),
+            0,
+        )
+
+    def test_run_config_missing_from_run_time_list(self):
+        self.mod.knobs.n_motion_groups = 1
+        self.mod.knobs.n_run_configs = 2
+        self.mod.knobs.sn_size = 50
+
+        # remove 2nd run config from "Run time list" dset
+        data = self.dgroup["Run time list"][...]
+        del self.dgroup["Run time list"]
+        self.dgroup.create_dataset("Run time list", data=data[0:50])
+
+        with self.assertWarns(HDFMappingWarning):
+            _map = self.map
+            self.assertTrue(
+                all(len(config["meta"]) == 1 for config in _map.configs.values())
+            )
+            self.assertTrue(
+                all(
+                    config["meta"][0]["RUN_CONFIG_NAME"]
+                    == self.mod.run_configuration_names[0]
+                    for config in _map.configs.values()
+                )
+            )
+
+    def test_multiple_run_w_inconsistent_axes(self):
+        self.mod.knobs.n_motion_groups = 2
+        self.mod.knobs.n_run_configs = 2
+        self.mod.knobs.sn_size = 50
+
+        second_run_name = self.mod.run_configuration_names[1]
+        mg_name = "mg0"
+
+        # make axes different for mg0 in 2nd run
+        rtl_mask = np.repeat(
+            self.dgroup["Run time list"]["Configuration name"]
+            == second_run_name.encode(),
+            2,
+        )
+        ban_mask = (
+            self.dgroup["bmotion_axis_names"]["motion_group_name"] == mg_name.encode()
+        )
+        mask = np.logical_and(rtl_mask, ban_mask)
+        self.dgroup["bmotion_axis_names"]["a1", mask] = b"Z"
+
+        with self.assertWarns(HDFMappingWarning):
+            _map = self.map
+            self.assertNotIn(mg_name, _map.configs)

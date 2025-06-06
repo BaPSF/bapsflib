@@ -1,0 +1,7 @@
+.. currentmodule:: bapsflib._hdf.maps.controls.bmotion
+
+Modified `HDFMapControlBMotion.process_config_name` so probe drive names
+act as nicknames for configurations.  For example, when extracting data
+with `~bapsflib._hdf.utils.file.File.read_data` instead of doing
+``add_controls=[("bmotion", "<Hades> some_really_long_motionlist_name")]``
+a user can just do ``add_controls=[("bmotion", "Hades")]``.

@@ -364,7 +364,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
                 # this should never happen...keeping as a gatekeeper
                 self.configs.pop(config_name)
                 continue
-            elif len(config_dict["meta"]) == 1:
+            elif len(config_dict["meta"]) == 1:  # coverage: ignore
                 continue
 
             # multiple run configurations were used for this motion group

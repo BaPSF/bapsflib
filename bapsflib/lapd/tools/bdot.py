@@ -15,6 +15,7 @@ SUFFIXES = ["BXPX", "BXPY", "BXPZ", "BYPX", "BYPY", "BYPZ", "BZPX", "BZPY", "BZP
 # Data loading
 # =========================
 
+
 def load_csv(filename):
     """
     Loads an E5100A-style CSV file, stripping quotes and skipping non-numeric header lines.
@@ -25,7 +26,7 @@ def load_csv(filename):
         print(f"WARNING: File {filename} not found. Skipping.")
         return None, None, None
 
-    with open(filename, 'r') as f:
+    with open(filename, "r") as f:
         for line in f:
             line = line.strip().strip('"')
             if line == "":
@@ -46,9 +47,11 @@ def load_csv(filename):
 
     return freq, mag, phase
 
+
 # =========================
 # Effective Area Calculation
 # =========================
+
 
 def calculate_effective_area_per_point(freq, mag):
     """
@@ -58,6 +61,7 @@ def calculate_effective_area_per_point(freq, mag):
     Ae = (mag * 0.55) / (0.00180765 * freq)
     return Ae
 
+
 def calculate_effective_area_linear_fit(freq, mag):
     """
     Linear fit of magnitude vs frequency for single-value Ae.
@@ -66,9 +70,11 @@ def calculate_effective_area_linear_fit(freq, mag):
     Ae_single = slope * 307.1389  # calibration factor
     return Ae_single, slope, intercept
 
+
 # =========================
 # Plotting and Saving
 # =========================
+
 
 def save_plots_and_effective_area(freq, mag, phase, Ae, file_basename, output_dir):
     """
@@ -79,30 +85,30 @@ def save_plots_and_effective_area(freq, mag, phase, Ae, file_basename, output_di
     os.makedirs(output_dir, exist_ok=True)
 
     # Dual-axis plot: Magnitude & Effective Area
-    fig, ax1 = plt.subplots(figsize=(10,5))
-    ax1.plot(freq, mag, 'b-', label='Magnitude')
-    ax1.set_xlabel('Frequency (Hz)')
-    ax1.set_ylabel('Magnitude (linear)', color='b')
-    ax1.tick_params(axis='y', labelcolor='b')
+    fig, ax1 = plt.subplots(figsize=(10, 5))
+    ax1.plot(freq, mag, "b-", label="Magnitude")
+    ax1.set_xlabel("Frequency (Hz)")
+    ax1.set_ylabel("Magnitude (linear)", color="b")
+    ax1.tick_params(axis="y", labelcolor="b")
     ax1.grid(True)
 
     ax2 = ax1.twinx()
-    ax2.plot(freq, Ae, 'g-', label='Effective Area')
-    ax2.set_ylabel('Effective Area', color='g')
-    ax2.tick_params(axis='y', labelcolor='g')
+    ax2.plot(freq, Ae, "g-", label="Effective Area")
+    ax2.set_ylabel("Effective Area", color="g")
+    ax2.tick_params(axis="y", labelcolor="g")
 
-    plt.title(f'{file_basename}: Magnitude & Effective Area vs Frequency')
+    plt.title(f"{file_basename}: Magnitude & Effective Area vs Frequency")
     fig.tight_layout()
     mag_ae_file = os.path.join(output_dir, f"{file_basename}_mag_ae.png")
     plt.savefig(mag_ae_file)
     plt.close(fig)
 
     # Phase plot
-    plt.figure(figsize=(10,4))
-    plt.plot(freq, phase, color='orange')
-    plt.xlabel('Frequency (Hz)')
-    plt.ylabel('Phase (degrees)')
-    plt.title(f'{file_basename}: Phase vs Frequency')
+    plt.figure(figsize=(10, 4))
+    plt.plot(freq, phase, color="orange")
+    plt.xlabel("Frequency (Hz)")
+    plt.ylabel("Phase (degrees)")
+    plt.title(f"{file_basename}: Phase vs Frequency")
     plt.grid(True)
     phase_file = os.path.join(output_dir, f"{file_basename}_phase.png")
     plt.savefig(phase_file)
@@ -110,14 +116,24 @@ def save_plots_and_effective_area(freq, mag, phase, Ae, file_basename, output_di
 
     # Save effective area array to CSV
     ae_file = os.path.join(output_dir, f"{file_basename}_Ae.csv")
-    np.savetxt(ae_file, np.column_stack((freq, Ae)), delimiter=',', header="Frequency,EffectiveArea", comments='')
+    np.savetxt(
+        ae_file,
+        np.column_stack((freq, Ae)),
+        delimiter=",",
+        header="Frequency,EffectiveArea",
+        comments="",
+    )
+
 
 # =========================
 # Main function
 # =========================
 
+
 def main():
-    parser = argparse.ArgumentParser(description="Process E5100A CSV files by target prefix.")
+    parser = argparse.ArgumentParser(
+        description="Process E5100A CSV files by target prefix."
+    )
     parser.add_argument("target", type=str, help="Target prefix (e.g., C19)")
     args = parser.parse_args()
 
@@ -146,7 +162,6 @@ def main():
 
     print(f"\nAll processed files saved in folder: {output_dir}")
 
+
 if __name__ == "__main__":
     main()
-
-

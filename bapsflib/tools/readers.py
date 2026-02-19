@@ -125,37 +125,37 @@ def _unpack(data: bytes, offset: int):
     return conversions
 
 
-def _unpack_array(data: bytes, offset: int = 0) -> dict:
-    sub_data = data[offset:]
-    _bytes = {
-        "header": sub_data[:4],
-        "size": sub_data[4:6],
-        "pad": sub_data[6:10],
-        "array": None,
-        "remainder": None,
-    }
-
-    size = struct.unpack("<h", _bytes["size"])[0]
-    byte_size = 8 * size
-    _bytes["array"] = sub_data[10:10 + byte_size]
-    _bytes["remainder"] = sub_data[10 + byte_size:]
-    return _bytes
-
-
-def _unpack_binary(data: bytes):
-    _bytes = {
-        "header": data[:294],
-    }
-    sub_data = data[294:]
-    index = 0
-    while len(sub_data) > 4010:
-        name = f"arr_{index}"
-        _bytes[name] = _unpack_array(sub_data, offset=0)
-
-        sub_data = _bytes[name]["remainder"]
-        index += 1
-
-    return _bytes
+# def _unpack_array(data: bytes, offset: int = 0) -> dict:
+#     sub_data = data[offset:]
+#     _bytes = {
+#         "header": sub_data[:4],
+#         "size": sub_data[4:6],
+#         "pad": sub_data[6:10],
+#         "array": None,
+#         "remainder": None,
+#     }
+#
+#     size = struct.unpack("<h", _bytes["size"])[0]
+#     byte_size = 8 * size
+#     _bytes["array"] = sub_data[10:10 + byte_size]
+#     _bytes["remainder"] = sub_data[10 + byte_size:]
+#     return _bytes
+#
+#
+# def _unpack_binary(data: bytes):
+#     _bytes = {
+#         "header": data[:294],
+#     }
+#     sub_data = data[294:]
+#     index = 0
+#     while len(sub_data) > 4010:
+#         name = f"arr_{index}"
+#         _bytes[name] = _unpack_array(sub_data, offset=0)
+#
+#         sub_data = _bytes[name]["remainder"]
+#         index += 1
+#
+#     return _bytes
 
 
 def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:

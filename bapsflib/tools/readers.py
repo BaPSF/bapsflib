@@ -1,7 +1,7 @@
 __all__ = ["where_size", "compare_binaries"]
 
 import struct
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import numpy as np
 

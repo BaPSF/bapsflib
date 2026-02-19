@@ -30,7 +30,7 @@ def _unpack(data: bytes, offset: int):
 
     for _type in _types:
         try:
-            result = struct.unpack_from(f"={_type}", data, offset)
+            result = struct.unpack_from(f"<{_type}", data, offset)
 
             if _type != "c":
                 pass
@@ -57,7 +57,7 @@ def _unpack_array(data: bytes, offset: int = 0) -> dict:
         "remainder": None,
     }
 
-    size = struct.unpack("=h", _bytes["size"])[0]
+    size = struct.unpack("<h", _bytes["size"])[0]
     byte_size = 8 * size
     _bytes["array"] = sub_data[10:10 + byte_size]
     _bytes["remainder"] = sub_data[10 + byte_size:]

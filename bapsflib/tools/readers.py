@@ -289,7 +289,7 @@ def where_size(data, size=500):
     return tuple(offsets)
 
 
-def _unpack_dat(data: bytes):
+def _unpack_dat(data: bytes, gatekeep: bool = True):
     # Note:
     #   1. The HP E5100A Network Analyzer saves in the DOS file format,
     #      which utilizes little-endian byte ordering.
@@ -306,6 +306,21 @@ def _unpack_dat(data: bytes):
     results = {
         "header": _unpack_dat_header(data),
     }
+
+    # Gatekeep
+    traces = set(results["header"]["dat_arrays"])
+    if not isinstance(gatekeep, bool):
+        gatekeep = True
+    if gatekeep and len(traces) != 2:
+        raise ValueError(
+            f"The binary data contains {len(traces)} traces, but functionality "
+            f"can only handle binary data with the main and sub traces."
+        )
+    if gatekeep and len(traces - {"main", "sub"}) != 0:
+        raise ValueError(
+            f"Functionality can only handle binary data with the main and sub"
+            f" traces, the binary data contains traces for {traces}."
+        )
 
     offset = results["header"]["slice"].stop
     array_types = results["header"]["dat_arrays"]

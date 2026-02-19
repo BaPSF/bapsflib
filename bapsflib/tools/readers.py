@@ -298,7 +298,7 @@ def _unpack_dat(data: bytes):
     #      i. trace_0 : I [Erik] do not know what this trace currently
     #                   represents.  I'm suspecting some kine of
     #                   calibration factor.
-    #      ii. trace_1 : This is the actually "array" data.
+    #      ii. trace_1 : This is the actual "array" data.
     #
     #   - Using "array" since the binary data can actually be multiple
     #     arrays in a single trace.

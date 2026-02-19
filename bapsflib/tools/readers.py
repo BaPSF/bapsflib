@@ -159,6 +159,17 @@ def _unpack_binary(data: bytes):
 
 
 def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
+    """
+    Unpack and examine the header bytes ``[0:294]`` of the binary data
+    ``data``.  The deciphered data is collected and returned in a
+    dictionary containing keys:
+
+    - ``"dat_arrays"`` : `tuple` of identified traces contained in the
+      binary data
+    - ``"slice"`` : `slice` object representing the location of the
+      header bytes in ``data``.
+
+    """
     # Note:
     #   The .DAT header from the HP E5100A Network Analyzer is always
     #   294 characters long.

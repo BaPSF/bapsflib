@@ -348,21 +348,6 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
         results[atype] = _unpack_dat_array(data, atype, offset=offset)
         offset = results[atype]["trace_1"]["slice"].stop
 
-    # remainder = results["header"]["remainder"]
-    #
-    # array_size = struct.unpack_from("<H", remainder, offset=4)[0]
-    # array_size_locations = where_size(remainder, size=array_size)
-    # array_start_locations = (loc - 4 for loc in array_size_locations)
-    #
-    # trace_index = 0
-    # while len(remainder) > 4:
-    #     trace_name = f"trace_{trace_index}"
-    #     results[trace_name] = _unpack_dat_array(remainder)
-    #     remainder = results[trace_name]["remainder"]
-    #     trace_index += 1
-    #
-    # # results["freq"] = _unpack_dat_array(results["header"]["remainder"])
-
     return results
 
 

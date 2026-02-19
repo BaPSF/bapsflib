@@ -54,6 +54,10 @@ def where_size(data, size=500):
 
 
 def compare_binaries(b1, b2, verbose=False):
+    """
+    Take two byte strings ``b1`` and ``b2`` and print their comparison
+    to screen.  Differences are highlighted in red.
+    """
     offset = 0
     b1_size = len(b1)
     b2_size = len(b2)

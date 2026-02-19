@@ -266,7 +266,7 @@ def _unpack_dat_array_calibration(
     #  | 4 bit  | 8 bit  | 8 bit  | ... | 8 bit  | 8 bit  |
 
     array_size = struct.unpack_from("<H", data, offset+4)[0]
-    binary_size = 4 + 2 + array_size * (4 + 8 + 8)
+    binary_size = 6 + 3 * (4 + array_size * 16)
     results["size"] = array_size
 
     # unpack trace_0

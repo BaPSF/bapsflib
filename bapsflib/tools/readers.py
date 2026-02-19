@@ -346,6 +346,7 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
     array_types = results["header"]["dat_arrays"]
     for atype in array_types:
         results[atype] = _unpack_dat_array(data, atype, offset=offset)
+        offset = results[atype]["trace_1"]["slice"].stop
 
     # remainder = results["header"]["remainder"]
     #

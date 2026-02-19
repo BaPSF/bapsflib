@@ -123,7 +123,7 @@ def compare_binaries(b1, b2, verbose=False):
         offset += 16
 
 
-def _unpack_dat_header(data: bytes):
+def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
     # Note:
     #   The .DAT header from the HP E5100A Network Analyzer is always
     #   294 characters long.

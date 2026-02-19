@@ -259,6 +259,14 @@ def _unpack_dat_array(
 
 
 def where_size(data, size=500):
+    """
+    Find potential locations in the binary data ``data`` where the array
+    size ``size`` is located.  It is assumed the ctype representing
+    ``size`` is an unsigned short (2 bytes).
+
+    Returns a tuple of integers representing the starting index of all
+    potential locations.
+    """
     ndata = len(data)
 
     previous_offset = 0

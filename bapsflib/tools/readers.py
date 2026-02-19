@@ -24,6 +24,35 @@ c_format_chars = {
 }
 
 
+def where_size(data, size=500):
+    """
+    Find potential locations in the binary data ``data`` where the array
+    size ``size`` is located.  It is assumed the ctype representing
+    ``size`` is an unsigned short (2 bytes).
+
+    Returns a tuple of integers representing the starting index of all
+    potential locations.
+    """
+    ndata = len(data)
+
+    previous_offset = 0
+    offsets = []
+    for offset in range(ndata - 1):
+        val = struct.unpack_from("<H", data, offset)[0]
+
+        if val == size:
+            offsets.append(offset)
+            print(
+                f"{offset:6d} ( ∆{offset - previous_offset:6d} ) "
+                f"- [ {data[offset - 4:offset].hex(' ', 2)} "
+                f"| {val} "
+                f"| {data[offset + 2:offset + 10].hex(' ', 2)} ]"
+            )
+            previous_offset = offset
+
+    return tuple(offsets)
+
+
 def _unpack(data: bytes, offset: int):
     _types = tuple(c_format_chars.keys())
     conversions = {}
@@ -256,35 +285,6 @@ def _unpack_dat_array(
         {} if array_type not in unpackers
         else unpackers[array_type](data, offset=offset)
     )
-
-
-def where_size(data, size=500):
-    """
-    Find potential locations in the binary data ``data`` where the array
-    size ``size`` is located.  It is assumed the ctype representing
-    ``size`` is an unsigned short (2 bytes).
-
-    Returns a tuple of integers representing the starting index of all
-    potential locations.
-    """
-    ndata = len(data)
-
-    previous_offset = 0
-    offsets = []
-    for offset in range(ndata - 1):
-        val = struct.unpack_from("<H", data, offset)[0]
-
-        if val == size:
-            offsets.append(offset)
-            print(
-                f"{offset:6d} ( ∆{offset - previous_offset:6d} ) "
-                f"- [ {data[offset - 4:offset].hex(' ', 2)} "
-                f"| {val} "
-                f"| {data[offset + 2:offset + 10].hex(' ', 2)} ]"
-            )
-            previous_offset = offset
-
-    return tuple(offsets)
 
 
 def _unpack_dat(data: bytes, gatekeep: bool = True):

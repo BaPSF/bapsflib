@@ -211,10 +211,12 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
     return results
 
 
-def _unpack_dat_array_calibration(data: bytes, offset: int):
+def _unpack_dat_array_calibration(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
     results = {
-        "array_type": "calibration",
-    }  # type: Dict[str, Any]
+        "array_type": "calibration"
+    }  # type: Dict[str, str | int | Dict[str, slice | int | np.ndarray]]
 
     # - Every saved array has 2 trace entities in the binary file.
     # - The calibration array is actually 3 arrays of calibration

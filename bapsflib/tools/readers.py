@@ -308,18 +308,18 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
     }
 
     # Gatekeep
-    traces = set(results["header"]["dat_arrays"])
+    trace_names = set(results["header"]["dat_arrays"])
     if not isinstance(gatekeep, bool):
         gatekeep = True
-    if gatekeep and len(traces) != 2:
+    if gatekeep and len(trace_names) != 2:
         raise ValueError(
-            f"The binary data contains {len(traces)} traces, but functionality "
+            f"The binary data contains {len(trace_names)} traces, but functionality "
             f"can only handle binary data with the main and sub traces."
         )
-    if gatekeep and len(traces - {"main", "sub"}) != 0:
+    if gatekeep and len(trace_names - {"main", "sub"}) != 0:
         raise ValueError(
             f"Functionality can only handle binary data with the main and sub"
-            f" traces, the binary data contains traces for {traces}."
+            f" traces, the binary data contains traces for {trace_names}."
         )
 
     offset = results["header"]["slice"].stop

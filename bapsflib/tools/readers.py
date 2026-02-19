@@ -53,6 +53,49 @@ def where_size(data, size=500):
     return tuple(offsets)
 
 
+def compare_binaries(b1, b2, verbose=False):
+    offset = 0
+    b1_size = len(b1)
+    b2_size = len(b2)
+    min_size = min(b1_size, b2_size)
+    max_size = max(b1_size, b2_size)
+
+    while offset < min_size:
+        sub1 = b1[offset:offset + 16]
+        sub2 = b2[offset:offset + 16]
+
+        if sub1 != sub2:
+            sub1_str = ""
+            sub2_str = ""
+            highlight = False
+            for s1, s2 in zip(sub1.hex(' ', 2), sub2.hex(' ', 2)):
+                if s1 != s2 and highlight:
+                    sub1_str += s1
+                    sub2_str += s2
+                elif s1 != s2:
+                    highlight = True
+                    sub1_str += f"\033[91m{s1}"
+                    sub2_str += f"\033[91m{s2}"
+                elif s1 == s2 and highlight:
+                    highlight = False
+                    sub1_str += f"{s1}\033[0m"
+                    sub2_str += f"{s2}\033[0m"
+                else:
+                    sub1_str += s1
+                    sub2_str += s2
+
+            if highlight:
+                highlight = False
+                sub1_str += f"\033[0m"
+                sub2_str += f"\033[0m"
+
+            print(f"{offset:6d}  -  {sub1_str}  |  {sub2_str}")
+        elif verbose:
+            print(f"{offset:6d}  -  {sub1.hex(' ', 2)}  |  {sub2.hex(' ', 2)}")
+
+        offset += 16
+
+
 def _unpack(data: bytes, offset: int):
     _types = tuple(c_format_chars.keys())
     conversions = {}
@@ -107,49 +150,6 @@ def _unpack_binary(data: bytes):
         index += 1
 
     return _bytes
-
-
-def compare_binaries(b1, b2, verbose=False):
-    offset = 0
-    b1_size = len(b1)
-    b2_size = len(b2)
-    min_size = min(b1_size, b2_size)
-    max_size = max(b1_size, b2_size)
-
-    while offset < min_size:
-        sub1 = b1[offset:offset + 16]
-        sub2 = b2[offset:offset + 16]
-
-        if sub1 != sub2:
-            sub1_str = ""
-            sub2_str = ""
-            highlight = False
-            for s1, s2 in zip(sub1.hex(' ', 2), sub2.hex(' ', 2)):
-                if s1 != s2 and highlight:
-                    sub1_str += s1
-                    sub2_str += s2
-                elif s1 != s2:
-                    highlight = True
-                    sub1_str += f"\033[91m{s1}"
-                    sub2_str += f"\033[91m{s2}"
-                elif s1 == s2 and highlight:
-                    highlight = False
-                    sub1_str += f"{s1}\033[0m"
-                    sub2_str += f"{s2}\033[0m"
-                else:
-                    sub1_str += s1
-                    sub2_str += s2
-
-            if highlight:
-                highlight = False
-                sub1_str += f"\033[0m"
-                sub2_str += f"\033[0m"
-
-            print(f"{offset:6d}  -  {sub1_str}  |  {sub2_str}")
-        elif verbose:
-            print(f"{offset:6d}  -  {sub1.hex(' ', 2)}  |  {sub2.hex(' ', 2)}")
-
-        offset += 16
 
 
 def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:

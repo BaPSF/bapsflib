@@ -123,16 +123,6 @@ def compare_binaries(b1, b2, verbose=False):
         offset += 16
 
 
-def read_na_hp_e5100a_ascii():
-    ...
-
-def read_na_hp_e5100a_binary():
-    ...
-
-def read_network_analyzer():
-    ...
-
-
 def _unpack_dat_header(data: bytes):
     # Note:
     #   The .DAT header from the HP E5100A Network Analyzer is always
@@ -343,3 +333,13 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
     # # results["freq"] = _unpack_dat_array(results["header"]["remainder"])
 
     return results
+
+
+def read_na_hp_e5100a_ascii():
+    ...
+
+def read_na_hp_e5100a_binary():
+    ...
+
+def read_network_analyzer():
+    ...

@@ -214,6 +214,32 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
 def _unpack_dat_array_calibration(
     data: bytes, offset: int
 ) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    """
+    Unpack binary data ``data`` associated with a calibration trace.
+
+    The return dictionary looks like:
+
+    .. code-block:: python
+
+        {
+            "array_type": "calibration",  # name of trace
+            "size": int, # number of elements in the trace arrays
+            "trace_0": {
+                "slice": slice,  # slice object for the binary being converted
+                "n_arrays": 3, # number of arrays in the trace
+                "arr0": numpy.ndarray,  # 1st array
+                "arr1": numpy.ndarray,  # 2nd array
+                "arr2": numpy.ndarray,  # 3rd array
+            },
+            "trace_1": {
+                "slice": slice,  # slice object for the binary being converted
+                "n_arrays": 3, # number of arrays in the trace
+                "arr0": numpy.ndarray,  # 1st array
+                "arr1": numpy.ndarray,  # 2nd array
+                "arr2": numpy.ndarray,  # 3rd array
+            },
+        }
+    """
     results = {
         "array_type": "calibration"
     }  # type: Dict[str, str | int | Dict[str, slice | int | np.ndarray]]

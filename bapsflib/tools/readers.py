@@ -211,6 +211,40 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
     return results
 
 
+def _unpack_dat_real_array(data: bytes, offset: int):
+    array_size = struct.unpack_from("<H", data, offset + 4)[0]
+    binary_size = 10 + array_size * 8
+    results = {
+        "size": array_size,
+        "trace_0": {
+            "slice": slice(offset, offset + binary_size, 1),
+            "n_arrays": 1,
+        },  # type: Dict[str, Any]
+        "trace_1": {
+            "slice": slice(offset + binary_size, offset + 2*binary_size, 1),
+            "n_arrays": 1,
+        },  # type: Dict[str, Any]
+    }  # type: Dict[str, Any]
+
+    # unpack trace_0
+    offset += 10  # get past header, size, and buffer bits
+    results["trace_0"][f"arr0"] = np.array(
+        struct.unpack_from(f"<{array_size}d", data, offset=offset)
+    )
+
+    offset += array_size * 8  # advanced past array bits
+
+    # unpack trace_1
+    offset += 10  # get past header, size, and buffer bits
+    results["trace_1"][f"arr0"] = np.array(
+        struct.unpack_from(f"<{array_size}d", data, offset=offset)
+    )
+
+    offset += array_size * 8  # advanced past array bits
+
+    return results
+
+
 def _unpack_dat_array_calibration(
     data: bytes, offset: int
 ) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:

@@ -294,6 +294,22 @@ def _unpack_dat_array(
 
 
 def _unpack_dat(data: bytes, gatekeep: bool = True):
+    """
+    Unpack and collect the various traces in the binary data (``data``).
+
+    The collected data is returned in a dictionary, where the root keys
+    are ``'header'`` or the trace name (e.g. ``'main'``, ``'sub'``,
+    etc.).
+
+    Parameters
+    ----------
+    data : bytes
+        The binary data to unpack.
+
+    gatekeep : bool
+        Gatekeep the unpacking to binary data that only contains the
+        "main" and "sub" traces.  (DEFAULT: `True`)
+    """
     # Note:
     #   1. The HP E5100A Network Analyzer saves in the DOS file format,
     #      which utilizes little-endian byte ordering.

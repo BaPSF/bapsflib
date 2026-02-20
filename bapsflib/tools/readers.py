@@ -211,7 +211,42 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
     return results
 
 
-def _unpack_dat_real_array(data: bytes, offset: int):
+def _unpack_dat_real_array(
+    data: bytes, offset: int
+) -> Dict[str, int | Dict[str, slice | int | np.ndarray]]:
+    """
+    Unpack a section of the binary data that represents a real-valued
+    array.
+
+    The return dictionary looks like:
+
+    .. code-block:: python
+
+        {
+            "size": int, # number of elements in the trace arrays
+            "trace_0": {
+                "slice": slice,  # slice object for the binary being converted
+                "n_arrays": 1, # number of arrays in the trace
+                "arr0": numpy.ndarray,  # array
+            },
+            "trace_1": {
+                "slice": slice,  # slice object for the binary being converted
+                "n_arrays": 1, # number of arrays in the trace
+                "arr0": numpy.ndarray,  # array
+            },
+        }
+    """
+    # - Every saved array has 2 trace entities in the binary file.
+    # - The binary format for the calibration trace looks like...
+    #
+    #                            | trace_0 array       |
+    #  | header |  size | buffer | 1st   | ... | nth   |
+    #  | 4 bit  | 2 bit | 4 bit  | 8 bit | ... | 8 bit |
+    #
+    #           | trace_1 array       |
+    #  | buffer | 1st   | ... | nth   |
+    #  | 10 bit | 8 bit | ... | 8 bit |
+    #
     array_size = struct.unpack_from("<H", data, offset + 4)[0]
     binary_size = 10 + array_size * 8
     results = {
@@ -219,12 +254,12 @@ def _unpack_dat_real_array(data: bytes, offset: int):
         "trace_0": {
             "slice": slice(offset, offset + binary_size, 1),
             "n_arrays": 1,
-        },  # type: Dict[str, Any]
+        },
         "trace_1": {
             "slice": slice(offset + binary_size, offset + 2*binary_size, 1),
             "n_arrays": 1,
-        },  # type: Dict[str, Any]
-    }  # type: Dict[str, Any]
+        },
+    }  # type: Dict[str, int | Dict[str, slice | int | np.ndarray]]
 
     # unpack trace_0
     offset += 10  # get past header, size, and buffer bits

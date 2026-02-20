@@ -243,9 +243,9 @@ def _unpack_dat_real_array(
     #  | header |  size | buffer | 1st   | ... | nth   |
     #  | 4 bit  | 2 bit | 4 bit  | 8 bit | ... | 8 bit |
     #
-    #           | trace_1 array       |
-    #  | buffer | 1st   | ... | nth   |
-    #  | 10 bit | 8 bit | ... | 8 bit |
+    #                            | trace_1 array       |
+    #  | header |  size | buffer | 1st   | ... | nth   |
+    #  | 4 bit  | 2 bit | 4 bit  | 8 bit | ... | 8 bit |
     #
     array_size = struct.unpack_from("<H", data, offset + 4)[0]
     binary_size = 10 + array_size * 8
@@ -270,6 +270,7 @@ def _unpack_dat_real_array(
     offset += array_size * 8  # advanced past array bits
 
     # unpack trace_1
+    # TODO: SHOULD I DO A CHECK OF ARRAY SIZE AGAIN??
     offset += 10  # get past header, size, and buffer bits
     results["trace_1"][f"arr0"] = np.array(
         struct.unpack_from(f"<{array_size}d", data, offset=offset)

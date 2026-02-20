@@ -1,6 +1,7 @@
 __all__ = ["where_size", "compare_binaries", "read_na_hp_e5100a_binary"]
 
 import struct
+from collections import UserDict
 from pathlib import Path
 from typing import Any, Dict, Tuple
 
@@ -592,6 +593,34 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
     return results
 
 
+class HPE5100ADict(UserDict):
+    def __init__(self, dict=None, /, **kwargs):
+        super().__init__(dict, **kwargs)
+        self._data = self.data
+
+    @property
+    def data(self):
+        return self._data
+
+    @data.setter
+    def data(self, value):
+        self._data = value
+
+    @property
+    def main(self):
+        if "main" in self._data:
+            return self._data["main"]["trace_0"]["arr0"]
+
+        return None
+
+    @property
+    def sub(self):
+        if "sub" in self._data:
+            return self._data["sub"]["trace_0"]["arr0"]
+
+        return None
+
+
 def read_na_hp_e5100a_ascii(): ...
 
 
@@ -619,7 +648,7 @@ def read_na_hp_e5100a_binary(file_path: str | Path):
     with open(file_path, "rb") as f:
         data = f.read()
 
-    return _unpack_dat(data)
+    return HPE5100ADict(_unpack_dat(data))
 
 
 def read_network_analyzer(): ...

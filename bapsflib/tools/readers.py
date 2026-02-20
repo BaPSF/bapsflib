@@ -67,14 +67,14 @@ def compare_binaries(b1, b2, verbose=False):
     max_size = max(b1_size, b2_size)
 
     while offset < min_size:
-        sub1 = b1[offset:offset + 16]
-        sub2 = b2[offset:offset + 16]
+        sub1 = b1[offset : offset + 16]
+        sub2 = b2[offset : offset + 16]
 
         if sub1 != sub2:
             sub1_str = ""
             sub2_str = ""
             highlight = False
-            for s1, s2 in zip(sub1.hex(' ', 2), sub2.hex(' ', 2)):
+            for s1, s2 in zip(sub1.hex(" ", 2), sub2.hex(" ", 2)):
                 if s1 != s2 and highlight:
                     sub1_str += s1
                     sub2_str += s2
@@ -198,11 +198,11 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
 
     # determine which traces were turned on
     header = data[results["slice"]]
-    trace_binaries = header[-4*7:]
+    trace_binaries = header[-4 * 7 :]
     traces = []
     for index, trace in enumerate(possible_traces):
         start_index = 4 * index
-        is_active = struct.unpack("<i", trace_binaries[start_index:start_index + 4])[0]
+        is_active = struct.unpack("<i", trace_binaries[start_index : start_index + 4])[0]
         if is_active == 1:
             traces.append(trace)
 
@@ -213,7 +213,7 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
 
 def _unpack_dat_real_array(
     data: bytes, offset: int
-) -> Dict[str, str |int | Dict[str, slice | int | np.ndarray]]:
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
     """
     Unpack a section of the binary data that represents a real-valued
     array.
@@ -256,7 +256,7 @@ def _unpack_dat_real_array(
             "n_arrays": 1,
         },
         "trace_1": {
-            "slice": slice(offset + binary_size, offset + 2*binary_size, 1),
+            "slice": slice(offset + binary_size, offset + 2 * binary_size, 1),
             "n_arrays": 1,
         },
     }  # type: Dict[str, int | Dict[str, slice | int | np.ndarray]]
@@ -326,7 +326,7 @@ def _unpack_dat_complex_array(
             "n_arrays": 1,
         },
         "trace_1": {
-            "slice": slice(offset + binary_size, offset + 2*binary_size, 1),
+            "slice": slice(offset + binary_size, offset + 2 * binary_size, 1),
             "n_arrays": 1,
         },
     }  # type: Dict[str, int | Dict[str, slice | int | np.ndarray]]
@@ -407,13 +407,13 @@ def _unpack_dat_array_calibration(
     #  | buffer | 1st Re | 1st Im | ... | nth Re | nth Im |
     #  | 4 bit  | 8 bit  | 8 bit  | ... | 8 bit  | 8 bit  |
 
-    array_size = struct.unpack_from("<H", data, offset+4)[0]
+    array_size = struct.unpack_from("<H", data, offset + 4)[0]
     binary_size = 6 + 3 * (4 + array_size * 16)
     results["size"] = array_size
 
     # unpack trace_0
     results["trace_0"] = {
-        "slice": slice(offset, offset+binary_size, 1),
+        "slice": slice(offset, offset + binary_size, 1),
         "n_arrays": 3,
     }
     offset += 6  # get past header and size bits
@@ -529,8 +529,7 @@ def _unpack_dat_array(
     }
 
     return (
-        {} if array_type not in unpackers
-        else unpackers[array_type](data, offset=offset)
+        {} if array_type not in unpackers else unpackers[array_type](data, offset=offset)
     )
 
 
@@ -592,13 +591,10 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
     return results
 
 
-def read_na_hp_e5100a_ascii():
-    ...
+def read_na_hp_e5100a_ascii(): ...
 
 
-def read_na_hp_e5100a_binary():
-    ...
+def read_na_hp_e5100a_binary(): ...
 
 
-def read_network_analyzer():
-    ...
+def read_network_analyzer(): ...

@@ -213,7 +213,7 @@ def _unpack_dat_header(data: bytes) -> Dict[str, slice | Tuple[str]]:
 
 def _unpack_dat_real_array(
     data: bytes, offset: int
-) -> Dict[str, int | Dict[str, slice | int | np.ndarray]]:
+) -> Dict[str, str |int | Dict[str, slice | int | np.ndarray]]:
     """
     Unpack a section of the binary data that represents a real-valued
     array.
@@ -283,7 +283,7 @@ def _unpack_dat_real_array(
 
 def _unpack_dat_complex_array(
     data: bytes, offset: int
-) -> Dict[str, int | Dict[str, slice | int | np.ndarray]]:
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
     """
     Unpack a section of the binary data that represents a complex-valued
     array.
@@ -444,30 +444,90 @@ def _unpack_dat_array_calibration(
     return results
 
 
+def _unpack_dat_array_raw(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    # - Every saved array has 2 trace entities in the binary file.
+    # - The raw data array is actually 2 arrays of corresponding to the
+    #   two output "active" channels, where:
+    #     1. each calibration coefficient array is separated by a 4 bit buffer
+    #     2. the array elements are complex values
+    #     3. array elements are written as an 8 bit float for the real component
+    #        followed by an 8 bit float for the imaginary component
+    # - The binary format for the calibration trace looks like...
+    #
+    #                            | 1st array - active channel 1            |
+    #  | header |  size | buffer | 1st Re | 1st Im | ... | nth Re | nth Im |
+    #  | 4 bit  | 2 bit | 4 bit  | 8 bit  | 8 bit  | ... | 8 bit  | 8 bit  |
+    #
+    #           | 2nd array - active channel 2            |
+    #  | buffer | 1st Re | 1st Im | ... | nth Re | nth Im |
+    #  | 4 bit  | 8 bit  | 8 bit  | ... | 8 bit  | 8 bit  |
+    #
+    results = _unpack_dat_complex_array(data, offset)
+    results["array_type"] = "raw"
+
+    return results
+
+
+def _unpack_dat_array_data(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    results = _unpack_dat_complex_array(data, offset)
+    results["array_type"] = "data"
+
+    return results
+
+
+def _unpack_dat_array_mem(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    results = _unpack_dat_complex_array(data, offset)
+    results["array_type"] = "mem"
+
+    return results
+
+
+def _unpack_dat_array_formd(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    results = _unpack_dat_complex_array(data, offset)
+    results["array_type"] = "formd"
+
+    return results
+
+
+def _unpack_dat_array_main(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    results = _unpack_dat_real_array(data, offset)
+    results["array_type"] = "main"
+
+    return results
+
+
+def _unpack_dat_array_sub(
+    data: bytes, offset: int
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
+    results = _unpack_dat_real_array(data, offset)
+    results["array_type"] = "sub"
+
+    return results
+
+
 def _unpack_dat_array(
     data: bytes, array_type: str, offset: int
-) -> Dict[str, Any]:
+) -> Dict[str, str | int | Dict[str, slice | int | np.ndarray]]:
     unpackers = {
         "calibration": _unpack_dat_array_calibration,
+        "raw": _unpack_dat_array_raw,
+        "data": _unpack_dat_array_data,
+        "mem": _unpack_dat_array_mem,
+        "formd": _unpack_dat_array_formd,
+        "main": _unpack_dat_array_main,
+        "sub": _unpack_dat_array_sub,
     }
 
-    # results = {
-    #     "header": data[:4],
-    #     "size_binary": data[4:6],
-    #     "size": None,
-    #     "pad": data[6:10],
-    #     "array_binary": None,
-    #     "array": None,
-    #     "remainder": None,
-    # }
-    #
-    # _size = struct.unpack("<H", results["size_binary"])[0]
-    # results["size"] = _size
-    # results["array_binary"] = data[10:10 + 8 * _size]
-    # results["array"] = np.array(struct.unpack(f"<{_size}d", results["array_binary"]))
-    # results["remainder"] = data[10 + 8 * _size:]
-    #
-    # return results
     return (
         {} if array_type not in unpackers
         else unpackers[array_type](data, offset=offset)
@@ -535,8 +595,10 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
 def read_na_hp_e5100a_ascii():
     ...
 
+
 def read_na_hp_e5100a_binary():
     ...
+
 
 def read_network_analyzer():
     ...

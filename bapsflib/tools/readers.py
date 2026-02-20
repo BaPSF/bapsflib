@@ -1,6 +1,7 @@
-__all__ = ["where_size", "compare_binaries"]
+__all__ = ["where_size", "compare_binaries", "read_na_hp_e5100a_binary"]
 
 import struct
+from pathlib import Path
 from typing import Any, Dict, Tuple
 
 import numpy as np
@@ -594,7 +595,31 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
 def read_na_hp_e5100a_ascii(): ...
 
 
-def read_na_hp_e5100a_binary(): ...
+def read_na_hp_e5100a_binary(file_path: str | Path):
+    """
+    Read and unpack the calibration traces associated with the specified
+    HP E5100A binary file ``file_path``.
+
+    Parameters
+    ----------
+    file_path : str | Path
+        Full qualified path to the HP E5100A binary file.
+    """
+    if not isinstance(file_path, (str, Path)):
+        raise TypeError(
+            f"Expected type str or pathlib.Path for argument file_path,"
+            f" but got type {type(file_path)}."
+        )
+
+    if not file_path.exists():
+        raise FileNotFoundError(
+            f"The specified file '{file_path}' does not exist."
+        )
+
+    with open(file_path, "rb") as f:
+        data = f.read()
+
+    return _unpack_dat(data)
 
 
 def read_network_analyzer(): ...

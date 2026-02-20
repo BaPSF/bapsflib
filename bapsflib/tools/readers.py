@@ -565,7 +565,7 @@ def _unpack_dat(data: bytes, gatekeep: bool = True):
     #
     results = {
         "header": _unpack_dat_header(data),
-    }
+    }  # type: Dict[str, Dict[str, str | int | slice | Tuple[str] | Dict[str, slice | int | np.ndarray]]]
 
     # Gatekeep
     trace_names = set(results["header"]["dat_arrays"])

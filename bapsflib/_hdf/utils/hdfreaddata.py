@@ -599,12 +599,15 @@ class HDFReadData(np.ndarray):
             if voffset != 0:
                 voffset = voffset * u.volt
             elif len(_dmap.active_configs) == 1:
-                warn_msg = "Digitizer header dataset has an invalid value (zero) in the voltage 'Offset' field."
+                warn_msg = (
+                    "Digitizer header dataset has an invalid value (zero) in the "
+                    "voltage 'Offset' field."
+                )
                 raise ValueError
             else:
-                # multiple configurations were used for the digitizer, so it is likely that the header
-                # has been stuffed by the HDF5 translator with zero for the shot the configuration was
-                # not used for
+                # multiple configurations were used for the digitizer, so it is
+                # likely that the header has been stuffed by the HDF5 translator
+                # with zero for the shot the configuration was not used for
                 voffsets = np.unique(dheader["Offset"])
                 if voffsets.size == 2:
                     voffset = voffsets[voffsets != 0][0] * u.volt

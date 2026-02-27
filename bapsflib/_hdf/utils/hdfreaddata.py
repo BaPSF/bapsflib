@@ -613,14 +613,17 @@ class HDFReadData(np.ndarray):
                     voffset = voffsets[voffsets != 0][0] * u.volt
                 else:
                     warn_msg = (
-                        "Digitizer header dataset has an multiple non-zero values in the "
-                        "voltage 'Offset' field.  Currently HDFReadData can only handle one non-zer value."
+                        "Digitizer header dataset has an multiple non-zero values "
+                        "in the voltage 'Offset' field.  Currently HDFReadData can "
+                        "only handle one non-zer value."
                     )
                     raise ValueError
 
         except ValueError:
             if warn_msg is None:
-                warn_msg = "Digitizer header dataset is missing the voltage 'Offset' field."
+                warn_msg = (
+                    "Digitizer header dataset is missing the voltage 'Offset' field."
+                )
             warn(warn_msg, HDFMappingWarning)
             voffset = None
 

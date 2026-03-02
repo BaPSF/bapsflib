@@ -88,6 +88,12 @@ def build_shotnum_dset_relation(
     # We assume the shot numbers in shotnum and dset are sequential.  If they
     # are not, then something wrong occurred with the ACQ II.
     #
+    # Note: If an digitizer uses multiple configurations during a data
+    #       run, then the HDF5 translator will front fill the datasets
+    #       with zeros for all but the first configuration used.  The
+    #       HDF5 translator "ignorantly" does this to maintain a dataset
+    #       size equivalent to the shot number size.
+    #
     if shotnumkey not in dset.dtype.names:
         raise ValueError(
             f"The expected shot number column '{shotnumkey}' not found in the "

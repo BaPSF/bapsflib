@@ -168,12 +168,17 @@ class FauxHDFBuilder(h5py.File):
 
         # cleanup temporary directory and file
         if isinstance(self.tempdir, tempfile.TemporaryDirectory):
-            if platform.system() == "Windows":
-                # tempfile is already closed, need to remove file
-                os.remove(_path)
-            else:
-                self.tempfile.close()
-            self.tempdir.cleanup()
+            try:
+                if platform.system() == "Windows":
+                    # tempfile is already closed, need to remove file
+                    os.remove(_path)
+                else:
+                    self.tempfile.close()
+
+                self.tempdir.cleanup()
+            except PermissionError:
+                # Temporary file is still being accessed by something
+                pass
 
     def cleanup(self):
         """

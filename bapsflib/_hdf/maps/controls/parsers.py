@@ -57,7 +57,7 @@ class CLParse(object):
         self._cl = command_list
 
     def apply_patterns(self, patterns: Union[str, Iterable[str]]):
-        """
+        r"""
         Applies the regular expressions defined in `patterns` to parse
         the command list.
 
@@ -80,14 +80,16 @@ class CLParse(object):
         --------
 
             >>> # define a command list
-            >>> cl = ['VOLT 20.0', 'VOLT 25.0', 'VOLT 30.0']
+            >>> cl = ["VOLT 20.0", "VOLT 25.0", "VOLT 30.0"]
             >>>
             >>> # define clparse object
             >>> clparse = CLParse(cl)
             >>>
             >>> # apply patterns
-            >>> patterns = (r'(?P<FREQ>(\bFREQ\s)'
-            >>>             + r'(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))')
+            >>> patterns = (
+            >>>     r"(?P<FREQ>(\bFREQ\s)"
+            >>>     r"(?P<VAL>(\d+\.\d*|\.\d+|\d+\b)))"
+            >>> )
             >>> results = clparse.apply_patterns(patterns)
             >>> results[0]
             True

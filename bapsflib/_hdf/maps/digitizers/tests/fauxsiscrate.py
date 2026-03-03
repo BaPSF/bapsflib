@@ -557,7 +557,7 @@ class FauxSISCrate(h5py.Group):
                 ),
                 "Device name": np.bytes_("SIS crate"),
                 "Module IP address": np.bytes_("192.168.7.3"),
-                "Module VI path": np.bytes_("Modules\SIS crate\SIS crate.vi"),
+                "Module VI path": np.bytes_(r"Modules\SIS crate\SIS crate.vi"),
                 "Type": np.bytes_("Data acquisition"),
             }
         )

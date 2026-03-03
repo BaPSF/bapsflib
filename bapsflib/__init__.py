@@ -18,8 +18,8 @@ __all__ = ["lapd"]
 
 import sys
 
-if sys.version_info < (3, 9):  # coverage: ignore
-    raise ImportError("bapsflib does not support Python < 3.9")
+if sys.version_info < (3, 10):  # coverage: ignore
+    raise ImportError("bapsflib does not support Python < 3.10")
 
 from importlib.metadata import PackageNotFoundError, version
 

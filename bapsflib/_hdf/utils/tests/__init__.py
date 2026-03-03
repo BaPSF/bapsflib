@@ -18,22 +18,17 @@ from bapsflib.utils.tests import BaPSFTestCase
 class TestBase(BaPSFTestCase):
     """Base test class for all test classes here."""
 
-    f = NotImplemented  # type: FauxHDFBuilder
+    def setUp(self) -> None:
+        if not hasattr(self, "_f") or self._f is None:
+            self._f = FauxHDFBuilder()
 
-    @classmethod
-    def setUpClass(cls):
-        # create HDF5 file
-        super().setUpClass()
-        cls.f = FauxHDFBuilder()
+    def tearDown(self) -> None:
+        self.f.cleanup()
+        self._f = None
 
-    def tearDown(self):
-        self.f.reset()
-
-    @classmethod
-    def tearDownClass(cls):
-        # cleanup and close HDF5 file
-        super().tearDownClass()
-        cls.f.cleanup()
+    @property
+    def f(self) -> FauxHDFBuilder:
+        return self._f
 
     @property
     def filename(self) -> str:

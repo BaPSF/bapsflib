@@ -198,7 +198,7 @@ class FauxSIS3301(h5py.Group):
                 "Device name": np.bytes_("SIS 3301"),
                 "Module IP address": np.bytes_("192.168.7.3"),
                 "Module VI path": np.bytes_(
-                    "C:\ACQ II home\Modules\SIS 3301\SIS 3301.vi"
+                    r"C:\ACQ II home\Modules\SIS 3301\SIS 3301.vi"
                 ),
                 "Type": np.bytes_("Data acquisition"),
             }

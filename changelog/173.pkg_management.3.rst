@@ -1,2 +1,2 @@
-Unfroze the `towncrier` dependency, `towncrier == 22.8.0` ->
-`towncrier >= 22.8.0`.
+Unfroze the ``towncrier`` dependency, ``towncrier == 22.8.0`` ->
+``towncrier >= 22.8.0``.

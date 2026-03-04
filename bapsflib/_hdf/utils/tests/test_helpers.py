@@ -429,6 +429,47 @@ class TestBuildShotnumDsetRelation(TestBase):
                 )
                 self.assertTrue(np.allclose(kwargs["shotnum"][sni], expected))
 
+    def test_zero_front_padded_dset(self):
+        self.f.remove_all_modules()
+        self.f.add_module(
+            "SIS crate",
+            mod_args={"n_configs": 1, "sn_size": 100, "nt": 1000},
+        )
+
+        # set only one board and channel active
+        mod = self.f.modules["SIS crate"]
+        active_brdch = mod.knobs.active_brdch
+        active_brdch["SIS 3305"][...] = False
+        active_brdch["SIS 3302"][...] = False
+        active_brdch["SIS 3302"][0, 0] = True
+        mod.knobs.active_brdch = active_brdch
+
+        # zero pad datasets
+        config_name = mod.config_names[0]
+        board = 1
+        channel = 1
+        slot = mod.get_slot(board, "SIS 3302")
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {channel}]"
+        dheader_name = f"{dset_name} headers"
+
+        dset = mod[dset_name]
+        dheader = mod[dheader_name]
+
+        data = dset[...]
+        new_data = np.append(np.zeros_like(data), data, axis=0)
+        del mod[dset_name]
+        mod.create_dataset(dset_name, data=new_data)
+
+        header = dheader[...]
+        new_header = np.append(np.zeros_like(header), header)
+        del mod[dheader_name]
+        mod.create_dataset(dheader_name, data=new_header)
+
+        self.fail("force fail")
+
+
+
+
 
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""

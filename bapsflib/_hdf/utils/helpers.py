@@ -88,6 +88,12 @@ def build_shotnum_dset_relation(
     # We assume the shot numbers in shotnum and dset are sequential.  If they
     # are not, then something wrong occurred with the ACQ II.
     #
+    # Note: If an digitizer uses multiple configurations during a data
+    #       run, then the HDF5 translator will front fill the datasets
+    #       with zeros for all but the first configuration used.  The
+    #       HDF5 translator "ignorantly" does this to maintain a dataset
+    #       size equivalent to the shot number size.
+    #
     if shotnumkey not in dset.dtype.names:
         raise ValueError(
             f"The expected shot number column '{shotnumkey}' not found in the "
@@ -122,13 +128,30 @@ def build_shotnum_dset_relation(
         )
 
     dset_shotnum = dset[shotnumkey]
-    if n_configs == 1 and dset_shotnum.size != np.unique(dset_shotnum).size:
+    unique_shotnums = np.unique(dset_shotnum)
+    if dset_shotnum[0] == 0:
+        # A zero shot number should not exist!  This happens when the
+        # HDF5 translator stuffs the front end of a digitizer with zeros.
+
+        nonzero_mask = dset_shotnum != 0
+        dset_shotnum_size = np.count_nonzero(nonzero_mask)
+
+        mask = unique_shotnums != 0
+        unique_shotnums = unique_shotnums[mask]
+        unique_shotnums_size = unique_shotnums.size
+    else:
+        nonzero_mask = np.ones_like(dset_shotnum, dtype=bool)
+        dset_shotnum_size = dset_shotnum.size
+        unique_shotnums_size = unique_shotnums.size
+
+    if n_configs == 1 and dset_shotnum_size != unique_shotnums_size:
         raise ValueError(
             f"HDF5 dataset {dset.name} is indicated to have a single configuration, "
             f"but the shot number column is NOT uniquely filled.  Indicating "
             f"multiple configurations are present."
         )
 
+    err_msg_append = ""
     if config_column is None:
         config_mask = np.ones_like(dset_shotnum, dtype=bool)
     else:
@@ -137,12 +160,14 @@ def build_shotnum_dset_relation(
             dset_config_column == config_column_value.encode()
         )  # type: np.ndarray
 
-        if np.count_nonzero(config_mask) == 0:
-            raise ValueError(
-                f"The config_column_value '{config_column_value}' could not be "
-                f"found in the HDF5 dataset '{dset.name}'.  Valid values are "
-                f"{np.unique(dset_config_column)}."
-            )
+        err_msg_append = f"  Valid values are {np.unique(dset_config_column)}."
+
+    config_mask = np.logical_and(config_mask, nonzero_mask)
+    if np.count_nonzero(config_mask) == 0:
+        raise ValueError(
+            f"The config_column_value '{config_column_value}' could not be "
+            f"found in the HDF5 dataset '{dset.name}'.{err_msg_append}"
+        )
 
     dset_shotnum_subset = dset_shotnum[config_mask]
 

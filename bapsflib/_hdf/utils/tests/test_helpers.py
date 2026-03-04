@@ -429,6 +429,78 @@ class TestBuildShotnumDsetRelation(TestBase):
                 )
                 self.assertTrue(np.allclose(kwargs["shotnum"][sni], expected))
 
+    def test_zero_front_padded_dset(self):
+        self.f.remove_all_modules()
+        self.f.add_module(
+            "SIS crate",
+            mod_args={"n_configs": 1, "sn_size": 100, "nt": 1000},
+        )
+
+        # set only one board and channel active
+        mod = self.f.modules["SIS crate"]
+        active_brdch = mod.knobs.active_brdch
+        active_brdch["SIS 3305"][...] = False
+        active_brdch["SIS 3302"][...] = False
+        active_brdch["SIS 3302"][0, 0] = True
+        mod.knobs.active_brdch = active_brdch
+
+        # zero pad datasets
+        config_name = mod.config_names[0]
+        board = 1
+        channel = 1
+        slot = mod.get_slot(board, "SIS 3302")
+        dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {channel}]"
+        dheader_name = f"{dset_name} headers"
+
+        dset = mod[dset_name]
+        dheader = mod[dheader_name]
+
+        data = dset[...]
+        new_data = np.append(np.zeros_like(data), data, axis=0)
+        del mod[dset_name]
+        mod.create_dataset(dset_name, data=new_data)
+
+        header = dheader[...]
+        new_header = np.append(np.zeros_like(header), header)
+        del mod[dheader_name]
+        mod.create_dataset(dheader_name, data=new_header)
+        dheader = mod[dheader_name]
+
+        _conditions = [
+            # (shotnum, expected_shotnums, expected_index)
+            ([1], [1], [100]),
+            ([1, 10], [1, 10], [100, 109]),
+            ([1, 50, 1001], [1, 50], [100, 149]),
+        ]
+        for shotnum, expected_shotnums, expected_index in _conditions:
+
+            shotnum = np.array(shotnum)
+            expected_shotnums = np.array(expected_shotnums)
+            expected_index = np.array(expected_index)
+
+            with self.subTest(
+                shotnum=shotnum,
+                expected_shotnums=expected_shotnums,
+                expected_index=expected_index,
+            ):
+                index, sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=dheader,
+                    shotnumkey="Shot number",
+                    n_configs=1,
+                    config_column_value=None,
+                    config_column=None,
+                )
+
+                self.assertTrue(
+                    np.allclose(
+                        shotnum[sni],
+                        dheader["Shot number"][index],
+                    )
+                )
+                self.assertTrue(np.allclose(shotnum[sni], expected_shotnums))
+                self.assertTrue(np.allclose(index, expected_index))
+
 
 class TestConditionControls(TestBase):
     """Test Case for condition_controls"""

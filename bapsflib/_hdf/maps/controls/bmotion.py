@@ -55,6 +55,15 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         """
         return self._run_config_names
 
+    @property
+    def one_config_per_dset(self) -> bool:
+        """
+        `True` if each control configuration has its own dataset
+        """
+        n_dset = 1
+        n_configs = len(self._configs)
+        return True if n_dset == n_configs else False
+
     def _init_before_build_configs(self):
         self._config_groups = []  # type: List[Group]
         self._run_config_names = tuple()  # type: Tuple[str]

@@ -1,0 +1,2 @@
+Updated `~bapsflib._hdf.utils.helpers.build_shotnum_dset_relation` to
+handle datasets that have been padded with zero rows.

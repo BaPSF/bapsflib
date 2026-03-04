@@ -464,11 +464,42 @@ class TestBuildShotnumDsetRelation(TestBase):
         new_header = np.append(np.zeros_like(header), header)
         del mod[dheader_name]
         mod.create_dataset(dheader_name, data=new_header)
+        dheader = mod[dheader_name]
 
-        self.fail("force fail")
+        _conditions = [
+            # (shotnum, expected_shotnums, expected_index)
+            ([1], [1], [100]),
+            ([1, 10], [1, 10], [100, 109]),
+            ([1, 50, 1001], [1, 50], [100, 149]),
+        ]
+        for shotnum, expected_shotnums, expected_index in _conditions:
 
+            shotnum = np.array(shotnum)
+            expected_shotnums = np.array(expected_shotnums)
+            expected_index = np.array(expected_index)
 
+            with self.subTest(
+                shotnum=shotnum,
+                expected_shotnums=expected_shotnums,
+                expected_index=expected_index,
+            ):
+                index, sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=dheader,
+                    shotnumkey="Shot number",
+                    n_configs=1,
+                    config_column_value=None,
+                    config_column=None,
+                )
 
+                self.assertTrue(
+                    np.allclose(
+                        shotnum[sni],
+                        dheader["Shot number"][index],
+                    )
+                )
+                self.assertTrue(np.allclose(shotnum[sni], expected_shotnums))
+                self.assertTrue(np.allclose(index, expected_index))
 
 
 class TestConditionControls(TestBase):

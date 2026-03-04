@@ -871,3 +871,19 @@ class TestBMotion(ControlTestCase):
         with self.assertWarns(HDFMappingWarning):
             _map = self.map
             self.assertNotIn(mg_name, _map.configs)
+
+    def test_one_config_per_dset(self):
+        _conditions = [
+            # (_assert, n_motion_groups)
+            # - n_motion_groups is equivalent to number of configurations
+            (self.assertTrue, 1),
+            (self.assertFalse, 2),
+            (self.assertFalse, 3),
+            (self.assertFalse, 4),
+            (self.assertFalse, 5),
+        ]
+        for _assert, n_motion_groups in _conditions:
+            with self.subTest(_assert=_assert.__name__, n_motion_groups=n_motion_groups):
+                self.mod.knobs.n_motion_groups = n_motion_groups
+
+                _assert(self.map.one_config_per_dset)

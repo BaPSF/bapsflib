@@ -592,39 +592,25 @@ class HDFReadData(np.ndarray):
         obj = data.view(cls)
 
         # get voltage offset
-        warn_msg = None
         try:
-            voffset = dheader[0, "Offset"]
+            voffset = dheader[index[0], "Offset"]
 
-            if voffset != 0:
-                voffset = voffset * u.volt
-            elif len(_dmap.active_configs) == 1:
-                warn_msg = (
-                    "Digitizer header dataset has an invalid value (zero) in the "
-                    "voltage 'Offset' field."
-                )
-                raise ValueError
+            if voffset == 0:
+                voffset = None
             else:
-                # multiple configurations were used for the digitizer, so it is
-                # likely that the header has been stuffed by the HDF5 translator
-                # with zero for the shot the configuration was not used for
-                voffsets = np.unique(dheader["Offset"])
-                if voffsets.size == 2:
-                    voffset = voffsets[voffsets != 0][0] * u.volt
-                else:
-                    warn_msg = (
-                        "Digitizer header dataset has an multiple non-zero values "
-                        "in the voltage 'Offset' field.  Currently HDFReadData can "
-                        "only handle one non-zer value."
-                    )
-                    raise ValueError
-
+                voffset = voffset * u.volt
         except ValueError:
-            if warn_msg is None:
-                warn_msg = (
-                    "Digitizer header dataset is missing the voltage 'Offset' field."
-                )
-            warn(warn_msg, HDFMappingWarning)
+            warn(
+                "Digitizer header dataset is missing the voltage 'Offset' field.",
+                HDFMappingWarning,
+            )
+            voffset = None
+        except IndexError as err:
+            warn(
+                f"{err} ... Digitizer header dataset is being index out of "
+                f"range, unable to determine the voltage 'Offset'.",
+                HDFMappingWarning,
+            )
             voffset = None
 
         # assign dataset meta-info

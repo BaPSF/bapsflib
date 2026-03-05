@@ -44,12 +44,6 @@ class TestHDFReadData(TestBase):
     # Notes:
     # - tests are currently performed on digitizer 'SIS 3301'
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     @with_bf
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.HDFReadControls")
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.condition_controls")
@@ -1290,7 +1284,3 @@ class TestHDFReadData(TestBase):
 
                 if motion_added is False:
                     self.assertTrue(np.all(np.isnan(data["xyz"])))
-
-
-if __name__ == "__main__":
-    ut.main()

@@ -1,0 +1,2 @@
+Updated `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` to revert to
+``keep_bits == True`` if the retrieved voltage offset is zero.

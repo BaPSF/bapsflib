@@ -593,10 +593,29 @@ class HDFReadData(np.ndarray):
 
         # get voltage offset
         try:
-            voffset = dheader[0, "Offset"] * u.volt
+            voffset = dheader[index[0], "Offset"]
+
+            if voffset == 0:
+                warn(
+                    "Digitizer header dataset voltage 'Offset' field is zero.  "
+                    "This will produce a NULL voltage array if the bit "
+                    "conversion is attempted.  Leaving the data as bits.",
+                    BaPSFWarning,
+                )
+                keep_bits = True
+                voffset = None
+            else:
+                voffset = voffset * u.volt
         except ValueError:
             warn(
-                "Digitizer header dataset is missing the voltage 'Offset' field. ",
+                "Digitizer header dataset is missing the voltage 'Offset' field.",
+                HDFMappingWarning,
+            )
+            voffset = None
+        except IndexError as err:  # pragma: no cover
+            warn(
+                f"{err} ... Digitizer header dataset is being index out of "
+                f"range, unable to determine the voltage 'Offset'.",
                 HDFMappingWarning,
             )
             voffset = None

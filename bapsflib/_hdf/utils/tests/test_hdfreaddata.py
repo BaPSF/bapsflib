@@ -21,6 +21,7 @@ from unittest import mock
 
 from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
+from bapsflib._hdf.maps.digitizers.tests.fauxsis3301 import FauxSIS3301
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 from bapsflib._hdf.utils.hdfreaddata import HDFReadData
@@ -43,12 +44,6 @@ class TestHDFReadData(TestBase):
     #
     # Notes:
     # - tests are currently performed on digitizer 'SIS 3301'
-
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
 
     @with_bf
     @mock.patch("bapsflib._hdf.utils.hdfreaddata.HDFReadControls")
@@ -1008,6 +1003,59 @@ class TestHDFReadData(TestBase):
             self.assertDataObj(data, _bf)
 
     @with_bf
+    def test_zero_voltage_offset(self, _bf: File):
+        sn_size = 50
+        digi = "SIS 3301"
+        adc = "SIS 3301"
+        nt = 1000
+        n_configs = 1
+        self.f.add_module(
+            "SIS 3301",
+            mod_args={"n_configs": n_configs, "sn_size": sn_size, "nt": nt},
+        )  # type: FauxSIS3301
+        mod = self.f.modules["SIS 3301"]
+        config_name = mod.config_names[0]
+
+        # set only (brd, channel) = (1, 1) active
+        brdchs = mod.knobs.active_brdch
+        brdchs[...] = False
+        brdchs[0, 0] = True
+        mod.knobs.active_brdch = brdchs
+
+        # override 'Offset' column values to be zero
+        board = 0
+        channel = 0
+        dset_name = f"{config_name} [{board}:{channel}]"
+        dheader_name = f"{dset_name} headers"
+        dheader_data = mod[dheader_name][...]
+        dheader_data["Offset"][...] = 0.0
+        del mod[dheader_name]
+        mod.create_dataset(dheader_name, data=dheader_data)
+
+        # stuff the dataset
+        dset_data = mod[dset_name][...]
+        dset_data[...] = 5234
+        del mod[dset_name]
+        mod.create_dataset(dset_name, data=dset_data)
+
+        # re-map the file
+        _bf._map_file()
+
+        # test
+        with self.assertWarns(BaPSFWarning):
+            data = HDFReadData(
+                _bf,
+                board,
+                channel,
+                index=5,
+                adc=adc,
+                digitizer=digi,
+                config_name=config_name,
+            )
+            self.assertTrue(np.all(data["shotnum"] == 6))
+            self.assertTrue(np.all(data["signal"] == 5234))
+
+    @with_bf
     @mock.patch(
         "bapsflib._hdf.utils.hdfreaddata.condition_shotnum", side_effect=condition_shotnum
     )
@@ -1290,7 +1338,3 @@ class TestHDFReadData(TestBase):
 
                 if motion_added is False:
                     self.assertTrue(np.all(np.isnan(data["xyz"])))
-
-
-if __name__ == "__main__":
-    ut.main()

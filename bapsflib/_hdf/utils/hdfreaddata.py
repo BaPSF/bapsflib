@@ -600,7 +600,7 @@ class HDFReadData(np.ndarray):
                     "Digitizer header dataset voltage 'Offset' field is zero.  "
                     "This will produce a NULL voltage array if the bit "
                     "conversion is attempted.  Leaving the data as bits.",
-                    BaPSFWarning
+                    BaPSFWarning,
                 )
                 keep_bits = True
                 voffset = None

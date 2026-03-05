@@ -596,6 +596,13 @@ class HDFReadData(np.ndarray):
             voffset = dheader[index[0], "Offset"]
 
             if voffset == 0:
+                warn(
+                    "Digitizer header dataset voltage 'Offset' field is zero.  "
+                    "This will produce a NULL voltage array if the bit "
+                    "conversion is attempted.  Leaving the data as bits.",
+                    BaPSFWarning
+                )
+                keep_bits = True
                 voffset = None
             else:
                 voffset = voffset * u.volt

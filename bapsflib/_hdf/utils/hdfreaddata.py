@@ -605,7 +605,7 @@ class HDFReadData(np.ndarray):
                 HDFMappingWarning,
             )
             voffset = None
-        except IndexError as err:
+        except IndexError as err:  # pragma: no cover
             warn(
                 f"{err} ... Digitizer header dataset is being index out of "
                 f"range, unable to determine the voltage 'Offset'.",

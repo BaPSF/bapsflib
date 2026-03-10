@@ -396,6 +396,14 @@ def condition_shotnum(
     elif isinstance(shotnum, slice):
         # determine the largest possible shot number
         last_sn = [dset[-1, key] + 1 for dset, key in zip(dset_list, shotnumkey_list)]
+        last_sn = []
+        for dset, key in zip(dset_list, shotnumkey_list):
+            if key is None:
+                # Associated digitizer header dataset does NOT contain shot number
+                # data.
+                last_sn.append(dset.size)
+            else:
+                last_sn.append(dset[-1, key] + 1)
         if shotnum.stop is not None:
             last_sn.append(shotnum.stop)
         stop_sn = max(last_sn)

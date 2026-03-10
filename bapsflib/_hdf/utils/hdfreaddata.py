@@ -284,7 +284,8 @@ class HDFReadData(np.ndarray):
             config_name = _dmap.active_configs[0]
 
         # define `shotnumkey`
-        shotnumkey = _dmap.configs[config_name]["shotnum"]["dset field"][0]
+        shotnum_config = _dmap.configs[config_name]["shotnum"]
+        shotnumkey = None if shotnum_config is None else shotnum_config["dset field"][0]
 
         # print execution timing
         if timeit:  # pragma: no cover
@@ -384,7 +385,13 @@ class HDFReadData(np.ndarray):
             index = np.unique(index)
 
             # define `shotnum`
-            shotnum = dheader[index.tolist(), shotnumkey]
+            if shotnumkey is not None:
+                shotnum = dheader[index.tolist(), shotnumkey]
+            else:
+                # The header dataset for the associated digitizer does NOT
+                # contain shot number information.  Assume the shot number
+                # is the index value plus one
+                shotnum = index + 1
 
             # define sni
             sni = np.ones(shotnum.shape[0], dtype=bool)

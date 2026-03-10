@@ -94,7 +94,7 @@ def build_shotnum_dset_relation(
     #       HDF5 translator "ignorantly" does this to maintain a dataset
     #       size equivalent to the shot number size.
     #
-    if shotnumkey not in dset.dtype.names:
+    if shotnumkey is not None and shotnumkey not in dset.dtype.names:
         raise ValueError(
             f"The expected shot number column '{shotnumkey}' not found in the "
             f"HDF5 dataset {dset.name}.  Present columns are {dset.dtype.names}."
@@ -127,7 +127,12 @@ def build_shotnum_dset_relation(
             f"HDF5 dataset '{dset.name}'.  Present columns are {dset.dtype.names}."
         )
 
-    dset_shotnum = dset[shotnumkey]
+    if shotnumkey is None:
+        # Header dataset does not contain shot number information, assuming
+        # shot number is index + 1.
+        dset_shotnum = np.arange(1, dset.size+1, 1, dtype=np.uint32)
+    else:
+        dset_shotnum = dset[shotnumkey]
     unique_shotnums = np.unique(dset_shotnum)
     if dset_shotnum[0] == 0:
         # A zero shot number should not exist!  This happens when the

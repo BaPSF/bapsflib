@@ -340,6 +340,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             `True` if the configuration was used in recording the group
             datasets; otherwise, `False`
 
+        Notes
+        -----
+
         .. note::
 
             If the digitizer does not use the configuration name in the

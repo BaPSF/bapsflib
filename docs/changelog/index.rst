@@ -10,6 +10,7 @@ This document lists the changes made for each release of `bapsflib`.
     :titlesonly:
 
     dev
+    2026.3.0
     2025.6.0
     2025.3.0
     2.1.0

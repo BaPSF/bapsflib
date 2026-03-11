@@ -1,4 +1,0 @@
-Updated `~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion`
-to override the
-`~bapsflib._hdf.maps.controls.templates.HDFMapControlTemplate.one_config_per_dset`
-property, and fix the one shot per dataset calculation.

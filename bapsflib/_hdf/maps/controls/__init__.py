@@ -15,6 +15,7 @@ Package of control device mapping classes and their constructor
 __all__ = ["ConType", "HDFMapControls"]
 
 from bapsflib._hdf.maps.controls import (
+    bmotion,
     map_controls,
     n5700ps,
     nixyz,

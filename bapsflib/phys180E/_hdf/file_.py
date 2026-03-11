@@ -2,6 +2,7 @@
 Module containing the HDF5 reader for files generated in the Physics
 180E class.
 """
+
 __all__ = ["File"]
 
 from bapsflib._hdf.utils.file import File as BaseFile
@@ -38,7 +39,9 @@ class File(BaseFile):
         >>> isinstance(f, h5py.File)
         True
         """
-        control_path = "Control" if "control_path" not in kwargs else kwargs["control_path"]
+        control_path = (
+            "Control" if "control_path" not in kwargs else kwargs["control_path"]
+        )
         digitizer_path = (
             "Acquisition" if "digitizer_path" not in kwargs else kwargs["digitizer_path"]
         )

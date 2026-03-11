@@ -1,2 +1,0 @@
-Expanded workflow ``test.yml`` to include testing on Python versions
-3.13 and 3.14.

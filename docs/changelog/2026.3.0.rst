@@ -1,0 +1,34 @@
+v2026.3.0 (2026-03-11)
+======================
+
+Deprecations and Removals
+-------------------------
+
+- Removed support for Python 3.9. (`#173 <https://github.com/BaPSF/bapsflib/pull/173>`_)
+
+
+Bug Fixes
+---------
+
+- Updated `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` to retrieve the
+  digitizer voltage offset from the first requested ``index`` / ``shotnum``
+  instead of the first row of the header dataset. (`#172 <https://github.com/BaPSF/bapsflib/pull/172>`_)
+- Updated `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` to revert to
+  ``keep_bits == True`` if the retrieved voltage offset is zero. (`#172 <https://github.com/BaPSF/bapsflib/pull/172>`_)
+- Updated `~bapsflib._hdf.maps.controls.bmotion.HDFMapControlBMotion`
+  to override the
+  `~bapsflib._hdf.maps.controls.templates.HDFMapControlTemplate.one_config_per_dset`
+  property, and fix the one shot per dataset calculation. (`#174 <https://github.com/BaPSF/bapsflib/pull/174>`_)
+- Updated `~bapsflib._hdf.utils.helpers.build_shotnum_dset_relation` to
+  handle datasets that have been padded with zero rows. (`#175 <https://github.com/BaPSF/bapsflib/pull/175>`_)
+
+
+Package Management
+------------------
+
+- Expanded workflow ``test.yml`` to include testing on Python versions
+  3.13 and 3.14. (`#173 <https://github.com/BaPSF/bapsflib/pull/173>`_)
+- Made Python v3.10 the minimal support version. (`#173 <https://github.com/BaPSF/bapsflib/pull/173>`_)
+- Unfroze the ``towncrier`` dependency, ``towncrier == 22.8.0`` ->
+  ``towncrier >= 22.8.0``. (`#173 <https://github.com/BaPSF/bapsflib/pull/173>`_)
+- Removed the ``test-mins`` action from the ``tests.yml`` workflow. (`#173 <https://github.com/BaPSF/bapsflib/pull/173>`_)

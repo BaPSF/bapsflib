@@ -1,3 +1,0 @@
-Updated `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` to retrieve the
-digitizer voltage offset from the first requested ``index`` / ``shotnum``
-instead of the first row of the header dataset.

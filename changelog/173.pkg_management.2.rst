@@ -1,1 +1,0 @@
-Made Python v3.10 the minimal support version.

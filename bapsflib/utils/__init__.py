@@ -9,7 +9,7 @@
 #   license terms and contributor agreement.
 #
 """
-Package of developer utilities.
+Package of package utility / helper functionality.
 """
 
 __all__ = []

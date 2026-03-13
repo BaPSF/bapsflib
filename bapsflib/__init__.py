@@ -14,7 +14,7 @@ Plasma Science Facility (BaPSF) group at the University of California,
 Los Angeles (UCLA).  It is a toolkit for reading, manipulating, and analyzing
 data collected at BaPSF.
 """
-__all__ = ["lapd"]
+__all__ = ["lapd", "phys180E"]
 
 import sys
 
@@ -23,7 +23,7 @@ if sys.version_info < (3, 10):  # coverage: ignore
 
 from importlib.metadata import PackageNotFoundError, version
 
-from bapsflib import _hdf, lapd, plasma, utils
+from bapsflib import _hdf, lapd, phys180E, utils
 
 # --- Define version -----------------------------------------------------------
 try:

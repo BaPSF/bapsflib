@@ -17,6 +17,17 @@ Welcome to bapsflib's documentation!
     using_lapd/main
     ./hdfmap/main
 
+.. toctree::
+    :maxdepth: 1
+    :caption: Package Features
+
+    File Mapping <api_static/bapsflib._hdf.maps>
+    Control Mappers <api_static/bapsflib._hdf.maps.controls>
+    Digitizer Mappers <api_static/bapsflib._hdf.maps.digitizers>
+    MSI Mappers <api_static/bapsflib._hdf.maps.msi>
+    LaPD <api_static/bapsflib.lapd>
+    phys180E <api_static/bapsflib.phys180E>
+    Utilities <api_static/bapsflib.utils>
 
 .. toctree::
     :maxdepth: 1

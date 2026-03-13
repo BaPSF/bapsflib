@@ -67,6 +67,83 @@ class HDFMapDigitizers(dict):
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
 
+    def __str__(self):
+        # gather information
+        rows = [
+            [
+                "Digitizer",
+                "Configuration",
+                "ADC",
+                "(board, [channel, ...])",
+                "Shot Num. Range",
+                "nt",
+            ],
+        ]
+        for digi_name, _map in self.items():
+            digi_name_added = False
+            for cname, config in _map.configs.items():
+                cname_added = False
+                if not config["active"]:
+                    continue
+
+                for adc_ii, adc in enumerate(config["adc"]):
+                    adc_added = False
+                    for connection_ii, connection in enumerate(config[adc]):
+                        board = connection[0]
+                        channels = connection[1]
+                        _setup = connection[2]
+
+                        digi_entry = "" if digi_name_added else digi_name
+                        cname_entry = "" if cname_added else cname
+                        adc_entry = "" if adc_added else adc
+                        rows.append(
+                            [
+                                digi_entry,
+                                cname_entry,
+                                adc_entry,
+                                str((board, channels)),
+                                '??',
+                                str(_setup["nt"]),
+                            ]
+                        )
+
+                        digi_name_added = True
+                        cname_added = True
+                        adc_added = True
+
+        max_cell_sizes = [1] * len(rows[0])
+        for row in rows:
+            for ii in range(len(max_cell_sizes)):
+                max_cell_sizes[ii] = max(max_cell_sizes[ii], len(row[ii]) + 2)
+
+        table_str = ""
+        for ii, row in enumerate(rows):
+            table_str += (
+                f"| {row[0]:<{max_cell_sizes[0]}} "
+                f"| {row[1]:<{max_cell_sizes[1]}} "
+                f"| {row[2]:<{max_cell_sizes[2]}} "
+                f"| {row[3]:<{max_cell_sizes[3]}} "
+                f"| {row[4]:<{max_cell_sizes[4]}} "
+                f"| {row[5]:<{max_cell_sizes[5]}} |\n"
+            )
+
+            if ii == 0:
+                table_str += (
+                    f"+{'-' * (max_cell_sizes[0] + 2)}"
+                    f"+{'-' * (max_cell_sizes[1] + 2)}"
+                    f"+{'-' * (max_cell_sizes[2] + 2)}"
+                    f"+{'-' * (max_cell_sizes[3] + 2)}"
+                    f"+{'-' * (max_cell_sizes[4] + 2)}"
+                    f"+{'-' * (max_cell_sizes[5] + 2)}+\n"
+                )
+
+        return table_str
+
+    def __repr__(self):
+        _repr = super().__repr__()
+        _repr += f"\n\n{self.__str__()}"
+        return _repr
+
     @property
     def mappable_devices(self) -> Tuple[str, ...]:
         """

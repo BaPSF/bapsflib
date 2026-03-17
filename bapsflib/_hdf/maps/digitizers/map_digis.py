@@ -19,6 +19,7 @@ from bapsflib._hdf.maps.digitizers.lecroy import HDFMapDigiLeCroy180E
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib.utils import TableDisplay
 from bapsflib.utils.exceptions import HDFMappingError
 
 
@@ -112,31 +113,9 @@ class HDFMapDigitizers(dict):
                         cname_added = True
                         adc_added = True
 
-        max_cell_sizes = [1] * len(rows[0])
-        for row in rows:
-            for ii in range(len(max_cell_sizes)):
-                max_cell_sizes[ii] = max(max_cell_sizes[ii], len(row[ii]) + 2)
-
-        table_str = ""
-        for ii, row in enumerate(rows):
-            table_str += (
-                f"| {row[0]:<{max_cell_sizes[0]}} "
-                f"| {row[1]:<{max_cell_sizes[1]}} "
-                f"| {row[2]:<{max_cell_sizes[2]}} "
-                f"| {row[3]:<{max_cell_sizes[3]}} "
-                f"| {row[4]:<{max_cell_sizes[4]}} "
-                f"| {row[5]:<{max_cell_sizes[5]}} |\n"
-            )
-
-            if ii == 0:
-                table_str += (
-                    f"+{'-' * (max_cell_sizes[0] + 2)}"
-                    f"+{'-' * (max_cell_sizes[1] + 2)}"
-                    f"+{'-' * (max_cell_sizes[2] + 2)}"
-                    f"+{'-' * (max_cell_sizes[3] + 2)}"
-                    f"+{'-' * (max_cell_sizes[4] + 2)}"
-                    f"+{'-' * (max_cell_sizes[5] + 2)}+\n"
-                )
+        table_display = TableDisplay(rows=rows[1:], headers=rows[0])
+        table_display.auto_insert_horizontal_dividers(on_columns=[0, 1])
+        table_str = table_display.table_string()
 
         return table_str
 

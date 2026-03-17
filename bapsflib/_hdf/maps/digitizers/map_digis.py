@@ -108,7 +108,7 @@ class HDFMapDigitizers(dict):
                                 cname_entry,
                                 adc_entry,
                                 str((board, channels)),
-                                '??',
+                                "??",
                                 str(_setup["nt"]),
                             ]
                         )

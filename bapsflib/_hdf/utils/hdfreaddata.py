@@ -409,10 +409,6 @@ class HDFReadData(np.ndarray):
             # - `shotnum` will be converted from list to np.array
             # - `index` and `sni` will be np.array's
             #
-            #   index, shotnum, sni = condition_shotnum(
-            #       shotnum, dheader, shotnumkey, intersection_set
-            #   )
-            #
             index, sni = build_shotnum_dset_relation(
                 shotnum=shotnum,
                 dset=dheader,

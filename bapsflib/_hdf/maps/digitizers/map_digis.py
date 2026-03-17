@@ -69,6 +69,10 @@ class HDFMapDigitizers(dict):
         dict.__init__(self, self.__build_dict)
 
     def __str__(self):
+        if len(self) == 0:
+            # no digitizers mapped
+            return ""
+
         # gather information
         rows = [
             [

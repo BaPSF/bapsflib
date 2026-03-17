@@ -27,6 +27,7 @@ from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlTemplate,
 )
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
+from bapsflib.utils import TableDisplay
 from bapsflib.utils.exceptions import HDFMappingError
 
 
@@ -91,6 +92,42 @@ class HDFMapControls(dict):
 
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
+
+    def __str__(self):
+        # gather information
+        rows = [
+            [
+                "Control",
+                "Configuration",
+                "Shot Num. Range",
+                "Readout Data Fields",
+            ],
+        ]
+        for control_name, _map in self.items():
+            control_name_added = False
+            for cname, config in _map.configs.items():
+                control_entry = "" if control_name_added else f"'{control_name}'"
+                rows.append(
+                    [
+                        control_entry,
+                        f"'{cname}'",
+                        '??',
+                        str(tuple(config["state values"].keys())),
+                    ]
+                )
+
+                control_name_added = True
+
+        table_display = TableDisplay(rows=rows[1:], headers=rows[0])
+        table_display.auto_insert_horizontal_dividers(on_columns=[0])
+        table_str = table_display.table_string()
+
+        return table_str
+
+    def __repr__(self):
+        _repr = super().__repr__()
+        _repr += f"\n\n{self.__str__()}"
+        return _repr
 
     @property
     def mappable_devices(self) -> Tuple[str, ...]:

@@ -115,7 +115,7 @@ class HDFMapControls(dict):
                     [
                         control_entry,
                         f"'{cname}'",
-                        '??',
+                        "??",
                         str(tuple(config["state values"].keys())),
                     ]
                 )

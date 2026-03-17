@@ -95,9 +95,9 @@ class HDFMapDigitizers(dict):
                         channels = connection[1]
                         _setup = connection[2]
 
-                        digi_entry = "" if digi_name_added else digi_name
-                        cname_entry = "" if cname_added else cname
-                        adc_entry = "" if adc_added else adc
+                        digi_entry = "" if digi_name_added else f"'{digi_name}'"
+                        cname_entry = "" if cname_added else f"'{cname}'"
+                        adc_entry = "" if adc_added else f"'{adc}'"
                         rows.append(
                             [
                                 digi_entry,

@@ -27,10 +27,10 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 if TYPE_CHECKING:
     # This is done for typing purposes only.
     # An actual import would cause cyclical imports.
-    from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
-    from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
     from bapsflib._hdf.utils.hdfoverview import HDFOverview
+    from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
     from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+    from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 
 
 class File(h5py.File):

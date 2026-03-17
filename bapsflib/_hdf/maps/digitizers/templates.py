@@ -444,11 +444,11 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             if board == conn[0]:
                 found = True
                 break
-        if not found or not bool(board):
+        if not found:
             raise ValueError(f"Board number ({board}) not found in setup")
 
         # look for `channel`
-        if channel not in conn[1] or not bool(channel):
+        if channel not in conn[1]:
             raise ValueError(f"Channel number ({channel})  not found in setup")
 
         # get dictionary and add keys

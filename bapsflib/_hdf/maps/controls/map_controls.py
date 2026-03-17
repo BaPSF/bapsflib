@@ -93,6 +93,10 @@ class HDFMapControls(dict):
         dict.__init__(self, self.__build_dict)
 
     def __str__(self):
+        if len(self) == 0:
+            # no controls mapped
+            return ""
+
         # gather information
         rows = [
             [

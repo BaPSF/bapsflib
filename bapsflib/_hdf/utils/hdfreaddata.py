@@ -558,7 +558,13 @@ class HDFReadData(np.ndarray):
 
         # get voltage offset
         try:
-            voffset = dheader[index[0], "Offset"]
+            if d_info["bit"] is None:
+                # Since not bit value is recorded, the digitizer data must
+                # have been saved as voltage.
+                keep_bits = True
+                voffset = None
+            else:
+                voffset = dheader[index[0], "Offset"]
 
             if voffset == 0:
                 warn(
@@ -569,7 +575,7 @@ class HDFReadData(np.ndarray):
                 )
                 keep_bits = True
                 voffset = None
-            else:
+            elif voffset is not None:
                 voffset = voffset * u.volt
         except ValueError:
             warn(

@@ -65,7 +65,7 @@ class File(BaseFile):
             digitizer_path="Raw data + config",
             msi_path="MSI",
             silent=silent,
-            **kwargs
+            **kwargs,
         )
 
     def _build_info(self):

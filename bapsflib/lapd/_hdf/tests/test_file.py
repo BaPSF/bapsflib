@@ -102,7 +102,3 @@ class TestLaPDFile(TestBase):
             _lapdf.run_description()
             self.assertNotEqual(mock_stdout.getvalue(), "")
             self.assertTrue(mock_info.called)
-
-
-if __name__ == "__main__":
-    ut.main()

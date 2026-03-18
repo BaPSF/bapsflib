@@ -1,0 +1,2 @@
+Created sub-module `bapsflib.phys180E` and initialized it with the
+`~bapsflib.phys180E._hdf.file_.File` class.

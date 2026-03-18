@@ -32,10 +32,8 @@ class File(BaseFile):
 
         >>> # open HDF5 file
         >>> f = File('sample.hdf5')
-        >>> type(f)
-        bapsflib.lapd._hdf.file.File
-        >>> isinstance(f, bapsflib._hdf.utils.file.File)
-        True
+        >>>>
+        >>> # the File class is a subclass of h5py.File
         >>> isinstance(f, h5py.File)
         True
         """

@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """LaPD constants/parameters."""
+
 __all__ = ["port_spacing", "ref_port", "BaPSFConstant", "SouthCathode"]
 
 import astropy.units as u

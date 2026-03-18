@@ -12,6 +12,7 @@
 Module for defining the main HDF5 file mapper
 `~bapsflib._hdf.maps.mapper.HDFMapper`.
 """
+
 __all__ = ["HDFMapper"]
 
 import h5py

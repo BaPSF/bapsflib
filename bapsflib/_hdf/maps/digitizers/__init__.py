@@ -12,6 +12,7 @@
 Package of digitizer mapping classes and their constructor
 (:class:`~.map_digis.HDFMapDigitizers`).
 """
+
 __all__ = ["HDFMapDigitizers"]
 
 from bapsflib._hdf.maps.digitizers import map_digis, sis3301, siscrate, templates

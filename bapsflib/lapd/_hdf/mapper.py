@@ -12,6 +12,7 @@
 Module for defining the LaPD HDF5 file mapper
 `~bapsflib.lapd._hdf.mapper.LaPDMapper`.
 """
+
 __all__ = ["LaPDMapper"]
 
 import h5py

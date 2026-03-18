@@ -12,6 +12,7 @@
 Module for the NIXYZ motion control mapper
 `~bapsflib._hdf.maps.controls.nixyz.HDFMapControlNIXYZ`.
 """
+
 __all__ = ["HDFMapControlNIXYZ"]
 
 import astropy.units as u

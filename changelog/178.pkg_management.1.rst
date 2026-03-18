@@ -1,0 +1,1 @@
+Bumped `black` version from ``==v24.3.0`` to ``==v26.3.1``.

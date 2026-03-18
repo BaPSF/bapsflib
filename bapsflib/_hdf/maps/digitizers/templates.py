@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module for the template digitizer mappers."""
+
 __all__ = ["HDFMapDigiTemplate"]
 
 import copy

@@ -12,6 +12,7 @@
 Package of MSI diagnostic mapping classes and their constructor
 (`~.map_msi.HDFMapMSI`).
 """
+
 __all__ = ["HDFMapMSI"]
 
 from bapsflib._hdf.maps.msi import (

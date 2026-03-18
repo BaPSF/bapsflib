@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module containing the main HDF5 `~bapsflib._hdf.utils.file.File` class."""
+
 __all__ = ["File"]
 
 import h5py

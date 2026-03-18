@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module for defining the main control mapper `HDFMapControls`."""
+
 __all__ = ["HDFMapControls"]
 
 import h5py

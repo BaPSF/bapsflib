@@ -14,6 +14,7 @@ are a list of strings used by control devices to indicate what is changed from
 shot-to-shot.  This usually represents a command string that is sent to a
 device to tell it to change an output.
 """
+
 __all__ = ["CLParse"]
 
 import numpy as np

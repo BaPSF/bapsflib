@@ -12,6 +12,7 @@
 Module for the Cathode Heater MSI Diagnostic mapper
 `~bapsflib._hdf.maps.msi.heater.HDFMapMSIHeater`.
 """
+
 __all__ = ["HDFMapMSIHeater"]
 
 import numpy as np

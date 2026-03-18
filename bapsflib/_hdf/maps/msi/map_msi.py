@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module for defining the main MSI mapper `HDFMapMSI`."""
+
 __all__ = ["HDFMapMSI"]
 
 import h5py

@@ -395,52 +395,6 @@ class HDFReadData(np.ndarray):
                 tt.append(time.time())
                 print(f"tt - condition index: {(tt[-1] - tt[-2]) * 1.0e3} ms")
         else:
-            # Condition `shotnum` keyword
-            #
-            # convert `shotnum` to np.ndarray
-            """
-            if isinstance(shotnum, slice):
-                # determine largest possible shot number
-                last_sn = dheader[-1, shotnumkey]
-                if shotnum.stop is not None:
-                    stop_sn = max(shotnum.stop, last_sn + 1)
-                else:
-                    stop_sn = last_sn + 1
-
-                # get the start, stop, and step for the shot number
-                # array
-                start, stop, step = shotnum.indices(stop_sn)
-
-                # determine smallest possible shot number
-                # - intersection_set = True
-                #   * start = max of first_sn and shotnum.start
-                # - intersection_set = False
-                #   * start = min of first_sn and shotnum.start
-                first_sn = [dheader[0, shotnumkey]]
-                if shotnum.start is not None:
-                    # ensure shot numbers are >= 1
-                    if start <= 0:
-                        start = 1
-                else:
-                    # start wasn't specified in slice object
-                    start = min(first_sn)
-
-                # adjust start for intersection_set
-                if intersection_set:
-                    first_sn.append(start)
-                    start = max(first_sn)
-
-                # re-define shotnum as a list
-                shotnum = np.arange(start, stop, step).tolist()
-            elif isinstance(shotnum, int):
-                shotnum = [shotnum]
-            elif isinstance(shotnum, list):
-                # ensure all elements are int
-                if not all(isinstance(sn, int) for sn in shotnum):
-                    raise ValueError('Valid `shotnum` not passed')
-            else:
-                raise ValueError('Valid `shotnum` not passed')
-            """
             # perform `shotnum` conditioning
             # - `shotnum` is returned as a numpy array
             shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
@@ -448,11 +402,7 @@ class HDFReadData(np.ndarray):
             # Calc. the corresponding `index` and `sni`
             # - `shotnum` will be converted from list to np.array
             # - `index` and `sni` will be np.array's
-            """
-            index, shotnum, sni = \
-                condition_shotnum(shotnum, dheader, shotnumkey,
-                                  intersection_set)
-            """
+            #
             index, sni = build_shotnum_dset_relation(
                 shotnum=shotnum,
                 dset=dheader,

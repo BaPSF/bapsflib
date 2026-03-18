@@ -31,12 +31,6 @@ class TestLaPDFile(TestBase):
     Test case for :class:`~bapsflib.lapd._hdf.file.File`
     """
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     @with_bf
     @with_lapdf
     def test_file(self, _bf: BaseFile, _lapdf: File):

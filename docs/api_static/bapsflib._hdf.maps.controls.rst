@@ -12,6 +12,7 @@ Sub-Packages & Modules
 
 .. autosummary::
 
+    bmotion
     map_controls
     n5700ps
     nixyz

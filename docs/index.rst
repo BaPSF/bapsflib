@@ -26,7 +26,6 @@ Welcome to bapsflib's documentation!
     Digitizer Mappers <api_static/bapsflib._hdf.maps.digitizers>
     MSI Mappers <api_static/bapsflib._hdf.maps.msi>
     LaPD <api_static/bapsflib.lapd>
-    phys180E <api_static/bapsflib.phys180E>
     Utilities <api_static/bapsflib.utils>
 
 .. toctree::

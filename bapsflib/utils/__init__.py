@@ -40,6 +40,7 @@ class TableDisplay:
     `~bapsflib._hdf.maps.digitizers.map_digis.HDFMapDigitizers` and
     `~bapsflib._hdf.maps.controls.map_controls.HDFMapControls`.
     """
+
     def __init__(self, rows: List[List[str]], headers: List[str] | None = None):
         """
         Parameters

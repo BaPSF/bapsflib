@@ -34,7 +34,27 @@ def _bytes_to_str(string: bytes | str) -> str:
 
 
 class TableDisplay:
+    """
+    Class designed to generated the brief summary tables used in the
+    ``__str__`` and ``__repr__`` methods of
+    `~bapsflib._hdf.maps.digitizers.map_digis.HDFMapDigitizers` and
+    `~bapsflib._hdf.maps.controls.map_controls.HDFMapControls`.
+    """
     def __init__(self, rows: List[List[str]], headers: List[str] | None = None):
+        """
+        Parameters
+        ----------
+        rows : List[List[str]]
+            List of table rows where each row is a list of strings being
+            the contents of the associated row-column cell.
+
+            For example, ``rows[4][3]`` would be the cell contents of
+            row 5 and column 4.
+
+        headers : List[str]
+            List of strings specifying the table column headers.  `None`
+            if table has no headers. (DEFAULT: `None`)
+        """
         self._rows = rows
         self._rows_w_dividers = None
         self._headers = headers
@@ -62,25 +82,48 @@ class TableDisplay:
 
     @property
     def cell_widths(self) -> List[int]:
+        """
+        List of cell widths of the table.  Length equal to the number
+        of columns, `ncols`.
+        """
         return self._cell_widths
 
     @property
-    def headers(self) -> List[str]:
+    def headers(self) -> List[str] | None:
+        """
+        List of table headers.  Length equal to the number of columns,
+        `ncols`.
+
+        `None` if table has no headers.
+        """
         return self._headers
 
     @property
     def rows(self) -> List[List[str]]:
+        """
+        List of table rows where each row is a list of strings being
+        the contents of the associated row-column cell.
+
+        For example, ``rows[4][3]`` would be the cell contents of row 5
+        and column 4.
+        """
         return self._rows
 
     @property
     def nrows(self) -> int:
+        """Number of rows in the table, excluding headers."""
         return len(self._rows)
 
     @property
     def ncols(self) -> int:
+        """Number of columns in the table."""
         return len(self._rows[0])
 
-    def _calc_max_cell_widths(self):
+    def _calc_max_cell_widths(self) -> List[int]:
+        """
+        Scans `rows` and `headers` to determine the maximum cell width
+        for each column.
+        """
         max_cel_widths = [len(entry) + 2 for entry in self.headers]
         for row in self.rows:
             for ii in range(len(max_cel_widths)):
@@ -89,6 +132,20 @@ class TableDisplay:
         return max_cel_widths
 
     def auto_insert_horizontal_dividers(self, on_columns: List[int]):
+        """
+        Automatically insert horizontal dividers into the table based
+        on cell value switching in columns specified by ``on_columns``.
+        Cell "switching" corresponds to when a cell value switches from
+        being empty to non-empty as moving down a column.  The
+        horizontal divider will be inserted above the non-empty cell
+        from the associated column to the end of the table.
+
+        Parameters
+        ----------
+        on_columns : List[int]
+            List of column indices to be used for determining where to
+            insert the horizontal divider.
+        """
 
         if not isinstance(on_columns, list):
             raise TypeError("on_column must be a int")
@@ -120,6 +177,10 @@ class TableDisplay:
         self._rows_w_dividers = _rows_w_dividers
 
     def table_string(self) -> str:
+        """
+        Generate and return the string contain the table associated with
+        `rows` and `headers`.
+        """
 
         table_string = ""
 

@@ -1,0 +1,6 @@
+Added return annotations for key `~bapsflib._hdf.utils.file.File`
+methods, `~bapsflib._hdf.utils.file.File.overview`,
+`~bapsflib._hdf.utils.file.File.read_controls`,
+`~bapsflib._hdf.utils.file.File.read_data`, and
+`~bapsflib._hdf.utils.file.File.read_msi`.  This was done on both
+`~bapsflib._hdf.utils.file.File` and `~bapsflib.lapd._hdf.file.File`.

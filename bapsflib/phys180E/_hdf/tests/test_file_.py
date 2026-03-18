@@ -1,8 +1,7 @@
-
 import unittest as ut
 
-from bapsflib._hdf.utils.tests import TestBase
 from bapsflib._hdf.utils.file import File as BaseFile
+from bapsflib._hdf.utils.tests import TestBase
 from bapsflib.phys180E._hdf.file_ import File
 
 
@@ -21,7 +20,7 @@ class TestPhys180EFile(TestBase):
 
     @property
     def bf(self) -> File | None:
-        if not hasattr(self, '_bf'):
+        if not hasattr(self, "_bf"):
             return
 
         return self._bf

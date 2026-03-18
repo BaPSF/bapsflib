@@ -25,8 +25,8 @@ Welcome to bapsflib's documentation!
     Control Mappers <api_static/bapsflib._hdf.maps.controls>
     Digitizer Mappers <api_static/bapsflib._hdf.maps.digitizers>
     MSI Mappers <api_static/bapsflib._hdf.maps.msi>
-    LaPD | `bapsflib.lapd` <api_static/bapsflib.lapd>
-    Utilities | `bapsflib.utils` <api_static/bapsflib.utils>
+    LaPD `bapsflib.lapd` <api_static/bapsflib.lapd>
+    Utilities | :mod:`bapsflib.utils` <api_static/bapsflib.utils>
 
 .. toctree::
     :maxdepth: 1

@@ -13,6 +13,7 @@
 Module containing the main
 `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class.
 """
+
 __all__ = ["HDFReadData"]
 
 import astropy.units as u

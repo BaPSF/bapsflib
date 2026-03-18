@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Exceptions specific to `bapsflib`."""
+
 __all__ = [
     "BaPSFError",
     "HDFMappingError",

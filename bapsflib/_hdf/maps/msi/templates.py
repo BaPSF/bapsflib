@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module for the template MSI mappers."""
+
 __all__ = ["HDFMapMSITemplate"]
 
 from abc import ABC

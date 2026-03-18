@@ -11,6 +11,7 @@
 """
 Decorators for the :mod:`bapsflib` package.
 """
+
 __all__ = ["with_bf", "with_lapdf"]
 
 import functools

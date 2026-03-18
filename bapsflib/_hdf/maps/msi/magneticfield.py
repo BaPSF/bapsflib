@@ -12,6 +12,7 @@
 Module for the Discharge MSI Diagnostic mapper
 `~bapsflib._hdf.maps.msi.magneticfield.HDFMapMSIMagneticField`.
 """
+
 __all__ = ["HDFMapMSIMagneticField"]
 
 import numpy as np

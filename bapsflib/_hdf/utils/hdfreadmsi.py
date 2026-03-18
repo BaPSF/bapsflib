@@ -12,6 +12,7 @@
 """
 Module containing the main `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` class.
 """
+
 __all__ = ["HDFReadMSI"]
 
 import copy

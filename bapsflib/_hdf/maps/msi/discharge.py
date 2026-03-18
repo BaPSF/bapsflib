@@ -12,6 +12,7 @@
 Module for the Discharge MSI Diagnostic mapper
 `~bapsflib._hdf.maps.msi.discharge.HDFMapMSIDischarge`.
 """
+
 __all__ = ["HDFMapMSIDischarge"]
 
 import numpy as np

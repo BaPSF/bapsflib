@@ -12,6 +12,7 @@
 Module for the SIS3301 digitizer mapper
 `~bapsflib._hdf.maps.digitizers.sis3301.HDFMapDigiSIS3301`.
 """
+
 __all__ = ["HDFMapDigiSIS3301"]
 
 import astropy.units as u

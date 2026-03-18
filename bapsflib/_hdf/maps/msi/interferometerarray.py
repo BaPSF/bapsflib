@@ -12,6 +12,7 @@
 Module for the Interferometer Array MSI Diagnostic mapper
 `~bapsflib._hdf.maps.msi.interferometerarray.HDFMapMSIInterferometerArray`.
 """
+
 __all__ = ["HDFMapMSIInterferometerArray"]
 
 import h5py

@@ -11,6 +11,7 @@
 Module for the N5700PS power supply mapper
 `~bapsflib._hdf.maps.controls.n5700ps.HDFMapControlN5700PS`.
 """
+
 __all__ = ["HDFMapControlN5700PS"]
 
 import numpy as np

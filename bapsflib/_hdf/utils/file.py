@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module containing the main HDF5 `~bapsflib._hdf.utils.file.File` class."""
+
 from __future__ import annotations
 
 __all__ = ["File"]

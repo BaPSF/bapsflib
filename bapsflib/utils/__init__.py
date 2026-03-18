@@ -11,6 +11,7 @@
 """
 Package of package utility / helper functionality.
 """
+
 __all__ = ["TableDisplay"]
 
 from typing import List

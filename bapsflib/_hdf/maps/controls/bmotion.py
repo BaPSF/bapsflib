@@ -774,9 +774,7 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
         return config_name
 
-    process_config_name.__doc__ = (
-        HDFMapControlTemplate.process_config_name.__doc__
-        + """
+    process_config_name.__doc__ = HDFMapControlTemplate.process_config_name.__doc__ + """
         Notes
         -----
         
@@ -788,4 +786,3 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         ``add_controls=[("bmotion", "<Hades> my_long_motion_list_name")]``
         when reading data with `~bapsflib._hdf.utils.file.File.read_data`.
         """
-    )

@@ -12,6 +12,7 @@
 Package of control device mapping classes and their constructor
 (:class:`~.map_controls.HDFMapControls`).
 """
+
 __all__ = ["ConType", "HDFMapControls"]
 
 from bapsflib._hdf.maps.controls import (

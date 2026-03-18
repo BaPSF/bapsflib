@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module containing the HDF5 reader for LaPD generated files."""
+
 __all__ = ["File"]
 
 import h5py

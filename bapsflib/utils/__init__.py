@@ -88,9 +88,7 @@ class TableDisplay:
 
         return max_cel_widths
 
-    def auto_insert_horizontal_dividers(self, on_columns: List[int] | None = None):
-        if on_columns is None:
-            return
+    def auto_insert_horizontal_dividers(self, on_columns: List[int]):
 
         if not isinstance(on_columns, list):
             raise TypeError("on_column must be a int")

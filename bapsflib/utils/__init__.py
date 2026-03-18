@@ -47,10 +47,9 @@ class TableDisplay:
         ----------
         rows : List[List[str]]
             List of table rows where each row is a list of strings being
-            the contents of the associated row-column cell.
-
-            For example, ``rows[4][3]`` would be the cell contents of
-            row 5 and column 4.
+            the contents of the associated row-column cell.  For
+            example, ``rows[4][3]`` would be the cell contents of row 5
+            and column 4.
 
         headers : List[str]
             List of strings specifying the table column headers.  `None`

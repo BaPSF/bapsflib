@@ -10,12 +10,21 @@
 #
 """Module containing the HDF5 reader for LaPD generated files."""
 
+from __future__ import annotations
+
 __all__ = ["File"]
 
 import h5py
 
+from typing import TYPE_CHECKING
+
 from bapsflib._hdf.utils.file import File as BaseFile
 from bapsflib.lapd._hdf.mapper import LaPDMapper
+
+if TYPE_CHECKING:
+    # This is done for typing purposes only.
+    # An actual import would cause cyclical imports.
+    from bapsflib.lapd._hdf.lapdoverview import LaPDOverview
 
 
 class File(BaseFile):
@@ -56,7 +65,7 @@ class File(BaseFile):
             digitizer_path="Raw data + config",
             msi_path="MSI",
             silent=silent,
-            **kwargs
+            **kwargs,
         )
 
     def _build_info(self):
@@ -88,7 +97,7 @@ class File(BaseFile):
         return self._file_map
 
     @property
-    def overview(self):
+    def overview(self) -> LaPDOverview:
         """
         LaPD HDF5 file overview. (:class:`~.lapdoverview.LaPDOverview`)
         """

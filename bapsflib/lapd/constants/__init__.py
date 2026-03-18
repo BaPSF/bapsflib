@@ -11,6 +11,7 @@
 """
 A package of LaPD parameters and constants.
 """
+
 __all__ = ["port_spacing", "ref_port"]
 
 from bapsflib.lapd.constants.constants import port_spacing, ref_port

@@ -12,6 +12,7 @@
 Module for the "SIS crate" digitizer mapper
 `~bapsflib._hdf.maps.digitizers.siscrate.HDFMapDigiSISCrate`.
 """
+
 __all__ = ["HDFMapDigiSISCrate"]
 
 import astropy.units as u

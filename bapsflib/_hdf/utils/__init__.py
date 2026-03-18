@@ -12,6 +12,7 @@
 This package contains an assortment of utility classes used to
 access and interface with the HDF5 files generated at BaPSF.
 """
+
 __all__ = []
 
 from bapsflib._hdf.utils import (

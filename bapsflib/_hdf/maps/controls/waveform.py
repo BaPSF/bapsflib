@@ -12,6 +12,7 @@
 Module for the Waveform mapper
 `~bapsflib._hdf.maps.controls.waveform.HDFMapControlWaveform`.
 """
+
 __all__ = ["HDFMapControlWaveform"]
 
 import h5py

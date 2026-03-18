@@ -12,6 +12,7 @@
 Sub-package containing the "high-level" architecture for accessing and
 mapping the HDF5 files generated at BaPSF.
 """
+
 __all__ = ["ConType", "File", "HDFMapper"]
 
 from bapsflib._hdf import maps, utils

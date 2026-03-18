@@ -12,6 +12,7 @@
 Module for the NIXZ motion control mapper
 `~bapsflib._hdf.maps.controls.nixz.HDFMapControlNIXZ`.
 """
+
 __all__ = ["HDFMapControlNIXZ"]
 
 import h5py

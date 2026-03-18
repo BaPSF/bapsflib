@@ -12,6 +12,7 @@
 Module for the 6K Compumotor motion control mapper
 `~bapsflib._hdf.maps.controls.sixk.HDFMapControl6K`.
 """
+
 __all__ = ["HDFMapControl6K"]
 
 import numpy as np

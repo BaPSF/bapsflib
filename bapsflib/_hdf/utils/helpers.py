@@ -12,6 +12,7 @@
 Helper functions that are utilized by the HDF5 utility classes defined
 in module :mod:`bapsflib._hdf.utils`.
 """
+
 __all__ = [
     "build_shotnum_dset_relation",
     "condition_controls",

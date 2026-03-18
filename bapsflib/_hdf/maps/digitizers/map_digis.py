@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module for defining the main digitizer mapper `HDFMapDigitizers`."""
+
 __all__ = ["HDFMapDigitizers"]
 
 import h5py

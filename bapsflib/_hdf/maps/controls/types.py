@@ -9,6 +9,7 @@
 #   license terms and contributor agreement.
 #
 """Module for defining `ConType`."""
+
 __all__ = ["ConType"]
 
 from enum import Enum

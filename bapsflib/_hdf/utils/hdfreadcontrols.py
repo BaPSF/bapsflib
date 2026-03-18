@@ -12,6 +12,7 @@
 Module containing the main
 `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` class.
 """
+
 __all__ = ["HDFReadControls"]
 
 import copy

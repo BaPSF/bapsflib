@@ -1,0 +1,2 @@
+Added `bapsflib.phys180E` to the "Package Features" section of the
+documentation sidebar.

@@ -1,0 +1,2 @@
+Replaced some instances of the ``Union[]`` annotation with the newer
+pipe ``|`` notation.

@@ -10,16 +10,26 @@
 #
 """Module containing the main HDF5 `~bapsflib._hdf.utils.file.File` class."""
 
+from __future__ import annotations
+
 __all__ = ["File"]
 
 import h5py
 import os
 import warnings
 
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 
 from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
+
+if TYPE_CHECKING:
+    # This is done for typing purposes only.
+    # An actual import would cause cyclical imports.
+    from bapsflib._hdf.utils.hdfoverview import HDFOverview
+    from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
+    from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+    from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
 
 
 class File(h5py.File):
@@ -149,7 +159,7 @@ class File(h5py.File):
         return self.file_map.msi
 
     @property
-    def overview(self):
+    def overview(self) -> HDFOverview:
         """
         HDF5 file overview. (:class:`~.hdfoverview.HDFOverview`)
         """
@@ -270,19 +280,19 @@ class File(h5py.File):
 
     def read_controls(
         self,
-        controls: List[Union[str, Tuple[str, Any]]],
+        controls: List[str | Tuple[str, Any]],
         shotnum=slice(None),
         intersection_set=True,
         silent=False,
         **kwargs,
-    ):
+    ) -> HDFReadControls:
         """
         Reads data from control device datasets.  See
         :class:`~.hdfreadcontrols.HDFReadControls` for more detail.
 
         Parameters
         ----------
-        controls : List[Union[str, Tuple[str, Any]]]
+        controls : List[str | Tuple[str, Any]]
             A list of strings and/or 2-element tuples indicating the
             control device(s).  If a control device has only one
             configuration then only the device name ``'control'`` needs
@@ -292,7 +302,7 @@ class File(h5py.File):
             ``('control', 'config')`` in the list. (see
             :func:`~.helpers.condition_controls` for details)
 
-        shotnum : Union[int, list(int), slice(), numpy.array], optional
+        shotnum : int | list(int) | slice() | numpy.array, optional
             HDF5 file shot number(s) indicating data entries to be
             extracted
 
@@ -380,7 +390,7 @@ class File(h5py.File):
         intersection_set=True,
         silent=False,
         **kwargs,
-    ):
+    ) -> HDFReadData:
         """
         Reads data from digitizer datasets and attaches control device
         data when requested. (see :class:`.hdfreaddata.HDFReadData`
@@ -394,10 +404,10 @@ class File(h5py.File):
         channel : `int`
             digitizer channel number
 
-        index : Union[int, list(int), slice(), numpy.array], optional
+        index : int | list(int) | slice() | numpy.array, optional
             dataset row index
 
-        shotnum : Union[int, list(int), slice(), numpy.array], optional
+        shotnum : int | list(int) | slice() | numpy.array, optional
             HDF5 global shot number
 
         digitizer : `str`, optional
@@ -413,7 +423,7 @@ class File(h5py.File):
             `True` to keep digitizer signal in bits, `False` (default)
             to convert digitizer signal to voltage
 
-        add_controls : List[Union[str, Tuple[str, Any]]], optional
+        add_controls : List[str | Tuple[str, Any]], optional
             A list of strings and/or 2-element tuples indicating the
             control device(s).  If a control device has only one
             configuration then only the device name ``'control'`` needs
@@ -508,7 +518,7 @@ class File(h5py.File):
 
         return data
 
-    def read_msi(self, msi_diag: str, silent=False, **kwargs):
+    def read_msi(self, msi_diag: str, silent=False, **kwargs) -> HDFReadMSI:
         """
         Reads data from MSI Diagnostic datasets.  See
         :class:`~.hdfreadmsi.HDFReadMSI` for more detail.

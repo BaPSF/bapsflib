@@ -1,0 +1,4 @@
+Created `~bapsflib.utils.TableDisplay` to aid in generating table
+summaries for
+`~bapsflib._hdf.maps.digitizers.map_digis.HDFMapDigitizers` and
+`~bapsflib._hdf.maps.controls.map_controls.HDFMapControls`.

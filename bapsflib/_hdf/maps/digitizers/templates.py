@@ -165,19 +165,22 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                     'dtype': numpy.uint32,
                 }
 
-            where ``'dset field'`` is the field name of the
-            header dataset containing shot numbers, ``'shape'`` is
-            the `numpy` shape of the shot number data, and ``'dtype'``
-            is the `numpy` `~numpy.dtype` of the data.  This all defines
-            the `numpy` `~numpy.dtype` of the ``'shotnum'`` field in
-            the
+            where
+
+            - ``'dset field'`` is the field name of the header dataset
+              containing shot numbers
+            - ``'shape'`` is the `numpy` shape of the shot number data
+            - ``'dtype'`` is the `numpy` `~numpy.dtype` of the data
+
+            This all defines the `numpy` `~numpy.dtype` of the
+            ``'shotnum'`` field in the
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed `numpy` array.
 
-            If the ``'shotnum'`` key is given a value of `None`, then
-            it is assumed NO shot number information is recorded and
-            the generate shot number will follow the rule
-            ``shotnum = index + 1``.
+            If the ``'shotnum'`` key is given a value of `None`
+            (instead of the above dictionary), then it is assumed that
+            NO shot number is recorded and the generate shot number
+            will follow the rule ``shotnum = index + 1``.
             "
 
         There is a required polymorphic key for each adc named in the

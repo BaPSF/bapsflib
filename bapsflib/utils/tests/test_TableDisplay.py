@@ -102,7 +102,11 @@ class TestTableDisplay(ut.TestCase):
             ([["one", "two", "three"], ["four", "five", "six"]], None, 3),
             ([["one", "two", "three"]], ["1", "2", "3"], 3),
             ([["one", "two", "three"], ["four", "five", "six"]], ["1", "2", "3"], 3),
-            ([["one",]], None, 1),
+            (
+                [["one"]],
+                None,
+                1,
+            ),
             ([["one", "two"]], None, 2),
         ]
         for rows, headers, ncols in cases:

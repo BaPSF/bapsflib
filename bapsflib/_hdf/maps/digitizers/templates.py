@@ -174,10 +174,10 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed `numpy` array.
 
-            If the ``"shotnum"`` key is given a value of `None`, then
+            If the ``'shotnum'`` key is given a value of `None`, then
             it is assumed NO shot number information is recorded and
             the generate shot number will follow the rule
-            ``shotnum = index +1``.
+            ``shotnum = index + 1``.
             "
 
         There is a required polymorphic key for each adc named in the
@@ -234,9 +234,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             and ``'shot average (software)'`` is the number of shot
             timeseries intended to be average together.
 
-            - ``'bit'`` represents the bit resolution of the
-            adc
+            - ``'bit'`` represents the bit resolution of the adc
             - blah
+
             "
 
         """

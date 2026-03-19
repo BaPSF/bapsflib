@@ -220,6 +220,8 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                     'nt': 10000,
                     'sample average (hardware)': None,
                     'shot average (software)': None,
+                    'channel_labels': ('Bx', 'By', 'Bz'),
+                    'time_dset_path': 'time',
                 }
 
             where ``'bit'`` represents the bit resolution of the
@@ -231,6 +233,10 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             ``'clock rate'`` make up the ``'sample rate'``),
             and ``'shot average (software)'`` is the number of shot
             timeseries intended to be average together.
+
+            - ``'bit'`` represents the bit resolution of the
+            adc
+            - blah
             "
 
         """

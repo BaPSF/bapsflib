@@ -227,19 +227,28 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                     'time_dset_path': 'time',
                 }
 
-            where ``'bit'`` represents the bit resolution of the
-            adc, ``'clock rate'`` represents the base clock rate of
-            the adc, ``'nshotnum'`` is the number of shot numbers
-            recorded, ``'nt'`` is the number of time samples
-            recorded, ``'sample average (hardware)'`` is the number
-            of time samples averaged together (this and the
-            ``'clock rate'`` make up the ``'sample rate'``),
-            and ``'shot average (software)'`` is the number of shot
-            timeseries intended to be average together.
+            where
 
-            - ``'bit'`` represents the bit resolution of the adc
-            - blah
-
+            - ``'bit'`` represents the bit resolution of the adc.  If
+              given a value of `None`, then it is assumed the digitizer
+              data is saved in volts instead of bit-levels.
+            - ``'clock rate'`` represents the base clock rate of the
+              adc
+            - ``'nshotnum'`` is the number of shot numbers recorded
+            - ``'nt'`` is the number of time samples recorded
+            - ``'sample average (hardware)'`` is the number of time
+              samples averaged together (this and the ``'clock rate'``
+              make up the ``'sample rate'``)
+            - ``'shot average (software)'`` is the number of shot
+              timeseries intended to be average together
+            - ``'channel_labels'`` (optional) is a tuple of of strings
+              equal in length the number of active channels.  These
+              labels are pulled from the digitizers metadata.
+            - ``'time_dset_path'`` (optional) is a relative path to
+              a time array dataset.  The path is relative to the root
+              group of the digitizer, i.e. :attr:`group_path`.  This is
+              used if the digitizer records the time array instead of
+              the clock/sample rate.
             "
 
         """
@@ -297,6 +306,8 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                 'nt': int,
                 'sample average (hardware)': int,
                 'shot average (software)': int,
+                'channel_labels', tuple,  # optional
+                'time_dset_path': str,  # optional
             }
 
         """

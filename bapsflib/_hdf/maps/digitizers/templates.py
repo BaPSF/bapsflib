@@ -154,7 +154,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
                 config['shotnum']
             ", "
-            Dictionary defining how the digitzier shot numbers are
+            Dictionary defining how the digitizer shot numbers are
             recorded.  Assuming the shot numbers are recorded in the
             header dataset associated with the main dataset.  The
             dictionary should look like, ::

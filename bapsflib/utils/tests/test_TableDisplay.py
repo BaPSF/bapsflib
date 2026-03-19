@@ -137,3 +137,85 @@ class TestTableDisplay(ut.TestCase):
                     td.auto_insert_horizontal_dividers,
                     on_columns=on_columns,
                 )
+
+    def test_auto_insert_vertical_dividers(self):
+        rows = [
+            ["one", "two", "three"],
+            ["", "", "six"],
+            ["", "eight", "nine"],
+            ["ten", "eleven", "twelve"],
+        ]
+        headers = ["col1", "col2", "col3" ]
+        td = TableDisplay(rows, headers)
+
+        cases = [
+            # (on_columns, expected)
+            (
+                [0, ],
+                (
+                    "| col1 | col2   | col3   |\n"
+                    "+------+--------+--------+\n"
+                    "| one  | two    | three  |\n"
+                    "|      |        | six    |\n"
+                    "|      | eight  | nine   |\n"
+                    "| ---- | ------ | ------ |\n"
+                    "| ten  | eleven | twelve |\n"
+                ),
+            ),
+            (
+                [0, 10, -1],
+                (
+                    "| col1 | col2   | col3   |\n"
+                    "+------+--------+--------+\n"
+                    "| one  | two    | three  |\n"
+                    "|      |        | six    |\n"
+                    "|      | eight  | nine   |\n"
+                    "| ---- | ------ | ------ |\n"
+                    "| ten  | eleven | twelve |\n"
+                ),
+            ),
+            (
+                [1, ],
+                (
+                    "| col1 | col2   | col3   |\n"
+                    "+------+--------+--------+\n"
+                    "| one  | two    | three  |\n"
+                    "|      |        | six    |\n"
+                    "|      | ------ | ------ |\n"
+                    "|      | eight  | nine   |\n"
+                    "|      | ------ | ------ |\n"
+                    "| ten  | eleven | twelve |\n"
+                ),
+            ),
+            (
+                [0, 1, ],
+                (
+                    "| col1 | col2   | col3   |\n"
+                    "+------+--------+--------+\n"
+                    "| one  | two    | three  |\n"
+                    "|      |        | six    |\n"
+                    "|      | ------ | ------ |\n"
+                    "|      | eight  | nine   |\n"
+                    "| ---- | ------ | ------ |\n"
+                    "| ten  | eleven | twelve |\n"
+                ),
+            ),
+            (
+                [10, ],
+                (
+                    "| col1 | col2   | col3   |\n"
+                    "+------+--------+--------+\n"
+                    "| one  | two    | three  |\n"
+                    "|      |        | six    |\n"
+                    "|      | eight  | nine   |\n"
+                    "| ten  | eleven | twelve |\n"
+                ),
+            )
+        ]
+        for on_columns, expected in cases:
+            with self.subTest(
+                rows=rows, headers=headers, on_columns=on_columns, expected=expected
+            ):
+                td._rows_w_dividers = None
+                td.auto_insert_horizontal_dividers(on_columns)
+                self.assertEqual(td.table_string(), expected)

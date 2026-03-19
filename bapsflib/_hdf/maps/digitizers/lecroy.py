@@ -1,3 +1,8 @@
+"""
+Module for the LeCroy (Physics 180E) digitizer mapper
+`~bapsflib._hdf.maps.digitizers.lecroy.HDFMapDigiLeCroy180E`.
+"""
+
 __all__ = ["HDFMapDigiLeCroy180E"]
 
 import h5py

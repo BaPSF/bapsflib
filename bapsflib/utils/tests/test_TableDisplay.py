@@ -113,3 +113,27 @@ class TestTableDisplay(ut.TestCase):
             with self.subTest(rows=rows, headers=headers, ncols=ncols):
                 tb = TableDisplay(rows, headers)
                 self.assertEqual(tb.ncols, ncols)
+
+    def test_auto_insert_horizontal_dividers_raises(self):
+        rows = [
+            ["one", "two", "three"],
+            ["four", "five", "six"],
+            ["seven", "eight", "nine"],
+        ]
+
+        cases = [
+            # (_raises, on_columns)
+            (TypeError, "not a list"),
+            (TypeError, 5),
+            # not all ints
+            (TypeError, [1, "not an int"]),
+            (TypeError, [1, 0.0]),
+        ]
+        for _raises, on_columns in cases:
+            with self.subTest(_raises=_raises, on_columns=on_columns):
+                td = TableDisplay(rows)
+                self.assertRaises(
+                    _raises,
+                    td.auto_insert_horizontal_dividers,
+                    on_columns=on_columns,
+                )

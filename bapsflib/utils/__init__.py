@@ -190,17 +190,17 @@ class TableDisplay:
 
         if self.headers is not None:
             for ii, entry in enumerate(self.headers):
-                table_string += f"| {entry:<{self.cell_widths[ii]}} "
+                table_string += f"| {entry:<{self.cell_widths[ii] - 2}} "
             table_string += "|\n"
 
             for ii, entry in enumerate(self.headers):
-                table_string += f"+{'-' * (self.cell_widths[ii] + 2)}"
+                table_string += f"+{'-' * (self.cell_widths[ii])}"
             table_string += "+\n"
 
         rows = self.rows if self._rows_w_dividers is None else self._rows_w_dividers
         for row in rows:
             for ii, entry in enumerate(row):
-                table_string += f"| {entry:<{self.cell_widths[ii]}} "
+                table_string += f"| {entry:<{self.cell_widths[ii] - 2}} "
             table_string += "|\n"
 
         return table_string

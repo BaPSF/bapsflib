@@ -1,0 +1,4 @@
+Added ``__str__`` and ``__repr__`` dunders to
+`~bapsflib._hdf.maps.digitizers.map_digis.HDFMapDigitizers` and
+`~bapsflib._hdf.maps.controls.map_controls.HDFMapControls` to display
+brief table summaries of the mapped devices.

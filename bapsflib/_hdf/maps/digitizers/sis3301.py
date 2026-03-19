@@ -605,6 +605,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
             elif brd < 0:
                 warn("Board number is less than 0.", HDFMappingWarning)
                 continue
+            brd = int(brd)
 
             # ensure there's no duplicate board numbers
             if brd in [sconn[0] for sconn in conn]:
@@ -651,6 +652,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 elif ch < 0:
                     warn("Channel number is less than 0.", HDFMappingWarning)
                     continue
+                ch = int(ch)
 
                 # define list of channels
                 chs.append(ch)

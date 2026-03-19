@@ -138,6 +138,47 @@ class TestHDFMapDigitizers(ut.TestCase):
         self.assertIn("SIS crate", _map)
         self.assertNotIn("SIS 3301", _map)
 
+    def test__str__(self):
+        # add digis to the Faux HDF5 file
+        self.f.add_module("SIS 3301", {})
+        self.f.add_module("SIS crate", {"n_configs": 2})
+        cnames = self.f.modules["SIS crate"].config_names
+        self.f.modules["SIS crate"].knobs.active_config = cnames
+
+        # remap the file
+        _map = self.map
+
+        expected = (
+            "| Digitizer   | Configuration | ADC        | (board, [channel, ...]) | Shot Num. Range | nt    |\n"
+            "+-------------+---------------+------------+-------------------------+-----------------+-------+\n"
+            "| 'SIS 3301'  | 'config01'    | 'SIS 3301' | (0, (0,))               | ??              | 10000 |\n"
+            "| ----------- | ------------- | ---------- | ----------------------- | --------------- | ----- |\n"
+            "| 'SIS crate' | 'config01'    | 'SIS 3302' | (1, (1,))               | ??              | 10000 |\n"
+            "|             |               | 'SIS 3305' | (1, (1,))               | ??              | 10000 |\n"
+            "|             | ------------- | ---------- | ----------------------- | --------------- | ----- |\n"
+            "|             | 'config02'    | 'SIS 3302' | (1, (1,))               | ??              | 10000 |\n"
+            "|             |               | 'SIS 3305' | (1, (1,))               | ??              | 10000 |\n"
+        )
+        self.assertEqual(_map.__str__(), expected)
+
+    def test__str__no_digis(self):
+        # the faux modules start without any digitizers
+        _map = self.map
+        self.assertEqual(_map.__str__(), "")
+
+    def test__repr__(self):
+        # add digis to the Faux HDF5 file
+        self.f.add_module("SIS 3301", {})
+        self.f.add_module("SIS crate", {"n_configs": 2})
+        cnames = self.f.modules["SIS crate"].config_names
+        self.f.modules["SIS crate"].knobs.active_config = cnames
+
+        # remap the file
+        _map = self.map
+
+        expected = f"{dict.__repr__(_map)}\n\n{_map.__str__()}"
+        self.assertEqual(_map.__repr__(), expected)
+
     def assertBasics(self, _map: HDFMapDigitizers):
         # mapped object is a dictionary
         self.assertIsInstance(_map, dict)
@@ -158,7 +199,3 @@ class TestHDFMapDigitizers(ut.TestCase):
             sorted(list(_map.mappable_devices)),
             sorted(list(_map._defined_mapping_classes)),
         )
-
-
-if __name__ == "__main__":
-    ut.main()

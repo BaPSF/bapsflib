@@ -145,13 +145,15 @@ class TestTableDisplay(ut.TestCase):
             ["", "eight", "nine"],
             ["ten", "eleven", "twelve"],
         ]
-        headers = ["col1", "col2", "col3" ]
+        headers = ["col1", "col2", "col3"]
         td = TableDisplay(rows, headers)
 
         cases = [
             # (on_columns, expected)
             (
-                [0, ],
+                [
+                    0,
+                ],
                 (
                     "| col1 | col2   | col3   |\n"
                     "+------+--------+--------+\n"
@@ -175,7 +177,9 @@ class TestTableDisplay(ut.TestCase):
                 ),
             ),
             (
-                [1, ],
+                [
+                    1,
+                ],
                 (
                     "| col1 | col2   | col3   |\n"
                     "+------+--------+--------+\n"
@@ -188,7 +192,10 @@ class TestTableDisplay(ut.TestCase):
                 ),
             ),
             (
-                [0, 1, ],
+                [
+                    0,
+                    1,
+                ],
                 (
                     "| col1 | col2   | col3   |\n"
                     "+------+--------+--------+\n"
@@ -201,7 +208,9 @@ class TestTableDisplay(ut.TestCase):
                 ),
             ),
             (
-                [10, ],
+                [
+                    10,
+                ],
                 (
                     "| col1 | col2   | col3   |\n"
                     "+------+--------+--------+\n"
@@ -210,7 +219,7 @@ class TestTableDisplay(ut.TestCase):
                     "|      | eight  | nine   |\n"
                     "| ten  | eleven | twelve |\n"
                 ),
-            )
+            ),
         ]
         for on_columns, expected in cases:
             with self.subTest(

@@ -60,23 +60,33 @@ class TableDisplay:
         self._headers = headers
 
         if not isinstance(rows, list):
-            raise TypeError("rows must be a list")
+            raise TypeError(
+                f"Argument `rows` must be a list of lists, got type {type(rows)}."
+            )
 
         for row in rows:
             if not isinstance(row, list):
-                raise TypeError("row must be a list")
+                raise TypeError(
+                    f"Argument `rows` must be a list of lists, got type {type(rows)}."
+                )
 
             if not all(isinstance(entry, str) for entry in row):
-                raise ValueError()
+                raise ValueError("All entries in argument `rows` bust be a string.")
 
         if isinstance(headers, list):
             if len(headers) != self.ncols:
-                raise ValueError("headers must be a list")
+                raise ValueError(
+                    "Argument `headers` does NOT contain the same number of "
+                    f"columns ({len(headers)}) as the `rows` argument ({self.ncols}).)"
+                )
 
             if not all(isinstance(entry, str) for entry in headers):
-                raise ValueError()
+                raise ValueError("All entries in argument `headers` bust be a string.")
         elif headers is not None:
-            raise TypeError("headers must be a list or None")
+            raise TypeError(
+                f"Argument `headers` must be a list of string or None, "
+                f"got type {type(headers)}."
+            )
 
         self._cell_widths = self._calc_max_cell_widths()
 

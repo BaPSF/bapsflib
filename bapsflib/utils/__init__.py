@@ -183,7 +183,7 @@ class TableDisplay:
                 divider = []
                 for jj in range(self.ncols):
                     _string = " " if jj < on_column else "-"
-                    divider.append(_string * self.cell_widths[jj])
+                    divider.append(_string * (self.cell_widths[jj] - 2))
 
                 _rows_w_dividers.insert(ii, divider)
                 break

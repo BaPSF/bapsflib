@@ -124,12 +124,16 @@ class TableDisplay:
         Scans `rows` and `headers` to determine the maximum cell width
         for each column.
         """
-        max_cel_widths = [len(entry) + 2 for entry in self.headers]
-        for row in self.rows:
-            for ii in range(len(max_cel_widths)):
-                max_cel_widths[ii] = max(max_cel_widths[ii], len(row[ii]) + 2)
+        if self.headers is None:
+            max_cell_widths = [1] * self.ncols
+        else:
+            max_cell_widths = [len(entry) + 2 for entry in self.headers]
 
-        return max_cel_widths
+        for row in self.rows:
+            for ii in range(len(max_cell_widths)):
+                max_cell_widths[ii] = max(max_cell_widths[ii], len(row[ii]) + 2)
+
+        return max_cell_widths
 
     def auto_insert_horizontal_dividers(self, on_columns: List[int]):
         """

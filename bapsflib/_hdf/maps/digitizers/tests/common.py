@@ -19,6 +19,7 @@ from typing import Tuple
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.templates import MapTypes
+from bapsflib._hdf.maps.tests import MapTestBase
 
 
 def method_overridden(cls, obj, method: str) -> bool:
@@ -28,14 +29,13 @@ def method_overridden(cls, obj, method: str) -> bool:
     return obj_method and base_method
 
 
-class DigitizerTestCase(ut.TestCase):
+class DigitizerTestCase(MapTestBase):
     """Base TestCase for testing digitizer mapping classes."""
 
     # TODO: DESIGN A FAILURES TEST 'test_map_failures'
     # - These are required scenarios where the mapping class should
     #   raise a HDFMappingError
 
-    f = NotImplemented  # type: FauxHDFBuilder
     DEVICE_NAME = NotImplemented  # type: str
     DEVICE_PATH = NotImplemented  # type: str
     MAP_CLASS = NotImplemented
@@ -47,10 +47,9 @@ class DigitizerTestCase(ut.TestCase):
             raise ut.SkipTest("In DigitizerTestCase, skipping base tests")
         super().setUpClass()
 
-        # create HDF5 file
-        cls.f = FauxHDFBuilder()
-
     def setUp(self):
+        super().setUp()
+
         # setup HDF5 file
         if not (self.DEVICE_NAME in self.f.modules and len(self.f.modules) == 1):
             # clear HDF5 file and add module
@@ -59,16 +58,6 @@ class DigitizerTestCase(ut.TestCase):
 
         # define `mod` attribute
         self.mod = self.f.modules[self.DEVICE_NAME]
-
-    def tearDown(self):
-        # reset module
-        self.mod.knobs.reset()
-
-    @classmethod
-    def tearDownClass(cls):
-        # cleanup and close HDF5 file
-        super().tearDownClass()
-        cls.f.cleanup()
 
     @property
     def map(self) -> HDFMapDigiTemplate:

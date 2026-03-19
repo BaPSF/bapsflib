@@ -81,3 +81,31 @@ class TestTableDisplay(ut.TestCase):
             with self.subTest(rows=rows, headers=headers, expected=expected):
                 tb = TableDisplay(rows, headers)
                 self.assertEqual(tb.cell_widths, expected)
+
+    def test_nrows(self):
+        cases = [
+            # (rows, headers, nrows)
+            ([["one", "two", "three"]], None, 1),
+            ([["one", "two", "three"], ["four", "five", "six"]], None, 2),
+            ([["one", "two", "three"]], ["1", "2", "3"], 1),
+            ([["one", "two", "three"], ["four", "five", "six"]], ["1", "2", "3"], 2),
+        ]
+        for rows, headers, nrows in cases:
+            with self.subTest(rows=rows, headers=headers, nrows=nrows):
+                tb = TableDisplay(rows, headers)
+                self.assertEqual(tb.nrows, nrows)
+
+    def test_ncols(self):
+        cases = [
+            # (rows, headers, ncols)
+            ([["one", "two", "three"]], None, 3),
+            ([["one", "two", "three"], ["four", "five", "six"]], None, 3),
+            ([["one", "two", "three"]], ["1", "2", "3"], 3),
+            ([["one", "two", "three"], ["four", "five", "six"]], ["1", "2", "3"], 3),
+            ([["one",]], None, 1),
+            ([["one", "two"]], None, 2),
+        ]
+        for rows, headers, ncols in cases:
+            with self.subTest(rows=rows, headers=headers, ncols=ncols):
+                tb = TableDisplay(rows, headers)
+                self.assertEqual(tb.ncols, ncols)

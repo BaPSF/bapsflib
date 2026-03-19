@@ -112,7 +112,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
 
         # build subconn tuple with connected board, channels, and
         # acquisition parameters
-        subconn = (brd, tuple(chs), {"bit": None, "clock rate": (None, "MHz")})
+        subconn = (brd, tuple(chs), {"bit": None, "clock rate": None})
 
         # add to all connections list
         conn.append(subconn)

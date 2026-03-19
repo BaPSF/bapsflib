@@ -158,7 +158,3 @@ class TestHDFMapControls(ut.TestCase):
 
         # check attribute types
         self.assertIsInstance(_map.mappable_devices, tuple)
-
-
-if __name__ == "__main__":
-    ut.main()

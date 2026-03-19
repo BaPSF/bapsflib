@@ -145,6 +145,40 @@ class TestHDFMapControls(ut.TestCase):
         self.assertIn("6K Compumotor", _map)
         self.assertNotIn("Waveform", _map)
 
+    def test__str__(self):
+        # add controls to the Faux HDF5 file
+        self.f.add_module("6K Compumotor", {"n_configs": 2})
+        self.f.add_module("Waveform", {})
+
+        # remap the file
+        _map = self.map
+
+        expected = (
+            "| Control         | Configuration | Shot Num. Range | Readout Data Fields                       |\n"
+            "+-----------------+---------------+-----------------+-------------------------------------------+\n"
+            "| '6K Compumotor' | '1'           | ??              | ('xyz', 'ptip_rot_theta', 'ptip_rot_phi') |\n"
+            "|                 | '2'           | ??              | ('xyz', 'ptip_rot_theta', 'ptip_rot_phi') |\n"
+            "| --------------- | ------------- | --------------- | ----------------------------------------- |\n"
+            "| 'Waveform'      | 'config01'    | ??              | ('FREQ',)                                 |\n"
+        )
+        self.assertEqual(_map.__str__(), expected)
+
+    def test__str__no_controls(self):
+        # the faux modules start without any controls
+        _map = self.map
+        self.assertEqual(_map.__str__(), "")
+
+    def test__repr__(self):
+        # add controls to the Faux HDF5 file
+        self.f.add_module("6K Compumotor", {})
+        self.f.add_module("Waveform", {})
+
+        # remap the file
+        _map = self.map
+
+        expected = f"{dict.__repr__(_map)}\n\n{_map.__str__()}"
+        self.assertEqual(_map.__repr__(), expected)
+
     def assertBasics(self, _map: HDFMapControls):
         # mapped object is a dictionary
         self.assertIsInstance(_map, dict)
@@ -158,7 +192,3 @@ class TestHDFMapControls(ut.TestCase):
 
         # check attribute types
         self.assertIsInstance(_map.mappable_devices, tuple)
-
-
-if __name__ == "__main__":
-    ut.main()

@@ -1,0 +1,3 @@
+Forced mapped board and channel values for
+`~bapsflib._hdf.maps.digitizers.sis3301.HDFMapDigiSIS3301` to be type
+`int` instead of `numpy.integer`.

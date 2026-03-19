@@ -19,6 +19,7 @@ from typing import Dict, Tuple
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
 from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib.utils import TableDisplay
 from bapsflib.utils.exceptions import HDFMappingError
 
 
@@ -66,6 +67,65 @@ class HDFMapDigitizers(dict):
 
         # Build the self dictionary
         dict.__init__(self, self.__build_dict)
+
+    def __str__(self):
+        if len(self) == 0:
+            # no digitizers mapped
+            return ""
+
+        # gather information
+        rows = [
+            [
+                "Digitizer",
+                "Configuration",
+                "ADC",
+                "(board, [channel, ...])",
+                "Shot Num. Range",
+                "nt",
+            ],
+        ]
+        for digi_name, _map in self.items():
+            digi_name_added = False
+            for cname, config in _map.configs.items():
+                cname_added = False
+                if not config["active"]:
+                    continue
+
+                for adc_ii, adc in enumerate(config["adc"]):
+                    adc_added = False
+                    for connection_ii, connection in enumerate(config[adc]):
+                        board = connection[0]
+                        channels = connection[1]
+                        _setup = connection[2]
+
+                        digi_entry = "" if digi_name_added else f"'{digi_name}'"
+                        cname_entry = "" if cname_added else f"'{cname}'"
+                        adc_entry = "" if adc_added else f"'{adc}'"
+                        rows.append(
+                            [
+                                digi_entry,
+                                cname_entry,
+                                adc_entry,
+                                str((board, channels)),
+                                "??",
+                                str(_setup["nt"]),
+                            ]
+                        )
+
+                        digi_name_added = True
+                        cname_added = True
+                        adc_added = True
+
+        table_display = TableDisplay(rows=rows[1:], headers=rows[0])
+        table_display.auto_insert_horizontal_dividers(on_columns=[0, 1])
+        table_str = table_display.table_string()
+
+        return table_str
+
+    def __repr__(self):
+        _repr = super().__repr__()
+        _repr += f"\n\n{self.__str__()}"
+        return _repr
 
     @property
     def mappable_devices(self) -> Tuple[str, ...]:

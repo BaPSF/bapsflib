@@ -173,6 +173,11 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             the
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed `numpy` array.
+
+            If the ``"shotnum"`` key is given a value of `None`, then
+            it is assumed NO shot number information is recorded and
+            the generate shot number will follow the rule
+            ``shotnum = index +1``.
             "
 
         There is a required polymorphic key for each adc named in the

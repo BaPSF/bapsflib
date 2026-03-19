@@ -161,6 +161,24 @@ class TestHDFMapDigitizers(ut.TestCase):
         )
         self.assertEqual(_map.__str__(), expected)
 
+    def test__str__w_non_active_config(self):
+        # add digis to the Faux HDF5 file
+        self.f.add_module("SIS 3301", {})
+        self.f.add_module("SIS crate", {"n_configs": 2})
+
+        # remap the file
+        _map = self.map
+
+        expected = (
+            "| Digitizer   | Configuration | ADC        | (board, [channel, ...]) | Shot Num. Range | nt    |\n"
+            "+-------------+---------------+------------+-------------------------+-----------------+-------+\n"
+            "| 'SIS 3301'  | 'config01'    | 'SIS 3301' | (0, (0,))               | ??              | 10000 |\n"
+            "| ----------- | ------------- | ---------- | ----------------------- | --------------- | ----- |\n"
+            "| 'SIS crate' | 'config01'    | 'SIS 3302' | (1, (1,))               | ??              | 10000 |\n"
+            "|             |               | 'SIS 3305' | (1, (1,))               | ??              | 10000 |\n"
+        )
+        self.assertEqual(_map.__str__(), expected)
+
     def test__str__no_digis(self):
         # the faux modules start without any digitizers
         _map = self.map

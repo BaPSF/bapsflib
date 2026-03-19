@@ -12,7 +12,7 @@ Sub-Packages & Modules
 
 .. autosummary::
 
-    file
+    file_
 
 .. automodapi:: bapsflib.phys180E._hdf
     :no-main-docstr:

@@ -131,7 +131,7 @@ def build_shotnum_dset_relation(
     if shotnumkey is None:
         # Header dataset does not contain shot number information, assuming
         # shot number is index + 1.
-        dset_shotnum = np.arange(1, dset.size+1, 1, dtype=np.uint32)
+        dset_shotnum = np.arange(1, dset.size + 1, 1, dtype=np.uint32)
     else:
         dset_shotnum = dset[shotnumkey]
     unique_shotnums = np.unique(dset_shotnum)

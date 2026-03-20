@@ -1,6 +1,8 @@
 import numpy as np
 import unittest as ut
 
+from unittest import mock
+
 from bapsflib._hdf.maps.digitizers.lecroy import HDFMapDigiLeCroy180E
 from bapsflib._hdf.maps.digitizers.tests.common import DigitizerTestCase
 
@@ -92,3 +94,16 @@ class TestLeCroy180E(DigitizerTestCase):
         for _raises, kwargs in cases:
             with self.subTest(_raises=_raises.__name__, kwargs=kwargs):
                 self.assertRaises(_raises, _map.construct_dataset_name, **kwargs)
+
+    def test_construct_header_dataset_name(self):
+        _map = self.map
+
+        with mock.patch.object(
+            self.MAP_CLASS, "construct_dataset_name",
+            wraps=_map.construct_dataset_name
+        ) as mock_cdn:
+            self.assertEqual(
+                _map.construct_header_dataset_name(board=0, channel=1),
+                "Headers/Channel1",
+            )
+            self.assertTrue(mock_cdn.called)

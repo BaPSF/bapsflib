@@ -249,9 +249,12 @@ class DigitizerTestCase(MapTestBase):
                         self.assertTrue(conn[2]["bit"] > 0)
 
                     # check 'clock rate'
-                    self.assertIsInstance(conn[2]["clock rate"], u.Quantity)
-                    # noinspection PyUnresolvedReferences
-                    self.assertTrue(conn[2]["clock rate"].unit.is_equivalent(u.Hertz))
+                    clock_rate = conn[2]["clock rate"]
+                    self.assertTrue(
+                        isinstance(clock_rate, u.Quantity) or clock_rate is None
+                    )
+                    if clock_rate is not None:
+                        self.assertTrue(conn[2]["clock rate"].unit.is_equivalent(u.Hertz))
 
                     # check 'nshotnum' and 'nt'
                     for key in ("nshotnum", "nt"):

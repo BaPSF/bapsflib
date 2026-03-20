@@ -24,7 +24,11 @@ from bapsflib._hdf.maps.controls.tests import (
     FauxSixK,
     FauxWaveform,
 )
-from bapsflib._hdf.maps.digitizers.tests import FauxSIS3301, FauxSISCrate
+from bapsflib._hdf.maps.digitizers.tests import (
+    FauxLeCroy180E,
+    FauxSIS3301,
+    FauxSISCrate,
+)
 from bapsflib._hdf.maps.msi.tests import (
     FauxDischarge,
     FauxGasPressure,
@@ -47,6 +51,7 @@ class FauxHDFBuilder(h5py.File):
         "Magnetic field": FauxMagneticField,
     }
     _KNOWN_DIGITIZERS = {
+        "LeCroy_scope": FauxLeCroy180E,
         "SIS 3301": FauxSIS3301,
         "SIS crate": FauxSISCrate,
     }

@@ -493,7 +493,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
         bc_valid = False
         d_info = None
         for brd, chs, extras in self._configs[config_name][adc]:
-            if board == brd and channel in chs:
+            if channel in chs:
                 # board, channel combo valid
                 bc_valid = True
 

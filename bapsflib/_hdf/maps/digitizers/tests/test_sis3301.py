@@ -30,12 +30,6 @@ class TestSIS3301(DigitizerTestCase):
     DEVICE_PATH = f"/Raw data + config/{DEVICE_NAME}"
     MAP_CLASS = HDFMapDigiSIS3301
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_device_acs(self):
         self.assertTrue(self.MAP_CLASS._device_adcs == ("SIS 3301",))
 

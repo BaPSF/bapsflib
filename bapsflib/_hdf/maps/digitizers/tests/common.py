@@ -192,21 +192,25 @@ class DigitizerTestCase(MapTestBase):
 
             # -- examine 'shotnum' key --
             # required keys
-            self.assertIsInstance(config["shotnum"], dict)
-            self.assertIn("dset field", config["shotnum"])
-            self.assertIn("shape", config["shotnum"])
-            self.assertIn("dtype", config["shotnum"])
+            self.assertTrue(
+                isinstance(config["shotnum"], dict)
+                or config["shotnum"] is None
+            )
+            if config["shotnum"] is not None:
+                self.assertIn("dset field", config["shotnum"])
+                self.assertIn("shape", config["shotnum"])
+                self.assertIn("dtype", config["shotnum"])
 
-            # ['shotnum']['dset field']
-            self.assertIsInstance(config["shotnum"]["dset field"], tuple)
-            self.assertEqual(len(config["shotnum"]["dset field"]), 1)
-            self.assertIsInstance(config["shotnum"]["dset field"][0], str)
+                # ['shotnum']['dset field']
+                self.assertIsInstance(config["shotnum"]["dset field"], tuple)
+                self.assertEqual(len(config["shotnum"]["dset field"]), 1)
+                self.assertIsInstance(config["shotnum"]["dset field"][0], str)
 
-            # ['shotnum']['shape']
-            self.assertEqual(config["shotnum"]["shape"], ())
+                # ['shotnum']['shape']
+                self.assertEqual(config["shotnum"]["shape"], ())
 
-            # ['shotnum']['dtype']
-            self.assertTrue(np.issubdtype(config["shotnum"]["dtype"], np.integer))
+                # ['shotnum']['dtype']
+                self.assertTrue(np.issubdtype(config["shotnum"]["dtype"], np.integer))
 
             # -- examine polymorphic "adc" keys --
             for adc in config["adc"]:

@@ -5,6 +5,7 @@ from unittest import mock
 
 from bapsflib._hdf.maps.digitizers.lecroy import HDFMapDigiLeCroy180E
 from bapsflib._hdf.maps.digitizers.tests.common import DigitizerTestCase
+from bapsflib.utils.exceptions import HDFMappingError
 
 
 class TestLeCroy180E(DigitizerTestCase):
@@ -106,3 +107,10 @@ class TestLeCroy180E(DigitizerTestCase):
                 "Headers/Channel1",
             )
             self.assertTrue(mock_cdn.called)
+
+    def test_map_failure_no_headers_group(self):
+        # Remove Headers group
+        del self.mod["Headers"]
+
+        with self.assertRaises(HDFMappingError):
+            _map = self.map

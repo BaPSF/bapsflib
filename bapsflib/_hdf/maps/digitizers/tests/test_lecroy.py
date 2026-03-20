@@ -114,3 +114,10 @@ class TestLeCroy180E(DigitizerTestCase):
 
         with self.assertRaises(HDFMappingError):
             _map = self.map
+
+    def test_map_failure_no_active_channels(self):
+        # Remove Headers group
+        self.mod.knobs.active_channels = None
+
+        with self.assertRaises(HDFMappingError):
+            _map = self.map

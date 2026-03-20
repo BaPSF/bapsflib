@@ -146,6 +146,9 @@ class FauxLeCroy180E(h5py.Group):
             self.create_group("Headers")
         header_group = self["Headers"]
 
+        if self.knobs.active_channels is None:
+            return
+
         for ch in self.knobs.active_channels:
             dset_name = f"Channel{ch}"
             payload = np.void(

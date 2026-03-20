@@ -367,15 +367,12 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
         self._configs[config_name]["lecroy"] = self._adc_info_first_pass()
 
         # ensure something is being digitized
-        board = self._configs[config_name]["lecroy"][0][0]
-        channels = self._configs[config_name]["lecroy"][0][1]
-        if len(channels) == 0:
+        if len(self._configs[config_name]["lecroy"]) == 0:
             raise HDFMappingError(
                 self.info["group path"],
                 why=(
-                    f"HDF5 structure unexpected...'Board number {board}' "
-                    f"does not define any valid channel numbers..."
-                    f"not adding to `configs` dict"
+                    f"HDF5 structure unexpected...The LeCroy digitizer "
+                    f"has NO active channels."
                 ),
             )
 

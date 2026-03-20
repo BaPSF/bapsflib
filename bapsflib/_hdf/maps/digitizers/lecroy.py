@@ -50,7 +50,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
         ----------
         config_name : str
             Configuration name to compare the active configurations.
-            ONLY active configuation is ``"lecroy"``.
+            ONLY active configuration is ``"lecroy"``.
 
         Returns
         -------
@@ -479,8 +479,6 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
                 f"The only valid `board` value is '0' (the int zero).  Use 'lecroy' "
                 f"or omit optional keyword argument 'adc'."
             )
-        # a float can still cause the above conditional to be true
-        board = int(board)
 
         # Condition channel
         if channel not in (1, 2, 3, 4):

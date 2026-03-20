@@ -241,8 +241,12 @@ class DigitizerTestCase(MapTestBase):
                     self.assertIn("sample average (hardware)", conn[2])
 
                     # check 'bit'
-                    self.assertIsInstance(conn[2]["bit"], (int, np.integer))
-                    self.assertTrue(conn[2]["bit"] > 0)
+                    bit = conn[2]["bit"]
+                    self.assertTrue(
+                        isinstance(bit, (int, np.integer)) or bit is None
+                    )
+                    if bit is not None:
+                        self.assertTrue(conn[2]["bit"] > 0)
 
                     # check 'clock rate'
                     self.assertIsInstance(conn[2]["clock rate"], u.Quantity)

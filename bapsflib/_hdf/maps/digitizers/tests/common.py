@@ -193,8 +193,7 @@ class DigitizerTestCase(MapTestBase):
             # -- examine 'shotnum' key --
             # required keys
             self.assertTrue(
-                isinstance(config["shotnum"], dict)
-                or config["shotnum"] is None
+                isinstance(config["shotnum"], dict) or config["shotnum"] is None
             )
             if config["shotnum"] is not None:
                 self.assertIn("dset field", config["shotnum"])
@@ -242,9 +241,7 @@ class DigitizerTestCase(MapTestBase):
 
                     # check 'bit'
                     bit = conn[2]["bit"]
-                    self.assertTrue(
-                        isinstance(bit, (int, np.integer)) or bit is None
-                    )
+                    self.assertTrue(isinstance(bit, (int, np.integer)) or bit is None)
                     if bit is not None:
                         self.assertTrue(conn[2]["bit"] > 0)
 

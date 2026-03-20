@@ -13,7 +13,7 @@ class TestLeCroy180E(DigitizerTestCase):
     MAP_CLASS = HDFMapDigiLeCroy180E
 
     def test_device_adcs(self):
-        self.assertEqual(self.MAP_CLASS._device_adcs, ("lecroy", ))
+        self.assertEqual(self.MAP_CLASS._device_adcs, ("lecroy",))
 
     def test_construct_dataset_name(self):
         _map = self.map

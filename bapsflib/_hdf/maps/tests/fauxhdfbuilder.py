@@ -14,11 +14,7 @@ from bapsflib._hdf.maps.controls.tests import (
     FauxSixK,
     FauxWaveform,
 )
-from bapsflib._hdf.maps.digitizers.tests import (
-    FauxLeCroy180E,
-    FauxSIS3301,
-    FauxSISCrate,
-)
+from bapsflib._hdf.maps.digitizers.tests import FauxLeCroy180E, FauxSIS3301, FauxSISCrate
 from bapsflib._hdf.maps.msi.tests import (
     FauxDischarge,
     FauxGasPressure,

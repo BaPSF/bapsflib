@@ -99,8 +99,7 @@ class TestLeCroy180E(DigitizerTestCase):
         _map = self.map
 
         with mock.patch.object(
-            self.MAP_CLASS, "construct_dataset_name",
-            wraps=_map.construct_dataset_name
+            self.MAP_CLASS, "construct_dataset_name", wraps=_map.construct_dataset_name
         ) as mock_cdn:
             self.assertEqual(
                 _map.construct_header_dataset_name(board=0, channel=1),

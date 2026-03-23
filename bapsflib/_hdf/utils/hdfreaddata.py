@@ -410,20 +410,13 @@ class HDFReadData(np.ndarray):
             # - `shotnum` will be converted from list to np.array
             # - `index` and `sni` will be np.array's
             #
-            if shotnum_config is None:
-                # Digitizer does not have a shot number column in the associated
-                # header dataset.  Assume shotnum = index + 1
-                #
-                index = shotnum - 1
-                sni = np.ones_like(shotnum, dtype=bool)
-            else:
-                index, sni = build_shotnum_dset_relation(
-                    shotnum=shotnum,
-                    dset=dheader,
-                    shotnumkey=shotnumkey,
-                    n_configs=1,
-                    config_column_value=None,
-                )
+            index, sni = build_shotnum_dset_relation(
+                shotnum=shotnum,
+                dset=dheader,
+                shotnumkey=shotnumkey,
+                n_configs=1,
+                config_column_value=None,
+            )
 
             # perform intersection
             if intersection_set:

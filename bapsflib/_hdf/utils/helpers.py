@@ -35,7 +35,7 @@ IndexDict = Dict[str, Dict[str, np.ndarray]]
 def build_shotnum_dset_relation(
     shotnum: np.ndarray,
     dset: h5py.Dataset,
-    shotnumkey: str,
+    shotnumkey: str | None,
     n_configs: int,
     config_column_value: Any,
     config_column: Optional[str] = None,
@@ -62,8 +62,9 @@ def build_shotnum_dset_relation(
     dset: `h5py.Dataset`
         Control device dataset
 
-    shotnumkey : `str`
-        Dataset field name containing shot numbers.
+    shotnumkey : `str` | None
+        Dataset field name containing shot numbers, or `None` if the
+        dataset has NO shot number column.
 
     n_configs : int
         The number of unique configurations contained in ``dset``.
@@ -101,7 +102,9 @@ def build_shotnum_dset_relation(
             f"HDF5 dataset {dset.name}.  Present columns are {dset.dtype.names}."
         )
 
-    if config_column is None:
+    if config_column is None and shotnumkey is None:
+        pass
+    elif config_column is None:
         # assume default column name
         column_name_mask = [
             "configuration" in name.casefold() for name in dset.dtype.names

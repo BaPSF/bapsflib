@@ -17,6 +17,7 @@ import unittest as ut
 from h5py import Group
 from numpy.lib import recfunctions as rfn
 
+from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.helpers import (
@@ -38,9 +39,6 @@ class TestBuildShotnumDsetRelation(TestBase):
         super().setUp()
         self.f.add_module("Waveform", mod_args={"n_configs": 1, "sn_size": 100})
         self.mod = self.f.modules["Waveform"]
-
-    def tearDown(self):
-        super().tearDown()
 
     @property
     def cgroup(self) -> Group:
@@ -382,6 +380,32 @@ class TestBuildShotnumDsetRelation(TestBase):
                     config_column=None,
                 )
                 self.assertTrue(np.allclose(shotnum[sni], dset["Shot number"][index]))
+
+    def test_dset_without_shotnumkey(self):
+        self.f.remove_all_modules()
+        self.f.add_module("LeCroy_scope")
+
+        _mod = self.f.modules["LeCroy_scope"]  # type: FauxLeCroy180E
+        _mod.knobs.sn_size = 100
+        dset = _mod["Headers/Channel1"]
+
+        cases = [
+            # (shotnum, expected_shotnum)
+            (np.arange(1, 30, 2), np.arange(1, 30, 2)),
+            (np.arange(90, 110, 1), np.arange(90, 101, 1)),
+        ]
+        for shotnum, expected in cases:
+            with self.subTest(shotnum=shotnum, expected=expected):
+                index, sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=dset,
+                    shotnumkey=None,
+                    n_configs=1,
+                    config_column_value=None,
+                    config_column=None,
+                )
+                self.assertTrue(np.allclose(shotnum[sni], expected))
+                self.assertTrue(np.allclose(shotnum[sni], index + 1))
 
     def test_sequential_configurations(self):
         # Test relation construction when a dataset saves configuration data

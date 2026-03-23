@@ -21,6 +21,7 @@ from unittest import mock
 
 from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
+from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
 from bapsflib._hdf.maps.digitizers.tests.fauxsis3301 import FauxSIS3301
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
@@ -1185,6 +1186,59 @@ class TestHDFReadData(TestBase):
         mock_build_sndr.reset_mock()
         mock_cs.reset_mock()
         mock_inter.reset_mock()
+
+    @with_bf
+    def test_digi_without_header_shotnum_field(self, _bf: File):
+        self.f.remove_all_modules()
+        self.f.add_module("LeCroy_scope")
+        _mod = self.f.modules["LeCroy_scope"]  # type: FauxLeCroy180E
+        dset = _mod["Channel1"]
+
+        # re-map
+        _bf._map_file()
+
+        cases = [
+            # (kwargs, expected)
+            (
+                {"board": 0, "channel": 1},
+                {"index": np.arange(0, _mod.knobs.sn_size)},
+            ),
+            # index with index kwarg
+            (
+                {"board": 0, "channel": 1, "index": 5},
+                {"index": np.array([5])},
+            ),
+            (
+                {"board": 0, "channel": 1, "index": [3, 10]},
+                {"index": np.array([3, 10])},
+            ),
+            (
+                {"board": 0, "channel": 1, "index": slice(10, 25, 2)},
+                {"index": np.arange(10, 25, 2)},
+            ),
+            # index with shotnum kwarg
+            (
+                {"board": 0, "channel": 1, "shotnum": 5},
+                {"index": np.array([4])},
+            ),
+            (
+                {"board": 0, "channel": 1, "shotnum": [3, 10]},
+                {"index": np.array([2, 9])},
+            ),
+            (
+                {"board": 0, "channel": 1, "shotnum": slice(10, 25, 2)},
+                {"index": np.arange(9, 24, 2)},
+            ),
+        ]
+        for kwargs, expected in cases:
+            with (
+                self.subTest(kwargs=kwargs, expected=expected),
+                self.assertWarns(BaPSFWarning),
+            ):
+                data = HDFReadData(_bf, **kwargs)
+
+                self.assertTrue(np.allclose(data["shotnum"], expected["index"] + 1))
+                self.assertTrue(np.allclose(data["signal"], dset[expected["index"]]))
 
     def assertControlInData(
         self, cdata: HDFReadControls, data: HDFReadData, shotnum: np.ndarray

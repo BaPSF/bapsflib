@@ -1,3 +1,3 @@
 Introduced the configuration key ``'channel_labels'``,
-:attr:`bapsflib._hdf.maps.digitizers.templates.HDFMapDigiTemplate.configs`,
+:attr:`~bapsflib._hdf.maps.digitizers.templates.HDFMapDigiTemplate.configs`,
 to contain store any channel label meta-data recorded in the HDF5 file.

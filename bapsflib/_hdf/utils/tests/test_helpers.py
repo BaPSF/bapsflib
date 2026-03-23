@@ -844,17 +844,22 @@ class TestConditionShotnum(TestBase):
             self.assertTrue(np.array_equal(_sn, ex_sn))
 
     def test_shotnum_slice(self):
-        # create 2 fake datasets (d1 and d1)
+        # create 3 fake datasets (d1, d2, and d3)
+        # - d3 will have NO shot number column
         data = np.array(
             np.arange(1, 6, dtype=np.uint32), dtype=[("Shot number", np.uint32)]
         )
         self.f.create_dataset("d1", data=data)
+
         data["Shot number"] = np.arange(3, 8, dtype=np.uint32)
         self.f.create_dataset("d2", data=data)
 
+        data = np.ones(shape=(5,), dtype=np.float32)
+        self.f.create_dataset("d3", data=data)
+
         # make fake dicts
-        dset_list = [self.f["d1"], self.f["d2"]]
-        shotnumkey_list = ["Shot number", "Shot number"]
+        dset_list = [self.f["d1"], self.f["d2"], self.f["d3"]]
+        shotnumkey_list = ["Shot number", "Shot number", None]
 
         # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
@@ -868,15 +873,20 @@ class TestConditionShotnum(TestBase):
             (slice(5, 10, 1), np.array([5, 6, 7, 8, 9], dtype=np.uint32)),
             (slice(-2, -1), np.array([6], dtype=np.uint32)),
         ]
-        for shotnum, ex_sn in sn:
-            _sn = condition_shotnum(shotnum, dset_list, shotnumkey_list)
+        for shotnum, expected_sn in sn:
+            with self.subTest(
+                shotnum=shotnum,
+                expected_sn=expected_sn,
+            ):
+                _sn = condition_shotnum(shotnum, dset_list, shotnumkey_list)
 
-            self.assertIsInstance(_sn, np.ndarray)
-            self.assertTrue(np.array_equal(_sn, ex_sn))
+                self.assertIsInstance(_sn, np.ndarray)
+                self.assertTrue(np.array_equal(_sn, expected_sn))
 
         # remove datasets
         del self.f["d1"]
         del self.f["d2"]
+        del self.f["d3"]
 
     def test_shotnum_ndarray(self):
         # shotnum invalid

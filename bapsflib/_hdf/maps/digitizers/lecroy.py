@@ -382,9 +382,8 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
             nshotnum = self._configs[config_name]["lecroy"][0][2]["nshotnum"]
             nt = self._configs[config_name]["lecroy"][0][2]["nt"]
 
-            if (
-                (dset_time.ndim == 1 and dset_time.size == nt)
-                or (dset_time.ndim == 2 and dset_time.shape == (nshotnum, nt))
+            if (dset_time.ndim == 1 and dset_time.size == nt) or (
+                dset_time.ndim == 2 and dset_time.shape == (nshotnum, nt)
             ):
                 self._configs[config_name]["lecroy"][0][2]["time_dset_path"] = "time"
 
@@ -398,7 +397,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
             warn(
                 "The 'time' dataset is missing from the 'LeCroy_scope' digitizer, "
                 "thus the digitizer is missing all time information.",
-                HDFMappingWarning
+                HDFMappingWarning,
             )
 
     def construct_dataset_name(

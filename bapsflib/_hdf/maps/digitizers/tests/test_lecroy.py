@@ -136,7 +136,7 @@ class TestLeCroy180E(DigitizerTestCase):
             _map = self.map
 
             # channel 1 is not included in the mapping
-            self.assertEqual(_map.configs["lecroy"]["lecroy"][0][1], (2, ))
+            self.assertEqual(_map.configs["lecroy"]["lecroy"][0][1], (2,))
 
     def test_map_warning_channel_dset_not_2d(self):
         _mod = self.mod
@@ -275,7 +275,7 @@ class TestLeCroy180E(DigitizerTestCase):
 
         self.assertEqual(set(_map.configs), {"lecroy"})
         self.assertTrue(_map.configs["lecroy"]["active"])
-        self.assertEqual(_map.configs["lecroy"]["adc"], ("lecroy", ))
+        self.assertEqual(_map.configs["lecroy"]["adc"], ("lecroy",))
         self.assertEqual(_map.configs["lecroy"]["config group path"], _mod.name)
         self.assertIs(_map.configs["lecroy"]["shotnum"], None)
         self.assertTrue(len(_map.configs["lecroy"]["lecroy"]), 1)

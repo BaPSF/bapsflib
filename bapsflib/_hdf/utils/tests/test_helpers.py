@@ -17,8 +17,8 @@ import unittest as ut
 from h5py import Group
 from numpy.lib import recfunctions as rfn
 
-from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
+from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,

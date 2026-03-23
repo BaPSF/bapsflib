@@ -200,13 +200,14 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
         conn = self.configs[config_name][adc_name][0]
         board = conn[0]
         channels = conn[1]  # type: List[int]
+        setup = conn[2]  # type: dict
 
         # get 'nshotnum', 'nt', and 'channel_labels' values
         new_chs = list(channels)
         chs_to_remove = []
         ch_labels = []
         nshotnum = None
-        nt = None
+        nt = setup.get("nt", None)
         for ch in new_chs:
             # -- examine dataset --
             dset_name = self.construct_dataset_name(board, ch)  # type: str
@@ -237,35 +238,28 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
             # - should be consistent across all datasets
             if nt is None:
                 nt = dset.shape[1]
-            elif nt == -1:
-                pass
-            else:
-                if nt != dset.shape[1]:
-                    warn(
+            elif nt != dset.shape[1]:
+                raise HDFMappingError(
+                    self.info["group path"],
+                    why=(
                         f"HDF5 structure unexpected...number of time "
-                        f"sample inconsistent across all channels for "
-                        f"board {board}...setting nt = -1",
+                        f"samples is inconsistent across all channels",
                         HDFMappingWarning,
-                    )
-                    nt = -1
-                    continue
+                    ),
+                )
 
             # Define and check nshotnum
             # - should be consistent across all datasets
             if nshotnum is None:
                 nshotnum = dset.shape[0]
-            elif nshotnum == -1:
-                pass
-            else:
-                if nshotnum != dset.shape[0]:
-                    warn(
+            elif nshotnum != dset.shape[0]:
+                raise HDFMappingError(
+                    self.info["group path"],
+                    why=(
                         f"HDF5 structure unexpected...number of shot "
-                        f"numbers inconsistent across all channels for "
-                        f"board {board}...setting nshotnum = -1",
-                        HDFMappingWarning,
-                    )
-                    nshotnum = -1
-                    continue
+                        f"numbers inconsistent across all channels"
+                    ),
+                )
 
             # -- examine header dataset --
             hdset_name = self.construct_header_dataset_name(board, ch)
@@ -385,12 +379,27 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
         # update with time information
         if "time" in dataset_names:
             dset_time = self.group["time"]
+            nshotnum = self._configs[config_name]["lecroy"][0][2]["nshotnum"]
             nt = self._configs[config_name]["lecroy"][0][2]["nt"]
 
-            if dset_time.ndim != 1 or dset_time.size != nt:
-                pass
-            else:
+            if (
+                (dset_time.ndim == 1 and dset_time.size == nt)
+                or (dset_time.ndim == 2 and dset_time.shape == (nshotnum, nt))
+            ):
                 self._configs[config_name]["lecroy"][0][2]["time_dset_path"] = "time"
+
+            else:
+                warn(
+                    "The time dataset has inconsistent shape and/or size with the "
+                    "channel datasets.",
+                    HDFMappingWarning,
+                )
+        else:
+            warn(
+                "The 'time' dataset is missing from the 'LeCroy_scope' digitizer, "
+                "thus the digitizer is missing all time information.",
+                HDFMappingWarning
+            )
 
     def construct_dataset_name(
         self,

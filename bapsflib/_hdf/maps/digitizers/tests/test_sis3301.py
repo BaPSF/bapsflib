@@ -30,12 +30,6 @@ class TestSIS3301(DigitizerTestCase):
     DEVICE_PATH = f"/Raw data + config/{DEVICE_NAME}"
     MAP_CLASS = HDFMapDigiSIS3301
 
-    def setUp(self):
-        super().setUp()
-
-    def tearDown(self):
-        super().tearDown()
-
     def test_device_acs(self):
         self.assertTrue(self.MAP_CLASS._device_adcs == ("SIS 3301",))
 
@@ -930,7 +924,3 @@ class TestSIS3301(DigitizerTestCase):
             _map._parse_config_name("Configuration: all-probes"), "all-probes"
         )
         self.assertIsNone(_map._parse_config_name("Not a config"))
-
-
-if __name__ == "__main__":
-    ut.main()

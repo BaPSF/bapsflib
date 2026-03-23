@@ -1,13 +1,3 @@
-# This file is part of the bapsflib package, a Python toolkit for the
-# BaPSF group at UCLA.
-#
-# http://plasma.physics.ucla.edu/
-#
-# Copyright 2017-2019 Erik T. Everson and contributors
-#
-# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
-#   license terms and contributor agreement.
-#
 import h5py
 import inspect
 import os
@@ -24,7 +14,7 @@ from bapsflib._hdf.maps.controls.tests import (
     FauxSixK,
     FauxWaveform,
 )
-from bapsflib._hdf.maps.digitizers.tests import FauxSIS3301, FauxSISCrate
+from bapsflib._hdf.maps.digitizers.tests import FauxLeCroy180E, FauxSIS3301, FauxSISCrate
 from bapsflib._hdf.maps.msi.tests import (
     FauxDischarge,
     FauxGasPressure,
@@ -47,6 +37,7 @@ class FauxHDFBuilder(h5py.File):
         "Magnetic field": FauxMagneticField,
     }
     _KNOWN_DIGITIZERS = {
+        "LeCroy_scope": FauxLeCroy180E,
         "SIS 3301": FauxSIS3301,
         "SIS crate": FauxSISCrate,
     }

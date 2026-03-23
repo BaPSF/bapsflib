@@ -1,0 +1,5 @@
+Introduced the configuration key ``'time_dset_path'``,
+:attr:`~bapsflib._hdf.maps.digitizers.templates.HDFMapDigiTemplate.configs`,
+to contain store a relative path to a time array dataset associated with
+the channel datasets.  The relative path is relative to the digitizer
+group path.

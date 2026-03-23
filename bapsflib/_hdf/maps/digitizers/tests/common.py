@@ -19,6 +19,7 @@ from typing import Tuple
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.templates import MapTypes
+from bapsflib._hdf.maps.tests import MapTestBase
 
 
 def method_overridden(cls, obj, method: str) -> bool:
@@ -28,14 +29,13 @@ def method_overridden(cls, obj, method: str) -> bool:
     return obj_method and base_method
 
 
-class DigitizerTestCase(ut.TestCase):
+class DigitizerTestCase(MapTestBase):
     """Base TestCase for testing digitizer mapping classes."""
 
     # TODO: DESIGN A FAILURES TEST 'test_map_failures'
     # - These are required scenarios where the mapping class should
     #   raise a HDFMappingError
 
-    f = NotImplemented  # type: FauxHDFBuilder
     DEVICE_NAME = NotImplemented  # type: str
     DEVICE_PATH = NotImplemented  # type: str
     MAP_CLASS = NotImplemented
@@ -47,10 +47,9 @@ class DigitizerTestCase(ut.TestCase):
             raise ut.SkipTest("In DigitizerTestCase, skipping base tests")
         super().setUpClass()
 
-        # create HDF5 file
-        cls.f = FauxHDFBuilder()
-
     def setUp(self):
+        super().setUp()
+
         # setup HDF5 file
         if not (self.DEVICE_NAME in self.f.modules and len(self.f.modules) == 1):
             # clear HDF5 file and add module
@@ -59,16 +58,6 @@ class DigitizerTestCase(ut.TestCase):
 
         # define `mod` attribute
         self.mod = self.f.modules[self.DEVICE_NAME]
-
-    def tearDown(self):
-        # reset module
-        self.mod.knobs.reset()
-
-    @classmethod
-    def tearDownClass(cls):
-        # cleanup and close HDF5 file
-        super().tearDownClass()
-        cls.f.cleanup()
 
     @property
     def map(self) -> HDFMapDigiTemplate:
@@ -203,21 +192,24 @@ class DigitizerTestCase(ut.TestCase):
 
             # -- examine 'shotnum' key --
             # required keys
-            self.assertIsInstance(config["shotnum"], dict)
-            self.assertIn("dset field", config["shotnum"])
-            self.assertIn("shape", config["shotnum"])
-            self.assertIn("dtype", config["shotnum"])
+            self.assertTrue(
+                isinstance(config["shotnum"], dict) or config["shotnum"] is None
+            )
+            if config["shotnum"] is not None:
+                self.assertIn("dset field", config["shotnum"])
+                self.assertIn("shape", config["shotnum"])
+                self.assertIn("dtype", config["shotnum"])
 
-            # ['shotnum']['dset field']
-            self.assertIsInstance(config["shotnum"]["dset field"], tuple)
-            self.assertEqual(len(config["shotnum"]["dset field"]), 1)
-            self.assertIsInstance(config["shotnum"]["dset field"][0], str)
+                # ['shotnum']['dset field']
+                self.assertIsInstance(config["shotnum"]["dset field"], tuple)
+                self.assertEqual(len(config["shotnum"]["dset field"]), 1)
+                self.assertIsInstance(config["shotnum"]["dset field"][0], str)
 
-            # ['shotnum']['shape']
-            self.assertEqual(config["shotnum"]["shape"], ())
+                # ['shotnum']['shape']
+                self.assertEqual(config["shotnum"]["shape"], ())
 
-            # ['shotnum']['dtype']
-            self.assertTrue(np.issubdtype(config["shotnum"]["dtype"], np.integer))
+                # ['shotnum']['dtype']
+                self.assertTrue(np.issubdtype(config["shotnum"]["dtype"], np.integer))
 
             # -- examine polymorphic "adc" keys --
             for adc in config["adc"]:
@@ -248,13 +240,18 @@ class DigitizerTestCase(ut.TestCase):
                     self.assertIn("sample average (hardware)", conn[2])
 
                     # check 'bit'
-                    self.assertIsInstance(conn[2]["bit"], (int, np.integer))
-                    self.assertTrue(conn[2]["bit"] > 0)
+                    bit = conn[2]["bit"]
+                    self.assertTrue(isinstance(bit, (int, np.integer)) or bit is None)
+                    if bit is not None:
+                        self.assertTrue(conn[2]["bit"] > 0)
 
                     # check 'clock rate'
-                    self.assertIsInstance(conn[2]["clock rate"], u.Quantity)
-                    # noinspection PyUnresolvedReferences
-                    self.assertTrue(conn[2]["clock rate"].unit.is_equivalent(u.Hertz))
+                    clock_rate = conn[2]["clock rate"]
+                    self.assertTrue(
+                        isinstance(clock_rate, u.Quantity) or clock_rate is None
+                    )
+                    if clock_rate is not None:
+                        self.assertTrue(conn[2]["clock rate"].unit.is_equivalent(u.Hertz))
 
                     # check 'nshotnum' and 'nt'
                     for key in ("nshotnum", "nt"):

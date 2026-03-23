@@ -1,0 +1,6 @@
+Introduced a scheme to allow the ``'bit'`` mapping configuration key,
+:attr:`~bapsflib._hdf.maps.digitizers.templates.HDFMapDigiTemplate.configs`,
+to contain a value of `None` for digitizers that record voltage into
+the HDF5 files, instead of bits.  This also required an update
+`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, so it would default
+to ``keep_bits=True`` without issuing a warning.

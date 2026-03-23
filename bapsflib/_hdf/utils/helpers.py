@@ -35,7 +35,7 @@ IndexDict = Dict[str, Dict[str, np.ndarray]]
 def build_shotnum_dset_relation(
     shotnum: np.ndarray,
     dset: h5py.Dataset,
-    shotnumkey: str,
+    shotnumkey: str | None,
     n_configs: int,
     config_column_value: Any,
     config_column: Optional[str] = None,
@@ -62,8 +62,9 @@ def build_shotnum_dset_relation(
     dset: `h5py.Dataset`
         Control device dataset
 
-    shotnumkey : `str`
-        Dataset field name containing shot numbers.
+    shotnumkey : `str` | None
+        Dataset field name containing shot numbers, or `None` if the
+        dataset has NO shot number column.
 
     n_configs : int
         The number of unique configurations contained in ``dset``.
@@ -95,13 +96,15 @@ def build_shotnum_dset_relation(
     #       HDF5 translator "ignorantly" does this to maintain a dataset
     #       size equivalent to the shot number size.
     #
-    if shotnumkey not in dset.dtype.names:
+    if shotnumkey is not None and shotnumkey not in dset.dtype.names:
         raise ValueError(
             f"The expected shot number column '{shotnumkey}' not found in the "
             f"HDF5 dataset {dset.name}.  Present columns are {dset.dtype.names}."
         )
 
-    if config_column is None:
+    if config_column is None and shotnumkey is None:
+        pass
+    elif config_column is None:
         # assume default column name
         column_name_mask = [
             "configuration" in name.casefold() for name in dset.dtype.names
@@ -128,7 +131,12 @@ def build_shotnum_dset_relation(
             f"HDF5 dataset '{dset.name}'.  Present columns are {dset.dtype.names}."
         )
 
-    dset_shotnum = dset[shotnumkey]
+    if shotnumkey is None:
+        # Header dataset does not contain shot number information, assuming
+        # shot number is index + 1.
+        dset_shotnum = np.arange(1, dset.size + 1, 1, dtype=np.uint32)
+    else:
+        dset_shotnum = dset[shotnumkey]
     unique_shotnums = np.unique(dset_shotnum)
     if dset_shotnum[0] == 0:
         # A zero shot number should not exist!  This happens when the
@@ -391,7 +399,14 @@ def condition_shotnum(
 
     elif isinstance(shotnum, slice):
         # determine the largest possible shot number
-        last_sn = [dset[-1, key] + 1 for dset, key in zip(dset_list, shotnumkey_list)]
+        last_sn = []
+        for dset, key in zip(dset_list, shotnumkey_list):
+            if key is None:
+                # Associated digitizer header dataset does NOT contain shot number
+                # data.
+                last_sn.append(dset.size)
+            else:
+                last_sn.append(dset[-1, key] + 1)
         if shotnum.stop is not None:
             last_sn.append(shotnum.stop)
         stop_sn = max(last_sn)

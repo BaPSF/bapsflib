@@ -18,6 +18,7 @@ from h5py import Group
 from numpy.lib import recfunctions as rfn
 
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
+from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
@@ -38,9 +39,6 @@ class TestBuildShotnumDsetRelation(TestBase):
         super().setUp()
         self.f.add_module("Waveform", mod_args={"n_configs": 1, "sn_size": 100})
         self.mod = self.f.modules["Waveform"]
-
-    def tearDown(self):
-        super().tearDown()
 
     @property
     def cgroup(self) -> Group:
@@ -382,6 +380,32 @@ class TestBuildShotnumDsetRelation(TestBase):
                     config_column=None,
                 )
                 self.assertTrue(np.allclose(shotnum[sni], dset["Shot number"][index]))
+
+    def test_dset_without_shotnumkey(self):
+        self.f.remove_all_modules()
+        self.f.add_module("LeCroy_scope")
+
+        _mod = self.f.modules["LeCroy_scope"]  # type: FauxLeCroy180E
+        _mod.knobs.sn_size = 100
+        dset = _mod["Headers/Channel1"]
+
+        cases = [
+            # (shotnum, expected_shotnum)
+            (np.arange(1, 30, 2), np.arange(1, 30, 2)),
+            (np.arange(90, 110, 1), np.arange(90, 101, 1)),
+        ]
+        for shotnum, expected in cases:
+            with self.subTest(shotnum=shotnum, expected=expected):
+                index, sni = build_shotnum_dset_relation(
+                    shotnum=shotnum,
+                    dset=dset,
+                    shotnumkey=None,
+                    n_configs=1,
+                    config_column_value=None,
+                    config_column=None,
+                )
+                self.assertTrue(np.allclose(shotnum[sni], expected))
+                self.assertTrue(np.allclose(shotnum[sni], index + 1))
 
     def test_sequential_configurations(self):
         # Test relation construction when a dataset saves configuration data
@@ -844,17 +868,22 @@ class TestConditionShotnum(TestBase):
             self.assertTrue(np.array_equal(_sn, ex_sn))
 
     def test_shotnum_slice(self):
-        # create 2 fake datasets (d1 and d1)
+        # create 3 fake datasets (d1, d2, and d3)
+        # - d3 will have NO shot number column
         data = np.array(
             np.arange(1, 6, dtype=np.uint32), dtype=[("Shot number", np.uint32)]
         )
         self.f.create_dataset("d1", data=data)
+
         data["Shot number"] = np.arange(3, 8, dtype=np.uint32)
         self.f.create_dataset("d2", data=data)
 
+        data = np.ones(shape=(5,), dtype=np.float32)
+        self.f.create_dataset("d3", data=data)
+
         # make fake dicts
-        dset_list = [self.f["d1"], self.f["d2"]]
-        shotnumkey_list = ["Shot number", "Shot number"]
+        dset_list = [self.f["d1"], self.f["d2"], self.f["d3"]]
+        shotnumkey_list = ["Shot number", "Shot number", None]
 
         # invalid shotnum slices (creates NULL arrays)
         with self.assertRaises(ValueError):
@@ -868,15 +897,20 @@ class TestConditionShotnum(TestBase):
             (slice(5, 10, 1), np.array([5, 6, 7, 8, 9], dtype=np.uint32)),
             (slice(-2, -1), np.array([6], dtype=np.uint32)),
         ]
-        for shotnum, ex_sn in sn:
-            _sn = condition_shotnum(shotnum, dset_list, shotnumkey_list)
+        for shotnum, expected_sn in sn:
+            with self.subTest(
+                shotnum=shotnum,
+                expected_sn=expected_sn,
+            ):
+                _sn = condition_shotnum(shotnum, dset_list, shotnumkey_list)
 
-            self.assertIsInstance(_sn, np.ndarray)
-            self.assertTrue(np.array_equal(_sn, ex_sn))
+                self.assertIsInstance(_sn, np.ndarray)
+                self.assertTrue(np.array_equal(_sn, expected_sn))
 
         # remove datasets
         del self.f["d1"]
         del self.f["d2"]
+        del self.f["d3"]
 
     def test_shotnum_ndarray(self):
         # shotnum invalid

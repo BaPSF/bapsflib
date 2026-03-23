@@ -154,7 +154,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
                 config['shotnum']
             ", "
-            Dictionary defining how the digitzier shot numbers are
+            Dictionary defining how the digitizer shot numbers are
             recorded.  Assuming the shot numbers are recorded in the
             header dataset associated with the main dataset.  The
             dictionary should look like, ::
@@ -165,14 +165,22 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                     'dtype': numpy.uint32,
                 }
 
-            where ``'dset field'`` is the field name of the
-            header dataset containing shot numbers, ``'shape'`` is
-            the `numpy` shape of the shot number data, and ``'dtype'``
-            is the `numpy` `~numpy.dtype` of the data.  This all defines
-            the `numpy` `~numpy.dtype` of the ``'shotnum'`` field in
-            the
+            where
+
+            - ``'dset field'`` is the field name of the header dataset
+              containing shot numbers
+            - ``'shape'`` is the `numpy` shape of the shot number data
+            - ``'dtype'`` is the `numpy` `~numpy.dtype` of the data
+
+            This all defines the `numpy` `~numpy.dtype` of the
+            ``'shotnum'`` field in the
             :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed `numpy` array.
+
+            If the ``'shotnum'`` key is given a value of `None`
+            (instead of the above dictionary), then it is assumed that
+            NO shot number is recorded and the generate shot number
+            will follow the rule ``shotnum = index + 1``.
             "
 
         There is a required polymorphic key for each adc named in the
@@ -215,17 +223,32 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                     'nt': 10000,
                     'sample average (hardware)': None,
                     'shot average (software)': None,
+                    'channel_labels': ('Bx', 'By', 'Bz'),
+                    'time_dset_path': 'time',
                 }
 
-            where ``'bit'`` represents the bit resolution of the
-            adc, ``'clock rate'`` represents the base clock rate of
-            the adc, ``'nshotnum'`` is the number of shot numbers
-            recorded, ``'nt'`` is the number of time samples
-            recorded, ``'sample average (hardware)'`` is the number
-            of time samples averaged together (this and the
-            ``'clock rate'`` make up the ``'sample rate'``),
-            and ``'shot average (software)'`` is the number of shot
-            timeseries intended to be average together.
+            where
+
+            - ``'bit'`` represents the bit resolution of the adc.  If
+              given a value of `None`, then it is assumed the digitizer
+              data is saved in volts instead of bit-levels.
+            - ``'clock rate'`` represents the base clock rate of the
+              adc
+            - ``'nshotnum'`` is the number of shot numbers recorded
+            - ``'nt'`` is the number of time samples recorded
+            - ``'sample average (hardware)'`` is the number of time
+              samples averaged together (this and the ``'clock rate'``
+              make up the ``'sample rate'``)
+            - ``'shot average (software)'`` is the number of shot
+              timeseries intended to be average together
+            - ``'channel_labels'`` (optional) is a tuple of of strings
+              equal in length the number of active channels.  These
+              labels are pulled from the digitizers metadata.
+            - ``'time_dset_path'`` (optional) is a relative path to
+              a time array dataset.  The path is relative to the root
+              group of the digitizer, i.e. :attr:`group_path`.  This is
+              used if the digitizer records the time array instead of
+              the clock/sample rate.
             "
 
         """
@@ -283,6 +306,8 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                 'nt': int,
                 'sample average (hardware)': int,
                 'shot average (software)': int,
+                'channel_labels', tuple,  # optional
+                'time_dset_path': str,  # optional
             }
 
         """

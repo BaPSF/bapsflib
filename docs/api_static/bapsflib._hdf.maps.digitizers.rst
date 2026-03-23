@@ -12,6 +12,7 @@ Sub-Packages & Modules
 
 .. autosummary::
 
+    lecroy
     map_digis
     sis3301
     siscrate

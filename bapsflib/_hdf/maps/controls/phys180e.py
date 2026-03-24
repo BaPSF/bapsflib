@@ -15,16 +15,16 @@ from bapsflib.utils.exceptions import HDFMappingError
 
 class HDFMapControlPositions180E(HDFMapControlTemplate):
     """
-        Mapping module for the control device '180E_positions'.
+    Mapping module for the control device '180E_positions'.
 
-        Simple group structure looks like:
+    Simple group structure looks like:
 
-        .. code-block:: none
+    .. code-block:: none
 
-            +-- Positions
-            |   +-- positions_setup_array       [Dataset]
+        +-- Positions
+        |   +-- positions_setup_array       [Dataset]
 
-        """
+    """
 
     _contype = ConType.MOTION
     _required_dataset_names = {
@@ -45,8 +45,7 @@ class HDFMapControlPositions180E(HDFMapControlTemplate):
         # There is only every one dataset name
         return self._required_dataset_names["main"]
 
-    def _init_before_build_configs(self):
-        ...
+    def _init_before_build_configs(self): ...
 
     def _build_configs(self):
         # Build the attribute self.configs dictionary
@@ -56,16 +55,16 @@ class HDFMapControlPositions180E(HDFMapControlTemplate):
 
         dset_path = f"{self.group_path}/{self._required_dataset_names['main']}"
         _config = {
-            "dset paths": (dset_path, ),
+            "dset paths": (dset_path,),
             "shotnum": {
-                "dset paths": (dset_path, ),
-                "dset field": ("Line_number", ),
+                "dset paths": (dset_path,),
+                "dset field": ("Line_number",),
                 "shape": (),
                 "dtype": np.int32,
             },
             "state values": {
                 "xyz": {
-                    "dset paths": (dset_path, ),
+                    "dset paths": (dset_path,),
                     "dset field": ("x", "y", ""),
                     "shape": (3,),
                     "dtype": np.float64,

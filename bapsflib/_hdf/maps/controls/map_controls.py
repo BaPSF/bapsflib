@@ -158,7 +158,7 @@ class HDFMapControls(dict):
         control_dict = {}
         for name in self.data_group_subgnames:
             if name in self._defined_mapping_classes:
-                # only add mapping that succeeded
+                # only add successful mappings
                 try:
                     _map = self._defined_mapping_classes[name](self.__data_group[name])
                     control_dict[name] = _map

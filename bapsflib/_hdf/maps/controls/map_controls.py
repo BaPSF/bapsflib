@@ -14,7 +14,7 @@ __all__ = ["HDFMapControls"]
 
 import h5py
 
-from typing import Dict, Tuple, Union
+from typing import Dict, Tuple, Union, Type
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS
@@ -47,7 +47,7 @@ class HDFMapControls(dict):
         "NI_XYZ": HDFMapControlNIXYZ,
         "NI_XZ": HDFMapControlNIXZ,
         "Waveform": HDFMapControlWaveform,
-    }
+    }  # type: Dict[str, Type[HDFMapControlTemplate]]
     """
     Dictionary containing references to the defined (known) control
     device mapping classes.
@@ -156,15 +156,48 @@ class HDFMapControls(dict):
             control device mapping dictionary
         """
         control_dict = {}
+
+        # update the mapping dictionary to include the original keys, as
+        # well as the associated EXPECTED_GROUP_NAME
+        _mapper_dict = (
+            {}
+        )  # type: Dict[str, Tuple[Tuple[str, Type[HDFMapControlTemplate]], ...]]
+        for key, mapper in self._defined_mapping_classes.items():
+            _mapper_dict[key] = ((key, mapper),)
+
+            if mapper._EXPECTED_GROUP_NAME is None:
+                continue
+
+            alt_key = str(mapper._EXPECTED_GROUP_NAME)
+            if alt_key not in _mapper_dict:
+                _mapper_dict[alt_key] = ((key, mapper),)
+            else:
+                mappers = list(_mapper_dict.pop(alt_key))
+                mappers.append((key, mapper))
+
+                _mapper_dict[alt_key] = tuple(mappers)
+
+        # try mapping
         for name in self.data_group_subgnames:
-            if name in self._defined_mapping_classes:
-                # only add successful mappings
+            try:
+                _mappers = _mapper_dict[name]
+            except KeyError:
+                # group name `name` does not match any key of _defined_mapping_classes,
+                # check `name` against the mapper EXPECTED_GROUP_NAME
+                continue
+
+            for _key, _mapper in _mappers:
                 try:
-                    _map = self._defined_mapping_classes[name](self.__data_group[name])
-                    control_dict[name] = _map
+                    # Note: always add to the control dictionary using
+                    #       the original key, and not the alternate key
+                    #       that corresponds to the _EXPECTED_GROUP_NAME
+                    #       map class attribute
+                    #
+                    _map = _mapper(self.__data_group[name])
+                    control_dict[_key] = _map
                 except HDFMappingError:
                     # mapping failed
-                    pass
+                    continue
 
         # return dictionary
         return control_dict

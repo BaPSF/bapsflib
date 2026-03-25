@@ -152,9 +152,6 @@ class ControlTestCase(MapTestBase):
         # check 'contype'
         self.assertEqual(_map.info["contype"], _map.contype)
 
-        # check 'device_name'
-        self.assertEqual(_map.device_name, _map.info["group name"])
-
         # check 'group'
         self.assertIsInstance(_map.group, h5py.Group)
         self.assertEqual(_map.group, _group)

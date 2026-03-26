@@ -14,9 +14,12 @@
 import numpy as np
 import unittest as ut
 
+from unittest import mock
+
 from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.tests import MapTestBase
 from bapsflib._hdf.maps.controls.map_controls import HDFMapControls
+from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
     HDFMapControlTemplate,
@@ -188,6 +191,31 @@ class TestHDFMapControls(MapTestBase):
 
         _map = self.map
         self.assertIn("180E_positions", _map)
+
+    def test_map_two_controls_with_same_alternate_group_name(self):
+        # test mapping a control device whose group name does NOT match
+        # the mapper primary key (i.e. the key in _defined_mapping_classes)
+        # but corresponds to the devices _EXPECTED_GROUP_NAME
+        #
+        # The 180E_positions mapper follows this scheme.  The primary
+        # key is '180E_positions' but the group name is 'Positions'.
+        #
+        self.f.add_module("180E_positions")
+        self.f.add_module("6K Compumotor")
+
+        with mock.patch(
+            f"{HDFMapControl6K.__module__}."
+            f"{HDFMapControl6K.__name__}._EXPECTED_GROUP_NAME",
+                "Positions"
+        ):
+            # artificially define the expected group name for the 6K mapper
+            # as "Positions"
+
+            self.assertEqual(HDFMapControl6K._EXPECTED_GROUP_NAME, "Positions")
+            self.assertIn("Positions", self.data_group)
+
+            _map = self.map
+            self.assertIn("180E_positions", _map)
 
     def assertBasics(self, _map: HDFMapControls):
         # mapped object is a dictionary

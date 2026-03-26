@@ -18,7 +18,7 @@ Sub-Packages & Modules
     nixyz
     nixz
     parsers
-    phys180e
+    positions180e
     sixk
     templates
     types

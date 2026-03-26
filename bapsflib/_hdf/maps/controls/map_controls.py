@@ -20,7 +20,7 @@ from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS
 from bapsflib._hdf.maps.controls.nixyz import HDFMapControlNIXYZ
 from bapsflib._hdf.maps.controls.nixz import HDFMapControlNIXZ
-from bapsflib._hdf.maps.controls.phys180e import HDFMapControlPositions180E
+from bapsflib._hdf.maps.controls.positions180e import HDFMapControlPositions180E
 from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
 from bapsflib._hdf.maps.controls.templates import (
     ControlMap,

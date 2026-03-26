@@ -1,6 +1,6 @@
 """
 Module for the "bmotion" motion control mapper
-`~bapsflib._hdf.maps.controls.phys180e.HDFMapControlPositions180E`.
+`~bapsflib._hdf.maps.controls.positions180e.HDFMapControlPositions180E`.
 """
 
 __all__ = ["HDFMapControlPositions180E"]

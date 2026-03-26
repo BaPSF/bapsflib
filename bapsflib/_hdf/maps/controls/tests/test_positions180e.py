@@ -1,7 +1,7 @@
 import h5py
 import numpy as np
 
-from bapsflib._hdf.maps.controls.phys180e import HDFMapControlPositions180E
+from bapsflib._hdf.maps.controls.positions180e import HDFMapControlPositions180E
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
 from bapsflib._hdf.maps.controls.tests.fauxpositions180e import FauxPositions180E
 from bapsflib._hdf.maps.controls.types import ConType

@@ -45,8 +45,6 @@ class HDFMapControlPositions180E(HDFMapControlTemplate):
         # There is only every one dataset name
         return self._required_dataset_names["main"]
 
-    def _init_before_build_configs(self): ...
-
     def _build_configs(self):
         # Build the attribute self.configs dictionary
         #

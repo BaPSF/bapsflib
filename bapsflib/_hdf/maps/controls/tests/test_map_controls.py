@@ -15,6 +15,7 @@ import numpy as np
 import unittest as ut
 
 from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import MapTestBase
 from bapsflib._hdf.maps.controls.map_controls import HDFMapControls
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,
@@ -22,7 +23,7 @@ from bapsflib._hdf.maps.controls.templates import (
 )
 
 
-class TestHDFMapControls(ut.TestCase):
+class TestHDFMapControls(MapTestBase):
     """Test class for HDFMapControls"""
 
     # What to test?
@@ -42,12 +43,6 @@ class TestHDFMapControls(ut.TestCase):
     #       controls are included
     # X  8. data group has a dataset
     #
-
-    def setUp(self):
-        self.f = FauxHDFBuilder()
-
-    def tearDown(self):
-        self.f.cleanup()
 
     @property
     def map(self):

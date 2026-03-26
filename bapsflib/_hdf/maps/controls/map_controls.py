@@ -14,7 +14,7 @@ __all__ = ["HDFMapControls"]
 
 import h5py
 
-from typing import Dict, Tuple, Union, Type
+from typing import Dict, Tuple, Type, Union
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.n5700ps import HDFMapControlN5700PS

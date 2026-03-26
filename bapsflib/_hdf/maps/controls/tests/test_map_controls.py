@@ -174,6 +174,21 @@ class TestHDFMapControls(MapTestBase):
         expected = f"{dict.__repr__(_map)}\n\n{_map.__str__()}"
         self.assertEqual(_map.__repr__(), expected)
 
+    def test_map_control_with_alternate_group_name(self):
+        # test mapping a control device whose group name does NOT match
+        # the mapper primary key (i.e. the key in _defined_mapping_classes)
+        # but corresponds to the devices _EXPECTED_GROUP_NAME
+        #
+        # The 180E_positions mapper follows this scheme.  The primary
+        # key is '180E_positions' but the group name is 'Positions'.
+        #
+        self.f.add_module("180E_positions")
+
+        self.assertIn("Positions", self.data_group)
+
+        _map = self.map
+        self.assertIn("180E_positions", _map)
+
     def assertBasics(self, _map: HDFMapControls):
         # mapped object is a dictionary
         self.assertIsInstance(_map, dict)

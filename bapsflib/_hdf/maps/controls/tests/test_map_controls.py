@@ -206,7 +206,7 @@ class TestHDFMapControls(MapTestBase):
         with mock.patch(
             f"{HDFMapControl6K.__module__}."
             f"{HDFMapControl6K.__name__}._EXPECTED_GROUP_NAME",
-                "Positions"
+            "Positions",
         ):
             # artificially define the expected group name for the 6K mapper
             # as "Positions"

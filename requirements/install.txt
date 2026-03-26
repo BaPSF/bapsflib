@@ -6,3 +6,4 @@ bapsf_motion >= 0.2
 h5py >= 3.0
 numpy >= 1.20
 scipy >= 0.19
+matplotlib

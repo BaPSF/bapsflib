@@ -22,6 +22,7 @@ from bapsflib._hdf.maps.controls import (
     nixyz,
     nixz,
     parsers,
+    positions180e,
     sixk,
     templates,
     types,

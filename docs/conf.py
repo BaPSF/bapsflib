@@ -21,7 +21,7 @@
 import os
 import sys
 
-from datetime import datetime
+from datetime import datetime, timezone
 from packaging.version import Version
 from sphinx.application import Sphinx
 
@@ -113,7 +113,7 @@ master_doc = "index"
 # General information about the project.
 project = "bapsflib"
 author = "Erik T. Everson & the BaPSF Community"
-copyright = f"2017-{datetime.utcnow().year}, {author}"
+copyright = f"2017-{datetime.now(timezone.utc).year}, {author}"
 
 # The version info for the project you're documenting, acts as
 # replacement for |version| and |release|, also used in various other

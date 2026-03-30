@@ -18,6 +18,7 @@ Sub-Packages & Modules
     nixyz
     nixz
     parsers
+    positions180e
     sixk
     templates
     types

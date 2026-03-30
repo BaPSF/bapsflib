@@ -11,6 +11,7 @@ from bapsflib._hdf.maps.controls.tests import (
     FauxN5700PS,
     FauxNIXYZ,
     FauxNIXZ,
+    FauxPositions180E,
     FauxSixK,
     FauxWaveform,
 )
@@ -42,6 +43,7 @@ class FauxHDFBuilder(h5py.File):
         "SIS crate": FauxSISCrate,
     }
     _KNOWN_CONTROLS = {
+        "180E_positions": FauxPositions180E,
         "6K Compumotor": FauxSixK,
         "bmotion": FauxBMotion,
         "N5700_PS": FauxN5700PS,

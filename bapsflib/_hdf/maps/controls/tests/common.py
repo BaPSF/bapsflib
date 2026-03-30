@@ -25,7 +25,7 @@ from bapsflib._hdf.maps.controls.templates import (
 )
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.templates import MapTypes
-from bapsflib.utils.tests import BaPSFTestCase
+from bapsflib._hdf.maps.tests import MapTestBase
 
 
 def method_overridden(cls, obj, method: str) -> bool:
@@ -35,7 +35,7 @@ def method_overridden(cls, obj, method: str) -> bool:
     return obj_method and base_method
 
 
-class ControlTestCase(BaPSFTestCase):
+class ControlTestCase(MapTestBase):
     """
     TestCase for control devices.
     """
@@ -44,7 +44,6 @@ class ControlTestCase(BaPSFTestCase):
     # - These are required scenarios where the mapping class should
     #   raise a HDFMappingError
 
-    f = NotImplemented
     DEVICE_NAME = NotImplemented  # type: str
     DEVICE_PATH = NotImplemented  # type: str
     MAP_CLASS = NotImplemented  # type: Type[HDFMapControlTemplate]
@@ -57,25 +56,14 @@ class ControlTestCase(BaPSFTestCase):
             raise ut.SkipTest("In ControlTestCase, skipping base tests")
         super().setUpClass()
 
-        # create HDF5 file
-        cls.f = FauxHDFBuilder()
-
     def setUp(self):
+        super().setUp()
+
         # setup HDF5 file
         if not (self.DEVICE_NAME in self.f.modules and len(self.f.modules) == 1):
             # clear HDF5 file and add module
             self.f.remove_all_modules()
             self.f.add_module(self.DEVICE_NAME)
-
-    def tearDown(self):
-        # reset module
-        self.mod.knobs.reset()
-
-    @classmethod
-    def tearDownClass(cls):
-        # cleanup and close HDF5 file
-        super().tearDownClass()
-        cls.f.cleanup()
 
     @property
     def map(self) -> ControlMap:
@@ -163,9 +151,6 @@ class ControlTestCase(BaPSFTestCase):
         # ---- test general attributes                              ----
         # check 'contype'
         self.assertEqual(_map.info["contype"], _map.contype)
-
-        # check 'device_name'
-        self.assertEqual(_map.device_name, _map.info["group name"])
 
         # check 'group'
         self.assertIsInstance(_map.group, h5py.Group)

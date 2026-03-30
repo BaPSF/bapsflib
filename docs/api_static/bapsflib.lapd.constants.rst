@@ -15,7 +15,7 @@ Sub-Packages & Modules
     constants
 
 .. automodapi:: bapsflib.lapd.constants
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

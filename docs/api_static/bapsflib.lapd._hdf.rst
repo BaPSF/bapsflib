@@ -17,7 +17,7 @@ Sub-Packages & Modules
     lapdoverview
 
 .. automodapi:: bapsflib.lapd._hdf
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

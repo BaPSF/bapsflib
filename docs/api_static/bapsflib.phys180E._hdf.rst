@@ -15,7 +15,7 @@ Sub-Packages & Modules
     file_
 
 .. automodapi:: bapsflib.phys180E._hdf
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

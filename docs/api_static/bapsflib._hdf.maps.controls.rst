@@ -25,7 +25,7 @@ Sub-Packages & Modules
     waveform
 
 .. automodapi:: bapsflib._hdf.maps.controls
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

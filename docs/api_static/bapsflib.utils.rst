@@ -17,7 +17,7 @@ Sub-Packages & Modules
     warnings
 
 .. automodapi:: bapsflib.utils
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

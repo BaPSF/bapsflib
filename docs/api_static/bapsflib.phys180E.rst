@@ -15,7 +15,7 @@ Sub-Packages & Modules
     _hdf
 
 .. automodapi:: bapsflib.phys180E
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :inherited-members:

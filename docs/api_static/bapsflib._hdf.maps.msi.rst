@@ -21,7 +21,7 @@ Sub-Packages & Modules
     templates
 
 .. automodapi:: bapsflib._hdf.maps.msi
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

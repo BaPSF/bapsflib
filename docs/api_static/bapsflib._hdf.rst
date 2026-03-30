@@ -17,7 +17,7 @@ Sub-Packages & Modules
     utils
 
 .. automodapi:: bapsflib._hdf
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

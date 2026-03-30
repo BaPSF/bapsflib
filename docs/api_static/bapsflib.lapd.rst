@@ -17,7 +17,7 @@ Sub-Packages & Modules
     tools
 
 .. automodapi:: bapsflib.lapd
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :inherited-members:

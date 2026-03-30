@@ -15,7 +15,7 @@ Sub-Packages & Modules
     tools
 
 .. automodapi:: bapsflib.lapd.tools
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

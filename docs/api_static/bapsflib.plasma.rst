@@ -19,7 +19,7 @@ Sub-Packages & Modules
     core
 
 .. automodapi:: bapsflib.plasma
-    :no-main-docstr:
+    :no-main-docstring:
     :no-heading:
     :include-all-objects:
     :headings: "-^"

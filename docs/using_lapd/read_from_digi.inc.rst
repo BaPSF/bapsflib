@@ -26,9 +26,9 @@ example, the entire dataset for a signal attached to ``board=1`` and
     >>> isinstance(data, np.ndarray)
     True
 
-where :obj:`data` is an instance of
+where ``data`` is an instance of
 :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, which is a
-subclass of `numpy.ndarray`.  Thus, :obj:`data` behaves just like
+subclass of `numpy.ndarray`.  Thus, ``data`` behaves just like
 a :class:`numpy.ndarray`, but has additional BaPSF focused
 methods/attributes that describe the data's origin and parameters
 (see :numref:`table_HDFReadData_methods`).
@@ -53,7 +53,7 @@ methods/attributes that describe the data's origin and parameters
     extracted data
     "
 
-By default, :obj:`data` is a structured `numpy` array with the
+By default, ``data`` is a structured `numpy` array with the
 following `~numpy.dtype`::
 
     >>> data.dtype

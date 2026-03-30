@@ -39,13 +39,14 @@ from bapsflib import __version__ as release
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
+    # plasmapy extensions & setups
+    "plasmapy_sphinx.theme",
+    "plasmapy_sphinx.ext.autodoc",
+    "plasmapy_sphinx.ext.directives",
+    # other 3rd party extensions
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "sphinx_automodapi.automodapi",
-    "sphinx_automodapi.smart_resolver",
     "sphinx_changelog",
 ]
 
@@ -59,6 +60,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "readthedocs": ("https://docs.readthedocs.io/en/stable/", None),
     "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "plasmapy_sphinx": ("https://plasmapy-sphinx.readthedocs.io/en/latest/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "sphinx_automodapi": (
         "https://sphinx-automodapi.readthedocs.io/en/latest/",
@@ -66,10 +68,34 @@ intersphinx_mapping = {
     ),
 }
 
+# Setup automodapi (from plasmapy_sphinx.ext.autodoc)
+autosummary_generate = True
+# automodapi_custom_groups = {
+#     "actors": {
+#         "title": "Actors",
+#         "description": (
+#             "Explain what an actor is."
+#         ),
+#         "dunder": "__actors__",
+#     },
+# }
+automodapi_group_order = (
+    "modules",
+    "classes",
+    "exceptions",
+    "warnings",
+    "functions",
+    "variables",
+)
+automodapi_groups_with_inheritance_diagrams = [
+    "classes",
+    "exceptions",
+    "warnings",
+]
+
 # Various sphinx configuration variables
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class
 numfig = True  # enable figure and table numbering
-autosummary_generate = True  # generate stub files from all found autosummary directives
 default_role = "py:obj"  # default role for reST role (i.e. `` defaults to :py:obj:``)
 
 # Add any paths that contain templates here, relative to this directory.

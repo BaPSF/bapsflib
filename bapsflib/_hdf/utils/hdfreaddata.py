@@ -133,11 +133,11 @@ class HDFReadData(np.ndarray):
 
         .. note::
 
-            * The :data:`shotnum` keyword will always override the
-              :data:`index` keyword, but, due to extra overhead
+            * The ``shotnum`` keyword will always override the
+              ``index`` keyword, but, due to extra overhead
               required for identifying shot number locations in the
-              digitizer dataset, the :data:`index` keyword will always
-              execute quicker than the :data:`shotnum` keyword.
+              digitizer dataset, the ``index`` keyword will always
+              execute quicker than the ``shotnum`` keyword.
 
         Examples
         --------

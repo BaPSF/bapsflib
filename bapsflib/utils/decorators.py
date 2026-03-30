@@ -54,13 +54,13 @@ def with_bf(
 
     Examples
     --------
-    The HDF5 file parameters (:data:`filename`, :data:`control_path`,
-    :data:`digitizer_path`, and :data:`msi_path`) can be passed to the
+    The HDF5 file parameters (``filename``, ``control_path``,
+    ``digitizer_path``, and ``msi_path``) can be passed to the
     decorator in three ways (listed by predominance):
 
     #. The wrapped function arguments.
     #. If the wrapped function is a method, then through appropriately
-       named :data:`self` attributes.
+       named ``self`` attributes.
     #. The decorator keywords.
 
     **Defined with wrapped function arguments**::
@@ -223,12 +223,12 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
 
     Examples
     --------
-    The HDF5 :data:`filename` can be passed to the decorator in three
+    The HDF5 ``filename`` can be passed to the decorator in three
     ways (listed by predominance):
 
     #. The wrapped function arguments.
     #. If the wrapped function is a method, then through the
-       appropriately named :data:`self` attributes.
+       appropriately named ``self`` attributes.
     #. The decorator keywords.
 
     **Defined with wrapped function arguments**::

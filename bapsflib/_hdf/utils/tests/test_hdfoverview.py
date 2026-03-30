@@ -26,8 +26,7 @@ from bapsflib.utils.decorators import with_bf
 
 class TestHDFOverview(TestBase):
     """
-    Test case for
-    :class:`~bapsflib._hdf.utils.hdfoverview.HDFOverview`.
+    Test case for `~bapsflib._hdf.utils.hdfoverview.HDFOverview`.
     """
 
     def setUp(self):

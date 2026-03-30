@@ -1,31 +1,31 @@
 .. There are three classes of data data saved in a HDF5 file, **digitizer**
    data, **control device** data, and **MSI diagnostic** data (see
    :ref:`lapd_file_overview`).  Each class of data is given its own read
-   method on :class:`bapsflib.lapd.File`:
+   method on `bapsflib.lapd.File`:
 
-Three classes :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`,
-:class:`~bapsflib._hdf_utils.hdfreadcontrols.HDFReadControls`, and
-:class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` are given to read
+Three classes `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`,
+`~bapsflib._hdf_utils.hdfreadcontrols.HDFReadControls`, and
+`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` are given to read
 data from **digitizers**, **control devices**, and **MSI diagnostics**,
 respectively.  Each of these read classes are bound to
-:class:`~bapsflib.lapd.File`, see :numref:`f_read_methods`,
+`~bapsflib.lapd.File`, see :numref:`f_read_methods`,
 and will return a structured `numpy` array with the requested data.
 
 .. _f_read_methods:
 
 .. csv-table:: Read classes/methods for extracting data from a HDF5 file
     :header: "Read Class", "
-        Bound Method on :class:`~bapsflib.lapd.File`", "
+        Bound Method on `~bapsflib.lapd.File`", "
         What it does"
     :widths: 10, 15, 40
 
-    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, "
+    `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, "
     :meth:`~bapsflib.lapd.File.read_data`","
     Designed to extract **digitizer** data from a HDF5 file with the
     option of mating **control device** data at the time of extraction.
     (see reading :ref:`read_digi`)
     "
-    :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`, "
+    `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`, "
     :meth:`~bapsflib.lapd.File.read_controls`", "
     Designed to extract **control device** data. (see reading
     :ref:`read_controls`)

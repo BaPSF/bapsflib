@@ -1,6 +1,6 @@
 :orphan:
 
-With a :class:`numpy.recarray`, accessing a data field can be done via
+With a `numpy.recarray`, accessing a data field can be done via
 a dictionary lookup or as an access to a member of the array.  For
 example, accessing the shot number array can be like
 

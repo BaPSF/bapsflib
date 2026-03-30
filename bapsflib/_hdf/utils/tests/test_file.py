@@ -29,7 +29,7 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 
 class TestFile(TestBase):
-    """Test case for :class:`~bapsflib._hdf.utils.file.File`."""
+    """Test case for `~bapsflib._hdf.utils.file.File`."""
 
     @with_bf
     def test_file_subclass(self, _bf: File):

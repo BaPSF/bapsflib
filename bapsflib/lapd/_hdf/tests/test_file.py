@@ -28,7 +28,7 @@ from bapsflib.utils.decorators import with_bf, with_lapdf
 
 class TestLaPDFile(TestBase):
     """
-    Test case for :class:`~bapsflib.lapd._hdf.file.File`
+    Test case for `~bapsflib.lapd._hdf.file.File`
     """
 
     @with_bf

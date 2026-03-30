@@ -26,12 +26,11 @@ v1.0.1 (2019-06-01)
   handle single element `numpy` arrays
   (`PR 41 <https://github.com/BaPSF/bapsflib/pull/41>`_)
 
-* Refactor class
-  :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and module
-  `~bapsflib._hdf.utils.hdfreadcontrols` to be plural, which better
-  reflects the class behavior and is consistent with the bound method
-  :meth:`~bapsflib._hdf.utils.file.File.read_controls` on
-  :class:`~bapsflib._hdf.utils.file.File`.
+* Refactor class `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+  and module `~bapsflib._hdf.utils.hdfreadcontrols` to be plural, which
+  better reflects the class behavior and is consistent with the bound
+  method :meth:`~bapsflib._hdf.utils.file.File.read_controls` on
+  `~bapsflib._hdf.utils.file.File`.
   (`PR 42 <https://github.com/BaPSF/bapsflib/pull/42>`_)
 
 * Setup continuation integration `pep8speaks <https://pep8speaks.com/>`_

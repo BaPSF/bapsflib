@@ -2,8 +2,8 @@
 
 Digitizer data is read using the
 :meth:`~bapsflib.lapd._hdf.file.File.read_data` method on
-:class:`~bapsflib.lapd._hdf.file.File`.  The method also has the option
-of mating control device data at the time of declaration (see section
+`~bapsflib.lapd._hdf.file.File`.  The method also has the option of
+mating control device data at the time of declaration (see section
 :ref:`read_digi_adding_controls`) [#]_.
 
 At a minimum, the :meth:`~bapsflib.lapd._hdf.file.File.read_data` method
@@ -27,16 +27,16 @@ example, the entire dataset for a signal attached to ``board=1`` and
     True
 
 where ``data`` is an instance of
-:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, which is a
-subclass of `numpy.ndarray`.  Thus, ``data`` behaves just like
-a :class:`numpy.ndarray`, but has additional BaPSF focused
-methods/attributes that describe the data's origin and parameters
-(see :numref:`table_HDFReadData_methods`).
+`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, which is a
+subclass of `numpy.ndarray`.  Thus, ``data`` behaves just like a
+`numpy.ndarray`, but has additional BaPSF focused methods/attributes
+that describe the data's origin and parameters (see
+:numref:`table_HDFReadData_methods`).
 
 .. _table_HDFReadData_methods:
 
 .. csv-table:: Useful methods on
-               :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
+               `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
     :header: "Method", "Description"
     :widths: 5, 40
 
@@ -124,13 +124,13 @@ For details on handling and manipulating ``data`` see
 
 .. note::
 
-    Since :class:`bapsflib.lapd` leverages the :class:`h5py` package,
-    the data in the HDF5 file resides on disk until one of the read
-    methods, :meth:`~bapsflib.lapd._hdf.file.File.read_data`,
+    Since `bapsflib.lapd` leverages the `h5py` package, the data in the
+    HDF5 file resides on disk until one of the read methods,
+    :meth:`~bapsflib.lapd._hdf.file.File.read_data`,
     :meth:`~bapsflib.lapd._hdf.file.File.read_msi`, or
     :meth:`~bapsflib.lapd._hdf.file.File.read_controls` is called.  In
     calling one of these methods, the requested data is brought into
-    memory as a :class:`numpy.ndarray` and a :class:`numpy.view` onto
+    memory as a `numpy.ndarray` and a `numpy.view` onto
     that `~numpy.ndarray` is returned to the user.
 
 ------
@@ -154,7 +154,7 @@ keywords can be used, but ``shotnum`` overrides ``index``.  However,
 there is extra overhead in determining the ``shotnum`` dataset
 locations, so ``index`` will often execute quicker than, or at least on
 par with, ``shotnum``.  ``index`` and ``shotnum`` can be of type `int`,
- ``List[int]``, `slice`, `numpy.ndarray`, or `numpy.s_`.
+``List[int]``, `slice`, `numpy.ndarray`, or `numpy.s_`.
 
 Sub-setting with ``index`` looks like::
 
@@ -282,10 +282,9 @@ Adding Control Device Data
 
 Adding control device data to a digitizer dataset is done with the
 keyword ``add_controls``.  Specifying ``add_controls`` will trigger a
-call to the
-:class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` class and
-extract the desired control device data.
-:class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` then compares and
+call to the `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+class and extract the desired control device data.
+`~bapsflib._hdf.utils.hdfreaddata.HDFReadData` then compares and
 mates that control device data with the digitizer data according to the
 global HDF5 shot number.
 
@@ -323,7 +322,7 @@ receptacle 3, the call would look something like::
 
 Multiple control device datasets can be added at once, but only
 one control device for each control type can be added (see
-:class:`~bapsflib._hdf.ConType` for control types).  Adding
+`~bapsflib._hdf.ConType` for control types).  Adding
 ``'6K Compumotor'`` data from receptacle 3 and ``'Waveform'``
 data would look like::
 
@@ -350,7 +349,7 @@ control type, it fills out the ``'xyz'`` field in the returned
 data array; whereas, ``'Waveform'`` will add field names to the
 data array according to the fields specified in its mapping
 constructor
-:class:`~bapsflib._hdf.maps.controls.waveform.HDFMapControlWaveform`.
+`~bapsflib._hdf.maps.controls.waveform.HDFMapControlWaveform`.
 See :ref:`read_controls` for details on these added fields.
 
 .. [#] Control device data can also be independently read using

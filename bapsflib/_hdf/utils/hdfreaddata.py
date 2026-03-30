@@ -41,9 +41,8 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
-    device data is extracted using
-    :class:`~.hdfreadcontrols.HDFReadControls` and combined with the
-    digitizer data.
+    device data is extracted using `~.hdfreadcontrols.HDFReadControls`
+    and combined with the digitizer data.
 
     This class constructs and returns a structured numpy array.  The
     data in the array is grouped into three categories:
@@ -53,7 +52,7 @@ class HDFReadData(np.ndarray):
     #. control device data which is represented by the remaining fields
        in the numpy array.  These field names are polymorphic and are
        defined by the control device mapping class. (see
-       :class:`~.hdfreadcontrols.HDFReadControls` for more detail)
+       `~.hdfreadcontrols.HDFReadControls` for more detail)
 
     Data that is not shot number specific is stored in the :attr:`info`
     attribute.

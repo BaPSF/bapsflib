@@ -38,8 +38,7 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 class TestHDFReadData(TestBase):
     """
-    Test Case for
-    :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
+    Test Case for `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
     """
 
     #

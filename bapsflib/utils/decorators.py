@@ -30,9 +30,9 @@ def with_bf(
 ):
     """
     Context decorator for managing the opening and closing BaPSF HDF5
-    Files (:class:`bapsflib._hdf.utils.file.File`).  An instance of the
-    BaPSF HDF5 file is injected into the decorated function at the end of
-    the positional arguments.  The decorator is primarily designed for use
+    Files (`bapsflib._hdf.utils.file.File`).  An instance of the BaPSF
+    HDF5 file is injected into the decorated function at the end of the
+    positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.
 
     Parameters
@@ -208,9 +208,9 @@ def with_bf(
 def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
     """
     Context decorator for managing the opening and closing LaPD HDF5
-    Files (:class:`bapsflib.lapd._hdf.file.File`).  An instance of the
-    LaPD HDF5 file is injected into the decorated function at the end of
-    the positional arguments.  The decorator is primarily designed for use
+    Files (`bapsflib.lapd._hdf.file.File`).  An instance of the LaPD
+    HDF5 file is injected into the decorated function at the end of the
+    positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.
 
     Parameters

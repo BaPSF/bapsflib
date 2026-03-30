@@ -64,7 +64,7 @@ class HDFReadControls(np.ndarray):
         * It is assumed that control data is always extracted with the
           intent of being matched to digitizer data.
         * Only one control for each
-          :class:`~bapsflib._hdf.maps.controls.types.ConType` can
+          `~bapsflib._hdf.maps.controls.types.ConType` can
           be specified at a time.
         * It is assumed that there is only ONE dataset associated with
           each control device configuration.

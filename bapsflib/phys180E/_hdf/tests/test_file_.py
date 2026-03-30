@@ -7,7 +7,7 @@ from bapsflib.phys180E._hdf.file_ import File
 
 class TestPhys180EFile(TestBase):
     """
-    Test case for :class:`~bapsflib.phys180E._hdf.file.File`
+    Test case for `~bapsflib.phys180E._hdf.file.File`
     """
 
     def setUp(self):

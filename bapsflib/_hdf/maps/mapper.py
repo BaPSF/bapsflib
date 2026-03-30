@@ -70,9 +70,9 @@ class HDFMapper(object):
         -----
         The following classes are leveraged to construct the mappings:
 
-            * :class:`~.controls.map_controls.HDFMapControls`.
-            * :class:`~.digitizers.map_digis.HDFMapDigitizers`.
-            * :class:`~.msi.map_msi.HDFMapMSI`.
+            * `~.controls.map_controls.HDFMapControls`.
+            * `~.digitizers.map_digis.HDFMapDigitizers`.
+            * `~.msi.map_msi.HDFMapMSI`.
         """
         # store an instance of the HDF5 object for HDFMapper
         if isinstance(hdf_obj, h5py.File):
@@ -108,7 +108,7 @@ class HDFMapper(object):
         """
         Attaches the :attr:`__controls` dictionary, which contains all
         the control device mapping objects constructed by
-        :class:`~.controls.map_controls.HDFMapControls`.
+        `~.controls.map_controls.HDFMapControls`.
         """
         control_path = self.DEVICE_PATHS["control"]
         if control_path in self._hdf_obj:
@@ -124,7 +124,7 @@ class HDFMapper(object):
         """
         Attaches the :attr:`__digitizers` dictionary, which contains
         all the digitizer mapping objects constructed by
-        :class:`~.digitizers.map_digis.HDFMapDigitizers`.
+        `~.digitizers.map_digis.HDFMapDigitizers`.
         """
         digi_path = self.DEVICE_PATHS["digitizer"]
         if digi_path in self._hdf_obj:
@@ -140,7 +140,7 @@ class HDFMapper(object):
         """
         Attaches the :attr:`__msi` dictionary, which contains all MSI
         diagnostic mapping objects constructed by
-        :class:`~.msi.map_msi.HDFMapMSI`.
+        `~.msi.map_msi.HDFMapMSI`.
         """
         msi_path = self.DEVICE_PATHS["msi"]
         if msi_path in self._hdf_obj:

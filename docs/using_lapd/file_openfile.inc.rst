@@ -1,18 +1,15 @@
-Opening a HDF5 file is done using the
-:class:`bapsflib.lapd.File` class.  :class:`~bapsflib.lapd.File`
-subclasses :class:`h5py.File`, so *group* and *dataset* manipulation
-is handled by the inherited methods; whereas, the new methods (see
-:numref:`f_meth_table`) are focused on mapping the data structure and
-providing a high-level access to the experimental data recorded by the
-LaPD DAQ system.
+Opening a HDF5 file is done using the `bapsflib.lapd.File` class.
+`~bapsflib.lapd.File` subclasses `h5py.File`, so *group* and  *dataset*
+manipulation is handled by the inherited methods; whereas,  the new
+methods (see :numref:`f_meth_table`) are focused on mapping the  data
+structure and providing a high-level access to the experimental data
+recorded by the LaPD DAQ system.
 
-:class:`~bapsflib.lapd.File` is a wrapper on
-:class:`h5py.File` and, thus, HDF5 file manipulation is handled by the
-inherited methods of :class:`h5py.File`.
-:class:`~bapsflib.lapd.File` adds methods and
-attributes specifically for manipulating data and metadata written to
-the file from the Large Plasma Device (LaPD) DAQ system, see
-:numref:`f_meth_table`.
+`~bapsflib.lapd.File` is a wrapper on `h5py.File` and, thus, HDF5 file
+manipulation is handled by the inherited methods of `h5py.File`.
+`~bapsflib.lapd.File` adds methods and attributes specifically for
+manipulating data and metadata written to the file from the Large
+Plasma Device (LaPD) DAQ system, see :numref:`f_meth_table`.
 
 To open a LaPD generated HDF5 file do
 
@@ -28,7 +25,7 @@ To open a LaPD generated HDF5 file do
     >>> isinstance(f, h5py.File)
     True
 
-which opens the file as 'read-only' by default.
-:class:`~bapsflib.lapd.File` restricts opening modes to 'read-only'
-(``mode='r'``) and 'read/write' (``mode='r+'``), but maintains
-keyword pass-through to :class:`h5py.File`.
+which opens the file as 'read-only' by default. `~bapsflib.lapd.File`
+restricts opening modes to 'read-only' (``mode='r'``) and 'read/write'
+(``mode='r+'``), but maintains keyword pass-through to
+`h5py.File`.

@@ -1,7 +1,7 @@
 MSI diagnostic data is read using the
-:meth:`~bapsflib.lapd.File.read_msi` method on
-:class:`~bapsflib.lapd.File`.  Only the MSI diagnostic name
-needs to be supplied to read the associated data::
+:meth:`~bapsflib.lapd.File.read_msi` method on `~bapsflib.lapd.File`.
+Only the MSI diagnostic name needs to be supplied to read the
+associated data::
 
     >>> from bapsflib import lapd
     >>>

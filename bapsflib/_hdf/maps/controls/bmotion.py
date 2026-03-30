@@ -776,8 +776,9 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
         return config_name
 
     process_config_name.__doc__ = (
-        inspect.cleandoc(HDFMapControlTemplate.process_config_name.__doc__) + "\n" +
-        inspect.cleandoc("""
+        inspect.cleandoc(HDFMapControlTemplate.process_config_name.__doc__)
+        + "\n"
+        + inspect.cleandoc("""
         Notes
         -----
 

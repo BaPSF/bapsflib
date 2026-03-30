@@ -54,6 +54,8 @@ class HDFMapTemplate(ABC):
     """
 
     _maptype = NotImplemented  # type: MapTypes
+    _EXPECTED_GROUP_NAME = None  # type: str | None
+    """The expected name of the root group."""
 
     def __init__(self, group: h5py.Group):
         """

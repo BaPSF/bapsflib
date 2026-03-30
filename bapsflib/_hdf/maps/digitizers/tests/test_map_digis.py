@@ -15,9 +15,9 @@ import h5py
 import numpy as np
 import unittest as ut
 
-from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.digitizers.map_digis import HDFMapDigitizers
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 
 
 class TestHDFMapDigitizers(ut.TestCase):

@@ -16,10 +16,9 @@ import unittest as ut
 
 from typing import Tuple
 
-from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.templates import MapTypes
-from bapsflib._hdf.maps.tests import MapTestBase
+from bapsflib._hdf.maps.tests import FauxHDFBuilder, MapTestBase
 
 
 def method_overridden(cls, obj, method: str) -> bool:

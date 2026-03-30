@@ -1,9 +1,9 @@
 import numpy as np
 import unittest as ut
 
-from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 
 
 class TestHDFMapMSITemplate(ut.TestCase):

@@ -25,12 +25,6 @@ The :mod:`bapsflib` package has four key sub-packages:
     (:mod:`bapsflib.lapd.tools`).  Look to :ref:`using_bapsflib_lapd`
     for details about the package.
 
-* :mod:`bapsflib.plasma`
-
-    .. warning:: package currently in development
-
-    This package plasma constants and functions.
-
 * :mod:`bapsflib.utils`
 
     This package is for developers and contributors.  It contains

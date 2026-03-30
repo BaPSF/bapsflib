@@ -77,33 +77,6 @@ class HDFReadControls(np.ndarray):
           recorded shot numbers.
     """
 
-    __example_doc__ = """
-    Examples
-    --------
-    
-    Here the control device ``'Waveform'`` is used as a basic 
-    example:
-        
-    >>> # open HDF5 file
-    >>> f = bapsflib.lapd.File('test.hdf5')
-    >>>
-    >>> # read control data
-    >>> # - this is equivalent to 
-    >>> #   f.read_control(['Waveform', 'config01'])
-    >>> data = HDFReadControls(f, ['Waveform', 'config01'])
-    >>> data.dtype
-    dtype([('shotnum', '<u4'), ('command', '<U18')])
-    >>>
-    >>> # display shot numbers
-    >>> data['shotnum']
-    array([   1,    2,    3, ..., 6158, 6159, 6160], dtype=uint32)
-    >>>
-    >>> # show 'command' values for shot numbers 1 to 2
-    >>> data['command'][0:2:]
-    array(['FREQ 50000.000000', 'FREQ 50000.000000'],
-          dtype='<U18')
-    """
-
     def __new__(
         cls,
         hdf_file: File,
@@ -146,6 +119,30 @@ class HDFReadControls(np.ndarray):
               datasets that do not have the specified shot number will
               be given a NULL value of ``-99999``, ``0``, `numpy.nan`,
               or ``''``, depending on the `numpy.dtype`.
+
+        Examples
+        --------
+
+        Here the control device ``'Waveform'`` is used as a basic
+        example:
+
+        >>> # open HDF5 file
+        >>> f = bapsflib.lapd.File('test.hdf5')
+        >>>
+        >>> # read control data
+        >>> # - this is equivalent to
+        >>> #   f.read_control(['Waveform', 'config01'])
+        >>> data = HDFReadControls(f, ['Waveform', 'config01'])
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('command', '<U18')])
+        >>>
+        >>> # display shot numbers
+        >>> data['shotnum']
+        array([   1,    2,    3, ..., 6158, 6159, 6160], dtype=uint32)
+        >>>
+        >>> # show 'command' values for shot numbers 1 to 2
+        >>> data['command'][0:2:]
+        array(['FREQ 50000.000000', 'FREQ 50000.000000'], dtype='<U18')
         """
         # initialize timing
         tt = []
@@ -588,9 +585,3 @@ class HDFReadControls(np.ndarray):
     def info(self) -> dict:
         """A dictionary of meta-info for the control device."""
         return self._info
-
-
-# add example to __new__ docstring
-HDFReadControls.__new__.__doc__ += "\n"
-for line in HDFReadControls.__example_doc__.splitlines():
-    HDFReadControls.__new__.__doc__ += f"    {line}\n"

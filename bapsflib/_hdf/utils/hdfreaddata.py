@@ -67,52 +67,6 @@ class HDFReadData(np.ndarray):
           otherwise, the field will be filled with `numpy.nan` values.
     """
 
-    __example_doc__ = """
-    Examples
-    --------
-    
-    Here data is extracted from the digitizer ``'SIS crate'`` and 
-    position data is mated from the control device ``'6K Compumotor'``.
-        
-    >>> # open HDF5 file
-    >>> f = bapsflib.lapd.File('test.hdf5')
-    >>>
-    >>> # read digitizer data from board 1, channel 1,
-    >>> # - this is equivalent to 
-    >>> #   f.read_data(1, 1)
-    >>> data = HDFReadData(f, 1, 1)
-    >>> data.dtype
-    dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
-          ('xyz', '<f4', (3,))])
-    >>>
-    >>> # display shot numbers
-    >>> data['shotnum']
-    array([  1,  2, ..., 98, 99], dtype=uint32)
-    >>>
-    >>> # show 'signal' values for shot number 1
-    >>> data['signal'][0]
-    array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
-           -0.4105754 , -0.41119337], dtype=float32)
-    >>>
-    >>> # show 'xyz' values for shot number 1
-    >>> data['xyz'][0]
-    array([nan, nan, nan], dtype=float32)
-    >>>
-    >>> # read digitizer data while adding '6K Compumotor' data
-    >>> # from receptacle (configuration) 3
-    >>> data = HDFReadData(f, 1, 1, 
-                           add_controls=[('6K Compumotor', 3)])
-    >>> data.dtype
-    dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)), 
-           ('xyz', '<f4', (3,)), ('ptip_rot_theta', '<f8'), 
-           ('ptip_rot_phi', '<f8')])
-    >>>
-    >>> # show 'xyz' values for shot number 1
-    >>> data['xyz'][0]
-    array([ -32. ,   15. , 1022.4], dtype=float32)
-
-    """
-
     def __new__(
         cls,
         hdf_file: File,
@@ -184,6 +138,51 @@ class HDFReadData(np.ndarray):
               required for identifying shot number locations in the
               digitizer dataset, the :data:`index` keyword will always
               execute quicker than the :data:`shotnum` keyword.
+
+        Examples
+        --------
+
+        Here data is extracted from the digitizer ``'SIS crate'`` and
+        position data is mated from the control device ``'6K Compumotor'``.
+
+        >>> # open HDF5 file
+        >>> f = bapsflib.lapd.File('test.hdf5')
+        >>>
+        >>> # read digitizer data from board 1, channel 1,
+        >>> # - this is equivalent to
+        >>> #   f.read_data(1, 1)
+        >>> data = HDFReadData(f, 1, 1)
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)),
+              ('xyz', '<f4', (3,))])
+        >>>
+        >>> # display shot numbers
+        >>> data['shotnum']
+        array([  1,  2, ..., 98, 99], dtype=uint32)
+        >>>
+        >>> # show 'signal' values for shot number 1
+        >>> data['signal'][0]
+        array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
+               -0.4105754 , -0.41119337], dtype=float32)
+        >>>
+        >>> # show 'xyz' values for shot number 1
+        >>> data['xyz'][0]
+        array([nan, nan, nan], dtype=float32)
+        >>>
+        >>> # read digitizer data while adding '6K Compumotor' data
+        >>> # from receptacle (configuration) 3
+        >>> data = HDFReadData(
+        ...     f, 1, 1, add_controls=[('6K Compumotor', 3)]
+        ... )
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)),
+               ('xyz', '<f4', (3,)), ('ptip_rot_theta', '<f8'),
+               ('ptip_rot_phi', '<f8')])
+        >>>
+        >>> # show 'xyz' values for shot number 1
+        >>> data['xyz'][0]
+        array([ -32. ,   15. , 1022.4], dtype=float32)
+
         """
         # initialize timing
         tt = []
@@ -1029,9 +1028,3 @@ class HDFReadData(np.ndarray):
         self._plasma["VA"] = core.VA(**self._plasma)
         self._plasma["vTe"] = core.vTe(**self._plasma)
         self._plasma["vTi"] = core.vTi(**self._plasma)
-
-
-# add example to __new__ docstring
-HDFReadData.__new__.__doc__ += "\n"
-for line in HDFReadData.__example_doc__.splitlines():
-    HDFReadData.__new__.__doc__ += f"    {line}\n"

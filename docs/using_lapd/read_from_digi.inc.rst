@@ -1,11 +1,12 @@
 .. py:currentmodule:: bapsflib.lapd
 
-Digitizer data is read using the :meth:`~File.read_data` method on
-:class:`~File`.  The method also has the option of mating control
-device data at the time of declaration (see section
+Digitizer data is read using the
+:meth:`~bapsflib.lapd._hdf.file.File.read_data` method on
+:class:`~bapsflib.lapd._hdf.file.File`.  The method also has the option
+of mating control device data at the time of declaration (see section
 :ref:`read_digi_adding_controls`) [#]_.
 
-At a minimum, the :meth:`~File.read_data` method
+At a minimum, the :meth:`~bapsflib.lapd._hdf.file.File.read_data` method
 only needs a board number and channel number to extract data.  For
 example, the entire dataset for a signal attached to :code:`board=1` and
 :code:`channel=0` can be extracted as follows:
@@ -70,10 +71,10 @@ motion control data is requested at instantiation (see
 :ref:`read_digi_adding_controls`).
 
 There are several additional keyword options to control the read
-behavior of :meth:`~File.read_data`:
+behavior of :meth:`~bapsflib.lapd._hdf.file.File.read_data`:
 
 .. csv-table:: Optional keywords for
-               :meth:`~File.read_data`
+               :meth:`~bapsflib.lapd._hdf.file.File.read_data`
     :header: "Keyword", "Default", "Description"
     :widths: 10, 5, 40
 
@@ -125,11 +126,12 @@ For details on handling and manipulating :data:`data` see
 
     Since :class:`bapsflib.lapd` leverages the :class:`h5py` package,
     the data in the HDF5 file resides on disk until one of the read
-    methods, :meth:`~File.read_data`, :meth:`~File.read_msi`, or
-    :meth:`~File.read_controls` is called.  In calling one of these
-    methods, the requested data is brought into memory as a
-    :class:`numpy.ndarray` and a :class:`numpy.view` onto that
-    :data:`ndarray` is returned to the user.
+    methods, :meth:`~bapsflib.lapd._hdf.file.File.read_data`,
+    :meth:`~bapsflib.lapd._hdf.file.File.read_msi`, or
+    :meth:`~bapsflib.lapd._hdf.file.File.read_controls` is called.  In
+    calling one of these methods, the requested data is brought into
+    memory as a :class:`numpy.ndarray` and a :class:`numpy.view` onto
+    that :data:`ndarray` is returned to the user.
 
 ------
 
@@ -209,13 +211,13 @@ Sub-setting with :data:`shotnum` looks like::
     HDFReadData([10, 15], dtype=uint32)
 
 :data:`intersection_set` modifies what shot numbers are returned by
-:meth:`~File.read_data`.  By default :code:`intersection_set=True`
-which forces the returned data to only contain shot numbers that
-exist in the digitizer dataset, exist in any specified control device
-datasets, and are requested by :data:`index` or :data:`shotnum`.
-Setting :data:`intersection_set` to :code:`False` will return a
-:data:`data` array that has all shot numbers (:math:`\ge 1`) specified
-by :data:`index` or :data:`shotnum`. If a digitizer or control
+:meth:`~bapsflib.lapd._hdf.file.File.read_data`.  By default
+``intersection_set=True`` which forces the returned data to only contain
+shot numbers that exist in the digitizer dataset, exist in any specified
+control device datasets, and are requested by :data:`index` or
+:data:`shotnum`.  Setting :data:`intersection_set` to :code:`False` will
+return a :data:`data` array that has all shot numbers (:math:`\ge 1`)
+specified by :data:`index` or :data:`shotnum`. If a digitizer or control
 device dataset does not have an entry corresponding to a specific shot
 number, then its spot in the data array will be filled with a "NaN"
 value (:data:`numpy.nan` for floats, :code:`-99999` for signed-integers,
@@ -229,9 +231,9 @@ Specifying :code:`digitizer`, :code:`adc`, and :code:`config_name`
 It is possible for a LaPD generated HDF5 file to contain multiple
 digitizers, each of which can have multiple analog-digital-converters
 (adc's) and multiple configuration settings.  For such a case,
-:meth:`~.File.read_data` has the keywords :data:`digitizer`,
-:data:`adc`, and :data:`config_name` to direct the data extraction
-accordingly.
+:meth:`~bapsflib.lapd._hdf.file.File.read_data` has the keywords
+:data:`digitizer`, :data:`adc`, and :data:`config_name` to direct the
+data extraction accordingly.
 
 If :data:`digitizer` is not specified, then it is assumed that the
 desired digitizer is the one defined in

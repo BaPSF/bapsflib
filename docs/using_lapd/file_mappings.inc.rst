@@ -9,16 +9,20 @@ The LaPD file mapping is constructed by the
 :class:`~_hdf.mapper.LaPDMapper` class, which sub-classes
 :class:`~bapsflib._hdf.HDFMapper` (see :ref:`hdfmap_details` for
 :class:`~bapsflib._hdf.HDFMapper` details), and an instance is bound to
-the file object as :attr:`~File.file_map`.  Except for some select
-cases, the :attr:`~File.file_map` object does not need to be directly
-accessed.  Its results are provide through higher-level user interfaces,
-such as the attributes/methods :attr:`~File.info`,
-:attr:`~File.run_description`, :meth:`~File.read_data`, etc.  The
-results can also be easily printed or saved using the
-:attr:`~File.overview` attribute, see :ref:`file_overview` for details.
+the file object as :attr:`~bapsflib.lapd._hdf.file.File.file_map`.
+Except for some select cases, the
+:attr:`~bapsflib.lapd._hdf.file.File.file_map` object does not need to
+be directly accessed.  Its results are provide through higher-level
+user interfaces, such as the attributes/methods
+:attr:`~bapsflib.lapd._hdf.file.File.info`,
+:attr:`~bapsflib.lapd._hdf.file.File.run_description`,
+:meth:`~bapsflib.lapd._hdf.file.File.read_data`, etc.  The results can
+also be easily printed or saved using the
+:attr:`~bapsflib.lapd._hdf.file.File.overview` attribute, see
+:ref:`file_overview` for details.
 
 :numref:`LaPDMap_meth_table` shows the available attributes and methods
-bound to :attr:`~File.file_map`.
+bound to :attr:`~bapsflib.lapd._hdf.file.File.file_map`.
 
 .. _LaPDMap_meth_table:
 

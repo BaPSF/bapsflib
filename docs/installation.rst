@@ -5,8 +5,8 @@ Installation
    --------------------
 
 
-Installing from :code:`pip`
----------------------------
+Installing from ``pip``
+-----------------------
 
 The :mod:`bapsflib` package is registered with
 `PyPI <https://pypi.org/project/bapsflib/>`_ and can be installed with
@@ -24,17 +24,17 @@ Installing Directly from GitHub
 
 To install directly from GitHub, you need to have
 `git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
-installed on your computer.  If you do not have :code:`git` installed,
+installed on your computer.  If you do not have ``git`` installed,
 then see `Installing from a GitHub Clone or Download`_.
 
-To install directly from the :code:`master` branch invoke the following
+To install directly from the ``master`` branch invoke the following
 command
 
 .. code-block:: bash
 
     pip install git+https://github.com/BaPSF/bapsflib.git#egg=bapsflib
 
-If an alternate branch :code:`BranchName` is desired, then invoke
+If an alternate branch ``BranchName`` is desired, then invoke
 
 .. code-block:: bash
 
@@ -47,8 +47,8 @@ A copy of the :mod:`bapsflib` package can be obtained by
 `cloning <https://help.github.com/articles/cloning-a-repository/>`_
 or downloading from the GitHub repository.
 
-Cloning the repository requires an installation of :code:`git` on your
-computer.  To clone the :code:`master` branch, first, on your computer,
+Cloning the repository requires an installation of ``git`` on your
+computer.  To clone the ``master`` branch, first, on your computer,
 navigate to the directory you want the clone and do
 
 .. code-block:: bash

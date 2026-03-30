@@ -21,13 +21,13 @@ needs to be supplied to read the associated data::
 
 The returned data :data:`mdata` is a structured :mod:`numpy` array where
 its field structure and population is determined by the MSI diagnostic
-mapping object. Every :data:`mdata` will have the fields
-:code:`'shotnum'` and :code:`'meta'`. :code:`'shotnum'` represents the
-HDF5 shot number. :code:`'meta'` is a structured array with fields
-representing quantities (metadata) that are both diagnostic and shot
-number specific, but are not considered "primary" data arrays.  Any
-other field in :data:`mdata` is considered to be a "primary" data array.
-Continuing with the above example::
+mapping object. Every :data:`mdata` will have the fields ``'shotnum'``
+and ``'meta'``. ``'shotnum'`` represents the HDF5 shot number.
+``'meta'`` is a structured array with fields representing quantities
+(metadata) that are both diagnostic and shot number specific, but are
+not considered "primary" data arrays.  Any other field in ``mdata`` is
+considered to be a "primary" data array. Continuing with the above
+example::
 
     >>> # display mdata dytpe
     >>> mdata.dtype
@@ -44,18 +44,18 @@ Continuing with the above example::
     >>> mdata['shotnum']
     array([    0, 19251], dtype=int32)
 
-Here, the fields :code:`'voltage'` and :code:`'current'` correspond to
+Here, the fields ``'voltage'`` and ``'current'`` correspond to
 "primary" data arrays.  To display display the first three samples of
-the :code:`'voltage'` array for shot number **19251** do::
+the ``'voltage'`` array for shot number **19251** do::
 
     >>> mdata['voltage'][1][0:3:]
     array([-44.631958, -44.708252, -44.631958], dtype=float32)
 
-The metadata field :code:`'meta'` has five quantities in it,
-:code:`'timestamp'`, :code:`'data valid'`, :code:`'pulse length'`,
-:code:`'peak current'`, and :code:`'peak voltage'`.  Now, these metadata
+The metadata field ``'meta'`` has five quantities in it,
+``'timestamp'``, ``'data valid'``, ``'pulse length'``,
+``'peak current'``, and ``'peak voltage'``.  Now, these metadata
 fields will vary depending on the requested MSI diagnostic.  To view
-the :code:`'peak voltage'` for shot number **0** do::
+the ``'peak voltage'`` for shot number **0** do::
 
     >>> mdata['meta']['peak voltage'][0]
     6127.1323
@@ -75,11 +75,11 @@ shot number specific.
      't0': [-0.0249856],
      'voltage conversion factor': [0.0]}
 
-Every :attr:`info` attribute will have the keys :code:`'hdf file'`,
-:code:`'diagnostic name'`, and :code:`'diagnostic path'`.  The rest of
+Every :attr:`info` attribute will have the keys ``'hdf file'``,
+``'diagnostic name'``, and ``'diagnostic path'``.  The rest of
 the keys will be MSI diagnostic dependent.  For example,
-:data:`mdata.info` for the :code:`'Magnetic field'` diagnostic would
-have the key :code:`'z'` that corresponds to the axial locations of the
+:data:`mdata.info` for the ``'Magnetic field'`` diagnostic would
+have the key ``'z'`` that corresponds to the axial locations of the
 magnetic field array.
 
 .. code-block:: python

@@ -26,7 +26,7 @@ bound to :attr:`~bapsflib.lapd._hdf.file.File.file_map`.
 
 .. _LaPDMap_meth_table:
 
-.. csv-table:: Bound methods and attributes on :code:`f.file_map`.
+.. csv-table:: Bound methods and attributes on ``f.file_map``.
     :header: "method/attribute", "Description"
     :widths: 20, 60
 
@@ -44,7 +44,7 @@ bound to :attr:`~bapsflib.lapd._hdf.file.File.file_map`.
     retrieve the mapping object for a specified device
     "
     :attr:`~_hdf.mapper.LaPDMapper.is_lapd`, "
-    :code:`True` if it was determined that the HDF5 file was generated
+    `True` if it was determined that the HDF5 file was generated
     by the LaPD
     "
     :attr:`~_hdf.mapper.LaPDMapper.lapd_version`, "

@@ -30,5 +30,5 @@ To open a LaPD generated HDF5 file do
 
 which opens the file as 'read-only' by default.
 :class:`~bapsflib.lapd.File` restricts opening modes to 'read-only'
-(:code:`mode='r'`) and 'read/write' (:code:`mode='r+'`), but maintains
+(``mode='r'``) and 'read/write' (``mode='r+'``), but maintains
 keyword pass-through to :class:`h5py.File`.

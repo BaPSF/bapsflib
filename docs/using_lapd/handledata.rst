@@ -12,7 +12,7 @@ or
     >>> data.shotnum
     Out[0]: Out[0]: array([   1,    2,    3, ...], dtype=uint32)
 
-Fields :code:`'signal'` and :code:`'xyz'` can be accessed the same way.
+Fields ``'signal'`` and ``'xyz'`` can be accessed the same way.
 
 
     >>> import numpy as np

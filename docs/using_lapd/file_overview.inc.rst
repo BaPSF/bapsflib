@@ -20,8 +20,8 @@ Thus, if any changes are made to the mapping object
 certain control devices [*]_, then those changes will be reflected in the
 overview report.
 
-Executing :code:`f.overview.print()` will print to screen the entire
-mapping report and :code:`f.overview.save()` will print the report to
+Executing ``f.overview.print()`` will print to screen the entire
+mapping report and ``f.overview.save()`` will print the report to
 a text file with the same name as the HDF5 file and in the same
 location.  The report is divided into three blocks:
 

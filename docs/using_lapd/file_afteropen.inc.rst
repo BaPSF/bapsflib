@@ -86,5 +86,5 @@ attributes for th user to interface with, see :numref:`f_meth_table`.
     "
     :meth:`~bapsflib.lapd._hdf.file.File.run_description`, "
     printout the LaPD experimental run description
-    (:code:`print(f.info['run description'].splitlines())`)
+    (``print(f.info['run description'].splitlines())``)
     "

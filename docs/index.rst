@@ -8,7 +8,7 @@ Welcome to bapsflib's documentation!
 
 .. toctree::
     :maxdepth: 1
-    :caption: Contents:
+    :caption: First Steps
 
     About <about>
     installation
@@ -31,12 +31,12 @@ Welcome to bapsflib's documentation!
 
 .. toctree::
     :maxdepth: 1
-    :caption: Developer Documentation:
+    :caption: Developer Documentation
 
     ./changelog/index
 
 .. toctree::
     :maxdepth: 1
-    :caption: Appendix:
+    :caption: All the Rest
 
     glossary

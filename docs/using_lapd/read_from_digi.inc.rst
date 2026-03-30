@@ -53,7 +53,7 @@ methods/attributes that describe the data's origin and parameters
     extracted data
     "
 
-By default, :obj:`data` is a structured :mod:`numpy` array with the
+By default, :obj:`data` is a structured `numpy` array with the
 following `~numpy.dtype`::
 
     >>> data.dtype

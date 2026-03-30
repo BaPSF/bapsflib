@@ -1,6 +1,6 @@
 .. py:currentmodule:: bapsflib.lapd
 
-The file mapping is key to :mod:`bapsflib`'s ability to provide a
+The file mapping is key to `bapsflib`'s ability to provide a
 consistent user interface to all the possible LaPD HDF5 file
 configurations.  It acts as the translator between the package interface
 and the HDF5 file structure.

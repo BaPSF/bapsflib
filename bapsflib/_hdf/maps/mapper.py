@@ -44,8 +44,8 @@ class HDFMapper(object):
     """
     Constructs a complete file mapping of the HDF5 file.  This is
     utilized by the HDF5 utility classes (in module
-    :mod:`bapsflib._hdf.utils`) to manipulate and read data out of
-    the HDF5 file.
+    `bapsflib._hdf.utils`) to manipulate and read data out of the HDF5
+    file.
     """
 
     def __init__(

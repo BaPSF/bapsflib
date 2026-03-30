@@ -10,7 +10,7 @@
 #
 """
 Helper functions that are utilized by the HDF5 utility classes defined
-in module :mod:`bapsflib._hdf.utils`.
+in module `bapsflib._hdf.utils`.
 """
 
 __all__ = [

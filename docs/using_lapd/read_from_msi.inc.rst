@@ -19,7 +19,7 @@ needs to be supplied to read the associated data::
     >>> # read 'Discharge' data
     >>> mdata = f.read_msi('Discharge')
 
-The returned data ``mdata`` is a structured :mod:`numpy` array where
+The returned data ``mdata`` is a structured `numpy` array where
 its field structure and population is determined by the MSI diagnostic
 mapping object. Every ``mdata`` will have the fields ``'shotnum'``
 and ``'meta'``. ``'shotnum'`` represents the HDF5 shot number.

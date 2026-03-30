@@ -9,7 +9,7 @@
 #   license terms and contributor agreement.
 #
 """
-Decorators for the :mod:`bapsflib` package.
+Decorators for the `bapsflib` package.
 """
 
 __all__ = ["with_bf", "with_lapdf"]

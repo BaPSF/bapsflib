@@ -9,14 +9,14 @@
 #   license terms and contributor agreement.
 #
 """
-The :mod:`bapsflib.lapd` sub-package contains the necessary tools to access
-data relevant to and collected on the LaPD.  The
-:mod:`~bapsflib.lapd._hdf` package focuses on accessing and reading
-data written to HDF5 files. The :mod:`~bapsflib.lapd.constants` package
-contains constants relevant to the LaPD configuration (e.g. cathode
-diameters, port spacing, etc.).  The :mod:`~bapsflib.lapd.tools` package
-contains functions and classes relevant for calculating LaPD parameters
-(e.g. converting port number to axial z location, etc.).
+The `bapsflib.lapd` sub-package contains the necessary tools to access
+data relevant to and collected on the LaPD.  The `~bapsflib.lapd._hdf`
+package focuses on accessing and reading data written to HDF5 files.
+The `~bapsflib.lapd.constants` package contains constants relevant to
+the LaPD configuration (e.g. cathode diameters, port spacing, etc.).
+The `~bapsflib.lapd.tools` package contains functions and classes
+relevant for calculating LaPD parameters (e.g. converting port number
+to axial z location, etc.).
 """
 
 __all__ = ["ConType", "File"]

@@ -17,7 +17,7 @@ import unittest as ut
 from h5py import Group
 from typing import Type
 
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.controls.templates import (
     ControlMap,
     HDFMapControlCLTemplate,

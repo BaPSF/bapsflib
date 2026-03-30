@@ -14,7 +14,7 @@ import unittest as ut
 from unittest import mock
 
 from bapsflib._hdf import File as BaPSFFile
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib.lapd import File as LaPDFile
 from bapsflib.utils.decorators import with_bf, with_lapdf
 

@@ -24,7 +24,7 @@ from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.msi.templates import HDFMapMSITemplate
-from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib.utils.warnings import HDFMappingWarning
 
 

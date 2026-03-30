@@ -17,7 +17,7 @@ import re
 from abc import ABC
 from unittest import mock
 
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.controls.parsers import CLParse
 from bapsflib._hdf.maps.controls.templates import (
     HDFMapControlCLTemplate,

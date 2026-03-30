@@ -16,7 +16,7 @@ import unittest as ut
 
 from unittest import mock
 
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.controls.map_controls import HDFMapControls
 from bapsflib._hdf.maps.controls.sixk import HDFMapControl6K
 from bapsflib._hdf.maps.controls.templates import (

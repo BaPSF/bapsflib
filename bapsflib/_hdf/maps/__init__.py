@@ -22,7 +22,6 @@ mapping :ibf:`Digitizer` HDF5 groups, and
 
 __all__ = [
     "ConType",
-    "FauxHDFBuilder",
     "HDFMapper",
     "HDFMapControls",
     "HDFMapDigitizers",
@@ -36,4 +35,3 @@ from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
 from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
-from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder

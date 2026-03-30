@@ -59,8 +59,8 @@ intersphinx_mapping = {
     "plasmapy": ("https://docs.plasmapy.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
     "readthedocs": ("https://docs.readthedocs.io/en/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
     "plasmapy_sphinx": ("https://plasmapy-sphinx.readthedocs.io/en/latest/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "sphinx_automodapi": (
         "https://sphinx-automodapi.readthedocs.io/en/latest/",

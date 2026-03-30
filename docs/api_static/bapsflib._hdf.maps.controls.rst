@@ -5,27 +5,4 @@ bapsflib\.\_hdf\.maps\.controls
 
 .. py:currentmodule:: bapsflib._hdf.maps.controls
 
-.. automodule:: bapsflib._hdf.maps.controls
-
-Sub-Packages & Modules
-----------------------
-
-.. autosummary::
-
-    bmotion
-    map_controls
-    n5700ps
-    nixyz
-    nixz
-    parsers
-    positions180e
-    sixk
-    templates
-    types
-    waveform
-
 .. automodapi:: bapsflib._hdf.maps.controls
-    :no-main-docstring:
-    :no-heading:
-    :include-all-objects:
-    :headings: "-^"

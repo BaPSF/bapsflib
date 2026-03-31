@@ -21,51 +21,51 @@ be found in the info dictionary.
     :header: "key", "Description & Equivalence"
     :widths: 20, 60
 
-    :code:`'absolute file path'`, "
+    ``'absolute file path'``, "
     | absolute path to the HDF5 file
-    | :code:`os.path.abspath(f.filename)`
+    | ``os.path.abspath(f.filename)``
     "
-    :code:`'exp description'`, "
+    ``'exp description'``, "
     | description of experiment
-    | :code:`f['Raw data + config].attrs['Experiment description']`
+    | ``f['Raw data + config].attrs['Experiment description']``
     "
-    :code:`'exp name'`, "
+    ``'exp name'``, "
     | name of the experiment for which the run belongs to
-    | :code:`f['Raw data + config].attrs['Experiment Name']`
+    | ``f['Raw data + config].attrs['Experiment Name']``
     "
-    :code:`'exp set description'`, "
+    ``'exp set description'``, "
     | description of experiment set
-    | :code:`f['Raw data + config].attrs['Experiment set description']`
+    | ``f['Raw data + config].attrs['Experiment set description']``
     "
-    :code:`'exp set name'`, "
+    ``'exp set name'``, "
     | name of experiment set the ``'exp name'`` belongs to
-    | :code:`f['Raw data + config].attrs['Experiment set name']`
+    | ``f['Raw data + config].attrs['Experiment set name']``
     "
-    :code:`'file'`, "
+    ``'file'``, "
     | base name of HDF5 file
-    | :code:`os.path.basename(f.filename)`
+    | ``os.path.basename(f.filename)``
     "
-    :code:`'investigator'`, "
+    ``'investigator'``, "
     | name of Investigator/PI of the experiment
-    | :code:`f['Raw data + config].attrs['Investigator']`
+    | ``f['Raw data + config].attrs['Investigator']``
     "
-    :code:`'lapd version'`,  "
+    ``'lapd version'``,  "
     | LaPD DAQ software version that wrote the HDF5 file
-    | :code:`f.file_map.hdf_version`
+    | ``f.file_map.hdf_version``
     "
-    :code:`'run date'`, "
+    ``'run date'``, "
     | date of experimental run
-    | :code:`f['Raw data + config].attrs['Status date']`
+    | ``f['Raw data + config].attrs['Status date']``
     "
-    :code:`'run description'`, "
+    ``'run description'``, "
     | description of experimental run
-    | :code:`f['Raw data + config].attrs['Description']`
+    | ``f['Raw data + config].attrs['Description']``
     "
-    :code:`'run name'`, "
+    ``'run name'``, "
     | name of experimental data run
-    | :code:`f['Raw data + config].attrs['Data run']`
+    | ``f['Raw data + config].attrs['Data run']``
     "
-    :code:`'run status'`, "
+    ``'run status'``, "
     | status of experimental run (started, completed, etc.)
-    | :code:`f['Raw data + config].attrs['Status']`
+    | ``f['Raw data + config].attrs['Status']``
     "

@@ -10,7 +10,7 @@ v1.0.1 (2019-06-01)
     that moves a probe within an XYZ volume
     (`PR 39 <https://github.com/BaPSF/bapsflib/pull/39>`_)
 
-* Update mapping module :mod:`~bapsflib._hdf.maps.digitizers.sis3301` to
+* Update mapping module `~bapsflib._hdf.maps.digitizers.sis3301` to
   handle variations seen in SmPD generated HDF5 files
   (`PR 30 <https://github.com/BaPSF/bapsflib/pull/30>`_)
 
@@ -23,15 +23,14 @@ v1.0.1 (2019-06-01)
   * integrated CI `AppVeyor <https://www.appveyor.com/>`_
 
 * Allow function :func:`~bapsflib._hdf.utils.helpers.condition_shotnum` to
-  handle single element :mod:`numpy` arrays
+  handle single element `numpy` arrays
   (`PR 41 <https://github.com/BaPSF/bapsflib/pull/41>`_)
 
-* Refactor class
-  :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls` and module
-  :mod:`~bapsflib._hdf.utils.hdfreadcontrols` to be plural, which better
-  reflects the class behavior and is consistent with the bound method
-  :meth:`~bapsflib._hdf.utils.file.File.read_controls` on
-  :class:`~bapsflib._hdf.utils.file.File`.
+* Refactor class `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+  and module `~bapsflib._hdf.utils.hdfreadcontrols` to be plural, which
+  better reflects the class behavior and is consistent with the bound
+  method :meth:`~bapsflib._hdf.utils.file.File.read_controls` on
+  `~bapsflib._hdf.utils.file.File`.
   (`PR 42 <https://github.com/BaPSF/bapsflib/pull/42>`_)
 
 * Setup continuation integration `pep8speaks <https://pep8speaks.com/>`_

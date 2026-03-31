@@ -17,7 +17,6 @@ import unittest as ut
 from h5py import Group
 from typing import Type
 
-from bapsflib._hdf.maps import FauxHDFBuilder
 from bapsflib._hdf.maps.controls.templates import (
     ControlMap,
     HDFMapControlCLTemplate,
@@ -25,7 +24,7 @@ from bapsflib._hdf.maps.controls.templates import (
 )
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib._hdf.maps.templates import MapTypes
-from bapsflib._hdf.maps.tests import MapTestBase
+from bapsflib._hdf.maps.tests import FauxHDFBuilder, MapTestBase
 
 
 def method_overridden(cls, obj, method: str) -> bool:

@@ -471,7 +471,7 @@ def status_print(
     first: str, second: str, third: str, indent=0, onetwo_pad=" ", second_tab=55
 ):
     """
-    Stylistic status printing for :class:`HDFOverview`.
+    Stylistic status printing for `HDFOverview`.
 
     Parameters
     ----------

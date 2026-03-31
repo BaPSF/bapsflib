@@ -13,7 +13,7 @@ __all__ = ["BaseFile", "TestBase", "with_bf", "with_lapdf"]
 import unittest as ut
 
 from bapsflib._hdf import File as BaseFile
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib.utils.decorators import with_bf, with_lapdf
 
 

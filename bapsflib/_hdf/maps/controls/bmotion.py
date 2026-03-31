@@ -6,6 +6,7 @@ Module for the "bmotion" motion control mapper
 __all__ = ["HDFMapControlBMotion"]
 
 import copy
+import inspect
 import numpy as np
 import re
 import warnings
@@ -774,15 +775,19 @@ class HDFMapControlBMotion(HDFMapControlTemplate):
 
         return config_name
 
-    process_config_name.__doc__ = HDFMapControlTemplate.process_config_name.__doc__ + """
+    process_config_name.__doc__ = (
+        inspect.cleandoc(HDFMapControlTemplate.process_config_name.__doc__)
+        + "\n"
+        + inspect.cleandoc("""
         Notes
         -----
-        
-        The bmotion mapping module `HDFMapControlBMotion` allows for drive 
+
+        The bmotion mapping module `HDFMapControlBMotion` allows for drive
         names to be used as configuration nicknames, as long as the drive is
-        uniquely used amongst the deployed bmotion configurations.  This 
-        allows a user to do something like 
-        ``add_controls=[("bmotion", "Hades")]`` instead of 
+        uniquely used amongst the deployed bmotion configurations.  This
+        allows a user to do something like
+        ``add_controls=[("bmotion", "Hades")]`` instead of
         ``add_controls=[("bmotion", "<Hades> my_long_motion_list_name")]``
         when reading data with `~bapsflib._hdf.utils.file.File.read_data`.
-        """
+        """)
+    )

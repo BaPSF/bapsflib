@@ -142,7 +142,7 @@ class File(h5py.File):
 
     @property
     def file_map(self) -> HDFMapper:
-        """HDF5 file map (:class:`~bapsflib._hdf.maps.mapper.HDFMapper`)"""
+        """HDF5 file map (`~bapsflib._hdf.maps.mapper.HDFMapper`)"""
         return self._file_map
 
     @property
@@ -161,7 +161,7 @@ class File(h5py.File):
     @property
     def overview(self) -> HDFOverview:
         """
-        HDF5 file overview. (:class:`~.hdfoverview.HDFOverview`)
+        HDF5 file overview. (`~.hdfoverview.HDFOverview`)
         """
         # to avoid cyclical imports
         from bapsflib._hdf.utils.hdfoverview import HDFOverview
@@ -288,7 +288,7 @@ class File(h5py.File):
     ) -> HDFReadControls:
         """
         Reads data from control device datasets.  See
-        :class:`~.hdfreadcontrols.HDFReadControls` for more detail.
+        `~.hdfreadcontrols.HDFReadControls` for more detail.
 
         Parameters
         ----------
@@ -308,11 +308,11 @@ class File(h5py.File):
 
         intersection_set : `bool`, optional
             `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of :data:`shotnum` and the shot numbers
+            the intersection of ``shotnum`` and the shot numbers
             contained in each control device dataset. `False` will
             return the union instead of the intersection, minus
             :math:`shotnum \\le 0`. (see
-            :class:`~.hdfreadcontrols.HDFReadControls` for details)
+            `~.hdfreadcontrols.HDFReadControls` for details)
 
         silent : bool, optional
             `False` (DEFAULT).  Set `True` to ignore any `BaPSFWarning`
@@ -393,8 +393,8 @@ class File(h5py.File):
     ) -> HDFReadData:
         """
         Reads data from digitizer datasets and attaches control device
-        data when requested. (see :class:`.hdfreaddata.HDFReadData`
-        for details)
+        data when requested. (see `.hdfreaddata.HDFReadData` for
+        details)
 
         Parameters
         ----------
@@ -435,12 +435,12 @@ class File(h5py.File):
 
         intersection_set : `bool`, optional
             `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of :data:`shotnum`, the digitizer dataset
+            the intersection of ``shotnum``, the digitizer dataset
             shot numbers, and, if requested, the shot numbers contained
             in  each control device dataset. `False` will return the
             union instead of the intersection, minus
-            :math:`shotnum \\le 0`. (see
-            :class:`~.hdfreaddata.HDFReadData` for details)
+            :math:`shotnum \\le 0`. (see `~.hdfreaddata.HDFReadData`
+            for details)
 
         silent : `bool`, optional
             `False` (DEFAULT).  Set `True` to ignore any `BaPSFWarning`
@@ -521,7 +521,7 @@ class File(h5py.File):
     def read_msi(self, msi_diag: str, silent=False, **kwargs) -> HDFReadMSI:
         """
         Reads data from MSI Diagnostic datasets.  See
-        :class:`~.hdfreadmsi.HDFReadMSI` for more detail.
+        `~.hdfreadmsi.HDFReadMSI` for more detail.
 
         Parameters
         ----------

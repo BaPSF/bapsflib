@@ -1,0 +1,3 @@
+Integrated the `plasmapy_sphinx` extensions and theme:
+`plasmapy_sphinx.ext.autodoc`, `plasmapy_sphinx.ext.directives`, and
+`plasmapy_sphinx.theme`.

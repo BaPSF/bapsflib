@@ -224,27 +224,35 @@ class File(h5py.File):
         +---------------------------------+----------------------------------------+
         | Key                             | Description                            |
         +=================================+========================================+
-        | ``'board'``                     | Digitizer board number.                |
+        | ``"board"``                     | Digitizer board number.                |
         +---------------------------------+----------------------------------------+
-        | ``'channel'``                   | Digitizer channel number.              |
+        | ``"channel"``                   | Digitizer channel number.              |
         +---------------------------------+----------------------------------------+
-        | ``'digitizer'``                 | Digitizer name.                        |
+        | ``"digitizer"``                 | Digitizer name.                        |
         +---------------------------------+----------------------------------------+
-        | ``'adc'``                       | Name of analog-digital-converter.      |
+        | ``"adc"``                       | Name of analog-digital-converter.      |
         +---------------------------------+----------------------------------------+
-        | ``'configuration name'``        | Name of digitizer configuration.       |
+        | ``"configuration name"``        | Name of digitizer configuration.       |
         +---------------------------------+----------------------------------------+
-        | ``'nshotnum'``                  | Num. of shot numbers in the data run.  |
+        | ``"nshotnum"``                  | Num. of shot numbers in the data run.  |
         +---------------------------------+----------------------------------------+
-        | ``'nt'``                        | Num. of time samples.                  |
+        | ``"nt"``                        | Num. of time samples.                  |
         +---------------------------------+----------------------------------------+
-        | ``'bit'``                       | Bit-ness of the digitizer.             |
+        | ``"bit"``                       | Bit-ness of the digitizer.             |
         +---------------------------------+----------------------------------------+
-        | ``'clock rate'``                | Digitizer clock rate                   |
+        | ``"clock rate"``                | Digitizer clock rate                   |
         +---------------------------------+----------------------------------------+
-        | ``'shot average (software)'``   | Num. of timeseries averaged together   |
+        | ``"shot average"``              | Num. of timeseries averaged together   |
         +---------------------------------+----------------------------------------+
-        | ``'sample average (hardware)'`` | Num. of time samples averaged together |
+        | ``"sample average"``            | Num. of time samples averaged together |
+        +---------------------------------+----------------------------------------+
+        | ``"device group path"``         | internal path to device group          |
+        +---------------------------------+----------------------------------------+
+        | ``"device dataset path"``       | internal path to digitizer dataset     |
+        +---------------------------------+----------------------------------------+
+        | ``"source file"``               | absolute path to HDF5 file             |
+        +---------------------------------+----------------------------------------+
+        | ``"time_dset_path"``            | internal path to time series dataset   |
         +---------------------------------+----------------------------------------+
 
         """

@@ -141,7 +141,14 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "**.ipynb_checkpoints",
+    "common_links.rst",
+    "**Untitled*",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -150,13 +157,12 @@ pygments_style = "sphinx"
 # nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation
 # for a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "plasmapy_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see
@@ -268,29 +274,25 @@ modindex_common_prefix = ["bapsflib."]
 #
 exclude_patterns.extend(["**.inc.rst"])
 
-# add a pycode role for inline markup e.g. :pycode:`'mycode'`
-rst_prolog = """
-.. role:: pycode(code)
-   :language: python3
-
-.. role:: red
-.. role:: green
-.. role:: blue
-
-.. role:: ibf
-    :class: ibf
-
-.. role:: textit
-    :class: textit
-
-.. role:: textbf
-    :class: textbf
-"""
-
 
 def setup(app: Sphinx) -> None:
+    from docutils.parsers.rst import roles
+    from functools import partial
+
     # custom config values
     app.add_config_value("revision", "", True)
 
     # custom CSS overrides
-    app.add_css_file("rtd_theme_overrides.css")
+    app.add_css_file("css/overrides.css", priority=600)
+
+    # create text based roles
+    # - these roles are paired with the CSS styling in overrides.css
+    #
+    for role_name in {"red", "green", "blue", "ibf", "textit", "textbf"}:
+        app.add_role(
+            role_name,
+            partial(
+                roles.generic_custom_role,
+                options={"class": [role_name]},
+            ),
+        )

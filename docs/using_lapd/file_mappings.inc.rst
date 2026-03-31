@@ -1,19 +1,18 @@
 .. py:currentmodule:: bapsflib.lapd
 
-The file mapping is key to :mod:`bapsflib`'s ability to provide a
+The file mapping is key to `bapsflib`'s ability to provide a
 consistent user interface to all the possible LaPD HDF5 file
 configurations.  It acts as the translator between the package interface
 and the HDF5 file structure.
 
-The LaPD file mapping is constructed by the
-:class:`~_hdf.mapper.LaPDMapper` class, which sub-classes
-:class:`~bapsflib._hdf.HDFMapper` (see :ref:`hdfmap_details` for
-:class:`~bapsflib._hdf.HDFMapper` details), and an instance is bound to
-the file object as :attr:`~bapsflib.lapd._hdf.file.File.file_map`.
-Except for some select cases, the
-:attr:`~bapsflib.lapd._hdf.file.File.file_map` object does not need to
-be directly accessed.  Its results are provide through higher-level
-user interfaces, such as the attributes/methods
+The LaPD file mapping is constructed by the `~_hdf.mapper.LaPDMapper`
+class, which sub-classes `~bapsflib._hdf.HDFMapper` (see
+:ref:`hdfmap_details` for `~bapsflib._hdf.HDFMapper` details), and an
+instance is bound to the file object as
+:attr:`~bapsflib.lapd._hdf.file.File.file_map`. Except for some select
+cases, the :attr:`~bapsflib.lapd._hdf.file.File.file_map` object does
+not need to be directly accessed.  Its results are provide through
+higher-level user interfaces, such as the attributes/methods
 :attr:`~bapsflib.lapd._hdf.file.File.info`,
 :attr:`~bapsflib.lapd._hdf.file.File.run_description`,
 :meth:`~bapsflib.lapd._hdf.file.File.read_data`, etc.  The results can

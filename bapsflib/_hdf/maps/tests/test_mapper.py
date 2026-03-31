@@ -30,7 +30,7 @@ from bapsflib.utils.warnings import HDFMappingWarning
 
 class TestHDFMap(ut.TestCase):
     """
-    Test Case for :class:`~bapsflib._hdf.maps.mapper.HDFMapper`
+    Test Case for `~bapsflib._hdf.maps.mapper.HDFMapper`
     """
 
     f = NotImplemented  # type: FauxHDFBuilder

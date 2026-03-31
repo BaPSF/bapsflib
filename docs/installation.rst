@@ -8,16 +8,16 @@ Installation
 Installing from ``pip``
 -----------------------
 
-The :mod:`bapsflib` package is registered with
+The `bapsflib` package is registered with
 `PyPI <https://pypi.org/project/bapsflib/>`_ and can be installed with
-:mod:`pip` via
+`pip` via
 
 .. code-block:: bash
 
     pip install bapsflib
 
-For the most recent development version, :mod:`bapsflib` can be
-installed from `GitHub <https://github.com/BaPSF/bapsflib>`_.
+For the most recent development version, `bapsflib` can be installed
+from `GitHub <https://github.com/BaPSF/bapsflib>`_.
 
 Installing Directly from GitHub
 -------------------------------
@@ -43,7 +43,7 @@ If an alternate branch ``BranchName`` is desired, then invoke
 Installing from a GitHub Clone or Download
 ------------------------------------------
 
-A copy of the :mod:`bapsflib` package can be obtained by
+A copy of the `bapsflib` package can be obtained by
 `cloning <https://help.github.com/articles/cloning-a-repository/>`_
 or downloading from the GitHub repository.
 
@@ -61,8 +61,8 @@ be downloaded, click the green button labeled :ibf:`Clone or download`,
 select :ibf:`Download ZIP`, save the zip file to the desired directory,
 and unpack.
 
-After getting a copy of the :mod:`bapsflib` package (via clone or
-download), navigate to the main package directory, where the package
+After getting a copy of the `bapsflib` package (via clone or download),
+navigate to the main package directory, where the package
 :file:`setup.py` file is located, and execute
 
 .. code-block:: bash

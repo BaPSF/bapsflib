@@ -87,7 +87,7 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
             Specifies the dataset(s) containing the recorded HDF5 shot
             numbers.  This maps to the ``'shotnum'`` field of the
             `numpy` array constructed by
-            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.  Should
+            `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.  Should
             look like::
 
                 configs['shotnum'] = {
@@ -109,12 +109,11 @@ class HDFMapMSITemplate(HDFMapTemplate, ABC):
                 configs['signals']
             ", "
             A dictionary that maps MSI data signals to the `numpy` array
-            constructed by
-            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.  Each
-            key in this dictionary corresponds to a field name in
-            :class:`~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` array
-            and the value defines the data location in the HDF5 file.
-            For example, ::
+            constructed by `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI`.
+            Each key in this dictionary corresponds to a field name in
+            `~bapsflib._hdf.utils.hdfreadmsi.HDFReadMSI` array and the
+            value defines the data location in the HDF5 file.  For
+            example, ::
 
                 configs['signals'] = {
                     'current': {

@@ -4,8 +4,8 @@ import unittest as ut
 from abc import ABC
 from enum import Enum
 
-from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 
 
 class TestMapTypesEnum(ut.TestCase):

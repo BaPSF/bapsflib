@@ -10,7 +10,7 @@
 #
 """
 Package of digitizer mapping classes and their constructor
-(:class:`~.map_digis.HDFMapDigitizers`).
+(`~.map_digis.HDFMapDigitizers`).
 """
 
 __all__ = ["HDFMapDigitizers"]

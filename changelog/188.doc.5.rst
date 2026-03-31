@@ -1,0 +1,2 @@
+Dropped the explicit use of the :rst:role:`code` role in favor of just
+using double back-ticks.

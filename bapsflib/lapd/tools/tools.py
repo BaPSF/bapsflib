@@ -45,7 +45,7 @@ def z_to_portnum(
         axial z location
 
     unit : `str`, optional
-        string or :class:`astropy.units` specifying unit type
+        string or `astropy.units` specifying unit type
 
     round_to_nearest : `bool`, optional
         `False` (DEFAULT), `True` will round the port number to the

@@ -1,7 +1,7 @@
 MSI diagnostic data is read using the
-:meth:`~bapsflib.lapd.File.read_msi` method on
-:class:`~bapsflib.lapd.File`.  Only the MSI diagnostic name
-needs to be supplied to read the associated data::
+:meth:`~bapsflib.lapd.File.read_msi` method on `~bapsflib.lapd.File`.
+Only the MSI diagnostic name needs to be supplied to read the
+associated data::
 
     >>> from bapsflib import lapd
     >>>
@@ -19,9 +19,9 @@ needs to be supplied to read the associated data::
     >>> # read 'Discharge' data
     >>> mdata = f.read_msi('Discharge')
 
-The returned data :data:`mdata` is a structured :mod:`numpy` array where
+The returned data ``mdata`` is a structured `numpy` array where
 its field structure and population is determined by the MSI diagnostic
-mapping object. Every :data:`mdata` will have the fields ``'shotnum'``
+mapping object. Every ``mdata`` will have the fields ``'shotnum'``
 and ``'meta'``. ``'shotnum'`` represents the HDF5 shot number.
 ``'meta'`` is a structured array with fields representing quantities
 (metadata) that are both diagnostic and shot number specific, but are
@@ -60,7 +60,7 @@ the ``'peak voltage'`` for shot number **0** do::
     >>> mdata['meta']['peak voltage'][0]
     6127.1323
 
-The data array :data:`mdata` is also constructed with a :attr:`info`
+The data array ``mdata`` is also constructed with a :attr:`info`
 attribute that contains metadata that is diagnostic specific but not
 shot number specific.
 
@@ -78,9 +78,9 @@ shot number specific.
 Every :attr:`info` attribute will have the keys ``'hdf file'``,
 ``'diagnostic name'``, and ``'diagnostic path'``.  The rest of
 the keys will be MSI diagnostic dependent.  For example,
-:data:`mdata.info` for the ``'Magnetic field'`` diagnostic would
-have the key ``'z'`` that corresponds to the axial locations of the
-magnetic field array.
+``mdata.info`` for the ``'Magnetic field'`` diagnostic would have the
+key ``'z'`` that corresponds to the axial locations of the magnetic
+field array.
 
 .. code-block:: python
 

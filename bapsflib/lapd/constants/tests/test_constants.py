@@ -22,7 +22,7 @@ from bapsflib.lapd.constants.constants import BaPSFConstant
 
 class TestConstants(ut.TestCase):
     """
-    Test LaPD constants. (:mod:`bapsflib.lapd.constants.constants`)
+    Test LaPD constants. (`bapsflib.lapd.constants.constants`)
     """
 
     def test_BaPSFConstant(self):

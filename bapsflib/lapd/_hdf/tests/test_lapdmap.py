@@ -27,7 +27,7 @@ from bapsflib.utils.warnings import BaPSFWarning
 
 class TestLaPDMap(TestBase):
     """
-    Test case for :class:`~bapsflib.lapd._hdf.mapper.LaPDMapper`
+    Test case for `~bapsflib.lapd._hdf.mapper.LaPDMapper`
     """
 
     @staticmethod

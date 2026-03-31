@@ -17,6 +17,7 @@ import os
 from unittest import mock
 
 from bapsflib._hdf import HDFMapper
+from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
@@ -238,8 +239,9 @@ class TestFile(TestBase):
         )
 
         with mock.patch(
-            f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
-            return_value="mapped",
+            f"{HDFMapDigiSISCrate.__module__}."
+            f"{HDFMapDigiSISCrate.__qualname__}.construct_dataset_name",
+            return_value=("dset_name", {"dummy": "dict"}),
         ) as mock_map:
             _bf.get_digitizer_specs(1, 1, digitizer=None, adc="SIS 3302", silent=True)
             mock_map.assert_called_once()
@@ -259,8 +261,9 @@ class TestFile(TestBase):
         )
 
         with mock.patch(
-            f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
-            return_value="mapped",
+            f"{HDFMapDigiSISCrate.__module__}."
+            f"{HDFMapDigiSISCrate.__qualname__}.construct_dataset_name",
+            return_value=("dset_name", {"dummy": "dict"}),
         ) as mock_map:
             _bf.get_digitizer_specs(
                 1, 1, digitizer="SIS crate", adc="SIS 3302", silent=True
@@ -280,8 +283,8 @@ class TestFile(TestBase):
             msi_path="MSI",
         )
 
-        expected = _bf.digitizers["SIS crate"].get_adc_info(
-            1, 1, adc="SIS 3302", config_name="config01"
+        dset_name, expected = _bf.digitizers["SIS crate"].construct_dataset_name(
+            1, 1, adc="SIS 3302", config_name="config01", return_info=True
         )
         specs = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
         self.assertDictEqual(expected, specs)

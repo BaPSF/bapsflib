@@ -549,7 +549,7 @@ class HDFReadData(np.ndarray):
 
         # get voltage offset
         try:
-            _signal_units = u.bit
+            _signal_units = u.bit if keep_bits else u.volt
             if d_info["bit"] is None:
                 # Since no bit value is recorded, the digitizer data must
                 # have been saved as voltage.
@@ -571,7 +571,7 @@ class HDFReadData(np.ndarray):
                 _signal_units = None
             elif voffset is not None:
                 voffset = voffset * u.volt
-                _signal_units = u.volt
+
         except ValueError:
             warn(
                 "Digitizer header dataset is missing the voltage 'Offset' field.",

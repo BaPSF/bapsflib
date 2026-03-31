@@ -1,6 +1,7 @@
 # these are dependencies required to build package documentation
 # ought to mirror 'docs' under options.extras_require in config.cfg
 -r install.txt
+nbsphinx >= 0.9.1
 numpydoc >= 1.6
 packaging
 sphinx-automodapi >= 0.13

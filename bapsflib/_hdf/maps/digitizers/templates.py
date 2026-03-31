@@ -174,7 +174,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
             This all defines the `numpy` `~numpy.dtype` of the
             ``'shotnum'`` field in the
-            :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
+            `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`
             constructed `numpy` array.
 
             If the ``'shotnum'`` key is given a value of `None`

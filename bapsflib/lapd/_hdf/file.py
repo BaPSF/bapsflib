@@ -93,13 +93,13 @@ class File(BaseFile):
 
     @property
     def file_map(self) -> LaPDMapper:
-        """LaPD HDF5 file map (:class:`~.mapper.LaPDMapper`)"""
+        """LaPD HDF5 file map (`~.mapper.LaPDMapper`)"""
         return self._file_map
 
     @property
     def overview(self) -> LaPDOverview:
         """
-        LaPD HDF5 file overview. (:class:`~.lapdoverview.LaPDOverview`)
+        LaPD HDF5 file overview. (`~.lapdoverview.LaPDOverview`)
         """
         # to avoid cyclical imports
         from bapsflib.lapd._hdf.lapdoverview import LaPDOverview

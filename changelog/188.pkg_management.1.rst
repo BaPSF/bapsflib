@@ -1,0 +1,1 @@
+Removed documentation dependency `sphinx-hoverxref`.

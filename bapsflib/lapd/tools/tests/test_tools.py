@@ -21,7 +21,7 @@ from bapsflib.lapd.tools import portnum_to_z, z_to_portnum
 
 
 class TestTools(ut.TestCase):
-    """Test LaPD tools. (:mod:`bapsflib.lapd.tools.tools`)"""
+    """Test LaPD tools. (`bapsflib.lapd.tools.tools`)"""
 
     def test_portnum_to_z(self):
         # 1st scenario

@@ -21,7 +21,7 @@
 import os
 import sys
 
-from datetime import datetime
+from datetime import datetime, timezone
 from packaging.version import Version
 from sphinx.application import Sphinx
 
@@ -39,27 +39,28 @@ from bapsflib import __version__ as release
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "hoverxref.extension",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.autosummary",
+    # plasmapy extensions & setups
+    "plasmapy_sphinx.theme",
+    "plasmapy_sphinx.ext.autodoc",
+    "plasmapy_sphinx.ext.directives",
+    # other 3rd party extensions
     "sphinx.ext.intersphinx",
     "sphinx.ext.mathjax",
     "sphinx.ext.napoleon",
-    "sphinx_automodapi.automodapi",
-    "sphinx_automodapi.smart_resolver",
     "sphinx_changelog",
 ]
 
 # Setup intersphinx
 intersphinx_mapping = {
-    "astropy": ("http://docs.astropy.org/en/stable/", None),
+    "astropy": ("https://docs.astropy.org/en/stable/", None),
     "h5py": ("https://docs.h5py.org/en/latest/", None),
     "numpy": ("https://numpy.org/doc/stable/", None),
     "numpydoc": ("https://numpydoc.readthedocs.io/en/latest/", None),
     "plasmapy": ("https://docs.plasmapy.org/en/latest/", None),
     "python": ("https://docs.python.org/3", None),
-    "readthedocs": ("https://docs.readthedocs.io/en/stable/", None),
-    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
+    "readthedocs": ("https://docs.readthedocs.com/platform/stable/", None),
+    "plasmapy_sphinx": ("https://plasmapy-sphinx.readthedocs.io/en/latest/", None),
+    "scipy": ("https://docs.scipy.org/doc/scipy/", None),
     "sphinx": ("https://www.sphinx-doc.org/en/master/", None),
     "sphinx_automodapi": (
         "https://sphinx-automodapi.readthedocs.io/en/latest/",
@@ -67,46 +68,34 @@ intersphinx_mapping = {
     ),
 }
 
-# Setup hoverxref
-hoverxref_intersphinx = list(intersphinx_mapping.keys())
-hoverxref_auto_ref = True
-hoverxref_domains = ["py"]  # ["py", "cite"]
-hoverxref_mathjax = True
-hoverxref_roles = ["confval", "term"]
-hoverxref_sphinxtabs = True
-hoverxref_tooltip_maxwidth = 600  # RTD main window is 696px
-hoverxref_role_types = {
-    # roles with cite domain
-    # "p": "tooltip",
-    # "t": "tooltip",
-    # roles with py domain
-    "attr": "tooltip",
-    "class": "tooltip",
-    "const": "tooltip",
-    "data": "tooltip",
-    "exc": "tooltip",
-    "func": "tooltip",
-    "meth": "tooltip",
-    "mod": "tooltip",
-    "obj": "tooltip",
-    # roles with std domain
-    "confval": "tooltip",
-    "hoverxref": "tooltip",
-    "ref": "tooltip",
-    "term": "tooltip",
-}
-
-if building_on_readthedocs := os.environ.get("READTHEDOCS"):
-    # Using the proxied API endpoint is a Read the Docs strategy to
-    # avoid a cross-site request forgery block for docs using a custom
-    # domain. See conf.py for sphinx-hoverxref.
-    use_proxied_api_endpoint = os.environ.get("PROXIED_API_ENDPOINT")
-    hoverxref_api_host = "/_" if use_proxied_api_endpoint else "https://readthedocs.org"
+# Setup automodapi (from plasmapy_sphinx.ext.autodoc)
+autosummary_generate = True
+# automodapi_custom_groups = {
+#     "actors": {
+#         "title": "Actors",
+#         "description": (
+#             "Explain what an actor is."
+#         ),
+#         "dunder": "__actors__",
+#     },
+# }
+automodapi_group_order = (
+    "modules",
+    "classes",
+    "exceptions",
+    "warnings",
+    "functions",
+    "variables",
+)
+automodapi_groups_with_inheritance_diagrams = [
+    "classes",
+    "exceptions",
+    "warnings",
+]
 
 # Various sphinx configuration variables
 autoclass_content = "both"  # for classes insert docstrings from __init__ and class
 numfig = True  # enable figure and table numbering
-autosummary_generate = True  # generate stub files from all found autosummary directives
 default_role = "py:obj"  # default role for reST role (i.e. `` defaults to :py:obj:``)
 
 # Add any paths that contain templates here, relative to this directory.
@@ -124,7 +113,7 @@ master_doc = "index"
 # General information about the project.
 project = "bapsflib"
 author = "Erik T. Everson & the BaPSF Community"
-copyright = f"2017-{datetime.utcnow().year}, {author}"
+copyright = f"2017-{datetime.now(timezone.utc).year}, {author}"
 
 # The version info for the project you're documenting, acts as
 # replacement for |version| and |release|, also used in various other
@@ -152,7 +141,14 @@ language = "en"
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
 # This patterns also effect to html_static_path and html_extra_path
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+exclude_patterns = [
+    "_build",
+    "Thumbs.db",
+    ".DS_Store",
+    "**.ipynb_checkpoints",
+    "common_links.rst",
+    "**Untitled*",
+]
 
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = "sphinx"
@@ -161,13 +157,12 @@ pygments_style = "sphinx"
 # nothing.
 todo_include_todos = False
 
-
 # -- Options for HTML output -------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation
 # for a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
+html_theme = "plasmapy_theme"
 
 # Theme options are theme-specific and customize the look and feel of a
 # theme further.  For a list of options available for each theme, see
@@ -279,29 +274,25 @@ modindex_common_prefix = ["bapsflib."]
 #
 exclude_patterns.extend(["**.inc.rst"])
 
-# add a pycode role for inline markup e.g. :pycode:`'mycode'`
-rst_prolog = """
-.. role:: pycode(code)
-   :language: python3
-
-.. role:: red
-.. role:: green
-.. role:: blue
-
-.. role:: ibf
-    :class: ibf
-
-.. role:: textit
-    :class: textit
-
-.. role:: textbf
-    :class: textbf
-"""
-
 
 def setup(app: Sphinx) -> None:
+    from docutils.parsers.rst import roles
+    from functools import partial
+
     # custom config values
     app.add_config_value("revision", "", True)
 
     # custom CSS overrides
-    app.add_css_file("rtd_theme_overrides.css")
+    app.add_css_file("css/overrides.css", priority=600)
+
+    # create text based roles
+    # - these roles are paired with the CSS styling in overrides.css
+    #
+    for role_name in {"red", "green", "blue", "ibf", "textit", "textbf"}:
+        app.add_role(
+            role_name,
+            partial(
+                roles.generic_custom_role,
+                options={"class": [role_name]},
+            ),
+        )

@@ -1,6 +1,6 @@
 :orphan:
 
-With a :class:`numpy.recarray`, accessing a data field can be done via
+With a `numpy.recarray`, accessing a data field can be done via
 a dictionary lookup or as an access to a member of the array.  For
 example, accessing the shot number array can be like
 
@@ -12,7 +12,7 @@ or
     >>> data.shotnum
     Out[0]: Out[0]: array([   1,    2,    3, ...], dtype=uint32)
 
-Fields :code:`'signal'` and :code:`'xyz'` can be accessed the same way.
+Fields ``'signal'`` and ``'xyz'`` can be accessed the same way.
 
 
     >>> import numpy as np

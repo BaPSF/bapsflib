@@ -11,18 +11,14 @@
 """
 This package contains an assortment of mapping classes used to inspect
 and map the various HDF5 files generated during experiments at the
-Basic Plasma Science Facility.  Sub-package
-:mod:`~.controls` contains routines for mapping
-:ibf:`Control Device` HDF5 groups,
-:mod:`~.digitizers` contains routines for
-mapping :ibf:`Digitizer` HDF5 groups, and
-:mod:`~.msi` contains routines for mapping
-:ibf:`MSI Diagnostic` HDF5 groups.
+Basic Plasma Science Facility.  Sub-package `~.controls` contains
+routines for mapping :ibf:`Control Device` HDF5 groups, `~.digitizers`
+contains routines for mapping :ibf:`Digitizer` HDF5 groups, and `~.msi`
+contains routines for mapping :ibf:`MSI Diagnostic` HDF5 groups.
 """
 
 __all__ = [
     "ConType",
-    "FauxHDFBuilder",
     "HDFMapper",
     "HDFMapControls",
     "HDFMapDigitizers",
@@ -36,4 +32,3 @@ from bapsflib._hdf.maps.digitizers import HDFMapDigitizers
 from bapsflib._hdf.maps.mapper import HDFMapper
 from bapsflib._hdf.maps.msi import HDFMapMSI
 from bapsflib._hdf.maps.templates import HDFMapTemplate, MapTypes
-from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder

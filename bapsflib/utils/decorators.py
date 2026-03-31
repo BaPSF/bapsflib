@@ -9,7 +9,7 @@
 #   license terms and contributor agreement.
 #
 """
-Decorators for the :mod:`bapsflib` package.
+Decorators for the `bapsflib` package.
 """
 
 __all__ = ["with_bf", "with_lapdf"]
@@ -30,9 +30,9 @@ def with_bf(
 ):
     """
     Context decorator for managing the opening and closing BaPSF HDF5
-    Files (:class:`bapsflib._hdf.utils.file.File`).  An instance of the
-    BaPSF HDF5 file is injected into the decorated function at the end of
-    the positional arguments.  The decorator is primarily designed for use
+    Files (`bapsflib._hdf.utils.file.File`).  An instance of the BaPSF
+    HDF5 file is injected into the decorated function at the end of the
+    positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.
 
     Parameters
@@ -54,13 +54,13 @@ def with_bf(
 
     Examples
     --------
-    The HDF5 file parameters (:data:`filename`, :data:`control_path`,
-    :data:`digitizer_path`, and :data:`msi_path`) can be passed to the
+    The HDF5 file parameters (``filename``, ``control_path``,
+    ``digitizer_path``, and ``msi_path``) can be passed to the
     decorator in three ways (listed by predominance):
 
     #. The wrapped function arguments.
     #. If the wrapped function is a method, then through appropriately
-       named :data:`self` attributes.
+       named ``self`` attributes.
     #. The decorator keywords.
 
     **Defined with wrapped function arguments**::
@@ -208,9 +208,9 @@ def with_bf(
 def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
     """
     Context decorator for managing the opening and closing LaPD HDF5
-    Files (:class:`bapsflib.lapd._hdf.file.File`).  An instance of the
-    LaPD HDF5 file is injected into the decorated function at the end of
-    the positional arguments.  The decorator is primarily designed for use
+    Files (`bapsflib.lapd._hdf.file.File`).  An instance of the LaPD
+    HDF5 file is injected into the decorated function at the end of the
+    positional arguments.  The decorator is primarily designed for use
     on test methods, but can also be used as a function decorator.
 
     Parameters
@@ -223,12 +223,12 @@ def with_lapdf(wfunc=None, *, filename: Union[str, None] = None):
 
     Examples
     --------
-    The HDF5 :data:`filename` can be passed to the decorator in three
+    The HDF5 ``filename`` can be passed to the decorator in three
     ways (listed by predominance):
 
     #. The wrapped function arguments.
     #. If the wrapped function is a method, then through the
-       appropriately named :data:`self` attributes.
+       appropriately named ``self`` attributes.
     #. The decorator keywords.
 
     **Defined with wrapped function arguments**::

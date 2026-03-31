@@ -13,6 +13,3 @@ bapsflib\.plasma\.core
     either be replaced by the `plasmapy.formulary` or dropped altogether.
 
 .. automodapi:: bapsflib.plasma.core
-    :no-heading:
-    :include-all-objects:
-    :headings: "-^"

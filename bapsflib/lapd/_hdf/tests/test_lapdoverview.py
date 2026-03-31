@@ -25,7 +25,7 @@ from bapsflib.utils.decorators import with_lapdf
 
 class TestLaPDOverview(TestBase):
     """
-    Test case for :class:`~bapsflib.lapd._hdf.lapdoverview.LaPDOverview`
+    Test case for `~bapsflib.lapd._hdf.lapdoverview.LaPDOverview`
     """
 
     def setUp(self):

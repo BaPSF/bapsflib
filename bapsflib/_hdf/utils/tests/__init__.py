@@ -10,7 +10,7 @@
 #
 __all__ = ["TestBase", "with_bf"]
 
-from bapsflib._hdf.maps import FauxHDFBuilder
+from bapsflib._hdf.maps.tests import FauxHDFBuilder
 from bapsflib.utils.decorators import with_bf
 from bapsflib.utils.tests import BaPSFTestCase
 

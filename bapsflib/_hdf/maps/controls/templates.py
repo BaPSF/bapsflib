@@ -41,7 +41,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
 
     - If a control device is structured around a :ibf:`command list`,
       then its mapping class should subclass
-      :class:`~.templates.HDFMapControlCLTemplate` instead.
+      `~.templates.HDFMapControlCLTemplate` instead.
 
     - To fully define a subclass there are several abstract methods that
       need to be defined, which includes
@@ -125,8 +125,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             numpy shape of the shot number data, and ``'dtype'``
             is the numpy `~numpy.dtype` of the data.  This all defines
             the numpy `~numpy.dtype` of the ``'shotnum'`` field in
-            the
-            :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+            the `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
             constructed numpy array.
 
             If the ``'dset paths'`` entry is defined as `None`, then
@@ -151,7 +150,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
                 }
 
             will tell
-            :class:`~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
+            `~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls`
             to construct a numpy array with a ``'xyz'`` field.
             This field would be a 3-element array of
             `numpy.float32`, where the ``'x'`` field of the
@@ -170,7 +169,7 @@ class HDFMapControlTemplate(HDFMapTemplate, ABC):
             * A state value field (key) can not be defined as
               ``'signal'`` since this field is reserved for digitizer
               data constructed by
-              :class:`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
+              `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`.
             * If state value data represents probe position data, then
               it should be given the field name (key) ``'xyz'``
               (like in the example above).
@@ -314,8 +313,8 @@ HDFMapControlTemplate.configs.__doc__ = (
 
 class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
     """
-    A modified :class:`HDFMapControlTemplate` template class for
-    mapping control devices that record data around the concept of a
+    A modified `HDFMapControlTemplate` template class for mapping
+    control devices that record data around the concept of a
     :ibf:`command list`.
 
     Note
@@ -323,7 +322,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
 
     - If the control device is NOT structured around a
       :ibf:`command list`, then its mapping class should subclass
-      :class:`~.templates.HDFMapControlTemplate` instead.
+      `~.templates.HDFMapControlTemplate` instead.
 
     - To fully define a subclass there are several abstract methods that
       need to be defined, which includes
@@ -517,8 +516,7 @@ class HDFMapControlCLTemplate(HDFMapControlTemplate, ABC):
 
     def clparse(self, config_name: str) -> CLParse:
         """
-        Return instance of
-        :class:`~bapsflib.lapd.controls.parsers.CLParse`
+        Return instance of `~bapsflib.lapd.controls.parsers.CLParse`
         for ``config_name``.
 
         Parameters

@@ -5,36 +5,36 @@ Installation
    --------------------
 
 
-Installing from :code:`pip`
----------------------------
+Installing from ``pip``
+-----------------------
 
-The :mod:`bapsflib` package is registered with
+The `bapsflib` package is registered with
 `PyPI <https://pypi.org/project/bapsflib/>`_ and can be installed with
-:mod:`pip` via
+`pip` via
 
 .. code-block:: bash
 
     pip install bapsflib
 
-For the most recent development version, :mod:`bapsflib` can be
-installed from `GitHub <https://github.com/BaPSF/bapsflib>`_.
+For the most recent development version, `bapsflib` can be installed
+from `GitHub <https://github.com/BaPSF/bapsflib>`_.
 
 Installing Directly from GitHub
 -------------------------------
 
 To install directly from GitHub, you need to have
 `git <https://git-scm.com/book/en/v2/Getting-Started-Installing-Git>`_
-installed on your computer.  If you do not have :code:`git` installed,
+installed on your computer.  If you do not have ``git`` installed,
 then see `Installing from a GitHub Clone or Download`_.
 
-To install directly from the :code:`master` branch invoke the following
+To install directly from the ``master`` branch invoke the following
 command
 
 .. code-block:: bash
 
     pip install git+https://github.com/BaPSF/bapsflib.git#egg=bapsflib
 
-If an alternate branch :code:`BranchName` is desired, then invoke
+If an alternate branch ``BranchName`` is desired, then invoke
 
 .. code-block:: bash
 
@@ -43,12 +43,12 @@ If an alternate branch :code:`BranchName` is desired, then invoke
 Installing from a GitHub Clone or Download
 ------------------------------------------
 
-A copy of the :mod:`bapsflib` package can be obtained by
+A copy of the `bapsflib` package can be obtained by
 `cloning <https://help.github.com/articles/cloning-a-repository/>`_
 or downloading from the GitHub repository.
 
-Cloning the repository requires an installation of :code:`git` on your
-computer.  To clone the :code:`master` branch, first, on your computer,
+Cloning the repository requires an installation of ``git`` on your
+computer.  To clone the ``master`` branch, first, on your computer,
 navigate to the directory you want the clone and do
 
 .. code-block:: bash
@@ -61,8 +61,8 @@ be downloaded, click the green button labeled :ibf:`Clone or download`,
 select :ibf:`Download ZIP`, save the zip file to the desired directory,
 and unpack.
 
-After getting a copy of the :mod:`bapsflib` package (via clone or
-download), navigate to the main package directory, where the package
+After getting a copy of the `bapsflib` package (via clone or download),
+navigate to the main package directory, where the package
 :file:`setup.py` file is located, and execute
 
 .. code-block:: bash

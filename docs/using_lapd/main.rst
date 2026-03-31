@@ -1,17 +1,16 @@
 .. _using_bapsflib_lapd:
 
-==========================
-Using :mod:`bapsflib.lapd`
-==========================
+=====================
+Using `bapsflib.lapd`
+=====================
 
-The :mod:`bapsflib.lapd` is a one-stop-shop for everything specifically
+The `bapsflib.lapd` is a one-stop-shop for everything specifically
 related to handling data collected on the LaPD.  The package provides:
 
-#. HDF5 file access via :class:`bapsflib.lapd.File`
-#. LaPD machine specs and parameters in :mod:`bapsflib.lapd.constants`
+#. HDF5 file access via `bapsflib.lapd.File`
+#. LaPD machine specs and parameters in `bapsflib.lapd.constants`
 #. LaPD specific tools (e.g. port number to LaPD :math:`z` conversion
-   :func:`bapsflib.lapd.tools.portnum_to_z`) in
-   :mod:`bapsflib.lapd.tools`.
+   :func:`bapsflib.lapd.tools.portnum_to_z`) in `bapsflib.lapd.tools`.
 
 .. contents:: Contents
     :depth: 4

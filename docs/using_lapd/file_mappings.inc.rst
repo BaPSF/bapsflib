@@ -1,28 +1,31 @@
 .. py:currentmodule:: bapsflib.lapd
 
-The file mapping is key to :mod:`bapsflib`'s ability to provide a
+The file mapping is key to `bapsflib`'s ability to provide a
 consistent user interface to all the possible LaPD HDF5 file
 configurations.  It acts as the translator between the package interface
 and the HDF5 file structure.
 
-The LaPD file mapping is constructed by the
-:class:`~_hdf.mapper.LaPDMapper` class, which sub-classes
-:class:`~bapsflib._hdf.HDFMapper` (see :ref:`hdfmap_details` for
-:class:`~bapsflib._hdf.HDFMapper` details), and an instance is bound to
-the file object as :attr:`~File.file_map`.  Except for some select
-cases, the :attr:`~File.file_map` object does not need to be directly
-accessed.  Its results are provide through higher-level user interfaces,
-such as the attributes/methods :attr:`~File.info`,
-:attr:`~File.run_description`, :meth:`~File.read_data`, etc.  The
-results can also be easily printed or saved using the
-:attr:`~File.overview` attribute, see :ref:`file_overview` for details.
+The LaPD file mapping is constructed by the `~_hdf.mapper.LaPDMapper`
+class, which sub-classes `~bapsflib._hdf.HDFMapper` (see
+:ref:`hdfmap_details` for `~bapsflib._hdf.HDFMapper` details), and an
+instance is bound to the file object as
+:attr:`~bapsflib.lapd._hdf.file.File.file_map`. Except for some select
+cases, the :attr:`~bapsflib.lapd._hdf.file.File.file_map` object does
+not need to be directly accessed.  Its results are provide through
+higher-level user interfaces, such as the attributes/methods
+:attr:`~bapsflib.lapd._hdf.file.File.info`,
+:attr:`~bapsflib.lapd._hdf.file.File.run_description`,
+:meth:`~bapsflib.lapd._hdf.file.File.read_data`, etc.  The results can
+also be easily printed or saved using the
+:attr:`~bapsflib.lapd._hdf.file.File.overview` attribute, see
+:ref:`file_overview` for details.
 
 :numref:`LaPDMap_meth_table` shows the available attributes and methods
-bound to :attr:`~File.file_map`.
+bound to :attr:`~bapsflib.lapd._hdf.file.File.file_map`.
 
 .. _LaPDMap_meth_table:
 
-.. csv-table:: Bound methods and attributes on :code:`f.file_map`.
+.. csv-table:: Bound methods and attributes on ``f.file_map``.
     :header: "method/attribute", "Description"
     :widths: 20, 60
 
@@ -40,7 +43,7 @@ bound to :attr:`~File.file_map`.
     retrieve the mapping object for a specified device
     "
     :attr:`~_hdf.mapper.LaPDMapper.is_lapd`, "
-    :code:`True` if it was determined that the HDF5 file was generated
+    `True` if it was determined that the HDF5 file was generated
     by the LaPD
     "
     :attr:`~_hdf.mapper.LaPDMapper.lapd_version`, "

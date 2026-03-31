@@ -10,7 +10,7 @@
 #
 """
 Helper functions that are utilized by the HDF5 utility classes defined
-in module :mod:`bapsflib._hdf.utils`.
+in module `bapsflib._hdf.utils`.
 """
 
 __all__ = [
@@ -238,7 +238,7 @@ def condition_controls(hdf_file: File, controls: Any) -> List[Tuple[str, Any]]:
         #. Input ``controls`` should be
            ``Union[str, Iterable[Union[str, Tuple[str, Any]]]]``
         #. There can only be one control for each
-           :class:`~bapsflib._hdf.maps.controls.types.ConType`.
+           `~bapsflib._hdf.maps.controls.types.ConType`.
         #. If a control has multiple configurations, then one must be
            specified.
         #. If a control has ONLY ONE configuration, then that will be

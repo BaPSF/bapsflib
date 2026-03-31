@@ -4,6 +4,7 @@
 ipykernel
 nbsphinx >= 0.9.1
 numpydoc >= 1.6
+matplotlib
 packaging
 sphinx-automodapi >= 0.13
 sphinx-changelog

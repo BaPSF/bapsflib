@@ -273,12 +273,27 @@ class File(h5py.File):
         with warnings.catch_warnings():
             _filter = "ignore" if silent else "default"
             warnings.simplefilter(_filter, category=HDFMappingWarning)
-            _info = digi_map.get_adc_info(
+            name, _info = digi_map.construct_dataset_name(
                 board,
                 channel,
                 adc=adc,
                 config_name=config_name,
+                return_info=True,
             )  # type: Dict[str, Any]
+
+        _info["board"] = board
+        _info["channel"] = channel
+        _info["shot average"] = _info.pop("shot average (software)", None)
+        _info["sample average"] = _info.pop("sample average (hardware)", None)
+        _info["device group path"] = digi_map.group_path
+        _info["device dataset path"] = f"{digi_map.group_path}/{name}"
+        _info["source file"] = os.path.abspath(self.filename)
+
+        time_dset = _info.pop("time_dset_path", None)
+        if time_dset is not None:
+            time_dset = f"{digi_map.group_path}/{time_dset}"
+        _info["time_dset_path"] = time_dset
+
         return _info
 
     def get_time_array(self, data_info: HDFReadData | Dict[str, Any]) -> np.ndarray:

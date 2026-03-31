@@ -32,6 +32,7 @@ if TYPE_CHECKING:
     from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
     from bapsflib._hdf.utils.hdfreaddata import HDFReadData
     from bapsflib._hdf.utils.hdfreadmsi import HDFReadMSI
+    from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 
 class File(h5py.File):
@@ -267,7 +268,7 @@ class File(h5py.File):
                 f"digitizers {list(self.digitizers.keys())}."
             )
         else:
-            digi_map = self.digitizers[digitizer]
+            digi_map = self.digitizers[digitizer]  # type: HDFMapDigiTemplate
 
         with warnings.catch_warnings():
             _filter = "ignore" if silent else "default"

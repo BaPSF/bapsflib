@@ -270,27 +270,28 @@ exclude_patterns.extend(["**.inc.rst"])
 
 # add a pycode role for inline markup e.g. :pycode:`'mycode'`
 rst_prolog = """
-.. role:: pycode(code)
-   :language: python3
-
 .. role:: red
 .. role:: green
 .. role:: blue
-
-.. role:: ibf
-    :class: ibf
-
-.. role:: textit
-    :class: textit
-
-.. role:: textbf
-    :class: textbf
 """
 
 
 def setup(app: Sphinx) -> None:
+    from docutils.parsers.rst import roles
+    from functools import partial
+
     # custom config values
     app.add_config_value("revision", "", True)
 
     # custom CSS overrides
     app.add_css_file("css/overrides.css", priority=600)
+
+    app.add_role(
+        "ibf", partial(roles.generic_custom_role, options={"class": ["ibf"]})
+    )
+    app.add_role(
+        "textit", partial(roles.generic_custom_role, options={"class": ["textit"]})
+    )
+    app.add_role(
+        "textbf", partial(roles.generic_custom_role, options={"class": ["textbf"]})
+    )

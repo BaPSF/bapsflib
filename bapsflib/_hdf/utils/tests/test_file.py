@@ -228,15 +228,13 @@ class TestFile(TestBase):
             self.assertTrue(mock_bi.called)
             _bf2.close()
 
-    def test_get_digitizer_specs_one_digi(self):
+    @with_bf
+    def test_get_digitizer_specs_one_digi(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         with mock.patch(
             f"{HDFMapDigiSISCrate.__module__}."
@@ -246,19 +244,16 @@ class TestFile(TestBase):
             _bf.get_digitizer_specs(1, 1, digitizer=None, adc="SIS 3302", silent=True)
             mock_map.assert_called_once()
 
-        _bf.close()
         self.f.reset()
 
-    def test_get_digitizer_specs_two_digi(self):
+    @with_bf
+    def test_get_digitizer_specs_two_digi(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS 3301")
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         with mock.patch(
             f"{HDFMapDigiSISCrate.__module__}."
@@ -270,18 +265,15 @@ class TestFile(TestBase):
             )
             mock_map.assert_called_once()
 
-        _bf.close()
         self.f.reset()
 
-    def test_get_digitizer_specs(self):
+    @with_bf
+    def test_get_digitizer_specs(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         dset_name, expected = _bf.digitizers["SIS crate"].construct_dataset_name(
             1, 1, adc="SIS 3302", config_name="config01", return_info=True
@@ -289,16 +281,14 @@ class TestFile(TestBase):
         specs = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
         self.assertDictEqual(expected, specs)
 
-    def test_get_digitizer_specs_raises(self):
+    @with_bf
+    def test_get_digitizer_specs_raises(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
         self.f.add_module("SIS 3301")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         _conditions = [
             # (error, args, kwargs)
@@ -313,22 +303,17 @@ class TestFile(TestBase):
             ):
                 _bf.get_digitizer_specs(*args, **kwargs)
 
-        _bf.close()
         self.f.reset()
 
     @with_bf
     def test_get_digitizer_specs_warnings(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         with self.assertWarns(HDFMappingWarning):
             _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=False)
 
-        _bf.close()
         self.f.reset()

@@ -549,11 +549,13 @@ class HDFReadData(np.ndarray):
 
         # get voltage offset
         try:
+            _signal_units = u.bit
             if d_info["bit"] is None:
-                # Since not bit value is recorded, the digitizer data must
+                # Since no bit value is recorded, the digitizer data must
                 # have been saved as voltage.
                 keep_bits = True
                 voffset = None
+                _signal_units = u.volt
             else:
                 voffset = dheader[index[0], "Offset"]
 
@@ -566,14 +568,17 @@ class HDFReadData(np.ndarray):
                 )
                 keep_bits = True
                 voffset = None
+                _signal_units = None
             elif voffset is not None:
                 voffset = voffset * u.volt
+                _signal_units = u.volt
         except ValueError:
             warn(
                 "Digitizer header dataset is missing the voltage 'Offset' field.",
                 HDFMappingWarning,
             )
             voffset = None
+            _signal_units = None
         except IndexError as err:  # pragma: no cover
             warn(
                 f"{err} ... Digitizer header dataset is being index out of "
@@ -581,6 +586,7 @@ class HDFReadData(np.ndarray):
                 HDFMappingWarning,
             )
             voffset = None
+            _signal_units = None
 
         # assign dataset meta-info
         obj._info = {
@@ -599,7 +605,7 @@ class HDFReadData(np.ndarray):
             "voltage offset": voffset,
             "probe name": None,
             "port": (None, None),
-            "signal units": u.bit,
+            "signal units": _signal_units,
         }
         if cdata is not None:
             obj._info["controls"] = copy.deepcopy(cdata.info["controls"])

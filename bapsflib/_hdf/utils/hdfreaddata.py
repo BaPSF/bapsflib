@@ -726,56 +726,67 @@ class HDFReadData(np.ndarray):
         .. list-table::
             :widths: 5 3 11
 
-            * - :const:`hdf file`
+            * - ``"source file"``
               - `str`
-              - HDF5 file name the data was retrieved from
-            * - :const:`dataset name`
+              - full path of the HDF5 file the data was retrieved from
+            * - ``"device group path"``
               - `str`
-              - name of the dataset
-            * - :const:`dataset path`
+              - internal HDF5 path to the device group
+            * - ``"device dataset path"``
               - `str`
-              - path to said dataset in the HDF5 file
-            * - :const:`digitizer`
+              - internal HDF5 path to the data originating dataset
+            * - :const:``"digitizer"``
               - `str`
-              - digitizer group name
-            * - :const:`configuration name`
+              - digitizer name
+            * - ``"configuration name"``
               - `str`
               - name of data configuration
-            * - :const:`adc`
+            * - ``"adc"``
               - `str`
               - analog-digital converter in which the data was recorded
                 on
-            * - :const:`bit`
-              - `int`
+            * - ``"bit"``
+              - `int` | `None`
               - bit resolution for the adc
-            * - :const:`clock rate`
-              - (`int`, `float`)
-              - tuple containing clock rate, e.g. (100.0, 'MHz')
-            * - :const:`sample average`
-              - `int`
+            * - ``"clock rate"``
+              - `astropy.Quantity` | `None`
+              - digitizing clock rate of the adc
+            * - ``"sample average"``
+              - `int` | None
               - (hardware sampling) number of data samples averaged
                 together
-            * - :const:`shot average`
-              - `int`
+            * - ``"shot average"``
+              - `int` | None
               - (software averaging) number of shot sequences averaged
                 together
-            * - :const:`board`
+            * - ``"board"``
               - `int`
-              - board that the probe was connected to
-            * - :const:`channel`
+              - adc board the data was retrieved from
+            * - ``"channel"``
               - `int`
-              - channel of the board that the probe was connected to
-            * - :const:`voltage offset`
-              - `float`
-              - voltage offset of the digitized signal
-            * - :const:`probe name`
-              - `str`
+              - adc channel the data was retrieved from
+            * - ``"voltage offset"``
+              - `float` | None
+              - half the peak-to-peak voltage range of the adc
+            * - ``"probe name"``
+              - `str` | None
               - name of deployed probe...empty for user to use at
                 his/her discretion
-            * - :const:`port`
+            * - ``"port"``
               - (`int`, `str`)
               - 2-element tuple indicating which port the probe was
                 deployed on, eg. (19, 'W')
+            * - ``"signal units"``
+              - `astropy.Unit`
+              - units of the returned ``"signal"`` data
+            * - ``"time_dset_path"``
+              - `str` | None
+              - internal HDF5 path to a time array dataset (if present)
+            * - ``"controls"``
+              - `dict`
+              - meta-data of the control device data included in the
+                data read
+
 
         .. 'port' -- 2-element tuple indicating which port the probe was
                      deployed on. e.g. (19, 'W') => deployed on port 19

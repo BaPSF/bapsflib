@@ -606,7 +606,12 @@ class HDFReadData(np.ndarray):
             "probe name": None,
             "port": (None, None),
             "signal units": _signal_units,
+            "time_dset_path": d_info.get("time_dset_path", None),
         }
+
+        if obj._info["time_dset_path"] is not None:
+            obj._info["time_dset_path"] = dpath + obj._info["time_dset_path"]
+
         if cdata is not None:
             obj._info["controls"] = copy.deepcopy(cdata.info["controls"])
         else:

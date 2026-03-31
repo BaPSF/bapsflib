@@ -317,3 +317,18 @@ class TestFile(TestBase):
             _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=False)
 
         self.f.reset()
+
+    @with_bf
+    def test_get_digitizer_specs_has_time_dset(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("LeCroy_scope")
+
+        # re-map file
+        _bf._map_file()
+
+        digi_specs = _bf.get_digitizer_specs(0, 1, silent=True)
+        self.assertIn("time_dset_path", digi_specs)
+        self.assertEqual(
+            digi_specs["time_dset_path"],
+            "/Raw data + config/LeCroy_scope/time",
+        )

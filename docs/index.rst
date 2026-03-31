@@ -16,6 +16,7 @@ Welcome to bapsflib's documentation!
     ./background/main
     using_lapd/main
     ./hdfmap/main
+    Physics180E Example <./notebooks/phys180e/phys180e_example>
 
 .. toctree::
     :maxdepth: 1

@@ -274,13 +274,6 @@ modindex_common_prefix = ["bapsflib."]
 #
 exclude_patterns.extend(["**.inc.rst"])
 
-# add a pycode role for inline markup e.g. :pycode:`'mycode'`
-rst_prolog = """
-.. role:: red
-.. role:: green
-.. role:: blue
-"""
-
 
 def setup(app: Sphinx) -> None:
     from docutils.parsers.rst import roles
@@ -292,12 +285,14 @@ def setup(app: Sphinx) -> None:
     # custom CSS overrides
     app.add_css_file("css/overrides.css", priority=600)
 
-    app.add_role(
-        "ibf", partial(roles.generic_custom_role, options={"class": ["ibf"]})
-    )
-    app.add_role(
-        "textit", partial(roles.generic_custom_role, options={"class": ["textit"]})
-    )
-    app.add_role(
-        "textbf", partial(roles.generic_custom_role, options={"class": ["textbf"]})
-    )
+    # create text based roles
+    # - these roles are paired with the CSS styling in overrides.css
+    #
+    for role_name in {"red", "green", "blue", "ibf", "textit", "textbf"}:
+        app.add_role(
+            role_name,
+            partial(
+                roles.generic_custom_role,
+                options={"class": [role_name]},
+            ),
+        )

@@ -279,6 +279,15 @@ class TestFile(TestBase):
         dset_name, expected = _bf.digitizers["SIS crate"].construct_dataset_name(
             1, 1, adc="SIS 3302", config_name="config01", return_info=True
         )
+        expected["shot average"] = expected.pop("shot average (software)")
+        expected["sample average"] = expected.pop("sample average (hardware)")
+        expected["board"] = 1
+        expected["channel"] = 1
+        expected["device group path"] = "/Raw data + config/SIS crate"
+        expected["device dataset path"] = f"{expected['device group path']}/{dset_name}"
+        expected["source file"] = os.path.abspath(self.f.filename)
+        expected["time_dset_path"] = None
+
         specs = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
         self.assertDictEqual(expected, specs)
 

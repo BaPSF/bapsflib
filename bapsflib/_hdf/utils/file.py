@@ -14,7 +14,9 @@ from __future__ import annotations
 
 __all__ = ["File"]
 
+import astropy.units as u
 import h5py
+import numpy as np
 import os
 import warnings
 
@@ -23,9 +25,10 @@ from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     # This is done for typing purposes only.
     # An actual import would cause cyclical imports.
+    from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
     from bapsflib._hdf.utils.hdfoverview import HDFOverview
     from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
     from bapsflib._hdf.utils.hdfreaddata import HDFReadData
@@ -221,27 +224,35 @@ class File(h5py.File):
         +---------------------------------+----------------------------------------+
         | Key                             | Description                            |
         +=================================+========================================+
-        | ``'board'``                     | Digitizer board number.                |
+        | ``"board"``                     | Digitizer board number.                |
         +---------------------------------+----------------------------------------+
-        | ``'channel'``                   | Digitizer channel number.              |
+        | ``"channel"``                   | Digitizer channel number.              |
         +---------------------------------+----------------------------------------+
-        | ``'digitizer'``                 | Digitizer name.                        |
+        | ``"digitizer"``                 | Digitizer name.                        |
         +---------------------------------+----------------------------------------+
-        | ``'adc'``                       | Name of analog-digital-converter.      |
+        | ``"adc"``                       | Name of analog-digital-converter.      |
         +---------------------------------+----------------------------------------+
-        | ``'configuration name'``        | Name of digitizer configuration.       |
+        | ``"configuration name"``        | Name of digitizer configuration.       |
         +---------------------------------+----------------------------------------+
-        | ``'nshotnum'``                  | Num. of shot numbers in the data run.  |
+        | ``"nshotnum"``                  | Num. of shot numbers in the data run.  |
         +---------------------------------+----------------------------------------+
-        | ``'nt'``                        | Num. of time samples.                  |
+        | ``"nt"``                        | Num. of time samples.                  |
         +---------------------------------+----------------------------------------+
-        | ``'bit'``                       | Bit-ness of the digitizer.             |
+        | ``"bit"``                       | Bit-ness of the digitizer.             |
         +---------------------------------+----------------------------------------+
-        | ``'clock rate'``                | Digitizer clock rate                   |
+        | ``"clock rate"``                | Digitizer clock rate                   |
         +---------------------------------+----------------------------------------+
-        | ``'shot average (software)'``   | Num. of timeseries averaged together   |
+        | ``"shot average"``              | Num. of timeseries averaged together   |
         +---------------------------------+----------------------------------------+
-        | ``'sample average (hardware)'`` | Num. of time samples averaged together |
+        | ``"sample average"``            | Num. of time samples averaged together |
+        +---------------------------------+----------------------------------------+
+        | ``"device group path"``         | internal path to device group          |
+        +---------------------------------+----------------------------------------+
+        | ``"device dataset path"``       | internal path to digitizer dataset     |
+        +---------------------------------+----------------------------------------+
+        | ``"source file"``               | absolute path to HDF5 file             |
+        +---------------------------------+----------------------------------------+
+        | ``"time_dset_path"``            | internal path to time series dataset   |
         +---------------------------------+----------------------------------------+
 
         """
@@ -265,18 +276,150 @@ class File(h5py.File):
                 f"digitizers {list(self.digitizers.keys())}."
             )
         else:
-            digi_map = self.digitizers[digitizer]
+            digi_map = self.digitizers[digitizer]  # type: HDFMapDigiTemplate
 
         with warnings.catch_warnings():
             _filter = "ignore" if silent else "default"
             warnings.simplefilter(_filter, category=HDFMappingWarning)
-            _info = digi_map.get_adc_info(
+            name, _info = digi_map.construct_dataset_name(
                 board,
                 channel,
                 adc=adc,
                 config_name=config_name,
+                return_info=True,
             )  # type: Dict[str, Any]
+
+        _info["board"] = board
+        _info["channel"] = channel
+        _info["shot average"] = _info.pop("shot average (software)", None)
+        _info["sample average"] = _info.pop("sample average (hardware)", None)
+        _info["device group path"] = digi_map.group_path
+        _info["device dataset path"] = f"{digi_map.group_path}/{name}"
+        _info["source file"] = os.path.abspath(self.filename)
+
+        time_dset = _info.pop("time_dset_path", None)
+        if time_dset is not None:
+            time_dset = f"{digi_map.group_path}/{time_dset}"
+        _info["time_dset_path"] = time_dset
+
         return _info
+
+    def get_time_array(self, data_info: HDFReadData | Dict[str, Any]) -> np.ndarray:
+        """
+        Get the time `numpy` array associated with the ``data_info``
+        argument.
+
+        ``data_info`` can be an
+        `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` object obtained
+        using :meth:`read_data` or and information `dict` generated using
+        :meth:`get_digitizer_specs`.
+
+        Parameters
+        ----------
+        data_info : HDFReadData | Dict[str, Any]
+            An `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` object
+            instance or a dictionary containing the necessary time
+            meta-data.
+
+        Returns
+        -------
+        np.ndarray
+            A 1D `numpy` array containing the time series data.
+
+        Notes
+        -----
+
+        The method uses the meta-data contained in either the
+        information dictionary generated by :meth:`get_digitizer_specs`
+        or the `~bapsflib._hdf.utils.hdfreaddata.HDFReadData.info`
+        dictionary bound to
+        `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` (which is
+        generated by method :meth:`read_data`).
+
+        If the information dictionary contains the key ``"clock rate"``,
+        then the time array will be calculated using the ``"clock rate"``,
+        ``"nt"``, and ``"sample average"``.
+
+        If ``"clock rate"`` is `None`, then the it is assumed the time
+        series is stored in a dedicated dataset which is indicated by
+        the ``"time_dset_path"`` key.
+
+        Examples
+        --------
+
+        Retrieving the time series array AFTER reading out the digitizer
+        data::
+
+        >>> f = File("sample.hdf5")
+        >>> data = f.read_data(0, 1, silent=True)
+        >>> time_arr = f.get_time_array(data)
+
+        Retrieving the time series array BEFORE reading out the digitizer
+        data::
+
+        >>> f = File("sample.hdf5")
+        >>> _info = f.get_digitizer_specs(0, 1, silent=True)
+        >>> time_arr = f.get_time_array(_info)
+
+        """
+        # to avoid cyclical imports
+        from bapsflib._hdf.utils.hdfreaddata import HDFReadData
+
+        if isinstance(data_info, HDFReadData):
+            _info = data_info.info.copy()
+
+            if "nt" not in _info:
+                _info["nt"] = data_info["signal"].shape[1]
+        elif not isinstance(data_info, dict):
+            raise TypeError(
+                "Argument 'data_info' must be a HDFReadData or dict object.  "
+                "Pass in either data retrieved from `read_data()` or the "
+                "information dictionary generated by `get_digitizer_specs()`."
+            )
+        else:
+            _info = data_info
+
+        if "clock rate" not in _info and "time_dset_path" not in _info:
+            raise ValueError(
+                "The `data_info` argument does NOT contain information about "
+                "the digitizer clock rate or a dedicated time series dataset.  "
+                "Pass in either data retrieved from `read_data()` or the "
+                "information dictionary generated by `get_digitizer_specs()`."
+            )
+
+        # calculate time array based on clock rate and sample size (nt)
+        clock_rate = _info.get("clock rate", None)
+        if isinstance(clock_rate, u.Quantity):
+            if "sample average" in _info:
+                sample_average = _info["sample average"]
+            elif "sample average (hardware)" in _info:
+                sample_average = _info["sample average (hardware)"]
+            else:
+                sample_average = None
+            sample_average = 1.0 if sample_average is None else float(sample_average)
+
+            dt = (1 / clock_rate).to("s").value * sample_average
+            nt = _info["nt"]
+
+            time = np.arange(0, nt, 1, dtype=np.float32) * dt
+            return time
+
+        # look for a dedicate time array in the HDF5 file
+        time_dset_path = _info.get("time_dset_path", None)
+        if time_dset_path is None:
+            raise ValueError(
+                "Something went wrong.  The given data_info does NOT specify "
+                "a dedicated time dataset in the HDF5 file nor does it "
+                "contain clock rate information to generated a time array."
+            )
+
+        if time_dset_path not in self:
+            raise ValueError(
+                "The HDF5 file does NOT contain the time series dataset, "
+                f"{time_dset_path}."
+            )
+
+        return self[time_dset_path][...]
 
     def read_controls(
         self,

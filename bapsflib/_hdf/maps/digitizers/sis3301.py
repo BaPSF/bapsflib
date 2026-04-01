@@ -827,7 +827,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
                 # save adc settings for return if requested
                 if return_info:
-                    d_info = extras
+                    d_info = extras.copy()
                     d_info["adc"] = "SIS 3301"
                     d_info["configuration name"] = config_name
                     d_info["digitizer"] = self._info["group name"]

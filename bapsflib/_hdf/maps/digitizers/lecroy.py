@@ -502,7 +502,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
 
                 # save adc settings for return if requested
                 if return_info:
-                    d_info = extras
+                    d_info = extras.copy()
                     d_info["adc"] = "lecroy"
                     d_info["configuration name"] = config_name
                     d_info["digitizer"] = self._info["group name"]

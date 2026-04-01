@@ -9,6 +9,7 @@ This document lists the changes made for each release of `bapsflib`.
 .. toctree::
     :titlesonly:
 
+    dev
     2026.3.1
     2026.3.0
     2025.6.0

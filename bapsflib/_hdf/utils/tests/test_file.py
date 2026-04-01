@@ -12,6 +12,7 @@
 #   license terms and contributor agreement.
 #
 import h5py
+import numpy as np
 import os
 
 from unittest import mock
@@ -356,4 +357,26 @@ class TestFile(TestBase):
                 self.assertRaises(_raises),
             ):
                 _bf.get_time_array(data_info)
+
+    @with_bf
+    def test_get_time_array_with_clock_rate(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("SIS crate")
+
+        # re-map file
+        _bf._map_file()
+
+        nt = self.f.modules["SIS crate"].knobs.nt
+        dt = 1. / 100000000.
+        expected_time = np.arange(0, nt, 1, dtype=np.float32) * dt
+
+        cases = [
+            # (_with, data_info)
+            ("info dict", _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)),
+            ("HDFReadData", _bf.read_data(1, 1, index=0, adc="SIS 3302", silent=True)),
+        ]
+        for _with, data_info in cases:
+            with self.subTest(_with=_with):
+                time = _bf.get_time_array(data_info)
+                self.assertTrue(np.allclose(time, expected_time))
 

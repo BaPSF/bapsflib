@@ -740,7 +740,7 @@ class HDFReadData(np.ndarray):
             * - ``"device dataset path"``
               - `str`
               - internal HDF5 path to the data originating dataset
-            * - :const:``"digitizer"``
+            * - ``"digitizer"``
               - `str`
               - digitizer name
             * - ``"configuration name"``

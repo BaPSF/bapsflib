@@ -332,3 +332,28 @@ class TestFile(TestBase):
             digi_specs["time_dset_path"],
             "/Raw data + config/LeCroy_scope/time",
         )
+
+    @with_bf
+    def test_get_time_array_raises(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("LeCroy_scope")
+        self.f.add_module("SIS crate")
+
+        # re-map file
+        _bf._map_file()
+
+        cases = [
+            # (_raises, data_info)
+            (TypeError, "not a dict or HDFReadData"),
+            # 'clock rate' and 'time_dset_path' not defined correctly
+            (ValueError, {"missing": "keys 'clock rate' and 'time_dset_path'"}),
+            (ValueError, {"clock rate": None, "time_dset_path": None}),
+            (ValueError, {"clock rate": None, "time_dset_path": "path does not exist"}),
+        ]
+        for _raises, data_info in cases:
+            with (
+                self.subTest(_raises=_raises.__name__, data_info=data_info),
+                self.assertRaises(_raises),
+            ):
+                _bf.get_time_array(data_info)
+

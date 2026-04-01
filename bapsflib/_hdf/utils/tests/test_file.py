@@ -405,3 +405,22 @@ class TestFile(TestBase):
                 time = _bf.get_time_array(data_info)
                 self.assertTrue(np.allclose(time, expected_time))
 
+    @with_bf
+    def test_get_time_array_with_time_dset(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("LeCroy_scope")
+
+        # re-map file
+        _bf._map_file()
+
+        expected_time = self.f.modules["LeCroy_scope"]["time"][...]
+
+        cases = [
+            # (_with, data_info)
+            ("info dict", _bf.get_digitizer_specs(0, 1, silent=True)),
+            ("HDFReadData", _bf.read_data(0, 1, index=0, silent=True)),
+        ]
+        for _with, data_info in cases:
+            with self.subTest(_with=_with):
+                time = _bf.get_time_array(data_info)
+                self.assertTrue(np.allclose(time, expected_time))

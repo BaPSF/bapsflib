@@ -32,6 +32,20 @@
  * RTD Overrides
  */
 
+/* Margin-left indent */
+.rst-content .line-block {
+    margin-left: 0;
+}
+
+/* Remove excess margin at bottom of a tab code highlight */
+.rst-content div.code-tab div[class^="highlight"] {
+  margin-bottom: 1px
+}
+
+.rst-content div.nbsphinx-gallery a {
+  background-color: rgb(240, 240, 225)
+}
+
 /* override table width restrictions */
 @media screen and (min-width: 767px) {
 
@@ -67,12 +81,8 @@
     margin-bottom: 0 !important;
 }
 
+
 /* .highlight background color */
 div[class^="highlight"] {
     background: #eeffcc;
-}
-
-/* Margin-left indent */
-.rst-content .line-block {
-    margin-left: 0;
 }

@@ -1,3 +1,0 @@
-Moved and renamed the CSS override file,
-:file:`docs/_static/rtd_theme_overrides.css` ->
-:file:`docs/_static/css/overrides.css`.

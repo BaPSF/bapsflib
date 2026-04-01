@@ -1,4 +1,0 @@
-Moved Sphinx role definitions from the :confval:`rst_prolog`
-configuration variable to the ``setup()`` function using the
-`~sphinx.application.Sphinx` `~sphinx.application.Sphinx.add_role`
-method.

@@ -1,3 +1,0 @@
-Created the method :meth:`~bapsflib._hdf.utils.file.File.get_time_array`
-to generate or retrieve the time series data associated with a specified
-digitized signal.

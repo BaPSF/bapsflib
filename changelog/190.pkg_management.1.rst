@@ -1,2 +1,0 @@
-Made `nbsphinx`, `ipykernel`, and `matplotlib` documentation
-dependencies.

@@ -1,3 +1,0 @@
-Introduced the class attribute
-``HDFMapControlTemplate._EXPECTED_GROUP_NAME`` to define the expected /
-default group name associated with the control device being mapped.

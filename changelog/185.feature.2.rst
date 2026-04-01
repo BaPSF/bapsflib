@@ -1,7 +1,0 @@
-Introduced a scheme to allow the ``'shotnum'`` mapping configuration key,
-:attr:`~bapsflib._hdf.maps.digitizers.templates.HDFMapDigiTemplate.configs`,
-to contain a value of `None` for digitizers that do NOT record shot number
-information in their header datasets.  This also required updates to
-`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`,
-`~bapsflib._hdf.utils.helpers.build_shotnum_dset_relation`, and
-`~bapsflib._hdf.utils.helpers.condition_shotnum`.

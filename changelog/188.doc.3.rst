@@ -1,2 +1,0 @@
-Re-titled the sidebar section names to be **First Steps**,
-**Package Features**, **Developer Documentation**, and **All the Rest**.

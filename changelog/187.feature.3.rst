@@ -1,5 +1,0 @@
-Updated the mapping scheme of
-`~bapsflib._hdf.maps.controls.map_controls.HDFMapControls` so a group
-is identified based on matching the group name to either the identifying
-key in ``HDFMapControls._defined_mapping_classes`` or the
-``_EXPECTED_GROUP_NAME`` of a mapping class.

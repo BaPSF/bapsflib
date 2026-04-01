@@ -379,10 +379,26 @@ class TestFile(TestBase):
         dt = 1. / 100000000.
         expected_time = np.arange(0, nt, 1, dtype=np.float32) * dt
 
+        d_info1 = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
+
+        d_info2 = d_info1.copy()
+        d_info2["sample average (hardware)"] = d_info2.pop("sample average")
+
+        d_info3 = d_info1.copy()
+        d_info3.pop("sample average")
+
+        data1 = _bf.read_data(1, 1, index=0, adc="SIS 3302", silent=True)
+
+        data2 = _bf.read_data(1, 1, index=1, adc="SIS 3302", silent=True)
+        data2.info["nt"] = data2["signal"].shape[1]
+
         cases = [
             # (_with, data_info)
-            ("info dict", _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)),
-            ("HDFReadData", _bf.read_data(1, 1, index=0, adc="SIS 3302", silent=True)),
+            ("info dict", d_info1),
+            ("info dict with 'sample average (hardware)'", d_info2),
+            ("info dict with 'sample average' missing", d_info3),
+            ("HDFReadData", data1),
+            ("HDFReadData with 'nt' in infor", data2),
         ]
         for _with, data_info in cases:
             with self.subTest(_with=_with):

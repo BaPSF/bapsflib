@@ -25,7 +25,7 @@ from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
 from bapsflib._hdf.maps import HDFMapControls, HDFMapDigitizers, HDFMapMSI, HDFMapper
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
-if TYPE_CHECKING:
+if TYPE_CHECKING:  # pragma: no cover
     # This is done for typing purposes only.
     # An actual import would cause cyclical imports.
     from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate

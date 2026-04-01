@@ -398,7 +398,7 @@ class TestFile(TestBase):
             ("info dict with 'sample average (hardware)'", d_info2),
             ("info dict with 'sample average' missing", d_info3),
             ("HDFReadData", data1),
-            ("HDFReadData with 'nt' in infor", data2),
+            ("HDFReadData with 'nt' in info", data2),
         ]
         for _with, data_info in cases:
             with self.subTest(_with=_with):

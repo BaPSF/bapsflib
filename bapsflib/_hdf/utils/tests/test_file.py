@@ -376,7 +376,7 @@ class TestFile(TestBase):
         _bf._map_file()
 
         nt = self.f.modules["SIS crate"].knobs.nt
-        dt = 1. / 100000000.
+        dt = 1.0 / 100000000.0
         expected_time = np.arange(0, nt, 1, dtype=np.float32) * dt
 
         d_info1 = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)

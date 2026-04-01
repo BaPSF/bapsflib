@@ -1,3 +1,0 @@
-Removed `sphinx` extension `sphinx-hoverxref`, and replaced with the
-`Read the Docs addon "Link previews"
-<https://docs.readthedocs.com/platform/stable/link-previews.html>`_\ .

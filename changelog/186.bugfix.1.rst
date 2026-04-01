@@ -1,7 +1,0 @@
-.. py:currentmodule:: bapsflib._hdf
-
-Fixed bug where the information dictionary returned by
-:meth:`~.maps.digitizers.templates.HDFMapDigiTemplate.construct_dataset_name`
-could modify the
-:attr:`~.maps.digitizers.templates.HDFMapDigiTemplate.configs` dictionary
-if the information dictionary were to be modified.

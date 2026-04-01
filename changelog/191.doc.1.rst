@@ -1,1 +1,0 @@
-Set the documentation theme to ``plasmapy_theme``.

@@ -1,2 +1,0 @@
-Dropped the explicit use of the :rst:role:`py:obj`,  :rst:role:`py:mod`, and
-:rst:role:`py:class` roles in favor of just using single back-ticks.

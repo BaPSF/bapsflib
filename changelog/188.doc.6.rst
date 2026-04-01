@@ -1,2 +1,0 @@
-Removed documentation stub file
-:file:`api_static/bapsflib.lapd.ConType.rst`.

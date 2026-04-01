@@ -1,2 +1,0 @@
-Update :file:`.readthedocs.yml` so the Read the Docs documentation
-builds are done with Python 3.14.

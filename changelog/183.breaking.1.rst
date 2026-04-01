@@ -1,2 +1,0 @@
-Removed the `bapsflib.plasma` sub-module from the default `bapsflib`
-namespace.

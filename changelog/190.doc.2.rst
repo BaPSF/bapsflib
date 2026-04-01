@@ -1,3 +1,0 @@
-Created an example notebook for the `bapsflib.phys180e.File`
-functionality, and placed it in the "First Steps" section of the
-sidebar.

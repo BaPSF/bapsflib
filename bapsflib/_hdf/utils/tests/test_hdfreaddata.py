@@ -532,7 +532,7 @@ class TestHDFReadData(TestBase):
             self.assertTrue(
                 np.array_equal(data["signal"], dset[indices, ...].astype(np.float32))
             )
-            self.assertEqual(data.info["signal units"], u.bit)
+            self.assertEqual(data.info["signal units"], u.volt)
 
         # -- `keep_bits=True`                                       ----
         # default behavior
@@ -753,7 +753,7 @@ class TestHDFReadData(TestBase):
             )
             self.assertIsNone(data.info["voltage offset"])
             self.assertIsNone(data.dv)
-            self.assertEqual(data.info["signal units"], u.bit)
+            self.assertIsNone(data.info["signal units"])
             self.assertTrue(np.issubdtype(data.dtype["signal"].base, np.floating))
         del _bf[f"{dset_path} headers"]
         _bf.move(f"{dset_path} headers_", f"{dset_path} headers")

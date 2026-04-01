@@ -12,11 +12,13 @@
 #   license terms and contributor agreement.
 #
 import h5py
+import numpy as np
 import os
 
 from unittest import mock
 
 from bapsflib._hdf import HDFMapper
+from bapsflib._hdf.maps.digitizers.siscrate import HDFMapDigiSISCrate
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfoverview import HDFOverview
@@ -227,75 +229,76 @@ class TestFile(TestBase):
             self.assertTrue(mock_bi.called)
             _bf2.close()
 
-    def test_get_digitizer_specs_one_digi(self):
+    @with_bf
+    def test_get_digitizer_specs_one_digi(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         with mock.patch(
-            f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
-            return_value="mapped",
+            f"{HDFMapDigiSISCrate.__module__}."
+            f"{HDFMapDigiSISCrate.__qualname__}.construct_dataset_name",
+            return_value=("dset_name", {"dummy": "dict"}),
         ) as mock_map:
             _bf.get_digitizer_specs(1, 1, digitizer=None, adc="SIS 3302", silent=True)
             mock_map.assert_called_once()
 
-        _bf.close()
         self.f.reset()
 
-    def test_get_digitizer_specs_two_digi(self):
+    @with_bf
+    def test_get_digitizer_specs_two_digi(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS 3301")
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         with mock.patch(
-            f"{HDFMapDigiTemplate.__module__}.{HDFMapDigiTemplate.__qualname__}.get_adc_info",
-            return_value="mapped",
+            f"{HDFMapDigiSISCrate.__module__}."
+            f"{HDFMapDigiSISCrate.__qualname__}.construct_dataset_name",
+            return_value=("dset_name", {"dummy": "dict"}),
         ) as mock_map:
             _bf.get_digitizer_specs(
                 1, 1, digitizer="SIS crate", adc="SIS 3302", silent=True
             )
             mock_map.assert_called_once()
 
-        _bf.close()
         self.f.reset()
 
-    def test_get_digitizer_specs(self):
+    @with_bf
+    def test_get_digitizer_specs(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
 
-        expected = _bf.digitizers["SIS crate"].get_adc_info(
-            1, 1, adc="SIS 3302", config_name="config01"
+        # re-map file
+        _bf._map_file()
+
+        dset_name, expected = _bf.digitizers["SIS crate"].construct_dataset_name(
+            1, 1, adc="SIS 3302", config_name="config01", return_info=True
         )
+        expected["shot average"] = expected.pop("shot average (software)")
+        expected["sample average"] = expected.pop("sample average (hardware)")
+        expected["board"] = 1
+        expected["channel"] = 1
+        expected["device group path"] = "/Raw data + config/SIS crate"
+        expected["device dataset path"] = f"{expected['device group path']}/{dset_name}"
+        expected["source file"] = os.path.abspath(self.f.filename)
+        expected["time_dset_path"] = None
+
         specs = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
         self.assertDictEqual(expected, specs)
 
-    def test_get_digitizer_specs_raises(self):
+    @with_bf
+    def test_get_digitizer_specs_raises(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
         self.f.add_module("SIS 3301")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         _conditions = [
             # (error, args, kwargs)
@@ -310,22 +313,114 @@ class TestFile(TestBase):
             ):
                 _bf.get_digitizer_specs(*args, **kwargs)
 
-        _bf.close()
         self.f.reset()
 
     @with_bf
     def test_get_digitizer_specs_warnings(self, _bf: File):
         self.f.reset()
         self.f.add_module("SIS crate")
-        _bf = File(
-            self.f.filename,
-            control_path="Raw data + config",
-            digitizer_path="Raw data + config",
-            msi_path="MSI",
-        )
+
+        # re-map file
+        _bf._map_file()
 
         with self.assertWarns(HDFMappingWarning):
             _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=False)
 
-        _bf.close()
         self.f.reset()
+
+    @with_bf
+    def test_get_digitizer_specs_has_time_dset(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("LeCroy_scope")
+
+        # re-map file
+        _bf._map_file()
+
+        digi_specs = _bf.get_digitizer_specs(0, 1, silent=True)
+        self.assertIn("time_dset_path", digi_specs)
+        self.assertEqual(
+            digi_specs["time_dset_path"],
+            "/Raw data + config/LeCroy_scope/time",
+        )
+
+    @with_bf
+    def test_get_time_array_raises(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("LeCroy_scope")
+        self.f.add_module("SIS crate")
+
+        # re-map file
+        _bf._map_file()
+
+        cases = [
+            # (_raises, data_info)
+            (TypeError, "not a dict or HDFReadData"),
+            # 'clock rate' and 'time_dset_path' not defined correctly
+            (ValueError, {"missing": "keys 'clock rate' and 'time_dset_path'"}),
+            (ValueError, {"clock rate": None, "time_dset_path": None}),
+            (ValueError, {"clock rate": None, "time_dset_path": "path does not exist"}),
+        ]
+        for _raises, data_info in cases:
+            with (
+                self.subTest(_raises=_raises.__name__, data_info=data_info),
+                self.assertRaises(_raises),
+            ):
+                _bf.get_time_array(data_info)
+
+    @with_bf
+    def test_get_time_array_with_clock_rate(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("SIS crate")
+
+        # re-map file
+        _bf._map_file()
+
+        nt = self.f.modules["SIS crate"].knobs.nt
+        dt = 1.0 / 100000000.0
+        expected_time = np.arange(0, nt, 1, dtype=np.float32) * dt
+
+        d_info1 = _bf.get_digitizer_specs(1, 1, adc="SIS 3302", silent=True)
+
+        d_info2 = d_info1.copy()
+        d_info2["sample average (hardware)"] = d_info2.pop("sample average")
+
+        d_info3 = d_info1.copy()
+        d_info3.pop("sample average")
+
+        data1 = _bf.read_data(1, 1, index=0, adc="SIS 3302", silent=True)
+
+        data2 = _bf.read_data(1, 1, index=1, adc="SIS 3302", silent=True)
+        data2.info["nt"] = data2["signal"].shape[1]
+
+        cases = [
+            # (_with, data_info)
+            ("info dict", d_info1),
+            ("info dict with 'sample average (hardware)'", d_info2),
+            ("info dict with 'sample average' missing", d_info3),
+            ("HDFReadData", data1),
+            ("HDFReadData with 'nt' in info", data2),
+        ]
+        for _with, data_info in cases:
+            with self.subTest(_with=_with):
+                time = _bf.get_time_array(data_info)
+                self.assertTrue(np.allclose(time, expected_time))
+
+    @with_bf
+    def test_get_time_array_with_time_dset(self, _bf: File):
+        self.f.reset()
+        self.f.add_module("LeCroy_scope")
+
+        # re-map file
+        _bf._map_file()
+
+        expected_time = self.f.modules["LeCroy_scope"]["time"][...]
+
+        cases = [
+            # (_with, data_info)
+            ("info dict", _bf.get_digitizer_specs(0, 1, silent=True)),
+            ("HDFReadData", _bf.read_data(0, 1, index=0, silent=True)),
+        ]
+        for _with, data_info in cases:
+            with self.subTest(_with=_with):
+                time = _bf.get_time_array(data_info)
+                self.assertTrue(np.allclose(time, expected_time))

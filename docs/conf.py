@@ -187,6 +187,7 @@ exclude_patterns = [
     "common_links.rst",
     "**Untitled*",
     "notebooks/phys180e/sample_phys180E_axial_bdot.hdf5",
+    "**.hdf5",
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.

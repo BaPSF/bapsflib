@@ -171,16 +171,6 @@ class HDFReadData(np.ndarray):
         array([ -32. ,   15. , 1022.4], dtype=float32)
 
         """
-        # initialize timing
-        tt = []
-        if "timeit" in kwargs:  # pragma: no cover
-            timeit = kwargs["timeit"]
-            if timeit:
-                tt.append(time.time())
-            else:
-                timeit = False
-        else:
-            timeit = False
 
         # ---- Condition hdf_file                                   ----
         # - `hdf_file` is a lapd.File object
@@ -189,11 +179,6 @@ class HDFReadData(np.ndarray):
             raise TypeError(
                 f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
             )
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - `hdf_file` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Examine file map object                              ----
         # grab instance of `HDFMapper`
@@ -273,11 +258,6 @@ class HDFReadData(np.ndarray):
         # define `shotnumkey`
         shotnum_config = _dmap.configs[config_name]["shotnum"]
         shotnumkey = None if shotnum_config is None else shotnum_config["dset field"][0]
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - get dset and dheader: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition shots, index, and shotnum ----
         # index   -- row index of digitizer dataset
@@ -383,10 +363,6 @@ class HDFReadData(np.ndarray):
             # define sni
             sni = np.ones(shotnum.shape[0], dtype=bool)
 
-            # print execution timing
-            if timeit:  # pragma: no cover
-                tt.append(time.time())
-                print(f"tt - condition index: {(tt[-1] - tt[-2]) * 1.0e3} ms")
         else:
             # perform `shotnum` conditioning
             # - `shotnum` is returned as a numpy array
@@ -412,11 +388,6 @@ class HDFReadData(np.ndarray):
                 sni = sni_dict["digi"]["signal"]
                 index = index_dict["digi"]["signal"]
 
-            # print execution timing
-            if timeit:  # pragma: no cover
-                tt.append(time.time())
-                print(f"tt - condition shotnum: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
         # ---- Retrieve Control Data                                ----
         # 1. retrieve the numpy array for control data
         # 2. re-filter shotnum if intersection_set=True s.t. only
@@ -435,13 +406,6 @@ class HDFReadData(np.ndarray):
                 shotnum=shotnum,
                 intersection_set=intersection_set,
             )
-
-            # print execution timing
-            if timeit:  # pragma: no cover
-                tt.append(time.time())
-                print(
-                    f"tt - read in cdata (control data): {(tt[-1] - tt[-2]) * 1.0e3} ms"
-                )
 
             # re-filter index, shotnum, and sni
             # - only need to be filtered if intersection_set=True
@@ -474,18 +438,8 @@ class HDFReadData(np.ndarray):
                 if subdtype[0] not in [d[0] for d in dtype]:
                     dtype.append(subdtype)
 
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - define dtype: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
         # Initialize data array
         data = np.empty(shape, dtype=dtype)
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - initialize data np.ndarray: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # fill 'shotnum' field of data array
         data["shotnum"] = shotnum
@@ -526,11 +480,6 @@ class HDFReadData(np.ndarray):
         else:
             # fill xyz
             data["xyz"] = np.nan
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - fill data array: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # Define obj to be returned
         obj = data.view(cls)
@@ -625,11 +574,6 @@ class HDFReadData(np.ndarray):
 
                 # update 'signal units'
                 obj._info["signal units"] = u.volt
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - execution time: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # return obj
         return obj

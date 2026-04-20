@@ -34,6 +34,23 @@ def _condition_hdf_file(hdf_file: File):
     return hdf_file
 
 
+def _condition_add_controls(hdf_file: File, add_controls):
+
+    _map = hdf_file.file_map
+
+    # Check for non-empty controls
+    if bool(add_controls) and not bool(_map.controls):
+        raise ValueError("There are no control devices in the HDF5 file.")
+
+    # condition controls
+    if bool(add_controls):
+        controls = condition_controls(hdf_file, add_controls)
+    else:
+        controls = []
+
+    return controls
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -182,6 +199,7 @@ class HDFReadData(np.ndarray):
 
         # Condition arguments
         hdf_file = _condition_hdf_file(hdf_file)
+        controls = _condition_add_controls(hdf_file, add_controls)
 
         # ---- Examine file map object                              ----
         # grab instance of `HDFMapper`

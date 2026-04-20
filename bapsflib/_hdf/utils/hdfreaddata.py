@@ -26,6 +26,8 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
 def _condition_hdf_file(hdf_file: File):
+    # Condition the `hdf_file` argument for HDFReadData
+    #
     if not isinstance(hdf_file, File):
         raise TypeError(
             f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
@@ -35,7 +37,8 @@ def _condition_hdf_file(hdf_file: File):
 
 
 def _condition_add_controls(hdf_file: File, add_controls):
-
+    # Condition the `add_controls` agrument for HDFReadData.
+    #
     _map = hdf_file.file_map
 
     # Check for non-empty controls

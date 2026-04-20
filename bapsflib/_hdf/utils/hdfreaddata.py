@@ -25,7 +25,6 @@ from bapsflib._hdf.utils.helpers import (
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
-# noinspection PyInitNewSignature
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control

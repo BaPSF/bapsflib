@@ -25,6 +25,15 @@ from bapsflib._hdf.utils.helpers import (
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 
+def _condition_hdf_file(hdf_file: File):
+    if not isinstance(hdf_file, File):
+        raise TypeError(
+            f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
+        )
+
+    return hdf_file
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -171,33 +180,12 @@ class HDFReadData(np.ndarray):
 
         """
 
-        # ---- Condition hdf_file                                   ----
-        # - `hdf_file` is a lapd.File object
-        #
-        if not isinstance(hdf_file, File):
-            raise TypeError(
-                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
-            )
+        # Condition arguments
+        hdf_file = _condition_hdf_file(hdf_file)
 
         # ---- Examine file map object                              ----
         # grab instance of `HDFMapper`
         _fmap = hdf_file.file_map
-
-        # ---- Condition `add_controls`                             ----
-        # Check for non-empty controls
-        if bool(add_controls) and not bool(_fmap.controls):
-            raise ValueError("There are no control devices in the HDF5 file.")
-
-        # condition controls
-        if bool(add_controls):
-            controls = condition_controls(hdf_file, add_controls)
-        else:
-            controls = []
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - `add_controls` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
 
         # ---- Condition `digitizer` keyword                        ----
         if not bool(_fmap.digitizers):

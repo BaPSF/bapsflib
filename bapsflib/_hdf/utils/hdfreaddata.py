@@ -54,6 +54,38 @@ def _condition_add_controls(hdf_file: File, add_controls):
     return controls
 
 
+def _condition_digitizer(hdf_file: File, digitizer):
+    # Condition the `digitizer` agrument for HDFReadData.
+    #
+    _map = hdf_file.file_map
+
+    if not bool(_map.digitizers):
+        raise ValueError("There are no digitizers in the HDF5 file.")
+    elif digitizer is None:
+        if not bool(_map.main_digitizer):
+            raise ValueError(
+                "No main digitizer is identified...need to specify the "
+                "`digitizer` keyword argument."
+            )
+
+        warn(
+            f"Digitizer not specified so assuming the 'main_digitizer' "
+            f"({_map.main_digitizer.device_name}) defined in the mappings.",
+            BaPSFWarning,
+        )
+        _dmap = _map.main_digitizer
+    else:
+        try:
+            _dmap = _map.digitizers[digitizer]
+        except KeyError:
+            raise ValueError(
+                f"Specified Digitizer '{digitizer}' is not among known "
+                f"digitizers ({list(_map.digitizers)})"
+            )
+
+    return _dmap
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -203,35 +235,8 @@ class HDFReadData(np.ndarray):
         # Condition arguments
         hdf_file = _condition_hdf_file(hdf_file)
         controls = _condition_add_controls(hdf_file, add_controls)
-
-        # ---- Examine file map object                              ----
-        # grab instance of `HDFMapper`
+        _dmap = _condition_digitizer(hdf_file, digitizer)
         _fmap = hdf_file.file_map
-
-        # ---- Condition `digitizer` keyword                        ----
-        if not bool(_fmap.digitizers):
-            raise ValueError("There are no digitizers in the HDF5 file.")
-        elif digitizer is None:
-            if not bool(_fmap.main_digitizer):
-                raise ValueError(
-                    "No main digitizer is identified..."
-                    "need to specify `digitizer` kwarg"
-                )
-
-            why = (
-                f"Digitizer not specified so assuming the 'main_digitizer' "
-                f"({_fmap.main_digitizer.device_name}) defined in the mappings."
-            )
-            warn(why, BaPSFWarning)
-            _dmap = _fmap.main_digitizer
-        else:
-            try:
-                _dmap = _fmap.digitizers[digitizer]
-            except KeyError:
-                raise ValueError(
-                    f"Specified Digitizer '{digitizer}' is not among known "
-                    f"digitizers ({list(_fmap.digitizers)})"
-                )
 
         # ---- Gather Digi Dataset Info                             ----
         #

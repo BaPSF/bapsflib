@@ -489,6 +489,53 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         return adc_info
 
+    def validate_config_name(self, config_name: str | None):
+        """
+        Validate the specified ``config_name`` to determine if it is
+        present and active in the digitizer acquisition.  If `None` and
+        there is only one active configuration, then the active
+        configuration name will be returned.
+
+        Parameters
+        ----------
+        config_name : `str` or None
+            The ``config_name`` to be validated.  If `None` and only
+            one active configuration is present, then the active
+            configuration name will be assumed.
+
+        Return
+        ------
+        config_name
+            A validated, and active, configuration name.
+        """
+        _active_configs = self.active_configs
+
+        # Condition config_name
+        # - if config_name is not specified then the 'active' config
+        #   is sought out
+        if config_name is None:
+            if len(_active_configs) == 1:
+                config_name = _active_configs[0]
+                warn(
+                    f"`config_name` not specified, assuming '{config_name}'.",
+                    HDFMappingWarning,
+                )
+            elif len(_active_configs) > 1:
+                raise ValueError(
+                    "There are multiple active digitizer "
+                    "configurations...`config_name` kwarg must be "
+                    "specified."
+                )
+            else:
+                raise ValueError("No active digitizer configuration detected.")
+        elif config_name not in _active_configs:
+            raise ValueError(
+                f"Invalid `config_name` given.  Valid `config_name` values "
+                f"are {_active_configs}."
+            )
+
+        return config_name
+
 
 HDFMapDigiTemplate.configs.__doc__ = (
     getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapDigiTemplate.configs)

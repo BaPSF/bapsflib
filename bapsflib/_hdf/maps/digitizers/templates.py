@@ -536,6 +536,63 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         return config_name
 
+    def validate_config_name_and_adc(self, config_name: str | None, adc: str | None):
+        """
+        Validate the specified ``config_name`` and ``adc`` name to
+        determine if the set is present and active in the digitizer
+        acquisition.
+
+        If ``config_name`` is `None` and there is only one active
+        configuration, then the single active configuration will be
+        assumed.
+
+        If ``adc`` is `None` and the active configuration only has one
+        operable analog-digital-converter, then the single adc will be
+        assumed.
+
+        Parameters
+        ----------
+        config_name : `str` or None
+            The ``config_name`` to be validated.  If `None` and only
+            one active configuration is present, then the active
+            configuration name will be assumed.
+
+        adc : `str` or None
+            The ``adc`` to be validated.  If `None` and only one
+            operable analog-digital-converter present, then the single
+            adc will be assumed.
+
+        Return
+        ------
+        config_name
+            A validated, and active, configuration name.
+
+        adc
+            A validated, and active, analog-digital-converter name.
+        """
+        config_name = self.validate_config_name(config_name)
+
+        if adc is None and len(self.configs[config_name]["adc"]) == 1:
+            adc = self.configs[config_name]["adc"][0]
+            warn(
+                f"No `adc` specified, but only one adc used..."
+                f"assuming adc '{adc}'",
+                HDFMappingWarning,
+            )
+        elif adc is None:
+            raise ValueError(
+                f"Specify a desired `adc` to be validated.  The '{config_name}' "
+                f"configuration has multiple adcs, "
+                f"{tuple(self.configs[config_name]['adc'])}."
+            )
+        elif adc not in self._configs[config_name]["adc"]:
+            raise ValueError(
+                f"Specified adc ({adc}) is not in specified configuration "
+                f"({config_name})."
+            )
+
+        return config_name, adc
+
 
 HDFMapDigiTemplate.configs.__doc__ = (
     getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapDigiTemplate.configs)

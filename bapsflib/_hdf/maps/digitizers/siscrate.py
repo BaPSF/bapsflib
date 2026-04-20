@@ -953,33 +953,24 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
-        config_name = self.validate_config_name(config_name)
-
+        #
         # Condition adc
         # - if adc is not specified then the slow adc '3302' is assumed
         #   or, if 3305 is the only active adc, then it is assumed
         # - self.__config_crates() always adds 'SIS 3302' first. If
         #   '3302' is not active then the list will only contain '3305'.
-        if adc is None:
-            if len(self.configs[config_name]["adc"]) == 1:
-                adc = self.configs[config_name]["adc"][0]
-                warn(
-                    f"No `adc` specified, but only one adc used..."
-                    f"assuming adc '{adc}'",
-                    HDFMappingWarning,
-                )
-            else:
-                # there should never be a case where there are NO active
-                # adc's, this covers the case where there is MULTIPLE
-                # adc's
-                #
+        try:
+            config_name, adc = self.validate_config_name_and_adc(config_name, adc)
+        except ValueError:
+            if adc is not None:
+                raise
+
+            if adc is None:
+                # let's assume there is only one active adc 'SIS 3302' and
+                # try again
                 adc = "SIS 3302"
+                config_name, adc = self.validate_config_name_and_adc(config_name, adc)
                 warn("No `adc` specified...assuming adc 'SIS 3302'", HDFMappingWarning)
-        elif adc not in self._configs[config_name]["adc"]:
-            raise ValueError(
-                f"Specified adc ({adc}) is not in specified configuration "
-                f"({config_name})."
-            )
 
         # search if (board, channel) combo is connected
         bc_valid = False

@@ -786,17 +786,10 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 'shot average (software)': int,
             }
         """
-        # Condition config_name
+        # Condition config_name and adc
         # - if config_name is not specified then the 'active' config
         #   is sought out
-        config_name = self.validate_config_name(config_name)
-
-        # Condition adc keyword
-        if adc != "SIS 3301":
-            raise ValueError(
-                f"Specified adc ({adc}) is not in specified configuration "
-                f"({config_name})."
-            )
+        config_name, adc = self.validate_config_name_and_adc(config_name, adc)
 
         # search if (board, channel) combo is connected
         bc_valid = False

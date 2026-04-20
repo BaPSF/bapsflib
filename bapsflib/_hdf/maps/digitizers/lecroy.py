@@ -461,13 +461,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
         # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
-        if config_name is None:
-            config_name = "lecroy"
-        elif config_name != "lecroy":
-            raise ValueError(
-                f"The only valid `config_name` value is 'lecroy'.  Use 'lecroy' "
-                f"or omit optional keyword argument 'config_name'."
-            )
+        config_name = self.validate_config_name(config_name)
 
         # Condition adc keyword
         if adc is None:

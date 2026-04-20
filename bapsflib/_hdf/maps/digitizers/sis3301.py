@@ -789,26 +789,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         # Condition config_name
         # - if config_name is not specified then the 'active' config
         #   is sought out
-        if config_name is None:
-            if len(self.active_configs) == 1:
-                config_name = self.active_configs[0]
-                warn(
-                    f"`config_name` not specified, assuming '{config_name}'.",
-                    HDFMappingWarning,
-                )
-            elif len(self.active_configs) > 1:
-                raise ValueError(
-                    "There are multiple active digitizer "
-                    "configurations...`config_name` kwarg must be "
-                    "specified."
-                )
-            else:
-                raise ValueError("No active digitizer configuration detected.")
-        elif config_name not in self._configs:
-            # config_name must be a known configuration
-            raise ValueError("Invalid `config_name` given.")
-        elif self._configs[config_name]["active"] is False:
-            raise ValueError("Specified configuration name `config_name` is not active.")
+        config_name = self.validate_config_name(config_name)
 
         # Condition adc keyword
         if adc != "SIS 3301":

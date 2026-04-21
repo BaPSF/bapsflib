@@ -13,7 +13,7 @@ import numpy as np
 import os
 import time
 
-from typing import Tuple, TYPE_CHECKING
+from typing import Any, List, Tuple, TYPE_CHECKING
 from warnings import warn
 
 from bapsflib._hdf.utils.file import File
@@ -33,7 +33,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 
-def _condition_hdf_file(hdf_file: File):
+def _condition_hdf_file(hdf_file: File) -> File:
     # Condition the `hdf_file` argument for HDFReadData
     #
     if not isinstance(hdf_file, File):
@@ -42,7 +42,10 @@ def _condition_hdf_file(hdf_file: File):
     return hdf_file
 
 
-def _condition_add_controls(hdf_file: File, add_controls):
+def _condition_add_controls(
+    hdf_file: File,
+    add_controls: Any,
+) -> List[Tuple[str, Any]]:
     # Condition the `add_controls` argument for HDFReadData.
     #
     _map = hdf_file.file_map
@@ -135,7 +138,7 @@ def _generate_shotnum_sni_index(
     dheader: h5py.Dataset,
     shotnumkey: str | None,
     intersection_set: bool,
-):
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     # Build the sni, index, and shotnum arrays such that
     #
     #   shotnum[sni] = dheader[index, shotnumkey]

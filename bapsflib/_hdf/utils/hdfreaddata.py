@@ -436,16 +436,7 @@ class HDFReadData(np.ndarray):
             intersection_set=intersection_set,
         )
 
-        # ---- Retrieve Control Data                                ----
-        # 1. retrieve the numpy array for control data
-        # 2. re-filter shotnum if intersection_set=True s.t. only
-        #    shotnum's w/ control data are returned
-        #
-        # grab control device dataset
-        #
-        # - this will ensure cdata.shape == data.shape all the time
-        # - shotnum should always be a ndarray at this point
-        #
+        # Read control data
         if len(controls) != 0:
             cdata = HDFReadControls(
                 hdf_file,
@@ -468,12 +459,7 @@ class HDFReadData(np.ndarray):
         else:
             cdata = None
 
-        # ---- Build `obj`                                          ----
         # Define dtype and shape
-        # - 1st column of the digi data header contains the global HDF5
-        #   file shot number
-        # - shotkey = is the field name/key of the dheader shot number
-        #   column
         sigtype = np.float32 if not keep_bits else dset.dtype
         shape = shotnum.shape
         dtype = [
@@ -489,10 +475,10 @@ class HDFReadData(np.ndarray):
         # Initialize data array
         data = np.empty(shape, dtype=dtype)
 
-        # fill 'shotnum' field of data array
+        # Populate "shotnum"
         data["shotnum"] = shotnum
 
-        # fill 'signal' fields of data array
+        # Populate "signal"
         index = index.tolist()
         if intersection_set:
             # fill signal
@@ -506,7 +492,7 @@ class HDFReadData(np.ndarray):
                 # dtype is np.floating
                 data["signal"][np.logical_not(sni)] = np.nan
 
-        # fill fields related to controls
+        # Populate fields related to controls (e.g. "xyz")
         if len(controls) != 0:
             # Note: shot numbers of cdata and data are one-to-one
             #       by this point so intersection_set is irrelevant

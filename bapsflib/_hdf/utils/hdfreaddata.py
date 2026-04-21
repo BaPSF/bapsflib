@@ -11,7 +11,7 @@ import numpy as np
 import os
 import time
 
-from typing import Union, TYPE_CHECKING, Tuple
+from typing import TYPE_CHECKING, Tuple
 from warnings import warn
 
 from bapsflib._hdf.utils.file import File
@@ -327,14 +327,16 @@ class HDFReadData(np.ndarray):
         channel : `int`
             analog-digital-converter channel number
 
-        index : Union[int, List[int], slice, numpy.ndarray], optional
+        index : int | List[int] | slice | numpy.ndarray, optional
             dataset row indices to be sliced. Overridden by argument
             ``shotnum``. (DEFAULT ``slice(None)``)
 
-        shotnum : Union[int, List[int], slice, numpy.ndarray], optional
+        shotnum : int | List[int] | slice | numpy.ndarray, optional
             HDF5 file shot number(s) indicating data entries to be
             extracted.  Overrides argument ``index``.  (DEFAULT
             ``slice(None)``)
+
+        time_slice : slice
 
         digitizer : `str`, optional
             name of the digitizer
@@ -349,7 +351,7 @@ class HDFReadData(np.ndarray):
             set `True` to keep data in bits, `False` (DEFAULT) to
             convert data to voltage
 
-        add_controls : Union[str, Iterable[str, Tuple[str, Any]]], optional
+        add_controls : str | Iterable[str, Tuple[str, Any]], optional
             a list indicating the desired control device names and their
             configuration name (if more than one configuration exists)
 
@@ -785,7 +787,7 @@ class HDFReadData(np.ndarray):
         return self._info
 
     @property
-    def dt(self) -> Union[u.Quantity, None]:
+    def dt(self) -> u.Quantity | None:
         r"""
         Temporal step size (in sec) calculated from the ``'clock rate'``
         and ``'sample average'`` items in :attr:`info`.  Returns `None`
@@ -809,7 +811,7 @@ class HDFReadData(np.ndarray):
         return dt
 
     @property
-    def dv(self) -> Union[u.Quantity, None]:
+    def dv(self) -> u.Quantity | None:
         """
         Voltage step size (in volts) calculated from the ``'bit'`` and
         ``'voltage offset'`` items in :attr:`info`.  Returns `None` if

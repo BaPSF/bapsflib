@@ -37,9 +37,7 @@ def _condition_hdf_file(hdf_file: File):
     # Condition the `hdf_file` argument for HDFReadData
     #
     if not isinstance(hdf_file, File):
-        raise TypeError(
-            f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
-        )
+        raise TypeError(f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`")
 
     return hdf_file
 
@@ -105,9 +103,7 @@ def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice,
 
     step = time_slice.step
     if step is not None and step <= 0:
-        raise ValueError(
-            f"Argument `time_slice` must have a positive step, got {step}."
-        )
+        raise ValueError(f"Argument `time_slice` must have a positive step, got {step}.")
 
     start, stop, step = time_slice.indices(dset.shape[1])
     if start is None or stop is None:
@@ -127,19 +123,18 @@ def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice,
     ntime = len(range(*time_slice.indices(dset.shape[1])))
     if ntime == 0:
         raise ValueError(
-            f"Argument `time_slice` ({time_slice}) will result in a "
-            f"NULL array."
+            f"Argument `time_slice` ({time_slice}) will result in a " f"NULL array."
         )
 
     return slice(start, stop, step), ntime
 
 
 def _generate_shotnum_sni_index(
-        shotnum,
-        index,
-        dheader: h5py.Dataset,
-        shotnumkey: str | None,
-        intersection_set: bool,
+    shotnum,
+    index,
+    dheader: h5py.Dataset,
+    shotnumkey: str | None,
+    intersection_set: bool,
 ):
     # Build the sni, index, and shotnum arrays such that
     #
@@ -192,9 +187,8 @@ def _generate_shotnum_sni_index(
     #
     # Determine if indexing w.r.t. `index` or `shotnum`
     index_with = "index"
-    if (
-        (isinstance(index, slice) and index == slice(None))
-        and (not isinstance(shotnum, slice) or shotnum != slice(None))
+    if (isinstance(index, slice) and index == slice(None)) and (
+        not isinstance(shotnum, slice) or shotnum != slice(None)
     ):
         index_with = "shotnum"
 

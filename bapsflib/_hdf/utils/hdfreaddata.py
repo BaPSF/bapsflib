@@ -253,23 +253,19 @@ class HDFReadData(np.ndarray):
         # Note: _dmap.construct_dataset_name has conditioning for
         #       board and channel
         #
-        # dname      - digitizer dataset name
-        # dhname     - digitizer header dataset name
-        # dpath      - full path to digitizer group
-        # dset       - digitizer h5py.Dataset object
-        # dheader    - dset associated header dataset
-        # shotnumkey - field name for shot number column in dheader
-        #
-        # Build kwargs for construct_dataset_name()
-        kwargs = {"return_info": True}
-        if config_name is not None:
-            kwargs["config_name"] = config_name
-        if adc is not None:
-            kwargs["adc"] = adc
-
-        # Get datasets
-        dname, d_info = _dmap.construct_dataset_name(board, channel, **kwargs)
-        dhname = _dmap.construct_header_dataset_name(board, channel, **kwargs)
+        dname, d_info = _dmap.construct_dataset_name(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+            return_info=True,
+        )
+        dhname = _dmap.construct_header_dataset_name(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+        )
         dpath = f"{_dmap.info['group path']}/"
 
         # get datasets

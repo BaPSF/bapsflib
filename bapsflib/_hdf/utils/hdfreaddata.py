@@ -43,7 +43,7 @@ def _condition_hdf_file(hdf_file: File):
 
 
 def _condition_add_controls(hdf_file: File, add_controls):
-    # Condition the `add_controls` agrument for HDFReadData.
+    # Condition the `add_controls` argument for HDFReadData.
     #
     _map = hdf_file.file_map
 
@@ -61,7 +61,7 @@ def _condition_add_controls(hdf_file: File, add_controls):
 
 
 def _condition_digitizer(hdf_file: File, digitizer) -> HDFMapDigiTemplate:
-    # Condition the `digitizer` agrument for HDFReadData.
+    # Condition the `digitizer` argument for HDFReadData.
     #
     _map = hdf_file.file_map
 
@@ -110,7 +110,7 @@ def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice,
         pass
     elif stop == start:
         raise ValueError(
-            f"Arguement `time_slice` must have differing start and stop "
+            f"Argument `time_slice` must have differing start and stop "
             f"indices, otherwise the returned data will be NULL.  "
             f"start = stop = {start}"
         )

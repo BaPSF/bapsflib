@@ -26,6 +26,7 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 if TYPE_CHECKING:  # pragma: no cover
     # This is done for typing purposes only.  A full import is not needed.
+    import h5py
     from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 

@@ -242,6 +242,7 @@ class HDFReadData(np.ndarray):
         controls = _condition_add_controls(hdf_file, add_controls)
         _dmap = _condition_digitizer(hdf_file, digitizer)
         _fmap = hdf_file.file_map
+        config_name, adc = _dmap.validate_config_name_and_adc(config_name, adc)
 
         # ---- Gather Digi Dataset Info                             ----
         #
@@ -268,10 +269,6 @@ class HDFReadData(np.ndarray):
         dpath = f"{_dmap.info['group path']}/"
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
-
-        # define `config_name`
-        if config_name is None:
-            config_name = _dmap.active_configs[0]
 
         # define `shotnumkey`
         shotnum_config = _dmap.configs[config_name]["shotnum"]

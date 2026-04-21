@@ -13,7 +13,7 @@ import numpy as np
 import os
 import time
 
-from typing import TYPE_CHECKING, Tuple
+from typing import Tuple, TYPE_CHECKING
 from warnings import warn
 
 from bapsflib._hdf.utils.file import File
@@ -29,6 +29,7 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 if TYPE_CHECKING:  # pragma: no cover
     # This is done for typing purposes only.  A full import is not needed.
     import h5py
+
     from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 

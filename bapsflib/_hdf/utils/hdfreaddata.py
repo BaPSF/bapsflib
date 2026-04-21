@@ -91,6 +91,146 @@ def _condition_digitizer(hdf_file: File, digitizer) -> HDFMapDigiTemplate:
     return _dmap
 
 
+def _generate_shotnum_sni_index(
+        shotnum,
+        index,
+        dheader: h5py.Dataset,
+        shotnumkey: str | None,
+        intersection_set: bool,
+):
+    # Build the sni, index, and shotnum arrays such that
+    #
+    #   shotnum[sni] = dheader[index, shotnumkey]
+    #
+    # index   -- row index of digitizer dataset
+    #            ~ indexed at 0
+    #            ~ supersedes any other indexing keywords
+    # shotnum -- global HDF5 file shot number
+    #            ~ this is the index used to link values between datasets
+    #            ~ overridden by `index`
+    #
+    # Through conditioning the following are (re-)defined
+    # index   -- row index of digitizer dataset (dset)
+    #            ~ numpy.ndarray
+    #            ~ dtype = np.integer
+    #            ~ shape = (num_of_indices,)
+    #
+    # shotnum -- global HDF5 shot numbers
+    #            ~ index at 1
+    #            ~ will be a filtered version of input kwarg shotnum
+    #              based on intersection_set
+    #            ~ numpy.ndarray
+    #            ~ dtype = np.uint32
+    #            ~ shape = (sn_size, )
+    #
+    # sni     -- bool array for providing a one-to-one mapping
+    #            between shotnum and index
+    #            ~ shotnum[sni] = dheader[index, shotnumkey]
+    #            ~ data['signal'][sni, ...] = dset[index, ...]
+    #            ~ data['singal'][np.logical_not(sni), ...] = np.nan
+    #            ~ numpy.ndarray
+    #            ~ dtype = np.bool
+    #            ~ shape = (sn_size, )
+    #            ~ np.count_nonzero(arr[0,...]) = num_of_indices
+    #
+    # - Indexing behavior: (depends on intersection_set)
+    #
+    #   ~ intersection_set = True (DEFAULT)
+    #     * the returned array will only contain shot numbers that
+    #       are in the intersection of shotnum, the digitizer
+    #       dataset, and all the specified control device datasets
+    #
+    #   ~ intersection_set = False
+    #     * the returned array will contain all shot numbers
+    #       specified by shotnum (>= 1)
+    #     * if a dataset does not included a shot number contained
+    #       in shotnum, then its entry in the returned array will
+    #       be given a NULL value depending on the dtype
+    #
+    # Determine if indexing w.r.t. `index` or `shotnum`
+    index_with = "index"
+    if (
+        (isinstance(index, slice) and index == slice(None))
+        and (not isinstance(shotnum, slice) or shotnum != slice(None))
+    ):
+        index_with = "shotnum"
+
+    # Condition `index` and `shotnum` keywords
+    # - Valid indexing types are: int, list(int), slice(), and
+    #   np.ndarray
+    #
+    if index_with == "index":
+        # Condition `index` keyword
+        #
+        # Note: I'm letting the slicing of dset[index, shotnumkey]
+        #       throw the appropriate errors
+        #
+        # Define `shotnum`
+        # - Note: h5py datasets can NOT be sliced using numpy arrays
+        #
+        # convert `index` to np.ndarray
+        sn_size = dheader.size
+        if isinstance(index, int):
+            index = np.array([index], dtype=np.int32)
+        elif isinstance(index, list):
+            index = np.array(index, dtype=np.int32)
+        elif isinstance(index, slice):
+            start, stop, step = index.indices(sn_size)
+            index = np.arange(start, stop, step, dtype=np.int32)
+        elif isinstance(index, type(Ellipsis)):
+            index = np.arange(0, sn_size, 1, dtype=np.int32)
+        elif isinstance(index, np.ndarray):
+            pass
+        else:
+            raise TypeError("Valid `index` type not passed.")
+
+        # convert (VALID) negative indices to positive
+        neg_index_mask = np.where((index < 0) & (index >= -sn_size), True, False)
+        if np.any(neg_index_mask):
+            adj_ii = index[neg_index_mask] % sn_size
+            index[neg_index_mask] = adj_ii
+        index = np.unique(index)
+
+        # define `shotnum`
+        if shotnumkey is not None:
+            shotnum = dheader[index.tolist(), shotnumkey]
+        else:
+            # The header dataset for the associated digitizer does NOT
+            # contain shot number information.  Assume the shot number
+            # is the index value plus one
+            shotnum = index + 1
+
+        # define sni
+        sni = np.ones(shotnum.shape[0], dtype=bool)
+
+    else:
+        # perform `shotnum` conditioning
+        # - `shotnum` is returned as a numpy array
+        shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
+
+        # Calc. the corresponding `index` and `sni`
+        # - `shotnum` will be converted from list to np.array
+        # - `index` and `sni` will be np.array's
+        #
+        index, sni = build_shotnum_dset_relation(
+            shotnum=shotnum,
+            dset=dheader,
+            shotnumkey=shotnumkey,
+            n_configs=1,
+            config_column_value=None,
+        )
+
+        # perform intersection
+        if intersection_set:
+            shotnum, sni_dict, index_dict = do_shotnum_intersection(
+                shotnum, {"digi": {"signal": sni}}, {"digi": {"signal": index}}
+            )
+            sni = sni_dict["digi"]["signal"]
+            index = index_dict["digi"]["signal"]
+
+    return shotnum, sni, index
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -281,134 +421,20 @@ class HDFReadData(np.ndarray):
         shotnum_config = _dmap.configs[config_name]["shotnum"]
         shotnumkey = None if shotnum_config is None else shotnum_config["dset field"][0]
 
-        # ---- Condition shots, index, and shotnum ----
-        # index   -- row index of digitizer dataset
-        #            ~ indexed at 0
-        #            ~ supersedes any other indexing keywords
-        # shotnum -- global HDF5 file shot number
-        #            ~ this is the index used to link values between
-        #              datasets
-        #            ~ overridden by `index`
+        # Generate the shotnum, sni, and index arrays with only the
+        # digitizer datasets
         #
-        # Through conditioning the following are (re-)defined
-        # index   -- row index of digitizer dataset (dset)
-        #            ~ numpy.ndarray
-        #            ~ dtype = np.integer
-        #            ~ shape = (num_of_indices,)
+        # The generated arrays form the relation
         #
-        # shotnum -- global HDF5 shot numbers
-        #            ~ index at 1
-        #            ~ will be a filtered version of input kwarg shotnum
-        #              based on intersection_set
-        #            ~ numpy.ndarray
-        #            ~ dtype = np.uint32
-        #            ~ shape = (sn_size, )
+        #   shotnum[sni] = dheader[index, shotnumkey]
         #
-        # sni     -- bool array for providing a one-to-one mapping
-        #            between shotnum and index
-        #            ~ shotnum[sni] = dheader[index, shotnumkey]
-        #            ~ data['signal'][sni, ...] = dset[index, ...]
-        #            ~ data['singal'][np.logical_not(sni), ...] = np.nan
-        #            ~ numpy.ndarray
-        #            ~ dtype = np.bool
-        #            ~ shape = (sn_size, )
-        #            ~ np.count_nonzero(arr[0,...]) = num_of_indices
-        #
-        # - Indexing behavior: (depends on intersection_set)
-        #
-        #   ~ intersection_set = True (DEFAULT)
-        #     * the returned array will only contain shot numbers that
-        #       are in the intersection of shotnum, the digitizer
-        #       dataset, and all the specified control device datasets
-        #
-        #   ~ intersection_set = False
-        #     * the returned array will contain all shot numbers
-        #       specified by shotnum (>= 1)
-        #     * if a dataset does not included a shot number contained
-        #       in shotnum, then its entry in the returned array will
-        #       be given a NULL value depending on the dtype
-        #
-        # Determine if indexing w.r.t. `index` or `shotnum`
-        index_with = "index"
-        if isinstance(index, slice):
-            if index == slice(None):
-                if not isinstance(shotnum, slice):
-                    index_with = "shotnum"
-                elif shotnum != slice(None):
-                    index_with = "shotnum"
-
-        # Condition `index` and `shotnum` keywords
-        # - Valid indexing types are: int, list(int), slice(), and
-        #   np.ndarray
-        #
-        if index_with == "index":
-            # Condition `index` keyword
-            #
-            # Note: I'm letting the slicing of dset[index, shotnumkey]
-            #       throw the appropriate errors
-            #
-            # Define `shotnum`
-            # - Note: h5py datasets can NOT be sliced using numpy arrays
-            #
-            # convert `index` to np.ndarray
-            sn_size = dheader.size
-            if isinstance(index, int):
-                index = np.array([index], dtype=np.int32)
-            elif isinstance(index, list):
-                index = np.array(index, dtype=np.int32)
-            elif isinstance(index, slice):
-                start, stop, step = index.indices(sn_size)
-                index = np.arange(start, stop, step, dtype=np.int32)
-            elif isinstance(index, type(Ellipsis)):
-                index = np.arange(0, sn_size, 1, dtype=np.int32)
-            elif isinstance(index, np.ndarray):
-                pass
-            else:
-                raise TypeError("Valid `index` type not passed.")
-
-            # convert (VALID) negative indices to positive
-            neg_index_mask = np.where((index < 0) & (index >= -sn_size), True, False)
-            if np.any(neg_index_mask):
-                adj_ii = index[neg_index_mask] % sn_size
-                index[neg_index_mask] = adj_ii
-            index = np.unique(index)
-
-            # define `shotnum`
-            if shotnumkey is not None:
-                shotnum = dheader[index.tolist(), shotnumkey]
-            else:
-                # The header dataset for the associated digitizer does NOT
-                # contain shot number information.  Assume the shot number
-                # is the index value plus one
-                shotnum = index + 1
-
-            # define sni
-            sni = np.ones(shotnum.shape[0], dtype=bool)
-
-        else:
-            # perform `shotnum` conditioning
-            # - `shotnum` is returned as a numpy array
-            shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
-
-            # Calc. the corresponding `index` and `sni`
-            # - `shotnum` will be converted from list to np.array
-            # - `index` and `sni` will be np.array's
-            #
-            index, sni = build_shotnum_dset_relation(
-                shotnum=shotnum,
-                dset=dheader,
-                shotnumkey=shotnumkey,
-                n_configs=1,
-                config_column_value=None,
-            )
-
-            # perform intersection
-            if intersection_set:
-                shotnum, sni_dict, index_dict = do_shotnum_intersection(
-                    shotnum, {"digi": {"signal": sni}}, {"digi": {"signal": index}}
-                )
-                sni = sni_dict["digi"]["signal"]
-                index = index_dict["digi"]["signal"]
+        shotnum, sni, index = _generate_shotnum_sni_index(
+            shotnum=shotnum,
+            index=index,
+            dheader=dheader,
+            shotnumkey=shotnumkey,
+            intersection_set=intersection_set,
+        )
 
         # ---- Retrieve Control Data                                ----
         # 1. retrieve the numpy array for control data

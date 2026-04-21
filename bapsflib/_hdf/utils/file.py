@@ -525,6 +525,7 @@ class File(h5py.File):
         channel: int,
         index=slice(None),
         shotnum=slice(None),
+        time_slice: slice = slice(None),
         digitizer=None,
         adc=None,
         config_name=None,
@@ -552,6 +553,10 @@ class File(h5py.File):
 
         shotnum : int | list(int) | slice() | numpy.array, optional
             HDF5 global shot number
+
+        time_slice : slice
+            A `slice` object representing the time slice to be extraced
+            from the digitizer dataset.  (DEFAULT: ``slice(None)``)
 
         digitizer : `str`, optional
             name of digitizer
@@ -650,6 +655,7 @@ class File(h5py.File):
                 channel,
                 index=index,
                 shotnum=shotnum,
+                time_slice=time_slice,
                 digitizer=digitizer,
                 adc=adc,
                 config_name=config_name,

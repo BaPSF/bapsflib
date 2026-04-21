@@ -337,6 +337,8 @@ class HDFReadData(np.ndarray):
             ``slice(None)``)
 
         time_slice : slice
+            A `slice` object representing the time slice to be extraced
+            from the digitizer dataset.  (DEFAULT: ``slice(None)``)
 
         digitizer : `str`, optional
             name of the digitizer

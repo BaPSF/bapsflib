@@ -575,8 +575,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         if adc is None and len(self.configs[config_name]["adc"]) == 1:
             adc = self.configs[config_name]["adc"][0]
             warn(
-                f"No `adc` specified, but only one adc used..."
-                f"assuming adc '{adc}'",
+                f"No `adc` specified, but only one adc used...assuming adc '{adc}'",
                 HDFMappingWarning,
             )
         elif adc is None:

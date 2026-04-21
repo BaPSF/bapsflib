@@ -96,6 +96,8 @@ def _condition_digitizer(hdf_file: File, digitizer) -> HDFMapDigiTemplate:
 
 
 def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice, int]:
+    # Condition the `time_slice` argument for HDFReadData
+    #
     if not isinstance(time_slice, slice):
         raise TypeError(
             f"Argument `time_slice` must be a slice object, got type {type(time_slice)}."
@@ -143,52 +145,12 @@ def _generate_shotnum_sni_index(
     #
     #   shotnum[sni] = dheader[index, shotnumkey]
     #
-    # index   -- row index of digitizer dataset
-    #            ~ indexed at 0
-    #            ~ supersedes any other indexing keywords
-    # shotnum -- global HDF5 file shot number
-    #            ~ this is the index used to link values between datasets
-    #            ~ overridden by `index`
-    #
-    # Through conditioning the following are (re-)defined
-    # index   -- row index of digitizer dataset (dset)
-    #            ~ numpy.ndarray
-    #            ~ dtype = np.integer
-    #            ~ shape = (num_of_indices,)
-    #
-    # shotnum -- global HDF5 shot numbers
-    #            ~ index at 1
-    #            ~ will be a filtered version of input kwarg shotnum
-    #              based on intersection_set
-    #            ~ numpy.ndarray
-    #            ~ dtype = np.uint32
-    #            ~ shape = (sn_size, )
-    #
-    # sni     -- bool array for providing a one-to-one mapping
-    #            between shotnum and index
-    #            ~ shotnum[sni] = dheader[index, shotnumkey]
-    #            ~ data['signal'][sni, ...] = dset[index, ...]
-    #            ~ data['singal'][np.logical_not(sni), ...] = np.nan
-    #            ~ numpy.ndarray
-    #            ~ dtype = np.bool
-    #            ~ shape = (sn_size, )
-    #            ~ np.count_nonzero(arr[0,...]) = num_of_indices
-    #
-    # - Indexing behavior: (depends on intersection_set)
-    #
-    #   ~ intersection_set = True (DEFAULT)
-    #     * the returned array will only contain shot numbers that
-    #       are in the intersection of shotnum, the digitizer
-    #       dataset, and all the specified control device datasets
-    #
-    #   ~ intersection_set = False
-    #     * the returned array will contain all shot numbers
-    #       specified by shotnum (>= 1)
-    #     * if a dataset does not included a shot number contained
-    #       in shotnum, then its entry in the returned array will
-    #       be given a NULL value depending on the dtype
+    # - If dheader does NOT contain a shotnumkey column (i.e. shotnumkey is None),
+    #   then it is assumed shotnum = index + 1
     #
     # Determine if indexing w.r.t. `index` or `shotnum`
+    # - The shotnum arguments overrides the index argument
+    #
     index_with = "index"
     if (isinstance(index, slice) and index == slice(None)) and (
         not isinstance(shotnum, slice) or shotnum != slice(None)
@@ -196,8 +158,8 @@ def _generate_shotnum_sni_index(
         index_with = "shotnum"
 
     # Condition `index` and `shotnum` keywords
-    # - Valid indexing types are: int, list(int), slice(), and
-    #   np.ndarray
+    # - Valid indexing types for `index` or shotnum` are:
+    #     int, list(int), slice(), and np.ndarray
     #
     if index_with == "index":
         # Condition `index` keyword

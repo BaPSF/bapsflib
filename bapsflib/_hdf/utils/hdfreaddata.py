@@ -11,7 +11,7 @@ import numpy as np
 import os
 import time
 
-from typing import Union
+from typing import Union, TYPE_CHECKING
 from warnings import warn
 
 from bapsflib._hdf.utils.file import File
@@ -23,6 +23,10 @@ from bapsflib._hdf.utils.helpers import (
     do_shotnum_intersection,
 )
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
+
+if TYPE_CHECKING:  # pragma: no cover
+    # This is done for typing purposes only.  A full import is not needed.
+    from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
 
 def _condition_hdf_file(hdf_file: File):
@@ -54,7 +58,7 @@ def _condition_add_controls(hdf_file: File, add_controls):
     return controls
 
 
-def _condition_digitizer(hdf_file: File, digitizer):
+def _condition_digitizer(hdf_file: File, digitizer) -> HDFMapDigiTemplate:
     # Condition the `digitizer` agrument for HDFReadData.
     #
     _map = hdf_file.file_map

@@ -244,10 +244,14 @@ class HDFReadData(np.ndarray):
         _fmap = hdf_file.file_map
         config_name, adc = _dmap.validate_config_name_and_adc(config_name, adc)
 
-        # ---- Gather Digi Dataset Info                             ----
+        # construct dataset names and internal HDF5 paths
+        #
+        # dname : digitizer dataset name
+        # dhname : digitizer header dataset name
+        # dpath : full path to digitizer group
         #
         # Note: _dmap.construct_dataset_name has conditioning for
-        #       board, channel, adc, and
+        #       board and channel
         #
         # dname      - digitizer dataset name
         # dhname     - digitizer header dataset name
@@ -267,10 +271,17 @@ class HDFReadData(np.ndarray):
         dname, d_info = _dmap.construct_dataset_name(board, channel, **kwargs)
         dhname = _dmap.construct_header_dataset_name(board, channel, **kwargs)
         dpath = f"{_dmap.info['group path']}/"
+
+        # get datasets
+        #  dset : digitizer h5py.Dataset object
+        #  dheader : header dataset related to dset
+        #
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
 
         # define `shotnumkey`
+        # - field name for shot number column in dheader
+        #
         shotnum_config = _dmap.configs[config_name]["shotnum"]
         shotnumkey = None if shotnum_config is None else shotnum_config["dset field"][0]
 

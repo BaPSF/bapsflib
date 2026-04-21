@@ -11,7 +11,7 @@ import numpy as np
 import os
 import time
 
-from typing import Union, TYPE_CHECKING
+from typing import Union, TYPE_CHECKING, Tuple
 from warnings import warn
 
 from bapsflib._hdf.utils.file import File
@@ -89,6 +89,46 @@ def _condition_digitizer(hdf_file: File, digitizer) -> HDFMapDigiTemplate:
             )
 
     return _dmap
+
+
+def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice, int]:
+    if not isinstance(time_slice, slice):
+        raise TypeError(
+            f"Argument `time_slice` must be a slice object, got type {type(time_slice)}."
+        )
+
+    if time_slice == slice(None):
+        return time_slice, int(dset.shape[1])
+
+    step = time_slice.step
+    if step is not None and step <= 0:
+        raise ValueError(
+            f"Argument `time_slice` must have a positive step, got {step}."
+        )
+
+    start, stop, step = time_slice.indices(dset.shape[1])
+    if start is None or stop is None:
+        pass
+    elif stop == start:
+        raise ValueError(
+            f"Arguement `time_slice` must have differing start and stop "
+            f"indices, otherwise the returned data will be NULL.  "
+            f"start = stop = {start}"
+        )
+    elif stop < start:
+        raise ValueError(
+            f"Argument `time_slice` must have a starting index less than "
+            f"the stop index, but got start ({start}) > stop ({stop})."
+        )
+
+    ntime = len(range(*time_slice.indices(dset.shape[1])))
+    if ntime == 0:
+        raise ValueError(
+            f"Argument `time_slice` ({time_slice}) will result in a "
+            f"NULL array."
+        )
+
+    return slice(start, stop, step), ntime
 
 
 def _generate_shotnum_sni_index(
@@ -266,6 +306,7 @@ class HDFReadData(np.ndarray):
         channel: int,
         index=slice(None),
         shotnum=slice(None),
+        time_slice=slice(None),
         digitizer=None,
         config_name=None,
         adc=None,
@@ -459,12 +500,15 @@ class HDFReadData(np.ndarray):
         else:
             cdata = None
 
+        # validate time slicing
+        time_slice, ntime = _condition_time_slice(time_slice, dset)
+
         # Define dtype and shape
         sigtype = np.float32 if not keep_bits else dset.dtype
         shape = shotnum.shape
         dtype = [
             ("shotnum", np.uint32, ()),
-            ("signal", sigtype, (dset.shape[1],)),
+            ("signal", sigtype, (ntime,)),
             ("xyz", np.float32, (3,)),
         ]
         if len(controls) != 0:
@@ -482,10 +526,10 @@ class HDFReadData(np.ndarray):
         index = index.tolist()
         if intersection_set:
             # fill signal
-            data["signal"] = dset[index, ...]
+            data["signal"][...] = dset[index, time_slice]
         else:
             # fill signal
-            data["signal"][sni] = dset[index, ...]
+            data["signal"][sni, ...] = dset[index, time_slice]
             if np.issubdtype(data["signal"].dtype, np.integer):
                 data["signal"][np.logical_not(sni)] = 0
             else:

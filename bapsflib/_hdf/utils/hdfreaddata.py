@@ -233,6 +233,55 @@ def _generate_shotnum_sni_index(
     return shotnum, sni, index
 
 
+def _determine_digitizer_voltage_offset(
+    digitizer_info: dict, header_dataset_row: np.void, keep_bits: bool,
+) -> Tuple[u.Quantity | None, u.Unit| u.IrreducibleUnit | None, bool]:
+    info = digitizer_info
+    dset_row = header_dataset_row
+
+    try:
+        signal_units = u.bit if keep_bits else u.volt
+        if info["bit"] is None:
+            # Since no bit value is recorded, the digitizer data must
+            # have been saved as voltage.
+            keep_bits = True
+            voltage_offset = None
+            signal_units = u.volt
+        else:
+            voltage_offset = dset_row["Offset"]
+
+        if voltage_offset == 0:
+            warn(
+                "Digitizer header dataset voltage 'Offset' field is zero.  "
+                "This will produce a NULL voltage array if the bit "
+                "conversion is attempted.  Leaving the data as bits.",
+                BaPSFWarning,
+            )
+            keep_bits = True
+            voltage_offset = None
+            signal_units = None
+        elif voltage_offset is not None:
+            voltage_offset = voltage_offset * u.volt
+
+    except ValueError:
+        warn(
+            "Digitizer header dataset is missing the voltage 'Offset' field.",
+            HDFMappingWarning,
+        )
+        voltage_offset = None
+        signal_units = None
+    except IndexError as err:  # pragma: no cover
+        warn(
+            f"{err} ... Digitizer header dataset is being index out of "
+            f"range, unable to determine the voltage 'Offset'.",
+            HDFMappingWarning,
+        )
+        voltage_offset = None
+        signal_units = None
+
+    return voltage_offset, signal_units, keep_bits
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -529,45 +578,11 @@ class HDFReadData(np.ndarray):
         obj = data.view(cls)
 
         # get voltage offset
-        try:
-            _signal_units = u.bit if keep_bits else u.volt
-            if d_info["bit"] is None:
-                # Since no bit value is recorded, the digitizer data must
-                # have been saved as voltage.
-                keep_bits = True
-                voffset = None
-                _signal_units = u.volt
-            else:
-                voffset = dheader[index[0], "Offset"]
-
-            if voffset == 0:
-                warn(
-                    "Digitizer header dataset voltage 'Offset' field is zero.  "
-                    "This will produce a NULL voltage array if the bit "
-                    "conversion is attempted.  Leaving the data as bits.",
-                    BaPSFWarning,
-                )
-                keep_bits = True
-                voffset = None
-                _signal_units = None
-            elif voffset is not None:
-                voffset = voffset * u.volt
-
-        except ValueError:
-            warn(
-                "Digitizer header dataset is missing the voltage 'Offset' field.",
-                HDFMappingWarning,
-            )
-            voffset = None
-            _signal_units = None
-        except IndexError as err:  # pragma: no cover
-            warn(
-                f"{err} ... Digitizer header dataset is being index out of "
-                f"range, unable to determine the voltage 'Offset'.",
-                HDFMappingWarning,
-            )
-            voffset = None
-            _signal_units = None
+        voffset, _signal_units, keep_bits = _determine_digitizer_voltage_offset(
+            digitizer_info=d_info,
+            header_dataset_row=dheader[index[0]],
+            keep_bits=keep_bits,
+        )
 
         # assign dataset meta-info
         obj._info = {

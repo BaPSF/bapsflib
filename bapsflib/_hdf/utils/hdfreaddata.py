@@ -272,9 +272,9 @@ class HDFReadData(np.ndarray):
         digitizer=None,
         config_name=None,
         adc=None,
-        keep_bits=False,
+        keep_bits: bool = False,
         add_controls=None,
-        intersection_set=True,
+        intersection_set: bool = True,
         **kwargs,
     ):
         """

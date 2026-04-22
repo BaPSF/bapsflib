@@ -292,6 +292,25 @@ def _calc_dv(voltage_offset: u.Quantity | None, bitness: int | None) -> u.Quanti
     return 2.0 * abs(voltage_offset) / (2.0 ** bitness - 1.0)
 
 
+def _convert_bits_to_voltage(
+    signal: np.ndarray,
+    voltage_offset: u.Quantity | None,
+    bitness: int | None,
+) -> Tuple[np.ndarray, u.Unit | None]:
+    dv = _calc_dv(voltage_offset, bitness)
+
+    if dv is None or voltage_offset is None:
+        # dv will be None if `offset` or `bitness` is None
+        warn(
+            "Unable to calculated voltage step size...'signal' remains as bits",
+            BaPSFWarning,
+        )
+        return signal, None
+
+    signal = (dv.value * signal) - abs(voltage_offset.value)
+    return signal, u.volt
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -624,26 +643,18 @@ class HDFReadData(np.ndarray):
             obj._info["controls"] = {}
 
         # convert to voltage
-        # - 'signal' dtype is assigned based on keep_bit
-        #
-        # obj['signal'] = obj['signal'].astype(np.float32, copy=False)
-        #
         if not keep_bits:
-            offset = obj._info["voltage offset"]
-            bitness = obj._info["bit"]
-            dv = _calc_dv(voltage_offset=offset, bitness=bitness)
+            offset = obj._info["voltage offset"]  # type: u.Quantity | None
+            bitness = obj._info["bit"]  # type: int | None
+            obj["signal"], signal_units = _convert_bits_to_voltage(
+                signal=obj["signal"],
+                voltage_offset=offset,
+                bitness=bitness,
+            )
 
-            if dv is None:
-                # dv will be None if `offset` or `bitness` is None
-                warn(
-                    "Unable to calculated voltage step size...'signal' remains as bits",
-                    BaPSFWarning,
-                )
-            else:
-                obj["signal"] = (dv.value * obj["signal"]) - abs(offset.value)
-                obj._info["signal units"] = u.volt
+            if signal_units is not None:
+                obj._info["signal units"] = signal_units
 
-        # return obj
         return obj
 
     def __array_finalize__(self, obj):

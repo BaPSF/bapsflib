@@ -514,9 +514,9 @@ class TestHDFReadData(TestBase):
         # voltage step size can not be calculated
         shotnum = 5
         indices = [4]
-        with mock.patch.object(
-            HDFReadData, "dv", new_callable=mock.PropertyMock(return_value=None)
-        ):
+        with mock.patch(
+            f"{HDFReadData.__module__}._calc_dv", return_value=None
+        ) as mock_dv:
             with self.assertWarns(BaPSFWarning):
                 data = HDFReadData(
                     _bf,
@@ -533,6 +533,7 @@ class TestHDFReadData(TestBase):
                 np.array_equal(data["signal"], dset[indices, ...].astype(np.float32))
             )
             self.assertEqual(data.info["signal units"], u.volt)
+            mock_dv.assert_called_once()
 
         # -- `keep_bits=True`                                       ----
         # default behavior

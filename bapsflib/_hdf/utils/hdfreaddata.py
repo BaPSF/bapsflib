@@ -282,6 +282,16 @@ def _determine_digitizer_voltage_offset(
     return voltage_offset, signal_units, keep_bits
 
 
+def _calc_dv(voltage_offset: u.Quantity | None, bitness: int | None) -> u.Quantity | None:
+    if voltage_offset is None:
+        return None
+
+    if bitness is None:
+        return None
+
+    return 2.0 * abs(voltage_offset) / (2.0 ** bitness - 1.0)
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -619,19 +629,18 @@ class HDFReadData(np.ndarray):
         # obj['signal'] = obj['signal'].astype(np.float32, copy=False)
         #
         if not keep_bits:
-            if obj.dv is None:
+            offset = obj._info["voltage offset"]
+            bitness = obj._info["bit"]
+            dv = _calc_dv(voltage_offset=offset, bitness=bitness)
+
+            if dv is None:
+                # dv will be None if `offset` or `bitness` is None
                 warn(
                     "Unable to calculated voltage step size...'signal' remains as bits",
                     BaPSFWarning,
                 )
             else:
-                # define offset
-                offset = abs(obj.info["voltage offset"].value)
-
-                # calc voltage
-                obj["signal"] = (obj.dv.value * obj["signal"]) - offset
-
-                # update 'signal units'
+                obj["signal"] = (dv.value * obj["signal"]) - abs(offset.value)
                 obj._info["signal units"] = u.volt
 
         # return obj
@@ -796,10 +805,7 @@ class HDFReadData(np.ndarray):
         ``'voltage offset'`` items in :attr:`info`.  Returns `None` if
         step size can not be calculated.
         """
-        if self.info["voltage offset"] is None:
-            return
-        elif self.info["bit"] is None:
-            return
-
-        dv = 2.0 * abs(self.info["voltage offset"]) / (2.0 ** self.info["bit"] - 1.0)
-        return dv
+        return _calc_dv(
+            voltage_offset=self.info["voltage offset"],
+            bitness=self.info["bit"],
+        )

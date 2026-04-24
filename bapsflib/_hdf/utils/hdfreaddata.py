@@ -32,6 +32,32 @@ if TYPE_CHECKING:  # pragma: no cover
 
     from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
 
+_DEFAULT_INFO_DICT = {
+    # data origin parameters
+    "source file": None,
+    "device group path": None,
+    "device dataset path": None,
+    "controls": None,
+    # data read parametes
+    "board": None,
+    "channel": None,
+    "digitizer": None,
+    "configuration name": None,
+    "adc": None,
+    "time_slice": None,
+    # digitizer parameters
+    "bit": None,
+    "clock rate": None,
+    "sample average": None,
+    "shot average": None,
+    "voltage offset": None,
+    "signal units": None,
+    "time_dset_path": None,
+    # probe related meta-data
+    "probe name": None,
+    "port": None,
+}
+
 
 def _condition_hdf_file(hdf_file: File) -> File:
     # Condition the `hdf_file` argument for HDFReadData
@@ -606,54 +632,51 @@ class HDFReadData(np.ndarray):
         # Define obj to be returned
         obj = data.view(cls)
 
-        # get voltage offset
-        voffset, _signal_units, keep_bits = _determine_digitizer_voltage_offset(
+        # convert bit signal to voltage
+        voffset, signal_units, keep_bits = _determine_digitizer_voltage_offset(
             digitizer_info=d_info,
             header_dataset_row=dheader[index[0]],
             keep_bits=keep_bits,
         )
+        if not keep_bits:
+            obj["signal"], signal_units = _convert_bits_to_voltage(
+                signal=obj["signal"],
+                voltage_offset=voffset,
+                bitness=d_info["bit"],
+            )
+
+        # collect control meta-info
+        control_info = None if cdata is None else copy.deepcopy(cdata.info["controls"])
+
+        # determine time_dset_path
+        time_dset_path = d_info.get("time_dset_path", None)
+        if time_dset_path is not None:
+            time_dset_path = dpath + time_dset_path
 
         # assign dataset meta-info
         obj._info = {
+            **_DEFAULT_INFO_DICT,
+            # data origin parameters
             "source file": os.path.abspath(hdf_file.filename),
             "device group path": _dmap.info["group path"],
             "device dataset path": dpath + dname,
+            "controls": control_info,
+            # data read parametes
+            "board": board,
+            "channel": channel,
             "digitizer": d_info["digitizer"],
             "configuration name": d_info["configuration name"],
             "adc": d_info["adc"],
+            "time_slice": time_slice,
+            # digitizer parameters
             "bit": d_info["bit"],
             "clock rate": d_info["clock rate"],
             "sample average": d_info["sample average (hardware)"],
             "shot average": d_info["shot average (software)"],
-            "board": board,
-            "channel": channel,
             "voltage offset": voffset,
-            "probe name": None,
-            "port": (None, None),
-            "signal units": _signal_units,
-            "time_dset_path": d_info.get("time_dset_path", None),
+            "signal units": signal_units,
+            "time_dset_path": time_dset_path,
         }
-
-        if obj._info["time_dset_path"] is not None:
-            obj._info["time_dset_path"] = dpath + obj._info["time_dset_path"]
-
-        if cdata is not None:
-            obj._info["controls"] = copy.deepcopy(cdata.info["controls"])
-        else:
-            obj._info["controls"] = {}
-
-        # convert to voltage
-        if not keep_bits:
-            offset = obj._info["voltage offset"]  # type: u.Quantity | None
-            bitness = obj._info["bit"]  # type: int | None
-            obj["signal"], signal_units = _convert_bits_to_voltage(
-                signal=obj["signal"],
-                voltage_offset=offset,
-                bitness=bitness,
-            )
-
-            if signal_units is not None:
-                obj._info["signal units"] = signal_units
 
         return obj
 
@@ -667,24 +690,7 @@ class HDFReadData(np.ndarray):
         self._info = getattr(
             obj,
             "_info",
-            {
-                "source file": None,
-                "device group path": None,
-                "device dataset path": None,
-                "configuration name": None,
-                "adc": None,
-                "bit": None,
-                "clock rate": None,
-                "sample average": None,
-                "shot average": None,
-                "board": None,
-                "channel": None,
-                "voltage offset": None,
-                "probe name": None,
-                "port": (None, None),
-                "signal units": None,
-                "controls": {},
-            },
+            _DEFAULT_INFO_DICT.copy(),
         )
 
     @property

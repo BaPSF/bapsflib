@@ -19,8 +19,8 @@ import numpy as np
 import os
 import unittest as ut
 
-from unittest import mock
 from typing import TYPE_CHECKING
+from unittest import mock
 
 from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301

@@ -152,7 +152,10 @@ def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice,
         )
 
     ntime = len(range(*time_slice.indices(dset.shape[1])))
-    if ntime == 0:
+    if ntime == 0:  # pragma: no cover
+        # This should never be reached since time_slice.indices(dset.shape[1])
+        # will pin out of bound start and stop to either 0 or dset.shape[1]-1.
+        #
         raise ValueError(
             f"Argument `time_slice` ({time_slice}) will result in a " f"NULL array."
         )

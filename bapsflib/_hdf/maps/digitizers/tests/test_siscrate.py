@@ -147,8 +147,8 @@ class TestSISCrate(DigitizerTestCase):
         brd = my_sabc[0][2]
         ch = my_sabc[0][3][0]
         dset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {ch}]"
-        with self.assertWarns(HDFMappingWarning):
-            self.assertEqual(self.map.construct_dataset_name(brd, ch), dset_name)
+        with self.assertRaises(ValueError):
+            self.map.construct_dataset_name(brd, ch)
 
         # -- `board` and `channel` combo not in configs             ----
         brd = 5  # SIS 3302 only goes up to board 4
@@ -192,7 +192,7 @@ class TestSISCrate(DigitizerTestCase):
                 break
 
         # get dset_name
-        val = _map.construct_dataset_name(brd, ch, return_info=True)
+        val = _map.construct_dataset_name(brd, ch, adc="SIS 3302", return_info=True)
 
         self.assertIsInstance(val, tuple)
         self.assertEqual(len(val), 2)

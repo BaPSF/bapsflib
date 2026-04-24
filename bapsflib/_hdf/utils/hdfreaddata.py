@@ -38,7 +38,7 @@ _DEFAULT_INFO_DICT = {
     "device group path": None,
     "device dataset path": None,
     "controls": None,
-    # data read parametes
+    # data read parameters
     "board": None,
     "channel": None,
     "digitizer": None,
@@ -663,7 +663,7 @@ class HDFReadData(np.ndarray):
             "device group path": _dmap.info["group path"],
             "device dataset path": dpath + dname,
             "controls": control_info,
-            # data read parametes
+            # data read parameters
             "board": board,
             "channel": channel,
             "digitizer": d_info["digitizer"],

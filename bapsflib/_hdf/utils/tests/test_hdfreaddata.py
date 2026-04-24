@@ -1246,6 +1246,53 @@ class TestHDFReadData(TestBase):
                 self.assertTrue(np.allclose(data["shotnum"], expected["index"] + 1))
                 self.assertTrue(np.allclose(data["signal"], dset[expected["index"]]))
 
+    @with_bf
+    def test_time_slicing_raises(self, _bf: File):
+        self.f.remove_all_modules()
+        self.f.add_module("SIS 3301")
+        _mod = self.f.modules["SIS 3301"]  # type: FauxSIS3301
+        nt = _mod.knobs.nt
+
+        # re-map
+        _bf._map_file()
+
+        cases = [
+            # (raises, time_slice)
+            # not a slice object
+            (TypeError, "not a slice object"),
+            (TypeError, 5),
+            (TypeError, [1, 2, 4]),
+            # step must be positive non-zero
+            (ValueError, slice(0, 10, -1)),
+            (ValueError, slice(0, 10, 0)),
+            (ValueError, np.s_[::-1]),
+            # start and stop can not be equal
+            (ValueError, slice(10, 10, 1)),
+            (ValueError, np.s_[24:24]),
+            # start must be less than stop
+            (ValueError, slice(100, 10, 1)),
+            (ValueError, np.s_[-10:-20]),
+            # slice is out of range
+            # start and stop can not be equal
+            (ValueError, slice(nt+20, nt+50, 1)),
+            (ValueError, np.s_[-3*nt:-2*nt]),
+        ]
+        for _raise, time_slice in cases:
+            with (
+                self.subTest(_raise=_raise.__name__, time_slice=time_slice),
+                self.assertRaises(_raise)
+            ):
+                data = HDFReadData(
+                    _bf,
+                    board=0,
+                    channel=0,
+                    index=0,
+                    time_slice=time_slice,
+                    digitizer="SIS 3301",
+                    config_name="config01",
+                    adc="SIS 3301"
+                )
+
     def assertControlInData(
         self, cdata: HDFReadControls, data: HDFReadData, shotnum: np.ndarray
     ):

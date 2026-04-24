@@ -11,6 +11,8 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
+from __future__ import annotations
+
 import astropy.units as u
 import h5py
 import numpy as np
@@ -18,11 +20,10 @@ import os
 import unittest as ut
 
 from unittest import mock
+from typing import TYPE_CHECKING
 
 from bapsflib._hdf.maps import HDFMapper
 from bapsflib._hdf.maps.digitizers.sis3301 import HDFMapDigiSIS3301
-from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
-from bapsflib._hdf.maps.digitizers.tests.fauxsis3301 import FauxSIS3301
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.hdfreadcontrols import HDFReadControls
 from bapsflib._hdf.utils.hdfreaddata import HDFReadData
@@ -34,6 +35,11 @@ from bapsflib._hdf.utils.helpers import (
 from bapsflib._hdf.utils.tests import TestBase
 from bapsflib.utils.decorators import with_bf
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
+
+if TYPE_CHECKING:
+    # This is done for typing purposes only.  A full import is not needed.
+    from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
+    from bapsflib._hdf.maps.digitizers.tests.fauxsis3301 import FauxSIS3301
 
 
 class TestHDFReadData(TestBase):

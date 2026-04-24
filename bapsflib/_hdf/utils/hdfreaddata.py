@@ -136,10 +136,11 @@ def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice,
     if step is not None and step <= 0:
         raise ValueError(f"Argument `time_slice` must have a positive step, got {step}.")
 
+    # Note: Using .indices() will force start, stop, step, to be integers,
+    #       replacing all original None values.
+    #
     start, stop, step = time_slice.indices(dset.shape[1])
-    if start is None or stop is None:
-        pass
-    elif stop == start:
+    if stop == start:
         raise ValueError(
             f"Argument `time_slice` must have differing start and stop "
             f"indices, otherwise the returned data will be NULL.  "

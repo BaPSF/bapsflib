@@ -687,18 +687,6 @@ class HDFReadData(np.ndarray):
             },
         )
 
-    def convert_signal(self, to_volt=False, to_bits=False, force=False):
-        """converts signal from volts (bits) to bits (volts)"""
-        #
-        # 1. investigate if 'signal' values are np.integer or
-        #    np.floating
-        #    - np.integer => 'signal' is in bits
-        #    - np.floating => 'signal' is in volts
-        # 2. only convert if requested conversion is not current state
-        # 3. update 'signal units' in self._info
-        #
-        raise NotImplementedError
-
     @property
     def info(self):
         """

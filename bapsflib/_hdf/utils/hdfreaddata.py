@@ -260,8 +260,10 @@ def _generate_shotnum_sni_index(
 
 
 def _determine_digitizer_voltage_offset(
-    digitizer_info: dict, header_dataset_row: np.void, keep_bits: bool,
-) -> Tuple[u.Quantity | None, u.Unit| u.IrreducibleUnit | None, bool]:
+    digitizer_info: dict,
+    header_dataset_row: np.void,
+    keep_bits: bool,
+) -> Tuple[u.Quantity | None, u.Unit | u.IrreducibleUnit | None, bool]:
     info = digitizer_info
     dset_row = header_dataset_row
 
@@ -315,7 +317,7 @@ def _calc_dv(voltage_offset: u.Quantity | None, bitness: int | None) -> u.Quanti
     if bitness is None:
         return None
 
-    return 2.0 * abs(voltage_offset) / (2.0 ** bitness - 1.0)
+    return 2.0 * abs(voltage_offset) / (2.0**bitness - 1.0)
 
 
 def _convert_bits_to_voltage(

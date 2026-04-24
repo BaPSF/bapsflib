@@ -1341,7 +1341,9 @@ class TestHDFReadData(TestBase):
             ):
                 self.assertIsInstance(data.info[key], str)
             elif key == "controls":
-                self.assertTrue(data.info[key] is None or isinstance(data.info[key], dict))
+                self.assertTrue(
+                    data.info[key] is None or isinstance(data.info[key], dict)
+                )
             elif key == "signal units":
                 self.assertIsInstance(data.info[key], u.UnitBase)
             elif key == "voltage offset":

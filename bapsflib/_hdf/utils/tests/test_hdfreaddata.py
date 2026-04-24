@@ -577,10 +577,10 @@ class TestHDFReadData(TestBase):
             (slice(None), slice(None, None, None)),
             (slice(10), slice(0, 10, 1)),
             (slice(10, None, None), slice(10, nt, 1)),
-            (slice(100, -100, 22), slice(100, nt-100, 22)),
-            (slice(-200, -100, 4), slice(nt-200, nt - 100, 4)),
-            (slice(-200, 2*nt, 4), slice(nt - 200, nt, 4)),
-            (slice(-2*nt, 663, 7), slice(0, 663, 7)),
+            (slice(100, -100, 22), slice(100, nt - 100, 22)),
+            (slice(-200, -100, 4), slice(nt - 200, nt - 100, 4)),
+            (slice(-200, 2 * nt, 4), slice(nt - 200, nt, 4)),
+            (slice(-2 * nt, 663, 7), slice(0, 663, 7)),
             (np.s_[::], slice(None, None, None)),
             (np.s_[10::], slice(10, nt, 1)),
             (np.s_[-200:-100:4], slice(nt - 200, nt - 100, 4)),
@@ -1319,13 +1319,13 @@ class TestHDFReadData(TestBase):
             (ValueError, np.s_[-10:-20]),
             # slice is out of range
             # start and stop can not be equal
-            (ValueError, slice(nt+20, nt+50, 1)),
-            (ValueError, np.s_[-3*nt:-2*nt]),
+            (ValueError, slice(nt + 20, nt + 50, 1)),
+            (ValueError, np.s_[-3 * nt : -2 * nt]),
         ]
         for _raise, time_slice in cases:
             with (
                 self.subTest(_raise=_raise.__name__, time_slice=time_slice),
-                self.assertRaises(_raise)
+                self.assertRaises(_raise),
             ):
                 data = HDFReadData(
                     _bf,
@@ -1335,7 +1335,7 @@ class TestHDFReadData(TestBase):
                     time_slice=time_slice,
                     digitizer="SIS 3301",
                     config_name="config01",
-                    adc="SIS 3301"
+                    adc="SIS 3301",
                 )
 
     def assertControlInData(

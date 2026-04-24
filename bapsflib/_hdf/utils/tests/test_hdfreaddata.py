@@ -561,6 +561,50 @@ class TestHDFReadData(TestBase):
         self.assertEqual(data.info["signal units"], u.bit)
 
     @with_bf
+    def test_kwarg_time_slice(self, _bf: File):
+        self.f.remove_all_modules()
+        self.f.add_module("SIS 3301")
+        _mod = self.f.modules["SIS 3301"]  # type: FauxSIS3301
+        dset = _mod["config01 [0:0]"]
+        nt = _mod.knobs.nt
+        data5 = dset[5, ...]
+
+        # re-map
+        _bf._map_file()
+
+        cases = [
+            # (time_slice, expected_slice)
+            (slice(None), slice(None, None, None)),
+            (slice(10), slice(0, 10, 1)),
+            (slice(10, None, None), slice(10, nt, 1)),
+            (slice(100, -100, 22), slice(100, nt-100, 22)),
+            (slice(-200, -100, 4), slice(nt-200, nt - 100, 4)),
+            (slice(-200, 2*nt, 4), slice(nt - 200, nt, 4)),
+            (slice(-2*nt, 663, 7), slice(0, 663, 7)),
+            (np.s_[::], slice(None, None, None)),
+            (np.s_[10::], slice(10, nt, 1)),
+            (np.s_[-200:-100:4], slice(nt - 200, nt - 100, 4)),
+            (np.s_[:542:9], slice(0, 542, 9)),
+        ]
+        for time_slice, expected_slice in cases:
+            with self.subTest(time_slice=time_slice, expected_slice=expected_slice):
+                data = HDFReadData(
+                    _bf,
+                    board=0,
+                    channel=0,
+                    index=5,
+                    digitizer="SIS 3301",
+                    config_name="config01",
+                    adc="SIS 3301",
+                    time_slice=time_slice,
+                    keep_bits=True,
+                )
+
+                self.assertIn("time_slice", data.info)
+                self.assertEqual(data.info["time_slice"], expected_slice)
+                self.assertTrue(np.allclose(data["signal"], data5[expected_slice]))
+
+    @with_bf
     @mock.patch(
         "bapsflib._hdf.utils.hdfreaddata.do_shotnum_intersection",
         side_effect=do_shotnum_intersection,
@@ -1262,6 +1306,7 @@ class TestHDFReadData(TestBase):
             (TypeError, "not a slice object"),
             (TypeError, 5),
             (TypeError, [1, 2, 4]),
+            (TypeError, None),
             # step must be positive non-zero
             (ValueError, slice(0, 10, -1)),
             (ValueError, slice(0, 10, 0)),

@@ -576,6 +576,8 @@ class TestHDFReadData(TestBase):
             # (time_slice, expected_slice)
             (slice(None), slice(None, None, None)),
             (slice(10), slice(0, 10, 1)),
+            (slice(None, 55, 2), slice(0, 55, 2)),
+            (slice(784, None, 10), slice(784, nt, 10)),
             (slice(10, None, None), slice(10, nt, 1)),
             (slice(100, -100, 22), slice(100, nt - 100, 22)),
             (slice(-200, -100, 4), slice(nt - 200, nt - 100, 4)),

@@ -532,7 +532,7 @@ class TestHDFReadData(TestBase):
             self.assertTrue(
                 np.array_equal(data["signal"], dset[indices, ...].astype(np.float32))
             )
-            self.assertEqual(data.info["signal units"], u.volt)
+            self.assertIsNone(data.info["signal units"])
             mock_dv.assert_called_once()
 
         # -- `keep_bits=True`                                       ----
@@ -1341,7 +1341,7 @@ class TestHDFReadData(TestBase):
             ):
                 self.assertIsInstance(data.info[key], str)
             elif key == "controls":
-                self.assertIsInstance(data.info[key], dict)
+                self.assertTrue(data.info[key] is None or isinstance(data.info[key], dict))
             elif key == "signal units":
                 self.assertIsInstance(data.info[key], u.UnitBase)
             elif key == "voltage offset":

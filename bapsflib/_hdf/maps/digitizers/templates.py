@@ -464,7 +464,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             # This should never happen, since validate_board_and_channel()
             # should always identify a valid set.
             raise ValueError(
-                f"No valid info set identified using the given paramers: "
+                f"No valid info set identified using the given parameters: "
                 f" board = {board}, channel = {channel}, "
                 f"config_name = {config_name}, adc = {adc}"
             )
@@ -485,7 +485,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         return adc_info
 
     def validate_config_name(
-        self, config_name: str | None, allow_inactive: bool = False,
+        self,
+        config_name: str | None,
+        allow_inactive: bool = False,
     ):
         """
         Validate the specified ``config_name`` to determine if it is

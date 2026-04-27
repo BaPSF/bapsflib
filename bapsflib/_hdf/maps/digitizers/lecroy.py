@@ -473,9 +473,7 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
             return dataset_name
 
         # get dataset info
-        _info = self.get_adc_info(
-            board, channel, config_name=config_name, adc=adc
-        )
+        _info = self.get_adc_info(board, channel, config_name=config_name, adc=adc)
         return dataset_name, _info
 
     def construct_header_dataset_name(

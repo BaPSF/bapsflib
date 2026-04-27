@@ -518,6 +518,10 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         ------
         config_name
             A validated, and active, configuration name.
+
+        See Also
+        --------
+        validate_config_name_and_adc, validate_board_and_channel
         """
         _active_configs = self.active_configs
 
@@ -586,6 +590,10 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         adc
             A validated, and active, analog-digital-converter name.
+
+        See Also
+        --------
+        validate_config_name, validate_board_and_channel
         """
         config_name = self.validate_config_name(config_name)
 

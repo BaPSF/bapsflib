@@ -989,7 +989,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 break
 
         # (board, channel) combo must be active
-        if bc_valid is False:
+        if not bc_valid:
             raise ValueError(
                 "Input `board` and `channel` do NOT specified a valid dataset."
             )

@@ -489,12 +489,18 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         return adc_info
 
-    def validate_config_name(self, config_name: str | None):
+    def validate_config_name(
+        self, config_name: str | None, allow_inactive: bool = False,
+    ):
         """
         Validate the specified ``config_name`` to determine if it is
         present and active in the digitizer acquisition.  If `None` and
         there is only one active configuration, then the active
         configuration name will be returned.
+
+        If ``allow_inactive`` is `True`, then an `HDFMappingWarning`
+        will be issued instead of raising a `ValueError` when the
+        configuration is inactive.
 
         Parameters
         ----------
@@ -502,6 +508,11 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             The ``config_name`` to be validated.  If `None` and only
             one active configuration is present, then the active
             configuration name will be assumed.
+
+        allow_inactive : bool, optional
+            If `True`, then allow an inactive configuration to pass
+            validation.  An `HDFMappingWarning` will be given instead of
+            raising a `ValueError`.  (DEFAULT: `False`)
 
         Return
         ------
@@ -529,9 +540,15 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             else:
                 raise ValueError("No active digitizer configuration detected.")
         elif config_name not in _active_configs:
-            raise ValueError(
-                f"Invalid `config_name` given.  Valid `config_name` values "
-                f"are {_active_configs}."
+            if not allow_inactive:
+                raise ValueError(
+                    f"Invalid `config_name` given.  Valid `config_name` values "
+                    f"are {_active_configs}."
+                )
+
+            warn(
+                f"Digitizer configuration '{config_name}' is not actively used.",
+                HDFMappingWarning,
             )
 
         return config_name

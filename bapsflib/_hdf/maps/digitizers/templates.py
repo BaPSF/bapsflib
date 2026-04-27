@@ -411,8 +411,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         self,
         board: int,
         channel: int,
-        adc: str = None,
+        *,
         config_name: str = None,
+        adc: str = None,
     ) -> Dict[str, Any]:
         """
         Get adc setup info dictionary associated with **board** and
@@ -438,54 +439,48 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             dictionary of adc setup info (bit, clock rate, averaging,
             etc.) associated with **board** and **channel**
         """
-        # look for `config_name`
-        if config_name is None:
-            if len(self.active_configs) == 1:
-                config_name = self.active_configs[0]
-                warn(
-                    f"`config_name` not specified, assuming '{config_name}'",
-                    HDFMappingWarning,
-                )
-            else:
-                raise ValueError("A valid `config_name` needs to be specified")
-        elif self.configs[config_name]["active"] is False:
-            warn(
-                f"Digitizer configuration '{config_name}' is not actively used.",
-                HDFMappingWarning,
-            )
-
-        # look for `adc`
-        if adc is None:
-            if len(self.configs[config_name]["adc"]) == 1:
-                adc = self.configs[config_name]["adc"][0]
-                warn(f"`adc` not specified, assuming '{adc}'", HDFMappingWarning)
-            else:
-                raise ValueError("A valid `adc` needs to be specified")
+        board, channel, config_name, adc = self.validate_board_and_channel(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+            allow_inactive=True,
+        )
 
         # look for `board`
         adc_setup = self.configs[config_name][adc]
-        found = False
-        conn = (None, None, None)
+        adc_info = None  # type: Dict[str, Any] | None
         for conn in adc_setup:
-            if board == conn[0]:
-                found = True
-                break
-        if not found:
-            raise ValueError(f"Board number ({board}) not found in setup")
+            if board != conn[0]:
+                continue
 
-        # look for `channel`
-        if channel not in conn[1]:
-            raise ValueError(f"Channel number ({channel})  not found in setup")
+            if channel not in conn[1]:
+                continue
+
+            adc_info = copy.deepcopy(conn[2])
+            break
+
+        if adc_info is None:  # pragma: no cover
+            # This should never happen, since validate_board_and_channel()
+            # should always identify a valid set.
+            raise ValueError(
+                f"No valid info set identified using the given paramers: "
+                f" board = {board}, channel = {channel}, "
+                f"config_name = {config_name}, adc = {adc}"
+            )
 
         # get dictionary and add keys
         # - 'board', 'channel', 'adc', 'digitizer', and
         #   'configuration name'
-        adc_info = copy.deepcopy(conn[2])
-        adc_info["adc"] = adc
-        adc_info["board"] = board
-        adc_info["channel"] = channel
-        adc_info["configuration name"] = config_name
-        adc_info["digitizer"] = self.device_name
+        adc_info.update(
+            {
+                "board": board,
+                "channel": channel,
+                "configuration name": config_name,
+                "digitizer": self.device_name,
+                "adc": adc,
+            },
+        )
 
         return adc_info
 

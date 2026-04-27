@@ -20,7 +20,7 @@ import h5py
 import numpy as np
 import re
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
@@ -849,7 +849,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         return nshotnum, nt
     """
 
-    def _parse_config_name(self, name: str) -> Union[None, str]:
+    def _parse_config_name(self, name: str) -> str | None:
         """
         Parses ``name`` to determine the digitizer configuration
         name.  A configuration group name follows the format::
@@ -863,7 +863,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[None, str]
+        str | None
             digitizer configuration name, or `None` if  ``name`` does
             not represent a configuration group
 
@@ -890,7 +890,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
     def construct_dataset_name(
         self, board: int, channel: int, config_name=None, adc=None, return_info=False
-    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
+    ) -> str | Tuple[str, Dict[str, Any]]:
         """
         Construct the name of the HDF5 dataset containing digitizer
         data. The dataset naming follows two formats based on their
@@ -928,7 +928,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[str, Tuple[str, Dict[str, Any]]]
+        str | Tuple[str, Dict[str, Any]]
             digitizer dataset name. If ``return_info=True``,
             then returns a tuple of (dataset name, dictionary of
             meta-info)
@@ -950,79 +950,15 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
                 'shot average (software)': int,
             }
         """
-        # Condition config_name
-        # - if config_name is not specified then the 'active' config
-        #   is sought out
-        if config_name is None:
-            if len(self.active_configs) == 1:
-                config_name = self.active_configs[0]
-                warn(
-                    f"`config_name` not specified, assuming '{config_name}'.",
-                    HDFMappingWarning,
-                )
-            elif len(self.active_configs) > 1:
-                raise ValueError(
-                    "There are multiple active digitizer "
-                    "configurations...`config_name` kwarg must be "
-                    "specified."
-                )
-            else:
-                raise ValueError("No active digitizer configuration detected.")
-        elif config_name not in self._configs:
-            # config_name must be a known configuration
-            raise ValueError("Invalid `config_name` given.")
-        elif self._configs[config_name]["active"] is False:
-            raise ValueError("Specified configuration name `config_name` is not active.")
+        # Validate digitizer parameters
+        board, channel, config_name, adc = self.validate_board_and_channel(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+        )
 
-        # Condition adc
-        # - if adc is not specified then the slow adc '3302' is assumed
-        #   or, if 3305 is the only active adc, then it is assumed
-        # - self.__config_crates() always adds 'SIS 3302' first. If
-        #   '3302' is not active then the list will only contain '3305'.
-        if adc is None:
-            if len(self.configs[config_name]["adc"]) == 1:
-                adc = self.configs[config_name]["adc"][0]
-                warn(
-                    f"No `adc` specified, but only one adc used..."
-                    f"assuming adc '{adc}'",
-                    HDFMappingWarning,
-                )
-            else:
-                # there should never be a case where there are NO active
-                # adc's, this covers the case where there is MULTIPLE
-                # adc's
-                #
-                adc = "SIS 3302"
-                warn("No `adc` specified...assuming adc 'SIS 3302'", HDFMappingWarning)
-        elif adc not in self._configs[config_name]["adc"]:
-            raise ValueError(
-                f"Specified adc ({adc}) is not in specified configuration "
-                f"({config_name})."
-            )
-
-        # search if (board, channel) combo is connected
-        bc_valid = False
-        d_info = None
-        for brd, chs, extras in self._configs[config_name][adc]:
-            if board == brd and channel in chs:
-                # board, channel combo valid
-                bc_valid = True
-
-                # save adc settings for return if requested
-                if return_info:
-                    d_info = extras.copy()
-                    d_info["adc"] = adc
-                    d_info["configuration name"] = config_name
-                    d_info["digitizer"] = self._info["group name"]
-                break
-
-        # (board, channel) combo must be active
-        if bc_valid is False:
-            raise ValueError(
-                "Input `board` and `channel` do NOT specified a valid dataset."
-            )
-
-        # checks passed, build dataset_name
+        # build dataset_name
         slot = self.get_slot(board, adc)
         if adc == "SIS 3302":
             dataset_name = f"{config_name} [Slot {slot}: SIS 3302 ch {channel}]"
@@ -1037,11 +973,12 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
             dataset_name = f"{config_name} [Slot {slot}: SIS 3305 FPGA {fpga} ch {ch}]"
 
-        # return
-        if return_info is True:
-            return dataset_name, d_info
-        else:
+        if not return_info:
             return dataset_name
+
+        # get dataset info
+        _info = self.get_adc_info(board, channel, config_name=config_name, adc=adc)
+        return dataset_name, _info
 
     def construct_header_dataset_name(
         self,
@@ -1095,7 +1032,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         dheader_name = f"{dset_name} headers"
         return dheader_name
 
-    def get_slot(self, brd: int, adc: str) -> Union[None, int]:
+    def get_slot(self, brd: int, adc: str) -> int | None:
         """
         Get slot number for given board number and adc.
 
@@ -1108,7 +1045,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[None, int]
+        int | None
             slot number, or `None` if there is no associated slot number
         """
         slot = None

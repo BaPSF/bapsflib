@@ -411,8 +411,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         self,
         board: int,
         channel: int,
-        adc: str = None,
+        *,
         config_name: str = None,
+        adc: str = None,
     ) -> Dict[str, Any]:
         """
         Get adc setup info dictionary associated with **board** and
@@ -438,56 +439,263 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             dictionary of adc setup info (bit, clock rate, averaging,
             etc.) associated with **board** and **channel**
         """
-        # look for `config_name`
+        board, channel, config_name, adc = self.validate_board_and_channel(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+            allow_inactive=True,
+        )
+
+        # look for `board`
+        adc_setup = self.configs[config_name][adc]
+        adc_info = None  # type: Dict[str, Any] | None
+        for conn in adc_setup:
+            if board != conn[0]:
+                continue
+
+            # Note: check 'channel not in conn[1]' is NOT needed here
+            #       since validate_board_and_channel() has already conditioned
+            #       that channel is in conn[1].
+
+            adc_info = copy.deepcopy(conn[2])
+            break
+
+        if adc_info is None:  # pragma: no cover
+            # This should never happen, since validate_board_and_channel()
+            # should always identify a valid set.
+            raise ValueError(
+                f"No valid info set identified using the given parameters: "
+                f" board = {board}, channel = {channel}, "
+                f"config_name = {config_name}, adc = {adc}"
+            )
+
+        # get dictionary and add keys
+        # - 'board', 'channel', 'adc', 'digitizer', and
+        #   'configuration name'
+        adc_info.update(
+            {
+                "board": board,
+                "channel": channel,
+                "configuration name": config_name,
+                "digitizer": self.device_name,
+                "adc": adc,
+            },
+        )
+
+        return adc_info
+
+    def validate_config_name(
+        self,
+        config_name: str | None,
+        allow_inactive: bool = False,
+    ):
+        """
+        Validate the specified ``config_name`` to determine if it is
+        present and active in the digitizer acquisition.  If `None` and
+        there is only one active configuration, then the active
+        configuration name will be returned.
+
+        If ``allow_inactive`` is `True`, then an `HDFMappingWarning`
+        will be issued instead of raising a `ValueError` when the
+        configuration is inactive.
+
+        Parameters
+        ----------
+        config_name : `str` or None
+            The ``config_name`` to be validated.  If `None` and only
+            one active configuration is present, then the active
+            configuration name will be assumed.
+
+        allow_inactive : bool, optional
+            If `True`, then allow an inactive configuration to pass
+            validation.  An `HDFMappingWarning` will be given instead of
+            raising a `ValueError`.  (DEFAULT: `False`)
+
+        Return
+        ------
+        config_name
+            A validated, and active, configuration name.
+
+        See Also
+        --------
+        validate_config_name_and_adc, validate_board_and_channel
+        """
+        _active_configs = self.active_configs
+
+        # Condition config_name
+        # - if config_name is not specified then the 'active' config
+        #   is sought out
         if config_name is None:
-            if len(self.active_configs) == 1:
-                config_name = self.active_configs[0]
+            if len(_active_configs) == 1:
+                config_name = _active_configs[0]
                 warn(
-                    f"`config_name` not specified, assuming '{config_name}'",
+                    f"`config_name` not specified, assuming '{config_name}'.",
                     HDFMappingWarning,
                 )
+            elif len(_active_configs) > 1:
+                raise ValueError(
+                    "There are multiple active digitizer "
+                    "configurations...`config_name` kwarg must be "
+                    "specified."
+                )
             else:
-                raise ValueError("A valid `config_name` needs to be specified")
-        elif self.configs[config_name]["active"] is False:
+                raise ValueError("No active digitizer configuration detected.")
+        elif config_name not in _active_configs:
+            if not allow_inactive:
+                raise ValueError(
+                    f"Invalid `config_name` given.  Valid `config_name` values "
+                    f"are {_active_configs}."
+                )
+
             warn(
                 f"Digitizer configuration '{config_name}' is not actively used.",
                 HDFMappingWarning,
             )
 
-        # look for `adc`
-        if adc is None:
-            if len(self.configs[config_name]["adc"]) == 1:
-                adc = self.configs[config_name]["adc"][0]
-                warn(f"`adc` not specified, assuming '{adc}'", HDFMappingWarning)
-            else:
-                raise ValueError("A valid `adc` needs to be specified")
+        return config_name
 
-        # look for `board`
-        adc_setup = self.configs[config_name][adc]
-        found = False
-        conn = (None, None, None)
-        for conn in adc_setup:
-            if board == conn[0]:
-                found = True
+    def validate_config_name_and_adc(
+        self,
+        config_name: str | None,
+        adc: str | None,
+        allow_inactive: bool = False,
+    ):
+        """
+        Validate the specified ``config_name`` and ``adc`` name to
+        determine if the set is present and active in the digitizer
+        acquisition.
+
+        If ``config_name`` is `None` and there is only one active
+        configuration, then the single active configuration will be
+        assumed.
+
+        If ``adc`` is `None` and the active configuration only has one
+        operable analog-digital-converter, then the single adc will be
+        assumed.
+
+        Parameters
+        ----------
+        config_name : `str` or None
+            The ``config_name`` to be validated.  If `None` and only
+            one active configuration is present, then the active
+            configuration name will be assumed.
+
+        adc : `str` or None
+            The ``adc`` to be validated.  If `None` and only one
+            operable analog-digital-converter present, then the single
+            adc will be assumed.
+
+        allow_inactive : bool, optional
+            If `True`, then allow an inactive configuration to pass
+            validation.  An `HDFMappingWaring` will be given instead of
+            raising a `ValueError`.  (DEFAULT: `False`)
+
+        Return
+        ------
+        config_name
+            A validated, and active, configuration name.
+
+        adc
+            A validated, and active, analog-digital-converter name.
+
+        See Also
+        --------
+        validate_config_name, validate_board_and_channel
+        """
+        config_name = self.validate_config_name(
+            config_name, allow_inactive=allow_inactive
+        )
+
+        if adc is None and len(self.configs[config_name]["adc"]) == 1:
+            adc = self.configs[config_name]["adc"][0]
+            warn(
+                f"No `adc` specified, but only one adc used...assuming adc '{adc}'",
+                HDFMappingWarning,
+            )
+        elif adc is None:
+            raise ValueError(
+                f"Specify a desired `adc` to be validated.  The '{config_name}' "
+                f"configuration has multiple adcs, "
+                f"{tuple(self.configs[config_name]['adc'])}."
+            )
+        elif adc not in self.configs[config_name]["adc"]:
+            raise ValueError(
+                f"Specified adc ({adc}) is not in specified configuration "
+                f"({config_name})."
+            )
+
+        return config_name, adc
+
+    def validate_board_and_channel(
+        self,
+        board: int,
+        channel: int,
+        config_name: str | None = None,
+        adc: str | None = None,
+        allow_inactive: bool = False,
+    ):
+        """
+        Parameters
+        ----------
+        board : `int`
+            Board Number
+
+        channel : `int`
+            Channel Number
+
+        config_name : `str` or None
+            The ``config_name`` to be validated.  If `None` and only
+            one active configuration is present, then the active
+            configuration name will be assumed.
+
+        adc : `str` or None
+            The ``adc`` to be validated.  If `None` and only one
+            operable analog-digital-converter present, then the single
+            adc will be assumed.
+
+        allow_inactive : bool, optional
+            If `True`, then allow an inactive configuration to pass
+            validation.  An `HDFMappingWaring` will be given instead of
+            raising a `ValueError`.  (DEFAULT: `False`)
+
+        Returns
+        -------
+        board : int
+            Validated board number.
+
+        channel : int
+            Validated channel number.
+
+        config_name
+            A validated, and active, configuration name.
+
+        adc
+            A validated, and active, analog-digital-converter name.
+
+        See Also
+        --------
+        validate_config_namd, validate_config_name_and_adc
+        """
+        config_name, adc = self.validate_config_name_and_adc(
+            config_name=config_name, adc=adc, allow_inactive=allow_inactive
+        )
+
+        # search if (board, channel) combo is connected
+        bc_valid = False
+        for brd, chs, extras in self.configs[config_name][adc]:
+            if board == brd and channel in chs:
+                bc_valid = True
                 break
-        if not found:
-            raise ValueError(f"Board number ({board}) not found in setup")
 
-        # look for `channel`
-        if channel not in conn[1]:
-            raise ValueError(f"Channel number ({channel})  not found in setup")
+        # (board, channel) combo must be active
+        if not bc_valid:
+            raise ValueError(
+                f"Input `board` ({board}) and `channel` ({channel}) do NOT "
+                f"specify a valid dataset."
+            )
 
-        # get dictionary and add keys
-        # - 'board', 'channel', 'adc', 'digitizer', and
-        #   'configuration name'
-        adc_info = copy.deepcopy(conn[2])
-        adc_info["adc"] = adc
-        adc_info["board"] = board
-        adc_info["channel"] = channel
-        adc_info["configuration name"] = config_name
-        adc_info["digitizer"] = self.device_name
-
-        return adc_info
+        return board, channel, config_name, adc
 
 
 HDFMapDigiTemplate.configs.__doc__ = (

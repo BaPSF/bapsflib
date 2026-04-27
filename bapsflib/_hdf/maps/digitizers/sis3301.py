@@ -21,7 +21,7 @@ import numpy as np
 import os
 import re
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
@@ -691,7 +691,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         return tuple(conn)
 
     @staticmethod
-    def _parse_config_name(name: str) -> Union[None, str]:
+    def _parse_config_name(name: str) -> str | None:
         """
         Parses ``name`` to determine the digitizer configuration
         name.  A configuration group name follows the format::
@@ -705,7 +705,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[None, str]
+        str | None
             digitizer configuration name, or `None` if ``name`` does
             not represent a configuration group
         """
@@ -735,7 +735,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         config_name=None,
         adc="SIS 3301",
         return_info=False,
-    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
+    ) -> str | Tuple[str, Dict[str, Any]]:
         """
         Construct the name of the HDF5 dataset containing digitizer
         data. The dataset name follows the format::
@@ -766,7 +766,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[str, Tuple[str, Dict[str, Any]]]
+        str | Tuple[str, Dict[str, Any]]
             digitizer dataset name. If ``return_info=True``, then
             returns a tuple of (dataset name, dictionary of meta-info)
 
@@ -786,67 +786,23 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 'shot average (software)': int,
             }
         """
-        # Condition config_name
-        # - if config_name is not specified then the 'active' config
-        #   is sought out
-        if config_name is None:
-            if len(self.active_configs) == 1:
-                config_name = self.active_configs[0]
-                warn(
-                    f"`config_name` not specified, assuming '{config_name}'.",
-                    HDFMappingWarning,
-                )
-            elif len(self.active_configs) > 1:
-                raise ValueError(
-                    "There are multiple active digitizer "
-                    "configurations...`config_name` kwarg must be "
-                    "specified."
-                )
-            else:
-                raise ValueError("No active digitizer configuration detected.")
-        elif config_name not in self._configs:
-            # config_name must be a known configuration
-            raise ValueError("Invalid `config_name` given.")
-        elif self._configs[config_name]["active"] is False:
-            raise ValueError("Specified configuration name `config_name` is not active.")
+        # Validate digitizer parameters
+        board, channel, config_name, adc = self.validate_board_and_channel(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+        )
 
-        # Condition adc keyword
-        if adc != "SIS 3301":
-            raise ValueError(
-                f"Specified adc ({adc}) is not in specified configuration "
-                f"({config_name})."
-            )
-
-        # search if (board, channel) combo is connected
-        bc_valid = False
-        d_info = None
-        for brd, chs, extras in self._configs[config_name]["SIS 3301"]:
-            if board == brd and channel in chs:
-                # board, channel combo valid
-                bc_valid = True
-
-                # save adc settings for return if requested
-                if return_info:
-                    d_info = extras.copy()
-                    d_info["adc"] = "SIS 3301"
-                    d_info["configuration name"] = config_name
-                    d_info["digitizer"] = self._info["group name"]
-                break
-
-        # (board, channel) combo must be active
-        if not bc_valid:
-            raise ValueError(
-                "Input `board` and `channel` do NOT specified a valid dataset."
-            )
-
-        # checks passed, build dataset_name
+        # build dataset_name
         dataset_name = f"{config_name} [{board}:{channel}]"
 
-        # return
-        if return_info is True:
-            return dataset_name, d_info
-        else:
+        if not return_info:
             return dataset_name
+
+        # get dataset info
+        _info = self.get_adc_info(board, channel, config_name=config_name, adc=adc)
+        return dataset_name, _info
 
     def construct_header_dataset_name(
         self, board: int, channel: int, config_name=None, adc="SIS 3301", **kwargs

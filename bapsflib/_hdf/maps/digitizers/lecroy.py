@@ -8,7 +8,7 @@ __all__ = ["HDFMapDigiLeCroy180E"]
 import h5py
 import numpy as np
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
@@ -458,70 +458,23 @@ class HDFMapDigiLeCroy180E(HDFMapDigiTemplate):
                 'shot average (software)': int,
             }
         """
-        # Condition config_name
-        # - if config_name is not specified then the 'active' config
-        #   is sought out
-        if config_name is None:
-            config_name = "lecroy"
-        elif config_name != "lecroy":
-            raise ValueError(
-                f"The only valid `config_name` value is 'lecroy'.  Use 'lecroy' "
-                f"or omit optional keyword argument 'config_name'."
-            )
+        # Validate digitizer parameters
+        board, channel, config_name, adc = self.validate_board_and_channel(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+        )
 
-        # Condition adc keyword
-        if adc is None:
-            adc = "lecroy"
-        elif adc != "lecroy":
-            raise ValueError(
-                f"The only valid `adc` value is 'lecroy'.  Use 'lecroy' "
-                f"or omit optional keyword argument 'adc'."
-            )
-
-        # Condition board
-        if board != 0:
-            raise ValueError(
-                f"The only valid `board` value is '0' (the int zero).  Use 'lecroy' "
-                f"or omit optional keyword argument 'adc'."
-            )
-
-        # Condition channel
-        if channel not in (1, 2, 3, 4):
-            raise ValueError(
-                f"Got value {channel} for argument `channel`, but only values "
-                f"1, 2, 3, or 4 are accepted."
-            )
-
-        # search if (board, channel) combo is connected
-        bc_valid = False
-        d_info = None
-        for brd, chs, extras in self._configs[config_name][adc]:
-            if channel in chs:
-                # board, channel combo valid
-                bc_valid = True
-
-                # save adc settings for return if requested
-                if return_info:
-                    d_info = extras.copy()
-                    d_info["adc"] = "lecroy"
-                    d_info["configuration name"] = config_name
-                    d_info["digitizer"] = self._info["group name"]
-                break
-
-        # (board, channel) combo must be active
-        if not bc_valid:
-            raise ValueError(
-                "Input `board` and `channel` do NOT specified a valid dataset."
-            )
-
-        # checks passed, build dataset_name
+        # build dataset_name
         dataset_name = f"Channel{channel}"
 
-        # return
-        if return_info:
-            return dataset_name, d_info
-        else:
+        if not return_info:
             return dataset_name
+
+        # get dataset info
+        _info = self.get_adc_info(board, channel, config_name=config_name, adc=adc)
+        return dataset_name, _info
 
     def construct_header_dataset_name(
         self, board: int, channel: int, config_name="lecroy", adc="lecroy", **kwargs

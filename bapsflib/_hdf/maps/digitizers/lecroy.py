@@ -8,7 +8,7 @@ __all__ = ["HDFMapDigiLeCroy180E"]
 import h5py
 import numpy as np
 
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Tuple
 from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate

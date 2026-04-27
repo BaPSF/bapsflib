@@ -454,8 +454,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             if board != conn[0]:
                 continue
 
-            if channel not in conn[1]:
-                continue
+            # Note: check 'channel not in conn[1]' is NOT needed here
+            #       since validate_board_and_channel() has already conditioned
+            #       that channel is in conn[1].
 
             adc_info = copy.deepcopy(conn[2])
             break

@@ -557,7 +557,12 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         return config_name
 
-    def validate_config_name_and_adc(self, config_name: str | None, adc: str | None):
+    def validate_config_name_and_adc(
+        self,
+        config_name: str | None,
+        adc: str | None,
+        allow_inactive: bool = False,
+    ):
         """
         Validate the specified ``config_name`` and ``adc`` name to
         determine if the set is present and active in the digitizer
@@ -583,6 +588,11 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
             operable analog-digital-converter present, then the single
             adc will be assumed.
 
+        allow_inactive : bool, optional
+            If `True`, then allow an inactive configuration to pass
+            validation.  An `HDFMappingWaring` will be given instead of
+            raising a `ValueError`.  (DEFAULT: `False`)
+
         Return
         ------
         config_name
@@ -595,7 +605,9 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
         --------
         validate_config_name, validate_board_and_channel
         """
-        config_name = self.validate_config_name(config_name)
+        config_name = self.validate_config_name(
+            config_name, allow_inactive=allow_inactive
+        )
 
         if adc is None and len(self.configs[config_name]["adc"]) == 1:
             adc = self.configs[config_name]["adc"][0]

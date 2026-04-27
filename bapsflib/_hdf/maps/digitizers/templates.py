@@ -609,7 +609,7 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
                 f"configuration has multiple adcs, "
                 f"{tuple(self.configs[config_name]['adc'])}."
             )
-        elif adc not in self._configs[config_name]["adc"]:
+        elif adc not in self.configs[config_name]["adc"]:
             raise ValueError(
                 f"Specified adc ({adc}) is not in specified configuration "
                 f"({config_name})."

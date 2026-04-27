@@ -629,6 +629,76 @@ class HDFMapDigiTemplate(HDFMapTemplate, ABC):
 
         return config_name, adc
 
+    def validate_board_and_channel(
+        self,
+        board: int,
+        channel: int,
+        config_name: str | None = None,
+        adc: str | None = None,
+        allow_inactive: bool = False,
+    ):
+        """
+        Parameters
+        ----------
+        board : `int`
+            Board Number
+
+        channel : `int`
+            Channel Number
+
+        config_name : `str` or None
+            The ``config_name`` to be validated.  If `None` and only
+            one active configuration is present, then the active
+            configuration name will be assumed.
+
+        adc : `str` or None
+            The ``adc`` to be validated.  If `None` and only one
+            operable analog-digital-converter present, then the single
+            adc will be assumed.
+
+        allow_inactive : bool, optional
+            If `True`, then allow an inactive configuration to pass
+            validation.  An `HDFMappingWaring` will be given instead of
+            raising a `ValueError`.  (DEFAULT: `False`)
+
+        Returns
+        -------
+        board : int
+            Validated board number.
+
+        channel : int
+            Validated channel number.
+
+        config_name
+            A validated, and active, configuration name.
+
+        adc
+            A validated, and active, analog-digital-converter name.
+
+        See Also
+        --------
+        validate_config_namd, validate_config_name_and_adc
+        """
+        config_name, adc = self.validate_config_name_and_adc(
+            config_name=config_name, adc=adc, allow_inactive=allow_inactive
+        )
+
+        # search if (board, channel) combo is connected
+        bc_valid = False
+        for brd, chs, extras in self.configs[config_name][adc]:
+            if board == brd and channel in chs:
+                bc_valid = True
+                break
+
+        # (board, channel) combo must be active
+        if not bc_valid:
+            raise ValueError(
+                f"Input `board` ({board}) and `channel` ({channel}) do NOT "
+                f"specify a valid dataset."
+            )
+
+        return board, channel, config_name, adc
+
 
 HDFMapDigiTemplate.configs.__doc__ = (
     getdoc(HDFMapTemplate.configs) + "\n\n" + getdoc(HDFMapDigiTemplate.configs)

@@ -786,41 +786,25 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
                 'shot average (software)': int,
             }
         """
-        # Condition config_name and adc
-        # - if config_name is not specified then the 'active' config
-        #   is sought out
-        config_name, adc = self.validate_config_name_and_adc(config_name, adc)
+        # Validate digitizer parameters
+        board, channel, config_name, adc = self.validate_board_and_channel(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+        )
 
-        # search if (board, channel) combo is connected
-        bc_valid = False
-        d_info = None
-        for brd, chs, extras in self._configs[config_name]["SIS 3301"]:
-            if board == brd and channel in chs:
-                # board, channel combo valid
-                bc_valid = True
-
-                # save adc settings for return if requested
-                if return_info:
-                    d_info = extras.copy()
-                    d_info["adc"] = "SIS 3301"
-                    d_info["configuration name"] = config_name
-                    d_info["digitizer"] = self._info["group name"]
-                break
-
-        # (board, channel) combo must be active
-        if not bc_valid:
-            raise ValueError(
-                "Input `board` and `channel` do NOT specified a valid dataset."
-            )
-
-        # checks passed, build dataset_name
+        # build dataset_name
         dataset_name = f"{config_name} [{board}:{channel}]"
 
-        # return
-        if return_info is True:
-            return dataset_name, d_info
-        else:
+        if not return_info:
             return dataset_name
+
+        # get dataset info
+        _info = self.get_adc_info(
+            board, channel, config_name=config_name, adc=adc
+        )
+        return dataset_name, _info
 
     def construct_header_dataset_name(
         self, board: int, channel: int, config_name=None, adc="SIS 3301", **kwargs

@@ -21,7 +21,7 @@ import numpy as np
 import os
 import re
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
@@ -691,7 +691,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         return tuple(conn)
 
     @staticmethod
-    def _parse_config_name(name: str) -> Union[None, str]:
+    def _parse_config_name(name: str) -> str | None:
         """
         Parses ``name`` to determine the digitizer configuration
         name.  A configuration group name follows the format::
@@ -705,7 +705,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[None, str]
+        str | None
             digitizer configuration name, or `None` if ``name`` does
             not represent a configuration group
         """
@@ -735,7 +735,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
         config_name=None,
         adc="SIS 3301",
         return_info=False,
-    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
+    ) -> str | Tuple[str, Dict[str, Any]]:
         """
         Construct the name of the HDF5 dataset containing digitizer
         data. The dataset name follows the format::
@@ -766,7 +766,7 @@ class HDFMapDigiSIS3301(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[str, Tuple[str, Dict[str, Any]]]
+        str | Tuple[str, Dict[str, Any]]
             digitizer dataset name. If ``return_info=True``, then
             returns a tuple of (dataset name, dictionary of meta-info)
 

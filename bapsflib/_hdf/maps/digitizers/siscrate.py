@@ -20,7 +20,7 @@ import h5py
 import numpy as np
 import re
 
-from typing import Any, Dict, Tuple, Union
+from typing import Any, Dict, Tuple
 from warnings import warn
 
 from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
@@ -849,7 +849,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         return nshotnum, nt
     """
 
-    def _parse_config_name(self, name: str) -> Union[None, str]:
+    def _parse_config_name(self, name: str) -> str | None:
         """
         Parses ``name`` to determine the digitizer configuration
         name.  A configuration group name follows the format::
@@ -863,7 +863,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[None, str]
+        str | None
             digitizer configuration name, or `None` if  ``name`` does
             not represent a configuration group
 
@@ -890,7 +890,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
     def construct_dataset_name(
         self, board: int, channel: int, config_name=None, adc=None, return_info=False
-    ) -> Union[str, Tuple[str, Dict[str, Any]]]:
+    ) -> str | Tuple[str, Dict[str, Any]]:
         """
         Construct the name of the HDF5 dataset containing digitizer
         data. The dataset naming follows two formats based on their
@@ -928,7 +928,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[str, Tuple[str, Dict[str, Any]]]
+        str | Tuple[str, Dict[str, Any]]
             digitizer dataset name. If ``return_info=True``,
             then returns a tuple of (dataset name, dictionary of
             meta-info)
@@ -1067,7 +1067,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
         dheader_name = f"{dset_name} headers"
         return dheader_name
 
-    def get_slot(self, brd: int, adc: str) -> Union[None, int]:
+    def get_slot(self, brd: int, adc: str) -> int | None:
         """
         Get slot number for given board number and adc.
 
@@ -1080,7 +1080,7 @@ class HDFMapDigiSISCrate(HDFMapDigiTemplate):
 
         Returns
         -------
-        Union[None, int]
+        int | None
             slot number, or `None` if there is no associated slot number
         """
         slot = None

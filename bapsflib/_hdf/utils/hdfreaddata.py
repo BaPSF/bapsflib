@@ -494,7 +494,7 @@ class HDFReadData(np.ndarray):
         ...     adc='SIS 3302',
         ... )
 
-        The ``'digitizer'``, ``'config_name'``, and ``'adc'`` arguments
+        The ``digitizer``, ``config_name``, and ``adc`` arguments
         are optional if there is only value for each of those.  In such
         a case, only the ``board`` and ``channel`` arguments are needed.
 

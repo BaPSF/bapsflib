@@ -416,59 +416,69 @@ class HDFReadData(np.ndarray):
             HDF5 file object
 
         board : `int`
-            analog-digital-converter board number
+            Analog-digital-converter board number
 
         channel : `int`
-            analog-digital-converter channel number
+            Analog-digital-converter channel number
 
         index : int | List[int] | slice | numpy.ndarray, optional
-            dataset row indices to be sliced. Overridden by argument
-            ``shotnum``. (DEFAULT ``slice(None)``)
+            (DEFAULT: ``slice(None)``) Dataset row indices to be
+            readout. Overridden by argument ``shotnum``.
 
         shotnum : int | List[int] | slice | numpy.ndarray, optional
-            HDF5 file shot number(s) indicating data entries to be
-            extracted.  Overrides argument ``index``.  (DEFAULT
-            ``slice(None)``)
+            (DEFAULT: ``slice(None)``) HDF5 file shot number(s)
+            indicating data entries to be extracted.  Overrides
+            argument ``index``.
 
-        time_slice : slice
-            A `slice` object representing the time slice to be extracted
-            from the digitizer dataset.  (DEFAULT: ``slice(None)``)
+        time_slice : slice, optional
+            (DEFAULT: ``slice(None)``) A `slice` object representing
+            the time slice to be extracted from the digitizer dataset.
 
         digitizer : `str`, optional
-            name of the digitizer
+            (DEFAULT: `None`) Name of the digitizer
 
         adc : `str`, optional
-            name of the analog-digital-converter
+            (DEFAULT: `None`) Name of the digitizer's
+            analog-digital-converter
 
         config_name : `str`, optional
-            name of the digitizer configuration
+            (DEFAULT: `None`) Name of the digitizer configuration
 
         keep_bits : `bool`, optional
-            set `True` to keep data in bits, `False` (DEFAULT) to
-            convert data to voltage
+            (DEFAULT: `False`) Set `True` to keep the extracted data as
+            is (i.e. in bits). Set `False` to convert the extracted data
+            to voltage using stored meta-data in the associated header
+            dataset.
 
         add_controls : str | Iterable[str, Tuple[str, Any]], optional
-            a list indicating the desired control device names and their
-            configuration name (if more than one configuration exists)
+            (DEFAULT: `None`) A list of strings and/or 2-element tuples indicating the
+            control device(s).  If a control device has only one
+            configuration, then only the device name ``'control'`` needs
+            to be passed in the list.  If a control device has multiple
+            configurations, then the device name and its configuration
+            "name" needs to be passed as a tuple element
+            ``('control', 'config')`` in the list. (see
+            :func:`~.helpers.condition_controls` for details)
 
         intersection_set : `bool`, optional
-            `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of ``shotnum`` and the shot numbers
-            contained in each control device and digitizer dataset.
-            `False` will return the union of shot numbers.
+            (DEFAULT: `True`) `True` will force the returned shot
+            numbers to be the intersection of ``shotnum``, the digitizer
+            dataset shot numbers, and, if requested, the shot numbers
+            contained in  each control device dataset. `False` will
+            return the union instead of the intersection, minus
+            :math:`shotnum \\le 0`. (see `~.hdfreaddata.HDFReadData`
+            for details)
 
         Notes
         -----
 
-        Behavior of ``index``, ``shotnum`` and ``intersection_set``:
-
         .. note::
 
-            * The ``shotnum`` keyword will always override the
-              ``index`` keyword, but, due to extra overhead
-              required for identifying shot number locations in the
-              digitizer dataset, the ``index`` keyword will always
-              execute quicker than the ``shotnum`` keyword.
+            The ``shotnum`` keyword will always override the ``index``
+            keyword, but, due to extra overhead required for identifying
+            shot number locations in the digitizer dataset, the
+            ``index`` keyword will always execute quicker than the
+            ``shotnum`` keyword.
 
         Examples
         --------
@@ -477,21 +487,21 @@ class HDFReadData(np.ndarray):
         needed to fully define what data is to be extracted.  These
         descriptors are ``board``, ``channel``, ``digitizer``,
         ``config_name``, and ``adc``.  In the following example, board
-        1, channel 1 will be read for the ``'SIS Crate'`` digitizer
-        on the ``'SIS 3302'`` analog-digital-converter for the
-        ``'config01'`` digitizer configuration.
+        1, channel 1 will be read for the ``"SIS Crate"`` digitizer
+        on the ``"SIS 3302"`` analog-digital-converter for the
+        ``"config01"`` digitizer configuration.
 
         >>> # open HDF5 file
-        >>> f = bapsflib.lapd.File('test.hdf5')
+        >>> f = bapsflib.lapd.File("test.hdf5")
         >>>
         >>> # read the data
         >>> data = HDFReadData(
         ...     f,
         ...     1,
         ...     1,
-        ...     digitizer='SIS Crate',
-        ...     config_name='config01',
-        ...     adc='SIS 3302',
+        ...     digitizer="SIS Crate",
+        ...     config_name="config01",
+        ...     adc="SIS 3302",
         ... )
 
         The ``digitizer``, ``config_name``, and ``adc`` arguments
@@ -501,10 +511,10 @@ class HDFReadData(np.ndarray):
         >>> data = HDFReadData(f, 1, 1)
 
         ``data`` in this case will be a structured `numpy` array
-        containing at leaset three fields: ``'shotnum'``, ``'signal'``,
-        and ``'xyz'``.  ``'shotnum'`` is the array of shot numbers
-        associated with the digitized data; ``'signal'`` is the acutal
-        digitized data; and ``'zyz'`` is the probe xyz location.  The
+        containing at leaset three fields: ``"shotnum"``, ``"signal"``,
+        and ``"xyz"``.  ``'shotnum'`` is the array of shot numbers
+        associated with the digitized data; ``"signal"`` is the acutal
+        digitized data; and ``"zyz"`` is the probe xyz location.  The
         later is NaN at the moment, since positional data read-out has
         not been requested.
 
@@ -513,16 +523,16 @@ class HDFReadData(np.ndarray):
               ('xyz', '<f4', (3,))])
         >>>
         >>> # display shot numbers
-        >>> data['shotnum']
+        >>> data["shotnum"]
         array([  1,  2, ..., 98, 99], dtype=uint32)
         >>>
         >>> # show 'signal' values for shot number 1
-        >>> data['signal'][0]
+        >>> data["signal"][0]
         array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
                -0.4105754 , -0.41119337], dtype=float32)
         >>>
         >>> # show 'xyz' values for shot number 1
-        >>> data['xyz'][0]
+        >>> data["xyz"][0]
         array([nan, nan, nan], dtype=float32)
 
         If it is desired to read out only certain digitized traces, then
@@ -562,14 +572,14 @@ class HDFReadData(np.ndarray):
 
         Now lets add position data to the read out.  Position data is
         recorded by control devices.  For this example lets assume
-        the position data was recored by the ``'6K Compumotor'`` control
+        the position data was recored by the ``"6K Compumotor"`` control
         device using the probe drive attached to receptical 3.  This
         information can be given using the ``add_controls`` argument.
 
         >>> # read digitizer data while adding '6K Compumotor' data
         >>> # from receptacle (configuration) 3
         >>> data = HDFReadData(
-        ...     f, 1, 1, add_controls=[('6K Compumotor', 3)]
+        ...     f, 1, 1, add_controls=[("6K Compumotor", 3)]
         ... )
         >>> data.dtype
         dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)),
@@ -577,11 +587,11 @@ class HDFReadData(np.ndarray):
                ('ptip_rot_phi', '<f8')])
         >>>
         >>> # show 'xyz' values for shot number 1
-        >>> data['xyz'][0]
+        >>> data["xyz"][0]
         array([ -32. ,   15. , 1022.4], dtype=float32)
 
-        Now the ``'xyz'`` is populated with position data, but
-        additional fields (``'ptip_rot_theta'`` and ``'ptip_rot_phi'``)
+        Now the ``"xyz"`` is populated with position data, but
+        additional fields (``"ptip_rot_theta"`` and ``"ptip_rot_phi"``)
         are added to the sturctured `numpy` array.  Each control device
         can add its own data fields to the array.  And, multiple
         control devices can be specified at the time of the data read.

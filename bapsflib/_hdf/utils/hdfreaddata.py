@@ -473,16 +473,41 @@ class HDFReadData(np.ndarray):
         Examples
         --------
 
-        Here data is extracted from the digitizer ``'SIS crate'`` and
-        position data is mated from the control device ``'6K Compumotor'``.
+        To read data associated with a digitizer there are 5 descriptors
+        needed to fully define what data is to be extracted.  These
+        descriptors are ``board``, ``channel``, ``digitizer``,
+        ``config_name``, and ``adc``.  In the following example, board
+        1, channel 1 will be read for the ``'SIS Crate'`` digitizer
+        on the ``'SIS 3302'`` analog-digital-converter for the
+        ``'config01'`` digitizer configuration.
 
         >>> # open HDF5 file
         >>> f = bapsflib.lapd.File('test.hdf5')
         >>>
-        >>> # read digitizer data from board 1, channel 1,
-        >>> # - this is equivalent to
-        >>> #   f.read_data(1, 1)
+        >>> # read the data
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     1,
+        ...     digitizer='SIS Crate',
+        ...     config_name='config01',
+        ...     adc='SIS 3302',
+        ... )
+
+        The ``'digitizer'``, ``'config_name'``, and ``'adc'`` arguments
+        are optional if there is only value for each of those.  In such
+        a case, only the ``board`` and ``channel`` arguments are needed.
+
         >>> data = HDFReadData(f, 1, 1)
+
+        ``data`` in this case will be a structured `numpy` array
+        containing at leaset three fields: ``'shotnum'``, ``'signal'``,
+        and ``'xyz'``.  ``'shotnum'`` is the array of shot numbers
+        associated with the digitized data; ``'signal'`` is the acutal
+        digitized data; and ``'zyz'`` is the probe xyz location.  The
+        later is NaN at the moment, since positional data read-out has
+        not been requested.
+
         >>> data.dtype
         dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)),
               ('xyz', '<f4', (3,))])
@@ -499,7 +524,48 @@ class HDFReadData(np.ndarray):
         >>> # show 'xyz' values for shot number 1
         >>> data['xyz'][0]
         array([nan, nan, nan], dtype=float32)
+
+        If it is desired to read out only certain digitized traces, then
+        this can be achieved with either the ``index`` or ``shotnum``
+        argument, with the later taking precedence.
+
+        >>> # get the first 5 traces using index
+        >>> data = HDFReadData(f, 1, 1, index=slice(5))
+        >>> data = HDFReadData(f, 1, 1, index=np.s_[:5])
         >>>
+        >>> # get every 10th shot using shotnum
+        >>> data = HDFReadData(f, 1, 1, shotnum=slice(10, None, 10))
+        >>> data = HDFReadData(f, 1, 1, shotnum=np.s_[10::10])
+
+        Sometimes only a certain time slice is desired, and this can
+        be achieved using the ``time_slice`` arguemnt.
+
+        >>> # get time subset
+        >>> data = HDFReadData(f, 1, 1, time_slice=slice(200, 500, 1))
+        >>> data = HDFReadData(f, 1, 1, time_slice=np.s_[200:500:1])
+        >>>
+        >>> # time_slice can be used with index or shotnum
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     1,
+        ...     time_slice=slice(200, 500, 1),
+        ...     shotnum=slice(10, None, 10),
+        ... )
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     1,
+        ...     time_slice=slice(200, 500, 1),
+        ...     index=np.s_[0:5],
+        ... )
+
+        Now lets add position data to the read out.  Position data is
+        recorded by control devices.  For this example lets assume
+        the position data was recored by the ``'6K Compumotor'`` control
+        device using the probe drive attached to receptical 3.  This
+        information can be given using the ``add_controls`` argument.
+
         >>> # read digitizer data while adding '6K Compumotor' data
         >>> # from receptacle (configuration) 3
         >>> data = HDFReadData(
@@ -514,6 +580,11 @@ class HDFReadData(np.ndarray):
         >>> data['xyz'][0]
         array([ -32. ,   15. , 1022.4], dtype=float32)
 
+        Now the ``'xyz'`` is populated with position data, but
+        additional fields (``'ptip_rot_theta'`` and ``'ptip_rot_phi'``)
+        are added to the sturctured `numpy` array.  Each control device
+        can add its own data fields to the array.  And, multiple
+        control devices can be specified at the time of the data read.
         """
 
         # Condition arguments

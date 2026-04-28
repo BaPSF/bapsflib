@@ -268,6 +268,20 @@ def _determine_digitizer_voltage_offset(
     header_dataset_row: np.void,
     keep_bits: bool,
 ) -> Tuple[u.Quantity | None, u.Unit | u.IrreducibleUnit | None, bool]:
+    # Determine the the voltage range (2 * voltage_offset) for the digitizers.
+    # - This values is needed to convert the digitizer bit-values to
+    #   voltage values.
+    # - In the process the keep_bit argument will be updated, and signal_units
+    #   will be determined.
+    #
+    # keep_bits
+    #     Boolean indicating if the signal will be converted from its original
+    #     source value (bits) to voltage.
+    #
+    # signal_units
+    #     The units (astropy.units.Unit) that the final signal array
+    #     will have.
+    #
     info = digitizer_info
     dset_row = header_dataset_row
 
@@ -314,14 +328,20 @@ def _determine_digitizer_voltage_offset(
     return voltage_offset, signal_units, keep_bits
 
 
-def _calc_dv(voltage_offset: u.Quantity | None, bitness: int | None) -> u.Quantity | None:
+def _calc_dv(
+    voltage_offset: u.Quantity | None,
+    bitness: int | None,
+) -> u.Quantity | None:
+    # Determing the voltage step size 'dv', given the digitizer's bitness
+    # and voltage offset.
+    #
     if voltage_offset is None:
         return None
 
     if bitness is None:
         return None
 
-    return 2.0 * abs(voltage_offset) / (2.0**bitness - 1.0)
+    return 2.0 * np.abs(voltage_offset) / (2.0**bitness - 1.0)
 
 
 def _convert_bits_to_voltage(
@@ -329,6 +349,8 @@ def _convert_bits_to_voltage(
     voltage_offset: u.Quantity | None,
     bitness: int | None,
 ) -> Tuple[np.ndarray, u.Unit | None]:
+    # Convert the original digitizer bit signal into voltage.
+    #
     dv = _calc_dv(voltage_offset, bitness)
 
     if dv is None or voltage_offset is None:

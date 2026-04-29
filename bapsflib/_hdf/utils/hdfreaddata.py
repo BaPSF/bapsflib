@@ -332,7 +332,7 @@ def _calc_dv(
     voltage_offset: u.Quantity | None,
     bitness: int | None,
 ) -> u.Quantity | None:
-    # Determing the voltage step size 'dv', given the digitizer's bitness
+    # Determine the voltage step size 'dv', given the digitizer's bitness
     # and voltage offset.
     #
     if voltage_offset is None:
@@ -512,9 +512,9 @@ class HDFReadData(np.ndarray):
         >>> data = HDFReadData(f, 1, 1)
 
         ``data`` in this case will be a structured `numpy` array
-        containing at leaset three fields: ``"shotnum"``, ``"signal"``,
+        containing at least three fields: ``"shotnum"``, ``"signal"``,
         and ``"xyz"``.  ``'shotnum'`` is the array of shot numbers
-        associated with the digitized data; ``"signal"`` is the acutal
+        associated with the digitized data; ``"signal"`` is the actual
         digitized data; and ``"zyz"`` is the probe xyz location.  The
         later is NaN at the moment, since positional data read-out has
         not been requested.
@@ -549,7 +549,7 @@ class HDFReadData(np.ndarray):
         >>> data = HDFReadData(f, 1, 1, shotnum=np.s_[10::10])
 
         Sometimes only a certain time slice is desired, and this can
-        be achieved using the ``time_slice`` arguemnt.
+        be achieved using the ``time_slice`` argument.
 
         >>> # get time subset
         >>> data = HDFReadData(f, 1, 1, time_slice=slice(200, 500, 1))
@@ -573,9 +573,10 @@ class HDFReadData(np.ndarray):
 
         Now lets add position data to the read out.  Position data is
         recorded by control devices.  For this example lets assume
-        the position data was recored by the ``"6K Compumotor"`` control
-        device using the probe drive attached to receptical 3.  This
-        information can be given using the ``add_controls`` argument.
+        the position data was recorded by the ``"6K Compumotor"``
+        control device using the probe drive attached to receptacle 3.
+        This information can be given using the ``add_controls``
+        argument.
 
         >>> # read digitizer data while adding '6K Compumotor' data
         >>> # from receptacle (configuration) 3
@@ -593,7 +594,7 @@ class HDFReadData(np.ndarray):
 
         Now the ``"xyz"`` is populated with position data, but
         additional fields (``"ptip_rot_theta"`` and ``"ptip_rot_phi"``)
-        are added to the sturctured `numpy` array.  Each control device
+        are added to the structured `numpy` array.  Each control device
         can add its own data fields to the array.  And, multiple
         control devices can be specified at the time of the data read.
         """

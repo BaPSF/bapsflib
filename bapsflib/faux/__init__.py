@@ -8,3 +8,7 @@ faux BaPSF style HDF5 files.
     for end user use.
 
 """
+
+__all__ = ["FauxHDFBuilder"]
+
+from bapsflib.faux.builder import FauxHDFBuilder

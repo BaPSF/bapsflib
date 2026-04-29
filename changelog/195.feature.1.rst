@@ -1,5 +1,0 @@
-.. py:currentmodule:: bapsflib._hdf.utils
-
-Added keyword argument ``time_slice`` to `~.hdfreaddata.HDFReadData`,
-and thus `~.file.File.read_data`, which allows for temporal slicing
-during the data extraction.

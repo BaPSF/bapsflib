@@ -629,7 +629,7 @@ class File(h5py.File):
         needed to fully define what data is to be extracted.  These
         descriptors are ``board``, ``channel``, ``digitizer``,
         ``config_name``, and ``adc``.  In the following example, board
-        1, channel 2 will be read for the ``"SIS Crate"`` digitizer
+        1, channel 2 will be read for the ``"SIS crate"`` digitizer
         on the ``"SIS 3302"`` analog-digital-converter for the
         ``"config01"`` digitizer configuration.
 
@@ -640,7 +640,7 @@ class File(h5py.File):
         >>> print(f.digitizers)
         | Digitizer   | Configuration | ADC        | (board, [channel, ...]) | Shot Num. Range | nt   |
         +-------------+---------------+------------+-------------------------+-----------------+------+
-        | 'SIS Crate' | 'config01'    | 'SIS 3302' | (1, (2, 3, 4))          | ??              | 2500 |
+        | 'SIS crate' | 'config01'    | 'SIS 3302' | (1, (2, 3, 4))          | ??              | 2500 |
         |             |---------------|------------|-------------------------|-----------------|------|
         |             | 'config02'    | 'SIS 3302' | (1, (2, 3, 4))          | ??              | 2500 |
         |             |               | 'SIS 3305' | (1, (1,))               | ??              | 2500 |

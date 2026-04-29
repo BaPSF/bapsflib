@@ -487,7 +487,7 @@ class HDFReadData(np.ndarray):
         needed to fully define what data is to be extracted.  These
         descriptors are ``board``, ``channel``, ``digitizer``,
         ``config_name``, and ``adc``.  In the following example, board
-        1, channel 1 will be read for the ``"SIS Crate"`` digitizer
+        1, channel 1 will be read for the ``"SIS crate"`` digitizer
         on the ``"SIS 3302"`` analog-digital-converter for the
         ``"config01"`` digitizer configuration.
 
@@ -499,7 +499,7 @@ class HDFReadData(np.ndarray):
         ...     f,
         ...     1,
         ...     1,
-        ...     digitizer="SIS Crate",
+        ...     digitizer="SIS crate",
         ...     config_name="config01",
         ...     adc="SIS 3302",
         ... )

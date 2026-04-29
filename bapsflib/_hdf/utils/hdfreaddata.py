@@ -505,8 +505,9 @@ class HDFReadData(np.ndarray):
         ... )
 
         The ``digitizer``, ``config_name``, and ``adc`` arguments
-        are optional if there is only value for each of those.  In such
-        a case, only the ``board`` and ``channel`` arguments are needed.
+        are optional if there is only one value for each of those.  In
+        such a case, only the ``board`` and ``channel`` arguments are
+        needed.
 
         >>> data = HDFReadData(f, 1, 1)
 

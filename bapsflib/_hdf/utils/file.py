@@ -658,9 +658,9 @@ class File(h5py.File):
         bapsflib._hdf.utils.hdfreaddata.HDFReadData
 
         The ``digitizer``, ``config_name``, and ``adc`` arguments
-        are optional if there is only value for each of those.  In this
-        example ``digitizer`` is singular and ``adc`` is singular for
-        configuration ``'config01'``, so only the configuration name
+        are optional if there is only one value for each of those.  In
+        this example ``digitizer`` is singular and ``adc`` is singular
+        for configuration ``'config01'``, so only the configuration name
         (in addition to board and channel) needs to be specified.
 
         >>> data = f.read_data(1, 2, config_name="config01")

@@ -1,6 +1,6 @@
 __all__ = ["FauxHDFBuilder", "MapTestBase"]
 
-from bapsflib._hdf.maps.tests.fauxhdfbuilder import FauxHDFBuilder
+from bapsflib.faux.fauxhdfbuilder import FauxHDFBuilder
 from bapsflib.utils.tests import BaPSFTestCase
 
 

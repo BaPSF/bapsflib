@@ -809,7 +809,7 @@ class HDFReadData(np.ndarray):
         A dictionary of metadata for the extracted data. The
         dict() keys are:
 
-        .. list-table::
+        .. list-table::  Data Origin Parameters
             :widths: 5 3 11
 
             * - ``"source file"``
@@ -821,6 +821,21 @@ class HDFReadData(np.ndarray):
             * - ``"device dataset path"``
               - `str`
               - internal HDF5 path to the data originating dataset
+            * - ``"controls"``
+              - `dict`
+              - meta-data of the control device data included in the
+                data read
+
+
+        .. list-table::  Read Data Parameters
+            :widths: 5 3 11
+
+            * - ``"board"``
+              - `int`
+              - adc board the data was retrieved from
+            * - ``"channel"``
+              - `int`
+              - adc channel the data was retrieved from
             * - ``"digitizer"``
               - `str`
               - digitizer name
@@ -831,6 +846,20 @@ class HDFReadData(np.ndarray):
               - `str`
               - analog-digital converter in which the data was recorded
                 on
+            * - ``"digitizer"``
+              - `str`
+              - digitizer name
+            * - ``"configuration name"``
+              - `str`
+              - name of data configuration
+            * - ``"time_slice"``
+              - `slice`
+              - temporal slice of the exctraced data
+
+
+        .. list-table::  Digitization Parameters
+            :widths: 5 3 11
+
             * - ``"bit"``
               - `int` | `None`
               - bit resolution for the adc
@@ -845,15 +874,20 @@ class HDFReadData(np.ndarray):
               - `int` | None
               - (software averaging) number of shot sequences averaged
                 together
-            * - ``"board"``
-              - `int`
-              - adc board the data was retrieved from
-            * - ``"channel"``
-              - `int`
-              - adc channel the data was retrieved from
             * - ``"voltage offset"``
               - `float` | None
               - half the peak-to-peak voltage range of the adc
+            * - ``"signal units"``
+              - `astropy.Unit`
+              - units of the returned ``"signal"`` data
+            * - ``"time_dset_path"``
+              - `str` | None
+              - internal HDF5 path to a time array dataset (if present)
+
+
+        .. list-table::  Probe Related Meta-Data
+            :widths: 5 3 11
+
             * - ``"probe name"``
               - `str` | None
               - name of deployed probe...empty for user to use at
@@ -862,30 +896,7 @@ class HDFReadData(np.ndarray):
               - (`int`, `str`)
               - 2-element tuple indicating which port the probe was
                 deployed on, eg. (19, 'W')
-            * - ``"signal units"``
-              - `astropy.Unit`
-              - units of the returned ``"signal"`` data
-            * - ``"time_dset_path"``
-              - `str` | None
-              - internal HDF5 path to a time array dataset (if present)
-            * - ``"controls"``
-              - `dict`
-              - meta-data of the control device data included in the
-                data read
 
-
-        .. 'port' -- 2-element tuple indicating which port the probe was
-                     deployed on. e.g. (19, 'W') => deployed on port 19
-                     on the west side of the machine. Second elements
-                     descriptors should follow:
-                     'T'  = top
-                     'TW' = top-west
-                     'W'  = west
-                     'BW' = bottom-west
-                     'B'  = bottom
-                     'BE' = bottom-east
-                     'E'  = east
-                     'TE' = top-east
         """
         return self._info
 

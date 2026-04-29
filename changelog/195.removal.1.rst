@@ -1,0 +1,5 @@
+.. py:currentmodule:: bapsflib._hdf.utils.hdfreaddata
+
+Removed from `HDFReadData` (never fully implemented) methods and
+properties ``_update_plasma_constants``, ``set_plasma_value``,
+``set_plasma``, ``plasma``, and ``convert_signal``.

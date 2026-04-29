@@ -525,6 +525,7 @@ class File(h5py.File):
         channel: int,
         index=slice(None),
         shotnum=slice(None),
+        time_slice: slice = slice(None),
         digitizer=None,
         adc=None,
         config_name=None,
@@ -536,58 +537,67 @@ class File(h5py.File):
     ) -> HDFReadData:
         """
         Reads data from digitizer datasets and attaches control device
-        data when requested. (see `.hdfreaddata.HDFReadData` for
-        details)
+        data when requested.
 
         Parameters
         ----------
         board : `int`
-            digitizer board number
+            Analog-digital-converter board number
 
         channel : `int`
-            digitizer channel number
+            Analog-digital-converter channel number
 
         index : int | list(int) | slice() | numpy.array, optional
-            dataset row index
+            (DEFAULT: ``slice(None)``) Dataset row indices to be
+            readout. Overridden by argument ``shotnum``.
 
         shotnum : int | list(int) | slice() | numpy.array, optional
-            HDF5 global shot number
+            (DEFAULT: ``slice(None)``) HDF5 file shot number(s)
+            indicating data entries to be extracted.  Overrides
+            argument ``index``.
+
+        time_slice : slice, optional
+            (DEFAULT: ``slice(None)``) A `slice` object representing
+            the time slice to be extracted from the digitizer dataset.
 
         digitizer : `str`, optional
-            name of digitizer
+            (DEFAULT: `None`) Name of digitizer
 
         adc : `str`, optional
-            name of the digitizer's analog-digital converter
+            (DEFAULT: `None`) Name of the digitizer's
+            analog-digital converter
 
         config_name : `str`, optional
-            name of digitizer configuration
+            (DEFAULT: `None`) Name of digitizer configuration
 
         keep_bits : `bool`, optional
-            `True` to keep digitizer signal in bits, `False` (default)
-            to convert digitizer signal to voltage
+            (DEFAULT: `False`) Set `True` to keep the extracted data as
+            is (i.e. in bits). Set `False` to convert the extracted data
+            to voltage using stored meta-data in the associated header
+            dataset.
 
         add_controls : List[str | Tuple[str, Any]], optional
-            A list of strings and/or 2-element tuples indicating the
-            control device(s).  If a control device has only one
-            configuration then only the device name ``'control'`` needs
-            to be passed in the list.  If a control device has multiple
-            configurations, then the device name and its configuration
-            "name" needs to be passed as a tuple element
-            ``('control', 'config')`` in the list. (see
+            (DEFAULT: `None`) A list of strings and/or 2-element tuples
+            indicating the control device(s).  If a control device has
+            only one configuration, then only the device name
+            ``'control'`` needs to be passed in the list.  If a control
+            device has multiple configurations, then the device name
+            and its configuration "name" needs to be passed as a tuple
+            element ``('control', 'config')`` in the list. (see
             :func:`~.helpers.condition_controls` for details)
 
         intersection_set : `bool`, optional
-            `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of ``shotnum``, the digitizer dataset
-            shot numbers, and, if requested, the shot numbers contained
-            in  each control device dataset. `False` will return the
-            union instead of the intersection, minus
+            (DEFAULT: `True`) `True` will force the returned shot
+            numbers to be the intersection of ``shotnum``, the digitizer
+            dataset shot numbers, and, if requested, the shot numbers
+            contained in  each control device dataset. `False` will
+            return the union instead of the intersection, minus
             :math:`shotnum \\le 0`. (see `~.hdfreaddata.HDFReadData`
             for details)
 
         silent : `bool`, optional
-            `False` (DEFAULT).  Set `True` to ignore any `BaPSFWarning`
-            (soft-warnings)
+            (DEFAULT: `False`) Set `True` to ignore any issued
+            `~bapsflib.utils.warnings.BaPSFWarning`.
 
         Returns
         -------
@@ -596,47 +606,167 @@ class File(h5py.File):
             <https://numpy.org/doc/stable/user/basics.rec.html>`_ of
             digitized data
 
+        See Also
+        --------
+        ~bapsflib._hdf.utils.hdfreaddata.HDFReadData,
+        ~bapsflib._hdf.utils.hdfreadcontrols.HDFReadControls
+
+        Notes
+        -----
+
+        .. note::
+
+            The ``shotnum`` keyword will always override the ``index``
+            keyword, but, due to extra overhead required for identifying
+            shot number locations in the digitizer dataset, the
+            ``index`` keyword will always execute quicker than the
+            ``shotnum`` keyword.
+
         Examples
         --------
 
+        To read data associated with a digitizer there are 5 descriptors
+        needed to fully define what data is to be extracted.  These
+        descriptors are ``board``, ``channel``, ``digitizer``,
+        ``config_name``, and ``adc``.  In the following example, board
+        1, channel 2 will be read for the ``"SIS crate"`` digitizer
+        on the ``"SIS 3302"`` analog-digital-converter for the
+        ``"config01"`` digitizer configuration.
+
         >>> # open HDF5 file
-        >>> f = File('sample.hdf5')
+        >>> f = File("sample.hdf5")
         >>>
-        >>> # list control devices
-        >>> list(f.digitizers)
-        ['SIS crate']
+        >>> # print detail about the mapped digitizers
+        >>> print(f.digitizers)
+        | Digitizer   | Configuration | ADC        | (board, [channel, ...]) | Shot Num. Range | nt   |
+        +-------------+---------------+------------+-------------------------+-----------------+------+
+        | 'SIS crate' | 'config01'    | 'SIS 3302' | (1, (2, 3, 4))          | ??              | 2500 |
+        |             |---------------|------------|-------------------------|-----------------|------|
+        |             | 'config02'    | 'SIS 3302' | (1, (2, 3, 4))          | ??              | 2500 |
+        |             |               | 'SIS 3305' | (1, (1,))               | ??              | 2500 |
+
         >>>
-        >>> # get active configurations
-        >>> f.digitizers['SIS crate'].configs
-        ['config01', 'config02']
-        >>>
-        >>> # get active adc's for config
-        >>> f.digitizers['SIS crate'].configs['config01']['adc']
-        ('SIS 3302,)
-        >>>
-        >>> # get first connected brd and channels to adc
-        >>> brd, chs = f.digitizers['SIS crate'].configs[
-        ...     'config01']['SIS 3302'][0][0:2]
-        >>> brd
-        1
-        >>> chs
-        (1, 2, 3)
-        >>>
-        >>> # get data for brd = 1, ch = 1
-        >>> data = f.read_data(brd, chs[0],
-        ...                    digitizer='SIS crate',
-        ...                    adc='SIS 3302',
-        ...                    config_name='config01')
+        >>> # get data for brd = 1, ch = 2
+        >>> data = f.read_data(
+        ...     1,
+        ...     2,
+        ...     digitizer="SIS crate",
+        ...     adc="SIS 3302",
+        ...     config_name="config01",
+        ... )
         >>> type(data)
         bapsflib._hdf.utils.hdfreaddata.HDFReadData
+
+        The ``digitizer``, ``config_name``, and ``adc`` arguments
+        are optional if there is only one value for each of those.  In
+        this example ``digitizer`` is singular and ``adc`` is singular
+        for configuration ``'config01'``, so only the configuration name
+        (in addition to board and channel) needs to be specified.
+
+        >>> data = f.read_data(1, 2, config_name="config01")
+
+        ``data`` in this case will be a structured `numpy` array
+        containing at least three fields: ``"shotnum"``, ``"signal"``,
+        and ``"xyz"``.  ``'shotnum'`` is the array of shot numbers
+        associated with the digitized data; ``"signal"`` is the actual
+        digitized data; and ``"zyz"`` is the probe xyz location.  The
+        later is NaN at the moment, since positional data read-out has
+        not been requested.
+
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('signal', '<f4', (2500,)),
+              ('xyz', '<f4', (3,))])
         >>>
-        >>> # Note: a quicker way to see how the digitizers are
-        >>> #       configured is to use
-        >>> #
-        >>> #       f.overview.report_digitizers()
-        >>> #
-        >>> #       which prints to screen a report of the
-        >>> #       digitizer hookup
+        >>> # display shot numbers
+        >>> data["shotnum"]
+        array([  1,  2, ..., 98, 99], dtype=uint32)
+        >>>
+        >>> # show 'signal' values for shot number 1
+        >>> data["signal"][0]
+        array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
+               -0.4105754 , -0.41119337], dtype=float32)
+        >>>
+        >>> # show 'xyz' values for shot number 1
+        >>> data["xyz"][0]
+        array([nan, nan, nan], dtype=float32)
+
+        If it is desired to read out only certain digitized traces, then
+        this can be achieved with either the ``index`` or ``shotnum``
+        argument, with the later taking precedence.
+
+        >>> # get the first 5 traces using index
+        >>> data = f.read_data(1, 2, config_name="config01", index=slice(5))
+        >>> data = f.read_data(1, 2, config_name="config01", index=np.s_[:5])
+        >>>
+        >>> # get every 10th shot using shotnum
+        >>> data = f.read_data(1, 2, config_name="config01", shotnum=slice(10, None, 10))
+        >>> data = f.read_data(1, 2, config_name="config01", shotnum=np.s_[10::10])
+
+        Sometimes only a certain time slice is desired, and this can
+        be achieved using the ``time_slice`` argument.
+
+        >>> # get time subset
+        >>> data = f.read_data(
+        ...     1,
+        ...     2,
+        ...     config_name="config01",
+        ...     time_slice=slice(200, 500, 1),
+        ... )
+        >>> data = f.read_data(
+        ...     1,
+        ...     2,
+        ...     config_name="config01",
+        ...     time_slice=np.s_[200:500:1],
+        ... )
+        >>>
+        >>> # time_slice can be used with index or shotnum
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     2,
+        ...     config_name="config01",
+        ...     time_slice=slice(200, 500, 1),
+        ...     shotnum=slice(10, None, 10),
+        ... )
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     2,
+        ...     config_name="config01",
+        ...     time_slice=slice(200, 500, 1),
+        ...     index=np.s_[0:5],
+        ... )
+
+        Now lets add position data to the read out.  Position data is
+        recorded by control devices.  For this example lets assume
+        the position data was recorded by the ``"6K Compumotor"``
+        control device using the probe drive attached to receptacle 3.
+        This information can be given using the ``add_controls``
+        argument.
+
+        >>> # read digitizer data while adding '6K Compumotor' data
+        >>> # from receptacle (configuration) 3
+        >>> data = f.read_data(
+        ...     1,
+        ...     2,
+        ...     config_name="config01",
+        ...     add_controls=[("6K Compumotor", 3)],
+        ... )
+        >>> data.dtype
+        dtype([('shotnum', '<u4'), ('signal', '<f4', (2500,)),
+               ('xyz', '<f4', (3,)), ('ptip_rot_theta', '<f8'),
+               ('ptip_rot_phi', '<f8')])
+        >>>
+        >>> # show 'xyz' values for shot number 1
+        >>> data["xyz"][0]
+        array([ -32. ,   15. , 1022.4], dtype=float32)
+
+        Now the ``"xyz"`` is populated with position data, but
+        additional fields (``"ptip_rot_theta"`` and ``"ptip_rot_phi"``)
+        are added to the structured `numpy` array.  Each control device
+        can add its own data fields to the array.  And, multiple
+        control devices can be specified at the time of the data read.
+
         """
         # to avoid cyclical imports
         from bapsflib._hdf.utils.hdfreaddata import HDFReadData
@@ -650,6 +780,7 @@ class File(h5py.File):
                 channel,
                 index=index,
                 shotnum=shotnum,
+                time_slice=time_slice,
                 digitizer=digitizer,
                 adc=adc,
                 config_name=config_name,

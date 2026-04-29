@@ -1,18 +1,9 @@
-# This file is part of the bapsflib package, a Python toolkit for the
-# BaPSF group at UCLA.
-#
-# http://plasma.physics.ucla.edu/
-#
-# Copyright 2017-2018 Erik T. Everson and contributors
-#
-# License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
-#   license terms and contributor agreement.
-#
-#
 """
 Module containing the main
 `~bapsflib._hdf.utils.hdfreaddata.HDFReadData` class.
 """
+
+from __future__ import annotations
 
 __all__ = ["HDFReadData"]
 
@@ -22,7 +13,7 @@ import numpy as np
 import os
 import time
 
-from typing import Union
+from typing import Any, List, Tuple, TYPE_CHECKING
 from warnings import warn
 
 from bapsflib._hdf.utils.file import File
@@ -33,11 +24,347 @@ from bapsflib._hdf.utils.helpers import (
     condition_shotnum,
     do_shotnum_intersection,
 )
-from bapsflib.plasma import core
 from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
+if TYPE_CHECKING:  # pragma: no cover
+    # This is done for typing purposes only.  A full import is not needed.
+    import h5py
 
-# noinspection PyInitNewSignature
+    from bapsflib._hdf.maps.digitizers.templates import HDFMapDigiTemplate
+
+_DEFAULT_INFO_DICT = {
+    # data origin parameters
+    "source file": None,
+    "device group path": None,
+    "device dataset path": None,
+    "controls": None,
+    # data read parameters
+    "board": None,
+    "channel": None,
+    "digitizer": None,
+    "configuration name": None,
+    "adc": None,
+    "time_slice": None,
+    # digitizer parameters
+    "bit": None,
+    "clock rate": None,
+    "sample average": None,
+    "shot average": None,
+    "voltage offset": None,
+    "signal units": None,
+    "time_dset_path": None,
+    # probe related meta-data
+    "probe name": None,
+    "port": None,
+}
+
+
+def _condition_hdf_file(hdf_file: File) -> File:
+    # Condition the `hdf_file` argument for HDFReadData
+    #
+    if not isinstance(hdf_file, File):
+        raise TypeError(f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`")
+
+    return hdf_file
+
+
+def _condition_add_controls(
+    hdf_file: File,
+    add_controls: Any,
+) -> List[Tuple[str, Any]]:
+    # Condition the `add_controls` argument for HDFReadData.
+    #
+    _map = hdf_file.file_map
+
+    # Check for non-empty controls
+    if bool(add_controls) and not bool(_map.controls):
+        raise ValueError("There are no control devices in the HDF5 file.")
+
+    # condition controls
+    if bool(add_controls):
+        controls = condition_controls(hdf_file, add_controls)
+    else:
+        controls = []
+
+    return controls
+
+
+def _condition_digitizer(hdf_file: File, digitizer) -> HDFMapDigiTemplate:
+    # Condition the `digitizer` argument for HDFReadData.
+    #
+    _map = hdf_file.file_map
+
+    if not bool(_map.digitizers):
+        raise ValueError("There are no digitizers in the HDF5 file.")
+    elif digitizer is None:
+        if not bool(_map.main_digitizer):
+            raise ValueError(
+                "No main digitizer is identified...need to specify the "
+                "`digitizer` keyword argument."
+            )
+
+        warn(
+            f"Digitizer not specified so assuming the 'main_digitizer' "
+            f"({_map.main_digitizer.device_name}) defined in the mappings.",
+            BaPSFWarning,
+        )
+        _dmap = _map.main_digitizer
+    else:
+        try:
+            _dmap = _map.digitizers[digitizer]
+        except KeyError:
+            raise ValueError(
+                f"Specified Digitizer '{digitizer}' is not among known "
+                f"digitizers ({list(_map.digitizers)})"
+            )
+
+    return _dmap
+
+
+def _condition_time_slice(time_slice: slice, dset: h5py.Dataset) -> Tuple[slice, int]:
+    # Condition the `time_slice` argument for HDFReadData
+    #
+    if not isinstance(time_slice, slice):
+        raise TypeError(
+            f"Argument `time_slice` must be a slice object, got type {type(time_slice)}."
+        )
+
+    if time_slice == slice(None):
+        return time_slice, int(dset.shape[1])
+
+    step = time_slice.step
+    if step is not None and step <= 0:
+        raise ValueError(f"Argument `time_slice` must have a positive step, got {step}.")
+
+    # Note: Using .indices() will force start, stop, step, to be integers,
+    #       replacing all original None values.
+    #
+    start, stop, step = time_slice.indices(dset.shape[1])
+    if stop == start:
+        raise ValueError(
+            f"Argument `time_slice` must have differing start and stop "
+            f"indices, otherwise the returned data will be NULL.  "
+            f"start = stop = {start}"
+        )
+    elif stop < start:
+        raise ValueError(
+            f"Argument `time_slice` must have a starting index less than "
+            f"the stop index, but got start ({start}) > stop ({stop})."
+        )
+
+    ntime = len(range(*time_slice.indices(dset.shape[1])))
+    if ntime == 0:  # pragma: no cover
+        # This should never be reached since time_slice.indices(dset.shape[1])
+        # will pin out of bound start and stop to either 0 or dset.shape[1]-1.
+        #
+        raise ValueError(
+            f"Argument `time_slice` ({time_slice}) will result in a " f"NULL array."
+        )
+
+    return slice(start, stop, step), ntime
+
+
+def _generate_shotnum_sni_index(
+    shotnum,
+    index,
+    dheader: h5py.Dataset,
+    shotnumkey: str | None,
+    intersection_set: bool,
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    # Build the sni, index, and shotnum arrays such that
+    #
+    #   shotnum[sni] = dheader[index, shotnumkey]
+    #
+    # - If dheader does NOT contain a shotnumkey column (i.e. shotnumkey is None),
+    #   then it is assumed shotnum = index + 1
+    #
+    # Determine if indexing w.r.t. `index` or `shotnum`
+    # - The shotnum arguments overrides the index argument
+    #
+    index_with = "index"
+    if (isinstance(index, slice) and index == slice(None)) and (
+        not isinstance(shotnum, slice) or shotnum != slice(None)
+    ):
+        index_with = "shotnum"
+
+    # Condition `index` and `shotnum` keywords
+    # - Valid indexing types for `index` or shotnum` are:
+    #     int, list(int), slice(), and np.ndarray
+    #
+    if index_with == "index":
+        # Condition `index` keyword
+        #
+        # Note: I'm letting the slicing of dset[index, shotnumkey]
+        #       throw the appropriate errors
+        #
+        # Define `shotnum`
+        # - Note: h5py datasets can NOT be sliced using numpy arrays
+        #
+        # convert `index` to np.ndarray
+        sn_size = dheader.size
+        if isinstance(index, int):
+            index = np.array([index], dtype=np.int32)
+        elif isinstance(index, list):
+            index = np.array(index, dtype=np.int32)
+        elif isinstance(index, slice):
+            start, stop, step = index.indices(sn_size)
+            index = np.arange(start, stop, step, dtype=np.int32)
+        elif isinstance(index, type(Ellipsis)):
+            index = np.arange(0, sn_size, 1, dtype=np.int32)
+        elif isinstance(index, np.ndarray):
+            pass
+        else:
+            raise TypeError("Valid `index` type not passed.")
+
+        # convert (VALID) negative indices to positive
+        neg_index_mask = np.where((index < 0) & (index >= -sn_size), True, False)
+        if np.any(neg_index_mask):
+            adj_ii = index[neg_index_mask] % sn_size
+            index[neg_index_mask] = adj_ii
+        index = np.unique(index)
+
+        # define `shotnum`
+        if shotnumkey is not None:
+            shotnum = dheader[index.tolist(), shotnumkey]
+        else:
+            # The header dataset for the associated digitizer does NOT
+            # contain shot number information.  Assume the shot number
+            # is the index value plus one
+            shotnum = index + 1
+
+        # define sni
+        sni = np.ones(shotnum.shape[0], dtype=bool)
+
+    else:
+        # perform `shotnum` conditioning
+        # - `shotnum` is returned as a numpy array
+        shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
+
+        # Calc. the corresponding `index` and `sni`
+        # - `shotnum` will be converted from list to np.array
+        # - `index` and `sni` will be np.array's
+        #
+        index, sni = build_shotnum_dset_relation(
+            shotnum=shotnum,
+            dset=dheader,
+            shotnumkey=shotnumkey,
+            n_configs=1,
+            config_column_value=None,
+        )
+
+        # perform intersection
+        if intersection_set:
+            shotnum, sni_dict, index_dict = do_shotnum_intersection(
+                shotnum, {"digi": {"signal": sni}}, {"digi": {"signal": index}}
+            )
+            sni = sni_dict["digi"]["signal"]
+            index = index_dict["digi"]["signal"]
+
+    return shotnum, sni, index
+
+
+def _determine_digitizer_voltage_offset(
+    digitizer_info: dict,
+    header_dataset_row: np.void,
+    keep_bits: bool,
+) -> Tuple[u.Quantity | None, u.Unit | u.IrreducibleUnit | None, bool]:
+    # Determine the the voltage range (2 * voltage_offset) for the digitizers.
+    # - This values is needed to convert the digitizer bit-values to
+    #   voltage values.
+    # - In the process the keep_bit argument will be updated, and signal_units
+    #   will be determined.
+    #
+    # keep_bits
+    #     Boolean indicating if the signal will be converted from its original
+    #     source value (bits) to voltage.
+    #
+    # signal_units
+    #     The units (astropy.units.Unit) that the final signal array
+    #     will have.
+    #
+    info = digitizer_info
+    dset_row = header_dataset_row
+
+    try:
+        signal_units = u.bit if keep_bits else u.volt
+        if info["bit"] is None:
+            # Since no bit value is recorded, the digitizer data must
+            # have been saved as voltage.
+            keep_bits = True
+            voltage_offset = None
+            signal_units = u.volt
+        else:
+            voltage_offset = dset_row["Offset"]
+
+        if voltage_offset == 0:
+            warn(
+                "Digitizer header dataset voltage 'Offset' field is zero.  "
+                "This will produce a NULL voltage array if the bit "
+                "conversion is attempted.  Leaving the data as bits.",
+                BaPSFWarning,
+            )
+            keep_bits = True
+            voltage_offset = None
+            signal_units = None
+        elif voltage_offset is not None:
+            voltage_offset = voltage_offset * u.volt
+
+    except ValueError:
+        warn(
+            "Digitizer header dataset is missing the voltage 'Offset' field.",
+            HDFMappingWarning,
+        )
+        voltage_offset = None
+        signal_units = None
+    except IndexError as err:  # pragma: no cover
+        warn(
+            f"{err} ... Digitizer header dataset is being index out of "
+            f"range, unable to determine the voltage 'Offset'.",
+            HDFMappingWarning,
+        )
+        voltage_offset = None
+        signal_units = None
+
+    return voltage_offset, signal_units, keep_bits
+
+
+def _calc_dv(
+    voltage_offset: u.Quantity | None,
+    bitness: int | None,
+) -> u.Quantity | None:
+    # Determine the voltage step size 'dv', given the digitizer's bitness
+    # and voltage offset.
+    #
+    if voltage_offset is None:
+        return None
+
+    if bitness is None:
+        return None
+
+    return 2.0 * np.abs(voltage_offset) / (2.0**bitness - 1.0)
+
+
+def _convert_bits_to_voltage(
+    signal: np.ndarray,
+    voltage_offset: u.Quantity | None,
+    bitness: int | None,
+) -> Tuple[np.ndarray, u.Unit | None]:
+    # Convert the original digitizer bit signal into voltage.
+    #
+    dv = _calc_dv(voltage_offset, bitness)
+
+    if dv is None or voltage_offset is None:
+        # dv will be None if `offset` or `bitness` is None
+        warn(
+            "Unable to calculated voltage step size...'signal' remains as bits",
+            BaPSFWarning,
+        )
+        return signal, None
+
+    signal = (dv.value * signal) - abs(voltage_offset.value)
+    return signal, u.volt
+
+
 class HDFReadData(np.ndarray):
     """
     Reads digitizer and control device data from the HDF5 file. Control
@@ -73,12 +400,13 @@ class HDFReadData(np.ndarray):
         channel: int,
         index=slice(None),
         shotnum=slice(None),
+        time_slice=slice(None),
         digitizer=None,
         config_name=None,
         adc=None,
-        keep_bits=False,
+        keep_bits: bool = False,
         add_controls=None,
-        intersection_set=True,
+        intersection_set: bool = True,
         **kwargs,
     ):
         """
@@ -88,90 +416,172 @@ class HDFReadData(np.ndarray):
             HDF5 file object
 
         board : `int`
-            analog-digital-converter board number
+            Analog-digital-converter board number
 
         channel : `int`
-            analog-digital-converter channel number
+            Analog-digital-converter channel number
 
-        index : Union[int, List[int], slice, numpy.ndarray], optional
-            dataset row indices to be sliced. Overridden by argument
-            ``shotnum``. (DEFAULT ``slice(None)``)
+        index : int | List[int] | slice | numpy.ndarray, optional
+            (DEFAULT: ``slice(None)``) Dataset row indices to be
+            readout. Overridden by argument ``shotnum``.
 
-        shotnum : Union[int, List[int], slice, numpy.ndarray], optional
-            HDF5 file shot number(s) indicating data entries to be
-            extracted.  Overrides argument ``index``.  (DEFAULT
-            ``slice(None)``)
+        shotnum : int | List[int] | slice | numpy.ndarray, optional
+            (DEFAULT: ``slice(None)``) HDF5 file shot number(s)
+            indicating data entries to be extracted.  Overrides
+            argument ``index``.
+
+        time_slice : slice, optional
+            (DEFAULT: ``slice(None)``) A `slice` object representing
+            the time slice to be extracted from the digitizer dataset.
 
         digitizer : `str`, optional
-            name of the digitizer
+            (DEFAULT: `None`) Name of the digitizer
 
         adc : `str`, optional
-            name of the analog-digital-converter
+            (DEFAULT: `None`) Name of the digitizer's
+            analog-digital-converter
 
         config_name : `str`, optional
-            name of the digitizer configuration
+            (DEFAULT: `None`) Name of the digitizer configuration
 
         keep_bits : `bool`, optional
-            set `True` to keep data in bits, `False` (DEFAULT) to
-            convert data to voltage
+            (DEFAULT: `False`) Set `True` to keep the extracted data as
+            is (i.e. in bits). Set `False` to convert the extracted data
+            to voltage using stored meta-data in the associated header
+            dataset.
 
-        add_controls : Union[str, Iterable[str, Tuple[str, Any]]], optional
-            a list indicating the desired control device names and their
-            configuration name (if more than one configuration exists)
+        add_controls : str | Iterable[str, Tuple[str, Any]], optional
+            (DEFAULT: `None`) A list of strings and/or 2-element tuples indicating the
+            control device(s).  If a control device has only one
+            configuration, then only the device name ``'control'`` needs
+            to be passed in the list.  If a control device has multiple
+            configurations, then the device name and its configuration
+            "name" needs to be passed as a tuple element
+            ``('control', 'config')`` in the list. (see
+            :func:`~.helpers.condition_controls` for details)
 
         intersection_set : `bool`, optional
-            `True` (DEFAULT) will force the returned shot numbers to be
-            the intersection of ``shotnum`` and the shot numbers
-            contained in each control device and digitizer dataset.
-            `False` will return the union of shot numbers.
+            (DEFAULT: `True`) `True` will force the returned shot
+            numbers to be the intersection of ``shotnum``, the digitizer
+            dataset shot numbers, and, if requested, the shot numbers
+            contained in  each control device dataset. `False` will
+            return the union instead of the intersection, minus
+            :math:`shotnum \\le 0`. (see `~.hdfreaddata.HDFReadData`
+            for details)
 
         Notes
         -----
 
-        Behavior of ``index``, ``shotnum`` and ``intersection_set``:
-
         .. note::
 
-            * The ``shotnum`` keyword will always override the
-              ``index`` keyword, but, due to extra overhead
-              required for identifying shot number locations in the
-              digitizer dataset, the ``index`` keyword will always
-              execute quicker than the ``shotnum`` keyword.
+            The ``shotnum`` keyword will always override the ``index``
+            keyword, but, due to extra overhead required for identifying
+            shot number locations in the digitizer dataset, the
+            ``index`` keyword will always execute quicker than the
+            ``shotnum`` keyword.
 
         Examples
         --------
 
-        Here data is extracted from the digitizer ``'SIS crate'`` and
-        position data is mated from the control device ``'6K Compumotor'``.
+        To read data associated with a digitizer there are 5 descriptors
+        needed to fully define what data is to be extracted.  These
+        descriptors are ``board``, ``channel``, ``digitizer``,
+        ``config_name``, and ``adc``.  In the following example, board
+        1, channel 1 will be read for the ``"SIS crate"`` digitizer
+        on the ``"SIS 3302"`` analog-digital-converter for the
+        ``"config01"`` digitizer configuration.
 
         >>> # open HDF5 file
-        >>> f = bapsflib.lapd.File('test.hdf5')
+        >>> f = bapsflib.lapd.File("test.hdf5")
         >>>
-        >>> # read digitizer data from board 1, channel 1,
-        >>> # - this is equivalent to
-        >>> #   f.read_data(1, 1)
+        >>> # read the data
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     1,
+        ...     digitizer="SIS crate",
+        ...     config_name="config01",
+        ...     adc="SIS 3302",
+        ... )
+
+        The ``digitizer``, ``config_name``, and ``adc`` arguments
+        are optional if there is only one value for each of those.  In
+        such a case, only the ``board`` and ``channel`` arguments are
+        needed.
+
         >>> data = HDFReadData(f, 1, 1)
+
+        ``data`` in this case will be a structured `numpy` array
+        containing at least three fields: ``"shotnum"``, ``"signal"``,
+        and ``"xyz"``.  ``'shotnum'`` is the array of shot numbers
+        associated with the digitized data; ``"signal"`` is the actual
+        digitized data; and ``"zyz"`` is the probe xyz location.  The
+        later is NaN at the moment, since positional data read-out has
+        not been requested.
+
         >>> data.dtype
         dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)),
               ('xyz', '<f4', (3,))])
         >>>
         >>> # display shot numbers
-        >>> data['shotnum']
+        >>> data["shotnum"]
         array([  1,  2, ..., 98, 99], dtype=uint32)
         >>>
         >>> # show 'signal' values for shot number 1
-        >>> data['signal'][0]
+        >>> data["signal"][0]
         array([-0.41381955, -0.4134333 , -0.4118886 , ..., -0.41127062,
                -0.4105754 , -0.41119337], dtype=float32)
         >>>
         >>> # show 'xyz' values for shot number 1
-        >>> data['xyz'][0]
+        >>> data["xyz"][0]
         array([nan, nan, nan], dtype=float32)
+
+        If it is desired to read out only certain digitized traces, then
+        this can be achieved with either the ``index`` or ``shotnum``
+        argument, with the later taking precedence.
+
+        >>> # get the first 5 traces using index
+        >>> data = HDFReadData(f, 1, 1, index=slice(5))
+        >>> data = HDFReadData(f, 1, 1, index=np.s_[:5])
         >>>
+        >>> # get every 10th shot using shotnum
+        >>> data = HDFReadData(f, 1, 1, shotnum=slice(10, None, 10))
+        >>> data = HDFReadData(f, 1, 1, shotnum=np.s_[10::10])
+
+        Sometimes only a certain time slice is desired, and this can
+        be achieved using the ``time_slice`` argument.
+
+        >>> # get time subset
+        >>> data = HDFReadData(f, 1, 1, time_slice=slice(200, 500, 1))
+        >>> data = HDFReadData(f, 1, 1, time_slice=np.s_[200:500:1])
+        >>>
+        >>> # time_slice can be used with index or shotnum
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     1,
+        ...     time_slice=slice(200, 500, 1),
+        ...     shotnum=slice(10, None, 10),
+        ... )
+        >>> data = HDFReadData(
+        ...     f,
+        ...     1,
+        ...     1,
+        ...     time_slice=slice(200, 500, 1),
+        ...     index=np.s_[0:5],
+        ... )
+
+        Now lets add position data to the read out.  Position data is
+        recorded by control devices.  For this example lets assume
+        the position data was recorded by the ``"6K Compumotor"``
+        control device using the probe drive attached to receptacle 3.
+        This information can be given using the ``add_controls``
+        argument.
+
         >>> # read digitizer data while adding '6K Compumotor' data
         >>> # from receptacle (configuration) 3
         >>> data = HDFReadData(
-        ...     f, 1, 1, add_controls=[('6K Compumotor', 3)]
+        ...     f, 1, 1, add_controls=[("6K Compumotor", 3)]
         ... )
         >>> data.dtype
         dtype([('shotnum', '<u4'), ('signal', '<f4', (100,)),
@@ -179,266 +589,76 @@ class HDFReadData(np.ndarray):
                ('ptip_rot_phi', '<f8')])
         >>>
         >>> # show 'xyz' values for shot number 1
-        >>> data['xyz'][0]
+        >>> data["xyz"][0]
         array([ -32. ,   15. , 1022.4], dtype=float32)
 
+        Now the ``"xyz"`` is populated with position data, but
+        additional fields (``"ptip_rot_theta"`` and ``"ptip_rot_phi"``)
+        are added to the structured `numpy` array.  Each control device
+        can add its own data fields to the array.  And, multiple
+        control devices can be specified at the time of the data read.
         """
-        # initialize timing
-        tt = []
-        if "timeit" in kwargs:  # pragma: no cover
-            timeit = kwargs["timeit"]
-            if timeit:
-                tt.append(time.time())
-            else:
-                timeit = False
-        else:
-            timeit = False
 
-        # ---- Condition hdf_file                                   ----
-        # - `hdf_file` is a lapd.File object
-        #
-        if not isinstance(hdf_file, File):
-            raise TypeError(
-                f"`hdf_file` is NOT type `{File.__module__}.{File.__qualname__}`"
-            )
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - `hdf_file` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
-        # ---- Examine file map object                              ----
-        # grab instance of `HDFMapper`
+        # Condition arguments
+        hdf_file = _condition_hdf_file(hdf_file)
+        controls = _condition_add_controls(hdf_file, add_controls)
+        _dmap = _condition_digitizer(hdf_file, digitizer)
         _fmap = hdf_file.file_map
+        config_name, adc = _dmap.validate_config_name_and_adc(config_name, adc)
 
-        # ---- Condition `add_controls`                             ----
-        # Check for non-empty controls
-        if bool(add_controls) and not bool(_fmap.controls):
-            raise ValueError("There are no control devices in the HDF5 file.")
-
-        # condition controls
-        if bool(add_controls):
-            controls = condition_controls(hdf_file, add_controls)
-        else:
-            controls = []
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - `add_controls` conditioning: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
-        # ---- Condition `digitizer` keyword                        ----
-        if not bool(_fmap.digitizers):
-            raise ValueError("There are no digitizers in the HDF5 file.")
-        elif digitizer is None:
-            if not bool(_fmap.main_digitizer):
-                raise ValueError(
-                    "No main digitizer is identified..."
-                    "need to specify `digitizer` kwarg"
-                )
-
-            why = (
-                f"Digitizer not specified so assuming the 'main_digitizer' "
-                f"({_fmap.main_digitizer.device_name}) defined in the mappings."
-            )
-            warn(why, BaPSFWarning)
-            _dmap = _fmap.main_digitizer
-        else:
-            try:
-                _dmap = _fmap.digitizers[digitizer]
-            except KeyError:
-                raise ValueError(
-                    f"Specified Digitizer '{digitizer}' is not among known "
-                    f"digitizers ({list(_fmap.digitizers)})"
-                )
-
-        # ---- Gather Digi Dataset Info                             ----
+        # construct dataset names and internal HDF5 paths
+        #
+        # dname : digitizer dataset name
+        # dhname : digitizer header dataset name
+        # dpath : full path to digitizer group
         #
         # Note: _dmap.construct_dataset_name has conditioning for
-        #       board, channel, adc, and
+        #       board and channel
         #
-        # dname      - digitizer dataset name
-        # dhname     - digitizer header dataset name
-        # dpath      - full path to digitizer group
-        # dset       - digitizer h5py.Dataset object
-        # dheader    - dset associated header dataset
-        # shotnumkey - field name for shot number column in dheader
-        #
-        # Build kwargs for construct_dataset_name()
-        kwargs = {"return_info": True}
-        if config_name is not None:
-            kwargs["config_name"] = config_name
-        if adc is not None:
-            kwargs["adc"] = adc
-
-        # Get datasets
-        dname, d_info = _dmap.construct_dataset_name(board, channel, **kwargs)
-        dhname = _dmap.construct_header_dataset_name(board, channel, **kwargs)
+        dname, d_info = _dmap.construct_dataset_name(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+            return_info=True,
+        )
+        dhname = _dmap.construct_header_dataset_name(
+            board=board,
+            channel=channel,
+            config_name=config_name,
+            adc=adc,
+        )
         dpath = f"{_dmap.info['group path']}/"
+
+        # get datasets
+        #  dset : digitizer h5py.Dataset object
+        #  dheader : header dataset related to dset
+        #
         dset = hdf_file.get(dpath + dname)
         dheader = hdf_file.get(dpath + dhname)
 
-        # define `config_name`
-        if config_name is None:
-            config_name = _dmap.active_configs[0]
-
         # define `shotnumkey`
+        # - field name for shot number column in dheader
+        #
         shotnum_config = _dmap.configs[config_name]["shotnum"]
         shotnumkey = None if shotnum_config is None else shotnum_config["dset field"][0]
 
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - get dset and dheader: {(tt[-1] - tt[-2]) * 1.0e3} ms")
+        # Generate the shotnum, sni, and index arrays with only the
+        # digitizer datasets
+        #
+        # The generated arrays form the relation
+        #
+        #   shotnum[sni] = dheader[index, shotnumkey]
+        #
+        shotnum, sni, index = _generate_shotnum_sni_index(
+            shotnum=shotnum,
+            index=index,
+            dheader=dheader,
+            shotnumkey=shotnumkey,
+            intersection_set=intersection_set,
+        )
 
-        # ---- Condition shots, index, and shotnum ----
-        # index   -- row index of digitizer dataset
-        #            ~ indexed at 0
-        #            ~ supersedes any other indexing keywords
-        # shotnum -- global HDF5 file shot number
-        #            ~ this is the index used to link values between
-        #              datasets
-        #            ~ overridden by `index`
-        #
-        # Through conditioning the following are (re-)defined
-        # index   -- row index of digitizer dataset (dset)
-        #            ~ numpy.ndarray
-        #            ~ dtype = np.integer
-        #            ~ shape = (num_of_indices,)
-        #
-        # shotnum -- global HDF5 shot numbers
-        #            ~ index at 1
-        #            ~ will be a filtered version of input kwarg shotnum
-        #              based on intersection_set
-        #            ~ numpy.ndarray
-        #            ~ dtype = np.uint32
-        #            ~ shape = (sn_size, )
-        #
-        # sni     -- bool array for providing a one-to-one mapping
-        #            between shotnum and index
-        #            ~ shotnum[sni] = dheader[index, shotnumkey]
-        #            ~ data['signal'][sni, ...] = dset[index, ...]
-        #            ~ data['singal'][np.logical_not(sni), ...] = np.nan
-        #            ~ numpy.ndarray
-        #            ~ dtype = np.bool
-        #            ~ shape = (sn_size, )
-        #            ~ np.count_nonzero(arr[0,...]) = num_of_indices
-        #
-        # - Indexing behavior: (depends on intersection_set)
-        #
-        #   ~ intersection_set = True (DEFAULT)
-        #     * the returned array will only contain shot numbers that
-        #       are in the intersection of shotnum, the digitizer
-        #       dataset, and all the specified control device datasets
-        #
-        #   ~ intersection_set = False
-        #     * the returned array will contain all shot numbers
-        #       specified by shotnum (>= 1)
-        #     * if a dataset does not included a shot number contained
-        #       in shotnum, then its entry in the returned array will
-        #       be given a NULL value depending on the dtype
-        #
-        # Determine if indexing w.r.t. `index` or `shotnum`
-        index_with = "index"
-        if isinstance(index, slice):
-            if index == slice(None):
-                if not isinstance(shotnum, slice):
-                    index_with = "shotnum"
-                elif shotnum != slice(None):
-                    index_with = "shotnum"
-
-        # Condition `index` and `shotnum` keywords
-        # - Valid indexing types are: int, list(int), slice(), and
-        #   np.ndarray
-        #
-        if index_with == "index":
-            # Condition `index` keyword
-            #
-            # Note: I'm letting the slicing of dset[index, shotnumkey]
-            #       throw the appropriate errors
-            #
-            # Define `shotnum`
-            # - Note: h5py datasets can NOT be sliced using numpy arrays
-            #
-            # convert `index` to np.ndarray
-            sn_size = dheader.size
-            if isinstance(index, int):
-                index = np.array([index], dtype=np.int32)
-            elif isinstance(index, list):
-                index = np.array(index, dtype=np.int32)
-            elif isinstance(index, slice):
-                start, stop, step = index.indices(sn_size)
-                index = np.arange(start, stop, step, dtype=np.int32)
-            elif isinstance(index, type(Ellipsis)):
-                index = np.arange(0, sn_size, 1, dtype=np.int32)
-            elif isinstance(index, np.ndarray):
-                pass
-            else:
-                raise TypeError("Valid `index` type not passed.")
-
-            # convert (VALID) negative indices to positive
-            neg_index_mask = np.where((index < 0) & (index >= -sn_size), True, False)
-            if np.any(neg_index_mask):
-                adj_ii = index[neg_index_mask] % sn_size
-                index[neg_index_mask] = adj_ii
-            index = np.unique(index)
-
-            # define `shotnum`
-            if shotnumkey is not None:
-                shotnum = dheader[index.tolist(), shotnumkey]
-            else:
-                # The header dataset for the associated digitizer does NOT
-                # contain shot number information.  Assume the shot number
-                # is the index value plus one
-                shotnum = index + 1
-
-            # define sni
-            sni = np.ones(shotnum.shape[0], dtype=bool)
-
-            # print execution timing
-            if timeit:  # pragma: no cover
-                tt.append(time.time())
-                print(f"tt - condition index: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-        else:
-            # perform `shotnum` conditioning
-            # - `shotnum` is returned as a numpy array
-            shotnum = condition_shotnum(shotnum, [dheader], [shotnumkey])
-
-            # Calc. the corresponding `index` and `sni`
-            # - `shotnum` will be converted from list to np.array
-            # - `index` and `sni` will be np.array's
-            #
-            index, sni = build_shotnum_dset_relation(
-                shotnum=shotnum,
-                dset=dheader,
-                shotnumkey=shotnumkey,
-                n_configs=1,
-                config_column_value=None,
-            )
-
-            # perform intersection
-            if intersection_set:
-                shotnum, sni_dict, index_dict = do_shotnum_intersection(
-                    shotnum, {"digi": {"signal": sni}}, {"digi": {"signal": index}}
-                )
-                sni = sni_dict["digi"]["signal"]
-                index = index_dict["digi"]["signal"]
-
-            # print execution timing
-            if timeit:  # pragma: no cover
-                tt.append(time.time())
-                print(f"tt - condition shotnum: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
-        # ---- Retrieve Control Data                                ----
-        # 1. retrieve the numpy array for control data
-        # 2. re-filter shotnum if intersection_set=True s.t. only
-        #    shotnum's w/ control data are returned
-        #
-        # grab control device dataset
-        #
-        # - this will ensure cdata.shape == data.shape all the time
-        # - shotnum should always be a ndarray at this point
-        #
+        # Read control data
         if len(controls) != 0:
             cdata = HDFReadControls(
                 hdf_file,
@@ -447,13 +667,6 @@ class HDFReadData(np.ndarray):
                 shotnum=shotnum,
                 intersection_set=intersection_set,
             )
-
-            # print execution timing
-            if timeit:  # pragma: no cover
-                tt.append(time.time())
-                print(
-                    f"tt - read in cdata (control data): {(tt[-1] - tt[-2]) * 1.0e3} ms"
-                )
 
             # re-filter index, shotnum, and sni
             # - only need to be filtered if intersection_set=True
@@ -468,17 +681,15 @@ class HDFReadData(np.ndarray):
         else:
             cdata = None
 
-        # ---- Build `obj`                                          ----
+        # validate time slicing
+        time_slice, ntime = _condition_time_slice(time_slice, dset)
+
         # Define dtype and shape
-        # - 1st column of the digi data header contains the global HDF5
-        #   file shot number
-        # - shotkey = is the field name/key of the dheader shot number
-        #   column
-        sigtype = np.float32 if not keep_bits else dset.dtype
+        signal_dtype = np.float32 if not keep_bits else dset.dtype
         shape = shotnum.shape
         dtype = [
             ("shotnum", np.uint32, ()),
-            ("signal", sigtype, (dset.shape[1],)),
+            ("signal", signal_dtype, (ntime,)),
             ("xyz", np.float32, (3,)),
         ]
         if len(controls) != 0:
@@ -486,37 +697,27 @@ class HDFReadData(np.ndarray):
                 if subdtype[0] not in [d[0] for d in dtype]:
                     dtype.append(subdtype)
 
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - define dtype: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
         # Initialize data array
         data = np.empty(shape, dtype=dtype)
 
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - initialize data np.ndarray: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
-        # fill 'shotnum' field of data array
+        # Populate "shotnum"
         data["shotnum"] = shotnum
 
-        # fill 'signal' fields of data array
+        # Populate "signal"
         index = index.tolist()
         if intersection_set:
             # fill signal
-            data["signal"] = dset[index, ...]
+            data["signal"][...] = dset[index, time_slice]
         else:
             # fill signal
-            data["signal"][sni] = dset[index, ...]
+            data["signal"][sni, ...] = dset[index, time_slice]
             if np.issubdtype(data["signal"].dtype, np.integer):
                 data["signal"][np.logical_not(sni)] = 0
             else:
                 # dtype is np.floating
                 data["signal"][np.logical_not(sni)] = np.nan
 
-        # fill fields related to controls
+        # Populate fields related to controls (e.g. "xyz")
         if len(controls) != 0:
             # Note: shot numbers of cdata and data are one-to-one
             #       by this point so intersection_set is irrelevant
@@ -539,126 +740,55 @@ class HDFReadData(np.ndarray):
             # fill xyz
             data["xyz"] = np.nan
 
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - fill data array: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
         # Define obj to be returned
         obj = data.view(cls)
 
-        # get voltage offset
-        try:
-            _signal_units = u.bit if keep_bits else u.volt
-            if d_info["bit"] is None:
-                # Since no bit value is recorded, the digitizer data must
-                # have been saved as voltage.
-                keep_bits = True
-                voffset = None
-                _signal_units = u.volt
-            else:
-                voffset = dheader[index[0], "Offset"]
-
-            if voffset == 0:
-                warn(
-                    "Digitizer header dataset voltage 'Offset' field is zero.  "
-                    "This will produce a NULL voltage array if the bit "
-                    "conversion is attempted.  Leaving the data as bits.",
-                    BaPSFWarning,
-                )
-                keep_bits = True
-                voffset = None
-                _signal_units = None
-            elif voffset is not None:
-                voffset = voffset * u.volt
-
-        except ValueError:
-            warn(
-                "Digitizer header dataset is missing the voltage 'Offset' field.",
-                HDFMappingWarning,
+        # convert bit signal to voltage
+        voffset, signal_units, keep_bits = _determine_digitizer_voltage_offset(
+            digitizer_info=d_info,
+            header_dataset_row=dheader[index[0]],
+            keep_bits=keep_bits,
+        )
+        if not keep_bits:
+            obj["signal"], signal_units = _convert_bits_to_voltage(
+                signal=obj["signal"],
+                voltage_offset=voffset,
+                bitness=d_info["bit"],
             )
-            voffset = None
-            _signal_units = None
-        except IndexError as err:  # pragma: no cover
-            warn(
-                f"{err} ... Digitizer header dataset is being index out of "
-                f"range, unable to determine the voltage 'Offset'.",
-                HDFMappingWarning,
-            )
-            voffset = None
-            _signal_units = None
+
+        # collect control meta-info
+        control_info = None if cdata is None else copy.deepcopy(cdata.info["controls"])
+
+        # determine time_dset_path
+        time_dset_path = d_info.get("time_dset_path", None)
+        if time_dset_path is not None:
+            time_dset_path = dpath + time_dset_path
 
         # assign dataset meta-info
         obj._info = {
+            **_DEFAULT_INFO_DICT,
+            # data origin parameters
             "source file": os.path.abspath(hdf_file.filename),
             "device group path": _dmap.info["group path"],
             "device dataset path": dpath + dname,
+            "controls": control_info,
+            # data read parameters
+            "board": board,
+            "channel": channel,
             "digitizer": d_info["digitizer"],
             "configuration name": d_info["configuration name"],
             "adc": d_info["adc"],
+            "time_slice": time_slice,
+            # digitizer parameters
             "bit": d_info["bit"],
             "clock rate": d_info["clock rate"],
             "sample average": d_info["sample average (hardware)"],
             "shot average": d_info["shot average (software)"],
-            "board": board,
-            "channel": channel,
             "voltage offset": voffset,
-            "probe name": None,
-            "port": (None, None),
-            "signal units": _signal_units,
-            "time_dset_path": d_info.get("time_dset_path", None),
+            "signal units": signal_units,
+            "time_dset_path": time_dset_path,
         }
 
-        if obj._info["time_dset_path"] is not None:
-            obj._info["time_dset_path"] = dpath + obj._info["time_dset_path"]
-
-        if cdata is not None:
-            obj._info["controls"] = copy.deepcopy(cdata.info["controls"])
-        else:
-            obj._info["controls"] = {}
-
-        # plasma parameter dict
-        obj._plasma = {
-            "Bo": None,
-            "kT": None,
-            "kTe": None,
-            "kTi": None,
-            "gamma": core.FloatUnit(1.0, "arb"),
-            "m_e": core.ME,
-            "m_i": None,
-            "n": None,
-            "n_e": None,
-            "n_i": None,
-            "Z": None,
-        }  # pragma: no cover
-
-        # convert to voltage
-        # - 'signal' dtype is assigned based on keep_bit
-        #
-        # obj['signal'] = obj['signal'].astype(np.float32, copy=False)
-        #
-        if not keep_bits:
-            if obj.dv is None:
-                warn(
-                    "Unable to calculated voltage step size...'signal' remains as bits",
-                    BaPSFWarning,
-                )
-            else:
-                # define offset
-                offset = abs(obj.info["voltage offset"].value)
-
-                # calc voltage
-                obj["signal"] = (obj.dv.value * obj["signal"]) - offset
-
-                # update 'signal units'
-                obj._info["signal units"] = u.volt
-
-        # print execution timing
-        if timeit:  # pragma: no cover
-            tt.append(time.time())
-            print(f"tt - execution time: {(tt[-1] - tt[-2]) * 1.0e3} ms")
-
-        # return obj
         return obj
 
     def __array_finalize__(self, obj):
@@ -671,56 +801,8 @@ class HDFReadData(np.ndarray):
         self._info = getattr(
             obj,
             "_info",
-            {
-                "source file": None,
-                "device group path": None,
-                "device dataset path": None,
-                "configuration name": None,
-                "adc": None,
-                "bit": None,
-                "clock rate": None,
-                "sample average": None,
-                "shot average": None,
-                "board": None,
-                "channel": None,
-                "voltage offset": None,
-                "probe name": None,
-                "port": (None, None),
-                "signal units": None,
-                "controls": {},
-            },
+            _DEFAULT_INFO_DICT.copy(),
         )
-
-        # Define plasma attribute
-        self._plasma = getattr(
-            obj,
-            "_plasma",
-            {
-                "Bo": None,
-                "kT": None,
-                "kTe": None,
-                "kTi": None,
-                "gamma": core.FloatUnit(1.0, "arb"),
-                "m_e": core.ME,
-                "m_i": None,
-                "n": None,
-                "n_e": None,
-                "n_i": None,
-                "Z": None,
-            },
-        )  # pragma: no cover
-
-    def convert_signal(self, to_volt=False, to_bits=False, force=False):
-        """converts signal from volts (bits) to bits (volts)"""
-        #
-        # 1. investigate if 'signal' values are np.integer or
-        #    np.floating
-        #    - np.integer => 'signal' is in bits
-        #    - np.floating => 'signal' is in volts
-        # 2. only convert if requested conversion is not current state
-        # 3. update 'signal units' in self._info
-        #
-        raise NotImplementedError
 
     @property
     def info(self):
@@ -728,7 +810,7 @@ class HDFReadData(np.ndarray):
         A dictionary of metadata for the extracted data. The
         dict() keys are:
 
-        .. list-table::
+        .. list-table::  Data Origin Parameters
             :widths: 5 3 11
 
             * - ``"source file"``
@@ -740,6 +822,21 @@ class HDFReadData(np.ndarray):
             * - ``"device dataset path"``
               - `str`
               - internal HDF5 path to the data originating dataset
+            * - ``"controls"``
+              - `dict`
+              - meta-data of the control device data included in the
+                data read
+
+
+        .. list-table::  Read Data Parameters
+            :widths: 5 3 11
+
+            * - ``"board"``
+              - `int`
+              - adc board the data was retrieved from
+            * - ``"channel"``
+              - `int`
+              - adc channel the data was retrieved from
             * - ``"digitizer"``
               - `str`
               - digitizer name
@@ -750,6 +847,20 @@ class HDFReadData(np.ndarray):
               - `str`
               - analog-digital converter in which the data was recorded
                 on
+            * - ``"digitizer"``
+              - `str`
+              - digitizer name
+            * - ``"configuration name"``
+              - `str`
+              - name of data configuration
+            * - ``"time_slice"``
+              - `slice`
+              - temporal slice of the exctraced data
+
+
+        .. list-table::  Digitization Parameters
+            :widths: 5 3 11
+
             * - ``"bit"``
               - `int` | `None`
               - bit resolution for the adc
@@ -764,15 +875,20 @@ class HDFReadData(np.ndarray):
               - `int` | None
               - (software averaging) number of shot sequences averaged
                 together
-            * - ``"board"``
-              - `int`
-              - adc board the data was retrieved from
-            * - ``"channel"``
-              - `int`
-              - adc channel the data was retrieved from
             * - ``"voltage offset"``
               - `float` | None
               - half the peak-to-peak voltage range of the adc
+            * - ``"signal units"``
+              - `astropy.Unit`
+              - units of the returned ``"signal"`` data
+            * - ``"time_dset_path"``
+              - `str` | None
+              - internal HDF5 path to a time array dataset (if present)
+
+
+        .. list-table::  Probe Related Meta-Data
+            :widths: 5 3 11
+
             * - ``"probe name"``
               - `str` | None
               - name of deployed probe...empty for user to use at
@@ -781,35 +897,12 @@ class HDFReadData(np.ndarray):
               - (`int`, `str`)
               - 2-element tuple indicating which port the probe was
                 deployed on, eg. (19, 'W')
-            * - ``"signal units"``
-              - `astropy.Unit`
-              - units of the returned ``"signal"`` data
-            * - ``"time_dset_path"``
-              - `str` | None
-              - internal HDF5 path to a time array dataset (if present)
-            * - ``"controls"``
-              - `dict`
-              - meta-data of the control device data included in the
-                data read
 
-
-        .. 'port' -- 2-element tuple indicating which port the probe was
-                     deployed on. e.g. (19, 'W') => deployed on port 19
-                     on the west side of the machine. Second elements
-                     descriptors should follow:
-                     'T'  = top
-                     'TW' = top-west
-                     'W'  = west
-                     'BW' = bottom-west
-                     'B'  = bottom
-                     'BE' = bottom-east
-                     'E'  = east
-                     'TE' = top-east
         """
         return self._info
 
     @property
-    def dt(self) -> Union[u.Quantity, None]:
+    def dt(self) -> u.Quantity | None:
         r"""
         Temporal step size (in sec) calculated from the ``'clock rate'``
         and ``'sample average'`` items in :attr:`info`.  Returns `None`
@@ -833,219 +926,13 @@ class HDFReadData(np.ndarray):
         return dt
 
     @property
-    def dv(self) -> Union[u.Quantity, None]:
+    def dv(self) -> u.Quantity | None:
         """
         Voltage step size (in volts) calculated from the ``'bit'`` and
         ``'voltage offset'`` items in :attr:`info`.  Returns `None` if
         step size can not be calculated.
         """
-        if self.info["voltage offset"] is None:
-            return
-        elif self.info["bit"] is None:
-            return
-
-        dv = 2.0 * abs(self.info["voltage offset"]) / (2.0 ** self.info["bit"] - 1.0)
-        return dv
-
-    @property
-    def plasma(self):  # pragma: no cover
-        """
-        Dictionary of plasma parameters. (All quantities are in cgs
-        units except temperature is in eV)
-
-        +----------------+---------------------------------------------+
-        | Base Values                                                  |
-        +================+=============================================+
-        | :const:`Bo`    | magnetic field                              |
-        +----------------+---------------------------------------------+
-        | :const:`kT`    | temperature (generic)                       |
-        +----------------+---------------------------------------------+
-        | :const:`kTe`   | electron temperature                        |
-        +----------------+---------------------------------------------+
-        | :const:`kTi`   | ion temperature                             |
-        +----------------+---------------------------------------------+
-        | :const:`gamma` | adiabatic index                             |
-        +----------------+---------------------------------------------+
-        | :const:`m_e`   | electron mass                               |
-        +----------------+---------------------------------------------+
-        | :const:`m_i`   | ion mass                                    |
-        +----------------+---------------------------------------------+
-        | :const:`n`     | plasma number density                       |
-        +----------------+---------------------------------------------+
-        | :const:`n_e`   | electron number density                     |
-        +----------------+---------------------------------------------+
-        | :const:`n_i`   | ion number density                          |
-        +----------------+---------------------------------------------+
-        | :const:`Z`     | ion charge number                           |
-        +----------------+---------------------------------------------+
-        | Calculated Values                                            |
-        +----------------+---------------------------------------------+
-        | :const:`fce`   | electron cyclotron frequency                |
-        +----------------+---------------------------------------------+
-        | :const:`fci`   | ion cyclotron frequency                     |
-        +----------------+---------------------------------------------+
-        | :const:`fpe`   | electron plasma frequency                   |
-        +----------------+---------------------------------------------+
-        | :const:`fpi`   | ion plasma frequency                        |
-        +----------------+---------------------------------------------+
-        | :const:`fUH`   | Upper-Hybrid Resonance frequency            |
-        +----------------+---------------------------------------------+
-        | :const:`lD`    | Debye Length                                |
-        +----------------+---------------------------------------------+
-        | :const:`lpe`   | electron-inertial length                    |
-        +----------------+---------------------------------------------+
-        | :const:`lpi`   | ion-inertial length                         |
-        +----------------+---------------------------------------------+
-        | :const:`rce`   | electron gyroradius                         |
-        +----------------+---------------------------------------------+
-        | :const:`rci`   | ion gyroradius                              |
-        +----------------+---------------------------------------------+
-        | :const:`cs`    | ion sound speed                             |
-        +----------------+---------------------------------------------+
-        | :const:`VA`    | Alfven speed                                |
-        +----------------+---------------------------------------------+
-        | :const:`vTe`   | electron thermal velocity                   |
-        +----------------+---------------------------------------------+
-        | :const:`vTi`   | ion thermal velocity                        |
-        +----------------+---------------------------------------------+
-        """
-        return self._plasma
-
-    def set_plasma(
-        self, Bo, kTe, kTi, m_i, n_e, Z, gamma=None, **kwargs
-    ):  # pragma: no cover
-        """
-        Set :attr:`plasma` and add key frequency, length, and velocity
-        parameters. (all quantities in cgs except temperature is in eV)
-
-        Parameters
-        ----------
-        Bo : `float`
-            magnetic field (in Gauss)
-
-        kTe : `float`
-            electron temperature (in eV)
-
-        kTi : `float`
-            ion temperature (in eV)
-
-        m_i : `float`
-            ion mass (in g)
-
-        n_e : `float`
-            electron number density (in cm^-3)
-
-        Z : `int`
-            ion charge number
-
-        gamma : `float`
-            adiabatic index (arb.)
-        """
-        # define base values
-        self._plasma["Bo"] = core.FloatUnit(Bo, "G")
-        self._plasma["kTe"] = core.FloatUnit(kTe, "eV")
-        self._plasma["kTi"] = core.FloatUnit(kTi, "eV")
-        self._plasma["m_i"] = core.FloatUnit(m_i, "g")
-        self._plasma["n_e"] = core.FloatUnit(n_e, "cm^-3")
-        self._plasma["Z"] = core.IntUnit(Z, "arb")
-
-        # define ion number density
-        self._plasma["n_i"] = core.FloatUnit(
-            self._plasma["n_e"] / self._plasma["Z"], "cm^-3"
+        return _calc_dv(
+            voltage_offset=self.info["voltage offset"],
+            bitness=self.info["bit"],
         )
-
-        # define gamma (adiabatic index)
-        # - default = 1.0
-        if gamma is not None:
-            self._plasma["gamma"] = core.FloatUnit(gamma, "arb")
-
-        # define plasma temperature
-        # - if omitted then assumed kTe
-        # TODO: double check assumption
-        if "kT" in kwargs:
-            self._plasma["kT"] = core.FloatUnit(kwargs["kT"], "eV")
-        else:
-            self._plasma["kT"] = core.FloatUnit(kTe, "eV")
-
-        # define plasma number density
-        # - if omitted then assumed n_e
-        if "n" in kwargs:
-            self._plasma["n"] = core.FloatUnit(kwargs["n"], "cm^-3")
-        else:
-            self._plasma["n"] = core.FloatUnit(n_e, "cm^-3")
-
-        # add key plasma constants
-        self._update_plasma_constants()
-
-    def set_plasma_value(self, key, value):  # pragma: no cover
-        """
-        Re-define one of the base plasma values (Bo, gamma, kT, kTe,
-        kTi, m_i, n, n_e, or Z) in the :attr:`plasma` dictionary.
-
-        Parameters
-        ----------
-        key : str
-            one of the base plasma values
-
-        value :
-            value for key
-        """
-        # set plasma value
-        if key == "Bo":
-            self._plasma["Bo"] = core.FloatUnit(value, "G")
-        elif key == "gamma":
-            self._plasma["gamma"] = core.FloatUnit(value, "arb")
-        elif key in ["kT", "kTe", "kTi"]:
-            self._plasma[key] = core.FloatUnit(value, "eV")
-
-            if key == "kTe" and self._plasma["kt"] is None:
-                self._plasma["kT"] = self._plasma[key]
-        elif key == "m_i":
-            self._plasma[key] = core.FloatUnit(value, "g")
-        elif key in ["n", "n_e"]:
-            self._plasma[key] = core.FloatUnit(value, "cm^-3")
-
-            # re-calc n_i and n
-            if key == "n_e":
-                self._plasma["n_i"] = core.FloatUnit(
-                    self._plasma["n_e"] / self._plasma["Z"], "cm^-3"
-                )
-
-                if self._plasma["n"] is None:
-                    self._plasma["n"] = self._plasma["n_e"]
-        elif key == "Z":
-            self._plasma[key] = core.IntUnit(value, "arb")
-
-            # re-calc n_i
-            self._plasma["n_i"] = core.FloatUnit(
-                self._plasma["n_e"] / self._plasma["Z"], "cm^-3"
-            )
-
-        # update key plasma constants
-        self._update_plasma_constants()
-
-    def _update_plasma_constants(self):  # pragma: no cover
-        """
-        Updates the calculated plasma constants (fci, fce, fpe, etc.) in
-        :attr:`plasma`.
-        """
-        # add key frequencies
-        self._plasma["fce"] = core.fce(**self._plasma)
-        self._plasma["fci"] = core.fci(**self._plasma)
-        self._plasma["fpe"] = core.fpe(**self._plasma)
-        self._plasma["fpi"] = core.fpi(**self._plasma)
-        self._plasma["fUH"] = core.fUH(**self._plasma)
-        self._plasma["fLH"] = core.fLH(**self._plasma)
-
-        # add key lengths
-        self._plasma["lD"] = core.lD(**self._plasma)
-        self._plasma["lpe"] = core.lpe(**self._plasma)
-        self._plasma["lpi"] = core.lpi(**self._plasma)
-        self._plasma["rce"] = core.rce(**self._plasma)
-        self._plasma["rci"] = core.rci(**self._plasma)
-
-        # add key velocities
-        self._plasma["cs"] = core.cs(**self._plasma)
-        self._plasma["VA"] = core.VA(**self._plasma)
-        self._plasma["vTe"] = core.vTe(**self._plasma)
-        self._plasma["vTi"] = core.vTi(**self._plasma)

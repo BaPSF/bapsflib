@@ -162,6 +162,7 @@ class TestFile(TestBase):
             extras = {
                 "index": 1,
                 "shotnum": 2,
+                "time_slice": slice(None),
                 "digitizer": "digi",
                 "adc": "SIS",
                 "config_name": "config01",

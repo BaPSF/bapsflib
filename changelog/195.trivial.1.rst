@@ -1,5 +1,5 @@
 .. py:currentmodule:: bapsflib._hdf.utils.hdfreaddata
 
 Refactored `HDFReadData.__new__` to improve readability.  Many of the
-more complicated code-blocks are separated into specific helper
+more complicated code-blocks were separated into specific helper
 functions.

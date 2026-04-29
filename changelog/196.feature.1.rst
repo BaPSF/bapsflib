@@ -1,5 +1,0 @@
-.. py:currentmodule:: bapsflib._hdf.maps.digitizers.templates
-
-Added validation methods `~HDFMapDigiTemplate.validate_config_name`,
-`~HDFMapDigiTemplate.validate_config_name_and_adc`, and
-`~HDFMapDigiTemplate.validate_board_and_channel` to `HDFMapDigiTemplate`.

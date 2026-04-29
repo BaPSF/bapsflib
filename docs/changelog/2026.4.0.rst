@@ -1,0 +1,61 @@
+v2026.4.0 (2026-04-29)
+======================
+
+Backwards Incompatible Changes
+------------------------------
+
+- .. py:currentmodule:: bapsflib._hdf.maps.digitizers.siscrate
+
+  `HDFMapDigiSISCrate.construct_dataset_name` no longer assumes the
+  ``SIS 3302`` analog-digital-converter for the ``adc`` argument when the
+  ``SIS 3305`` and ``SIS 3302`` adc's are deployed for the configuration.
+  This has downstream effects on `HDFMapDigiSISCrate.get_adc_info`,
+  `~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, and
+  `~bapsflib._hdf.utils.file.File.read_data`. (`#196 <https://github.com/BaPSF/bapsflib/pull/196>`_)
+
+
+Deprecations and Removals
+-------------------------
+
+- .. py:currentmodule:: bapsflib._hdf.utils.hdfreaddata
+
+  Removed from `HDFReadData` (never fully implemented) methods and
+  properties ``_update_plasma_constants``, ``set_plasma_value``,
+  ``set_plasma``, ``plasma``, and ``convert_signal``. (`#195 <https://github.com/BaPSF/bapsflib/pull/195>`_)
+
+
+Features
+--------
+
+- .. py:currentmodule:: bapsflib._hdf.utils
+
+  Added keyword argument ``time_slice`` to `~.hdfreaddata.HDFReadData`,
+  and thus `~.file.File.read_data`, which allows for temporal slicing
+  during the data extraction. (`#195 <https://github.com/BaPSF/bapsflib/pull/195>`_)
+- .. py:currentmodule:: bapsflib._hdf.maps.digitizers.templates
+
+  Added validation methods `~HDFMapDigiTemplate.validate_config_name`,
+  `~HDFMapDigiTemplate.validate_config_name_and_adc`, and
+  `~HDFMapDigiTemplate.validate_board_and_channel` to `HDFMapDigiTemplate`. (`#196 <https://github.com/BaPSF/bapsflib/pull/196>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- .. py:currentmodule:: bapsflib._hdf.utils.hdfreaddata
+
+  Refactored `HDFReadData.__new__` to improve readability.  Many of the
+  more complicated code-blocks were separated into specific helper
+  functions. (`#195 <https://github.com/BaPSF/bapsflib/pull/195>`_)
+- .. py:currentmodule:: bapsflib._hdf.maps.digitizers.templates
+
+  Incorporated `HDFMapDigiTemplate.validate_board_and_channel` into
+  to `~HDFMapDigiTemplate.get_adc_info`. (`#196 <https://github.com/BaPSF/bapsflib/pull/196>`_)
+- .. py:currentmodule:: bapsflib._hdf.maps.digitizers
+
+  Streamlined the ``construct_dataset_name`` method for
+  `~lecroy.HDFMapDigiLeCroy180E`, `~sis3301.HDFMapDigiSIS3301`, and
+  `~siscrate.HDFMapDigiSISCrate` by incorporating
+  `~templates.HDFMapDigiTemplate.validate_board_and_channel` for argument
+  validation and `~templates.HDFMapDigiTemplate.get_adc_info` for
+  generating the information dictionary. (`#196 <https://github.com/BaPSF/bapsflib/pull/196>`_)

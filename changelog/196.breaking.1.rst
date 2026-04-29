@@ -1,8 +1,0 @@
-.. py:currentmodule:: bapsflib._hdf.maps.digitizers.siscrate
-
-`HDFMapDigiSISCrate.construct_dataset_name` no longer assumes the
-``SIS 3302`` analog-digital-converter for the ``adc`` argument when the
-``SIS 3305`` and ``SIS 3302`` adc's are deployed for the configuration.
-This has downstream effects on `HDFMapDigiSISCrate.get_adc_info`,
-`~bapsflib._hdf.utils.hdfreaddata.HDFReadData`, and
-`~bapsflib._hdf.utils.file.File.read_data`.

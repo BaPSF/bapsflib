@@ -1,8 +1,0 @@
-.. py:currentmodule:: bapsflib._hdf.maps.digitizers
-
-Streamlined the ``construct_dataset_name`` method for
-`~lecroy.HDFMapDigiLeCroy180E`, `~sis3301.HDFMapDigiSIS3301`, and
-`~siscrate.HDFMapDigiSISCrate` by incorporating
-`~templates.HDFMapDigiTemplate.validate_board_and_channel` for argument
-validation and `~templates.HDFMapDigiTemplate.get_adc_info` for
-generating the information dictionary.

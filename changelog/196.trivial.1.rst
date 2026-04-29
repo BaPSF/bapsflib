@@ -1,4 +1,0 @@
-.. py:currentmodule:: bapsflib._hdf.maps.digitizers.templates
-
-Incorporated `HDFMapDigiTemplate.validate_board_and_channel` into
-to `~HDFMapDigiTemplate.get_adc_info`.

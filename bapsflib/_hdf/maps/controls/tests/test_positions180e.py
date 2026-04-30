@@ -3,8 +3,8 @@ import numpy as np
 
 from bapsflib._hdf.maps.controls.positions180e import HDFMapControlPositions180E
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
-from bapsflib.faux.controls import FauxPositions180E
 from bapsflib._hdf.maps.controls.types import ConType
+from bapsflib.faux.controls import FauxPositions180E
 from bapsflib.utils.exceptions import HDFMappingError
 
 

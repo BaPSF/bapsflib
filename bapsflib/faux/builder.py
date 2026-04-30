@@ -6,7 +6,7 @@ import tempfile
 
 from typing import Any, Dict
 
-from bapsflib._hdf.maps.msi.tests import (
+from bapsflib.faux.msi import (
     FauxDischarge,
     FauxGasPressure,
     FauxHeater,

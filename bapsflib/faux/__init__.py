@@ -18,9 +18,9 @@ AttributeError: module 'bapsflib' has no attribute 'faux'
 >>> bapsflib.faux
 <module 'bapsflib.faux'>
 
-
 """
 
 __all__ = ["FauxHDFBuilder"]
 
 from bapsflib.faux.builder import FauxHDFBuilder
+from bapsflib.faux import controls, digitizers, msi

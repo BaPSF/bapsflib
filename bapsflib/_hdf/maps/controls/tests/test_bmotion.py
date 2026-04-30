@@ -8,7 +8,7 @@ from bapsf_motion.utils import toml
 
 from bapsflib._hdf.maps.controls.bmotion import HDFMapControlBMotion
 from bapsflib._hdf.maps.controls.tests.common import ControlTestCase
-from bapsflib._hdf.maps.controls.tests.fauxbmotion import FauxBMotion
+from bapsflib.faux.controls.fauxbmotion import FauxBMotion
 from bapsflib._hdf.maps.controls.types import ConType
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.exceptions import HDFMappingError

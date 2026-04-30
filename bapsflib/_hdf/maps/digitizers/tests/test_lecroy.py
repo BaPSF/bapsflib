@@ -1,11 +1,10 @@
 import numpy as np
-import unittest as ut
 
 from unittest import mock
 
 from bapsflib._hdf.maps.digitizers.lecroy import HDFMapDigiLeCroy180E
 from bapsflib._hdf.maps.digitizers.tests.common import DigitizerTestCase
-from bapsflib._hdf.maps.digitizers.tests.fauxlecroy180e import FauxLeCroy180E
+from bapsflib.faux.digitizers.fauxlecroy180e import FauxLeCroy180E
 from bapsflib.utils.exceptions import HDFMappingError
 from bapsflib.utils.warnings import HDFMappingWarning
 

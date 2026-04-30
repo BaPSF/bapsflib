@@ -18,7 +18,6 @@ from h5py import Group
 from numpy.lib import recfunctions as rfn
 
 from bapsflib._hdf.maps.controls.waveform import HDFMapControlWaveform
-from bapsflib.faux.digitizers.lecroy180e import FauxLeCroy180E
 from bapsflib._hdf.utils.file import File
 from bapsflib._hdf.utils.helpers import (
     build_shotnum_dset_relation,
@@ -27,6 +26,7 @@ from bapsflib._hdf.utils.helpers import (
     do_shotnum_intersection,
 )
 from bapsflib._hdf.utils.tests import TestBase
+from bapsflib.faux.digitizers import FauxLeCroy180E
 from bapsflib.utils import _bytes_to_str
 from bapsflib.utils.decorators import with_bf
 

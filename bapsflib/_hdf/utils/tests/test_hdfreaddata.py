@@ -37,8 +37,7 @@ from bapsflib.utils.warnings import BaPSFWarning, HDFMappingWarning
 
 if TYPE_CHECKING:
     # This is done for typing purposes only.  A full import is not needed.
-    from bapsflib.faux.digitizers.lecroy180e import FauxLeCroy180E
-    from bapsflib.faux.digitizers.sis3301 import FauxSIS3301
+    from bapsflib.faux.digitizers import FauxLeCroy180E, FauxSIS3301
 
 
 class TestHDFReadData(TestBase):

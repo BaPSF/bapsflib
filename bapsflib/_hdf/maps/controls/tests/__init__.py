@@ -8,5 +8,4 @@
 # License: Standard 3-clause BSD; see "LICENSES/LICENSE.txt" for full
 #   license terms and contributor agreement.
 #
-from bapsflib._hdf.maps.controls.tests.fauxsixk import FauxSixK
 from bapsflib._hdf.maps.controls.tests.fauxwaveform import FauxWaveform

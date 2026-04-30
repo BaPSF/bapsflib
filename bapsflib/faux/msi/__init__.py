@@ -8,7 +8,7 @@ __all__ = [
     "FauxGasPressure",
     "FauxHeater",
     "FauxInterferometerArray",
-    "FauxMagneticField"
+    "FauxMagneticField",
 ]
 
 from bapsflib.faux.msi.discharge import FauxDischarge

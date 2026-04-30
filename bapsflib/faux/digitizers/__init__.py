@@ -2,6 +2,7 @@
 The `bapsflib.faux.digitizers` module contains all the digitzer device
 group generators used by `~bapsflib.faux.builder.FauxHDFBuilder`.
 """
+
 __all__ = [
     "FauxSIS3301",
     "FauxSISCrate",

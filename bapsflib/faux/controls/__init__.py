@@ -2,6 +2,7 @@
 The `bapsflib.faux.controls` module contains all the control device
 group generators used by `~bapsflib.faux.builder.FauxHDFBuilder`.
 """
+
 __all__ = [
     "FauxBMotion",
     "FauxN5700PS",

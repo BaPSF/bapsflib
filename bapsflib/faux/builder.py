@@ -6,13 +6,6 @@ import tempfile
 
 from typing import Any, Dict
 
-from bapsflib.faux.msi import (
-    FauxDischarge,
-    FauxGasPressure,
-    FauxHeater,
-    FauxInterferometerArray,
-    FauxMagneticField,
-)
 from bapsflib.faux.controls import (
     FauxBMotion,
     FauxN5700PS,
@@ -23,6 +16,13 @@ from bapsflib.faux.controls import (
     FauxWaveform,
 )
 from bapsflib.faux.digitizers import FauxLeCroy180E, FauxSIS3301, FauxSISCrate
+from bapsflib.faux.msi import (
+    FauxDischarge,
+    FauxGasPressure,
+    FauxHeater,
+    FauxInterferometerArray,
+    FauxMagneticField,
+)
 
 
 class FauxHDFBuilder(h5py.File):

@@ -22,5 +22,5 @@ AttributeError: module 'bapsflib' has no attribute 'faux'
 
 __all__ = ["FauxHDFBuilder"]
 
-from bapsflib.faux.builder import FauxHDFBuilder
 from bapsflib.faux import controls, digitizers, msi
+from bapsflib.faux.builder import FauxHDFBuilder

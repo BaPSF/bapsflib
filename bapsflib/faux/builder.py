@@ -1,3 +1,9 @@
+"""
+Module that defines the `~bapsflib.faux.builder.FauxHDFBuilder` class.
+"""
+
+__all__ = ["FauxHDFBuilder"]
+
 import h5py
 import inspect
 import os
@@ -6,7 +12,7 @@ import tempfile
 
 from typing import Any, Dict
 
-from bapsflib._hdf.maps.controls.tests import (
+from bapsflib.faux.controls import (
     FauxBMotion,
     FauxN5700PS,
     FauxNIXYZ,
@@ -15,8 +21,8 @@ from bapsflib._hdf.maps.controls.tests import (
     FauxSixK,
     FauxWaveform,
 )
-from bapsflib._hdf.maps.digitizers.tests import FauxLeCroy180E, FauxSIS3301, FauxSISCrate
-from bapsflib._hdf.maps.msi.tests import (
+from bapsflib.faux.digitizers import FauxLeCroy180E, FauxSIS3301, FauxSISCrate
+from bapsflib.faux.msi import (
     FauxDischarge,
     FauxGasPressure,
     FauxHeater,

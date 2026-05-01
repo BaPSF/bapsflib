@@ -1,3 +1,9 @@
+"""
+Module that defines the `~bapsflib.faux.builder.FauxHDFBuilder` class.
+"""
+
+__all__ = ["FauxHDFBuilder"]
+
 import h5py
 import inspect
 import os
